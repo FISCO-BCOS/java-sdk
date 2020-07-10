@@ -3,6 +3,7 @@ package org.fisco.bcos.sdk.channel;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface Channel {
@@ -62,4 +63,17 @@ public interface Channel {
      * @param callback
      */
     void broadcast(Message out, ResponseCallback callback);
+
+    /**
+     * Send to an random peer
+     * @param out
+     * @param callback
+     */
+    void sendToRandom(Message out, ResponseCallback callback);
+
+    /**
+     * Get connection information
+     * @return List of connection information
+     */
+    List<ConnectionInfo> getConnectionInfo();
 }
