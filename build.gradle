@@ -23,10 +23,10 @@ repositories {
 sourceCompatibility = '1.8'
 version = '3.0.0'
 
-task javadocJar(type: Jar) {
-    // from javadoc
-    classifier = 'javadoc'
-}
+//task javadocJar(type: Jar) {
+//    // from javadoc
+//    classifier = 'javadoc'
+//}
 
 googleJavaFormat {
     options style: 'AOSP'
@@ -45,3 +45,16 @@ jacocoTestReport {
         html.enabled false
     }
 }
+
+dependencies {
+    compile 'org.apache.commons:commons-lang3:3.1'
+    compile 'io.netty:netty-all:4.1.50.Final'
+
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:2.23.0'
+}
+
+archivesBaseName = 'java-sdk'
+group = 'org.fisco-bcos'
+version = '1.0.0-SNAPSHOT'
