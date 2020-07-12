@@ -15,9 +15,13 @@ apply plugin: 'jacoco'
 repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    jcenter()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    //jcenter()
+    mavenLocal()
+    mavenCentral()
+
     maven { url 'https://dl.bintray.com/ethereum/maven/' }
+    maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 sourceCompatibility = '1.8'
@@ -49,6 +53,9 @@ jacocoTestReport {
 dependencies {
     compile 'org.apache.commons:commons-lang3:3.1'
     compile 'io.netty:netty-all:4.1.50.Final'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.14'
+
 
 
     testCompile 'junit:junit:4.12'
