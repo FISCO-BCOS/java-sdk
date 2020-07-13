@@ -4,12 +4,17 @@ import java.util.List;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 
+/**
+ * The channel module interface.
+ *
+ * @author Maggie
+ */
 public interface Channel {
     /**
      * Init channel module
      *
      * @param filepath config file path.
-     * @return
+     * @return a channel instance
      */
     Channel build(String filepath);
 

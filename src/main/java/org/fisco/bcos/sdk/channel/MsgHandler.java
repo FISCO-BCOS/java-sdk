@@ -5,7 +5,7 @@ import org.fisco.bcos.sdk.model.Message;
 
 /**
  * Message handler interface Each module which would like to get notified by the "network" module
- * should implement this interface
+ * should implement this interface.
  */
 public interface MsgHandler {
 

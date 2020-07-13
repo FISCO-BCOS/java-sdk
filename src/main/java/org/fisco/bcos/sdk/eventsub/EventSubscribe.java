@@ -4,7 +4,7 @@ import java.util.List;
 import org.fisco.bcos.sdk.channel.Channel;
 
 /**
- * Event subscribe interface
+ * Event subscribe interface.
  *
  * @author Maggie
  */

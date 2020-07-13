@@ -12,9 +12,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.fisco.bcos.sdk.client.ObjectMapperFactory;
+import org.fisco.bcos.sdk.client.RPCResponse;
 import org.fisco.bcos.sdk.utils.Numeric;
 
-public class BcosBlock extends RPCRPCResponse<BcosBlock.Block> {
+public class BcosBlock extends RPCResponse<BcosBlock.Block> {
 
     @Override
     @JsonDeserialize(using = BcosBlock.ResponseDeserialiser.class)

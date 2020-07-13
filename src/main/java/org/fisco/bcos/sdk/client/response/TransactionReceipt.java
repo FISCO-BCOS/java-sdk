@@ -27,8 +27,6 @@ public class TransactionReceipt {
     private List<MerkleProofUnit> txProof;
     private List<MerkleProofUnit> receiptProof;
 
-    public TransactionReceipt() {}
-
     public TransactionReceipt(
             String transactionHash,
             String transactionIndex,

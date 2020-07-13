@@ -3,7 +3,7 @@ package org.fisco.bcos.sdk.client;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * Response template
+ * Response template.
  *
  * @author Maggie
  * @param <T> the response data structure
@@ -15,8 +15,6 @@ public class RPCResponse<T> {
     private T result;
     private Error error;
     private String rawResponse;
-
-    public RPCResponse() {}
 
     public long getId() {
         return id;

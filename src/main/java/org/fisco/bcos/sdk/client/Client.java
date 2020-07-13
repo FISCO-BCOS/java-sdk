@@ -7,14 +7,18 @@ import org.fisco.bcos.sdk.client.request.DefaultBlockParameter;
 import org.fisco.bcos.sdk.client.request.Transaction;
 import org.fisco.bcos.sdk.client.response.*;
 
-/** Client This is the interface of client module */
+/**
+ * This is the interface of client module.
+ *
+ * @author Maggie
+ */
 public interface Client {
     /**
      * Build a client instance GroupId is identified, all interfaces are available
      *
      * @param channel
      * @param GroupId
-     * @return
+     * @return a client instance
      */
     static Client build(Channel channel, String GroupId) {
         // TODO
@@ -26,7 +30,7 @@ public interface Client {
      * management
      *
      * @param channel
-     * @return
+     * @return a client instance
      */
     static Client build(Channel channel) {
         // TODO
@@ -70,7 +74,7 @@ public interface Client {
      * Ledger operation: send raw transaction and get proof
      *
      * @param signedTransactionData
-     * @return
+     * @return a SendTransaction instance
      */
     SendTransaction sendRawTransactionAndGetProof(String signedTransactionData);
 
@@ -101,7 +105,7 @@ public interface Client {
      * Ledger operation: get code
      *
      * @param address
-     * @return
+     * @return a code instance
      */
     Code getCode(String address);
 
@@ -132,7 +136,7 @@ public interface Client {
      *
      * @param blockHash
      * @param returnFullTransactionObjects
-     * @return
+     * @return a block
      */
     BcosBlock getBlockByHash(String blockHash, boolean returnFullTransactionObjects);
 
@@ -263,7 +267,7 @@ public interface Client {
      * Ledger operation: get transaction receipt by transaction hash
      *
      * @param transactionHash
-     * @return
+     * @return transaction receipt
      */
     BcosTransactionReceipt getTransactionReceipt(String transactionHash);
 
@@ -280,7 +284,7 @@ public interface Client {
      * Ledger operation: get transaction receipt and proof by transaction hash
      *
      * @param transactionHash
-     * @return
+     * @return receipt and proof
      */
     TransactionReceiptWithProof getTransactionReceiptByHashWithProof(String transactionHash);
 
@@ -400,14 +404,6 @@ public interface Client {
     StartGroup startGroup(int groupId);
 
     /**
-     * Group operation: async start a group
-     *
-     * @param groupId
-     * @param callback
-     */
-    void startGroupAsync(int groupId, RespCallback<StartGroup> callback);
-
-    /**
      * Group operation: start a group
      *
      * @param groupId
@@ -415,6 +411,14 @@ public interface Client {
      * @return start group rpc reply
      */
     StartGroup startGroup(int groupId, String peerIpPort);
+
+    /**
+     * Group operation: async start a group
+     *
+     * @param groupId
+     * @param callback
+     */
+    void startGroupAsync(int groupId, RespCallback<StartGroup> callback);
 
     /**
      * Group operation: async start a group
@@ -434,14 +438,6 @@ public interface Client {
     StopGroup stopGroup(int groupId);
 
     /**
-     * Group operation: async stop a group
-     *
-     * @param groupId
-     * @param callback
-     */
-    void stopGroupAsync(int groupId, RespCallback<StopGroup> callback);
-
-    /**
      * Group operation: stop a group
      *
      * @param groupId
@@ -449,6 +445,14 @@ public interface Client {
      * @return stop group rpc reply
      */
     StopGroup stopGroup(int groupId, String peerIpPort);
+
+    /**
+     * Group operation: async stop a group
+     *
+     * @param groupId
+     * @param callback
+     */
+    void stopGroupAsync(int groupId, RespCallback<StopGroup> callback);
 
     /**
      * Group operation: async stop a group
@@ -468,14 +472,6 @@ public interface Client {
     RemoveGroup removeGroup(int groupId);
 
     /**
-     * Group operation: async remove a group
-     *
-     * @param groupId
-     * @param callback
-     */
-    void removeGroupAsync(int groupId, RespCallback<RemoveGroup> callback);
-
-    /**
      * Group operation: remove a group
      *
      * @param groupId
@@ -483,6 +479,14 @@ public interface Client {
      * @return remove group rpc reply
      */
     RemoveGroup removeGroup(int groupId, String peerIpPort);
+
+    /**
+     * Group operation: async remove a group
+     *
+     * @param groupId
+     * @param callback
+     */
+    void removeGroupAsync(int groupId, RespCallback<RemoveGroup> callback);
 
     /**
      * Group operation: async remove a group
@@ -502,14 +506,6 @@ public interface Client {
     RecoverGroup recoverGroup(int groupId);
 
     /**
-     * Group operation: async recover a group
-     *
-     * @param groupId
-     * @param callback
-     */
-    void recoverGroupAsync(int groupId, RespCallback<RecoverGroup> callback);
-
-    /**
      * Group operation: recover a group
      *
      * @param groupId
@@ -517,6 +513,14 @@ public interface Client {
      * @return recover group rpc reply
      */
     RecoverGroup recoverGroup(int groupId, String peerIpPort);
+
+    /**
+     * Group operation: async recover a group
+     *
+     * @param groupId
+     * @param callback
+     */
+    void recoverGroupAsync(int groupId, RespCallback<RecoverGroup> callback);
 
     /**
      * Group operation: async recover a group
@@ -536,14 +540,6 @@ public interface Client {
     QueryGroupStatus queryGroupStatus(int groupId);
 
     /**
-     * Group operation: async query group status
-     *
-     * @param groupId
-     * @param callback
-     */
-    void queryGroupStatusAsync(int groupId, RespCallback<QueryGroupStatus> callback);
-
-    /**
      * Group operation: query group status
      *
      * @param groupId
@@ -551,6 +547,14 @@ public interface Client {
      * @return group status
      */
     QueryGroupStatus queryGroupStatus(int groupId, String peerIpPort);
+
+    /**
+     * Group operation: async query group status
+     *
+     * @param groupId
+     * @param callback
+     */
+    void queryGroupStatusAsync(int groupId, RespCallback<QueryGroupStatus> callback);
 
     /**
      * Group operation: async query group status
@@ -595,9 +599,17 @@ public interface Client {
     /**
      * Group operation: get group peers
      *
-     * @return
+     * @return group peers
      */
     GroupPeers getGroupPeers();
+
+    /**
+     * Group operation: get group peers
+     *
+     * @param peerIpPort
+     * @return group peers
+     */
+    GroupPeers getGroupPeers(String peerIpPort);
 
     /**
      * Group operation: async get group peers
@@ -605,14 +617,6 @@ public interface Client {
      * @param callback
      */
     void getGroupPeersAsync(RespCallback<GroupPeers> callback);
-
-    /**
-     * Group operation: get group peers
-     *
-     * @param peerIpPort
-     * @return
-     */
-    GroupPeers getGroupPeers(String peerIpPort);
 
     /**
      * Group operation: async get group peers
@@ -639,7 +643,7 @@ public interface Client {
     /**
      * Peer operation: get node ids
      *
-     * @return
+     * @return node id list
      */
     NodeIDList getNodeIDList();
 

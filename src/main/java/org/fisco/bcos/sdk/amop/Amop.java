@@ -4,32 +4,32 @@ import java.util.List;
 import org.fisco.bcos.sdk.channel.Channel;
 
 /**
- * AMOP module interface
+ * AMOP module interface.
  *
  * @author Maggie
  */
-public interface AMOP {
+public interface Amop {
     /**
-     * Create a AMOP object
+     * Create a Amop object.
      *
      * @param channel
      * @param configFile
-     * @return AMOP instance
+     * @return Amop instance
      */
-    static AMOP build(Channel channel, String configFile) {
+    static Amop build(Channel channel, String configFile) {
         // TODO
         return null;
     }
 
     /**
-     * Subscribe a normal topic
+     * Subscribe a normal topic.
      *
      * @param topicName
      */
     void subscribeTopic(String topicName);
 
     /**
-     * Subscribe a topic which need verify
+     * Subscribe a topic which need verify.
      *
      * @param topicName
      * @param privateKey
@@ -46,22 +46,22 @@ public interface AMOP {
     void addNeedVerifyTopics(String topicName, List<String> publicKeys);
 
     /**
-     * Unsubscribe a topic
+     * Unsubscribe a topic.
      *
      * @param topicName
      */
     void unsubscribeTopic(String topicName);
 
     /**
-     * Get all subscribe topics
+     * Get all subscribe topics.
      *
      * @return topic name list
      */
     List<String> getSubTopics();
 
-    /** Start */
+    /** Start. */
     void start();
 
-    /** Stop */
+    /** Stop. */
     void stop();
 }

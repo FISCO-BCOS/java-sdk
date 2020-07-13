@@ -1,4 +1,4 @@
 package org.fisco.bcos.sdk.channel;
 
-/** Connection information */
+/** Connection information. */
 public class ConnectionInfo {}
