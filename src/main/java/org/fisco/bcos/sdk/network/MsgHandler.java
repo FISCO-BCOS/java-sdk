@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.channel;
+package org.fisco.bcos.sdk.network;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.fisco.bcos.sdk.model.Message;

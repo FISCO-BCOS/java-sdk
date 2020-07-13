@@ -1,6 +1,7 @@
 package org.fisco.bcos.sdk.channel;
 
 import java.util.List;
+import org.fisco.bcos.sdk.network.ConnectionInfo;
 
 public interface PeerSelectRule {
     /**

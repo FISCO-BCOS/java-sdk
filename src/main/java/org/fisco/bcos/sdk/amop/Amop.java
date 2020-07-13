@@ -17,7 +17,6 @@ public interface Amop {
      * @return Amop instance
      */
     static Amop build(Channel channel, String configFile) {
-        // TODO
         return null;
     }
 

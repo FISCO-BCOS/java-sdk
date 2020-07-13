@@ -278,7 +278,7 @@ public interface Client {
      * @param callback
      */
     void getTransactionReceiptAsync(
-            String transactionHash, RPCResponse<BcosTransactionReceipt> callback);
+            String transactionHash, RespCallback<BcosTransactionReceipt> callback);
 
     /**
      * Ledger operation: get transaction receipt and proof by transaction hash
@@ -295,7 +295,7 @@ public interface Client {
      * @param callback
      */
     void getTransactionReceiptByHashWithProofAsync(
-            String transactionHash, RPCResponse<TransactionReceiptWithProof> callback);
+            String transactionHash, RespCallback<TransactionReceiptWithProof> callback);
 
     /**
      * Ledger operation: get pending transactions in transaction pool
@@ -309,7 +309,7 @@ public interface Client {
      *
      * @param callback
      */
-    void getPendingTransactionAsync(RPCResponse<PendingTransactions> callback);
+    void getPendingTransactionAsync(RespCallback<PendingTransactions> callback);
 
     /**
      * Ledger operation: get pending transaction size
@@ -323,7 +323,7 @@ public interface Client {
      *
      * @param callback
      */
-    void getPendingTxSizeAsync(RPCResponse<PendingTxSize> callback);
+    void getPendingTxSizeAsync(RespCallback<PendingTxSize> callback);
 
     /**
      * Get cached block height

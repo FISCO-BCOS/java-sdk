@@ -3,6 +3,8 @@ package org.fisco.bcos.sdk.channel;
 import java.util.List;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
+import org.fisco.bcos.sdk.network.ConnectionInfo;
+import org.fisco.bcos.sdk.network.MsgHandler;
 
 /**
  * The channel module interface.
@@ -16,7 +18,9 @@ public interface Channel {
      * @param filepath config file path.
      * @return a channel instance
      */
-    Channel build(String filepath);
+    static Channel build(String filepath) {
+        return null;
+    }
 
     /**
      * Add a message handler to handle specific type messages. When one message comes the handler
