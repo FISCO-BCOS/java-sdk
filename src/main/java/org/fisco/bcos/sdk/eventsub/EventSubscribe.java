@@ -17,7 +17,6 @@ public interface EventSubscribe {
      * @return EventSubscribe Object
      */
     static EventSubscribe build(Channel ch, String groupId) {
-        // TODO
         return null;
     }
 

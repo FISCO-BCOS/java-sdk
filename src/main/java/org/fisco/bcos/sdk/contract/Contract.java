@@ -4,7 +4,6 @@ import java.util.List;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 
 public abstract class Contract {
-    // TODO
     // Relay on transaction module and abi module
 
     /**
@@ -25,7 +24,5 @@ public abstract class Contract {
             String fromBlock,
             String toBlock,
             List<String> otherTopics,
-            EventCallback callback) {
-        // TODO
-    }
+            EventCallback callback) {}
 }

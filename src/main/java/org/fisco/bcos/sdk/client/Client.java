@@ -21,7 +21,6 @@ public interface Client {
      * @return a client instance
      */
     static Client build(Channel channel, String GroupId) {
-        // TODO
         return null;
     }
 
@@ -33,7 +32,6 @@ public interface Client {
      * @return a client instance
      */
     static Client build(Channel channel) {
-        // TODO
         return null;
     }
 
