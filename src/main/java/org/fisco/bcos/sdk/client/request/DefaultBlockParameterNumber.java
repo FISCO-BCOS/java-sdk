@@ -1,9 +1,8 @@
 package org.fisco.bcos.sdk.client.request;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import org.fisco.bcos.sdk.utils.Numeric;
-
 import java.math.BigInteger;
+import org.fisco.bcos.sdk.utils.Numeric;
 
 /** DefaultBlockParameter implementation that takes a numeric value. */
 public class DefaultBlockParameterNumber implements DefaultBlockParameter {
@@ -28,4 +27,3 @@ public class DefaultBlockParameterNumber implements DefaultBlockParameter {
         return blockNumber;
     }
 }
-

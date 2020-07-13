@@ -4,8 +4,8 @@ import java.util.List;
 
 public interface PeerSelectRule {
     /**
-     * PeerSelectRule
-     * Costomize a rule to select a peer to send message to
+     * PeerSelectRule Costomize a rule to select a peer to send message to
+     *
      * @param conns
      * @return
      */

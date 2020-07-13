@@ -5,11 +5,10 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectReader;
-import org.fisco.bcos.sdk.client.ObjectMapperFactory;
-import org.fisco.bcos.sdk.client.RPCResponse;
-
 import java.io.IOException;
 import java.util.Optional;
+import org.fisco.bcos.sdk.client.ObjectMapperFactory;
+import org.fisco.bcos.sdk.client.RPCResponse;
 
 /** getTransactionReceipt. */
 public class BcosTransactionReceipt extends RPCResponse<TransactionReceipt> {

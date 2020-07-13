@@ -1,19 +1,19 @@
 package org.fisco.bcos.sdk.client.serializer;
 
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
-import org.fisco.bcos.sdk.client.RPCResponse;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+import org.fisco.bcos.sdk.client.RPCResponse;
 
-public class RawResponseDeserializer  extends StdDeserializer<RPCResponse> implements ResolvableDeserializer {
+public class RawResponseDeserializer extends StdDeserializer<RPCResponse>
+        implements ResolvableDeserializer {
     private final JsonDeserializer<?> defaultDeserializer;
 
     public RawResponseDeserializer(JsonDeserializer<?> defaultDeserializer) {
@@ -52,4 +52,3 @@ public class RawResponseDeserializer  extends StdDeserializer<RPCResponse> imple
         return new Scanner(input, StandardCharsets.UTF_8.name()).useDelimiter("\\Z").next();
     }
 }
-

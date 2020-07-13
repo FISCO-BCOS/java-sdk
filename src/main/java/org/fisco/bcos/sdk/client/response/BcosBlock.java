@@ -11,9 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.fisco.bcos.sdk.client.ObjectMapperFactory;
-import org.fisco.bcos.sdk.client.RPCResponse;
 import org.fisco.bcos.sdk.client.ObjectMapperFactory;
 import org.fisco.bcos.sdk.utils.Numeric;
 

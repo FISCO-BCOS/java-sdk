@@ -1,10 +1,8 @@
 package org.fisco.bcos.sdk.channel;
 
+import java.util.List;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 public interface Channel {
     /**
@@ -16,8 +14,8 @@ public interface Channel {
     Channel build(String filepath);
 
     /**
-     * Add a message handler to handle specific type messages.
-     * When one message comes the handler will be notified, handler.onMessage(ChannleHandlerContext ctx, Message msg) called.
+     * Add a message handler to handle specific type messages. When one message comes the handler
+     * will be notified, handler.onMessage(ChannleHandlerContext ctx, Message msg) called.
      *
      * @param type
      * @param handler
@@ -25,14 +23,16 @@ public interface Channel {
     void addMessageHandler(MsgType type, MsgHandler handler);
 
     /**
-     * Add a connect handler, when one connect success, call handler.onConnect(ChannleHandlerContext ctx)is called
+     * Add a connect handler, when one connect success, call handler.onConnect(ChannleHandlerContext
+     * ctx)is called
      *
      * @param handler
      */
     void addConnectHandler(MsgHandler handler);
 
     /**
-     * Add a disconnect handler, when one connection disconnect, handler.onDisconnect(ChannleHandlerContext ctx) is called
+     * Add a disconnect handler, when one connection disconnect,
+     * handler.onDisconnect(ChannleHandlerContext ctx) is called
      *
      * @param handler
      */
@@ -41,9 +41,9 @@ public interface Channel {
     /**
      * Send message to peer
      *
-     * @param out        message
+     * @param out message
      * @param peerIpPort the peer to send to
-     * @param callback   response callback
+     * @param callback response callback
      */
     void sendToPeer(Message out, String peerIpPort, ResponseCallback callback);
 
@@ -66,6 +66,7 @@ public interface Channel {
 
     /**
      * Send to an random peer
+     *
      * @param out
      * @param callback
      */
@@ -73,6 +74,7 @@ public interface Channel {
 
     /**
      * Get connection information
+     *
      * @return List of connection information
      */
     List<ConnectionInfo> getConnectionInfo();

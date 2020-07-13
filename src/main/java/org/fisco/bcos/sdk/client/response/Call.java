@@ -2,9 +2,9 @@ package org.fisco.bcos.sdk.client.response;
 
 import org.fisco.bcos.sdk.client.RPCResponse;
 
-
 /**
  * RPC response of ledger call
+ *
  * @author Maggie
  */
 public class Call extends RPCResponse<Call.CallOutput> {

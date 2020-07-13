@@ -1,4 +1,3 @@
 package org.fisco.bcos.sdk.model;
 
-public class Response {
-}
+public class Response {}

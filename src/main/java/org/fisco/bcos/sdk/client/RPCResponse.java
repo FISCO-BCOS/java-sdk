@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Response template
+ *
  * @author Maggie
  * @param <T> the response data structure
  */

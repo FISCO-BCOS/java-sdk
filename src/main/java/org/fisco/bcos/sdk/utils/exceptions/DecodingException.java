@@ -8,5 +8,4 @@ public class DecodingException extends RuntimeException {
     public DecodingException(String message, Throwable cause) {
         super(message, cause);
     }
-
 }

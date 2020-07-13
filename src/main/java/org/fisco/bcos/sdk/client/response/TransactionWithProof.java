@@ -3,7 +3,6 @@ package org.fisco.bcos.sdk.client.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
-
 import org.fisco.bcos.sdk.client.RPCResponse;
 
 /** getTransactionWithProof. */

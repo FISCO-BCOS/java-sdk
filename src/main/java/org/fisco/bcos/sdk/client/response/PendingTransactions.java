@@ -1,8 +1,7 @@
 package org.fisco.bcos.sdk.client.response;
 
-import org.fisco.bcos.sdk.client.RPCResponse;
-
 import java.util.List;
+import org.fisco.bcos.sdk.client.RPCResponse;
 
 /** getPendingTransactions */
 public class PendingTransactions extends RPCResponse<List<Transaction>> {

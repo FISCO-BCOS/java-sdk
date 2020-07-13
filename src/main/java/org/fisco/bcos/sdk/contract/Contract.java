@@ -1,8 +1,7 @@
 package org.fisco.bcos.sdk.contract;
 
-import org.fisco.bcos.sdk.eventsub.EventCallback;
-
 import java.util.List;
+import org.fisco.bcos.sdk.eventsub.EventCallback;
 
 public abstract class Contract {
     // TODO
@@ -10,6 +9,7 @@ public abstract class Contract {
 
     /**
      * Subscribe event
+     *
      * @param abi
      * @param bin
      * @param topic0
@@ -18,13 +18,14 @@ public abstract class Contract {
      * @param otherTopics
      * @param callback
      */
-    public void subscribeEvent(String abi,
-                               String bin,
-                               String topic0,
-                               String fromBlock,
-                               String toBlock,
-                               List<String> otherTopics,
-                               EventCallback callback){
-        //TODO
+    public void subscribeEvent(
+            String abi,
+            String bin,
+            String topic0,
+            String fromBlock,
+            String toBlock,
+            List<String> otherTopics,
+            EventCallback callback) {
+        // TODO
     }
 }

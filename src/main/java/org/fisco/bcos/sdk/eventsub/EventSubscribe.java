@@ -1,27 +1,29 @@
 package org.fisco.bcos.sdk.eventsub;
 
-import org.fisco.bcos.sdk.channel.Channel;
-
 import java.util.List;
+import org.fisco.bcos.sdk.channel.Channel;
 
 /**
  * Event subscribe interface
+ *
  * @author Maggie
  */
 public interface EventSubscribe {
     /**
      * Create a Event Subscribe instance
+     *
      * @param ch
      * @param groupId
      * @return EventSubscribe Object
      */
-    static EventSubscribe build(Channel ch, String groupId){
+    static EventSubscribe build(Channel ch, String groupId) {
         // TODO
         return null;
     }
 
     /**
      * Subscribe event
+     *
      * @param params
      * @param callback
      */
@@ -29,23 +31,21 @@ public interface EventSubscribe {
 
     /**
      * Unsubscribe events
+     *
      * @param filterId
      */
     void unsubscribeEvent(String filterId);
 
     /**
      * Get all subscribed event.
+     *
      * @return list of event log filters
      */
     List<EventLogFilter> getAllSubscribedEvent();
 
-    /**
-     * Start
-     */
+    /** Start */
     void start();
 
-    /**
-     * Stop
-     */
+    /** Stop */
     void stop();
 }
