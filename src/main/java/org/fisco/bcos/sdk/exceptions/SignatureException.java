@@ -13,18 +13,13 @@
  */
 package org.fisco.bcos.sdk.exceptions;
 
-/** Exception thrown if an attempt is made to encode invalid data, or some other failure occurs. */
-public class EncoderException extends IllegalStateException {
-    private final Throwable cause;
-
-    public EncoderException(String msg, Throwable cause) {
-        super(msg);
-
-        this.cause = cause;
+/** Exceptioned when calling signature related functions. */
+public class SignatureException extends RuntimeException {
+    public SignatureException(String message) {
+        super(message);
     }
 
-    @Override
-    public final synchronized Throwable getCause() {
-        return cause;
+    public SignatureException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

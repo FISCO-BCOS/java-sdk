@@ -11,20 +11,25 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
+package org.fisco.bcos.sdk.crypto.keypair;
 
-/** Exception thrown if an attempt is made to encode invalid data, or some other failure occurs. */
-public class EncoderException extends IllegalStateException {
-    private final Throwable cause;
+import com.webank.wedpr.crypto.CryptoResult;
+import com.webank.wedpr.crypto.NativeInterface;
 
-    public EncoderException(String msg, Throwable cause) {
-        super(msg);
+public class SM2KeyPair extends CryptoKeyPair {
+    public SM2KeyPair() {}
 
-        this.cause = cause;
+    protected SM2KeyPair(CryptoResult sm2keyPairInfo) {
+        super(sm2keyPairInfo);
     }
 
+    /**
+     * generate keyPair randomly
+     *
+     * @return: the generated keyPair
+     */
     @Override
-    public final synchronized Throwable getCause() {
-        return cause;
+    public CryptoKeyPair generateKeyPair() {
+        return new SM2KeyPair(NativeInterface.sm2keyPair());
     }
 }
