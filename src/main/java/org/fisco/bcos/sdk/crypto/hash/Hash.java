@@ -11,20 +11,12 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
 
-/** Exception thrown if an attempt is made to encode invalid data, or some other failure occurs. */
-public class EncoderException extends IllegalStateException {
-    private final Throwable cause;
+/** interface for hash calculation */
+package org.fisco.bcos.sdk.crypto.hash;
 
-    public EncoderException(String msg, Throwable cause) {
-        super(msg);
+public interface Hash {
+    String hash(final String inputData);
 
-        this.cause = cause;
-    }
-
-    @Override
-    public final synchronized Throwable getCause() {
-        return cause;
-    }
+    byte[] hash(final byte[] inputBytes);
 }
