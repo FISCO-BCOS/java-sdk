@@ -11,20 +11,18 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
 
-/** Exception thrown if an attempt is made to encode invalid data, or some other failure occurs. */
-public class EncoderException extends IllegalStateException {
-    private final Throwable cause;
+/** interface for sign/verify functions */
+package org.fisco.bcos.sdk.crypto.signature;
 
-    public EncoderException(String msg, Throwable cause) {
-        super(msg);
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 
-        this.cause = cause;
-    }
+public interface Signature {
+    SignatureResult sign(final byte[] message, final CryptoKeyPair keyPair);
 
-    @Override
-    public final synchronized Throwable getCause() {
-        return cause;
-    }
+    SignatureResult sign(final String message, final CryptoKeyPair keyPair);
+
+    boolean verify(final String publicKey, final String message, final String signature);
+
+    boolean verify(final String publicKey, final byte[] message, final byte[] signature);
 }
