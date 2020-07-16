@@ -13,6 +13,7 @@
  */
 package org.fisco.bcos.sdk.test.crypto;
 
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.SM2KeyPair;
@@ -24,6 +25,24 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class SignatureTest {
+    @Test
+    public void testCryptoInterfaceForECDSA() {
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+        // generate keyPair
+        CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
+        // test signature
+        testSignature(cryptoInterface, keyPair);
+    }
+
+    @Test
+    public void testCryptoInterfaceForSM2() {
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.SM_TYPE);
+        // generate keyPair
+        CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
+        // test signature
+        testSignature(cryptoInterface, keyPair);
+    }
+
     @Test
     public void testECDSASignature() {
         Signature ecdsaSignature = new ECDSASignature();
@@ -39,6 +58,46 @@ public class SignatureTest {
     }
 
     private void testSignature(Signature signature, CryptoKeyPair keyPair) {
+        String message = "abcde";
+        // check valid case
+        for (int i = 0; i < 10; i++) {
+            message = "abcd----" + Integer.toString(i);
+            // sign
+            SignatureResult signResult = signature.sign(message, keyPair);
+            // verify
+            Assert.assertTrue(
+                    signature.verify(
+                            keyPair.getHexPublicKey(), message, signResult.convertToString()));
+            signResult = signature.sign(message.getBytes(), keyPair);
+            Assert.assertTrue(
+                    signature.verify(
+                            keyPair.getHexPublicKey(), message, signResult.convertToString()));
+        }
+
+        // check invalid case
+        for (int i = 0; i < 10; i++) {
+            message = "abcd----" + Integer.toString(i);
+            String invaidMessage = "abcd---" + Integer.toString(i + 1);
+            // sign
+            SignatureResult signResult = signature.sign(message, keyPair);
+            // verify
+            Assert.assertEquals(
+                    false,
+                    signature.verify(
+                            keyPair.getHexPublicKey(),
+                            invaidMessage,
+                            signResult.convertToString()));
+            signResult = signature.sign(message.getBytes(), keyPair);
+            Assert.assertEquals(
+                    false,
+                    signature.verify(
+                            keyPair.getHexPublicKey(),
+                            invaidMessage,
+                            signResult.convertToString()));
+        }
+    }
+
+    private void testSignature(CryptoInterface signature, CryptoKeyPair keyPair) {
         String message = "abcde";
         // check valid case
         for (int i = 0; i < 10; i++) {
