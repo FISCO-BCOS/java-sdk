@@ -54,6 +54,7 @@ jacocoTestReport {
 }
 
 dependencies {
+    compile 'org.bouncycastle:bcprov-jdk15on:1.60'
     compile 'org.apache.commons:commons-lang3:3.1'
     compile 'io.netty:netty-all:4.1.50.Final'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
@@ -64,7 +65,6 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.23.0'
-
 }
 
 archivesBaseName = 'java-sdk'
