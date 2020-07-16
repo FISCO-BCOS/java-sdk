@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.network;
 
 import java.util.List;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 
 /** Network interface Modules interact with the network module through this interface. */
@@ -23,11 +24,12 @@ public interface Network {
     /**
      * Init network module
      *
-     * @param configFile
+     * @param config the config options read from yaml config file
+     * @param handler message handler
      * @return a Network implementation instance
      */
-    static Network build(String configFile, MsgHandler handler) {
-        return null;
+    static Network build(ConfigOption config, MsgHandler handler) {
+        return new NetworkImp(config, handler);
     }
 
     /**
