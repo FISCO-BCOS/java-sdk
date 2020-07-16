@@ -15,7 +15,11 @@ package org.fisco.bcos.sdk.crypto.keypair;
 
 import com.webank.wedpr.crypto.CryptoResult;
 import java.math.BigInteger;
+import java.security.KeyPair;
+import java.util.Arrays;
 import java.util.Objects;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 
 public abstract class CryptoKeyPair {
     private BigInteger privateKey;
@@ -23,6 +27,7 @@ public abstract class CryptoKeyPair {
 
     protected String hexPrivateKey;
     protected String hexPublicKey;
+    public KeyPair keyPair;
 
     public CryptoKeyPair() {}
 
@@ -32,12 +37,29 @@ public abstract class CryptoKeyPair {
          * todo: get publicKey according to privateKey this.publicKey =
          * privateKeyToPublic(privateKey);
          */
+        this.keyPair = null;
         calculateHexedKeyPair();
     }
 
     public CryptoKeyPair(final BigInteger privateKey, final BigInteger publicKey) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
+        this.keyPair = null;
+        calculateHexedKeyPair();
+    }
+
+    /**
+     * init CryptoKeyPair from the keyPair
+     *
+     * @param keyPair
+     */
+    public CryptoKeyPair(KeyPair keyPair) {
+        this.keyPair = keyPair;
+        // init privateKey/publicKey from the keyPair
+        this.privateKey = ((BCECPrivateKey) keyPair.getPrivate()).getD();
+        byte[] publicKeyBytes = ((BCECPublicKey) keyPair.getPublic()).getQ().getEncoded(false);
+        this.publicKey =
+                new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
         calculateHexedKeyPair();
     }
 
@@ -89,13 +111,15 @@ public abstract class CryptoKeyPair {
      */
     public abstract CryptoKeyPair generateKeyPair();
 
+    public abstract CryptoKeyPair createKeyPair(KeyPair keyPair);
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CryptoKeyPair keyPair = (CryptoKeyPair) o;
-        return Objects.equals(privateKey, keyPair.privateKey)
-                && Objects.equals(publicKey, keyPair.publicKey);
+        CryptoKeyPair comparedKeyPair = (CryptoKeyPair) o;
+        return Objects.equals(this.privateKey, comparedKeyPair.privateKey)
+                && Objects.equals(this.publicKey, comparedKeyPair.publicKey);
     }
 
     @Override

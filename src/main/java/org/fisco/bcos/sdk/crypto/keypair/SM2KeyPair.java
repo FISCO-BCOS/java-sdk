@@ -15,9 +15,14 @@ package org.fisco.bcos.sdk.crypto.keypair;
 
 import com.webank.wedpr.crypto.CryptoResult;
 import com.webank.wedpr.crypto.NativeInterface;
+import java.security.KeyPair;
 
 public class SM2KeyPair extends CryptoKeyPair {
     public SM2KeyPair() {}
+
+    public SM2KeyPair(KeyPair javaKeyPair) {
+        super(javaKeyPair);
+    }
 
     protected SM2KeyPair(CryptoResult sm2keyPairInfo) {
         super(sm2keyPairInfo);
@@ -31,5 +36,10 @@ public class SM2KeyPair extends CryptoKeyPair {
     @Override
     public CryptoKeyPair generateKeyPair() {
         return new SM2KeyPair(NativeInterface.sm2keyPair());
+    }
+
+    @Override
+    public CryptoKeyPair createKeyPair(KeyPair javaKeyPair) {
+        return new SM2KeyPair(javaKeyPair);
     }
 }
