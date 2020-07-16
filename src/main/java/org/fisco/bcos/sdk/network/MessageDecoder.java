@@ -13,16 +13,20 @@
  *
  */
 
-package org.fisco.bcos.sdk.model;
+package org.fisco.bcos.sdk.network;
 
 import io.netty.buffer.ByteBuf;
-import java.io.Serializable;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ByteToMessageDecoder;
+import java.util.List;
+import org.fisco.bcos.sdk.model.Message;
 
-/** Messages between sdk and FISCO BCOS node. */
-public class Message implements Serializable {
-    public void readFromByteBuf(ByteBuf in) {
-        // ignore
+public class MessageDecoder extends ByteToMessageDecoder {
+    @Override
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)
+            throws Exception {
+        Message msg = new Message();
+        msg.readFromByteBuf(in);
+        out.add(msg);
     }
-
-    public void writeToByteBuf(ByteBuf out) {}
 }

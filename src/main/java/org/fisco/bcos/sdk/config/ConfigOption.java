@@ -24,7 +24,7 @@ import java.util.Map;
  * @author Maggie
  */
 public class ConfigOption {
-    public Map<String, String> cryptoMateral;
+    public Map<String, String> cryptoMaterial;
     public List<String> peers;
     public List<AmopTopic> AMOPKeys;
 
@@ -44,35 +44,35 @@ public class ConfigOption {
         this.AMOPKeys = AMOPKeys;
     }
 
-    public Map<String, String> getCryptoMateral() {
-        return cryptoMateral;
+    public Map<String, String> getCryptoMaterial() {
+        return cryptoMaterial;
     }
 
-    public void setCryptoMateral(Map<String, String> cryptoMateral) {
-        this.cryptoMateral = cryptoMateral;
+    public void setCryptoMaterial(Map<String, String> cryptoMaterial) {
+        this.cryptoMaterial = cryptoMaterial;
     }
 
     public String getAlgorithm() {
-        return cryptoMateral.get("algorithm");
+        return cryptoMaterial.get("algorithm");
     }
 
     public String getCaCert() {
-        return cryptoMateral.get("caCert");
+        return cryptoMaterial.get("caCert");
     }
 
     public String getSslCert() {
-        return cryptoMateral.get("sslCert");
+        return cryptoMaterial.get("sslCert");
     }
 
     public String getSslKey() {
-        return cryptoMateral.get("sslKey");
+        return cryptoMaterial.get("sslKey");
     }
 
     public String getEnSslCert() {
-        return cryptoMateral.get("enSSLCert");
+        return cryptoMaterial.get("enSSLCert");
     }
 
     public String getEnSslKey() {
-        return cryptoMateral.get("enSSLKey");
+        return cryptoMaterial.get("enSSLKey");
     }
 }
