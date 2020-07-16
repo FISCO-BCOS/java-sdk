@@ -16,8 +16,8 @@ package org.fisco.bcos.sdk.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import org.fisco.bcos.sdk.exceptions.DecoderException;
-import org.fisco.bcos.sdk.exceptions.EncoderException;
+import org.fisco.bcos.sdk.utils.exceptions.DecoderException;
+import org.fisco.bcos.sdk.utils.exceptions.EncoderException;
 
 /** Utility class for converting hex data to bytes and back again. */
 public class Hex {

@@ -11,20 +11,15 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
+package org.fisco.bcos.sdk.crypto.exceptions;
 
-/** Exception thrown if an attempt is made to encode invalid data, or some other failure occurs. */
-public class EncoderException extends IllegalStateException {
-    private final Throwable cause;
-
-    public EncoderException(String msg, Throwable cause) {
-        super(msg);
-
-        this.cause = cause;
+/** Exceptioned when calling KeyManager. */
+public class LoadKeyStoreException extends RuntimeException {
+    public LoadKeyStoreException(String message) {
+        super(message);
     }
 
-    @Override
-    public final synchronized Throwable getCause() {
-        return cause;
+    public LoadKeyStoreException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
