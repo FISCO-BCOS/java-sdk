@@ -14,8 +14,8 @@
 package org.fisco.bcos.sdk.crypto.signature;
 
 import com.webank.pkeysign.service.ECCSignService;
+import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.exceptions.SignatureException;
 
 public class ECDSASignature implements Signature {
 

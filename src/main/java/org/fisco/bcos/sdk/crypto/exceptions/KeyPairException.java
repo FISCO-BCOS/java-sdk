@@ -11,15 +11,15 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
+package org.fisco.bcos.sdk.crypto.exceptions;
 
-/** Exceptioned when calling CryptoInterface. */
-public class UnsupportedCryptoTypeException extends RuntimeException {
-    public UnsupportedCryptoTypeException(String message) {
+/** Exceptioned when calling hash. */
+public class KeyPairException extends RuntimeException {
+    public KeyPairException(String message) {
         super(message);
     }
 
-    public UnsupportedCryptoTypeException(String message, Throwable cause) {
+    public KeyPairException(String message, Throwable cause) {
         super(message, cause);
     }
 }

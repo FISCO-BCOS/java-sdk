@@ -11,13 +11,13 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
+package org.fisco.bcos.sdk.utils.exceptions;
 
-/** Exception thrown if an attempt is made to decode invalid data, or some other failure occurs. */
-public class DecoderException extends IllegalStateException {
+/** Exception thrown if an attempt is made to encode invalid data, or some other failure occurs. */
+public class EncoderException extends IllegalStateException {
     private final Throwable cause;
 
-    public DecoderException(String msg, Throwable cause) {
+    public EncoderException(String msg, Throwable cause) {
         super(msg);
 
         this.cause = cause;

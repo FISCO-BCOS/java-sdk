@@ -11,15 +11,20 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
+package org.fisco.bcos.sdk.utils.exceptions;
 
-/** Exceptioned when calling hash. */
-public class HashException extends RuntimeException {
-    public HashException(String message) {
-        super(message);
+/** Exception thrown if an attempt is made to decode invalid data, or some other failure occurs. */
+public class DecoderException extends IllegalStateException {
+    private final Throwable cause;
+
+    public DecoderException(String msg, Throwable cause) {
+        super(msg);
+
+        this.cause = cause;
     }
 
-    public HashException(String message, Throwable cause) {
-        super(message, cause);
+    @Override
+    public final synchronized Throwable getCause() {
+        return cause;
     }
 }
