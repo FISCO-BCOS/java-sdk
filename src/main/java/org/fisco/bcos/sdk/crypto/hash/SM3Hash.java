@@ -15,7 +15,7 @@ package org.fisco.bcos.sdk.crypto.hash;
 
 import com.webank.wedpr.crypto.CryptoResult;
 import com.webank.wedpr.crypto.NativeInterface;
-import org.fisco.bcos.sdk.exceptions.HashException;
+import org.fisco.bcos.sdk.crypto.exceptions.HashException;
 import org.fisco.bcos.sdk.utils.Hex;
 
 public class SM3Hash implements Hash {

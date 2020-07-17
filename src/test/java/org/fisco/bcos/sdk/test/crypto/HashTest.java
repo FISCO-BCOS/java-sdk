@@ -14,10 +14,10 @@
 package org.fisco.bcos.sdk.test.crypto;
 
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.exceptions.UnsupportedCryptoTypeException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
 import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
-import org.fisco.bcos.sdk.exceptions.UnsupportedCryptoTypeException;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;
 import org.junit.Test;

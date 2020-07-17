@@ -14,6 +14,7 @@
 package org.fisco.bcos.sdk.crypto;
 
 import java.security.KeyPair;
+import org.fisco.bcos.sdk.crypto.exceptions.UnsupportedCryptoTypeException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
 import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
@@ -24,7 +25,6 @@ import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
 import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
-import org.fisco.bcos.sdk.exceptions.UnsupportedCryptoTypeException;
 
 public class CryptoInterface {
 
