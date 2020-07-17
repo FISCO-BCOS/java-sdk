@@ -14,7 +14,7 @@
 package org.fisco.bcos.sdk.rlp;
 
 import java.util.ArrayList;
-import org.fisco.bcos.sdk.exceptions.DecoderException;
+import org.fisco.bcos.sdk.utils.exceptions.DecoderException;
 
 /** Recursive Length Prefix (RLP) decoder. */
 public final class RlpDecoder {

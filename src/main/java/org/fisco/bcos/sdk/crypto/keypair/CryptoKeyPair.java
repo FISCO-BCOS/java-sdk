@@ -20,14 +20,28 @@ import java.util.Arrays;
 import java.util.Objects;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
+import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
+import org.fisco.bcos.sdk.crypto.hash.Hash;
+import org.fisco.bcos.sdk.utils.Hex;
+import org.fisco.bcos.sdk.utils.Numeric;
+import org.fisco.bcos.sdk.utils.Strings;
+import org.fisco.bcos.sdk.utils.exceptions.DecoderException;
 
 public abstract class CryptoKeyPair {
+    public static final int ADDRESS_SIZE = 160;
+    public static final int ADDRESS_LENGTH_IN_HEX = ADDRESS_SIZE >> 2;
+
+    public static final int PUBLIC_KEY_SIZE = 64;
+    public static final int PUBLIC_KEY_LENGTH_IN_HEX = PUBLIC_KEY_SIZE << 1;
+
     private BigInteger privateKey;
     protected BigInteger publicKey;
 
     protected String hexPrivateKey;
     protected String hexPublicKey;
     public KeyPair keyPair;
+
+    protected Hash hashImpl;
 
     public CryptoKeyPair() {}
 
@@ -61,13 +75,10 @@ public abstract class CryptoKeyPair {
         this.publicKey =
                 new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
         calculateHexedKeyPair();
+        // Note: In the current version of sm2 verification, the public key prefix must contain 04,
+        // otherwise an error will be reported
+        this.hexPublicKey = "04" + this.hexPublicKey;
     }
-
-    private void calculateHexedKeyPair() {
-        this.hexPrivateKey = this.privateKey.toString(16);
-        this.hexPublicKey = this.publicKey.toString(16);
-    }
-
     /**
      * get CryptoKeyPair information from CryptoResult
      *
@@ -77,7 +88,14 @@ public abstract class CryptoKeyPair {
         this.hexPrivateKey = nativeResult.privteKey;
         this.hexPublicKey = nativeResult.publicKey;
         this.privateKey = new BigInteger(this.hexPrivateKey, 16);
-        this.publicKey = new BigInteger(this.hexPublicKey, 16);
+        // Note: The generated publicKey is prefixed with 04, When converting it to BigInteger, need
+        // to remove 04
+        this.publicKey = new BigInteger(this.hexPublicKey.substring(2), 16);
+    }
+
+    private void calculateHexedKeyPair() {
+        this.hexPrivateKey = this.privateKey.toString(16);
+        this.hexPublicKey = this.publicKey.toString(16);
     }
 
     public BigInteger getPrivateKey() {
@@ -96,22 +114,9 @@ public abstract class CryptoKeyPair {
         return hexPublicKey;
     }
 
-    /**
-     * todo: get the public key from the given private key
-     *
-     * @param privateKey
-     * @return: the public key calculated from the private key public abstract BigInteger
-     *     privateKeyToPublic(BigInteger privateKey);
-     */
-
-    /**
-     * generate keyPair randomly
-     *
-     * @return: the generated keyPair
-     */
-    public abstract CryptoKeyPair generateKeyPair();
-
-    public abstract CryptoKeyPair createKeyPair(KeyPair keyPair);
+    public KeyPair getKeyPair() {
+        return this.keyPair;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -125,5 +130,67 @@ public abstract class CryptoKeyPair {
     @Override
     public int hashCode() {
         return Objects.hash(privateKey, publicKey);
+    }
+
+    /**
+     * generate keyPair randomly
+     *
+     * @return: the generated keyPair
+     */
+    public abstract CryptoKeyPair generateKeyPair();
+
+    public abstract CryptoKeyPair createKeyPair(KeyPair keyPair);
+
+    protected String getPublicKeyNoPrefix(String publicKeyStr) {
+        String publicKeyNoPrefix = Numeric.cleanHexPrefix(publicKeyStr);
+        // Hexadecimal public key length is less than 128, add 0 in front
+        if (publicKeyNoPrefix.length() < PUBLIC_KEY_LENGTH_IN_HEX) {
+            publicKeyNoPrefix =
+                    Strings.zeros(PUBLIC_KEY_LENGTH_IN_HEX - publicKeyNoPrefix.length())
+                            + publicKeyNoPrefix;
+        }
+        return publicKeyNoPrefix;
+    }
+    /**
+     * get the address according to the public key
+     *
+     * @return: the hexed address calculated from the publicKey
+     */
+    public String getAddress() {
+        // Note: The generated publicKey is prefixed with 04, When calculate the address, need to
+        // remove 04
+        return getAddress(this.getHexPublicKey().substring(2));
+    }
+    /**
+     * calculate the address according to the given public key
+     *
+     * @param publicKey: the Hexed publicKey that need to calculate address
+     * @return
+     */
+    public String getAddress(String publicKey) {
+        try {
+            String publicKeyNoPrefix = getPublicKeyNoPrefix(publicKey);
+            // calculate hash for the public key
+            String publicKeyHash = Hex.toHexString(hashImpl.hash(Hex.decode(publicKeyNoPrefix)));
+            // right most 160 bits
+            return publicKeyHash.substring(publicKeyHash.length() - ADDRESS_LENGTH_IN_HEX);
+        } catch (DecoderException e) {
+            throw new KeyPairException(
+                    "getAddress for "
+                            + publicKey
+                            + "failed, the publicKey param must be hex string, error message: "
+                            + e.getMessage(),
+                    e);
+        }
+    }
+
+    public byte[] getAddress(byte[] publicKey) {
+        byte[] hash = hashImpl.hash(publicKey);
+        return Arrays.copyOfRange(hash, hash.length - 20, hash.length); // right most 160 bits
+    }
+
+    public byte[] getAddress(BigInteger publicKey) {
+        byte[] publicKeyBytes = Numeric.toBytesPadded(publicKey, PUBLIC_KEY_SIZE);
+        return getAddress(publicKeyBytes);
     }
 }

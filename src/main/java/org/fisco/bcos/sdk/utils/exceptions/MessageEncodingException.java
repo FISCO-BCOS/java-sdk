@@ -11,15 +11,15 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
+package org.fisco.bcos.sdk.utils.exceptions;
 
-/** Exceptioned when calling signature related functions. */
-public class SignatureException extends RuntimeException {
-    public SignatureException(String message) {
+/** Encoding exception. */
+public class MessageEncodingException extends RuntimeException {
+    public MessageEncodingException(String message) {
         super(message);
     }
 
-    public SignatureException(String message, Throwable cause) {
+    public MessageEncodingException(String message, Throwable cause) {
         super(message, cause);
     }
 }
