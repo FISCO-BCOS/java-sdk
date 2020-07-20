@@ -23,6 +23,6 @@ import org.fisco.bcos.sdk.model.Message;
 public class MessageEncoder extends MessageToByteEncoder<Message> {
     @Override
     protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
-        msg.writeToByteBuf(out);
+        msg.encode(out);
     }
 }
