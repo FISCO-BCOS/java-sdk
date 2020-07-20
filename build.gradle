@@ -72,3 +72,12 @@ dependencies {
 archivesBaseName = 'java-sdk'
 group = 'org.fisco-bcos'
 version = '1.0.0-SNAPSHOT'
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+
+check.dependsOn jacocoTestReport
