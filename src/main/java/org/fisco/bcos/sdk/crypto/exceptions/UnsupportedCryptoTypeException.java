@@ -11,20 +11,15 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
+package org.fisco.bcos.sdk.crypto.exceptions;
 
-/** Exception thrown if an attempt is made to decode invalid data, or some other failure occurs. */
-public class DecoderException extends IllegalStateException {
-    private final Throwable cause;
-
-    public DecoderException(String msg, Throwable cause) {
-        super(msg);
-
-        this.cause = cause;
+/** Exceptioned when calling CryptoInterface. */
+public class UnsupportedCryptoTypeException extends RuntimeException {
+    public UnsupportedCryptoTypeException(String message) {
+        super(message);
     }
 
-    @Override
-    public final synchronized Throwable getCause() {
-        return cause;
+    public UnsupportedCryptoTypeException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

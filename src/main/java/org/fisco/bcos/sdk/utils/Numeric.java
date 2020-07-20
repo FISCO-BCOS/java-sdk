@@ -16,8 +16,8 @@ package org.fisco.bcos.sdk.utils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
-import org.fisco.bcos.sdk.exceptions.MessageDecodingException;
-import org.fisco.bcos.sdk.exceptions.MessageEncodingException;
+import org.fisco.bcos.sdk.utils.exceptions.MessageDecodingException;
+import org.fisco.bcos.sdk.utils.exceptions.MessageEncodingException;
 
 /** Message codec functions. */
 public final class Numeric {

@@ -11,15 +11,15 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
+package org.fisco.bcos.sdk.crypto.exceptions;
 
-/** Encoding exception. */
-public class MessageEncodingException extends RuntimeException {
-    public MessageEncodingException(String message) {
+/** Exceptioned when calling hash. */
+public class KeyPairException extends RuntimeException {
+    public KeyPairException(String message) {
         super(message);
     }
 
-    public MessageEncodingException(String message, Throwable cause) {
+    public KeyPairException(String message, Throwable cause) {
         super(message, cause);
     }
 }

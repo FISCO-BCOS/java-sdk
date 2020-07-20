@@ -14,8 +14,8 @@
 package org.fisco.bcos.sdk.crypto.signature;
 
 import com.webank.pkeysign.service.SM2SignService;
+import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.exceptions.SignatureException;
 
 public class SM2Signature implements Signature {
     public static final SM2SignService sm2SignService = new SM2SignService();
