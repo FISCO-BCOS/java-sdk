@@ -18,6 +18,7 @@ public class JsonRpcMethods {
     // the interface related to the group
     public static final String GET_BLOCK_NUMBER = "getBlockNumber";
 
+    public static final String GET_NODE_VERSION = "getNodeVersion";
     public static final String GET_PBFT_VIEW = "getPbftView";
     public static final String GET_SEALER_LIST = "getSealerList";
     public static final String GET_SYSTEM_CONFIG_BY_KEY = "getSystemConfigByKey";
@@ -37,6 +38,7 @@ public class JsonRpcMethods {
             "getTransactionByBlockNumberAndIndex";
     public static final String GET_TRANSACTIONRECEIPT = "getTransactionReceipt";
     public static final String GET_PENDING_TX_SIZE = "getPendingTxSize";
+    public static final String GET_PENDING_TRANSACTIONS = "getPendingTransactions";
     public static final String CALL = "call";
     public static final String SEND_RAWTRANSACTION = "sendRawTransaction";
     public static final String SEND_RAWTRANSACTION_AND_GET_PROOF = "sendRawTransactionAndGetProof";

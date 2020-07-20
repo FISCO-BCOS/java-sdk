@@ -16,4 +16,4 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 /** getTransactionReceipt. */
-public class BcosTransactionReceipt {}
+public class BcosTransactionReceipt extends JsonRpcResponse {}

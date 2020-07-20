@@ -16,4 +16,4 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 /** getPendingTxSize */
-public class PendingTxSize {}
+public class PendingTxSize extends JsonRpcResponse {}

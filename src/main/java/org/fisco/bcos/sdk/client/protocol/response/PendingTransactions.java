@@ -16,4 +16,4 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 /** getPendingTransactions */
-public class PendingTransactions {}
+public class PendingTransactions extends JsonRpcResponse {}

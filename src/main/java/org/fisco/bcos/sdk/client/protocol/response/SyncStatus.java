@@ -20,4 +20,4 @@ package org.fisco.bcos.sdk.client.protocol.response;
  *
  * <p>Returns an object with data about the sync status or false.
  */
-public class SyncStatus {}
+public class SyncStatus extends JsonRpcResponse {}

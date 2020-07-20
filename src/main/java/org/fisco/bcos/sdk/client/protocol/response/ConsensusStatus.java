@@ -16,4 +16,4 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 /** getConsensusStatus */
-public class ConsensusStatus {}
+public class ConsensusStatus extends JsonRpcResponse {}
