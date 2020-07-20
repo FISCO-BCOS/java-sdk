@@ -18,9 +18,9 @@
 
 
 # Required. Crypto algorithm, cert and keys are configured in this section
-cryptoMateral:
+cryptoMaterial:
 
-  # [Option] Config the crypto algorithm here, we support ecdsa and guomi.
+  # [Option] Config the crypto algorithm here, we support ecdsa and sm.
   # If not configured, ecdsa is the default option.
   algorithm: ecdsa
 
@@ -33,7 +33,7 @@ cryptoMateral:
   # Required. SSK key file path
   sslKey: src/test/resources/sdk.key
 
-  #[Option] if algorithm is guomi, enSslCert and enSslKey is required
+  #[Option] if algorithm is sm, enSslCert and enSslKey is required
   # enSslCert: src/test/resources/en.crt
   # enSslKey: src/test/resources/en.key
 
