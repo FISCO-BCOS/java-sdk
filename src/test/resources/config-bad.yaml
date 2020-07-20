@@ -1,5 +1,5 @@
 cryptoMateral:
-  algorithm: ecdsa # ecdsa 或 guomi
+  algorithm: ecdsa # ecdsa 或 sm
   caCert: cryptopath/ca.crt
   sslCert: cryptopath/sdk.crt
   sslKey: cryptopath/sdk.key

@@ -13,16 +13,6 @@
  *
  */
 
-package org.fisco.bcos.sdk.model;
+package org.fisco.bcos.sdk.abi;
 
-import io.netty.buffer.ByteBuf;
-import java.io.Serializable;
-
-/** Messages between sdk and FISCO BCOS node. */
-public class Message implements Serializable {
-    public void readFromByteBuf(ByteBuf in) {
-        // ignore
-    }
-
-    public void writeToByteBuf(ByteBuf out) {}
-}
+public class ABICodecException extends Exception {}

@@ -15,21 +15,70 @@
 
 package org.fisco.bcos.sdk.network;
 
+import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * An implementation of Network
+ *
+ * @author Maggie
+ */
 public class NetworkImp implements Network {
-    public NetworkImp(ConfigOption config, MsgHandler handler) {}
+    private static Logger logger = LoggerFactory.getLogger(NetworkImp.class);
+    ConnectionManager connManager;
+
+    public NetworkImp(ConfigOption config, MsgHandler handler) {
+        connManager = new ConnectionManager(config, handler);
+    }
 
     @Override
-    public void broadcast(Message out) {}
+    public void broadcast(Message out) {
+        Map<String, ChannelHandlerContext> conns = connManager.getAvailableConnections();
+        conns.forEach(
+                (peer, ctx) -> {
+                    ctx.writeAndFlush(out);
+                    logger.debug("send message to  {} success ", peer);
+                });
+    }
 
     @Override
-    public void sendToPeer(Message out, String peerIpPort) {}
+    public void sendToPeer(Message out, String peerIpPort) throws NetworkException {
+        ChannelHandlerContext ctx = connManager.getConnectionCtx(peerIpPort);
+        if (Objects.isNull(ctx)) {
+            ctx.writeAndFlush(out);
+            logger.debug("send message to  {} success ", peerIpPort);
+        } else {
+            logger.debug("send message to  {} failed ", peerIpPort);
+            throw new NetworkException("Peer not available. Peer: " + peerIpPort);
+        }
+    }
 
     @Override
     public List<ConnectionInfo> getConnectionInfo() {
-        return null;
+        return connManager.getConnectionInfoList();
+    }
+
+    @Override
+    public void start() throws NetworkException {
+        // todo set ThreadPool
+        connManager.startConnect();
+        connManager.startReconnectSchedule();
+    }
+
+    @Override
+    public Map<String, ChannelHandlerContext> getAvailableConnections() {
+        return connManager.getAvailableConnections();
+    }
+
+    @Override
+    public void stop() {
+        connManager.stopReconnectSchedule();
+        return;
     }
 }
