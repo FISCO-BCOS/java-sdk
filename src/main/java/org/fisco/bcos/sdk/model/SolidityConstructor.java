@@ -17,12 +17,10 @@ package org.fisco.bcos.sdk.model;
 import java.util.List;
 
 /**
- * Constructor
+ * Constructor @Description: SolidityConstructor
  *
- * @Description: SolidityConstructor
  * @author maojiayu
  * @data Jul 17, 2020 2:36:50 PM
- *
  */
 public class SolidityConstructor {
 
@@ -39,7 +37,8 @@ public class SolidityConstructor {
      * @param abi
      * @param data
      */
-    public SolidityConstructor(String contractName, List<Object> params, String binary, String abi, String data) {
+    public SolidityConstructor(
+            String contractName, List<Object> params, String binary, String abi, String data) {
         this.contractName = contractName;
         this.params = params;
         this.binary = binary;
@@ -47,74 +46,53 @@ public class SolidityConstructor {
         this.data = data;
     }
 
-    /**
-     * @return the contractName
-     */
+    /** @return the contractName */
     public String getContractName() {
         return contractName;
     }
 
-    /**
-     * @param contractName the contractName to set
-     */
+    /** @param contractName the contractName to set */
     public void setContractName(String contractName) {
         this.contractName = contractName;
     }
 
-    /**
-     * @return the params
-     */
+    /** @return the params */
     public List<Object> getParams() {
         return params;
     }
 
-    /**
-     * @param params the params to set
-     */
+    /** @param params the params to set */
     public void setParams(List<Object> params) {
         this.params = params;
     }
 
-    /**
-     * @return the binary
-     */
+    /** @return the binary */
     public String getBinary() {
         return binary;
     }
 
-    /**
-     * @param binary the binary to set
-     */
+    /** @param binary the binary to set */
     public void setBinary(String binary) {
         this.binary = binary;
     }
 
-    /**
-     * @return the abi
-     */
+    /** @return the abi */
     public String getAbi() {
         return abi;
     }
 
-    /**
-     * @param abi the abi to set
-     */
+    /** @param abi the abi to set */
     public void setAbi(String abi) {
         this.abi = abi;
     }
 
-    /**
-     * @return the data
-     */
+    /** @return the data */
     public String getData() {
         return data;
     }
 
-    /**
-     * @param data the data to set
-     */
+    /** @param data the data to set */
     public void setData(String data) {
         this.data = data;
     }
-
 }

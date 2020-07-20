@@ -15,26 +15,20 @@
 package org.fisco.bcos.sdk.transaction.domain.dto;
 
 /**
- * CallResponse
+ * CallResponse @Description: CallResponse
  *
- * @Description: CallResponse
  * @author maojiayu
  * @data Jul 17, 2020 3:20:06 PM
- *
  */
 public class CallResponse extends CommonResponse {
     private String values;
 
-    /**
-     * @return the values
-     */
+    /** @return the values */
     public String getValues() {
         return values;
     }
 
-    /**
-     * @param values the values to set
-     */
+    /** @param values the values to set */
     public void setValues(String values) {
         this.values = values;
     }

@@ -17,16 +17,12 @@ package org.fisco.bcos.sdk.transaction.core.interf.executor;
 import org.fisco.bcos.sdk.client.response.BcosTransaction;
 
 /**
- * TransactionSignerInterface
+ * TransactionSignerInterface @Description: TransactionSignerInterface
  *
- * @Description: TransactionSignerInterface
  * @author maojiayu
  * @data Jul 17, 2020 11:11:24 AM
- *
  */
 public interface TransactionSignerInterface {
-    
+
     byte[] sign(BcosTransaction bcosTransaction);
-
-
 }

@@ -17,12 +17,10 @@ package org.fisco.bcos.sdk.transaction.tools;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * ContractLoader
+ * ContractLoader @Description: ContractLoader
  *
- * @Description: ContractLoader
  * @author maojiayu
  * @data Jul 17, 2020 3:24:40 PM
- *
  */
 public class ContractLoader {
     private int readType;
@@ -56,38 +54,30 @@ public class ContractLoader {
     // TODO
     /*
      * public AbiDefinition getConstructorABIByContractName(String contractName) {
-     * 
+     *
      * }
-     * 
+     *
      * public List<AbiDefinition> getFunctionABIListByContractName(String contractName) {
-     * 
+     *
      * }
      */
 
-    /**
-     * @return the readType
-     */
+    /** @return the readType */
     public int getReadType() {
         return readType;
     }
 
-    /**
-     * @param readType the readType to set
-     */
+    /** @param readType the readType to set */
     public void setReadType(int readType) {
         this.readType = readType;
     }
 
-    /**
-     * @return the path
-     */
+    /** @return the path */
     public String getPath() {
         return path;
     }
 
-    /**
-     * @param path the path to set
-     */
+    /** @param path the path to set */
     public void setPath(String path) {
         this.path = path;
     }

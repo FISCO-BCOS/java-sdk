@@ -23,5 +23,4 @@ public class FunctionReturnDecoder implements FunctionReturnDecoderInterface {
         // TODO Auto-generated method stub
         return null;
     }
-
 }

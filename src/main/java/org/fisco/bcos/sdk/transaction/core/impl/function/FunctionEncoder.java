@@ -19,12 +19,10 @@ import org.fisco.bcos.sdk.model.SolidityFunction;
 import org.fisco.bcos.sdk.transaction.core.interf.function.FunctionEncoderInterface;
 
 /**
- * FunctionEncoder
+ * FunctionEncoder @Description: FunctionEncoder
  *
- * @Description: FunctionEncoder
  * @author maojiayu
  * @data Jul 17, 2020 2:47:58 PM
- *
  */
 public class FunctionEncoder implements FunctionEncoderInterface {
 
@@ -39,5 +37,4 @@ public class FunctionEncoder implements FunctionEncoderInterface {
         // TODO Auto-generated method stub
         return null;
     }
-
 }

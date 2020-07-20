@@ -15,29 +15,22 @@
 package org.fisco.bcos.sdk.transaction.domain.dto;
 
 /**
- * CommonTransactionRequest
+ * CommonTransactionRequest @Description: CommonRequest
  *
- * @Description: CommonRequest
  * @author maojiayu
  * @data Jul 17, 2020 3:07:28 PM
- *
  */
 public class CommonRequest {
 
     private int groupId;
 
-    /**
-     * @return the groupId
-     */
+    /** @return the groupId */
     public int getGroupId() {
         return groupId;
     }
 
-    /**
-     * @param groupId the groupId to set
-     */
+    /** @param groupId the groupId to set */
     public void setGroupId(int groupId) {
         this.groupId = groupId;
     }
-
 }

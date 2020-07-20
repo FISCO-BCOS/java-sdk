@@ -15,30 +15,33 @@
 package org.fisco.bcos.sdk.transaction.core.interf.executor;
 
 import java.math.BigInteger;
-
 import org.fisco.bcos.sdk.client.response.BcosTransaction;
 
 /**
- * TransactionBuilderInterface
+ * TransactionBuilderInterface @Description: TransactionBuilderInterface
  *
- * @Description: TransactionBuilderInterface
  * @author maojiayu
  * @data Jul 17, 2020 11:02:36 AM
- *
  */
 public interface TransactionBuilderInterface {
 
-    public BcosTransaction createTransaction(BigInteger gasPrice, BigInteger gasLimit, String to, String data,
-            BigInteger value, BigInteger chainId, BigInteger groupId, String extraData);
+    public BcosTransaction createTransaction(
+            BigInteger gasPrice,
+            BigInteger gasLimit,
+            String to,
+            String data,
+            BigInteger value,
+            BigInteger chainId,
+            BigInteger groupId,
+            String extraData);
 
     /**
      * Create fisco bcos transaction for short
-     * 
+     *
      * @param to, target address
      * @param data, encoded data
      * @param groupId
      * @return BcosTransaction
      */
     public BcosTransaction createTransaction(String to, String data, BigInteger groupId);
-
 }

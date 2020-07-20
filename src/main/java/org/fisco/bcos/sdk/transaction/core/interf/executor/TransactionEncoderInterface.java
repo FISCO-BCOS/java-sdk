@@ -18,15 +18,12 @@ import org.fisco.bcos.sdk.client.response.BcosTransaction;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 
 /**
- * TransactionEncoderInterface
+ * TransactionEncoderInterface @Description: TransactionEncoderInterface
  *
- * @Description: TransactionEncoderInterface
  * @author maojiayu
  * @data Jul 17, 2020 11:59:49 AM
- *
  */
 public interface TransactionEncoderInterface {
-    
-    byte[] encode(BcosTransaction transaction, SignatureResult signature);
 
+    byte[] encode(BcosTransaction transaction, SignatureResult signature);
 }

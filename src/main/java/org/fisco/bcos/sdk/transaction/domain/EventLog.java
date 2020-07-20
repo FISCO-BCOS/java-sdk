@@ -14,6 +14,4 @@
  */
 package org.fisco.bcos.sdk.transaction.domain;
 
-public class EventLog {
-
-}
+public class EventLog {}

@@ -15,13 +15,9 @@
 package org.fisco.bcos.sdk.model;
 
 /**
- * Function
+ * Function @Description: SolidityFunction
  *
- * @Description: SolidityFunction
  * @author maojiayu
  * @data Jul 17, 2020 2:36:36 PM
- *
  */
-public class SolidityFunction {
-
-}
+public class SolidityFunction {}

@@ -39,32 +39,23 @@ public class TransactionSigner implements TransactionSignerInterface {
         return null;
     }
 
-    /**
-     * @return the encryptType
-     */
+    /** @return the encryptType */
     public int getEncryptType() {
         return encryptType;
     }
 
-    /**
-     * @param encryptType the encryptType to set
-     */
+    /** @param encryptType the encryptType to set */
     public void setEncryptType(int encryptType) {
         this.encryptType = encryptType;
     }
 
-    /**
-     * @return the cryptoKeyPair
-     */
+    /** @return the cryptoKeyPair */
     public CryptoKeyPair getCryptoKeyPair() {
         return cryptoKeyPair;
     }
 
-    /**
-     * @param cryptoKeyPair the cryptoKeyPair to set
-     */
+    /** @param cryptoKeyPair the cryptoKeyPair to set */
     public void setCryptoKeyPair(CryptoKeyPair cryptoKeyPair) {
         this.cryptoKeyPair = cryptoKeyPair;
     }
-
 }

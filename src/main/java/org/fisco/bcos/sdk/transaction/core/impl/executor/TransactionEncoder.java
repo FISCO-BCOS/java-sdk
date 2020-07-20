@@ -25,5 +25,4 @@ public class TransactionEncoder implements TransactionEncoderInterface {
         // TODO Auto-generated method stub
         return null;
     }
-
 }

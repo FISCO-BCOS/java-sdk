@@ -15,15 +15,12 @@
 package org.fisco.bcos.sdk.transaction.core.interf.function;
 
 /**
- * FunctionReturnDecoder
+ * FunctionReturnDecoder @Description: FunctionReturnDecoderInterface
  *
- * @Description: FunctionReturnDecoderInterface
  * @author maojiayu
  * @data Jul 17, 2020 2:48:54 PM
- *
  */
 public interface FunctionReturnDecoderInterface {
 
     public String decodeCall(String rawInput, String abi);
-
 }

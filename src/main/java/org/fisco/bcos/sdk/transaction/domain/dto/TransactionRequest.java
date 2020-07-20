@@ -15,43 +15,32 @@
 package org.fisco.bcos.sdk.transaction.domain.dto;
 
 /**
- * TransactionRequest
+ * TransactionRequest @Description: TransactionRequest
  *
- * @Description: TransactionRequest
  * @author maojiayu
  * @data Jul 17, 2020 3:08:41 PM
- *
  */
 public class TransactionRequest extends CommonRequest {
     private String contractName;
     private String signedData;
 
-    /**
-     * @return the contractName
-     */
+    /** @return the contractName */
     public String getContractName() {
         return contractName;
     }
 
-    /**
-     * @param contractName the contractName to set
-     */
+    /** @param contractName the contractName to set */
     public void setContractName(String contractName) {
         this.contractName = contractName;
     }
 
-    /**
-     * @return the signedData
-     */
+    /** @return the signedData */
     public String getSignedData() {
         return signedData;
     }
 
-    /**
-     * @param signedData the signedData to set
-     */
+    /** @param signedData the signedData to set */
     public void setSignedData(String signedData) {
         this.signedData = signedData;
     }
-
 }

@@ -15,7 +15,6 @@
 package org.fisco.bcos.sdk.transaction.core.impl.executor;
 
 import java.util.concurrent.CompletableFuture;
-
 import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.client.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.client.response.Call;
@@ -52,5 +51,4 @@ public class TransactionPusher implements TransactionPusherInterface {
         // TODO Auto-generated method stub
         return null;
     }
-
 }

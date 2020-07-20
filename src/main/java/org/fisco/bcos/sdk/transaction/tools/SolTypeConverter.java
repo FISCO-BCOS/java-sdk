@@ -15,12 +15,10 @@
 package org.fisco.bcos.sdk.transaction.tools;
 
 /**
- * SolTypeConverter
+ * SolTypeConverter @Description: SolTypeConverter
  *
- * @Description: SolTypeConverter
  * @author maojiayu
  * @data Jul 17, 2020 3:35:09 PM
- *
  */
 public class SolTypeConverter {
 

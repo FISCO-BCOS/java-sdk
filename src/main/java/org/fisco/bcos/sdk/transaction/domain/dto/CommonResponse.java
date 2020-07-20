@@ -15,43 +15,32 @@
 package org.fisco.bcos.sdk.transaction.domain.dto;
 
 /**
- * CommonResponse
+ * CommonResponse @Description: CommonResponse
  *
- * @Description: CommonResponse
  * @author maojiayu
  * @data Jul 17, 2020 3:15:35 PM
- *
  */
 public class CommonResponse {
     private int returnCode;
     private String returnMessage;
 
-    /**
-     * @return the returnCode
-     */
+    /** @return the returnCode */
     public int getReturnCode() {
         return returnCode;
     }
 
-    /**
-     * @param returnCode the returnCode to set
-     */
+    /** @param returnCode the returnCode to set */
     public void setReturnCode(int returnCode) {
         this.returnCode = returnCode;
     }
 
-    /**
-     * @return the returnMessage
-     */
+    /** @return the returnMessage */
     public String getReturnMessage() {
         return returnMessage;
     }
 
-    /**
-     * @param returnMessage the returnMessage to set
-     */
+    /** @param returnMessage the returnMessage to set */
     public void setReturnMessage(String returnMessage) {
         this.returnMessage = returnMessage;
     }
-
 }

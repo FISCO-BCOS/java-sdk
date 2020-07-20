@@ -18,12 +18,10 @@ import org.fisco.bcos.sdk.model.SolidityConstructor;
 import org.fisco.bcos.sdk.model.SolidityFunction;
 
 /**
- * FunctionEncoderInterface
+ * FunctionEncoderInterface @Description: FunctionEncoderInterface
  *
- * @Description: FunctionEncoderInterface
  * @author maojiayu
  * @data Jul 17, 2020 2:46:31 PM
- *
  */
 public interface FunctionEncoderInterface {
 
