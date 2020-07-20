@@ -11,7 +11,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.exceptions;
+package org.fisco.bcos.sdk.utils.exceptions;
 
 /** Encoding exception. */
 public class MessageDecodingException extends RuntimeException {

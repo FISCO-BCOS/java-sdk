@@ -13,16 +13,18 @@
  *
  */
 
-package org.fisco.bcos.sdk.model;
+package org.fisco.bcos.sdk.config;
 
-import io.netty.buffer.ByteBuf;
-import java.io.Serializable;
-
-/** Messages between sdk and FISCO BCOS node. */
-public class Message implements Serializable {
-    public void readFromByteBuf(ByteBuf in) {
-        // ignore
+public class ConfigException extends Exception {
+    public ConfigException(String message) {
+        super(message);
     }
 
-    public void writeToByteBuf(ByteBuf out) {}
+    public ConfigException(Throwable cause) {
+        super(cause);
+    }
+
+    public ConfigException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

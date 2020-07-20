@@ -15,7 +15,10 @@
 
 package org.fisco.bcos.sdk.network;
 
+import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
+import java.util.Map;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 
 /** Network interface Modules interact with the network module through this interface. */
@@ -23,11 +26,12 @@ public interface Network {
     /**
      * Init network module
      *
-     * @param configFile
+     * @param config the config options read from yaml config file
+     * @param handler message handler
      * @return a Network implementation instance
      */
-    static Network build(String configFile, MsgHandler handler) {
-        return null;
+    static Network build(ConfigOption config, MsgHandler handler) {
+        return new NetworkImp(config, handler);
     }
 
     /**
@@ -43,7 +47,7 @@ public interface Network {
      * @param out
      * @param peerIpPort
      */
-    void sendToPeer(Message out, String peerIpPort);
+    void sendToPeer(Message out, String peerIpPort) throws NetworkException;
 
     /**
      * Get connection information
@@ -51,4 +55,21 @@ public interface Network {
      * @return list of connection information
      */
     List<ConnectionInfo> getConnectionInfo();
+
+    /**
+     * Start connect peers
+     *
+     * @throws NetworkException
+     */
+    void start() throws NetworkException;
+
+    /**
+     * Get available connection context
+     *
+     * @return Map<String, ChannelHandlerContext> String for the IP:Port of a peer
+     */
+    Map<String, ChannelHandlerContext> getAvailableConnections();
+
+    /** Exit gracefully */
+    void stop();
 }

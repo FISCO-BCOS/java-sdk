@@ -1,0 +1,17 @@
+cryptoMateral:
+  algorithm: ecdsa # ecdsa 或 sm
+  caCert: cryptopath/ca.crt
+  sslCert: cryptopath/sdk.crt
+  sslKey: cryptopath/sdk.key
+peers:
+  - "127.0.0.1:20200"
+  - "127.0.0.1:20208"
+  - "127.0.0.1:20203"
+  - "127.0.0.1:20201"
+AMOPKeys:
+  - topicName: t1  #认证Topic发送者配置方法
+    publicKeys:
+      - "consumer_public_key_1.pem"
+      - "consumer_public_key_2.pem"
+  - topicName: t2  #认证Topic订阅者配置方法
+    privateKey: "consumer_private_key.pem"

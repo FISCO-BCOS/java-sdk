@@ -13,16 +13,12 @@
  *
  */
 
-package org.fisco.bcos.sdk.model;
+package org.fisco.bcos.sdk.network;
 
-import io.netty.buffer.ByteBuf;
-import java.io.Serializable;
-
-/** Messages between sdk and FISCO BCOS node. */
-public class Message implements Serializable {
-    public void readFromByteBuf(ByteBuf in) {
-        // ignore
-    }
-
-    public void writeToByteBuf(ByteBuf out) {}
+public class TimeoutConfig {
+    public static long idleTimeout = (long) 10000;
+    public static long heartBeatDelay = (long) 2000;
+    public static long reconnectDelay = (long) 20000;
+    public static long connectTimeout = (long) 10000;
+    public static long sslHandShakeTimeout = (long) 10000;
 }

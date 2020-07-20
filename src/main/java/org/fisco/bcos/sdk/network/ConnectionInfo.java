@@ -15,5 +15,43 @@
 
 package org.fisco.bcos.sdk.network;
 
+import org.fisco.bcos.sdk.utils.Host;
+
 /** Connection information. */
-public class ConnectionInfo {}
+public class ConnectionInfo {
+
+    public ConnectionInfo(String peerIpPort) {
+        String IP = Host.getIpFromString(peerIpPort);
+        String port = Host.getPortFromString(peerIpPort);
+        this.ip = IP;
+        this.port = Integer.parseInt(port);
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    public String getEndPoint() {
+        return ip + port;
+    }
+
+    private String ip = "";
+    private Integer port = 0;
+
+    @Override
+    public String toString() {
+        return "ConnectionInfo{" + "host='" + ip + '\'' + ", port=" + port + '}';
+    }
+}

@@ -1,15 +1,17 @@
+// Apply the java-library plugin to add support for Java Library
 plugins {
     id 'com.github.sherter.google-java-format' version '0.8'
+    id 'maven'
+    id 'maven-publish'
+    id 'signing'
+    id 'idea'
+    id 'eclipse'
+    id 'java'
+    id 'jacoco'
 }
 
-// Apply the java-library plugin to add support for Java Library
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
-apply plugin: 'idea'
-apply plugin: 'eclipse'
-apply plugin: 'java'
-apply plugin: 'jacoco'
+
+
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -43,9 +45,7 @@ verifyGoogleJavaFormat {
     include '**/*.java'
 }
 
-dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.30'
-}
+
 jacocoTestReport {
     reports {
         xml.enabled true
@@ -54,15 +54,19 @@ jacocoTestReport {
 }
 
 dependencies {
+    compile 'org.bouncycastle:bcprov-jdk15on:1.60'
     compile 'org.apache.commons:commons-lang3:3.1'
     compile 'io.netty:netty-all:4.1.50.Final'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
-    compile 'org.slf4j:slf4j-api:1.7.30'
     compile files('lib/pkey-sign.jar')
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.14'
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
+    compile 'org.slf4j:slf4j-api:1.7.30'
+    compile ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
+
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.23.0'
-
 }
 
 archivesBaseName = 'java-sdk'
