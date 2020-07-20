@@ -12,18 +12,12 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.transaction.core.interf.executor;
 
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
-import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+package org.fisco.bcos.sdk.client.protocol.response;
 
 /**
- * TransactionEncoderInterface @Description: TransactionEncoderInterface
+ * getSyncStatus.
  *
- * @author maojiayu
- * @data Jul 17, 2020 11:59:49 AM
+ * <p>Returns an object with data about the sync status or false.
  */
-public interface TransactionEncoderInterface {
-
-    byte[] encode(BcosTransaction transaction, SignatureResult signature);
-}
+public class SyncStatus {}

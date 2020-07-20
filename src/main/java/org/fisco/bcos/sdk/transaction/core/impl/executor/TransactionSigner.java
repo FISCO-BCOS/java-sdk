@@ -14,7 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.core.impl.executor;
 
-import org.fisco.bcos.sdk.client.response.BcosTransaction;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.transaction.core.interf.executor.TransactionSignerInterface;
 

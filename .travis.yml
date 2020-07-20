@@ -57,10 +57,6 @@ jobs:
       dist: bionic
       sudo: required
 
-#    # os
-#    - language: java
-#        os: osx
-#        osx_image: xcode11.3
 addons:
   apt:
     packages:
@@ -77,3 +73,6 @@ before_install:
   - gradle wrapper
 script: |
   bash .ci/ci_check.sh
+after_success:
+  - ./gradlew jacocoTestReport
+  -  bash <(curl -s https://codecov.io/bash)
