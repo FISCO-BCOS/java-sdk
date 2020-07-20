@@ -14,7 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.domain.dto;
 
-import org.fisco.bcos.sdk.client.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
 
 /**
  * TransactionResponse @Description: TransactionResponse

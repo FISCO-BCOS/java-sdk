@@ -26,7 +26,7 @@ public class MessageDecoder extends ByteToMessageDecoder {
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)
             throws Exception {
         Message msg = new Message();
-        msg.readFromByteBuf(in);
+        msg.decode(in);
         out.add(msg);
     }
 }

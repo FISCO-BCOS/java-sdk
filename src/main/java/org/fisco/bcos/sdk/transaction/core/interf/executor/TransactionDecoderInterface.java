@@ -16,8 +16,8 @@ package org.fisco.bcos.sdk.transaction.core.interf.executor;
 
 import java.util.List;
 import java.util.Map;
-import org.fisco.bcos.sdk.client.response.BcosTransaction;
-import org.fisco.bcos.sdk.client.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.transaction.domain.EventLog;
 import org.fisco.bcos.sdk.transaction.domain.EventResultEntity;
 import org.fisco.bcos.sdk.transaction.domain.InputAndOutputResult;

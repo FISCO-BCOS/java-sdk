@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.channel;
 import java.util.List;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
+import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
 import org.fisco.bcos.sdk.network.MsgHandler;
 
@@ -63,13 +64,40 @@ public interface Channel {
     void addDisconnectHandler(MsgHandler handler);
 
     /**
+     * Synchronize interface, send a message to the given peer, and get the response
+     *
+     * @param out: Message to be sent
+     * @param peerIpPort: Remote ip:port information
+     * @param callback: The callback to be called when the response returns
+     * @return: Remote reply
+     */
+    Response sendToPeer(Message out, String peerIpPort);
+    /**
+     * Synchronize interface, send a message to the given group, and get the response
+     *
+     * @param out: Message to be sent
+     * @param groupId: ID of the group receiving the message packet
+     * @param callback: The callback to be called when the response returns
+     * @return: Remote reply
+     */
+    Response sendToGroup(Message out, String groupId);
+    /**
+     * Synchronize interface, randomly select nodes to send messages
+     *
+     * @param out: Message to be sent
+     * @param callback: The callback to be called when the response returns
+     * @return: Remote reply
+     */
+    Response sendToRandom(Message out);
+
+    /**
      * Send message to peer
      *
      * @param out message
      * @param peerIpPort the peer to send to
      * @param callback response callback
      */
-    void sendToPeer(Message out, String peerIpPort, ResponseCallback callback);
+    void asyncSendToPeer(Message out, String peerIpPort, ResponseCallback callback);
 
     /**
      * Send to a best peer with highest block height in Group
@@ -78,7 +106,7 @@ public interface Channel {
      * @param groupId
      * @param callback
      */
-    void sendToGroup(Message out, String groupId, ResponseCallback callback);
+    void asyncSendToGroup(Message out, String groupId, ResponseCallback callback);
 
     /**
      * Broadcast to all peer
@@ -94,7 +122,7 @@ public interface Channel {
      * @param out
      * @param callback
      */
-    void sendToRandom(Message out, ResponseCallback callback);
+    void asyncSendToRandom(Message out, ResponseCallback callback);
 
     /**
      * Get connection information
@@ -102,4 +130,6 @@ public interface Channel {
      * @return List of connection information
      */
     List<ConnectionInfo> getConnectionInfo();
+
+    public String newSeq();
 }
