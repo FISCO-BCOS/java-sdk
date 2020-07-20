@@ -19,12 +19,12 @@ import java.util.List;
 /**
  * Constructor
  *
- * @Description: Constructor
+ * @Description: SolidityConstructor
  * @author maojiayu
  * @data Jul 17, 2020 2:36:50 PM
  *
  */
-public class Constructor {
+public class SolidityConstructor {
 
     private String contractName;
     private List<Object> params;
@@ -39,7 +39,7 @@ public class Constructor {
      * @param abi
      * @param data
      */
-    public Constructor(String contractName, List<Object> params, String binary, String abi, String data) {
+    public SolidityConstructor(String contractName, List<Object> params, String binary, String abi, String data) {
         this.contractName = contractName;
         this.params = params;
         this.binary = binary;

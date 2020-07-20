@@ -14,8 +14,8 @@
  */
 package org.fisco.bcos.sdk.transaction.core.impl.function;
 
-import org.fisco.bcos.sdk.model.Constructor;
-import org.fisco.bcos.sdk.model.Function;
+import org.fisco.bcos.sdk.model.SolidityConstructor;
+import org.fisco.bcos.sdk.model.SolidityFunction;
 import org.fisco.bcos.sdk.transaction.core.interf.function.FunctionEncoderInterface;
 
 /**
@@ -29,13 +29,13 @@ import org.fisco.bcos.sdk.transaction.core.interf.function.FunctionEncoderInterf
 public class FunctionEncoder implements FunctionEncoderInterface {
 
     @Override
-    public String encodeFunction(Function function) {
+    public String encodeFunction(SolidityFunction solidityFunction) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public String encodeConstructor(Constructor constuctor) {
+    public String encodeConstructor(SolidityConstructor constuctor) {
         // TODO Auto-generated method stub
         return null;
     }

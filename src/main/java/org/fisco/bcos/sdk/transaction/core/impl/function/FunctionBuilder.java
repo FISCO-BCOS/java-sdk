@@ -16,20 +16,20 @@ package org.fisco.bcos.sdk.transaction.core.impl.function;
 
 import java.util.List;
 
-import org.fisco.bcos.sdk.model.Constructor;
-import org.fisco.bcos.sdk.model.Function;
+import org.fisco.bcos.sdk.model.SolidityConstructor;
+import org.fisco.bcos.sdk.model.SolidityFunction;
 import org.fisco.bcos.sdk.transaction.core.interf.function.FunctionBuilderInterface;
 
 public class FunctionBuilder implements FunctionBuilderInterface {
 
     @Override
-    public Function buildFunction(String contractName, String contractAddress, String functionName, List<Object> args) {
+    public SolidityFunction buildFunction(String contractName, String contractAddress, String functionName, List<Object> args) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Constructor buildConstructor(String contractName, List<Object> args) {
+    public SolidityConstructor buildConstructor(String contractName, List<Object> args) {
         // TODO Auto-generated method stub
         return null;
     }

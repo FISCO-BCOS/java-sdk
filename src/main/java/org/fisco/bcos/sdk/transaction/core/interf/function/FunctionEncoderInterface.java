@@ -14,8 +14,8 @@
  */
 package org.fisco.bcos.sdk.transaction.core.interf.function;
 
-import org.fisco.bcos.sdk.model.Constructor;
-import org.fisco.bcos.sdk.model.Function;
+import org.fisco.bcos.sdk.model.SolidityConstructor;
+import org.fisco.bcos.sdk.model.SolidityFunction;
 
 /**
  * FunctionEncoderInterface
@@ -27,7 +27,7 @@ import org.fisco.bcos.sdk.model.Function;
  */
 public interface FunctionEncoderInterface {
 
-    public String encodeFunction(Function function);
+    public String encodeFunction(SolidityFunction solidityFunction);
 
-    public String encodeConstructor(Constructor constuctor);
+    public String encodeConstructor(SolidityConstructor constuctor);
 }
