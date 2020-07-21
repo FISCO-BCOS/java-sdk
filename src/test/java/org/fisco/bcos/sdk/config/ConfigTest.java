@@ -23,17 +23,13 @@ import org.junit.Test;
 public class ConfigTest {
     @Test(expected = ConfigException.class)
     public void testLoadConfig() throws ConfigException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        ConfigOption config = Config.load(classLoader.getResource("config-bad.yaml").getPath());
+        ConfigOption config = Config.load("src/test/resources/config/config-bad.yaml");
     }
 
     @Test
     public void testLoadRightConfig() {
-        ClassLoader classLoader = getClass().getClassLoader();
-
         try {
-            ConfigOption config =
-                    Config.load(classLoader.getResource("config-example.yaml").getPath());
+            ConfigOption config = Config.load("src/test/resources/config/config-example.yaml");
             assertEquals("ecdsa", config.getAlgorithm());
         } catch (ConfigException e) {
             e.printStackTrace();
