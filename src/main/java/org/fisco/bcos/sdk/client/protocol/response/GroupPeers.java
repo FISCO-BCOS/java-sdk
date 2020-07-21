@@ -16,4 +16,4 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 /** getGroupPeers */
-public class GroupPeers {}
+public class GroupPeers extends JsonRpcResponse {}

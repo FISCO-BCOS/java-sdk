@@ -16,4 +16,4 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 /** getNodeVersion. */
-public class NodeVersion {}
+public class NodeVersion extends JsonRpcResponse {}

@@ -15,6 +15,8 @@
 
 package org.fisco.bcos.sdk.client;
 
+import org.fisco.bcos.sdk.model.Response;
+
 /**
  * Callback function to executed when client get response from the node.
  *
@@ -28,4 +30,6 @@ public interface RespCallback<T> {
      * @param t the response data structure
      */
     void onResponse(T t);
+
+    void onError(Response errorResponse);
 }

@@ -16,4 +16,4 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 /** getPbftView */
-public class PbftView {}
+public class PbftView extends JsonRpcResponse {}

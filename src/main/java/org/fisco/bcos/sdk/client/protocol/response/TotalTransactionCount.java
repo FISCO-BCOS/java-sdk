@@ -16,4 +16,4 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 /** getTotalTransactionCount */
-public class TotalTransactionCount {}
+public class TotalTransactionCount extends JsonRpcResponse {}
