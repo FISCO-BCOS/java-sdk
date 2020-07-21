@@ -14,13 +14,11 @@
  */
 package org.fisco.bcos.sdk.transaction.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigInteger;
 import java.util.List;
-
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.utils.Numeric;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Log object used by {@link BcosLog} and {@link BcosTransactionReceipt}.

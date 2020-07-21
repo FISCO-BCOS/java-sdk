@@ -16,7 +16,6 @@ package org.fisco.bcos.sdk.transaction.domain;
 
 import java.util.List;
 import java.util.Objects;
-
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 
