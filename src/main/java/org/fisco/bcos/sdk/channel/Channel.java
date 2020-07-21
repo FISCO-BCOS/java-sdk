@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.channel;
 
 import java.util.List;
+import java.util.UUID;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -131,5 +132,8 @@ public interface Channel {
      */
     List<ConnectionInfo> getConnectionInfo();
 
-    public String newSeq();
+    public static String newSeq() {
+        String seq = UUID.randomUUID().toString().replaceAll("-", "");
+        return seq;
+    }
 }

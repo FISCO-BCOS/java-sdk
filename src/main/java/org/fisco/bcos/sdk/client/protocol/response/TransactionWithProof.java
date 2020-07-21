@@ -16,4 +16,4 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 /** getTransactionWithProof. */
-public class TransactionWithProof {}
+public class TransactionWithProof extends JsonRpcResponse {}

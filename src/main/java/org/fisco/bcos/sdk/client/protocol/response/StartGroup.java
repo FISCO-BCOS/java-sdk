@@ -15,4 +15,4 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-public class StartGroup {}
+public class StartGroup extends JsonRpcResponse {}
