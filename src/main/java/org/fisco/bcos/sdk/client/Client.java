@@ -18,7 +18,6 @@ package org.fisco.bcos.sdk.client;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.channel.Channel;
-import org.fisco.bcos.sdk.client.protocol.request.DefaultBlockParameter;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
@@ -65,9 +64,7 @@ public interface Client {
      * @param GroupId
      * @return a client instance
      */
-    static Client build(Channel channel, String GroupId) {
-        return null;
-    }
+    Client build(Channel channel, String GroupId);
 
     /**
      * Build a client instance Can only call interfaces relate to group management and node
@@ -76,9 +73,7 @@ public interface Client {
      * @param channel
      * @return a client instance
      */
-    static Client build(Channel channel) {
-        return null;
-    }
+    Client build(Channel channel);
 
     /**
      * Ledger operation: send transaction
@@ -292,7 +287,7 @@ public interface Client {
      * @return transaction
      */
     BcosTransaction getTransactionByBlockNumberAndIndex(
-            DefaultBlockParameter defaultBlockParameter, BigInteger transactionIndex);
+            BigInteger blockNumber, BigInteger transactionIndex);
 
     /**
      * Ledger operation: async get transaction by block number and index
@@ -302,7 +297,7 @@ public interface Client {
      * @param callback
      */
     void getTransactionByBlockNumberAndIndexAsync(
-            DefaultBlockParameter defaultBlockParameter,
+            BigInteger blockNumber,
             BigInteger transactionIndex,
             RespCallback<BcosTransaction> callback);
 
@@ -382,18 +377,6 @@ public interface Client {
      * @param timestamp
      * @param enableFreeStorage
      * @param nodeList
-     * @return generate group reply message
-     */
-    GenerateGroup generateGroup(
-            int groupId, long timestamp, boolean enableFreeStorage, List<String> nodeList);
-
-    /**
-     * Group operation: generate a new group
-     *
-     * @param groupId
-     * @param timestamp
-     * @param enableFreeStorage
-     * @param nodeList
      * @param peerIpPort send to the specific peer
      * @return generate group reply message
      */
@@ -403,22 +386,6 @@ public interface Client {
             boolean enableFreeStorage,
             List<String> nodeList,
             String peerIpPort);
-
-    /**
-     * Group operation: async generate a new group
-     *
-     * @param groupId
-     * @param timestamp
-     * @param enableFreeStorage
-     * @param nodeList
-     * @param callback
-     */
-    void generateGroupAsync(
-            int groupId,
-            long timestamp,
-            boolean enableFreeStorage,
-            List<String> nodeList,
-            RespCallback<GenerateGroup> callback);
 
     /**
      * Group operation: async generate a new group
@@ -442,26 +409,10 @@ public interface Client {
      * Group operation: start a group
      *
      * @param groupId
-     * @return start group rpc reply
-     */
-    StartGroup startGroup(int groupId);
-
-    /**
-     * Group operation: start a group
-     *
-     * @param groupId
      * @param peerIpPort
      * @return start group rpc reply
      */
     StartGroup startGroup(int groupId, String peerIpPort);
-
-    /**
-     * Group operation: async start a group
-     *
-     * @param groupId
-     * @param callback
-     */
-    void startGroupAsync(int groupId, RespCallback<StartGroup> callback);
 
     /**
      * Group operation: async start a group
@@ -476,26 +427,10 @@ public interface Client {
      * Group operation: stop a group
      *
      * @param groupId
-     * @return stop group rpc reply
-     */
-    StopGroup stopGroup(int groupId);
-
-    /**
-     * Group operation: stop a group
-     *
-     * @param groupId
      * @param peerIpPort
      * @return stop group rpc reply
      */
     StopGroup stopGroup(int groupId, String peerIpPort);
-
-    /**
-     * Group operation: async stop a group
-     *
-     * @param groupId
-     * @param callback
-     */
-    void stopGroupAsync(int groupId, RespCallback<StopGroup> callback);
 
     /**
      * Group operation: async stop a group
@@ -510,26 +445,10 @@ public interface Client {
      * Group operation: remove a group
      *
      * @param groupId
-     * @return remove group rpc reply
-     */
-    RemoveGroup removeGroup(int groupId);
-
-    /**
-     * Group operation: remove a group
-     *
-     * @param groupId
      * @param peerIpPort
      * @return remove group rpc reply
      */
     RemoveGroup removeGroup(int groupId, String peerIpPort);
-
-    /**
-     * Group operation: async remove a group
-     *
-     * @param groupId
-     * @param callback
-     */
-    void removeGroupAsync(int groupId, RespCallback<RemoveGroup> callback);
 
     /**
      * Group operation: async remove a group
@@ -544,26 +463,10 @@ public interface Client {
      * Group operation: recover a group
      *
      * @param groupId
-     * @return recover group rpc reply
-     */
-    RecoverGroup recoverGroup(int groupId);
-
-    /**
-     * Group operation: recover a group
-     *
-     * @param groupId
      * @param peerIpPort
      * @return recover group rpc reply
      */
     RecoverGroup recoverGroup(int groupId, String peerIpPort);
-
-    /**
-     * Group operation: async recover a group
-     *
-     * @param groupId
-     * @param callback
-     */
-    void recoverGroupAsync(int groupId, RespCallback<RecoverGroup> callback);
 
     /**
      * Group operation: async recover a group

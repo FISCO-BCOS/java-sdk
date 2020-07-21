@@ -15,4 +15,4 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-public class GenerateGroup {}
+public class GenerateGroup extends JsonRpcResponse {}

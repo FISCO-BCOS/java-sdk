@@ -16,4 +16,4 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 /** getblockNumber. */
-public class BlockNumber {}
+public class BlockNumber extends JsonRpcResponse {}
