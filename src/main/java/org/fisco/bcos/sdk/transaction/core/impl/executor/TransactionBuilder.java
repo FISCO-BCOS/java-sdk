@@ -15,13 +15,14 @@
 package org.fisco.bcos.sdk.transaction.core.impl.executor;
 
 import java.math.BigInteger;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
+
 import org.fisco.bcos.sdk.transaction.core.interf.executor.TransactionBuilderInterface;
+import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 public class TransactionBuilder implements TransactionBuilderInterface {
 
     @Override
-    public BcosTransaction createTransaction(
+    public RawTransaction createTransaction(
             BigInteger gasPrice,
             BigInteger gasLimit,
             String to,
@@ -35,7 +36,7 @@ public class TransactionBuilder implements TransactionBuilderInterface {
     }
 
     @Override
-    public BcosTransaction createTransaction(String to, String data, BigInteger groupId) {
+    public RawTransaction createTransaction(String to, String data, BigInteger groupId) {
         // TODO Auto-generated method stub
         return null;
     }

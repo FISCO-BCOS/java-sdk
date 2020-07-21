@@ -16,11 +16,12 @@ package org.fisco.bcos.sdk.transaction.core.interf.executor;
 
 import java.util.List;
 import java.util.Map;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
+
 import org.fisco.bcos.sdk.transaction.domain.EventLog;
 import org.fisco.bcos.sdk.transaction.domain.EventResultEntity;
 import org.fisco.bcos.sdk.transaction.domain.InputAndOutputResult;
+import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
+import org.fisco.bcos.sdk.transaction.domain.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.domain.TransactionResponse;
 
 /**
@@ -31,7 +32,7 @@ import org.fisco.bcos.sdk.transaction.domain.TransactionResponse;
  */
 public interface TransactionDecoderInterface {
 
-    public BcosTransaction decodeRlp(String hex);
+    public RawTransaction decodeRlp(String hex);
 
     public String decodeCall(String abi, String output);
 
@@ -41,10 +42,10 @@ public interface TransactionDecoderInterface {
             String contractName, String input, String output);
 
     public String decodeEventReturnJson(
-            String contractName, BcosTransactionReceipt transactionReceipt);
+            String contractName, TransactionReceipt transactionReceipt);
 
     public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(
-            String contractName, BcosTransactionReceipt transactionReceipt);
+            String contractName, TransactionReceipt transactionReceipt);
 
     public String decodeEventReturnJson(String contractName, List<EventLog> logList);
 
@@ -60,5 +61,5 @@ public interface TransactionDecoderInterface {
     public String decodeReceiptMessage(String input);
 
     public TransactionResponse decodeTransactionReceipt(
-            String contractName, BcosTransactionReceipt transactionReceipt);
+            String contractName, TransactionReceipt transactionReceipt);
 }

@@ -14,8 +14,8 @@
  */
 package org.fisco.bcos.sdk.transaction.core.interf.executor;
 
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 /**
  * TransactionEncoderInterface @Description: TransactionEncoderInterface
@@ -25,5 +25,5 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
  */
 public interface TransactionEncoderInterface {
 
-    byte[] encode(BcosTransaction transaction, SignatureResult signature);
+    byte[] encode(RawTransaction transaction, SignatureResult signature);
 }

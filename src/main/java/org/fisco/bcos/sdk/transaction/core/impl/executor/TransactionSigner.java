@@ -14,9 +14,9 @@
  */
 package org.fisco.bcos.sdk.transaction.core.impl.executor;
 
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.transaction.core.interf.executor.TransactionSignerInterface;
+import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 public class TransactionSigner implements TransactionSignerInterface {
 
@@ -34,7 +34,7 @@ public class TransactionSigner implements TransactionSignerInterface {
     }
 
     @Override
-    public byte[] sign(BcosTransaction bcosTransaction) {
+    public byte[] sign(RawTransaction rawTransaction) {
         // TODO Auto-generated method stub
         return null;
     }
