@@ -15,4 +15,10 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-public class RemoveGroup extends JsonRpcResponse {}
+import org.fisco.bcos.sdk.client.protocol.model.GroupStatus;
+
+public class RemoveGroup extends JsonRpcResponse<GroupStatus> {
+    public GroupStatus getGroupStatus() {
+        return getResult();
+    }
+}

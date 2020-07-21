@@ -15,4 +15,10 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-public class SealerList extends JsonRpcResponse {}
+import java.util.List;
+
+public class SealerList extends JsonRpcResponse<List<String>> {
+    public List<String> getSealerList() {
+        return getResult();
+    }
+}

@@ -15,6 +15,10 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
+import java.math.BigInteger;
+import java.util.Objects;
+import org.fisco.bcos.sdk.utils.Numeric;
+
 /**
  * RPC response of ledger call
  *
@@ -23,15 +27,23 @@ package org.fisco.bcos.sdk.client.protocol.response;
 public class Call extends JsonRpcResponse<Call.CallOutput> {
     public static class CallOutput {
         private String currentBlockNumber;
-        private String output;
         private String status;
+        private String output;
 
-        public String getCurrentBlockNumber() {
-            return currentBlockNumber;
+        public BigInteger getCurrentBlockNumber() {
+            return Numeric.decodeQuantity(currentBlockNumber);
         }
 
-        public void setCurrentBlockNumber(String number) {
-            this.currentBlockNumber = number;
+        public void setCurrentBlockNumber(String currentBlockNumber) {
+            this.currentBlockNumber = currentBlockNumber;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
         }
 
         public String getOutput() {
@@ -42,20 +54,44 @@ public class Call extends JsonRpcResponse<Call.CallOutput> {
             this.output = output;
         }
 
-        public String getStatus() {
-            return status;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CallOutput that = (CallOutput) o;
+            return Objects.equals(
+                            Numeric.decodeQuantity(currentBlockNumber),
+                            Numeric.decodeQuantity(that.currentBlockNumber))
+                    && Objects.equals(status, that.status)
+                    && Objects.equals(output, that.output);
         }
 
-        public void setStatus(String status) {
-            this.status = status;
+        @Override
+        public int hashCode() {
+            return Objects.hash(Numeric.decodeQuantity(currentBlockNumber), status, output);
         }
-    }
 
-    public CallOutput getValue() {
-        return getResult();
+        @Override
+        public String toString() {
+            return "CallOutput{"
+                    + "currentBlockNumber='"
+                    + currentBlockNumber
+                    + '\''
+                    + ", status='"
+                    + status
+                    + '\''
+                    + ", output='"
+                    + output
+                    + '\''
+                    + '}';
+        }
     }
 
     public void setResult(CallOutput result) {
         super.setResult(result);
+    }
+
+    public CallOutput getCallResult() {
+        return getResult();
     }
 }

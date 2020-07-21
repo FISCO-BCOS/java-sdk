@@ -15,4 +15,10 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-public class GenerateGroup extends JsonRpcResponse {}
+import org.fisco.bcos.sdk.client.protocol.model.GroupStatus;
+
+public class GenerateGroup extends JsonRpcResponse<GroupStatus> {
+    public GroupStatus getGroupStatus() {
+        return getResult();
+    }
+}
