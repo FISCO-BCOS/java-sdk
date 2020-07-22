@@ -15,10 +15,17 @@
 
 package org.fisco.bcos.sdk.channel;
 
+import io.netty.util.Timeout;
 import org.fisco.bcos.sdk.model.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** ResponseCallback is to define a callback to handle response from node. */
 public abstract class ResponseCallback {
+
+    private static Logger logger = LoggerFactory.getLogger(ResponseCallback.class);
+
+    private Timeout timeout;
 
     /**
      * OnResponse
@@ -26,4 +33,24 @@ public abstract class ResponseCallback {
      * @param response
      */
     public abstract void onResponse(Response response);
+
+    public void onTimeout() {
+        logger.error("Processing message timeout:{}");
+
+        Response response = new Response();
+        response.setErrorCode(ChannelMessageError.MESSAGE_TIMEOUT.getError());
+        response.setErrorMessage("Processing message timeout");
+
+        response.setContent("");
+
+        onResponse(response);
+    }
+
+    public Timeout getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Timeout timeout) {
+        this.timeout = timeout;
+    }
 }
