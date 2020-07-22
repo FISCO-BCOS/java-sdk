@@ -12,27 +12,15 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.transaction.domain;
+
+package org.fisco.bcos.sdk.model;
 
 import java.util.List;
 import java.util.Objects;
-import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
-import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 
-/**
- * MerkleProofUnit object used by both {@link TransactionReceiptWithProof} and {@link
- * TransactionWithProof}.
- */
 public class MerkleProofUnit {
     private List<String> left;
     private List<String> right;
-
-    public MerkleProofUnit() {}
-
-    public MerkleProofUnit(List<String> left, List<String> right) {
-        this.left = left;
-        this.right = right;
-    }
 
     public List<String> getLeft() {
         return left;
@@ -52,20 +40,15 @@ public class MerkleProofUnit {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof MerkleProofUnit)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         MerkleProofUnit that = (MerkleProofUnit) o;
-        return Objects.equals(getLeft(), that.getLeft())
-                && Objects.equals(getRight(), that.getRight());
+        return Objects.equals(left, that.left) && Objects.equals(right, that.right);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getLeft(), getRight());
+        return Objects.hash(left, right);
     }
 
     @Override

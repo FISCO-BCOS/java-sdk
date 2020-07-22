@@ -52,14 +52,18 @@ import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
+import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.utils.Numeric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientImpl implements Client {
+    private static Logger logger = LoggerFactory.getLogger(ClientImpl.class);
     private final JsonRpcService jsonRpcService;
-    private final String groupId;
+    private final Integer groupId;
 
-    ClientImpl(Channel channel, String groupId) {
-        this.jsonRpcService = new JsonRpcService(channel, groupId);
+    ClientImpl(GroupManagerService groupManagerService, Channel channel, Integer groupId) {
+        this.jsonRpcService = new JsonRpcService(groupManagerService, channel, groupId);
         this.groupId = groupId;
     }
 
@@ -67,12 +71,18 @@ public class ClientImpl implements Client {
      * Build a client instance GroupId is identified, all interfaces are available
      *
      * @param channel
-     * @param groupId
+     * @param groupIdStr
      * @return a client instance
      */
     @Override
-    public Client build(Channel channel, String groupId) {
-        return new ClientImpl(channel, groupId);
+    public Client build(
+            GroupManagerService groupManagerService, Channel channel, String groupIdStr) {
+        Integer groupId = Integer.valueOf(groupIdStr);
+        if (groupId == null) {
+            logger.warn("build client failed for invalid groupId, groupId: {}", groupIdStr);
+            return null;
+        }
+        return new ClientImpl(groupManagerService, channel, groupId);
     }
 
     /**
@@ -83,8 +93,8 @@ public class ClientImpl implements Client {
      * @return a client instance
      */
     @Override
-    public Client build(Channel channel) {
-        return new ClientImpl(channel, "1");
+    public Client build(GroupManagerService groupManagerService, Channel channel) {
+        return new ClientImpl(groupManagerService, channel, 1);
     }
 
     @Override
@@ -418,9 +428,16 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public BigInteger getBlockNumberCache() {
-        // TODO: get the cache of the latest block number of the group, and return the blockLimit
-        return null;
+    public BigInteger getBlockLimit() {
+        Integer groupId = Integer.valueOf(this.groupId);
+        if (this.jsonRpcService.getGroupManagerService().getBlockLimitByGroup(groupId)
+                == BigInteger.ZERO) {
+            BigInteger blockNumber = this.getBlockNumber().getBlockNumber();
+            // update the blockNumber of groupManagerService
+            this.jsonRpcService.getGroupManagerService().updateBlockNumber(groupId, blockNumber);
+            return blockNumber;
+        }
+        return this.jsonRpcService.getGroupManagerService().getBlockLimitByGroup(groupId);
     }
 
     @Override
