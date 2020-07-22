@@ -1,6 +1,7 @@
 .gradle/
 .idea/
 build
+java-sdk.iml
 
 ## eclipse ##
 .classpath
