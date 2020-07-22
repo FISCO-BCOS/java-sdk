@@ -15,5 +15,12 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
+import java.math.BigInteger;
+import org.fisco.bcos.sdk.utils.Numeric;
+
 /** getblockNumber. */
-public class BlockNumber extends JsonRpcResponse {}
+public class BlockNumber extends JsonRpcResponse<String> {
+    public BigInteger getBlockNumber() {
+        return Numeric.decodeQuantity(getResult());
+    }
+}

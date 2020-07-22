@@ -18,7 +18,7 @@ public class JsonRpcMethods {
     // the interface related to the group
     public static final String GET_BLOCK_NUMBER = "getBlockNumber";
 
-    public static final String GET_NODE_VERSION = "getNodeVersion";
+    public static final String GET_NODE_VERSION = "getClientVersion";
     public static final String GET_PBFT_VIEW = "getPbftView";
     public static final String GET_SEALER_LIST = "getSealerList";
     public static final String GET_SYSTEM_CONFIG_BY_KEY = "getSystemConfigByKey";
