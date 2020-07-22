@@ -16,9 +16,9 @@ package org.fisco.bcos.sdk.test.model;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
-import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
+import org.fisco.bcos.sdk.utils.ChannelUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,21 +28,27 @@ public class MessageTest {
         String data = "getBlockByNumber";
         // Note: the seq must be 32 bytes
         checkAndTestMessage(
-                (short) MsgType.AMOP_CLIENT_TOPICS.ordinal(), Channel.newSeq(), 0, data.getBytes());
+                (short) MsgType.AMOP_CLIENT_TOPICS.ordinal(),
+                ChannelUtils.newSeq(),
+                0,
+                data.getBytes());
 
         data = "test@12sd3*";
-        checkAndTestMessage((short) 0x1010, Channel.newSeq(), 0, data.getBytes());
+        checkAndTestMessage((short) 0x1010, ChannelUtils.newSeq(), 0, data.getBytes());
 
         data = "test\\sdf000 sd";
         checkAndTestMessage(
-                (short) MsgType.EVENT_LOG_PUSH.ordinal(), Channel.newSeq(), 0, data.getBytes());
+                (short) MsgType.EVENT_LOG_PUSH.ordinal(),
+                ChannelUtils.newSeq(),
+                0,
+                data.getBytes());
 
         // test json string
         data =
                 "'{\"jsonrpc\":\"2.0\",\"method\":\"getPendingTxSize\",\"params\":[65535],\"id\":1}'";
         checkAndTestMessage(
                 (short) MsgType.CHANNEL_RPC_REQUEST.ordinal(),
-                Channel.newSeq(),
+                ChannelUtils.newSeq(),
                 0,
                 data.getBytes());
     }

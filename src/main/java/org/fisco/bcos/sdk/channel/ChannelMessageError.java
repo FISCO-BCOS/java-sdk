@@ -13,12 +13,22 @@
  *
  */
 
-package org.fisco.bcos.sdk.client.protocol.response;
+package org.fisco.bcos.sdk.channel;
 
-import java.util.List;
+public enum ChannelMessageError {
+    MESSAGE_TIMEOUT(102); // timeout
 
-public class ObserverList extends JsonRpcResponse<List<String>> {
-    public List<String> getObserverList() {
-        return getResult();
+    private int error;
+
+    private ChannelMessageError(int error) {
+        this.setError(error);
+    }
+
+    public int getError() {
+        return error;
+    }
+
+    public void setError(int error) {
+        this.error = error;
     }
 }

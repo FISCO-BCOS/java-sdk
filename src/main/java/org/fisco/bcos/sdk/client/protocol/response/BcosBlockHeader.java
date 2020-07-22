@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.client.protocol.response;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
+import org.fisco.bcos.sdk.utils.Numeric;
 
 public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader> {
 
@@ -80,21 +81,21 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
     }
 
     public static class BlockHeader {
-        private BigInteger number;
-        private String hash;
-        private String parentHash;
-        private String logsBloom;
-        private String transactionsRoot;
-        private String receiptsRoot;
-        private String dbHash;
-        private String stateRoot;
-        private String sealer;
-        private List<String> sealerList;
-        private List<String> extraData;
-        private String gasLimit;
-        private String gasUsed;
-        private String timestamp;
-        private List<Signature> signatureList;
+        protected String number;
+        protected String hash;
+        protected String parentHash;
+        protected String logsBloom;
+        protected String transactionsRoot;
+        protected String receiptsRoot;
+        protected String dbHash;
+        protected String stateRoot;
+        protected String sealer;
+        protected List<String> sealerList;
+        protected List<String> extraData;
+        protected String gasLimit;
+        protected String gasUsed;
+        protected String timestamp;
+        protected List<Signature> signatureList;
 
         public void setSignatureList(List<Signature> signatureList) {
             this.signatureList = signatureList;
@@ -104,7 +105,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             return this.signatureList;
         }
 
-        public void setNumber(BigInteger number) {
+        public void setNumber(String number) {
             this.number = number;
         }
 
@@ -161,7 +162,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         }
 
         public BigInteger getNumber() {
-            return number;
+            return Numeric.decodeQuantity(number);
         }
 
         public String getHash() {
@@ -221,7 +222,8 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             BlockHeader that = (BlockHeader) o;
-            return Objects.equals(number, that.number)
+            return Objects.equals(
+                            Numeric.decodeQuantity(number), Numeric.decodeQuantity(that.number))
                     && Objects.equals(hash, that.hash)
                     && Objects.equals(parentHash, that.parentHash)
                     && Objects.equals(logsBloom, that.logsBloom)
@@ -241,7 +243,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         @Override
         public int hashCode() {
             return Objects.hash(
-                    number,
+                    Numeric.decodeQuantity(number),
                     hash,
                     parentHash,
                     logsBloom,

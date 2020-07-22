@@ -15,5 +15,72 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
+import java.util.Objects;
+
 /** getTotalTransactionCount */
-public class TotalTransactionCount extends JsonRpcResponse {}
+public class TotalTransactionCount
+        extends JsonRpcResponse<TotalTransactionCount.TransactionCountInfo> {
+    public TransactionCountInfo getTotalTransactionCount() {
+        return getResult();
+    }
+
+    public static class TransactionCountInfo {
+        private String txSum;
+        private String blockNumber;
+        private String failedTxSum;
+
+        public String getTxSum() {
+            return txSum;
+        }
+
+        public void setTxSum(String txSum) {
+            this.txSum = txSum;
+        }
+
+        public String getBlockNumber() {
+            return blockNumber;
+        }
+
+        public void setBlockNumber(String blockNumber) {
+            this.blockNumber = blockNumber;
+        }
+
+        public String getFailedTxSum() {
+            return failedTxSum;
+        }
+
+        public void setFailedTxSum(String failedTxSum) {
+            this.failedTxSum = failedTxSum;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TransactionCountInfo that = (TransactionCountInfo) o;
+            return Objects.equals(txSum, that.txSum)
+                    && Objects.equals(blockNumber, that.blockNumber)
+                    && Objects.equals(failedTxSum, that.failedTxSum);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(txSum, blockNumber, failedTxSum);
+        }
+
+        @Override
+        public String toString() {
+            return "TransactionCountInfo{"
+                    + "txSum='"
+                    + txSum
+                    + '\''
+                    + ", blockNumber='"
+                    + blockNumber
+                    + '\''
+                    + ", failedTxSum='"
+                    + failedTxSum
+                    + '\''
+                    + '}';
+        }
+    }
+}

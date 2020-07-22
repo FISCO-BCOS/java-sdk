@@ -33,7 +33,7 @@ public class Config {
      * @return ConfigOption
      * @throws IOException
      */
-    static ConfigOption load(String yamlConfigFile) throws ConfigException {
+    public static ConfigOption load(String yamlConfigFile) throws ConfigException {
         // Load a yaml config file to an java object
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         mapper.findAndRegisterModules();

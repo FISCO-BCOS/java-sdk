@@ -16,7 +16,6 @@
 package org.fisco.bcos.sdk.channel;
 
 import java.util.List;
-import java.util.UUID;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -36,7 +35,7 @@ public interface Channel {
      * @return a channel instance
      */
     static Channel build(String filepath) {
-        return null;
+        return new ChannelImp(filepath);
     }
 
     /**
@@ -65,65 +64,71 @@ public interface Channel {
     void addDisconnectHandler(MsgHandler handler);
 
     /**
+     * Send a message to the given group, only send
+     *
+     * @param out: Message to be sent
+     * @param groupId: ID of the group receiving the message packet
+     */
+    void broadcastToGroup(Message out, String groupId);
+
+    /**
+     * Broadcast to all peer, only send
+     *
+     * @param out: Message to be sent
+     */
+    void broadcast(Message out);
+
+    /**
      * Synchronize interface, send a message to the given peer, and get the response
      *
      * @param out: Message to be sent
      * @param peerIpPort: Remote ip:port information
-     * @param callback: The callback to be called when the response returns
      * @return: Remote reply
      */
     Response sendToPeer(Message out, String peerIpPort);
-    /**
-     * Synchronize interface, send a message to the given group, and get the response
-     *
-     * @param out: Message to be sent
-     * @param groupId: ID of the group receiving the message packet
-     * @param callback: The callback to be called when the response returns
-     * @return: Remote reply
-     */
-    Response sendToGroup(Message out, String groupId);
+
     /**
      * Synchronize interface, randomly select nodes to send messages
      *
      * @param out: Message to be sent
-     * @param callback: The callback to be called when the response returns
      * @return: Remote reply
      */
     Response sendToRandom(Message out);
 
     /**
-     * Send message to peer
+     * Synchronize interface, send message to peer select by client`s rule
      *
-     * @param out message
-     * @param peerIpPort the peer to send to
-     * @param callback response callback
+     * @param out: Message to be sent
+     * @param rule: Rule set by client
+     * @return: Remote reply
+     */
+    Response sendToPeerByRule(Message out, PeerSelectRule rule);
+
+    /**
+     * Asynchronous interface, send message to peer
+     *
+     * @param out: Message to be sent
+     * @param peerIpPort: Remote ip:port information
+     * @param callback: Response callback
      */
     void asyncSendToPeer(Message out, String peerIpPort, ResponseCallback callback);
 
     /**
-     * Send to a best peer with highest block height in Group
+     * Asynchronous interface, send to an random peer
      *
-     * @param out
-     * @param groupId
-     * @param callback
-     */
-    void asyncSendToGroup(Message out, String groupId, ResponseCallback callback);
-
-    /**
-     * Broadcast to all peer
-     *
-     * @param out
-     * @param callback
-     */
-    void broadcast(Message out, ResponseCallback callback);
-
-    /**
-     * Send to an random peer
-     *
-     * @param out
-     * @param callback
+     * @param out: Message to be sent
+     * @param callback: Response callback
      */
     void asyncSendToRandom(Message out, ResponseCallback callback);
+
+    /**
+     * Asynchronous interface, send message to peer select by client`s rule
+     *
+     * @param out: Message to be sent
+     * @param rule: Rule set by client
+     * @param callback: Response callback
+     */
+    void asyncSendToPeerByRule(Message out, PeerSelectRule rule, ResponseCallback callback);
 
     /**
      * Get connection information
@@ -132,8 +137,14 @@ public interface Channel {
      */
     List<ConnectionInfo> getConnectionInfo();
 
-    public static String newSeq() {
-        String seq = UUID.randomUUID().toString().replaceAll("-", "");
-        return seq;
-    }
+    /**
+     * Get available peer information
+     *
+     * @return List of available peer
+     */
+    List<String> getAvailablePeer();
+
+    Response sendToGroup(Message out, String groupId);
+
+    void asyncSendToGroup(Message out, String groupId, ResponseCallback callback);
 }
