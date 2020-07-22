@@ -15,4 +15,10 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-public class ObserverList extends JsonRpcResponse {}
+import java.util.List;
+
+public class ObserverList extends JsonRpcResponse<List<String>> {
+    public List<String> getObserverList() {
+        return getResult();
+    }
+}

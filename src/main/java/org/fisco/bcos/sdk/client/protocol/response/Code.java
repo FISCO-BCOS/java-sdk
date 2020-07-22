@@ -20,4 +20,8 @@ package org.fisco.bcos.sdk.client.protocol.response;
  *
  * @author Maggie
  */
-public class Code extends JsonRpcResponse {}
+public class Code extends JsonRpcResponse<String> {
+    public String getCode() {
+        return this.getResult();
+    }
+}
