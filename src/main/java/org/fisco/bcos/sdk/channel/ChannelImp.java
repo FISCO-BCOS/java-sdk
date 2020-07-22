@@ -16,7 +16,6 @@
 package org.fisco.bcos.sdk.channel;
 
 import io.netty.channel.ChannelHandlerContext;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,88 +43,34 @@ public class ChannelImp implements Channel {
 
     private static Logger logger = LoggerFactory.getLogger(ChannelImp.class);
 
-    private List<MsgHandler> msgConnectHandlerList = new ArrayList<>();
-    private List<MsgHandler> msgDisconnectHandleList = new ArrayList<>();
-    private Map<MsgType, MsgHandler> msgHandlers = new ConcurrentHashMap<>();
-    private Map<String, Object> seq2Callback = new ConcurrentHashMap<>();
-
-    private MsgHandler msgHandler =
-            new MsgHandler() {
-                @Override
-                public void onConnect(ChannelHandlerContext ctx) {
-                    // TODO:
-                    // queryNodeVersion
-                    // queryBlockNumber
-                    // connection info -> available peers
-                    for (MsgHandler handle : msgConnectHandlerList) {
-                        handle.onConnect(ctx);
-                    }
-                }
-
-                @Override
-                public void onMessage(ChannelHandlerContext ctx, Message msg) {
-                    // TODO: use msgHandlers to find special type to handle
-                    ResponseCallback callback = (ResponseCallback) seq2Callback.get(msg.getSeq());
-
-                    if (callback != null) {
-                        if (callback.getTimeout() != null) {
-                            callback.getTimeout().cancel();
-                        }
-
-                        logger.trace(
-                                " receive response, seq: {}, result: {}, content: {}",
-                                msg.getSeq(),
-                                msg.getResult(),
-                                new String(msg.getData()));
-
-                        Response response = new Response();
-                        if (msg.getResult() != 0) {
-                            response.setErrorMessage("Response error");
-                        }
-                        response.setErrorCode(msg.getResult());
-                        response.setMessageID(msg.getSeq());
-                        response.setContent(new String(msg.getData()));
-                        callback.onResponse(response);
-                        seq2Callback.remove(msg.getSeq());
-                    } else {
-                        logger.debug("no callback");
-                    }
-                }
-
-                @Override
-                public void onDisconnect(ChannelHandlerContext ctx) {
-                    for (MsgHandler handle : msgDisconnectHandleList) {
-                        handle.onDisconnect(ctx);
-                    }
-                }
-            };
-
+    private ChannelMsgHandler msgHandler;
     private Network network;
-    private Map<String, List<String>> groupId2PeerIpPortList;
+    private Map<String, List<String>> groupId2PeerIpPortList; // upper module settings are required
     private Map<String, ChannelHandlerContext> availablePeer = new ConcurrentHashMap<>();
 
     public ChannelImp(String filepath) {
         try {
             ConfigOption config = Config.load(filepath);
+            msgHandler = new ChannelMsgHandler();
             network = new NetworkImp(config, msgHandler);
         } catch (ConfigException e) {
-            logger.debug("init channel error, {} ", e.getMessage());
+            logger.error("init channel error, {} ", e.getMessage());
         }
     }
 
     @Override
     public void addConnectHandler(MsgHandler handler) {
-        msgConnectHandlerList.add(handler);
+        msgHandler.addConnectHandler(handler);
     }
 
     @Override
     public void addMessageHandler(MsgType type, MsgHandler handler) {
-        msgHandlers.put(type, handler);
+        msgHandler.addMessageHandler(type, handler);
     }
 
     @Override
     public void addDisconnectHandler(MsgHandler handler) {
-        msgDisconnectHandleList.add(handler);
+        msgHandler.addDisconnectHandler(handler);
     }
 
     public void setGroupId2PeerIpPortList(Map<String, List<String>> groupId2PeerIpPortList) {
@@ -234,8 +179,49 @@ public class ChannelImp implements Channel {
     }
 
     @Override
+    public Response sendToPeerByRule(Message out, PeerSelectRule rule) {
+        class Callback extends ResponseCallback {
+            public transient Response retResponse;
+            public transient Semaphore semaphore = new Semaphore(1, true);
+
+            Callback() {
+                try {
+                    semaphore.acquire(1);
+                } catch (InterruptedException e) {
+                    logger.error("error :", e);
+                    Thread.currentThread().interrupt();
+                }
+            }
+
+            @Override
+            public void onResponse(Response response) {
+                retResponse = response;
+
+                if (retResponse != null && retResponse.getContent() != null) {
+                    logger.debug("response: {}", retResponse.getContent());
+                } else {
+                    logger.error("response is null");
+                }
+
+                semaphore.release();
+            }
+        }
+
+        Callback callback = new Callback();
+        asyncSendToPeerByRule(out, rule, callback);
+        try {
+            callback.semaphore.acquire(1);
+        } catch (InterruptedException e) {
+            logger.error("system error:", e);
+            Thread.currentThread().interrupt();
+        }
+
+        return callback.retResponse;
+    }
+
+    @Override
     public void asyncSendToPeer(Message out, String peerIpPort, ResponseCallback callback) {
-        seq2Callback.put(out.getSeq(), callback);
+        msgHandler.addSeq2CallBack(out.getSeq(), callback);
         availablePeer.forEach(
                 (peer, ctx) -> {
                     if (peer.equals(peerIpPort)) {
@@ -248,10 +234,16 @@ public class ChannelImp implements Channel {
     @Override
     public void asyncSendToRandom(Message out, ResponseCallback callback) {
         List<String> peerList = getAvailablePeer();
-        int random = new SecureRandom().nextInt(peerList.size());
+        int random = (int) (Math.random() * (peerList.size()));
         String peerIpPort = peerList.get(random);
         logger.debug("send message to random peer {} ", peerIpPort);
         asyncSendToPeer(out, peerIpPort, callback);
+    }
+
+    @Override
+    public void asyncSendToPeerByRule(Message out, PeerSelectRule rule, ResponseCallback callback) {
+        String target = rule.select(getConnectionInfo());
+        asyncSendToPeer(out, target, callback);
     }
 
     @Override

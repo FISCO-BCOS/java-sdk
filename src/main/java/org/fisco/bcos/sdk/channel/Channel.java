@@ -16,7 +16,6 @@
 package org.fisco.bcos.sdk.channel;
 
 import java.util.List;
-import java.util.UUID;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -65,7 +64,7 @@ public interface Channel {
     void addDisconnectHandler(MsgHandler handler);
 
     /**
-     * Send a message to the given group
+     * Send a message to the given group, only send
      *
      * @param out: Message to be sent
      * @param groupId: ID of the group receiving the message packet
@@ -73,7 +72,7 @@ public interface Channel {
     void broadcastToGroup(Message out, String groupId);
 
     /**
-     * Broadcast to all peer
+     * Broadcast to all peer, only send
      *
      * @param out: Message to be sent
      */
@@ -97,21 +96,39 @@ public interface Channel {
     Response sendToRandom(Message out);
 
     /**
-     * Send message to peer
+     * Synchronize interface, send message to peer select by client`s rule
      *
-     * @param out message
-     * @param peerIpPort the peer to send to
-     * @param callback response callback
+     * @param out: Message to be sent
+     * @param rule: Rule set by client
+     * @return: Remote reply
+     */
+    Response sendToPeerByRule(Message out, PeerSelectRule rule);
+
+    /**
+     * Asynchronous interface, send message to peer
+     *
+     * @param out: Message to be sent
+     * @param peerIpPort: Remote ip:port information
+     * @param callback: Response callback
      */
     void asyncSendToPeer(Message out, String peerIpPort, ResponseCallback callback);
 
     /**
-     * Send to an random peer
+     * Asynchronous interface, send to an random peer
      *
-     * @param out
-     * @param callback response callback
+     * @param out: Message to be sent
+     * @param callback: Response callback
      */
     void asyncSendToRandom(Message out, ResponseCallback callback);
+
+    /**
+     * Asynchronous interface, send message to peer select by client`s rule
+     *
+     * @param out: Message to be sent
+     * @param rule: Rule set by client
+     * @param callback: Response callback
+     */
+    void asyncSendToPeerByRule(Message out, PeerSelectRule rule, ResponseCallback callback);
 
     /**
      * Get connection information
@@ -119,11 +136,6 @@ public interface Channel {
      * @return List of connection information
      */
     List<ConnectionInfo> getConnectionInfo();
-
-    public static String newSeq() {
-        String seq = UUID.randomUUID().toString().replaceAll("-", "");
-        return seq;
-    }
 
     /**
      * Get available peer information

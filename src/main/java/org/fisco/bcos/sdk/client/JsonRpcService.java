@@ -23,6 +23,7 @@ import org.fisco.bcos.sdk.client.protocol.response.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
+import org.fisco.bcos.sdk.utils.ChannelUtils;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -196,7 +197,7 @@ public class JsonRpcService {
         try {
             byte[] encodedData = objectMapper.writeValueAsBytes(request);
             Message message = new Message();
-            message.setSeq(Channel.newSeq());
+            message.setSeq(ChannelUtils.newSeq());
             message.setResult(0);
             message.setType(messageType);
             message.setData(encodedData);
