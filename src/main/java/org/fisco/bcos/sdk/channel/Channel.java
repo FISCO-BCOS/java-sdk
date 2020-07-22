@@ -36,7 +36,7 @@ public interface Channel {
      * @return a channel instance
      */
     static Channel build(String filepath) {
-        return null;
+        return new ChannelImp(filepath);
     }
 
     /**
@@ -65,28 +65,33 @@ public interface Channel {
     void addDisconnectHandler(MsgHandler handler);
 
     /**
+     * Send a message to the given group
+     *
+     * @param out: Message to be sent
+     * @param groupId: ID of the group receiving the message packet
+     */
+    void broadcastToGroup(Message out, String groupId);
+
+    /**
+     * Broadcast to all peer
+     *
+     * @param out: Message to be sent
+     */
+    void broadcast(Message out);
+
+    /**
      * Synchronize interface, send a message to the given peer, and get the response
      *
      * @param out: Message to be sent
      * @param peerIpPort: Remote ip:port information
-     * @param callback: The callback to be called when the response returns
      * @return: Remote reply
      */
     Response sendToPeer(Message out, String peerIpPort);
-    /**
-     * Synchronize interface, send a message to the given group, and get the response
-     *
-     * @param out: Message to be sent
-     * @param groupId: ID of the group receiving the message packet
-     * @param callback: The callback to be called when the response returns
-     * @return: Remote reply
-     */
-    Response sendToGroup(Message out, String groupId);
+
     /**
      * Synchronize interface, randomly select nodes to send messages
      *
      * @param out: Message to be sent
-     * @param callback: The callback to be called when the response returns
      * @return: Remote reply
      */
     Response sendToRandom(Message out);
@@ -101,27 +106,10 @@ public interface Channel {
     void asyncSendToPeer(Message out, String peerIpPort, ResponseCallback callback);
 
     /**
-     * Send to a best peer with highest block height in Group
-     *
-     * @param out
-     * @param groupId
-     * @param callback
-     */
-    void asyncSendToGroup(Message out, String groupId, ResponseCallback callback);
-
-    /**
-     * Broadcast to all peer
-     *
-     * @param out
-     * @param callback
-     */
-    void broadcast(Message out, ResponseCallback callback);
-
-    /**
      * Send to an random peer
      *
      * @param out
-     * @param callback
+     * @param callback response callback
      */
     void asyncSendToRandom(Message out, ResponseCallback callback);
 
@@ -136,4 +124,15 @@ public interface Channel {
         String seq = UUID.randomUUID().toString().replaceAll("-", "");
         return seq;
     }
+
+    /**
+     * Get available peer information
+     *
+     * @return List of available peer
+     */
+    List<String> getAvailablePeer();
+
+    Response sendToGroup(Message out, String groupId);
+
+    void asyncSendToGroup(Message out, String groupId, ResponseCallback callback);
 }
