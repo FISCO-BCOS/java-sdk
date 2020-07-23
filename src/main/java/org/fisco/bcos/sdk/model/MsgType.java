@@ -54,5 +54,17 @@ public enum MsgType {
     REQUEST_TOPICCERT(0x37),
     UPDATE_TOPIICSTATUS(0x38);
 
-    MsgType(int i) {}
+    private int type;
+
+    private MsgType(int type) {
+        this.setType(type);
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 }

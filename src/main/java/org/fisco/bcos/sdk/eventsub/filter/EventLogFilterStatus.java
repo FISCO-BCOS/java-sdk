@@ -13,6 +13,25 @@
  *
  */
 
-package org.fisco.bcos.sdk.eventsub;
+package org.fisco.bcos.sdk.eventsub.filter;
 
-public class EventLogFilter {}
+public enum EventLogFilterStatus {
+    // event log is pushing from node normally
+    EVENT_LOG_PUSHING(0x1),
+    // request already send, wait for response
+    WAITING_RESPONSE(0x2),
+    // response not ok, wait for resend
+    WAITING_REQUEST(0x3);
+
+    private int status;
+
+    private EventLogFilterStatus(int i) {}
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+}

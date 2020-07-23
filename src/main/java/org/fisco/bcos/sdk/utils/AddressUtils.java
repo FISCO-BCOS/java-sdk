@@ -12,6 +12,15 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.transaction.domain;
 
-public class EventLog {}
+package org.fisco.bcos.sdk.utils;
+
+public class AddressUtils {
+    public static final int ADDRESS_SIZE = 160;
+    public static final int ADDRESS_LENGTH_IN_HEX = ADDRESS_SIZE >> 2;
+
+    public static boolean isValidAddress(String address) {
+        String addressNoPrefix = Numeric.cleanHexPrefix(address);
+        return addressNoPrefix.length() == ADDRESS_LENGTH_IN_HEX;
+    }
+}
