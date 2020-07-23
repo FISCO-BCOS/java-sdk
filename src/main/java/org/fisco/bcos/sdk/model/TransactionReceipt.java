@@ -12,7 +12,7 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.client.protocol.model;
+package org.fisco.bcos.sdk.model;
 
 import java.util.List;
 import java.util.Objects;

@@ -18,8 +18,8 @@ package org.fisco.bcos.sdk.client.protocol.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
-import org.fisco.bcos.sdk.client.protocol.model.MerkleProofUnit;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionReceipt;
+import org.fisco.bcos.sdk.model.MerkleProofUnit;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
 
 /** getTransactionReceiptWithProof. */
 public class TransactionReceiptWithProof
