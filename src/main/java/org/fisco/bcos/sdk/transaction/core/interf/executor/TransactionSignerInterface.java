@@ -14,7 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.core.interf.executor;
 
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
+import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 /**
  * TransactionSignerInterface @Description: TransactionSignerInterface
@@ -24,5 +24,5 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
  */
 public interface TransactionSignerInterface {
 
-    byte[] sign(BcosTransaction bcosTransaction);
+    byte[] sign(RawTransaction rawTransaction);
 }

@@ -16,18 +16,18 @@ package org.fisco.bcos.sdk.transaction.core.impl.executor;
 
 import java.util.List;
 import java.util.Map;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.transaction.core.interf.executor.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.transaction.domain.EventLog;
 import org.fisco.bcos.sdk.transaction.domain.EventResultEntity;
 import org.fisco.bcos.sdk.transaction.domain.InputAndOutputResult;
+import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
+import org.fisco.bcos.sdk.transaction.domain.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.domain.TransactionResponse;
 
 public class TransactionDecoder implements TransactionDecoderInterface {
 
     @Override
-    public BcosTransaction decodeRlp(String hex) {
+    public RawTransaction decodeRlp(String hex) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -53,14 +53,14 @@ public class TransactionDecoder implements TransactionDecoderInterface {
 
     @Override
     public String decodeEventReturnJson(
-            String contractName, BcosTransactionReceipt transactionReceipt) {
+            String contractName, TransactionReceipt transactionReceipt) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(
-            String contractName, BcosTransactionReceipt transactionReceipt) {
+            String contractName, TransactionReceipt transactionReceipt) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -100,7 +100,7 @@ public class TransactionDecoder implements TransactionDecoderInterface {
 
     @Override
     public TransactionResponse decodeTransactionReceipt(
-            String contractName, BcosTransactionReceipt transactionReceipt) {
+            String contractName, TransactionReceipt transactionReceipt) {
         // TODO Auto-generated method stub
         return null;
     }
