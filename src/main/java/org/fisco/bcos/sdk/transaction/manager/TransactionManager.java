@@ -16,7 +16,7 @@ package org.fisco.bcos.sdk.transaction.manager;
 
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.RespCallback;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.transaction.domain.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.domain.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.domain.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.domain.dto.TransactionRequest;
@@ -49,14 +49,14 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public BcosTransactionReceipt sendTransaction(
+    public TransactionReceipt sendTransaction(
             int groupId, String signedTransaction, RespCallback<TransactionResponse> callback) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public CompletableFuture<BcosTransactionReceipt> sendTransactionAsync(
+    public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             TransactionRequest transactionRequest) {
         // TODO Auto-generated method stub
         return null;
