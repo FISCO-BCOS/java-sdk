@@ -1,5 +1,6 @@
 .gradle/
 .idea/
+log/
 build
 java-sdk.iml
 
@@ -8,3 +9,8 @@ java-sdk.iml
 .project
 .settings/
 bin/
+
+## integration test files
+nodes/
+src/integration-test/resources/
+build_chain.sh

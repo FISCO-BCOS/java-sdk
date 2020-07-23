@@ -16,7 +16,7 @@ jobs:
       - run:
           name: Compile
           command: |
-            bash gradlew build -x test
+            bash gradlew build -x test -x integrationTest
       - run:
           name: Integration Test
           command: |
