@@ -15,6 +15,7 @@
 
 package org.fisco.bcos.sdk.network;
 
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
@@ -26,6 +27,8 @@ import org.fisco.bcos.sdk.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Channel handler process inbound message. */
+@Sharable
 public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
     private static Logger logger = LoggerFactory.getLogger(ChannelHandler.class);
     private MsgHandler msgHandler;
@@ -142,7 +145,8 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
-        channelRead(ctx, msg);
+    protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
+        final ChannelHandlerContext ctxF = ctx;
+        msgHandler.onMessage(ctxF, msg);
     }
 }
