@@ -28,6 +28,6 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt install -y git curl libssl-dev default-jdk build-essential
       - name: compile and run ut
-        run: ./gradlew build
+        run: ./gradlew build -x integrationTest
       - name: run integration testing
         run: /bin/bash .ci/ci_check.sh

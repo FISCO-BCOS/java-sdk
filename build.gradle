@@ -52,6 +52,26 @@ jacocoTestReport {
         html.enabled false
     }
 }
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-test/java')
+        }
+        resources.srcDir file('src/integration-test/resources')
+    }
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
+task integrationTest(type: Test) {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
 
 dependencies {
     compile 'org.bouncycastle:bcprov-jdk15on:1.60'
@@ -67,7 +87,13 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.23.0'
+
+    integrationTestCompile 'junit:junit:4.12'
+    integrationTestCompile 'org.mockito:mockito-core:2.23.0'
 }
+
+check.dependsOn integrationTest
+integrationTest.mustRunAfter test
 
 archivesBaseName = 'java-sdk'
 group = 'org.fisco-bcos'

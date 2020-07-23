@@ -42,6 +42,7 @@ import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,31 +54,30 @@ import org.fisco.bcos.sdk.config.ConfigOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Maintain peer connections. Start a schedule to reconnect failed peers.
+ *
+ * @author Maggie
+ */
 public class ConnectionManager {
     private static Logger logger = LoggerFactory.getLogger(ConnectionManager.class);
     private ConfigOption configOps;
-    private MsgHandler msgHandler;
+    private ChannelHandler channelHandler;
     private List<ConnectionInfo> connectionInfoList = new ArrayList<ConnectionInfo>();
-    private Map<String, ChannelHandlerContext> availableConnections;
+    private Map<String, ChannelHandlerContext> availableConnections = new HashMap<>();
+    private EventLoopGroup workerGroup;
     private Boolean running = false;
     private Bootstrap bootstrap = new Bootstrap();
-    private ChannelHandler channelHandler;
     private String algorithm = "ecdsa";
     private ScheduledExecutorService reconnSchedule = new ScheduledThreadPoolExecutor(1);
 
     public ConnectionManager(ConfigOption configOps, MsgHandler msgHandler) {
         this.configOps = configOps;
-        this.msgHandler = msgHandler;
-        init();
-    }
-
-    /** Init connections */
-    public void init() {
         for (String peerIpPort : configOps.getPeers()) {
             connectionInfoList.add(new ConnectionInfo(peerIpPort));
         }
-        if (null != configOps.getAlgorithm() && configOps.getAlgorithm().equals("sm2")) {
-            this.algorithm = "sm2";
+        if (Objects.nonNull(configOps.getAlgorithm()) && "sm".equals(configOps.getAlgorithm())) {
+            this.algorithm = "sm";
         }
         channelHandler = new ChannelHandler(this, msgHandler);
         logger.info(" all connections: {}", connectionInfoList);
@@ -106,29 +106,41 @@ public class ConnectionManager {
         for (int i = 0; i < connectionInfoList.size(); i++) {
             ConnectionInfo connInfo = connectionInfoList.get(i);
             ChannelFuture connectFuture = connChannelFuture.get(i);
-
             if (checkConnectionResult(connInfo, connectFuture, errorMessageList)) {
                 atLeastOneConnectSuccess = true;
             }
-
-            /** check available connection */
-            if (!atLeastOneConnectSuccess) {
-                logger.error(" all connections have failed, " + errorMessageList.toString());
-                throw new NetworkException(
-                        " Failed to connect to nodes: " + errorMessageList.toString());
-            }
-            running = true;
-            logger.debug(" start connect end. ");
         }
+
+        /** check available connection */
+        if (!atLeastOneConnectSuccess) {
+            logger.error(" all connections have failed, " + errorMessageList.toString());
+            throw new NetworkException(
+                    " Failed to connect to nodes: " + errorMessageList.toString());
+        }
+        running = true;
+        logger.debug(" start connect end. ");
     }
 
     public void startReconnectSchedule() {
+        logger.debug(" start reconnect schedule");
         reconnSchedule.scheduleAtFixedRate(
-                () -> reconnect(), 0, TimeoutConfig.reconnectDelay, TimeUnit.MILLISECONDS);
+                () -> reconnect(),
+                TimeoutConfig.reconnectDelay,
+                TimeoutConfig.reconnectDelay,
+                TimeUnit.MILLISECONDS);
     }
 
     public void stopReconnectSchedule() {
         reconnSchedule.shutdown();
+    }
+
+    public void stopNetty() {
+        if (running) {
+            if (workerGroup != null) {
+                workerGroup.shutdownGracefully();
+            }
+            running = false;
+        }
     }
 
     private void reconnect() {
@@ -160,7 +172,7 @@ public class ConnectionManager {
                         " reconnect to {}:{}, error: {}",
                         connectionInfo.getIp(),
                         connectionInfo.getPort(),
-                        connectFuture.cause().getMessage());
+                        errorMessageList);
             }
         }
     }
@@ -190,7 +202,8 @@ public class ConnectionManager {
                     SslContextBuilder.forClient()
                             .trustManager(caCert)
                             .keyManager(sslCert, sslKey)
-                            .sslProvider(SslProvider.JDK)
+                            .sslProvider(SslProvider.OPENSSL)
+                            // .sslProvider(SslProvider.JDK)
                             .build();
             return sslCtx;
         } catch (FileNotFoundException | SSLException e) {
@@ -220,7 +233,7 @@ public class ConnectionManager {
     }
 
     private void initNetty() throws NetworkException {
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
         bootstrap.group(workerGroup);
         bootstrap.channel(NioSocketChannel.class);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
@@ -228,6 +241,7 @@ public class ConnectionManager {
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeoutConfig.connectTimeout);
         SslContext sslContext = (algorithm.equals("ecdsa") ? initSslContext() : initSMSslContext());
         SslContext finalSslContext = sslContext;
+        ConnectionManager connectionManager = this;
         ChannelInitializer<SocketChannel> initializer =
                 new ChannelInitializer<SocketChannel>() {
 
@@ -258,21 +272,29 @@ public class ConnectionManager {
 
     private boolean checkConnectionResult(
             ConnectionInfo connInfo, ChannelFuture connectFuture, List<String> errorMessageList) {
+        connectFuture.awaitUninterruptibly();
         if (!connectFuture.isSuccess()) {
             /** connect failed. */
-            String connectFailedMessage =
-                    Objects.isNull(connectFuture.cause())
-                            ? "connect to " + connInfo.getIp() + ":" + connInfo.getIp() + " failed"
-                            : connectFuture.cause().getMessage();
-            logger.error(connectFailedMessage);
-            errorMessageList.add(connectFailedMessage);
+            if (Objects.isNull(connectFuture.cause())) {
+                logger.error(
+                        "connect to " + connInfo.getIp() + ":" + connInfo.getPort() + " failed");
+            } else {
+                connectFuture.cause().printStackTrace();
+                logger.error(
+                        "connect to {}:{} failed. {}",
+                        connInfo.getIp(),
+                        connInfo.getPort(),
+                        connectFuture.cause());
+            }
+            errorMessageList.add(
+                    "connect to " + connInfo.getIp() + ":" + connInfo.getPort() + " failed");
             return false;
         } else {
             /** connect success, check ssl handshake result. */
             SslHandler sslhandler = connectFuture.channel().pipeline().get(SslHandler.class);
             if (Objects.isNull(sslhandler)) {
                 String sslHandshakeFailedMessage =
-                        " ssl handshake failed:/" + connInfo.getIp() + ":" + connInfo.getIp();
+                        " ssl handshake failed:/" + connInfo.getIp() + ":" + connInfo.getPort();
                 logger.debug(sslHandshakeFailedMessage);
                 errorMessageList.add(sslHandshakeFailedMessage);
                 return false;
@@ -281,11 +303,11 @@ public class ConnectionManager {
             Future<Channel> sshHandshakeFuture =
                     sslhandler.handshakeFuture().awaitUninterruptibly();
             if (sshHandshakeFuture.isSuccess()) {
-                logger.trace(" ssl handshake success {}:{}", connInfo.getIp(), connInfo.getIp());
+                logger.trace(" ssl handshake success {}:{}", connInfo.getIp(), connInfo.getPort());
                 return true;
             } else {
                 String sslHandshakeFailedMessage =
-                        " ssl handshake failed:/" + connInfo.getIp() + ":" + connInfo.getIp();
+                        " ssl handshake failed:/" + connInfo.getIp() + ":" + connInfo.getPort();
                 logger.debug(sslHandshakeFailedMessage);
                 errorMessageList.add(sslHandshakeFailedMessage);
                 return false;
@@ -301,6 +323,9 @@ public class ConnectionManager {
 
     protected void removeConnectionContext(String ip, int port, ChannelHandlerContext ctx) {
         String endpoint = ip + ":" + port;
+        if (Objects.isNull(availableConnections.get(endpoint))) {
+            return;
+        }
         Boolean result = availableConnections.remove(endpoint, ctx);
         if (logger.isDebugEnabled()) {
             logger.debug(

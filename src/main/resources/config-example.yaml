@@ -25,13 +25,13 @@ cryptoMaterial:
   algorithm: ecdsa
 
   # Required. CA cert file path
-  caCert: src/test/resources/ca.crt
+  caCert: src/integration-test/resources/ca.crt
 
   # Required. SSL cert file path
-  sslCert: src/test/resources/sdk.crt
+  sslCert: src/integration-test/resources/sdk.crt
 
   # Required. SSK key file path
-  sslKey: src/test/resources/sdk.key
+  sslKey: src/integration-test/resources/sdk.key
 
   #[Option] if algorithm is sm, enSslCert and enSslKey is required
   # enSslCert: src/test/resources/en.crt
@@ -39,10 +39,10 @@ cryptoMaterial:
 
 # Required. The peer list to connect
 peers:
-  - "127.0.0.1:20200"
-  - "127.0.0.1:20208"
-  - "127.0.0.1:20203"
-  - "127.0.0.1:20201"
+  - 127.0.0.1:20200
+  - 127.0.0.1:20201
+  - 127.0.0.1:20202
+  - 127.0.0.1:20203
 
 # [Option] A list of special AMOP topic configuration.
 AMOPKeys:
@@ -51,10 +51,10 @@ AMOPKeys:
   - topicName: t1
     # Public keys of the nodes that you want to send AMOP message of this topic to.
     publicKeys:
-      - "consumer_public_key_1.pem"
-      - "consumer_public_key_2.pem"
+      - consumer_public_key_1.pem
+      - consumer_public_key_2.pem
 
   # Configure a "need verify AMOP topic" as a topic subscriber.
   - topicName: t2  #认证Topic订阅者配置方法
     # Your private key that used to subscriber verification.
-    privateKey: "consumer_private_key.pem"
+    privateKey: consumer_private_key.pem

@@ -66,7 +66,7 @@ public class NetworkImp implements Network {
 
     @Override
     public void start() throws NetworkException {
-        // todo set ThreadPool
+        // set ThreadPool ??
         connManager.startConnect();
         connManager.startReconnectSchedule();
     }
@@ -79,6 +79,7 @@ public class NetworkImp implements Network {
     @Override
     public void stop() {
         connManager.stopReconnectSchedule();
+        connManager.stopNetty();
         return;
     }
 }
