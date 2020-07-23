@@ -9,9 +9,9 @@ import org.fisco.bcos.sdk.channel.model.EnumSocketChannelAttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ChannelHandlerContextHelper {
+public class ChannelVersionNegotiation {
 
-    private static Logger logger = LoggerFactory.getLogger(ChannelHandlerContextHelper.class);
+    private static Logger logger = LoggerFactory.getLogger(ChannelVersionNegotiation.class);
 
     public static void setProtocolVersion(
             ChannelHandlerContext ctx, EnumChannelProtocolVersion version, String nodeVersion) {

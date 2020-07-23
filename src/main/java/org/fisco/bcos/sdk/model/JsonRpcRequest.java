@@ -11,7 +11,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.client.protocol.request;
+package org.fisco.bcos.sdk.model;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;

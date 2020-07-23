@@ -3,11 +3,11 @@ package org.fisco.bcos.sdk.channel.model;
 public enum EnumSocketChannelAttributeKey {
     CHANNEL_PROTOCOL_KEY("CHANNEL_PROTOCOL_KEY");
 
-    private EnumSocketChannelAttributeKey(String key) {
+    private String key;
+
+    EnumSocketChannelAttributeKey(String key) {
         this.key = key;
     }
-
-    private String key;
 
     public String getKey() {
         return key;
