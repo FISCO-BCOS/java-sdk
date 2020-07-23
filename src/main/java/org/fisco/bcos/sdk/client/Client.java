@@ -50,6 +50,7 @@ import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
+import org.fisco.bcos.sdk.service.GroupManagerService;
 
 /**
  * This is the interface of client module.
@@ -64,7 +65,7 @@ public interface Client {
      * @param GroupId
      * @return a client instance
      */
-    Client build(Channel channel, String GroupId);
+    Client build(GroupManagerService groupManagerService, Channel channel, String GroupId);
 
     /**
      * Build a client instance Can only call interfaces relate to group management and node
@@ -73,7 +74,7 @@ public interface Client {
      * @param channel
      * @return a client instance
      */
-    Client build(Channel channel);
+    Client build(GroupManagerService groupManagerService, Channel channel);
 
     /**
      * Ledger operation: send transaction
@@ -368,7 +369,7 @@ public interface Client {
      *
      * @return block number
      */
-    BigInteger getBlockNumberCache();
+    BigInteger getBlockLimit();
 
     /**
      * Group operation: generate a new group
