@@ -14,7 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.domain.dto;
 
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.transaction.domain.TransactionReceipt;
 
 /**
  * TransactionResponse @Description: TransactionResponse
@@ -23,18 +23,18 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
  * @data Jul 17, 2020 3:16:51 PM
  */
 public class TransactionResponse extends CommonResponse {
-    private BcosTransactionReceipt bcosTransactionReceipt;
+    private TransactionReceipt transactionReceipt;
     private String contractAddress;
     private String values;
     private String events;
     private String receiptMessages;
     /** @return the bcosTransactionReceipt */
-    public BcosTransactionReceipt getBcosTransactionReceipt() {
-        return bcosTransactionReceipt;
+    public TransactionReceipt getTransactionReceipt() {
+        return transactionReceipt;
     }
-    /** @param bcosTransactionReceipt the bcosTransactionReceipt to set */
-    public void setBcosTransactionReceipt(BcosTransactionReceipt bcosTransactionReceipt) {
-        this.bcosTransactionReceipt = bcosTransactionReceipt;
+    /** @param transactionReceipt the transactionReceipt to set */
+    public void setTransactionReceipt(TransactionReceipt transactionReceipt) {
+        this.transactionReceipt = transactionReceipt;
     }
     /** @return the contractAddress */
     public String getContractAddress() {

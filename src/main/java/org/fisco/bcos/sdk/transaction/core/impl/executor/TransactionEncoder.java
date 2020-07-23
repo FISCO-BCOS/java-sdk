@@ -14,14 +14,14 @@
  */
 package org.fisco.bcos.sdk.transaction.core.impl.executor;
 
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.transaction.core.interf.executor.TransactionEncoderInterface;
+import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 public class TransactionEncoder implements TransactionEncoderInterface {
 
     @Override
-    public byte[] encode(BcosTransaction transaction, SignatureResult signature) {
+    public byte[] encode(RawTransaction transaction, SignatureResult signature) {
         // TODO Auto-generated method stub
         return null;
     }
