@@ -4,7 +4,7 @@ set -e
 # check code format
 bash gradlew verifyGoogleJavaFormat
 # build
-bash gradlew build -x integrationTest
+bash gradlew build
 
 # check integration-test
 ## start up FISCO BCOS nodes.
@@ -12,7 +12,6 @@ curl -LO https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master/tools/bu
 ./build_chain.sh -l 127.0.0.1:4
 ./nodes/127.0.0.1/fisco-bcos -v
 ./nodes/127.0.0.1/start_all.sh
-# ./build_chain.sh -l 127.0.0.1:4 -o nodes
 
 ## prepare resources for integration test
 mkdir -p src/integration-test/resources/
@@ -24,7 +23,5 @@ cp src/test/resources/log4j.properties src/integration-test/resources/
 bash gradlew integrationTest
 
 ## clean
-bash nodes/127.0.0.1/stop_all.sh
-bash nodes/127.0.0.1/stop_all.sh
 bash nodes/127.0.0.1/stop_all.sh
 rm -rf nodes

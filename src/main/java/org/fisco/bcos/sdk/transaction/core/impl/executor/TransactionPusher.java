@@ -17,8 +17,8 @@ package org.fisco.bcos.sdk.transaction.core.impl.executor;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.core.interf.executor.TransactionPusherInterface;
-import org.fisco.bcos.sdk.transaction.domain.TransactionReceipt;
 
 public class TransactionPusher implements TransactionPusherInterface {
 
