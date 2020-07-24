@@ -12,6 +12,26 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.transaction.domain;
 
-public class EventLog {}
+package org.fisco.bcos.sdk.eventsub.filter;
+
+public enum EventLogFilterStatus {
+    // event log is pushing from node normally
+    EVENT_LOG_PUSHING(0x1),
+    // request already send, wait for response
+    WAITING_RESPONSE(0x2),
+    // response not ok, wait for resend
+    WAITING_REQUEST(0x3);
+
+    private int status;
+
+    private EventLogFilterStatus(int i) {}
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+}

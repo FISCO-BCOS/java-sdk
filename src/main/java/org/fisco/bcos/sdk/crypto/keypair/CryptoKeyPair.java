@@ -24,7 +24,7 @@ import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
-import org.fisco.bcos.sdk.utils.Strings;
+import org.fisco.bcos.sdk.utils.StringUtils;
 import org.fisco.bcos.sdk.utils.exceptions.DecoderException;
 
 public abstract class CryptoKeyPair {
@@ -146,7 +146,7 @@ public abstract class CryptoKeyPair {
         // Hexadecimal public key length is less than 128, add 0 in front
         if (publicKeyNoPrefix.length() < PUBLIC_KEY_LENGTH_IN_HEX) {
             publicKeyNoPrefix =
-                    Strings.zeros(PUBLIC_KEY_LENGTH_IN_HEX - publicKeyNoPrefix.length())
+                    StringUtils.zeros(PUBLIC_KEY_LENGTH_IN_HEX - publicKeyNoPrefix.length())
                             + publicKeyNoPrefix;
         }
         return publicKeyNoPrefix;

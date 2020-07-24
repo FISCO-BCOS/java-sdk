@@ -15,4 +15,86 @@
 
 package org.fisco.bcos.sdk.eventsub;
 
-public class EventLogParams {}
+import java.util.List;
+import org.fisco.bcos.sdk.utils.AddressUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class EventLogParams {
+    private static Logger logger = LoggerFactory.getLogger(EventLogParams.class);
+    private String fromBlock;
+    private String toBlock;
+    private List<String> addresses;
+    private List<Object> topics;
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
+    public static void setLogger(Logger logger) {
+        EventLogParams.logger = logger;
+    }
+
+    public String getFromBlock() {
+        return fromBlock;
+    }
+
+    public void setFromBlock(String fromBlock) {
+        this.fromBlock = fromBlock;
+    }
+
+    public String getToBlock() {
+        return toBlock;
+    }
+
+    public void setToBlock(String toBlock) {
+        this.toBlock = toBlock;
+    }
+
+    public List<String> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<String> addresses) {
+        this.addresses = addresses;
+    }
+
+    public List<Object> getTopics() {
+        return topics;
+    }
+
+    public void setTopics(List<Object> topics) {
+        this.topics = topics;
+    }
+
+    @Override
+    public String toString() {
+        return "EventLogFilterParams [fromBlock="
+                + fromBlock
+                + ", toBlock="
+                + toBlock
+                + ", addresses="
+                + addresses
+                + ", topics="
+                + topics
+                + "]";
+    }
+
+    public boolean validAddresses() {
+        if (getAddresses() == null) {
+            return false;
+        }
+        for (String address : getAddresses()) {
+            // check if address valid
+            if (!AddressUtils.isValidAddress(address)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean valid() {
+        // todo add other verifications
+        return validAddresses();
+    }
+}

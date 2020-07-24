@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Vector;
 
 /** String utility functions. */
-public class Strings {
+public class StringUtils {
 
-    private Strings() {}
+    private StringUtils() {}
 
     public static String toCsv(List<String> src) {
         // return src == null ? null : String.join(", ", src.toArray(new String[0]));
