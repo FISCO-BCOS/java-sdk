@@ -32,10 +32,7 @@ import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
-import org.fisco.bcos.sdk.network.ConnectionInfo;
-import org.fisco.bcos.sdk.network.MsgHandler;
-import org.fisco.bcos.sdk.network.Network;
-import org.fisco.bcos.sdk.network.NetworkImp;
+import org.fisco.bcos.sdk.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +55,11 @@ public class ChannelImp implements Channel {
             ConfigOption config = Config.load(filepath);
             msgHandler = new ChannelMsgHandler();
             network = new NetworkImp(config, msgHandler);
+            network.start();
         } catch (ConfigException e) {
-            logger.error("init channel error, {} ", e.getMessage());
+            logger.error("init channel config error, {} ", e.getMessage());
+        } catch (NetworkException e) {
+            logger.error("init channel network error, {} ", e.getMessage());
         }
     }
 

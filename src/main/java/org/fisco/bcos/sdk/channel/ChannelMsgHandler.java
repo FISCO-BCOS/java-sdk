@@ -93,6 +93,9 @@ public class ChannelMsgHandler implements MsgHandler {
 
     @Override
     public void onConnect(ChannelHandlerContext ctx) {
+        logger.debug(
+                "onConnect in ChannelMsgHandler called, host : {}",
+                ChannelVersionNegotiation.getPeerHost(ctx));
         queryNodeVersion(ctx);
         for (MsgHandler handle : msgConnectHandlerList) {
             handle.onConnect(ctx);
@@ -101,6 +104,10 @@ public class ChannelMsgHandler implements MsgHandler {
 
     @Override
     public void onMessage(ChannelHandlerContext ctx, Message msg) {
+        logger.debug(
+                "onMessage in ChannelMsgHandler called, host : {}, msgType : {}",
+                ChannelVersionNegotiation.getPeerHost(ctx),
+                (int) msg.getType());
         ResponseCallback callback = getAndRemoveSeq(msg.getSeq());
 
         if (callback != null) {
@@ -130,6 +137,9 @@ public class ChannelMsgHandler implements MsgHandler {
 
     @Override
     public void onDisconnect(ChannelHandlerContext ctx) {
+        logger.debug(
+                "onDisconnect in ChannelMsgHandler called, host : {}",
+                ChannelVersionNegotiation.getPeerHost(ctx));
         for (MsgHandler handle : msgDisconnectHandleList) {
             handle.onDisconnect(ctx);
         }
