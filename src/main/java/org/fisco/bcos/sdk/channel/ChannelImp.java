@@ -19,7 +19,6 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigException;
@@ -46,7 +45,6 @@ public class ChannelImp implements Channel {
     private ChannelMsgHandler msgHandler;
     private Network network;
     private Map<String, List<String>> groupId2PeerIpPortList; // upper module settings are required
-    private Map<String, ChannelHandlerContext> availablePeer = new ConcurrentHashMap<>();
 
     public ChannelImp(String filepath) {
         try {
@@ -81,7 +79,7 @@ public class ChannelImp implements Channel {
     public void broadcastToGroup(Message out, String groupId) {
         List<String> peerIpPortList = groupId2PeerIpPortList.get(groupId);
         for (String peerIpPort : peerIpPortList) {
-            if (availablePeer.containsKey(peerIpPort)) {
+            if (msgHandler.getAvailablePeer().containsKey(peerIpPort)) {
                 sendToPeer(out, peerIpPort);
             }
         }
@@ -89,11 +87,13 @@ public class ChannelImp implements Channel {
 
     @Override
     public void broadcast(Message out) {
-        availablePeer.forEach(
-                (peer, ctx) -> {
-                    ctx.writeAndFlush(out);
-                    logger.debug("send message to {} success ", peer);
-                });
+        msgHandler
+                .getAvailablePeer()
+                .forEach(
+                        (peer, ctx) -> {
+                            ctx.writeAndFlush(out);
+                            logger.debug("send message to {} success ", peer);
+                        });
     }
 
     @Override
@@ -222,13 +222,13 @@ public class ChannelImp implements Channel {
     @Override
     public void asyncSendToPeer(Message out, String peerIpPort, ResponseCallback callback) {
         msgHandler.addSeq2CallBack(out.getSeq(), callback);
-        availablePeer.forEach(
-                (peer, ctx) -> {
-                    if (peer.equals(peerIpPort)) {
-                        ctx.writeAndFlush(out);
-                        logger.debug("send message to {} success ", peer);
-                    }
-                });
+        ChannelHandlerContext ctx = msgHandler.getAvailablePeer().get(peerIpPort);
+        if (ctx != null) {
+            ctx.writeAndFlush(out);
+            logger.debug("send message to {} success ", peerIpPort);
+        } else {
+            logger.debug("send message to {} failed ", peerIpPort);
+        }
     }
 
     @Override
@@ -254,10 +254,12 @@ public class ChannelImp implements Channel {
     @Override
     public List<String> getAvailablePeer() {
         List<String> peerList = new ArrayList<>();
-        availablePeer.forEach(
-                (peer, ctx) -> {
-                    peerList.add(peer);
-                });
+        msgHandler
+                .getAvailablePeer()
+                .forEach(
+                        (peer, ctx) -> {
+                            peerList.add(peer);
+                        });
         return peerList;
     }
 
