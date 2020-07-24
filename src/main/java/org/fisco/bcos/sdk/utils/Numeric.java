@@ -79,7 +79,7 @@ public final class Numeric {
     }
 
     public static boolean containsHexPrefix(String input) {
-        return !Strings.isEmpty(input)
+        return !StringUtils.isEmpty(input)
                 && input.length() > 1
                 && input.charAt(0) == '0'
                 && input.charAt(1) == 'x';
@@ -121,7 +121,7 @@ public final class Numeric {
     public static String toHexStringWithPrefixSafe(BigInteger value) {
         String result = toHexStringNoPrefix(value);
         if (result.length() < 2) {
-            result = Strings.zeros(1) + result;
+            result = StringUtils.zeros(1) + result;
         }
         return HEX_PREFIX + result;
     }
@@ -142,7 +142,7 @@ public final class Numeric {
         }
 
         if (length < size) {
-            result = Strings.zeros(size - length) + result;
+            result = StringUtils.zeros(size - length) + result;
         }
 
         if (withPrefix) {

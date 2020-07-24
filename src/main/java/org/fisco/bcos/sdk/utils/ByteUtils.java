@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ByteUtil {
+public class ByteUtils {
 
     public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
     public static final byte[] ZERO_BYTE_ARRAY = new byte[] {0};
@@ -44,7 +44,9 @@ public class ByteUtil {
      * @return numBytes byte long array.
      */
     public static byte[] bigIntegerToBytes(BigInteger b, int numBytes) {
-        if (b == null) return null;
+        if (b == null) {
+            return null;
+        }
         byte[] bytes = new byte[numBytes];
         byte[] biBytes = b.toByteArray();
         int start = (biBytes.length == numBytes + 1) ? 1 : 0;
@@ -54,7 +56,9 @@ public class ByteUtil {
     }
 
     public static byte[] bigIntegerToBytes(BigInteger value) {
-        if (value == null) return null;
+        if (value == null) {
+            return null;
+        }
 
         byte[] data = value.toByteArray();
 
@@ -67,7 +71,9 @@ public class ByteUtil {
     }
 
     public static byte[] bigIntegerToBytesSigned(BigInteger b, int numBytes) {
-        if (b == null) return null;
+        if (b == null) {
+            return null;
+        }
         byte[] bytes = new byte[numBytes];
         Arrays.fill(bytes, b.signum() < 0 ? (byte) 0xFF : 0x00);
         byte[] biBytes = b.toByteArray();
@@ -99,7 +105,9 @@ public class ByteUtil {
         int i = 0;
         int length = a.length < b.length ? a.length : b.length;
         while (i < length) {
-            if (a[i] != b[i]) return i;
+            if (a[i] != b[i]) {
+                return i;
+            }
             i++;
         }
         return i;
@@ -124,7 +132,9 @@ public class ByteUtil {
     public static byte[] longToBytesNoLeadZeroes(long val) {
 
         // todo: improve performance by while strip numbers until (long >> 8 == 0)
-        if (val == 0) return EMPTY_BYTE_ARRAY;
+        if (val == 0) {
+            return EMPTY_BYTE_ARRAY;
+        }
 
         byte[] data = ByteBuffer.allocate(Long.BYTES).putLong(val).array();
 
@@ -149,7 +159,9 @@ public class ByteUtil {
      */
     public static byte[] intToBytesNoLeadZeroes(int val) {
 
-        if (val == 0) return EMPTY_BYTE_ARRAY;
+        if (val == 0) {
+            return EMPTY_BYTE_ARRAY;
+        }
 
         int length = 0;
 
@@ -197,7 +209,9 @@ public class ByteUtil {
      * @return unsigned positive int value.
      */
     public static int byteArrayToInt(byte[] b) {
-        if (b == null || b.length == 0) return 0;
+        if (b == null || b.length == 0) {
+            return 0;
+        }
         return new BigInteger(1, b).intValue();
     }
 
@@ -210,7 +224,9 @@ public class ByteUtil {
      * @return unsigned positive long value.
      */
     public static long byteArrayToLong(byte[] b) {
-        if (b == null || b.length == 0) return 0;
+        if (b == null || b.length == 0) {
+            return 0;
+        }
         return new BigInteger(1, b).longValue();
     }
 
@@ -233,7 +249,9 @@ public class ByteUtil {
 
     public static String oneByteToHexString(byte value) {
         String retVal = Integer.toString(value & 0xFF, 16);
-        if (retVal.length() == 1) retVal = "0" + retVal;
+        if (retVal.length() == 1) {
+            retVal = "0" + retVal;
+        }
         return retVal;
     }
 
@@ -252,7 +270,9 @@ public class ByteUtil {
             bInt = bInt.shiftRight(8);
             ++bytes;
         }
-        if (bytes == 0) ++bytes;
+        if (bytes == 0) {
+            ++bytes;
+        }
         return bytes;
     }
 
@@ -265,14 +285,19 @@ public class ByteUtil {
         byte[] data;
 
         // check if the string is numeric
-        if (arg.toString().trim().matches("-?\\d+(\\.\\d+)?"))
+        if (arg.toString().trim().matches("-?\\d+(\\.\\d+)?")) {
             data = new BigInteger(arg.toString().trim()).toByteArray();
+        }
         // check if it's hex number
-        else if (arg.toString().trim().matches("0[xX][0-9a-fA-F]+"))
+        else if (arg.toString().trim().matches("0[xX][0-9a-fA-F]+")) {
             data = new BigInteger(arg.toString().trim().substring(2), 16).toByteArray();
-        else data = arg.toString().trim().getBytes();
+        } else {
+            data = arg.toString().trim().getBytes();
+        }
 
-        if (data.length > 32) throw new RuntimeException("values can't be more than 32 byte");
+        if (data.length > 32) {
+            throw new RuntimeException("values can't be more than 32 byte");
+        }
 
         byte[] val = new byte[32];
 
@@ -314,7 +339,9 @@ public class ByteUtil {
 
     public static byte[] stripLeadingZeroes(byte[] data) {
 
-        if (data == null) return null;
+        if (data == null) {
+            return null;
+        }
 
         final int firstNonZero = firstNonZeroByte(data);
         switch (firstNonZero) {
@@ -343,7 +370,9 @@ public class ByteUtil {
         int i;
         for (i = bytes.length - 1; i >= startIndex; i--) {
             bytes[i]++;
-            if (bytes[i] != 0) break;
+            if (bytes[i] != 0) {
+                break;
+            }
         }
         // we return false when all bytes are 0 again
         return (i >= startIndex || bytes[startIndex] != 0);
@@ -357,7 +386,7 @@ public class ByteUtil {
      * @return Byte array of given size with a copy of the <code>src</code>
      */
     public static byte[] copyToArray(BigInteger value) {
-        byte[] src = ByteUtil.bigIntegerToBytes(value);
+        byte[] src = ByteUtils.bigIntegerToBytes(value);
         byte[] dest = ByteBuffer.allocate(32).array();
         if (src != null) {
             System.arraycopy(src, 0, dest, dest.length - src.length, src.length);
@@ -371,15 +400,20 @@ public class ByteUtil {
 
     public static byte[] setBit(byte[] data, int pos, int val) {
 
-        if ((data.length * 8) - 1 < pos) throw new Error("outside byte array limit, pos: " + pos);
+        if ((data.length * 8) - 1 < pos) {
+            throw new Error("outside byte array limit, pos: " + pos);
+        }
 
         int posByte = data.length - 1 - (pos) / 8;
         int posBit = (pos) % 8;
         byte setter = (byte) (1 << (posBit));
         byte toBeSet = data[posByte];
         byte result;
-        if (val == 1) result = (byte) (toBeSet | setter);
-        else result = (byte) (toBeSet & ~setter);
+        if (val == 1) {
+            result = (byte) (toBeSet | setter);
+        } else {
+            result = (byte) (toBeSet & ~setter);
+        }
 
         data[posByte] = result;
         return data;
@@ -387,7 +421,9 @@ public class ByteUtil {
 
     public static int getBit(byte[] data, int pos) {
 
-        if ((data.length * 8) - 1 < pos) throw new Error("outside byte array limit, pos: " + pos);
+        if ((data.length * 8) - 1 < pos) {
+            throw new Error("outside byte array limit, pos: " + pos);
+        }
 
         int posByte = data.length - 1 - pos / 8;
         int posBit = pos % 8;
@@ -396,7 +432,9 @@ public class ByteUtil {
     }
 
     public static byte[] and(byte[] b1, byte[] b2) {
-        if (b1.length != b2.length) throw new RuntimeException("Array sizes differ");
+        if (b1.length != b2.length) {
+            throw new RuntimeException("Array sizes differ");
+        }
         byte[] ret = new byte[b1.length];
         for (int i = 0; i < ret.length; i++) {
             ret[i] = (byte) (b1[i] & b2[i]);
@@ -405,7 +443,9 @@ public class ByteUtil {
     }
 
     public static byte[] or(byte[] b1, byte[] b2) {
-        if (b1.length != b2.length) throw new RuntimeException("Array sizes differ");
+        if (b1.length != b2.length) {
+            throw new RuntimeException("Array sizes differ");
+        }
         byte[] ret = new byte[b1.length];
         for (int i = 0; i < ret.length; i++) {
             ret[i] = (byte) (b1[i] | b2[i]);
@@ -414,7 +454,9 @@ public class ByteUtil {
     }
 
     public static byte[] xor(byte[] b1, byte[] b2) {
-        if (b1.length != b2.length) throw new RuntimeException("Array sizes differ");
+        if (b1.length != b2.length) {
+            throw new RuntimeException("Array sizes differ");
+        }
         byte[] ret = new byte[b1.length];
         for (int i = 0; i < ret.length; i++) {
             ret[i] = (byte) (b1[i] ^ b2[i]);
@@ -481,7 +523,9 @@ public class ByteUtil {
                     break;
                 }
             }
-            if (!found) result.add(elementA);
+            if (!found) {
+                result.add(elementA);
+            }
         }
 
         return result;
@@ -574,9 +618,15 @@ public class ByteUtil {
      * @return decoded bytes array
      */
     public static byte[] hexStringToBytes(String data) {
-        if (data == null) return EMPTY_BYTE_ARRAY;
-        if (data.startsWith("0x")) data = data.substring(2);
-        if (data.length() % 2 == 1) data = "0" + data;
+        if (data == null) {
+            return EMPTY_BYTE_ARRAY;
+        }
+        if (data.startsWith("0x")) {
+            data = data.substring(2);
+        }
+        if (data.length() % 2 == 1) {
+            data = "0" + data;
+        }
         return Hex.decode(data);
     }
 
@@ -632,7 +682,9 @@ public class ByteUtil {
      */
     public static byte[] parseBytes(byte[] input, int offset, int len) {
 
-        if (offset >= input.length || len == 0) return EMPTY_BYTE_ARRAY;
+        if (offset >= input.length || len == 0) {
+            return EMPTY_BYTE_ARRAY;
+        }
 
         byte[] bytes = new byte[len];
         System.arraycopy(input, offset, bytes, 0, Math.min(input.length - offset, len));
