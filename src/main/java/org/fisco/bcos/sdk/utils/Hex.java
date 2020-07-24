@@ -29,7 +29,7 @@ public class Hex {
 
     public static String toHexString(byte[] data, int off, int length) {
         byte[] encoded = encode(data, off, length);
-        return Strings.fromByteArray(encoded);
+        return StringUtils.fromByteArray(encoded);
     }
 
     /**

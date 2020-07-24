@@ -70,6 +70,13 @@ public interface Network {
      */
     Map<String, ChannelHandlerContext> getAvailableConnections();
 
+    /**
+     * Remove the connection if version negotiation failed
+     *
+     * @param peerIpPort
+     */
+    void removeConnection(String peerIpPort);
+
     /** Exit gracefully */
     void stop();
 }

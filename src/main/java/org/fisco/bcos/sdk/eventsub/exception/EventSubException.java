@@ -13,11 +13,18 @@
  *
  */
 
-package org.fisco.bcos.sdk.network;
+package org.fisco.bcos.sdk.eventsub.exception;
 
-public class TimeoutConfig {
-    public static long idleTimeout = (long) 10000;
-    public static long reconnectDelay = (long) 20000;
-    public static long connectTimeout = (long) 10000;
-    public static long sslHandShakeTimeout = (long) 10000;
+public class EventSubException extends Exception {
+    public EventSubException(String message) {
+        super(message);
+    }
+
+    public EventSubException(Throwable cause) {
+        super(cause);
+    }
+
+    public EventSubException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

@@ -13,11 +13,14 @@
  *
  */
 
-package org.fisco.bcos.sdk.network;
+package org.fisco.bcos.sdk.utils;
 
-public class TimeoutConfig {
-    public static long idleTimeout = (long) 10000;
-    public static long reconnectDelay = (long) 20000;
-    public static long connectTimeout = (long) 10000;
-    public static long sslHandShakeTimeout = (long) 10000;
+public class AddressUtils {
+    public static final int ADDRESS_SIZE = 160;
+    public static final int ADDRESS_LENGTH_IN_HEX = ADDRESS_SIZE >> 2;
+
+    public static boolean isValidAddress(String address) {
+        String addressNoPrefix = Numeric.cleanHexPrefix(address);
+        return addressNoPrefix.length() == ADDRESS_LENGTH_IN_HEX;
+    }
 }

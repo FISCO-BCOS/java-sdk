@@ -77,6 +77,11 @@ public class NetworkImp implements Network {
     }
 
     @Override
+    public void removeConnection(String peerIpPort) {
+        connManager.removeConnection(peerIpPort);
+    }
+
+    @Override
     public void stop() {
         connManager.stopReconnectSchedule();
         connManager.stopNetty();

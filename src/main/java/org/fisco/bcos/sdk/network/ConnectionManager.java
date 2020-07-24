@@ -336,4 +336,14 @@ public class ConnectionManager {
                     System.identityHashCode(ctx));
         }
     }
+
+    protected void removeConnection(String peerIpPort) {
+        for (ConnectionInfo conn : connectionInfoList) {
+            String ipPort = conn.getIp() + ":" + conn.getPort();
+            if (ipPort.equals(peerIpPort)) {
+                connectionInfoList.remove(conn);
+                return;
+            }
+        }
+    }
 }

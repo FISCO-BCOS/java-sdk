@@ -15,4 +15,49 @@
 
 package org.fisco.bcos.sdk.eventsub;
 
-public abstract class EventCallback {}
+import java.math.BigInteger;
+import java.util.List;
+import org.fisco.bcos.sdk.model.EventLog;
+import org.fisco.bcos.sdk.model.LogResult;
+
+/** Event callback */
+public abstract class EventCallback {
+    private BigInteger lastBlockNumber = null;
+    private long logCount = 0;
+
+    public BigInteger getLastBlockNumber() {
+        return lastBlockNumber;
+    }
+
+    public void updateCountsAndLatestBlock(List<LogResult> logs) {
+        if (logs.isEmpty()) {
+            return;
+        }
+        LogResult latestOne = logs.get(logs.size() - 1);
+        if (lastBlockNumber == null) {
+            lastBlockNumber = latestOne.getLog().getBlockNumber();
+            logCount += logs.size();
+        } else {
+            if (latestOne.getLog().getBlockNumber().compareTo(lastBlockNumber) > 0) {
+                lastBlockNumber = latestOne.getLog().getBlockNumber();
+                logCount += logs.size();
+            }
+        }
+    }
+
+    /**
+     * according to the abi, decode the log.
+     *
+     * @param log log receive from peer
+     * @return decoded log result
+     */
+    public abstract LogResult decodeLog(EventLog log);
+
+    /**
+     * onReceiveLog called when sdk receive any response of the target subscription.
+     *
+     * @param status the status that peer response to sdk.
+     * @param logs logs from the message.
+     */
+    public abstract void onReceiveLog(int status, List<LogResult> logs);
+}
