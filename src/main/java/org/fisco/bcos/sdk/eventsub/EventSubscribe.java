@@ -16,7 +16,9 @@
 package org.fisco.bcos.sdk.eventsub;
 
 import java.util.List;
+import java.util.UUID;
 import org.fisco.bcos.sdk.channel.Channel;
+import org.fisco.bcos.sdk.eventsub.filter.EventLogFilter;
 
 /**
  * Event subscribe interface.
@@ -32,7 +34,12 @@ public interface EventSubscribe {
      * @return EventSubscribe Object
      */
     static EventSubscribe build(Channel ch, String groupId) {
-        return null;
+        return new EventSubscribeImp(ch, groupId);
+    }
+
+    static String newSeq() {
+        String seq = UUID.randomUUID().toString().replaceAll("-", "");
+        return seq;
     }
 
     /**
@@ -46,9 +53,9 @@ public interface EventSubscribe {
     /**
      * Unsubscribe events
      *
-     * @param filterId
+     * @param filterID
      */
-    void unsubscribeEvent(String filterId);
+    void unsubscribeEvent(String filterID);
 
     /**
      * Get all subscribed event.

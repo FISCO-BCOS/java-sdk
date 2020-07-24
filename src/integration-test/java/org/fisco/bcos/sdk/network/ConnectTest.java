@@ -46,7 +46,7 @@ public class ConnectTest {
         Network network = Network.build(config,new TestMsgHandler());
         try{
             network.start();
-            Thread.sleep(4000);
+            Thread.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception is not expected");

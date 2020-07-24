@@ -35,7 +35,6 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
     private ConnectionManager connectionManager;
 
     public ChannelHandler(ConnectionManager connManager, MsgHandler msgHandler) {
-        // todo: add thread pool
         this.msgHandler = msgHandler;
         this.connectionManager = connManager;
     }

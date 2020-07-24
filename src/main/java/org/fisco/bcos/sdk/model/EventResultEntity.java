@@ -13,11 +13,6 @@
  *
  */
 
-package org.fisco.bcos.sdk.network;
+package org.fisco.bcos.sdk.model;
 
-public class TimeoutConfig {
-    public static long idleTimeout = (long) 10000;
-    public static long reconnectDelay = (long) 20000;
-    public static long connectTimeout = (long) 10000;
-    public static long sslHandShakeTimeout = (long) 10000;
-}
+public class EventResultEntity {}

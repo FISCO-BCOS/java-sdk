@@ -13,6 +13,9 @@
  *
  */
 
-package org.fisco.bcos.sdk.eventsub;
+package org.fisco.bcos.sdk.eventsub.filter;
 
-public class EventLogFilter {}
+/** Resend task time cofing */
+public class ScheduleTimeConfig {
+    public static long resendFrequency = (long) 10000;
+}
