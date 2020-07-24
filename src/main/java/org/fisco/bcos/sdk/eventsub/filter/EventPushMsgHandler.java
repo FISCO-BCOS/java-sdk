@@ -17,9 +17,11 @@ package org.fisco.bcos.sdk.eventsub.filter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.channel.ChannelHandlerContext;
+import java.util.ArrayList;
 import java.util.List;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.model.EventLog;
+import org.fisco.bcos.sdk.model.LogResult;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.network.MsgHandler;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
@@ -66,9 +68,16 @@ public class EventPushMsgHandler implements MsgHandler {
             if (resp.getResult() == EventSubNodeRespStatus.SUCCESS.getStatus()) {
                 List<EventLog> logs = resp.getLogs();
                 if (!logs.isEmpty()) {
-                    callback.onReceiveLog(resp.getResult(), logs);
+                    List<LogResult> logResults = new ArrayList<>();
+                    for (EventLog log : logs) {
+                        LogResult decodedLog = callback.decodeLog(log);
+                        if (decodedLog != null) {
+                            logResults.add(decodedLog);
+                        }
+                    }
+                    callback.onReceiveLog(resp.getResult(), logResults);
                     // update status
-                    callback.updateCountsAndLatestBlock(logs);
+                    callback.updateCountsAndLatestBlock(logResults);
                     logger.info(
                             " log size: {}, blocknumber: {}",
                             logs.size(),

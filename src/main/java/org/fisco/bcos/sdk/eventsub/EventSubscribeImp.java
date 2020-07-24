@@ -17,6 +17,8 @@ package org.fisco.bcos.sdk.eventsub;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.eventsub.filter.EventLogFilter;
@@ -25,6 +27,7 @@ import org.fisco.bcos.sdk.eventsub.filter.EventLogResponse;
 import org.fisco.bcos.sdk.eventsub.filter.EventPushMsgHandler;
 import org.fisco.bcos.sdk.eventsub.filter.EventSubNodeRespStatus;
 import org.fisco.bcos.sdk.eventsub.filter.FilterManager;
+import org.fisco.bcos.sdk.eventsub.filter.ScheduleTimeConfig;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -39,6 +42,7 @@ public class EventSubscribeImp implements EventSubscribe {
     private FilterManager filterManager;
     private EventPushMsgHandler msgHander;
     private boolean running = false;
+    ScheduledThreadPoolExecutor resendSchedule = new ScheduledThreadPoolExecutor(1);
 
     public EventSubscribeImp(Channel ch, String groupId) {
         this.ch = ch;
@@ -77,13 +81,27 @@ public class EventSubscribeImp implements EventSubscribe {
         if (running) {
             return;
         }
-
         running = true;
+        resendSchedule.scheduleAtFixedRate(
+                () -> {
+                    resendWaitingFilters();
+                },
+                0,
+                ScheduleTimeConfig.resendFrequency,
+                TimeUnit.SECONDS);
     }
 
     @Override
     public void stop() {
-        // todo
+        resendSchedule.shutdown();
+    }
+
+    private void resendWaitingFilters() {
+        List<EventLogFilter> filters = filterManager.getWaitingReqFilters();
+        for (EventLogFilter filter : filters) {
+            sendFilter(filter);
+        }
+        logger.info("Resend waiting filters, size: {}", filters.size());
     }
 
     private void sendFilter(EventLogFilter filter) {
@@ -145,7 +163,6 @@ public class EventSubscribeImp implements EventSubscribe {
                     response.getContent());
             try {
                 if (0 == response.getErrorCode()) {
-                    // todo add success logic
                     EventLogResponse resp =
                             ObjectMapperFactory.getObjectMapper()
                                     .readValue(response.getContent(), EventLogResponse.class);

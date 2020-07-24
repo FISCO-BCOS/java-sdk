@@ -13,11 +13,9 @@
  *
  */
 
-package org.fisco.bcos.sdk.network;
+package org.fisco.bcos.sdk.eventsub.filter;
 
-public class TimeoutConfig {
-    public static long idleTimeout = (long) 10000;
-    public static long reconnectDelay = (long) 20000;
-    public static long connectTimeout = (long) 10000;
-    public static long sslHandShakeTimeout = (long) 10000;
+/** Resend task time cofing */
+public class ScheduleTimeConfig {
+    public static long resendFrequency = (long) 10000;
 }

@@ -81,4 +81,22 @@ public class FilterManager {
     public EventCallback getCallBack(String filterID) {
         return filterID2Callback.get(filterID);
     }
+
+    public List<EventLogFilter> getWaitingReqFilters() {
+        List<EventLogFilter> filters = new ArrayList<EventLogFilter>();
+        synchronized (this) {
+            for (EventLogFilter filter : regId2Filter.values()) {
+                if (filter.getStatus() == EventLogFilterStatus.WAITING_REQUEST) {
+                    logger.info(
+                            " resend filter, update event filter status: {}, registerID: {}, filter: {}",
+                            filter.getStatus(),
+                            filter.getRegisterID(),
+                            filter);
+                    filters.add(filter);
+                    filter.setStatus(EventLogFilterStatus.WAITING_RESPONSE);
+                }
+            }
+        }
+        return filters;
+    }
 }
