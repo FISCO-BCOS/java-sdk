@@ -18,11 +18,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
-import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
 import org.fisco.bcos.sdk.client.protocol.response.JsonRpcResponse;
+import org.fisco.bcos.sdk.model.JsonRpcRequest;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
+import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.utils.ChannelUtils;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
@@ -31,16 +32,23 @@ import org.slf4j.LoggerFactory;
 public class JsonRpcService {
     protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private static Logger logger = LoggerFactory.getLogger(JsonRpcService.class);
+    private final GroupManagerService groupManagerService;
     public final Channel channel;
-    private final String groupId;
+    private final int groupId;
 
-    public JsonRpcService(Channel channel, String groupId) {
+    public JsonRpcService(
+            GroupManagerService groupManagerService, Channel channel, Integer groupId) {
+        this.groupManagerService = groupManagerService;
         this.channel = channel;
         this.groupId = groupId;
     }
 
     public Channel getChannel() {
         return this.channel;
+    }
+
+    public GroupManagerService getGroupManagerService() {
+        return this.groupManagerService;
     }
 
     public <T extends JsonRpcResponse> T sendRequestToPeer(
@@ -66,7 +74,7 @@ public class JsonRpcService {
             JsonRpcRequest request, MsgType messageType, Class<T> responseType) {
         Message message =
                 encodeRequestToMessage(request, Short.valueOf((short) messageType.ordinal()));
-        Response response = channel.sendToGroup(message, this.groupId);
+        Response response = this.groupManagerService.sendMessageToGroup(this.groupId, message);
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
 
@@ -118,9 +126,9 @@ public class JsonRpcService {
             RespCallback<T> callback) {
         Message message =
                 encodeRequestToMessage(request, Short.valueOf((short) messageType.ordinal()));
-        this.channel.asyncSendToGroup(
-                message,
+        this.groupManagerService.asyncSendMessageToGroup(
                 this.groupId,
+                message,
                 new ResponseCallback() {
                     @Override
                     public void onResponse(Response response) {

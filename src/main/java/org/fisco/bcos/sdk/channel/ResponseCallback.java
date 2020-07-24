@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.channel;
 
 import io.netty.util.Timeout;
+import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
 import org.fisco.bcos.sdk.model.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
