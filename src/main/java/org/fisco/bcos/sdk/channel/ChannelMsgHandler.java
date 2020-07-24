@@ -77,6 +77,10 @@ public class ChannelMsgHandler implements MsgHandler {
         seq2Callback.put(seq, callback);
     }
 
+    public void removeSeq(String seq) {
+        seq2Callback.remove(seq);
+    };
+
     private void addAvailablePeer(String host, ChannelHandlerContext ctx) {
         availablePeer.put(host, ctx);
     }
