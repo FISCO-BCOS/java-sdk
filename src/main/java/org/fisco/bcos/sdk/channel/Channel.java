@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.channel;
 
 import java.util.List;
+import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -110,16 +111,19 @@ public interface Channel {
      * @param out: Message to be sent
      * @param peerIpPort: Remote ip:port information
      * @param callback: Response callback
+     * @param options: Include timeout
      */
-    void asyncSendToPeer(Message out, String peerIpPort, ResponseCallback callback);
+    void asyncSendToPeer(
+            Message out, String peerIpPort, ResponseCallback callback, Options options);
 
     /**
      * Asynchronous interface, send to an random peer
      *
      * @param out: Message to be sent
      * @param callback: Response callback
+     * @param options: Include timeout
      */
-    void asyncSendToRandom(Message out, ResponseCallback callback);
+    void asyncSendToRandom(Message out, ResponseCallback callback, Options options);
 
     /**
      * Asynchronous interface, send message to peer select by client`s rule
@@ -127,8 +131,10 @@ public interface Channel {
      * @param out: Message to be sent
      * @param rule: Rule set by client
      * @param callback: Response callback
+     * @param options: Include timeout
      */
-    void asyncSendToPeerByRule(Message out, PeerSelectRule rule, ResponseCallback callback);
+    void asyncSendToPeerByRule(
+            Message out, PeerSelectRule rule, ResponseCallback callback, Options options);
 
     /**
      * Get connection information
