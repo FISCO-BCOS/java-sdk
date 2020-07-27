@@ -16,20 +16,23 @@
 package org.fisco.bcos.sdk.channel;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigException;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
-import org.fisco.bcos.sdk.network.ConnectionInfo;
-import org.fisco.bcos.sdk.network.MsgHandler;
-import org.fisco.bcos.sdk.network.Network;
-import org.fisco.bcos.sdk.network.NetworkImp;
+import org.fisco.bcos.sdk.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,14 +48,18 @@ public class ChannelImp implements Channel {
     private ChannelMsgHandler msgHandler;
     private Network network;
     private Map<String, List<String>> groupId2PeerIpPortList; // upper module settings are required
+    private Timer timeoutHandler = new HashedWheelTimer();
 
     public ChannelImp(String filepath) {
         try {
             ConfigOption config = Config.load(filepath);
             msgHandler = new ChannelMsgHandler();
             network = new NetworkImp(config, msgHandler);
+            network.start();
         } catch (ConfigException e) {
-            logger.error("init channel error, {} ", e.getMessage());
+            logger.error("init channel config error, {} ", e.getMessage());
+        } catch (NetworkException e) {
+            logger.error("init channel network error, {} ", e.getMessage());
         }
     }
 
@@ -126,7 +133,7 @@ public class ChannelImp implements Channel {
         }
 
         Callback callback = new Callback();
-        asyncSendToPeer(out, peerIpPort, callback);
+        asyncSendToPeer(out, peerIpPort, callback, new Options());
         try {
             callback.semaphore.acquire(1);
         } catch (InterruptedException e) {
@@ -167,7 +174,7 @@ public class ChannelImp implements Channel {
         }
 
         Callback callback = new Callback();
-        asyncSendToRandom(out, callback);
+        asyncSendToRandom(out, callback, new Options());
         try {
             callback.semaphore.acquire(1);
         } catch (InterruptedException e) {
@@ -208,7 +215,7 @@ public class ChannelImp implements Channel {
         }
 
         Callback callback = new Callback();
-        asyncSendToPeerByRule(out, rule, callback);
+        asyncSendToPeerByRule(out, rule, callback, new Options());
         try {
             callback.semaphore.acquire(1);
         } catch (InterruptedException e) {
@@ -220,9 +227,24 @@ public class ChannelImp implements Channel {
     }
 
     @Override
-    public void asyncSendToPeer(Message out, String peerIpPort, ResponseCallback callback) {
+    public void asyncSendToPeer(
+            Message out, String peerIpPort, ResponseCallback callback, Options options) {
         msgHandler.addSeq2CallBack(out.getSeq(), callback);
         ChannelHandlerContext ctx = msgHandler.getAvailablePeer().get(peerIpPort);
+        if (options.getTimeout() > 0) {
+            callback.setTimeout(
+                    timeoutHandler.newTimeout(
+                            new TimerTask() {
+                                @Override
+                                public void run(Timeout timeout) {
+                                    // handle timer
+                                    callback.onTimeout();
+                                    msgHandler.removeSeq(out.getSeq());
+                                }
+                            },
+                            options.getTimeout(),
+                            TimeUnit.MILLISECONDS));
+        }
         if (ctx != null) {
             ctx.writeAndFlush(out);
             logger.debug("send message to {} success ", peerIpPort);
@@ -232,18 +254,19 @@ public class ChannelImp implements Channel {
     }
 
     @Override
-    public void asyncSendToRandom(Message out, ResponseCallback callback) {
+    public void asyncSendToRandom(Message out, ResponseCallback callback, Options options) {
         List<String> peerList = getAvailablePeer();
         int random = (int) (Math.random() * (peerList.size()));
         String peerIpPort = peerList.get(random);
         logger.debug("send message to random peer {} ", peerIpPort);
-        asyncSendToPeer(out, peerIpPort, callback);
+        asyncSendToPeer(out, peerIpPort, callback, options);
     }
 
     @Override
-    public void asyncSendToPeerByRule(Message out, PeerSelectRule rule, ResponseCallback callback) {
+    public void asyncSendToPeerByRule(
+            Message out, PeerSelectRule rule, ResponseCallback callback, Options options) {
         String target = rule.select(getConnectionInfo());
-        asyncSendToPeer(out, target, callback);
+        asyncSendToPeer(out, target, callback, options);
     }
 
     @Override
