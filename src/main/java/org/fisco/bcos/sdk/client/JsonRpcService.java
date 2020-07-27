@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
+import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.response.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.JsonRpcRequest;
@@ -111,7 +112,8 @@ public class JsonRpcService {
                             callback.onError(response);
                         }
                     }
-                });
+                },
+                new Options());
     }
 
     public <T extends JsonRpcResponse> void asyncSendRequestToGroup(
