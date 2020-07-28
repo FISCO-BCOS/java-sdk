@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.channel;
 
 import java.util.List;
+import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
@@ -29,6 +30,7 @@ import org.fisco.bcos.sdk.network.MsgHandler;
  * @author Maggie
  */
 public interface Channel {
+
     /**
      * Init channel module
      *
@@ -150,7 +152,5 @@ public interface Channel {
      */
     List<String> getAvailablePeer();
 
-    Response sendToGroup(Message out, String groupId);
-
-    void asyncSendToGroup(Message out, String groupId, ResponseCallback callback);
+    EnumChannelProtocolVersion getVersion();
 }

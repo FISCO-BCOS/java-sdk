@@ -13,6 +13,7 @@
  */
 package org.fisco.bcos.sdk.service;
 
+import java.math.BigInteger;
 import java.util.Set;
 
 public interface GroupService {
@@ -36,4 +37,18 @@ public interface GroupService {
      * @param nodeAddress: the node ip and port
      */
     void insertNode(String nodeAddress);
+
+    /**
+     * update the latest block number of the specified group
+     *
+     * @param peerIpAndPort: the node that notify the block number info
+     * @param blockNumber: the notified block number
+     */
+    void updatePeersBlockNumberInfo(String peerIpAndPort, BigInteger blockNumber);
+
+    BigInteger getLastestBlockNumber();
+
+    String getNodeWithTheLatestBlockNumber();
+
+    boolean existPeer(String peer);
 }
