@@ -16,7 +16,6 @@
 package org.fisco.bcos.sdk.channel;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.fisco.bcos.sdk.config.ConfigException;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.network.MsgHandler;
@@ -24,9 +23,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.Assert.fail;
+
 public class ChannelTest {
     @Test
-    public void testConnect() throws ConfigException {
+    public void testConnect() {
         Logger logger = LoggerFactory.getLogger(ChannelImp.class);
         Channel channel = Channel.build("src/integration-test/resources/config-example.yaml");
         class TestMsgHandler implements MsgHandler {
@@ -47,5 +48,13 @@ public class ChannelTest {
         channel.addConnectHandler(testMsgHandler);
         channel.addMessageHandler(MsgType.CHANNEL_RPC_REQUEST, testMsgHandler);
         channel.addDisconnectHandler(testMsgHandler);
+        try{
+            channel.start();
+            Thread.sleep(10000);
+            channel.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception is not expected");
+        }
     }
 }
