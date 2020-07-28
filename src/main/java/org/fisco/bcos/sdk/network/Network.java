@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.network;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 
@@ -76,6 +77,13 @@ public interface Network {
      * @param peerIpPort
      */
     void removeConnection(String peerIpPort);
+
+    /**
+     * Set thread pool
+     *
+     * @param threadPool
+     */
+    void setMsgHandleThreadPool(ThreadPoolExecutor threadPool);
 
     /** Exit gracefully */
     void stop();
