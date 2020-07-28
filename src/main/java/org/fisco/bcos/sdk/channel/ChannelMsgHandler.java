@@ -24,12 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import org.fisco.bcos.sdk.channel.model.*;
 import org.fisco.bcos.sdk.client.protocol.response.NodeVersion;
-import org.fisco.bcos.sdk.model.JsonRpcRequest;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -48,13 +44,11 @@ public class ChannelMsgHandler implements MsgHandler {
 
     private static Logger logger = LoggerFactory.getLogger(ChannelImp.class);
     private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-    private long heartBeatDelay = (long) 2000;
 
     private List<MsgHandler> msgConnectHandlerList = new ArrayList<>();
     private List<MsgHandler> msgDisconnectHandleList = new ArrayList<>();
     private Map<MsgType, MsgHandler> msgHandlers = new ConcurrentHashMap<>();
     private Map<String, ResponseCallback> seq2Callback = new ConcurrentHashMap<>();
-    private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
     private Map<String, ChannelHandlerContext> availablePeer = new ConcurrentHashMap<>();
 
     public Map<String, ChannelHandlerContext> getAvailablePeer() {
@@ -79,7 +73,7 @@ public class ChannelMsgHandler implements MsgHandler {
 
     public void removeSeq(String seq) {
         seq2Callback.remove(seq);
-    };
+    }
 
     private void addAvailablePeer(String host, ChannelHandlerContext ctx) {
         availablePeer.put(host, ctx);
@@ -146,16 +140,15 @@ public class ChannelMsgHandler implements MsgHandler {
     }
 
     private void queryNodeVersion(ChannelHandlerContext ctx) {
-        JsonRpcRequest request = new JsonRpcRequest("getClientVersion", Arrays.asList());
+        ChannelRequest request = new ChannelRequest("getClientVersion", Arrays.asList());
         String seq = ChannelUtils.newSeq();
         Message message = new Message();
-
         try {
-            byte[] encodedData = objectMapper.writeValueAsBytes(request);
+            byte[] payload = objectMapper.writeValueAsBytes(request);
             message.setSeq(seq);
             message.setResult(0);
-            message.setType(Short.valueOf((short) MsgType.CHANNEL_RPC_REQUEST.ordinal()));
-            message.setData(encodedData);
+            message.setType((short) MsgType.CHANNEL_RPC_REQUEST.getType());
+            message.setData(payload);
             logger.trace(
                     "encodeRequestToMessage, seq: {}, method: {}, messageType: {}",
                     message.getSeq(),
@@ -209,37 +202,26 @@ public class ChannelMsgHandler implements MsgHandler {
                             if (EnumNodeVersion.channelProtocolHandleShakeSupport(
                                     nodeVersion.getResult().getSupportedVersion())) {
                                 // node support channel protocol handshake, start it
-                                logger.info(
-                                        " support channel handshake node: {}, content: {}",
-                                        nodeVersion.getResult(),
-                                        response.getContent());
+                                logger.info(" support channel handshake node");
                                 queryChannelProtocolVersion(ctx);
-                                disconnect = false;
                             } else { // default channel protocol
-                                logger.info(
-                                        " not support channel handshake set default ,node: {}, content: {}",
-                                        nodeVersion.getResult(),
-                                        response.getContent());
+                                logger.info(" not support channel handshake set default");
                                 ChannelVersionNegotiation.setProtocolVersion(
                                         ctx,
                                         EnumChannelProtocolVersion.VERSION_1,
                                         nodeVersion.getResult().getSupportedVersion());
                             }
-
+                            disconnect = false;
                         } catch (Exception e) {
                             logger.error(" query node version failed, message: {}", e.getMessage());
                         }
 
                         if (disconnect) {
-                            // TODO: disconnect
+                            ctx.disconnect();
+                            ctx.close();
                         } else {
                             String host = ChannelVersionNegotiation.getPeerHost(ctx);
                             addAvailablePeer(host, ctx);
-                            scheduledExecutorService.scheduleAtFixedRate(
-                                    () -> sendHeartbeatMessage(ctx),
-                                    0,
-                                    heartBeatDelay,
-                                    TimeUnit.MILLISECONDS);
                         }
                     }
                 };
@@ -259,8 +241,13 @@ public class ChannelMsgHandler implements MsgHandler {
             byte[] payload = objectMapper.writeValueAsBytes(channelHandshake);
             message.setSeq(seq);
             message.setResult(0);
-            message.setType(Short.valueOf((short) MsgType.CLIENT_HANDSHAKE.ordinal()));
+            message.setType(Short.valueOf((short) MsgType.CLIENT_HANDSHAKE.getType()));
             message.setData(payload);
+            logger.trace(
+                    "encodeChannelHandshakeToMessage, seq: {}, data: {}, messageType: {}",
+                    message.getSeq(),
+                    channelHandshake.toString(),
+                    message.getType());
         } catch (JsonProcessingException e) {
             logger.error(
                     "queryChannelProtocolVersion failed for decode the message exception, errorMessage: {}",
@@ -311,64 +298,8 @@ public class ChannelMsgHandler implements MsgHandler {
                                     e.getMessage());
                         }
                         if (disconnect) {
-                            // TODO: disconnect
-                        }
-                    }
-                };
-
-        ctx.writeAndFlush(message);
-        addSeq2CallBack(seq, callback);
-    }
-
-    public void sendHeartbeatMessage(ChannelHandlerContext ctx) {
-        String seq = ChannelUtils.newSeq();
-        Message message = new Message();
-
-        try {
-            message.setSeq(seq);
-            message.setResult(0);
-            message.setType(Short.valueOf((short) MsgType.CLIENT_HEARTBEAT.ordinal()));
-            HeartBeatParser heartBeatParser =
-                    new HeartBeatParser(ChannelVersionNegotiation.getProtocolVersion(ctx));
-            message.setData(heartBeatParser.encode("0"));
-        } catch (JsonProcessingException e) {
-            logger.error(
-                    "sendHeartbeatMessage failed for decode the message exception, errorMessage: {}",
-                    e.getMessage());
-            return;
-        }
-
-        ResponseCallback callback =
-                new ResponseCallback() {
-                    @Override
-                    public void onResponse(Response response) {
-                        Boolean disconnect = true;
-                        try {
-                            if (response.getErrorCode() != 0) {
-                                logger.error(
-                                        " channel protocol heartbeat request failed, code: {}, message: {}",
-                                        response.getErrorCode(),
-                                        response.getErrorMessage());
-                                throw new ChannelPrococolExceiption(
-                                        " channel protocol heartbeat request failed, code: "
-                                                + response.getErrorCode()
-                                                + ", message: "
-                                                + response.getErrorMessage());
-                            }
-
-                            NodeHeartbeat nodeHeartbeat =
-                                    objectMapper.readValue(
-                                            response.getContent(), NodeHeartbeat.class);
-                            int heartBeat = nodeHeartbeat.getHeartBeat();
-                            logger.trace(" heartbeat packet, heartbeat is {} ", heartBeat);
-                            disconnect = false;
-                        } catch (Exception e) {
-                            logger.error(
-                                    " channel protocol heartbeat failed, exception: {}",
-                                    e.getMessage());
-                        }
-                        if (disconnect) {
-                            // TODO: disconnect
+                            ctx.disconnect();
+                            ctx.close();
                         }
                     }
                 };

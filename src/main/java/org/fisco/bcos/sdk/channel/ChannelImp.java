@@ -15,6 +15,7 @@
 
 package org.fisco.bcos.sdk.channel;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -23,9 +24,14 @@ import io.netty.util.TimerTask;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
 import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
+import org.fisco.bcos.sdk.channel.model.HeartBeatParser;
+import org.fisco.bcos.sdk.channel.model.NodeHeartbeat;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigException;
@@ -33,7 +39,13 @@ import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
-import org.fisco.bcos.sdk.network.*;
+import org.fisco.bcos.sdk.network.ConnectionInfo;
+import org.fisco.bcos.sdk.network.MsgHandler;
+import org.fisco.bcos.sdk.network.Network;
+import org.fisco.bcos.sdk.network.NetworkException;
+import org.fisco.bcos.sdk.network.NetworkImp;
+import org.fisco.bcos.sdk.utils.ChannelUtils;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,18 +62,38 @@ public class ChannelImp implements Channel {
     private Network network;
     private Map<String, List<String>> groupId2PeerIpPortList; // upper module settings are required
     private Timer timeoutHandler = new HashedWheelTimer();
+    private long heartBeatDelay = (long) 2000;
+    private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
     public ChannelImp(String filepath) {
         try {
             ConfigOption config = Config.load(filepath);
             msgHandler = new ChannelMsgHandler();
             network = new NetworkImp(config, msgHandler);
-            network.start();
         } catch (ConfigException e) {
             logger.error("init channel config error, {} ", e.getMessage());
+        }
+    }
+
+    @Override
+    public void start() {
+        try {
+            network.start();
+            startPeriodTask();
         } catch (NetworkException e) {
             logger.error("init channel network error, {} ", e.getMessage());
         }
+    }
+
+    private void startPeriodTask() {
+        scheduledExecutorService.scheduleAtFixedRate(
+                () -> broadcastHeartbeat(), 0, heartBeatDelay, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void stop() {
+        scheduledExecutorService.shutdownNow();
+        network.stop();
     }
 
     @Override
@@ -290,5 +322,78 @@ public class ChannelImp implements Channel {
     @Override
     public EnumChannelProtocolVersion getVersion() {
         return null;
+    }
+
+    private void broadcastHeartbeat() {
+        msgHandler
+                .getAvailablePeer()
+                .forEach(
+                        (peer, ctx) -> {
+                            sendHeartbeatMessage(ctx);
+                            logger.trace("broadcastHeartbeat to {} success ", peer);
+                        });
+    }
+
+    public void sendHeartbeatMessage(ChannelHandlerContext ctx) {
+        String seq = ChannelUtils.newSeq();
+        Message message = new Message();
+
+        try {
+            message.setSeq(seq);
+            message.setResult(0);
+            message.setType(Short.valueOf((short) MsgType.CLIENT_HEARTBEAT.getType()));
+            HeartBeatParser heartBeatParser =
+                    new HeartBeatParser(ChannelVersionNegotiation.getProtocolVersion(ctx));
+            message.setData(heartBeatParser.encode("0"));
+            logger.trace(
+                    "encodeHeartbeatToMessage, seq: {}, content: {}, messageType: {}",
+                    message.getSeq(),
+                    heartBeatParser.toString(),
+                    message.getType());
+        } catch (JsonProcessingException e) {
+            logger.error(
+                    "sendHeartbeatMessage failed for decode the message exception, errorMessage: {}",
+                    e.getMessage());
+            return;
+        }
+
+        ResponseCallback callback =
+                new ResponseCallback() {
+                    @Override
+                    public void onResponse(Response response) {
+                        Boolean disconnect = true;
+                        try {
+                            if (response.getErrorCode() != 0) {
+                                logger.error(
+                                        " channel protocol heartbeat request failed, code: {}, message: {}",
+                                        response.getErrorCode(),
+                                        response.getErrorMessage());
+                                throw new ChannelPrococolExceiption(
+                                        " channel protocol heartbeat request failed, code: "
+                                                + response.getErrorCode()
+                                                + ", message: "
+                                                + response.getErrorMessage());
+                            }
+
+                            NodeHeartbeat nodeHeartbeat =
+                                    ObjectMapperFactory.getObjectMapper()
+                                            .readValue(response.getContent(), NodeHeartbeat.class);
+                            int heartBeat = nodeHeartbeat.getHeartBeat();
+                            logger.trace(" heartbeat packet, heartbeat is {} ", heartBeat);
+                            disconnect = false;
+                        } catch (Exception e) {
+                            logger.error(
+                                    " channel protocol heartbeat failed, exception: {}",
+                                    e.getMessage());
+                        }
+                        if (disconnect) {
+                            String host = ChannelVersionNegotiation.getPeerHost(ctx);
+                            network.removeConnection(host);
+                        }
+                    }
+                };
+
+        ctx.writeAndFlush(message);
+        msgHandler.addSeq2CallBack(seq, callback);
     }
 }
