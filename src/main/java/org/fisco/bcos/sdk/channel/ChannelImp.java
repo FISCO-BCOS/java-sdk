@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigException;
@@ -286,16 +287,8 @@ public class ChannelImp implements Channel {
         return peerList;
     }
 
-    // TODO: remove
     @Override
-    public Response sendToGroup(Message out, String groupId) {
-        Response response = new Response();
-        return response;
-    }
-
-    // TODO: remove
-    @Override
-    public void asyncSendToGroup(Message out, String groupId, ResponseCallback callback) {
-        return;
+    public EnumChannelProtocolVersion getVersion() {
+        return null;
     }
 }

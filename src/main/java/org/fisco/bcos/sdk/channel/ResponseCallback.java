@@ -47,6 +47,13 @@ public abstract class ResponseCallback {
         onResponse(response);
     }
 
+    public void onError(String errorMessage) {
+        Response response = new Response();
+        response.setErrorCode(ChannelMessageError.INTERNAL_MESSAGE_HANDLE_FAILED.getError());
+        response.setContent(errorMessage);
+        onResponse(response);
+    }
+
     public Timeout getTimeout() {
         return timeout;
     }

@@ -31,25 +31,28 @@ import org.fisco.bcos.sdk.eventsub.filter.ScheduleTimeConfig;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
+import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EventSubscribeImp implements EventSubscribe {
     private static final Logger logger = LoggerFactory.getLogger(EventSubscribeImp.class);
-    private Channel ch;
-    private String groupId;
+    private Channel channel;
+    private GroupManagerService groupManagerService;
+    private Integer groupId;
     private FilterManager filterManager;
     private EventPushMsgHandler msgHander;
     private boolean running = false;
     ScheduledThreadPoolExecutor resendSchedule = new ScheduledThreadPoolExecutor(1);
 
-    public EventSubscribeImp(Channel ch, String groupId) {
-        this.ch = ch;
+    public EventSubscribeImp(GroupManagerService groupManagerService, Integer groupId) {
+        this.channel = groupManagerService.getChannel();
+        this.groupManagerService = groupManagerService;
         this.groupId = groupId;
         filterManager = new FilterManager();
         msgHander = new EventPushMsgHandler(filterManager);
-        ch.addMessageHandler(MsgType.EVENT_LOG_PUSH, msgHander);
+        channel.addMessageHandler(MsgType.EVENT_LOG_PUSH, msgHander);
     }
 
     @Override
@@ -110,7 +113,7 @@ public class EventSubscribeImp implements EventSubscribe {
         msg.setType((short) MsgType.CLIENT_REGISTER_EVENT_LOG.ordinal());
         msg.setResult(0);
         try {
-            String content = filter.getNewParamJsonString(groupId);
+            String content = filter.getNewParamJsonString(String.valueOf(groupId));
             msg.setData(content.getBytes());
         } catch (JsonProcessingException e) {
             logger.error(
@@ -127,10 +130,9 @@ public class EventSubscribeImp implements EventSubscribe {
 
         filterManager.addCallback(filter.getFilterID(), filter.getCallback());
 
-        // Todo check send to group function. this function may not in channel module.
-        ch.asyncSendToGroup(
-                msg,
+        this.groupManagerService.asyncSendMessageToGroup(
                 groupId,
+                msg,
                 new RegisterEventSubRespCallback(
                         filterManager, filter, filter.getFilterID(), filter.getRegisterID()));
     }

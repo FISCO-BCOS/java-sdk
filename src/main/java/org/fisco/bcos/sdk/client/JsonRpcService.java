@@ -35,7 +35,7 @@ public class JsonRpcService {
     private static Logger logger = LoggerFactory.getLogger(JsonRpcService.class);
     private final GroupManagerService groupManagerService;
     public final Channel channel;
-    private final int groupId;
+    private final Integer groupId;
 
     public JsonRpcService(
             GroupManagerService groupManagerService, Channel channel, Integer groupId) {
