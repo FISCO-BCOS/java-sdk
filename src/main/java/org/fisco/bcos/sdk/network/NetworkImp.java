@@ -19,6 +19,7 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ThreadPoolExecutor;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.slf4j.Logger;
@@ -66,7 +67,6 @@ public class NetworkImp implements Network {
 
     @Override
     public void start() throws NetworkException {
-        // set ThreadPool ??
         connManager.startConnect();
         connManager.startReconnectSchedule();
     }
@@ -79,6 +79,11 @@ public class NetworkImp implements Network {
     @Override
     public void removeConnection(String peerIpPort) {
         connManager.removeConnection(peerIpPort);
+    }
+
+    @Override
+    public void setMsgHandleThreadPool(ThreadPoolExecutor threadPool) {
+        connManager.setMsgHandleThreadPool(threadPool);
     }
 
     @Override

@@ -23,6 +23,7 @@ import io.netty.handler.ssl.SslCloseCompletionEvent;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import io.netty.handler.timeout.IdleStateEvent;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,11 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
     private static Logger logger = LoggerFactory.getLogger(ChannelHandler.class);
     private MsgHandler msgHandler;
     private ConnectionManager connectionManager;
+    private ExecutorService msgHandleThreadPool;
+
+    public void setMsgHandleThreadPool(ExecutorService msgHandleThreadPool) {
+        this.msgHandleThreadPool = msgHandleThreadPool;
+    }
 
     public ChannelHandler(ConnectionManager connManager, MsgHandler msgHandler) {
         this.msgHandler = msgHandler;
@@ -140,7 +146,18 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         final ChannelHandlerContext ctxF = ctx;
         final Message in = (Message) msg;
-        msgHandler.onMessage(ctxF, in);
+
+        if (msgHandleThreadPool == null) {
+            msgHandler.onMessage(ctxF, in);
+        } else {
+            msgHandleThreadPool.execute(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            msgHandler.onMessage(ctxF, in);
+                        }
+                    });
+        }
     }
 
     @Override
