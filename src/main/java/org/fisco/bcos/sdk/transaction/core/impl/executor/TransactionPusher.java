@@ -35,7 +35,7 @@ public class TransactionPusher implements TransactionPusherInterface {
     }
 
     @Override
-    public <T> TransactionReceipt push(String signedTransaction, RespCallback<T> callback) {
+    public <T> TransactionReceipt push(String e, RespCallback<T> callback) {
         // TODO Auto-generated method stub
         return null;
     }
