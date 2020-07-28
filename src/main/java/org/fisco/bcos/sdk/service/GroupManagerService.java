@@ -16,12 +16,15 @@ package org.fisco.bcos.sdk.service;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
+import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.PeerSelectRule;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.Response;
+import org.fisco.bcos.sdk.network.ConnectionInfo;
 
 public interface GroupManagerService {
+    public static final BigInteger BLOCK_LIMIT = BigInteger.valueOf(500);
 
     /**
      * Update the group list information of the node
@@ -31,6 +34,7 @@ public interface GroupManagerService {
      */
     void updateGroupInfo(String peerIpAndPort, List<String> groupList);
 
+    Channel getChannel();
     /**
      * Get the blockNumber notify message from the AMOP module, parse the package and update the
      * latest block height of each group
@@ -46,7 +50,17 @@ public interface GroupManagerService {
      * @param groupId: the specified groupId
      * @param currentBlockNumber: the current blockNumber
      */
-    void updateBlockNumber(int groupId, BigInteger currentBlockNumber);
+    void updateBlockNumberInfo(Integer groupId, String peerInfo, BigInteger currentBlockNumber);
+
+    List<ConnectionInfo> getGroupConnectionInfo(Integer groupId);
+
+    /**
+     * get available ip and port info of specified group
+     *
+     * @param groupId: get the connection info of the group
+     * @return: the available ip and port info of the group
+     */
+    List<String> getGroupAvailablePeers(Integer groupId);
 
     /**
      * Get block limit of specified group
@@ -54,7 +68,7 @@ public interface GroupManagerService {
      * @param groupId: The specified groupId
      * @return: the blockLimit(needed by the transaction module)
      */
-    BigInteger getBlockLimitByGroup(int groupId);
+    BigInteger getBlockLimitByGroup(Integer groupId);
 
     /**
      * Get the node list of the specified group
@@ -62,7 +76,7 @@ public interface GroupManagerService {
      * @param groupId: The group id
      * @return: The node list that started the group
      */
-    Set<String> getGroupNodeList(int groupId);
+    Set<String> getGroupNodeList(Integer groupId);
 
     /**
      * Get the group list of specified node
@@ -70,7 +84,7 @@ public interface GroupManagerService {
      * @param nodeAddress: The ip and port info of the node
      * @return: List of groups started by the node
      */
-    Set<Integer> getGroupInfoByNodeInfo(String nodeAddress);
+    List<String> getGroupInfoByNodeInfo(String nodeAddress);
 
     /**
      * Send a message to a node in the group and select the node with the highest block height in
@@ -80,7 +94,7 @@ public interface GroupManagerService {
      * @param message: The message to be sent
      * @return: response of the node located in the specified group
      */
-    Response sendMessageToGroup(int groupId, Message message);
+    Response sendMessageToGroup(Integer groupId, Message message);
 
     /**
      * Send messages to nodes in the group according to specified rules (If multiple nodes are
@@ -90,10 +104,8 @@ public interface GroupManagerService {
      * @param message: The message to be sent
      * @param rule: Rule for filtering the target nodes
      * @return: callback to be called after receiving response
-     * @param callback:
      */
-    Response sendMessageToGroupByRule(
-            int groupId, Message message, PeerSelectRule rule, ResponseCallback callback);
+    Response sendMessageToGroupByRule(Integer groupId, Message message, PeerSelectRule rule);
 
     /**
      * Send a message to a node in the group and select the node with the highest block height in
@@ -103,7 +115,7 @@ public interface GroupManagerService {
      * @param message: The message to be sent
      * @param callback: callback to be called after receiving response
      */
-    void asyncSendMessageToGroup(int groupId, Message message, ResponseCallback callback);
+    void asyncSendMessageToGroup(Integer groupId, Message message, ResponseCallback callback);
 
     /**
      * Send messages to nodes in the group according to specified rules (If multiple nodes are
@@ -115,16 +127,7 @@ public interface GroupManagerService {
      * @param callback:: Function to be called after receiving response
      */
     void asyncSendMessageToGroupByRule(
-            int groupId, Message message, PeerSelectRule rule, ResponseCallback callback);
-
-    /**
-     * Send messages to nodes in the group according to specified rules
-     *
-     * @param groupId: The group the message is sent to
-     * @param message: The message to be sent
-     * @param rule: Rules for filtering the target nodes
-     */
-    void multicastMessageToGroup(int groupId, Message message, PeerSelectRule rule);
+            Integer groupId, Message message, PeerSelectRule rule, ResponseCallback callback);
 
     /**
      * Broadcast messages to all the nodes of the specified group
@@ -132,5 +135,5 @@ public interface GroupManagerService {
      * @param groupId: The group the message is sent to
      * @param message: The message to be sent
      */
-    void broadcastMessageToGroup(int groupId, Message message);
+    void broadcastMessageToGroup(Integer groupId, Message message);
 }

@@ -16,7 +16,10 @@ package org.fisco.bcos.sdk.client;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.channel.Channel;
+import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.request.GenerateGroupParam;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcMethods;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
@@ -54,47 +57,22 @@ import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 import org.fisco.bcos.sdk.model.JsonRpcRequest;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.utils.Numeric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ClientImpl implements Client {
-    private static Logger logger = LoggerFactory.getLogger(ClientImpl.class);
     private final JsonRpcService jsonRpcService;
     private final Integer groupId;
 
-    ClientImpl(GroupManagerService groupManagerService, Channel channel, Integer groupId) {
+    protected ClientImpl(
+            GroupManagerService groupManagerService, Channel channel, Integer groupId) {
         this.jsonRpcService = new JsonRpcService(groupManagerService, channel, groupId);
         this.groupId = groupId;
+        // send request to the group, and get the blockNumber information
+        getBlockLimit();
     }
 
-    /**
-     * Build a client instance GroupId is identified, all interfaces are available
-     *
-     * @param channel
-     * @param groupIdStr
-     * @return a client instance
-     */
-    @Override
-    public Client build(
-            GroupManagerService groupManagerService, Channel channel, String groupIdStr) {
-        Integer groupId = Integer.valueOf(groupIdStr);
-        if (groupId == null) {
-            logger.warn("build client failed for invalid groupId, groupId: {}", groupIdStr);
-            return null;
-        }
-        return new ClientImpl(groupManagerService, channel, groupId);
-    }
-
-    /**
-     * Build a client inssendtance Can only call interfaces relate to group management and node
-     * management
-     *
-     * @param channel
-     * @return a client instance
-     */
-    @Override
-    public Client build(GroupManagerService groupManagerService, Channel channel) {
-        return new ClientImpl(groupManagerService, channel, 1);
+    protected ClientImpl(Channel channel) {
+        this.jsonRpcService = new JsonRpcService(null, channel, null);
+        this.groupId = null;
     }
 
     @Override
@@ -432,17 +410,56 @@ public class ClientImpl implements Client {
         Integer groupId = Integer.valueOf(this.groupId);
         if (this.jsonRpcService.getGroupManagerService().getBlockLimitByGroup(groupId)
                 == BigInteger.ZERO) {
-            BigInteger blockNumber = this.getBlockNumber().getBlockNumber();
-            // update the blockNumber of groupManagerService
-            this.jsonRpcService.getGroupManagerService().updateBlockNumber(groupId, blockNumber);
-            return blockNumber;
+            Pair<String, BigInteger> blockNumberInfo = getBlockNumberByRandom();
+            if (blockNumberInfo == null) {
+                logger.warn(
+                        "GetBlockNumber for group {} failed, set blockLimit to {}",
+                        groupId,
+                        GroupManagerService.BLOCK_LIMIT);
+                return GroupManagerService.BLOCK_LIMIT;
+            }
+            // update the block number information
+            this.jsonRpcService
+                    .getGroupManagerService()
+                    .updateBlockNumberInfo(
+                            this.groupId, blockNumberInfo.getKey(), blockNumberInfo.getValue());
+            logger.debug(
+                    "update the blockNumber information, groupId: {}, peer:{}, blockNumber: {}",
+                    this.groupId,
+                    blockNumberInfo.getKey(),
+                    blockNumberInfo.getValue());
         }
         return this.jsonRpcService.getGroupManagerService().getBlockLimitByGroup(groupId);
     }
 
+    private Pair<String, BigInteger> getBlockNumberByRandom() {
+        List<String> availablePeers =
+                this.jsonRpcService.getGroupManagerService().getGroupAvailablePeers(this.groupId);
+        for (String peer : availablePeers) {
+            try {
+                BlockNumber blockNumber =
+                        this.jsonRpcService.sendRequestToPeer(
+                                new JsonRpcRequest(
+                                        JsonRpcMethods.GET_BLOCK_NUMBER,
+                                        Arrays.asList(this.groupId)),
+                                peer,
+                                BlockNumber.class);
+                return new MutablePair<>(peer, blockNumber.getBlockNumber());
+            } catch (ClientException e) {
+                logger.warn(
+                        "GetBlockNumber from {} failed, error information:{}, cause: {}",
+                        peer,
+                        e.getMessage(),
+                        e.getCause().getMessage());
+                continue;
+            }
+        }
+        return null;
+    }
+
     @Override
     public GenerateGroup generateGroup(
-            int groupId,
+            Integer groupId,
             long timestamp,
             boolean enableFreeStorage,
             List<String> nodeList,
@@ -457,7 +474,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void generateGroupAsync(
-            int groupId,
+            Integer groupId,
             long timestamp,
             boolean enableFreeStorage,
             List<String> nodeList,
@@ -473,7 +490,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public StartGroup startGroup(int groupId, String peerIpPort) {
+    public StartGroup startGroup(Integer groupId, String peerIpPort) {
         return this.jsonRpcService.sendRequestToPeer(
                 new JsonRpcRequest(JsonRpcMethods.START_GROUP, Arrays.asList(groupId)),
                 peerIpPort,
@@ -481,7 +498,8 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void startGroupAsync(int groupId, String peerIpPort, RespCallback<StartGroup> callback) {
+    public void startGroupAsync(
+            Integer groupId, String peerIpPort, RespCallback<StartGroup> callback) {
         this.jsonRpcService.asyncSendRequestToPeer(
                 new JsonRpcRequest(JsonRpcMethods.START_GROUP, Arrays.asList(this.groupId)),
                 peerIpPort,
@@ -490,7 +508,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public StopGroup stopGroup(int groupId, String peerIpPort) {
+    public StopGroup stopGroup(Integer groupId, String peerIpPort) {
         return this.jsonRpcService.sendRequestToPeer(
                 new JsonRpcRequest(JsonRpcMethods.STOP_GROUP, Arrays.asList(groupId)),
                 peerIpPort,
@@ -498,7 +516,8 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void stopGroupAsync(int groupId, String peerIpPort, RespCallback<StopGroup> callback) {
+    public void stopGroupAsync(
+            Integer groupId, String peerIpPort, RespCallback<StopGroup> callback) {
         this.jsonRpcService.asyncSendRequestToPeer(
                 new JsonRpcRequest(JsonRpcMethods.STOP_GROUP, Arrays.asList(this.groupId)),
                 peerIpPort,
@@ -507,7 +526,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public RemoveGroup removeGroup(int groupId, String peerIpPort) {
+    public RemoveGroup removeGroup(Integer groupId, String peerIpPort) {
         return this.jsonRpcService.sendRequestToPeer(
                 new JsonRpcRequest(JsonRpcMethods.REMOVE_GROUP, Arrays.asList(groupId)),
                 peerIpPort,
@@ -516,7 +535,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void removeGroupAsync(
-            int groupId, String peerIpPort, RespCallback<RemoveGroup> callback) {
+            Integer groupId, String peerIpPort, RespCallback<RemoveGroup> callback) {
         this.jsonRpcService.asyncSendRequestToPeer(
                 new JsonRpcRequest(JsonRpcMethods.REMOVE_GROUP, Arrays.asList(this.groupId)),
                 peerIpPort,
@@ -525,7 +544,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public RecoverGroup recoverGroup(int groupId, String peerIpPort) {
+    public RecoverGroup recoverGroup(Integer groupId, String peerIpPort) {
         return this.jsonRpcService.sendRequestToPeer(
                 new JsonRpcRequest(JsonRpcMethods.RECOVER_GROUP, Arrays.asList(groupId)),
                 peerIpPort,
@@ -534,7 +553,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void recoverGroupAsync(
-            int groupId, String peerIpPort, RespCallback<RecoverGroup> callback) {
+            Integer groupId, String peerIpPort, RespCallback<RecoverGroup> callback) {
         this.jsonRpcService.asyncSendRequestToPeer(
                 new JsonRpcRequest(JsonRpcMethods.RECOVER_GROUP, Arrays.asList(this.groupId)),
                 peerIpPort,
@@ -543,14 +562,14 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public QueryGroupStatus queryGroupStatus(int groupId) {
+    public QueryGroupStatus queryGroupStatus(Integer groupId) {
         return this.jsonRpcService.sendRequestToGroup(
                 new JsonRpcRequest(JsonRpcMethods.QUERY_GROUP_STATUS, Arrays.asList(groupId)),
                 QueryGroupStatus.class);
     }
 
     @Override
-    public QueryGroupStatus queryGroupStatus(int groupId, String peerIpPort) {
+    public QueryGroupStatus queryGroupStatus(Integer groupId, String peerIpPort) {
         return this.jsonRpcService.sendRequestToPeer(
                 new JsonRpcRequest(JsonRpcMethods.QUERY_GROUP_STATUS, Arrays.asList(groupId)),
                 peerIpPort,
@@ -558,7 +577,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void queryGroupStatusAsync(int groupId, RespCallback<QueryGroupStatus> callback) {
+    public void queryGroupStatusAsync(Integer groupId, RespCallback<QueryGroupStatus> callback) {
         this.jsonRpcService.asyncSendRequestToGroup(
                 new JsonRpcRequest(JsonRpcMethods.QUERY_GROUP_STATUS, Arrays.asList(this.groupId)),
                 QueryGroupStatus.class,
@@ -567,7 +586,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void queryGroupStatusAsync(
-            int groupId, String peerIpPort, RespCallback<QueryGroupStatus> callback) {
+            Integer groupId, String peerIpPort, RespCallback<QueryGroupStatus> callback) {
         this.jsonRpcService.asyncSendRequestToPeer(
                 new JsonRpcRequest(JsonRpcMethods.QUERY_GROUP_STATUS, Arrays.asList(this.groupId)),
                 peerIpPort,
