@@ -41,6 +41,10 @@ public interface Channel {
         return new ChannelImp(filepath);
     }
 
+    void start();
+
+    void stop();
+
     /**
      * Add a message handler to handle specific type messages. When one message comes the handler
      * will be notified, handler.onMessage(ChannleHandlerContext ctx, Message msg) called.
