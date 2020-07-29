@@ -105,6 +105,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
 
     @Override
     public void updateGroupInfo(String peerIpAndPort, List<String> groupList) {
+        nodeToGroupIDList.put(peerIpAndPort, groupList);
         for (String groupIdStr : groupList) {
             Integer groupId = Integer.valueOf(groupIdStr);
             if (groupId == null) {
@@ -117,7 +118,6 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             // update the group information
             groupIdToService.get(groupId).insertNode(peerIpAndPort);
         }
-        nodeToGroupIDList.put(peerIpAndPort, groupList);
         logger.debug("update groupInfo for {}, groupList: {}", peerIpAndPort, groupList);
     }
 
@@ -330,7 +330,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             callback.onError(errorMessage);
             return;
         }
-        logger.debug(
+        logger.trace(
                 "g:{}, asyncSendMessageToGroupByRule, selectedPeer: {}, message type: {}, seq: {}, length:{}",
                 groupId,
                 selectedPeer,
@@ -361,18 +361,13 @@ public class GroupManagerServiceImpl implements GroupManagerService {
 
     // fetch the groupIDList from all the peers
     protected void fetchGroupList() {
-        List<ConnectionInfo> connectionInfos = this.channel.getConnectionInfo();
-        for (ConnectionInfo connectionInfo : connectionInfos) {
+        List<String> peers = this.channel.getAvailablePeer();
+        for (String peerEndPoint : peers) {
             try {
-                // GroupList = this.jsonRpcService.sendRequestToPeer(new JsonRpcRequest(this.))
-                String peerEndPoint = connectionInfo.getEndPoint();
                 GroupList groupList = this.groupInfoGetter.getGroupList(peerEndPoint);
                 this.updateGroupInfo(peerEndPoint, groupList.getGroupList());
             } catch (ClientException e) {
-                logger.warn(
-                        "fetchGroupList from {} failed, error info: {}",
-                        connectionInfo.getEndPoint(),
-                        e.getMessage());
+                logger.warn("fetchGroupList from failed, error info: {}", e.getMessage());
             }
         }
     }
