@@ -55,6 +55,7 @@ import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
+import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
@@ -64,11 +65,13 @@ import org.fisco.bcos.sdk.utils.Numeric;
 public class ClientImpl implements Client {
     private final JsonRpcService jsonRpcService;
     private final Integer groupId;
+    private final EventSubscribe eventSubscribe;
 
     protected ClientImpl(
             GroupManagerService groupManagerService, Channel channel, Integer groupId) {
         this.jsonRpcService = new JsonRpcService(groupManagerService, channel, groupId);
         this.groupId = groupId;
+        this.eventSubscribe = EventSubscribe.build(groupManagerService, groupId);
         // send request to the group, and get the blockNumber information
         getBlockLimit();
     }
@@ -76,6 +79,17 @@ public class ClientImpl implements Client {
     protected ClientImpl(Channel channel) {
         this.jsonRpcService = new JsonRpcService(null, channel, null);
         this.groupId = null;
+        this.eventSubscribe = null;
+    }
+
+    @Override
+    public EventSubscribe getEventSubscribe() {
+        return this.eventSubscribe;
+    }
+
+    @Override
+    public Integer getGroupId() {
+        return this.groupId;
     }
 
     @Override

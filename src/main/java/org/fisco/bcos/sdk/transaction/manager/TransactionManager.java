@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.SolidityConstructor;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -28,6 +29,7 @@ import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderInterface;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.ResultCodeEnum;
@@ -107,6 +109,11 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
+    public TransactionReceipt sendTransaction(String to, String data) {
+        return null;
+    }
+
+    @Override
     public TransactionResponse sendTransactionAndGetResponse(
             TransactionRequest transactionRequest) {
         String contract = transactionRequest.getContractName();
@@ -128,6 +135,12 @@ public class TransactionManager implements TransactionManagerInterface {
 
     @Override
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
+            String to, String data, TransactionSucCallback callback) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             TransactionRequest transactionRequest) {
         return this.transactionPusher.pushAsync(transactionRequest.getSignedData());
     }
@@ -141,6 +154,16 @@ public class TransactionManager implements TransactionManagerInterface {
     @Override
     public String getCurrentExternalAccountAddress() {
         // TODO
+        return null;
+    }
+
+    @Override
+    public Call executeCall(CallRequest callRequest) {
+        return null;
+    }
+
+    @Override
+    public String createSignedTransaction(String to, String data) {
         return null;
     }
 }
