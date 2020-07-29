@@ -185,7 +185,7 @@ public class ClientImpl implements Client {
         return this.jsonRpcService.sendRequestToGroup(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_HASH,
-                        Arrays.asList(this.groupId, returnFullTransactionObjects)),
+                        Arrays.asList(this.groupId, blockHash, returnFullTransactionObjects)),
                 BcosBlock.class);
     }
 
@@ -197,7 +197,7 @@ public class ClientImpl implements Client {
         this.jsonRpcService.asyncSendRequestToGroup(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_HASH,
-                        Arrays.asList(this.groupId, returnFullTransactionObjects)),
+                        Arrays.asList(this.groupId, blockHash, returnFullTransactionObjects)),
                 BcosBlock.class,
                 callback);
     }
@@ -208,7 +208,10 @@ public class ClientImpl implements Client {
         return this.jsonRpcService.sendRequestToGroup(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
-                        Arrays.asList(this.groupId, returnFullTransactionObjects)),
+                        Arrays.asList(
+                                this.groupId,
+                                String.valueOf(blockNumber),
+                                returnFullTransactionObjects)),
                 BcosBlock.class);
     }
 
@@ -220,7 +223,10 @@ public class ClientImpl implements Client {
         this.jsonRpcService.asyncSendRequestToGroup(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
-                        Arrays.asList(this.groupId, returnFullTransactionObjects)),
+                        Arrays.asList(
+                                this.groupId,
+                                String.valueOf(blockNumber),
+                                returnFullTransactionObjects)),
                 BcosBlock.class,
                 callback);
     }
@@ -229,7 +235,8 @@ public class ClientImpl implements Client {
     public BlockHash getBlockHashByNumber(BigInteger blockNumber) {
         return this.jsonRpcService.sendRequestToGroup(
                 new JsonRpcRequest(
-                        JsonRpcMethods.GET_BLOCKHASH_BY_NUMBER, Arrays.asList(this.groupId)),
+                        JsonRpcMethods.GET_BLOCKHASH_BY_NUMBER,
+                        Arrays.asList(this.groupId, String.valueOf(blockNumber))),
                 BlockHash.class);
     }
 
@@ -238,27 +245,53 @@ public class ClientImpl implements Client {
             BigInteger blockNumber, RespCallback<BlockHash> callback) {
         this.jsonRpcService.asyncSendRequestToGroup(
                 new JsonRpcRequest(
-                        JsonRpcMethods.GET_BLOCKHASH_BY_NUMBER, Arrays.asList(this.groupId)),
+                        JsonRpcMethods.GET_BLOCKHASH_BY_NUMBER,
+                        Arrays.asList(this.groupId, String.valueOf(blockNumber))),
                 BlockHash.class,
                 callback);
     }
 
     @Override
-    public BcosBlockHeader getBlockHeaderByHash(String blockHash, boolean returnSealerList) {
+    public BcosBlockHeader getBlockHeaderByHash(String blockHash, boolean returnSignatureList) {
         return this.jsonRpcService.sendRequestToGroup(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCKHEADER_BY_HASH,
-                        Arrays.asList(this.groupId, returnSealerList)),
+                        Arrays.asList(this.groupId, blockHash, returnSignatureList)),
                 BcosBlockHeader.class);
     }
 
     @Override
     public void getBlockHeaderByHashAsync(
-            String blockHash, boolean returnSealerList, RespCallback<BcosBlockHeader> callback) {
+            String blockHash, boolean returnSignatureList, RespCallback<BcosBlockHeader> callback) {
         this.jsonRpcService.asyncSendRequestToGroup(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCKHEADER_BY_HASH,
-                        Arrays.asList(this.groupId, returnSealerList)),
+                        Arrays.asList(this.groupId, blockHash, returnSignatureList)),
+                BcosBlockHeader.class,
+                callback);
+    }
+
+    @Override
+    public BcosBlockHeader getBlockHeaderByNumber(
+            BigInteger blockNumber, boolean returnSignatureList) {
+        return this.jsonRpcService.sendRequestToGroup(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_BLOCKHEADER_BY_NUMBER,
+                        Arrays.asList(
+                                this.groupId, String.valueOf(blockNumber), returnSignatureList)),
+                BcosBlockHeader.class);
+    }
+
+    @Override
+    public void getBlockHeaderByNumberAsync(
+            BigInteger blockNumber,
+            boolean returnSignatureList,
+            RespCallback<BcosBlockHeader> callback) {
+        this.jsonRpcService.asyncSendRequestToGroup(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_BLOCKHEADER_BY_NUMBER,
+                        Arrays.asList(
+                                this.groupId, String.valueOf(blockNumber), returnSignatureList)),
                 BcosBlockHeader.class,
                 callback);
     }
@@ -409,7 +442,7 @@ public class ClientImpl implements Client {
     public BigInteger getBlockLimit() {
         Integer groupId = Integer.valueOf(this.groupId);
         if (this.jsonRpcService.getGroupManagerService().getBlockLimitByGroup(groupId)
-                == BigInteger.ZERO) {
+                == GroupManagerService.BLOCK_LIMIT) {
             Pair<String, BigInteger> blockNumberInfo = getBlockNumberByRandom();
             if (blockNumberInfo == null) {
                 logger.warn(
@@ -446,11 +479,10 @@ public class ClientImpl implements Client {
                                 BlockNumber.class);
                 return new MutablePair<>(peer, blockNumber.getBlockNumber());
             } catch (ClientException e) {
-                logger.warn(
-                        "GetBlockNumber from {} failed, error information:{}, cause: {}",
+                logger.error(
+                        "GetBlockNumber from {} failed, error information:{}",
                         peer,
-                        e.getMessage(),
-                        e.getCause().getMessage());
+                        e.getMessage());
                 continue;
             }
         }
@@ -661,13 +693,14 @@ public class ClientImpl implements Client {
     @Override
     public Peers getPeers() {
         return this.jsonRpcService.sendRequestToGroup(
-                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList()), Peers.class);
+                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(this.groupId)),
+                Peers.class);
     }
 
     @Override
     public void getPeersAsync(RespCallback<Peers> callback) {
         this.jsonRpcService.asyncSendRequestToGroup(
-                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList()),
+                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(this.groupId)),
                 Peers.class,
                 callback);
     }

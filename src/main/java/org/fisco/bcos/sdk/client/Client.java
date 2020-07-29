@@ -239,21 +239,34 @@ public interface Client {
      * Ledger operation: get block header by block hash
      *
      * @param blockHash
-     * @param returnSealerList
+     * @param returnSignatureList
      * @return block header
      */
-    BcosBlockHeader getBlockHeaderByHash(String blockHash, boolean returnSealerList);
+    BcosBlockHeader getBlockHeaderByHash(String blockHash, boolean returnSignatureList);
 
     /**
      * Ledger operation: async get block header by block hash
      *
      * @param blockHash
-     * @param returnSealerList
+     * @param returnSignatureList
      * @param callback
      */
     void getBlockHeaderByHashAsync(
-            String blockHash, boolean returnSealerList, RespCallback<BcosBlockHeader> callback);
+            String blockHash, boolean returnSignatureList, RespCallback<BcosBlockHeader> callback);
 
+    /**
+     * get block header by number
+     *
+     * @param blockNumber
+     * @param returnSignatureList
+     * @return
+     */
+    BcosBlockHeader getBlockHeaderByNumber(BigInteger blockNumber, boolean returnSignatureList);
+
+    void getBlockHeaderByNumberAsync(
+            BigInteger blockNumber,
+            boolean returnSignatureList,
+            RespCallback<BcosBlockHeader> callback);
     /**
      * Ledger operation: get trnasaction by hash
      *
@@ -290,7 +303,7 @@ public interface Client {
     /**
      * Ledger operation: get transaction by block number and index
      *
-     * @param defaultBlockParameter
+     * @param blockNumber
      * @param transactionIndex
      * @return transaction
      */
@@ -300,7 +313,7 @@ public interface Client {
     /**
      * Ledger operation: async get transaction by block number and index
      *
-     * @param defaultBlockParameter
+     * @param blockNumber
      * @param transactionIndex
      * @param callback
      */

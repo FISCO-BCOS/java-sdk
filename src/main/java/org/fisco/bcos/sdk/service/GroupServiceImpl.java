@@ -30,7 +30,7 @@ public class GroupServiceImpl implements GroupService {
             new ConcurrentHashMap<>();
     private Set<String> groupNodeSet = Collections.synchronizedSet(new HashSet<>());
     private final Integer groupId;
-    private AtomicLong latestBlockNumber;
+    private AtomicLong latestBlockNumber = new AtomicLong(0);
     private String nodeWithLatestBlockNumber;
 
     public GroupServiceImpl(Integer groupId) {
@@ -94,16 +94,16 @@ public class GroupServiceImpl implements GroupService {
     }
 
     private void resetLatestBlockNumber() {
-        BigInteger maxBlockNumber = BigInteger.ZERO;
+        BigInteger maxBlockNumber = null;
         String maxBlockNumberNode = "";
         for (String groupNode : groupNodeToBlockNumber.keySet()) {
             BigInteger blockNumber = groupNodeToBlockNumber.get(groupNode);
-            if (blockNumber.compareTo(maxBlockNumber) > 0) {
+            if (maxBlockNumber == null || blockNumber.compareTo(maxBlockNumber) > 0) {
                 maxBlockNumber = blockNumber;
                 maxBlockNumberNode = groupNode;
             }
         }
-        if (maxBlockNumber.compareTo(BigInteger.ZERO) > 0 && !maxBlockNumberNode.equals("")) {
+        if (maxBlockNumber != null && !maxBlockNumberNode.equals("")) {
             latestBlockNumber.set(maxBlockNumber.longValue());
             nodeWithLatestBlockNumber = maxBlockNumberNode;
             logger.debug(

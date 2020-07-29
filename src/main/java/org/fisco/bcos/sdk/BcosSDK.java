@@ -26,16 +26,40 @@ public class BcosSDK {
     private final Channel channel;
     private final GroupManagerService groupManagerService;
     private ConcurrentHashMap<Integer, Client> groupToClient = new ConcurrentHashMap<>();
+    private long maxWaitEstablishConnectionTime = 30000;
 
     public BcosSDK(String configPath) {
         logger.info("create BcosSDK, configPath: {}", configPath);
         // create channel
         this.channel = Channel.build(configPath);
+        this.channel.start();
+        if (!waitForEstablishConnection()) {
+            logger.error("create BcosSDK failed for the number of available peers is 0");
+            throw new BcosSDKException(
+                    "create BcosSDK failed for the number of available peers is 0");
+        }
         // create GroupMangerService
         this.groupManagerService = new GroupManagerServiceImpl(this.channel);
     }
 
+    private boolean waitForEstablishConnection() {
+        long startTime = System.currentTimeMillis();
+        try {
+            while (System.currentTimeMillis() - startTime < maxWaitEstablishConnectionTime
+                    && this.channel.getAvailablePeer().size() == 0) {
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException e) {
+            logger.warn("waitForEstablishConnection exceptioned, error info: {}", e.getMessage());
+        }
+        return (this.channel.getAvailablePeer().size() > 0);
+    }
+
     public Client getClient(Integer groupId) {
+        if (!waitForEstablishConnection()) {
+            logger.error("get client for group: {} failed for the number of available peers is 0");
+            return null;
+        }
         if (!groupToClient.contains(groupId)) {
             // create a new client for the specified group
             Client client = Client.build(this.groupManagerService, this.channel, groupId);
