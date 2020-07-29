@@ -99,8 +99,9 @@ public class ChannelMsgHandler implements MsgHandler {
     @Override
     public void onMessage(ChannelHandlerContext ctx, Message msg) {
         logger.debug(
-                "onMessage in ChannelMsgHandler called, host : {}, msgType : {}",
+                "onMessage in ChannelMsgHandler called, host : {}, seq : {}, msgType : {}",
                 ChannelVersionNegotiation.getPeerHost(ctx),
+                msg.getSeq(),
                 (int) msg.getType());
         ResponseCallback callback = getAndRemoveSeq(msg.getSeq());
 
@@ -124,6 +125,11 @@ public class ChannelMsgHandler implements MsgHandler {
             response.setContent(new String(msg.getData()));
             callback.onResponse(response);
         } else {
+            logger.trace(
+                    " receive response with invalid seq, type: {}, result: {}, content: {}",
+                    (int) msg.getType(),
+                    msg.getResult(),
+                    new String(msg.getData()));
             MsgHandler msgHandler = msgHandlers.get(msg.getType());
             msgHandler.onMessage(ctx, msg);
         }
@@ -219,9 +225,6 @@ public class ChannelMsgHandler implements MsgHandler {
                         if (disconnect) {
                             ctx.disconnect();
                             ctx.close();
-                        } else {
-                            String host = ChannelVersionNegotiation.getPeerHost(ctx);
-                            addAvailablePeer(host, ctx);
                         }
                     }
                 };
@@ -300,6 +303,9 @@ public class ChannelMsgHandler implements MsgHandler {
                         if (disconnect) {
                             ctx.disconnect();
                             ctx.close();
+                        } else {
+                            String host = ChannelVersionNegotiation.getPeerHost(ctx);
+                            addAvailablePeer(host, ctx);
                         }
                     }
                 };
