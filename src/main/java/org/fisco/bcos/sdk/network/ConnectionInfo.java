@@ -44,7 +44,7 @@ public class ConnectionInfo {
     }
 
     public String getEndPoint() {
-        return ip + port;
+        return ip + ":" + port;
     }
 
     private String ip = "";

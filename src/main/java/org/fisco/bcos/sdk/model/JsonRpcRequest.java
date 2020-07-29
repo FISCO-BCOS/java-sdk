@@ -14,13 +14,14 @@
 package org.fisco.bcos.sdk.model;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class JsonRpcRequest<T> {
     // for set the json id
     private static AtomicLong nextIdGetter = new AtomicLong(0);
     // the jsonrpc version, default is 2.0
-    private String jsonRpcVersion = "2.0";
+    private String jsonrpc = "2.0";
     // rpc method
     private String method;
     // params for the rpc interface
@@ -34,20 +35,75 @@ public class JsonRpcRequest<T> {
         this.id = nextIdGetter.getAndIncrement();
     }
 
-    // getter and setter for the class members
-    public String getJsonRpcVersion() {
-        return this.jsonRpcVersion;
+    public static AtomicLong getNextIdGetter() {
+        return nextIdGetter;
+    }
+
+    public static void setNextIdGetter(AtomicLong nextIdGetter) {
+        JsonRpcRequest.nextIdGetter = nextIdGetter;
+    }
+
+    public String getJsonrpc() {
+        return jsonrpc;
+    }
+
+    public void setJsonrpc(String jsonrpc) {
+        this.jsonrpc = jsonrpc;
     }
 
     public String getMethod() {
-        return this.method;
+        return method;
     }
 
-    public long getId() {
-        return this.id;
+    public void setMethod(String method) {
+        this.method = method;
     }
 
     public List<T> getParams() {
-        return this.params;
+        return params;
+    }
+
+    public void setParams(List<T> params) {
+        this.params = params;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JsonRpcRequest<?> that = (JsonRpcRequest<?>) o;
+        return id == that.id
+                && Objects.equals(jsonrpc, that.jsonrpc)
+                && Objects.equals(method, that.method)
+                && Objects.equals(params, that.params);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(jsonrpc, method, params, id);
+    }
+
+    @Override
+    public String toString() {
+        return "JsonRpcRequest{"
+                + "jsonrpc='"
+                + jsonrpc
+                + '\''
+                + ", method='"
+                + method
+                + '\''
+                + ", params="
+                + params
+                + ", id="
+                + id
+                + '}';
     }
 }

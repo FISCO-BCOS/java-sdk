@@ -66,7 +66,7 @@ public class JsonRpcService {
     public <T extends JsonRpcResponse> T sendRequestToPeer(
             JsonRpcRequest request, MsgType messageType, Class<T> responseType, String peerIpPort) {
         Message message =
-                encodeRequestToMessage(request, Short.valueOf((short) messageType.ordinal()));
+                encodeRequestToMessage(request, Short.valueOf((short) messageType.getType()));
         Response response = channel.sendToPeer(message, peerIpPort);
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
@@ -74,7 +74,7 @@ public class JsonRpcService {
     public <T extends JsonRpcResponse> T sendRequestToGroup(
             JsonRpcRequest request, MsgType messageType, Class<T> responseType) {
         Message message =
-                encodeRequestToMessage(request, Short.valueOf((short) messageType.ordinal()));
+                encodeRequestToMessage(request, Short.valueOf((short) messageType.getType()));
         Response response = this.groupManagerService.sendMessageToGroup(this.groupId, message);
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
@@ -161,15 +161,13 @@ public class JsonRpcService {
                             response.getMessageID(),
                             jsonRpcResponse.getError().getMessage(),
                             jsonRpcResponse.getError().getCode());
-                    throw new ClientException(
-                            "get response with non-empty error field, error information:"
-                                    + jsonRpcResponse.getError().getMessage());
+                } else {
+                    parseResponseOutput(jsonRpcResponse);
                 }
-                parseResponseOutput(jsonRpcResponse);
                 return jsonRpcResponse;
             } else {
                 logger.error(
-                        "parseResponseIntoJsonRpcResponse failed, method: {}, group: {}, seq: {}, \retErrorMessage: {}, retErrorCode: {}",
+                        "parseResponseIntoJsonRpcResponse failed, method: {}, group: {}, seq: {}, retErrorMessage: {}, retErrorCode: {}",
                         request.getMethod(),
                         this.groupId,
                         response.getMessageID(),
