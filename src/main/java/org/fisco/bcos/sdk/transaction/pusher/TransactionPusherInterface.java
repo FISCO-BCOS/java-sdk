@@ -12,11 +12,12 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.transaction.publisher;
+package org.fisco.bcos.sdk.transaction.pusher;
 
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
+import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 
 /**
@@ -31,7 +32,7 @@ public interface TransactionPusherInterface {
 
     public TransactionReceipt push(String signedTransaction);
 
-    public <T> TransactionReceipt push(String signedTransaction, RespCallback<T> callback);
+    public void push(String signedTransaction, RespCallback<SendTransaction> callback);
 
     public CompletableFuture<TransactionReceipt> pushAsync(String signedTransaction);
 

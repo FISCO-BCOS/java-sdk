@@ -12,19 +12,29 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.transaction.publisher;
+package org.fisco.bcos.sdk.transaction.pusher;
 
 import java.util.concurrent.CompletableFuture;
+import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.RespCallback;
+import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
+import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 
 public class TransactionPusher implements TransactionPusherInterface {
 
+    private Client client;
+
+    /** @param client */
+    public TransactionPusher(Client client) {
+        super();
+        this.client = client;
+    }
+
     @Override
     public void pushOnly(String signedTransaction) {
-        // TODO Auto-generated method stub
-
+        client.sendRawTransactionAsync(signedTransaction, null);
     }
 
     @Override
@@ -34,9 +44,8 @@ public class TransactionPusher implements TransactionPusherInterface {
     }
 
     @Override
-    public <T> TransactionReceipt push(String signedTransaction, RespCallback<T> callback) {
-        // TODO Auto-generated method stub
-        return null;
+    public void push(String signedTransactionData, RespCallback<SendTransaction> callback) {
+        client.sendRawTransactionAsync(signedTransactionData, callback);
     }
 
     @Override
@@ -47,7 +56,17 @@ public class TransactionPusher implements TransactionPusherInterface {
 
     @Override
     public Call push(String from, String to, String encodedFunction) {
-        // TODO Auto-generated method stub
-        return null;
+        Transaction transaction = new Transaction(from, to, encodedFunction);
+        return client.call(transaction);
+    }
+
+    /** @return the client */
+    public Client getClient() {
+        return client;
+    }
+
+    /** @param client the client to set */
+    public void setClient(Client client) {
+        this.client = client;
     }
 }
