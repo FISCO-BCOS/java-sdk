@@ -15,9 +15,21 @@
 package org.fisco.bcos.sdk.transaction.builder;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
+import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.transaction.domain.CommonConstant;
 import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 public class TransactionBuilder implements TransactionBuilderInterface {
+
+    private SecureRandom secureRandom = new SecureRandom();
+    private Client client;
+
+    /** @param client */
+    public TransactionBuilder(Client client) {
+        super();
+        this.client = client;
+    }
 
     @Override
     public RawTransaction createTransaction(
@@ -29,13 +41,42 @@ public class TransactionBuilder implements TransactionBuilderInterface {
             BigInteger chainId,
             BigInteger groupId,
             String extraData) {
-        // TODO Auto-generated method stub
-        return null;
+        BigInteger randomId = new BigInteger(250, secureRandom);
+        BigInteger blockLimit = client.getBlockLimit();
+        return RawTransaction.createTransaction(
+                randomId,
+                gasPrice,
+                gasLimit,
+                blockLimit,
+                to,
+                value,
+                data,
+                chainId,
+                groupId,
+                extraData);
     }
 
     @Override
     public RawTransaction createTransaction(String to, String data, BigInteger groupId) {
-        // TODO Auto-generated method stub
-        return null;
+
+        return createTransaction(
+                CommonConstant.GAS_PRICE,
+                CommonConstant.GAS_LIMIT,
+                to,
+                data,
+                BigInteger.ZERO,
+                BigInteger.ONE,
+                groupId,
+                null);
+    }
+
+    /** @return the client */
+    public Client getClient() {
+        return client;
+    }
+
+    /** @param client the client to set */
+    public void setClient(Client client) {
+        this.client = client;
     }
 }
