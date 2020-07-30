@@ -36,8 +36,8 @@ public interface TransactionManagerInterface {
 
     public TransactionResponse sendTransaction(TransactionRequest transactionRequest);
 
-    public TransactionReceipt sendTransaction(
-            int groupId, String signedTransaction, RespCallback<TransactionResponse> callback);
+    public void sendTransaction(
+            String signedTransaction, RespCallback<TransactionReceipt> callback);
 
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             TransactionRequest transactionRequest);

@@ -21,7 +21,7 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.domain.EventResultEntity;
 import org.fisco.bcos.sdk.transaction.domain.InputAndOutputResult;
 import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
-import org.fisco.bcos.sdk.transaction.domain.TransactionResponse;
+import org.fisco.bcos.sdk.transaction.domain.dto.TransactionResponse;
 
 public class TransactionDecoder implements TransactionDecoderInterface {
 

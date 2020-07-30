@@ -68,4 +68,14 @@ public class TransactionResponse extends CommonResponse {
     public void setReceiptMessages(String receiptMessages) {
         this.receiptMessages = receiptMessages;
     }
+
+    public static TransactionResponse from(TransactionResponse response) {
+        TransactionResponse dto = new TransactionResponse();
+        dto.setContractAddress(response.getContractAddress());
+        dto.setEvents(response.getEvents());
+        dto.setReceiptMessages(response.getReceiptMessages());
+        dto.setTransactionReceipt(response.getTransactionReceipt());
+        dto.setValues(response.getValues());
+        return dto;
+    }
 }

@@ -18,9 +18,9 @@ import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
 
 public class TransactionPusher implements TransactionPusherInterface {
 
@@ -38,11 +38,12 @@ public class TransactionPusher implements TransactionPusherInterface {
     }
 
     @Override
-    public BcosTransactionReceipt push(String signedTransaction) {
+    public TransactionReceipt push(String signedTransaction) {
         TransactionCallback callback = new TransactionCallback();
         client.sendRawTransactionAsync(signedTransaction, callback);
         SendTransaction t = callback.getResult();
-        return client.getTransactionReceipt(t.getTransactionHash());
+        // TODO
+        return null;
     }
 
     @Override
@@ -51,7 +52,7 @@ public class TransactionPusher implements TransactionPusherInterface {
     }
 
     @Override
-    public CompletableFuture<BcosTransactionReceipt> pushAsync(String signedTransaction) {
+    public CompletableFuture<TransactionReceipt> pushAsync(String signedTransaction) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -70,5 +71,14 @@ public class TransactionPusher implements TransactionPusherInterface {
     /** @param client the client to set */
     public void setClient(Client client) {
         this.client = client;
+    }
+
+    /* (non-Javadoc)
+     * @see org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface#pushAsync(java.lang.String, org.fisco.bcos.sdk.client.RespCallback)
+     */
+    @Override
+    public void pushAsync(String signedTransaction, RespCallback<TransactionReceipt> callback) {
+        // TODO Auto-generated method stub
+
     }
 }

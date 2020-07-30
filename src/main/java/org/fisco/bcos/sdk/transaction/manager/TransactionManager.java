@@ -14,16 +14,24 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import com.webank.pkeysign.utils.Numeric;
 import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import org.fisco.bcos.sdk.channel.ResponseCallback;
+import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.RespCallback;
+import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.codec.TransactionDecoderInterface;
+import org.fisco.bcos.sdk.transaction.codec.TransactionEncoder;
 import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 import org.fisco.bcos.sdk.transaction.domain.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.domain.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.domain.dto.TransactionRequest;
 import org.fisco.bcos.sdk.transaction.domain.dto.TransactionResponse;
+import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface;
+import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
 
 /**
  * TransactionManager @Description: TransactionManager
@@ -33,47 +41,62 @@ import org.fisco.bcos.sdk.transaction.domain.dto.TransactionResponse;
  */
 public class TransactionManager implements TransactionManagerInterface {
 
+    private TransactionPusherInterface transactionPusher;
+
+    private TransactionDecoderInterface transactionDecoder;
+
+    private TransactionSignerInterface transactionSigner;
+
+    private TransactionEncoder transactionEncoder;
+
+    private SecureRandom secureRandom;
+
+    private Map<Integer, Client> clients;
+
     @Override
     public TransactionResponse deploy(TransactionRequest transactionRequest) {
-        // TODO Auto-generated method stub
-        return null;
+        String contract = transactionRequest.getContractName();
+        TransactionReceipt receipt =
+                this.transactionPusher.push(transactionRequest.getSignedData());
+        TransactionResponse response =
+                transactionDecoder.decodeTransactionReceipt(contract, receipt);
+        return TransactionResponse.from(response);
     }
 
     @Override
     public void sendTransactionOnly(TransactionRequest transactionRequest) {
-        // TODO Auto-generated method stub
-
+        this.transactionPusher.pushOnly(transactionRequest.getSignedData());
     }
 
     @Override
     public TransactionResponse sendTransaction(TransactionRequest transactionRequest) {
-        // TODO Auto-generated method stub
-        return null;
+        String contract = transactionRequest.getContractName();
+        TransactionReceipt receipt =
+                this.transactionPusher.push(transactionRequest.getSignedData());
+        TransactionResponse response =
+                transactionDecoder.decodeTransactionReceipt(contract, receipt);
+        return TransactionResponse.from(response);
     }
 
     @Override
-    public TransactionReceipt sendTransaction(
-            int groupId, String signedTransaction, RespCallback<TransactionResponse> callback) {
-        // TODO Auto-generated method stub
-        return null;
+    public void sendTransaction(
+            String signedTransaction, RespCallback<TransactionReceipt> callback) {
+        this.transactionPusher.pushAsync(signedTransaction, callback);
     }
 
     @Override
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             TransactionRequest transactionRequest) {
-        // TODO Auto-generated method stub
-        return null;
+        return this.transactionPusher.pushAsync(transactionRequest.getSignedData());
     }
 
     @Override
     public CallResponse sendCall(CallRequest callRequest) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getCurrentExternalAccountAddress() {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -85,7 +108,6 @@ public class TransactionManager implements TransactionManagerInterface {
      * @param to
      * @param data
      * @param value
-     * @param object
      * @return
      */
     public RawTransaction createTransaction(
@@ -94,9 +116,26 @@ public class TransactionManager implements TransactionManagerInterface {
             String to,
             String data,
             BigInteger value,
-            Object object) {
-        // TODO Auto-generated method stub
-        return null;
+            BigInteger chainId,
+            BigInteger groupId,
+            String extraData) {
+        BigInteger randomId = new BigInteger(250, secureRandom);
+        Client client = this.clients.get(groupId);
+        if (client == null) {
+            throw new IllegalArgumentException("Invalid groupId " + groupId);
+        }
+        BigInteger blockLimit = client.getBlockLimit();
+        return RawTransaction.createTransaction(
+                randomId,
+                gasPrice,
+                gasLimit,
+                blockLimit,
+                to,
+                value,
+                data,
+                chainId,
+                groupId,
+                extraData);
     }
 
     /**
@@ -116,10 +155,13 @@ public class TransactionManager implements TransactionManagerInterface {
             String to,
             String data,
             BigInteger value,
-            Object object,
-            ResponseCallback callback) {
-        // TODO Auto-generated method stub
-
+            BigInteger chainId,
+            BigInteger groupId,
+            RespCallback<TransactionReceipt> callback) {
+        RawTransaction transaction =
+                this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
+        String signedTransaction = this.sign(transaction);
+        this.sendTransaction(signedTransaction, callback);
     }
 
     /**
@@ -129,8 +171,10 @@ public class TransactionManager implements TransactionManagerInterface {
      * @return
      */
     public String sign(RawTransaction rawTransaction) {
-        // TODO Auto-generated method stub
-        return null;
+        byte[] bytes = this.transactionEncoder.encode(rawTransaction, null);
+        SignatureResult signatureResult = this.transactionSigner.sign(bytes);
+        byte[] encoded = this.transactionEncoder.encode(rawTransaction, signatureResult);
+        return Numeric.toHexString(encoded);
     }
 
     /**
@@ -150,8 +194,12 @@ public class TransactionManager implements TransactionManagerInterface {
             String to,
             String data,
             BigInteger value,
+            BigInteger chainId,
+            BigInteger groupId,
             Object object) {
-        // TODO Auto-generated method stub
-        return null;
+        RawTransaction transaction =
+                this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
+        String signedTransaction = this.sign(transaction);
+        return this.transactionPusher.push(signedTransaction);
     }
 }
