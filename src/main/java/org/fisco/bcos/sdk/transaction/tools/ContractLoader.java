@@ -46,15 +46,17 @@ public class ContractLoader {
     private Map<String, List<AbiDefinition>> contractFuncAbis;
     private Map<String, AbiDefinition> contractConstructorAbi;
     private Map<String, String> contractBinMap;
+    private Map<String, String> contractAbiMap;
 
     public ContractLoader(int readType, String path) throws Exception {
         this.readType = readType;
         this.path = path;
+        // TODO readType
         this.binInfo();
         this.abiInfo();
     }
 
-    public BinInfo binInfo() throws IOException  {
+    public BinInfo binInfo() throws IOException {
         String[] s = { "bin" };
         Collection<File> fileCollection = FileUtils.listFiles(new File(path + "/" + CommonConstant.BIN), s, true);
         if (fileCollection.isEmpty()) {
@@ -75,12 +77,14 @@ public class ContractLoader {
         Collection<File> fileCollection = FileUtils.listFiles(new File(path + "/" + CommonConstant.ABI), s, true);
         this.contractFuncAbis = new HashMap<>();
         this.contractConstructorAbi = new HashMap<>();
+        this.contractAbiMap = new HashMap<>();
         for (File file : fileCollection) {
             String contract = parseContractName(file);
             List<AbiDefinition> abiList = parseAbiBody(file);
             AbiDefinition constructorAbi = selectConstructor(abiList);
             contractFuncAbis.put(contract, abiList);
             contractConstructorAbi.put(contract, constructorAbi);
+            contractAbiMap.put(contract, FileUtils.readFileToString(file));
         }
         return new AbiInfo(contractFuncAbis, contractConstructorAbi);
     }
@@ -106,30 +110,25 @@ public class ContractLoader {
     }
 
     public String getABIByContractName(String contractName) {
-        // TODO
-        return null;
+        return contractAbiMap.get(contractName);
     }
 
     public String getBinaryByContractName(String contractName) {
-        // TODO
-        return null;
+        return contractBinMap.get(contractName);
     }
 
     public Pair<String, String> getABIAndBinaryByContractName(String contractName) {
-        // TODO
-        return null;
+        return Pair.of(contractAbiMap.get(contractName), contractBinMap.get(contractName));
     }
 
-    // TODO
-    /*
-     * public AbiDefinition getConstructorABIByContractName(String contractName) {
-     *
-     * }
-     *
-     * public List<AbiDefinition> getFunctionABIListByContractName(String contractName) {
-     *
-     * }
-     */
+    public AbiDefinition getConstructorABIByContractName(String contractName) {
+        return selectConstructor(getFunctionABIListByContractName(contractName));
+
+    }
+
+    public List<AbiDefinition> getFunctionABIListByContractName(String contractName) {
+        return contractFuncAbis.get(contractName);
+    }
 
     /** @return the readType */
     public int getReadType() {

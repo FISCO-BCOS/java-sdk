@@ -23,39 +23,40 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.abi.AbiDefinition;
 import org.fisco.bcos.sdk.abi.TypeEncoder;
 import org.fisco.bcos.sdk.abi.Utils;
+import org.fisco.bcos.sdk.abi.datatypes.Function;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.datatypes.Uint;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.model.SolidityConstructor;
 import org.fisco.bcos.sdk.model.SolidityFunction;
+import org.fisco.bcos.sdk.transaction.tools.ArgsConvertHandler;
+import org.fisco.bcos.sdk.transaction.tools.ContractAbiUtil;
 import org.fisco.bcos.sdk.utils.Numeric;
 
-/**
- * FunctionEncoder @Description: FunctionEncoder
- *
- * @author maojiayu
- * @data Jul 17, 2020 2:47:58 PM
- */
 public class FunctionEncoder implements FunctionEncoderInterface {
     private Hash hashTool;
 
+    public FunctionEncoder(Hash hashTool) {
+        super();
+        this.hashTool = hashTool;
+    }
+
     @Override
     public String encodeFunction(SolidityFunction solidityFunction) {
-        // TODO Auto-generated method stub
-        return null;
+        return encode(solidityFunction.getFunction());
     }
 
     @Override
     public String encodeConstructor(SolidityConstructor constructor) {
-        if (CollectionUtils.isEmpty(constructor.getParams()) ) {
+        if (CollectionUtils.isEmpty(constructor.getParams())) {
             constructor.setParams(Collections.EMPTY_LIST);
         }
-        AbiDefinition abiDefinition = this.abiInfo.findConstructor(contractName);
+        AbiDefinition abiDefinition = ContractAbiUtil.getConstructorAbiDefinition(constructor.getAbi());
         ensureValid(abiDefinition, constructor.getParams());
-        List<Type> solArgs = this.argConverter.tryConvertToSolArgs(args, abiDefinition);
+        List<Type> solArgs = ArgsConvertHandler.tryConvertToSolArgs(constructor.getParams(), abiDefinition);
         return FunctionEncoder.encodeConstructor(solArgs);
     }
-    
+
     private void ensureValid(AbiDefinition abiDefinition, List<Object> args) {
         // The case where no constructor is defined, abi is null
         if (abiDefinition == null && (CollectionUtils.isEmpty(args))) {
@@ -66,7 +67,18 @@ public class FunctionEncoder implements FunctionEncoderInterface {
         }
         throw new RuntimeException("Arguments size not match");
     }
-    
+
+    public String encode(Function function) {
+        List<Type> parameters = function.getInputParameters();
+        String methodSignature = buildMethodSignature(function.getName(), parameters);
+        String methodId = buildMethodId(methodSignature);
+
+        StringBuilder result = new StringBuilder();
+        result.append(methodId);
+
+        return encodeParameters(parameters, result);
+    }
+
     public static String encodeConstructor(List<Type> parameters) {
         return encodeParameters(parameters, new StringBuilder());
     }
@@ -79,8 +91,7 @@ public class FunctionEncoder implements FunctionEncoderInterface {
             String encodedValue = TypeEncoder.encode(parameter);
 
             if (parameter.dynamicType()) {
-                String encodedDataOffset =
-                        TypeEncoder.encodeNumeric(new Uint(BigInteger.valueOf(dynamicDataOffset)));
+                String encodedDataOffset = TypeEncoder.encodeNumeric(new Uint(BigInteger.valueOf(dynamicDataOffset)));
                 result.append(encodedDataOffset);
                 dynamicData.append(encodedValue);
                 dynamicDataOffset += (encodedValue.length() >> 1);
@@ -97,8 +108,7 @@ public class FunctionEncoder implements FunctionEncoderInterface {
         StringBuilder result = new StringBuilder();
         result.append(methodName);
         result.append("(");
-        String params =
-                parameters.stream().map(Type::getTypeAsString).collect(Collectors.joining(","));
+        String params = parameters.stream().map(Type::getTypeAsString).collect(Collectors.joining(","));
         result.append(params);
         result.append(")");
         return result.toString();
