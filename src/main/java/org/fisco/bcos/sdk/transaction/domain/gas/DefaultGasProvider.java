@@ -1,7 +1,6 @@
 package org.fisco.bcos.sdk.transaction.domain.gas;
 
 import java.math.BigInteger;
-
 import org.fisco.bcos.sdk.transaction.domain.Contract;
 import org.fisco.bcos.sdk.transaction.domain.ManagedTransaction;
 

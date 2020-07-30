@@ -28,5 +28,4 @@ public interface FunctionEncoderInterface {
     public String encodeFunction(SolidityFunction solidityFunction);
 
     public String encodeConstructor(SolidityConstructor constuctor);
-
 }

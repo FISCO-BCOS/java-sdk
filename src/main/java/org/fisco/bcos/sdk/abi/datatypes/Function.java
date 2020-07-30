@@ -2,10 +2,8 @@ package org.fisco.bcos.sdk.abi.datatypes;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.Utils;
-
 
 /** Function type. */
 public class Function {

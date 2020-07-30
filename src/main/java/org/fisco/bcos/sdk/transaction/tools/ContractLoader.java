@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -57,8 +56,9 @@ public class ContractLoader {
     }
 
     public BinInfo binInfo() throws IOException {
-        String[] s = { "bin" };
-        Collection<File> fileCollection = FileUtils.listFiles(new File(path + "/" + CommonConstant.BIN), s, true);
+        String[] s = {"bin"};
+        Collection<File> fileCollection =
+                FileUtils.listFiles(new File(path + "/" + CommonConstant.BIN), s, true);
         if (fileCollection.isEmpty()) {
             log.warn("No bin found, cannot deploy any contract");
             return new BinInfo(Collections.emptyMap());
@@ -73,8 +73,9 @@ public class ContractLoader {
     }
 
     public AbiInfo abiInfo() throws Exception {
-        String[] s = { "abi" };
-        Collection<File> fileCollection = FileUtils.listFiles(new File(path + "/" + CommonConstant.ABI), s, true);
+        String[] s = {"abi"};
+        Collection<File> fileCollection =
+                FileUtils.listFiles(new File(path + "/" + CommonConstant.ABI), s, true);
         this.contractFuncAbis = new HashMap<>();
         this.contractConstructorAbi = new HashMap<>();
         this.contractAbiMap = new HashMap<>();
@@ -123,7 +124,6 @@ public class ContractLoader {
 
     public AbiDefinition getConstructorABIByContractName(String contractName) {
         return selectConstructor(getFunctionABIListByContractName(contractName));
-
     }
 
     public List<AbiDefinition> getFunctionABIListByContractName(String contractName) {

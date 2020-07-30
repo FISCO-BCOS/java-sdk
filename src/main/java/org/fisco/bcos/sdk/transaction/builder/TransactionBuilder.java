@@ -15,7 +15,6 @@
 package org.fisco.bcos.sdk.transaction.builder;
 
 import java.math.BigInteger;
-
 import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 public class TransactionBuilder implements TransactionBuilderInterface {

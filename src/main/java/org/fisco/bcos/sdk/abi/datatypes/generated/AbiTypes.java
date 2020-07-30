@@ -221,7 +221,6 @@ public final class AbiTypes {
                 return Bytes32.class;
             case "TransactionSucCallback":
                 return TransactionSucCallback.class;
-           
 
             default:
                 throw new UnsupportedOperationException("Unsupported type encountered: " + type);

@@ -2,7 +2,6 @@ package org.fisco.bcos.sdk.transaction.tools;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
 import org.fisco.bcos.sdk.abi.AbiDefinition;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.transaction.domain.DynamicArrayReference;

@@ -6,7 +6,6 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.fisco.bcos.sdk.abi.datatypes.DynamicArray;
 import org.fisco.bcos.sdk.abi.datatypes.DynamicBytes;
 import org.fisco.bcos.sdk.abi.datatypes.Fixed;
@@ -16,7 +15,6 @@ import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.datatypes.Ufixed;
 import org.fisco.bcos.sdk.abi.datatypes.Uint;
 import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
-
 
 /** Utility functions. */
 public class Utils {

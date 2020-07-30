@@ -43,7 +43,6 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.transaction.exception.BaseException;
 import org.fisco.bcos.sdk.transaction.tools.ContractTypeUtil;
 
-
 public class DynamicArrayReference {
 
     public static TypeReference<?> create(String type) throws BaseException {

@@ -14,10 +14,8 @@
  */
 package org.fisco.bcos.sdk.abi;
 
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
 import org.fisco.bcos.sdk.abi.datatypes.Array;
 
 /**

@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.fisco.bcos.sdk.abi.AbiDefinition;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.Utils;
@@ -16,7 +15,8 @@ import org.slf4j.LoggerFactory;
 public class ArgsConvertHandler {
     protected static Logger log = LoggerFactory.getLogger(ArgsConvertHandler.class);
 
-    public static List<Type> tryConvertToSolArgs(List<Object> javaArgs, AbiDefinition abiDefinition) {
+    public static List<Type> tryConvertToSolArgs(
+            List<Object> javaArgs, AbiDefinition abiDefinition) {
         try {
             int size = javaArgs.size();
             List<Type> solArgs = new ArrayList<>(size);
@@ -38,7 +38,8 @@ public class ArgsConvertHandler {
         try {
             TypeReference<?> typeReference = ContractAbiExtUtils.paramInput(namedType);
             if (Array.class.isAssignableFrom(typeReference.getClassType())) {
-                java.lang.reflect.Type elementType = ContractAbiExtUtils.resolveArrayBasicType(typeReference);
+                java.lang.reflect.Type elementType =
+                        ContractAbiExtUtils.resolveArrayBasicType(typeReference);
                 Class<?> elementClass = Utils.getClassType(elementType);
                 List solidityArgs = UtilsExtUtils.typeMap((List) javaArg, elementClass);
                 Class<?> arrayClass = Utils.getClassType(typeReference.getType());
@@ -79,7 +80,9 @@ public class ArgsConvertHandler {
                 String arrayStr = javaArg.toString();
                 int leftBraceIndex = arrayStr.indexOf('[');
                 int rightBraceIndex = arrayStr.indexOf(']', leftBraceIndex);
-                return unifyJavaArgs(typeName, arrayStr.substring(leftBraceIndex + 1, rightBraceIndex).split(","));
+                return unifyJavaArgs(
+                        typeName,
+                        arrayStr.substring(leftBraceIndex + 1, rightBraceIndex).split(","));
             }
         } else {
             return unifyBasic(typeName, javaArg);

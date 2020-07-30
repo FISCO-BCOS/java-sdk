@@ -18,7 +18,6 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.abi.AbiDefinition;
 import org.fisco.bcos.sdk.abi.TypeEncoder;
@@ -51,9 +50,11 @@ public class FunctionEncoder implements FunctionEncoderInterface {
         if (CollectionUtils.isEmpty(constructor.getParams())) {
             constructor.setParams(Collections.EMPTY_LIST);
         }
-        AbiDefinition abiDefinition = ContractAbiUtil.getConstructorAbiDefinition(constructor.getAbi());
+        AbiDefinition abiDefinition =
+                ContractAbiUtil.getConstructorAbiDefinition(constructor.getAbi());
         ensureValid(abiDefinition, constructor.getParams());
-        List<Type> solArgs = ArgsConvertHandler.tryConvertToSolArgs(constructor.getParams(), abiDefinition);
+        List<Type> solArgs =
+                ArgsConvertHandler.tryConvertToSolArgs(constructor.getParams(), abiDefinition);
         return FunctionEncoder.encodeConstructor(solArgs);
     }
 
@@ -91,7 +92,8 @@ public class FunctionEncoder implements FunctionEncoderInterface {
             String encodedValue = TypeEncoder.encode(parameter);
 
             if (parameter.dynamicType()) {
-                String encodedDataOffset = TypeEncoder.encodeNumeric(new Uint(BigInteger.valueOf(dynamicDataOffset)));
+                String encodedDataOffset =
+                        TypeEncoder.encodeNumeric(new Uint(BigInteger.valueOf(dynamicDataOffset)));
                 result.append(encodedDataOffset);
                 dynamicData.append(encodedValue);
                 dynamicDataOffset += (encodedValue.length() >> 1);
@@ -108,7 +110,8 @@ public class FunctionEncoder implements FunctionEncoderInterface {
         StringBuilder result = new StringBuilder();
         result.append(methodName);
         result.append("(");
-        String params = parameters.stream().map(Type::getTypeAsString).collect(Collectors.joining(","));
+        String params =
+                parameters.stream().map(Type::getTypeAsString).collect(Collectors.joining(","));
         result.append(params);
         result.append(")");
         return result.toString();
@@ -120,16 +123,12 @@ public class FunctionEncoder implements FunctionEncoderInterface {
         return Numeric.toHexString(hash).substring(0, 10);
     }
 
-    /**
-     * @return the hash
-     */
+    /** @return the hash */
     public Hash getHash() {
         return hashTool;
     }
 
-    /**
-     * @param hash the hash to set
-     */
+    /** @param hash the hash to set */
     public void setHash(Hash hash) {
         this.hashTool = hash;
     }

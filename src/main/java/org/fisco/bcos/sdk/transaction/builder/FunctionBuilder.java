@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.abi.AbiDefinition;
@@ -38,18 +37,17 @@ public class FunctionBuilder implements FunctionBuilderInterface {
 
     private ContractLoader contractLoader;
 
-    /**
-     * @param contractLoader
-     */
+    /** @param contractLoader */
     public FunctionBuilder(ContractLoader contractLoader) {
         super();
         this.contractLoader = contractLoader;
     }
 
     @Override
-    public SolidityFunction buildFunction(String contractName, String contractAddress, String functionName,
-            List<Object> args) {
-        List<AbiDefinition> contractFunctions = contractLoader.getFunctionABIListByContractName(contractName);
+    public SolidityFunction buildFunction(
+            String contractName, String contractAddress, String functionName, List<Object> args) {
+        List<AbiDefinition> contractFunctions =
+                contractLoader.getFunctionABIListByContractName(contractName);
         if (contractFunctions == null) {
             throw new RuntimeException("Unconfigured contract :" + contractName);
         }
@@ -67,14 +65,14 @@ public class FunctionBuilder implements FunctionBuilderInterface {
         String encodedConstructorArgs = encodeConstuctorArgs(contractName, args);
         // Build deploy transaction data
         String data = bin + encodedConstructorArgs;
-        return new SolidityConstructor(contractName, args, bin, contractLoader.getABIByContractName(contractName),
-                data);
+        return new SolidityConstructor(
+                contractName, args, bin, contractLoader.getABIByContractName(contractName), data);
     }
 
-    public SolidityFunction buildFunc(List<AbiDefinition> contractFunctions, String functionName, List<Object> args) {
+    public SolidityFunction buildFunc(
+            List<AbiDefinition> contractFunctions, String functionName, List<Object> args) {
 
-        if (args == null)
-            args = Collections.EMPTY_LIST;
+        if (args == null) args = Collections.EMPTY_LIST;
         // match possible definitions
         Stream<AbiDefinition> possibleDefinitions =
                 AbiMatchHandler.matchPossibleDefinitions(contractFunctions, functionName, args);
@@ -84,12 +82,16 @@ public class FunctionBuilder implements FunctionBuilderInterface {
             AbiDefinition abiDefinition = iterator.next();
             List<Type> params = ArgsConvertHandler.tryConvertToSolArgs(args, abiDefinition);
             if (params == null) {
-                log.debug("Skip abi definition for {}:{}, type not match", abiDefinition.getName(),
+                log.debug(
+                        "Skip abi definition for {}:{}, type not match",
+                        abiDefinition.getName(),
                         abiDefinition.getInputs().size());
                 continue;
             }
             if (params.size() != args.size()) {
-                log.debug("Skip abi definition for {}:{}, arg size not match", abiDefinition.getName(),
+                log.debug(
+                        "Skip abi definition for {}:{}, arg size not match",
+                        abiDefinition.getName(),
                         abiDefinition.getInputs().size());
                 continue;
             }
@@ -120,16 +122,12 @@ public class FunctionBuilder implements FunctionBuilderInterface {
         throw new RuntimeException("Arguments size not match");
     }
 
-    /**
-     * @return the contractLoader
-     */
+    /** @return the contractLoader */
     public ContractLoader getContractLoader() {
         return contractLoader;
     }
 
-    /**
-     * @param contractLoader the contractLoader to set
-     */
+    /** @param contractLoader the contractLoader to set */
     public void setContractLoader(ContractLoader contractLoader) {
         this.contractLoader = contractLoader;
     }

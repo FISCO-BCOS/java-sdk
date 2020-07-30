@@ -1,10 +1,8 @@
 package org.fisco.bcos.sdk.abi.datatypes;
 
 import java.util.List;
-
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.Utils;
-
 
 /** Event wrapper type. */
 public class Event {
@@ -23,5 +21,4 @@ public class Event {
     public List<TypeReference<Type>> getParameters() {
         return parameters;
     }
-
 }

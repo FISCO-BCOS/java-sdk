@@ -3,7 +3,6 @@ package org.fisco.bcos.sdk.transaction.domain;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.fisco.bcos.sdk.abi.AbiDefinition;
 
 public class AbiInfo {
@@ -15,7 +14,9 @@ public class AbiInfo {
      * @param contractFuncAbis
      * @param contractConstructAbi
      */
-    public AbiInfo(Map<String, List<AbiDefinition>> contractFuncAbis, Map<String, AbiDefinition> contractConstructAbi) {
+    public AbiInfo(
+            Map<String, List<AbiDefinition>> contractFuncAbis,
+            Map<String, AbiDefinition> contractConstructAbi) {
         super();
         this.contractFuncAbis = contractFuncAbis;
         this.contractConstructAbi = contractConstructAbi;

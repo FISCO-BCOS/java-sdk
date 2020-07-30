@@ -15,14 +15,6 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import org.fisco.bcos.sdk.model.JsonRpcResponse;
-import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -31,6 +23,12 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import org.fisco.bcos.sdk.model.JsonRpcResponse;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 /** getConsensusStatus */
 public class ConsensusStatus extends JsonRpcResponse<ConsensusStatus.ConsensusInfo> {

@@ -1,10 +1,9 @@
 package org.fisco.bcos.sdk.channel;
 
+import io.netty.util.Timeout;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.netty.util.Timeout;
 
 /** Created by suyuhui on 17/8/17. */
 public abstract class TransactionSucCallback {

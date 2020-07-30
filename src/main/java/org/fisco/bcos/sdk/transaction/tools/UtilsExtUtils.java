@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.fisco.bcos.sdk.abi.TypeMappingException;
 
 public class UtilsExtUtils {

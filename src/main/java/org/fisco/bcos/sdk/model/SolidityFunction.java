@@ -24,7 +24,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Function;
  * @data Jul 17, 2020 2:36:36 PM
  */
 public class SolidityFunction {
-    
+
     private Function function;
 
     private AbiDefinition functionAbi;
@@ -39,33 +39,23 @@ public class SolidityFunction {
         this.functionAbi = functionAbi;
     }
 
-    /**
-     * @return the function
-     */
+    /** @return the function */
     public Function getFunction() {
         return function;
     }
 
-    /**
-     * @param function the function to set
-     */
+    /** @param function the function to set */
     public void setFunction(Function function) {
         this.function = function;
     }
 
-    /**
-     * @return the functionAbi
-     */
+    /** @return the functionAbi */
     public AbiDefinition getFunctionAbi() {
         return functionAbi;
     }
 
-    /**
-     * @param functionAbi the functionAbi to set
-     */
+    /** @param functionAbi the functionAbi to set */
     public void setFunctionAbi(AbiDefinition functionAbi) {
         this.functionAbi = functionAbi;
     }
-    
-    
 }

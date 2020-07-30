@@ -15,17 +15,15 @@
 package org.fisco.bcos.sdk.transaction.domain;
 
 import java.math.BigInteger;
-
 import org.fisco.bcos.sdk.abi.EventValues;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
 
 public abstract class Contract {
     public static final BigInteger GAS_LIMIT = BigInteger.valueOf(4_300_000);
-    
+
     public static EventValues staticExtractEventParameters(Event event, Log log) {
 
-       // TODO
+        // TODO
         return null;
     }
-
 }

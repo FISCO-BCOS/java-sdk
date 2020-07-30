@@ -2,7 +2,6 @@ package org.fisco.bcos.sdk.transaction.domain;
 
 import java.io.IOException;
 import java.math.BigInteger;
-
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -18,12 +17,10 @@ public abstract class ManagedTransaction {
 
     protected TransactionManager transactionManager;
 
-
     protected ManagedTransaction(Client web3j, TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
         this.web3j = web3j;
     }
-
 
     protected TransactionReceipt send(
             String to, String data, BigInteger value, BigInteger gasPrice, BigInteger gasLimit)

@@ -18,7 +18,6 @@ package org.fisco.bcos.sdk.client;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
-
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;

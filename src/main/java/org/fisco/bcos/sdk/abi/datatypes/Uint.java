@@ -1,7 +1,6 @@
 package org.fisco.bcos.sdk.abi.datatypes;
 
 import java.math.BigInteger;
-
 import org.fisco.bcos.sdk.abi.Constant;
 
 /** Unsigned integer type. */

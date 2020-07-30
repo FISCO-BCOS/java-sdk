@@ -75,8 +75,6 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.transaction.exception.BaseException;
 import org.fisco.bcos.sdk.transaction.tools.ContractTypeUtil;
 
-
-
 public class StaticArrayReference {
 
     public static TypeReference<?> create(String type, int dimension) throws BaseException {
