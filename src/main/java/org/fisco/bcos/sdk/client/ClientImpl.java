@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.client;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.channel.Channel;
@@ -36,7 +37,6 @@ import org.fisco.bcos.sdk.client.protocol.response.GenerateGroup;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.client.protocol.response.GroupPeers;
 import org.fisco.bcos.sdk.client.protocol.response.NodeIDList;
-import org.fisco.bcos.sdk.client.protocol.response.NodeVersion;
 import org.fisco.bcos.sdk.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.client.protocol.response.Peers;
@@ -55,6 +55,7 @@ import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 import org.fisco.bcos.sdk.model.JsonRpcRequest;
+import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.utils.Numeric;
 

@@ -13,7 +13,7 @@
  *
  */
 
-package org.fisco.bcos.sdk.client.protocol.response;
+package org.fisco.bcos.sdk.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;

@@ -17,6 +17,8 @@ package org.fisco.bcos.sdk.client.protocol.response;
 
 import java.util.List;
 
+import org.fisco.bcos.sdk.model.JsonRpcResponse;
+
 /** getNodeIDList */
 public class NodeIDList extends JsonRpcResponse<List<String>> {
     public List<String> getNodeIDList() {

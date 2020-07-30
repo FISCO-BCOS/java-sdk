@@ -15,25 +15,35 @@
 
 package org.fisco.bcos.sdk.channel;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.AttributeKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.fisco.bcos.sdk.channel.model.*;
-import org.fisco.bcos.sdk.client.protocol.response.NodeVersion;
+
+import org.fisco.bcos.sdk.channel.model.ChannelHandshake;
+import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
+import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
+import org.fisco.bcos.sdk.channel.model.ChannelProtocol;
+import org.fisco.bcos.sdk.channel.model.ChannelRequest;
+import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
+import org.fisco.bcos.sdk.channel.model.EnumNodeVersion;
+import org.fisco.bcos.sdk.channel.model.EnumSocketChannelAttributeKey;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
+import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.network.MsgHandler;
 import org.fisco.bcos.sdk.utils.ChannelUtils;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.AttributeKey;
 
 /**
  * An implementation of channel.

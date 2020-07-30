@@ -17,6 +17,8 @@ package org.fisco.bcos.sdk.client.protocol.response;
 
 import java.math.BigInteger;
 import java.util.Objects;
+
+import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 /**

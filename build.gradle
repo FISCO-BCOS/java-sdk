@@ -83,7 +83,11 @@ dependencies {
     compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
     compile 'org.slf4j:slf4j-api:1.7.30'
     compile ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
-
+    
+    implementation 'com.google.guava:guava:29.0-jre'
+    implementation 'commons-io:commons-io:2.4'
+    implementation 'org.apache.commons:commons-collections4:4.0'
+    
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.23.0'

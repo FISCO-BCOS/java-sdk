@@ -14,9 +14,13 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
+
+import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 import org.fisco.bcos.sdk.transaction.domain.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.domain.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.domain.dto.TransactionRequest;
@@ -70,6 +74,68 @@ public class TransactionManager implements TransactionManagerInterface {
 
     @Override
     public String getCurrentExternalAccountAddress() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**    
+     * TODO  
+     * 
+     * @param gasPrice
+     * @param gasLimit
+     * @param to
+     * @param data
+     * @param value
+     * @param object
+     * @return   
+     */
+    public RawTransaction createTransaction(BigInteger gasPrice, BigInteger gasLimit, String to, String data,
+            BigInteger value, Object object) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**    
+     * TODO  
+     * 
+     * @param gasPrice
+     * @param gasLimit
+     * @param to
+     * @param data
+     * @param value
+     * @param object
+     * @param callback   
+     */
+    public void sendTransaction(BigInteger gasPrice, BigInteger gasLimit, String to, String data, BigInteger value,
+            Object object, ResponseCallback callback) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**    
+     * TODO  
+     * 
+     * @param rawTransaction
+     * @return   
+     */
+    public String sign(RawTransaction rawTransaction) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**    
+     * TODO  
+     * 
+     * @param gasPrice
+     * @param gasLimit
+     * @param to
+     * @param data
+     * @param value
+     * @param object
+     * @return   
+     */
+    public TransactionReceipt executeTransaction(BigInteger gasPrice, BigInteger gasLimit, String to, String data,
+            BigInteger value, Object object) {
         // TODO Auto-generated method stub
         return null;
     }
