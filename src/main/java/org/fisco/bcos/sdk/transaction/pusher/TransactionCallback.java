@@ -15,8 +15,11 @@ package org.fisco.bcos.sdk.transaction.pusher;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import org.fisco.bcos.sdk.channel.TransactionSucCallback;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.client.RespCallback;
+import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
+import org.fisco.bcos.sdk.model.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TransactionCallback @Description: TransactionCallback
@@ -24,8 +27,10 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
  * @author maojiayu
  * @data Mar 23, 2020 9:53:42 PM
  */
-public class TransactionCallback extends TransactionSucCallback {
-    private TransactionReceipt transactionReceipt;
+public class TransactionCallback implements RespCallback<SendTransaction> {
+    private static Logger logger = LoggerFactory.getLogger(TransactionCallback.class);
+
+    private SendTransaction sendTransaction;
     private ReentrantLock reentrantLock = new ReentrantLock();
     private Condition condition;
 
@@ -33,23 +38,33 @@ public class TransactionCallback extends TransactionSucCallback {
         condition = reentrantLock.newCondition();
     }
 
-    public TransactionReceipt getResult() {
+    public SendTransaction getResult() {
         try {
             reentrantLock.lock();
-            while (transactionReceipt == null) {
+            while (sendTransaction == null) {
                 condition.awaitUninterruptibly();
             }
-            return transactionReceipt;
+            return sendTransaction;
         } finally {
             reentrantLock.unlock();
         }
     }
 
     @Override
-    public void onResponse(TransactionReceipt transactionReceipt) {
+    public void onError(Response errorResponse) {
+        logger.error("transactionSuc timeout");
+        SendTransaction sendTransaction = new SendTransaction();
+        sendTransaction.setError(
+                new SendTransaction.Error(
+                        errorResponse.getErrorCode(), errorResponse.getErrorMessage()));
+        onResponse(sendTransaction);
+    }
+
+    @Override
+    public void onResponse(SendTransaction t) {
         try {
             reentrantLock.lock();
-            this.transactionReceipt = transactionReceipt;
+            this.sendTransaction = t;
             condition.signal();
         } finally {
             reentrantLock.unlock();

@@ -18,9 +18,9 @@ import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
 
 public class TransactionPusher implements TransactionPusherInterface {
 
@@ -38,9 +38,11 @@ public class TransactionPusher implements TransactionPusherInterface {
     }
 
     @Override
-    public TransactionReceipt push(String signedTransaction) {
-        // TODO Auto-generated method stub
-        return null;
+    public BcosTransactionReceipt push(String signedTransaction) {
+        TransactionCallback callback = new TransactionCallback();
+        client.sendRawTransactionAsync(signedTransaction, callback);
+        SendTransaction t = callback.getResult();
+        return client.getTransactionReceipt(t.getTransactionHash());
     }
 
     @Override
@@ -49,7 +51,7 @@ public class TransactionPusher implements TransactionPusherInterface {
     }
 
     @Override
-    public CompletableFuture<TransactionReceipt> pushAsync(String signedTransaction) {
+    public CompletableFuture<BcosTransactionReceipt> pushAsync(String signedTransaction) {
         // TODO Auto-generated method stub
         return null;
     }
