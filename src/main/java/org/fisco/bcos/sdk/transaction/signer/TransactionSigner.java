@@ -15,37 +15,28 @@
 package org.fisco.bcos.sdk.transaction.signer;
 
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.crypto.signature.Signature;
+import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 public class TransactionSigner implements TransactionSignerInterface {
 
-    private int encryptType;
+    private Signature signature;
     private CryptoKeyPair cryptoKeyPair;
 
     /**
      * @param encryptType
      * @param cryptoKeyPair
      */
-    public TransactionSigner(int encryptType, CryptoKeyPair cryptoKeyPair) {
+    public TransactionSigner(Signature signature, CryptoKeyPair cryptoKeyPair) {
         super();
-        this.encryptType = encryptType;
+        this.signature = signature;
         this.cryptoKeyPair = cryptoKeyPair;
     }
 
     @Override
-    public byte[] sign(RawTransaction rawTransaction) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /** @return the encryptType */
-    public int getEncryptType() {
-        return encryptType;
-    }
-
-    /** @param encryptType the encryptType to set */
-    public void setEncryptType(int encryptType) {
-        this.encryptType = encryptType;
+    public SignatureResult sign(RawTransaction rawTransaction) {
+        return signature.sign(rawTransaction, cryptoKeyPair);
     }
 
     /** @return the cryptoKeyPair */
@@ -56,5 +47,15 @@ public class TransactionSigner implements TransactionSignerInterface {
     /** @param cryptoKeyPair the cryptoKeyPair to set */
     public void setCryptoKeyPair(CryptoKeyPair cryptoKeyPair) {
         this.cryptoKeyPair = cryptoKeyPair;
+    }
+
+    /** @return the signature */
+    public Signature getSignature() {
+        return signature;
+    }
+
+    /** @param signature the signature to set */
+    public void setSignature(Signature signature) {
+        this.signature = signature;
     }
 }

@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.signer;
 
+import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 /**
@@ -24,5 +25,5 @@ import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
  */
 public interface TransactionSignerInterface {
 
-    byte[] sign(RawTransaction rawTransaction);
+    public SignatureResult sign(RawTransaction rawTransaction);
 }

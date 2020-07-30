@@ -21,7 +21,7 @@ public class TransactionEncoder implements TransactionEncoderInterface {
 
     @Override
     public byte[] encode(RawTransaction transaction, SignatureResult signature) {
-        // TODO Auto-generated method stub
+        // TODO
         return null;
     }
 }
