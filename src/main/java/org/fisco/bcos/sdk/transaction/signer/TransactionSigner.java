@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.transaction.signer;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
-import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 public class TransactionSigner implements TransactionSignerInterface {
 
@@ -35,8 +34,8 @@ public class TransactionSigner implements TransactionSignerInterface {
     }
 
     @Override
-    public SignatureResult sign(RawTransaction rawTransaction) {
-        return signature.sign(rawTransaction, cryptoKeyPair);
+    public SignatureResult sign(byte[] bytes) {
+        return signature.sign(bytes, cryptoKeyPair);
     }
 
     /** @return the cryptoKeyPair */

@@ -16,10 +16,9 @@
 package org.fisco.bcos.sdk.crypto.signature;
 
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
 
 public interface Signature {
-    SignatureResult sign(final RawTransaction rawTransaction, final CryptoKeyPair keyPair);
+    SignatureResult sign(final byte[] message, final CryptoKeyPair keyPair);
 
     SignatureResult sign(final String message, final CryptoKeyPair keyPair);
 
