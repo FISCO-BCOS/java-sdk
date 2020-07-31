@@ -17,6 +17,8 @@ package org.fisco.bcos.sdk.amop;
 
 import java.util.List;
 import org.fisco.bcos.sdk.channel.Channel;
+import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
 
 /**
  * AMOP module interface.
@@ -28,10 +30,10 @@ public interface Amop {
      * Create a Amop object.
      *
      * @param channel
-     * @param configFile
+     * @param config
      * @return Amop instance
      */
-    static Amop build(Channel channel, String configFile) {
+    static Amop build(Channel channel, ConfigOption config) {
         return null;
     }
 
@@ -39,25 +41,29 @@ public interface Amop {
      * Subscribe a normal topic.
      *
      * @param topicName
+     * @param callback callback is called when receive a msg relate to this topic
      */
-    void subscribeTopic(String topicName);
+    void subscribeTopic(String topicName, AmopCallback callback);
 
     /**
-     * Subscribe a topic which need verify.
+     * Subscribe a private topic which need verify.
      *
      * @param topicName
-     * @param privateKey
+     * @param privateKeyManager the private key you used to prove your identity.
+     * @param callback callback is called when receive a msg relate to this topic
      */
-    void subscribeNeedVerifyTopics(String topicName, String privateKey);
+    void subscribePrivateTopics(
+            String topicName, KeyManager privateKeyManager, AmopCallback callback);
 
     /**
      * Config a topic which is need verification, after that user can send message to verified
      * subscriber.
      *
      * @param topicName
-     * @param publicKeys
+     * @param publicKeyManagers the public keys of the target organizations that you want to
+     *     communicate with
      */
-    void addNeedVerifyTopics(String topicName, List<String> publicKeys);
+    void setupPrivateTopic(String topicName, List<KeyManager> publicKeyManagers);
 
     /**
      * Unsubscribe a topic.
@@ -65,6 +71,14 @@ public interface Amop {
      * @param topicName
      */
     void unsubscribeTopic(String topicName);
+
+    /**
+     * Send amop msg
+     *
+     * @param msg
+     * @param callback
+     */
+    void sendAmopMsg(AmopMsg msg, AmopCallback callback);
 
     /**
      * Get all subscribe topics.

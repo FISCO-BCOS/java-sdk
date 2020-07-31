@@ -1,6 +1,7 @@
 package org.fisco.bcos.sdk.abi.datatypes;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.Utils;
 
@@ -20,5 +21,13 @@ public class Event {
 
     public List<TypeReference<Type>> getParameters() {
         return parameters;
+    }
+
+    public List<TypeReference<Type>> getIndexedParameters() {
+        return parameters.stream().filter(TypeReference::isIndexed).collect(Collectors.toList());
+    }
+
+    public List<TypeReference<Type>> getNonIndexedParameters() {
+        return parameters.stream().filter(p -> !p.isIndexed()).collect(Collectors.toList());
     }
 }

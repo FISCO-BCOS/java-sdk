@@ -47,7 +47,7 @@ public class TransactionPusher implements TransactionPusherInterface {
     }
 
     @Override
-    public void push(String signedTransactionData, RespCallback<SendTransaction> callback) {
+    public void pushAsync(String signedTransactionData, RespCallback<SendTransaction> callback) {
         client.sendRawTransactionAsync(signedTransactionData, callback);
     }
 
@@ -71,14 +71,5 @@ public class TransactionPusher implements TransactionPusherInterface {
     /** @param client the client to set */
     public void setClient(Client client) {
         this.client = client;
-    }
-
-    /* (non-Javadoc)
-     * @see org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface#pushAsync(java.lang.String, org.fisco.bcos.sdk.client.RespCallback)
-     */
-    @Override
-    public void pushAsync(String signedTransaction, RespCallback<TransactionReceipt> callback) {
-        // TODO Auto-generated method stub
-
     }
 }

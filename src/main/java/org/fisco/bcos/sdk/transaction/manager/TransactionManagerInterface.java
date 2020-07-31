@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.transaction.manager;
 
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.RespCallback;
+import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.domain.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.domain.dto.CallResponse;
@@ -36,8 +37,7 @@ public interface TransactionManagerInterface {
 
     public TransactionResponse sendTransaction(TransactionRequest transactionRequest);
 
-    public void sendTransaction(
-            String signedTransaction, RespCallback<TransactionReceipt> callback);
+    public void sendTransaction(String signedTransaction, RespCallback<SendTransaction> callback);
 
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             TransactionRequest transactionRequest);

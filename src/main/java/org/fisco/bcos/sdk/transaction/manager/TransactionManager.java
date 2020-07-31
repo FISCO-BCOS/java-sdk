@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.RespCallback;
+import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.TransactionDecoderInterface;
@@ -79,8 +80,7 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public void sendTransaction(
-            String signedTransaction, RespCallback<TransactionReceipt> callback) {
+    public void sendTransaction(String signedTransaction, RespCallback<SendTransaction> callback) {
         this.transactionPusher.pushAsync(signedTransaction, callback);
     }
 
@@ -157,7 +157,7 @@ public class TransactionManager implements TransactionManagerInterface {
             BigInteger value,
             BigInteger chainId,
             BigInteger groupId,
-            RespCallback<TransactionReceipt> callback) {
+            RespCallback<SendTransaction> callback) {
         RawTransaction transaction =
                 this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
         String signedTransaction = this.sign(transaction);

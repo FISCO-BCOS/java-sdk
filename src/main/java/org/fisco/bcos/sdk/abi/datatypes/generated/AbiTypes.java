@@ -4,7 +4,6 @@ import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.Bool;
 import org.fisco.bcos.sdk.abi.datatypes.DynamicBytes;
 import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
-import org.fisco.bcos.sdk.channel.TransactionSucCallback;
 
 /**
  * Auto generated code.
@@ -219,8 +218,11 @@ public final class AbiTypes {
                 return Bytes31.class;
             case "bytes32":
                 return Bytes32.class;
-            case "TransactionSucCallback":
-                return TransactionSucCallback.class;
+
+                /*case "TransactionSucCallback":
+                    return TransactionSucCallbac.class;
+                case "EventLogPushCallback":
+                    return EventLogPushWithDecodeCallback.class;*/
 
             default:
                 throw new UnsupportedOperationException("Unsupported type encountered: " + type);
