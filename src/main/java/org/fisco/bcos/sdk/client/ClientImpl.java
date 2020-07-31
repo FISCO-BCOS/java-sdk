@@ -16,6 +16,8 @@ package org.fisco.bcos.sdk.client;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Semaphore;
+
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.channel.Channel;
@@ -55,7 +57,9 @@ import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 import org.fisco.bcos.sdk.model.NodeVersion;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
+import org.fisco.bcos.sdk.transaction.callback.TransactionSucCallback;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 public class ClientImpl implements Client {
@@ -847,5 +851,76 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(JsonRpcMethods.GET_SYNC_STATUS, Arrays.asList(this.groupId)),
                 SyncStatus.class,
                 callback);
+    }
+
+    class SynchronousTransactionCallback extends TransactionSucCallback {
+        public TransactionReceipt receipt;
+        public Semaphore semaphore = new Semaphore(1, true);
+
+        SynchronousTransactionCallback() {
+            try {
+                semaphore.acquire(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        @Override
+        public void onTimeout() {
+            super.onTimeout();
+            semaphore.release();
+        }
+
+        // wait until get the transactionReceipt
+        @Override
+        public void onResponse(TransactionReceipt receipt) {
+            this.receipt = receipt;
+            semaphore.release();
+        }
+    }
+
+    @Override
+    public TransactionReceipt sendRawTransactionAndGetReceipt(String signedTransactionData) {
+        SynchronousTransactionCallback callback = new SynchronousTransactionCallback();
+        asyncSendRawTransaction(signedTransactionData, callback);
+        try {
+            callback.semaphore.acquire(1);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return callback.receipt;
+    }
+
+    @Override
+    public void asyncSendRawTransaction(
+            String signedTransactionData, TransactionSucCallback callback) {
+        this.jsonRpcService.asyncSendTransactionToGroup(
+                new JsonRpcRequest(
+                        JsonRpcMethods.SEND_RAWTRANSACTION,
+                        Arrays.asList(this.groupId, signedTransactionData)),
+                callback);
+    }
+
+    @Override
+    public void asyncsendRawTransactionAndGetProof(
+            String signedTransactionData, TransactionSucCallback callback) {
+        this.jsonRpcService.asyncSendTransactionToGroup(
+                new JsonRpcRequest(
+                        JsonRpcMethods.SEND_RAWTRANSACTION_AND_GET_PROOF,
+                        Arrays.asList(this.groupId, signedTransactionData)),
+                callback);
+    }
+
+    @Override
+    public TransactionReceipt sendRawTransactionAndGetReceiptWithProof(
+            String signedTransactionData) {
+        SynchronousTransactionCallback callback = new SynchronousTransactionCallback();
+        asyncsendRawTransactionAndGetProof(signedTransactionData, callback);
+        try {
+            callback.semaphore.acquire(1);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return callback.receipt;
     }
 }
