@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.model.datastructs;
+package org.fisco.bcos.sdk.model.tuple;
 
 /**
  * Auto generated code.

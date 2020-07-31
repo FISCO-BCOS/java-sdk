@@ -36,12 +36,12 @@ public class ArgsConvertHandler {
 
     private static Type convertToSolType(AbiDefinition.NamedType namedType, Object javaArg) {
         try {
-            TypeReference<?> typeReference = ContractAbiExtUtils.paramInput(namedType);
+            TypeReference<?> typeReference = ContractAbiUtil.paramInput(namedType);
             if (Array.class.isAssignableFrom(typeReference.getClassType())) {
                 java.lang.reflect.Type elementType =
-                        ContractAbiExtUtils.resolveArrayBasicType(typeReference);
+                        ContractAbiUtil.resolveArrayBasicType(typeReference);
                 Class<?> elementClass = Utils.getClassType(elementType);
-                List solidityArgs = UtilsExtUtils.typeMap((List) javaArg, elementClass);
+                List solidityArgs = Utils.typeMapWithoutGenericType((List) javaArg, elementClass);
                 Class<?> arrayClass = Utils.getClassType(typeReference.getType());
                 Constructor ctor = arrayClass.getConstructor(List.class);
                 return (Type) ctor.newInstance(solidityArgs);

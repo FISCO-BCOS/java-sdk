@@ -23,7 +23,7 @@ import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.fisco.bcos.sdk.model.EventResultEntity;
 import org.fisco.bcos.sdk.model.LogResult;
-import org.fisco.bcos.sdk.model.datastructs.Tuple2;
+import org.fisco.bcos.sdk.model.tuple.Tuple2;
 import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.exception.TransactionException;
 import org.fisco.bcos.sdk.transaction.model.bo.InputAndOutputResult;

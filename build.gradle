@@ -74,21 +74,20 @@ task integrationTest(type: Test) {
 }
 
 dependencies {
-    compile 'org.bouncycastle:bcprov-jdk15on:1.60'
-    compile 'org.apache.commons:commons-lang3:3.1'
-    compile 'io.netty:netty-all:4.1.50.Final'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
-    compile files('lib/pkey-sign.jar')
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.14'
-    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
-    compile 'org.slf4j:slf4j-api:1.7.30'
-    compile ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
-    
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
+    implementation 'org.apache.commons:commons-lang3:3.1'
+    implementation 'io.netty:netty-all:4.1.50.Final'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+    implementation group: 'commons-codec', name: 'commons-codec', version: '1.14'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
+    implementation 'org.slf4j:slf4j-api:1.7.30'
+    implementation ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
     implementation 'com.google.guava:guava:29.0-jre'
     implementation 'commons-io:commons-io:2.4'
     implementation 'org.apache.commons:commons-collections4:4.0'
     
-
+    compile files('lib/pkey-sign.jar')
+    
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.23.0'
 

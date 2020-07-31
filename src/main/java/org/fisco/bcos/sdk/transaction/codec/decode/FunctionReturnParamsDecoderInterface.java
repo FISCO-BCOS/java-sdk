@@ -14,13 +14,19 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
+import java.util.List;
+import org.fisco.bcos.sdk.abi.datatypes.Type;
+import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
+
 /**
  * FunctionReturnDecoder @Description: FunctionReturnDecoderInterface
  *
  * @author maojiayu
  * @data Jul 17, 2020 2:48:54 PM
  */
-public interface FunctionReturnDecoderInterface {
+public interface FunctionReturnParamsDecoderInterface {
 
-    public String decodeCall(String rawInput, String abi);
+    public List<Type> decode(String rawInput, String abi) throws TransactionBaseException;
+
+    public String decodeCall(String rawInput, String abi) throws TransactionBaseException;
 }
