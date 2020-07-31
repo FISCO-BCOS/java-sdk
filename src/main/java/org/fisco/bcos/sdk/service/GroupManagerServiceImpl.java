@@ -13,52 +13,209 @@
  */
 package org.fisco.bcos.sdk.service;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.PeerSelectRule;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
+import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
+import org.fisco.bcos.sdk.client.handler.BlockNumberNotifyHandler;
+import org.fisco.bcos.sdk.client.handler.TransactionNotifyHandler;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.Response;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
 import org.fisco.bcos.sdk.service.model.BlockNumberMessageDecoder;
 import org.fisco.bcos.sdk.service.model.BlockNumberNotification;
+import org.fisco.bcos.sdk.transaction.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GroupManagerServiceImpl implements GroupManagerService {
     private static Logger logger = LoggerFactory.getLogger(GroupManagerServiceImpl.class);
     private final Channel channel;
+    private final BlockNumberMessageDecoder blockNumberMessageDecoder;
     private final GroupServiceFactory groupServiceFactory;
     private ConcurrentHashMap<Integer, GroupService> groupIdToService = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, List<String>> nodeToGroupIDList = new ConcurrentHashMap<>();
-    private final BlockNumberMessageDecoder blockNumberMessageDecoder;
+    private ConcurrentHashMap<String, TransactionSucCallback> seq2TransactionCallback =
+            new ConcurrentHashMap<>();
+
     private Client groupInfoGetter;
     // TODO: get the fetchGroupListIntervalMs from the configuration
     private long fetchGroupListIntervalMs = 60000;
     private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+
+    // the thread pool is used to handle the block_notify message and transaction_notify message
+    private ExecutorService threadPool = Executors.newCachedThreadPool();
     AtomicBoolean running = new AtomicBoolean(false);
 
     public GroupManagerServiceImpl(Channel channel) {
         this.channel = channel;
+        this.blockNumberMessageDecoder = new BlockNumberMessageDecoder(channel.getVersion());
         this.groupServiceFactory = new GroupServiceFactory();
         this.groupInfoGetter = Client.build(channel);
         fetchGroupList();
-        this.blockNumberMessageDecoder = new BlockNumberMessageDecoder(channel.getVersion());
         this.start();
+        registerBlockNumberNotifyHandler();
+        registerTransactionNotifyHandler();
+    }
+
+    public void registerBlockNumberNotifyHandler() {
+        BlockNumberNotifyHandler handler =
+                new BlockNumberNotifyHandler(
+                        new BiConsumer<String, Message>() {
+                            @Override
+                            public void accept(
+                                    String peerIpAndPort, Message blockNumberNotifyMessage) {
+                                threadPool.execute(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                onReceiveBlockNotify(
+                                                        peerIpAndPort, blockNumberNotifyMessage);
+                                            }
+                                        });
+                            }
+                        },
+                        new Consumer<String>() {
+                            @Override
+                            public void accept(String disconnectedEndpoint) {
+                                threadPool.execute(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                // remove groupList info from the nodeToGroupIDList
+                                                if (nodeToGroupIDList.contains(
+                                                        disconnectedEndpoint)) {
+                                                    nodeToGroupIDList.remove(disconnectedEndpoint);
+                                                }
+                                                // update groupIdToService
+                                                for (Integer group : groupIdToService.keySet()) {
+                                                    groupIdToService
+                                                            .get(group)
+                                                            .removeNode(disconnectedEndpoint);
+                                                }
+                                            }
+                                        });
+                            }
+                        });
+        this.channel.addConnectHandler(handler);
+        logger.debug("registerBlockNumberNotifyHandler");
+    }
+
+    public void registerTransactionNotifyHandler() {
+        TransactionNotifyHandler handler =
+                new TransactionNotifyHandler(
+                        new Consumer<Message>() {
+                            @Override
+                            public void accept(Message message) {
+                                threadPool.execute(
+                                        new Runnable() {
+                                            // decode the message into transaction
+                                            @Override
+                                            public void run() {
+                                                onReceiveTransactionNotify(message);
+                                            }
+                                        });
+                            }
+                        });
+        this.channel.addConnectHandler(handler);
+        logger.debug("registerTransactionNotifyHandler");
+    }
+
+    /**
+     * Get the blockNumber notify message from the AMOP module, parse the package and update the
+     * latest block height of each group
+     *
+     * @param peerIpAndPort: Node ip and port
+     * @param blockNumberNotifyMessage: the blockNumber notify message
+     */
+    protected void onReceiveBlockNotify(String peerIpAndPort, Message blockNumberNotifyMessage) {
+        BlockNumberNotification blockNumberInfo =
+                blockNumberMessageDecoder.decode(blockNumberNotifyMessage);
+        if (blockNumberInfo == null) {
+            return;
+        }
+        if (!StringUtils.isNumeric(blockNumberInfo.getGroupId())
+                || !StringUtils.isNumeric(blockNumberInfo.getBlockNumber())) {
+            logger.warn(
+                    "updateBlockNumberInfo for invalid block number info, peer:{}, groupId: {}, blockNumber:{}",
+                    peerIpAndPort,
+                    blockNumberInfo.getGroupId(),
+                    blockNumberInfo.getBlockNumber());
+            return;
+        }
+        // set the block number
+        updateBlockNumberInfo(
+                Integer.valueOf(blockNumberInfo.getGroupId()),
+                peerIpAndPort,
+                new BigInteger(blockNumberInfo.getBlockNumber()));
+    }
+
+    /**
+     * calls the transaction callback when receive the transaction notify
+     *
+     * @param message: the message contains the transactionReceipt
+     */
+    protected void onReceiveTransactionNotify(Message message) {
+        String seq = message.getSeq();
+        // get the transaction callback
+        TransactionSucCallback callback = seq2TransactionCallback.get(seq);
+        if (callback == null) {
+            logger.error("transaction callback is null, seq: {}", seq);
+            return;
+        }
+
+        // decode the message into receipt
+        TransactionReceipt receipt = null;
+        try {
+            receipt =
+                    ObjectMapperFactory.getObjectMapper()
+                            .readValue(message.getData(), TransactionReceipt.class);
+        } catch (IOException e) {
+            // e.printStackTrace();
+            // fake the receipt
+            receipt = new TransactionReceipt();
+            receipt.setStatus(String.valueOf(ChannelMessageError.MESSAGE_DECODE_ERROR.getError()));
+            receipt.setMessage(
+                    "Decode receipt error, seq: " + seq + ", reason: " + e.getLocalizedMessage());
+        }
+
+        // call the transaction callback
+        if (callback.getTimeout() != null) {
+            callback.getTimeout().cancel();
+        }
+        // TODO: parse the receipt information
+        callback.onResponse(receipt);
+        // remove the callback
+        seq2TransactionCallback.remove(seq);
+    }
+
+    @Override
+    public void asyncSendTransaction(
+            Integer groupId, Message transactionMessage, TransactionSucCallback callback) {
+        seq2TransactionCallback.put(transactionMessage.getSeq(), callback);
+        asyncSendMessageToGroup(groupId, transactionMessage, null);
     }
 
     @Override
@@ -77,17 +234,22 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             return;
         }
         logger.debug("stop GroupManagerService...");
-        scheduledExecutorService.shutdown();
+        awaitAfterShutdown(scheduledExecutorService);
+        awaitAfterShutdown(threadPool);
+        running.set(false);
+    }
+
+    private void awaitAfterShutdown(ExecutorService threadPool) {
+        threadPool.shutdown();
         try {
-            while (!scheduledExecutorService.isTerminated()) {
-                scheduledExecutorService.awaitTermination(10, TimeUnit.MILLISECONDS);
+            while (!threadPool.isTerminated()) {
+                threadPool.awaitTermination(10, TimeUnit.MILLISECONDS);
             }
-            scheduledExecutorService.shutdownNow();
+            threadPool.shutdownNow();
         } catch (InterruptedException ex) {
-            scheduledExecutorService.shutdownNow();
+            threadPool.shutdownNow();
             Thread.currentThread().interrupt();
         }
-        running.set(false);
     }
 
     /** start the thread to obtain group list information periodically */
@@ -119,29 +281,6 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             groupIdToService.get(groupId).insertNode(peerIpAndPort);
         }
         logger.debug("update groupInfo for {}, groupList: {}", peerIpAndPort, groupList);
-    }
-
-    @Override
-    public void updateBlockNumberInfo(String peerIpAndPort, Message blockNumberNotifyMessage) {
-        BlockNumberNotification blockNumberInfo =
-                blockNumberMessageDecoder.decode(blockNumberNotifyMessage);
-        if (blockNumberInfo == null) {
-            return;
-        }
-        if (!StringUtils.isNumeric(blockNumberInfo.getGroupId())
-                || !StringUtils.isNumeric(blockNumberInfo.getBlockNumber())) {
-            logger.warn(
-                    "updateBlockNumberInfo for invalid block number info, peer:{}, groupId: {}, blockNumber:{}",
-                    peerIpAndPort,
-                    blockNumberInfo.getGroupId(),
-                    blockNumberInfo.getBlockNumber());
-            return;
-        }
-        // set the block number
-        updateBlockNumberInfo(
-                Integer.valueOf(blockNumberInfo.getGroupId()),
-                peerIpAndPort,
-                new BigInteger(blockNumberInfo.getBlockNumber()));
     }
 
     @Override
