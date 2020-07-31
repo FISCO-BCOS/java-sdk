@@ -17,12 +17,12 @@ package org.fisco.bcos.sdk.transaction.model.po;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.abi.EventValues;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
-import org.fisco.bcos.sdk.model.EventLog;
+import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
 
 public abstract class Contract {
     public static final BigInteger GAS_LIMIT = BigInteger.valueOf(4_300_000);
 
-    public static EventValues staticExtractEventParameters(Event event, EventLog log) {
+    public static EventValues staticExtractEventParameters(Event event, Logs log) {
 
         // TODO
         return null;

@@ -40,6 +40,7 @@ public class TransactionReceipt {
         private String address;
         private List<String> topics;
         private String data;
+        private String blockNumber;
 
         public String getAddress() {
             return address;
@@ -63,6 +64,23 @@ public class TransactionReceipt {
 
         public void setData(String data) {
             this.data = data;
+        }
+
+        public String getBlockNumber() {
+            return blockNumber;
+        }
+
+        public void setBlockNumber(String blockNumber) {
+            this.blockNumber = blockNumber;
+        }
+
+        public EventLog toEventLog() {
+            EventLog eventLog = new EventLog();
+            eventLog.setAddress(this.address);
+            eventLog.setTopics(this.topics);
+            eventLog.setData(this.data);
+            eventLog.setBlockNumber(this.blockNumber);
+            return eventLog;
         }
 
         @Override

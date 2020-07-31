@@ -15,6 +15,7 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
 import com.webank.pkeysign.utils.Numeric;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Map;
@@ -25,13 +26,18 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoder;
+import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.transaction.exception.TransactionException;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
+import org.fisco.bcos.sdk.transaction.model.dto.ResultCodeEnum;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TransactionManager @Description: TransactionManager
@@ -40,6 +46,7 @@ import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
  * @data Jul 17, 2020 3:23:19 PM
  */
 public class TransactionManager implements TransactionManagerInterface {
+    protected static Logger log = LoggerFactory.getLogger(TransactionManager.class);
 
     private TransactionPusherInterface transactionPusher;
 
@@ -58,9 +65,15 @@ public class TransactionManager implements TransactionManagerInterface {
         String contract = transactionRequest.getContractName();
         TransactionReceipt receipt =
                 this.transactionPusher.push(transactionRequest.getSignedData());
-        TransactionResponse response =
-                transactionDecoder.decodeTransactionReceipt(contract, receipt);
-        return TransactionResponse.from(response);
+        try {
+            TransactionResponse response =
+                    transactionDecoder.decodeTransactionReceipt(contract, receipt);
+            return response;
+        } catch (TransactionBaseException | TransactionException | IOException e) {
+            log.error("deploy exception: {}", e.getMessage());
+            return new TransactionResponse(
+                    ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
+        }
     }
 
     @Override
@@ -73,9 +86,13 @@ public class TransactionManager implements TransactionManagerInterface {
         String contract = transactionRequest.getContractName();
         TransactionReceipt receipt =
                 this.transactionPusher.push(transactionRequest.getSignedData());
-        TransactionResponse response =
-                transactionDecoder.decodeTransactionReceipt(contract, receipt);
-        return TransactionResponse.from(response);
+        try {
+            return transactionDecoder.decodeTransactionReceipt(contract, receipt);
+        } catch (TransactionBaseException | TransactionException | IOException e) {
+            log.error("sendTransaction exception: {}", e.getMessage());
+            return new TransactionResponse(
+                    ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
+        }
     }
 
     @Override
@@ -107,6 +124,7 @@ public class TransactionManager implements TransactionManagerInterface {
      * @param value
      * @return
      */
+    @SuppressWarnings("unlikely-arg-type")
     public RawTransaction createTransaction(
             BigInteger gasPrice,
             BigInteger gasLimit,

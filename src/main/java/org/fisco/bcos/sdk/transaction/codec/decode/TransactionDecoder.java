@@ -23,6 +23,7 @@ import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.fisco.bcos.sdk.model.EventResultEntity;
 import org.fisco.bcos.sdk.model.LogResult;
+import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.model.tuple.Tuple2;
 import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.exception.TransactionException;
@@ -191,7 +192,7 @@ public class TransactionDecoder {
         CollectionType listType =
                 mapper.getTypeFactory().constructCollectionType(ArrayList.class, EventLog.class);
         @SuppressWarnings("unchecked")
-        List<EventLog> logList = (List<EventLog>) mapper.readValue(logs, listType);
+        List<Logs> logList = (List<Logs>) mapper.readValue(logs, listType);
 
         // decode event
         Map<String, List<List<EventResultEntity>>> resultEntityMap =
@@ -207,7 +208,7 @@ public class TransactionDecoder {
      * @throws TransactionBaseException
      * @throws IOException
      */
-    public String decodeEventReturnJson(List<EventLog> logList)
+    public String decodeEventReturnJson(List<Logs> logList)
             throws TransactionBaseException, IOException {
         // log json trans to list log
         ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
@@ -225,13 +226,13 @@ public class TransactionDecoder {
      * @throws TransactionBaseException
      * @throws IOException
      */
-    public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(
-            List<EventLog> logList) throws TransactionBaseException, IOException {
+    public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(List<Logs> logList)
+            throws TransactionBaseException, IOException {
 
         // set result to java bean
         Map<String, List<List<EventResultEntity>>> resultEntityMap = new LinkedHashMap<>();
 
-        for (EventLog log : logList) {
+        for (Logs log : logList) {
             Tuple2<AbiDefinition, List<EventResultEntity>> resultTuple2 =
                     decodeEventReturnObject(log);
             if (null == resultTuple2) {
@@ -258,7 +259,7 @@ public class TransactionDecoder {
      * @return LogResult
      * @throws TransactionBaseException
      */
-    public LogResult decodeEventLogReturnObject(EventLog log) throws TransactionBaseException {
+    public LogResult decodeEventLogReturnObject(Logs log) throws TransactionBaseException {
         // decode log
         List<AbiDefinition> abiDefinitions = ContractAbiUtil.getEventAbiDefinitions(abi);
 
@@ -308,7 +309,7 @@ public class TransactionDecoder {
 
                 // result.setEventName(eventName);
                 result.setLogParams(resultEntityList);
-                result.setLog(log);
+                result.setLog(log.toEventLog());
 
                 logger.debug(" event log result: {}", result);
 
@@ -319,7 +320,7 @@ public class TransactionDecoder {
         return null;
     }
 
-    public Tuple2<AbiDefinition, List<EventResultEntity>> decodeEventReturnObject(EventLog log)
+    public Tuple2<AbiDefinition, List<EventResultEntity>> decodeEventReturnObject(Logs log)
             throws TransactionBaseException, IOException {
 
         Tuple2<AbiDefinition, List<EventResultEntity>> result = null;

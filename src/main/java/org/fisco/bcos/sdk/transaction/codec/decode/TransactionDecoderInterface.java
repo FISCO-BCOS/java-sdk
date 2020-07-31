@@ -14,14 +14,18 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import org.fisco.bcos.sdk.model.EventLog;
+import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.model.EventResultEntity;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
+import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.transaction.exception.TransactionException;
 import org.fisco.bcos.sdk.transaction.model.bo.InputAndOutputResult;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
-import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 
 /**
  * TransactionDecoderInterface @Description: TransactionDecoderInterface
@@ -31,33 +35,32 @@ import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
  */
 public interface TransactionDecoderInterface {
 
-    public RawTransaction decodeRlp(String hex);
+    public List<Type> decode(String rawInput, String abi) throws TransactionBaseException;
 
-    public String decodeCall(String abi, String output);
+    public String decodeCall(String rawInput, String abi) throws TransactionBaseException;
 
-    public String decodeOutputReturnJson(String contractName, String input, String output);
+    public String decodeOutputReturnJson(String abi, String input, String output)
+            throws JsonProcessingException, TransactionBaseException, TransactionException;
 
-    public InputAndOutputResult decodeOutputReturnObject(
-            String contractName, String input, String output);
+    public InputAndOutputResult decodeOutputReturnObject(String abi, String input, String output)
+            throws TransactionException, TransactionBaseException;
 
-    public String decodeEventReturnJson(String contractName, TransactionReceipt transactionReceipt);
-
-    public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(
-            String contractName, TransactionReceipt transactionReceipt);
-
-    public String decodeEventReturnJson(String contractName, List<EventLog> logList);
+    public String decodeEventReturnJson(String abi, TransactionReceipt transactionReceipt)
+            throws TransactionBaseException, IOException;
 
     public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(
-            String contractName, List<EventLog> logList);
+            String abi, TransactionReceipt transactionReceipt)
+            throws TransactionBaseException, IOException;
 
-    public String decodeEventReturnJson(
-            String contractName, String eventName, List<EventLog> logList);
+    public String decodeEventReturnJson(String abi, List<Logs> logList)
+            throws TransactionBaseException, IOException;
 
     public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(
-            String contractName, String eventName, List<EventLog> logList);
+            String abi, List<Logs> logList) throws TransactionBaseException, IOException;
 
     public String decodeReceiptMessage(String input);
 
-    public TransactionResponse decodeTransactionReceipt(
-            String contractName, TransactionReceipt receipt);
+    public TransactionResponse decodeTransactionReceipt(String abi, TransactionReceipt receipt)
+            throws JsonProcessingException, TransactionBaseException, TransactionException,
+                    IOException;
 }

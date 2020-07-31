@@ -28,54 +28,66 @@ public class TransactionResponse extends CommonResponse {
     private String values;
     private String events;
     private String receiptMessages;
+
+    public TransactionResponse() {
+        super();
+    }
+
+    /**
+     * @param returnCode
+     * @param returnMessage
+     */
+    public TransactionResponse(int returnCode, String returnMessage) {
+        super(returnCode, returnMessage);
+    }
+
     /** @return the bcosTransactionReceipt */
     public TransactionReceipt getTransactionReceipt() {
         return transactionReceipt;
     }
+
     /** @param transactionReceipt the transactionReceipt to set */
     public void setTransactionReceipt(TransactionReceipt transactionReceipt) {
         this.transactionReceipt = transactionReceipt;
     }
+
     /** @return the contractAddress */
     public String getContractAddress() {
         return contractAddress;
     }
+
     /** @param contractAddress the contractAddress to set */
     public void setContractAddress(String contractAddress) {
         this.contractAddress = contractAddress;
     }
+
     /** @return the values */
     public String getValues() {
         return values;
     }
+
     /** @param values the values to set */
     public void setValues(String values) {
         this.values = values;
     }
+
     /** @return the events */
     public String getEvents() {
         return events;
     }
+
     /** @param events the events to set */
     public void setEvents(String events) {
         this.events = events;
     }
+
     /** @return the receiptMessages */
     public String getReceiptMessages() {
         return receiptMessages;
     }
+
     /** @param receiptMessages the receiptMessages to set */
     public void setReceiptMessages(String receiptMessages) {
         this.receiptMessages = receiptMessages;
-    }
-
-    public static TransactionResponse from(TransactionResponse response) {
-        TransactionResponse dto = new TransactionResponse();
-        dto.setContractAddress(response.getContractAddress());
-        dto.setEvents(response.getEvents());
-        dto.setReceiptMessages(response.getReceiptMessages());
-        dto.setTransactionReceipt(response.getTransactionReceipt());
-        dto.setValues(response.getValues());
-        return dto;
     }
 }

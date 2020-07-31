@@ -24,6 +24,20 @@ public class CommonResponse {
     private int returnCode;
     private String returnMessage;
 
+    public CommonResponse() {
+        super();
+    }
+
+    /**
+     * @param returnCode
+     * @param returnMessage
+     */
+    public CommonResponse(int returnCode, String returnMessage) {
+        super();
+        this.returnCode = returnCode;
+        this.returnMessage = returnMessage;
+    }
+
     /** @return the returnCode */
     public int getReturnCode() {
         return returnCode;

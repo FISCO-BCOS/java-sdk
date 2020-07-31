@@ -25,7 +25,7 @@ import org.fisco.bcos.sdk.abi.AbiDefinition.NamedType;
 import org.fisco.bcos.sdk.abi.EventValues;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
-import org.fisco.bcos.sdk.model.EventLog;
+import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.model.po.Contract;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
@@ -185,7 +185,7 @@ public class ContractAbiUtil {
      * @return
      * @throws TransactionBaseException
      */
-    public static EventValues decodeEvent(EventLog log, AbiDefinition abiDefinition)
+    public static EventValues decodeEvent(Logs log, AbiDefinition abiDefinition)
             throws TransactionBaseException {
 
         List<TypeReference<?>> finalOutputs = paramFormat(abiDefinition.getInputs());
