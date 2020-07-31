@@ -15,10 +15,9 @@
 package org.fisco.bcos.sdk.transaction.pusher;
 
 import java.util.concurrent.CompletableFuture;
-import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
-import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.callback.TransactionCallback;
 
 /**
  * TransactionPusher @Description: TransactionPusherInterface
@@ -36,5 +35,5 @@ public interface TransactionPusherInterface {
 
     public Call push(String from, String to, String encodedFunction);
 
-    public void pushAsync(String signedTransaction, RespCallback<SendTransaction> callback);
+    public void pushAsync(String signedTransaction, TransactionCallback callback);
 }

@@ -20,10 +20,9 @@ import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.RespCallback;
-import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.codec.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.TransactionEncoder;
 import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
@@ -80,7 +79,7 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public void sendTransaction(String signedTransaction, RespCallback<SendTransaction> callback) {
+    public void sendTransaction(String signedTransaction, TransactionCallback callback) {
         this.transactionPusher.pushAsync(signedTransaction, callback);
     }
 
@@ -101,8 +100,6 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     /**
-     * TODO
-     *
      * @param gasPrice
      * @param gasLimit
      * @param to
@@ -139,8 +136,6 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     /**
-     * TODO
-     *
      * @param gasPrice
      * @param gasLimit
      * @param to
@@ -157,7 +152,7 @@ public class TransactionManager implements TransactionManagerInterface {
             BigInteger value,
             BigInteger chainId,
             BigInteger groupId,
-            RespCallback<SendTransaction> callback) {
+            TransactionCallback callback) {
         RawTransaction transaction =
                 this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
         String signedTransaction = this.sign(transaction);
@@ -165,8 +160,6 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     /**
-     * TODO
-     *
      * @param rawTransaction
      * @return
      */
@@ -178,8 +171,6 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     /**
-     * TODO
-     *
      * @param gasPrice
      * @param gasLimit
      * @param to

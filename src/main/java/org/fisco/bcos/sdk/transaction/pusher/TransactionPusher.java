@@ -16,11 +16,10 @@ package org.fisco.bcos.sdk.transaction.pusher;
 
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
-import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.callback.TransactionCallback;
 
 public class TransactionPusher implements TransactionPusherInterface {
 
@@ -34,27 +33,24 @@ public class TransactionPusher implements TransactionPusherInterface {
 
     @Override
     public void pushOnly(String signedTransaction) {
-        client.sendRawTransactionAsync(signedTransaction, null);
+        client.asyncSendRawTransaction(signedTransaction, null);
     }
 
     @Override
     public TransactionReceipt push(String signedTransaction) {
-        TransactionCallback callback = new TransactionCallback();
-        client.sendRawTransactionAsync(signedTransaction, callback);
-        SendTransaction t = callback.getResult();
-        // TODO
-        return null;
+        return client.sendRawTransactionAndGetReceipt(signedTransaction);
     }
 
     @Override
-    public void pushAsync(String signedTransactionData, RespCallback<SendTransaction> callback) {
-        client.sendRawTransactionAsync(signedTransactionData, callback);
+    public void pushAsync(String signedTransactionData, TransactionCallback callback) {
+        client.asyncSendRawTransaction(signedTransactionData, callback);
     }
 
     @Override
     public CompletableFuture<TransactionReceipt> pushAsync(String signedTransaction) {
-        // TODO Auto-generated method stub
-        return null;
+        CompletableFuture<TransactionReceipt> future =
+                CompletableFuture.supplyAsync(() -> push(signedTransaction));
+        return future;
     }
 
     @Override
