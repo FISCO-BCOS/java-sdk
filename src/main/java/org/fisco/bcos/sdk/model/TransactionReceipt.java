@@ -34,6 +34,7 @@ public class TransactionReceipt {
     private String output;
     private List<MerkleProofUnit> txProof;
     private List<MerkleProofUnit> receiptProof;
+    private String message;
 
     public static class Logs {
         private String address;
@@ -92,6 +93,14 @@ public class TransactionReceipt {
                     + '\''
                     + '}';
         }
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public List<MerkleProofUnit> getReceiptProof() {
