@@ -25,6 +25,7 @@ import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.service.GroupManagerService;
+import org.fisco.bcos.sdk.transaction.callback.TransactionSucCallback;
 import org.fisco.bcos.sdk.utils.ChannelUtils;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
@@ -147,6 +148,14 @@ public class JsonRpcService {
                 });
     }
 
+    public void asyncSendTransactionToGroup(
+            JsonRpcRequest request, TransactionSucCallback callback) {
+        Message message =
+                encodeRequestToMessage(
+                        request, Short.valueOf((short) MsgType.CHANNEL_RPC_REQUEST.ordinal()));
+        this.groupManagerService.asyncSendTransaction(this.groupId, message, callback);
+    }
+
     protected <T extends JsonRpcResponse> T parseResponseIntoJsonRpcResponse(
             JsonRpcRequest request, Response response, Class<T> responseType) {
         try {
@@ -193,7 +202,7 @@ public class JsonRpcService {
     }
 
     private <T extends JsonRpcResponse> void parseResponseOutput(T jsonRpcResponse) {
-        // TODO: parse the transaction outpput(especially the revertMessage)
+        // TODO: parse the transaction outpput(especially the revertMessage for the call interface)
     }
 
     /**

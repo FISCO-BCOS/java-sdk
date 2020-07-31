@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
+import org.fisco.bcos.sdk.transaction.callback.TransactionSucCallback;
 
 public interface GroupManagerService {
     public static final BigInteger BLOCK_LIMIT = BigInteger.valueOf(500);
@@ -35,15 +36,6 @@ public interface GroupManagerService {
     void updateGroupInfo(String peerIpAndPort, List<String> groupList);
 
     Channel getChannel();
-    /**
-     * Get the blockNumber notify message from the AMOP module, parse the package and update the
-     * latest block height of each group
-     *
-     * @param peerIpAndPort: Node ip and port
-     * @param blockNumberNotifyMessage: the blockNumber notify message
-     */
-    void updateBlockNumberInfo(String peerIpAndPort, Message blockNumberNotifyMessage);
-
     /**
      * update the block number information for the specified group
      *
@@ -136,4 +128,7 @@ public interface GroupManagerService {
      * @param message: The message to be sent
      */
     void broadcastMessageToGroup(Integer groupId, Message message);
+
+    void asyncSendTransaction(
+            Integer groupId, Message transactionData, TransactionSucCallback callback);
 }
