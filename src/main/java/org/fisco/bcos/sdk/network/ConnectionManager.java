@@ -114,9 +114,8 @@ public class ConnectionManager {
 
         /** check available connection */
         if (!atLeastOneConnectSuccess) {
-            logger.error(" all connections have failed, " + errorMessageList.toString());
-            throw new NetworkException(
-                    " Failed to connect to nodes: " + errorMessageList.toString());
+            logger.error(" all connections have failed, {} ", errorMessageList);
+            throw new NetworkException(" Failed to connect to nodes: " + errorMessageList);
         }
         running = true;
         logger.debug(" start connect end. ");
@@ -212,7 +211,9 @@ public class ConnectionManager {
                             .build();
             return sslCtx;
         } catch (FileNotFoundException | SSLException e) {
-            throw new NetworkException(e);
+            throw new NetworkException(
+                    "SSL context init failed, please make sure your cert and key files are properly configured. ",
+                    e);
         }
     }
 
@@ -233,7 +234,9 @@ public class ConnectionManager {
                 | NoSuchAlgorithmException
                 | InvalidKeySpecException
                 | NoSuchProviderException e) {
-            throw new NetworkException(e);
+            throw new NetworkException(
+                    "SSL context init failed, please make sure your cert and key files are properly configured. ",
+                    e);
         }
     }
 
@@ -246,7 +249,6 @@ public class ConnectionManager {
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeoutConfig.connectTimeout);
         SslContext sslContext = (algorithm.equals("ecdsa") ? initSslContext() : initSMSslContext());
         SslContext finalSslContext = sslContext;
-        ConnectionManager connectionManager = this;
         ChannelInitializer<SocketChannel> initializer =
                 new ChannelInitializer<SocketChannel>() {
 
@@ -281,15 +283,14 @@ public class ConnectionManager {
         if (!connectFuture.isSuccess()) {
             /** connect failed. */
             if (Objects.isNull(connectFuture.cause())) {
-                logger.error(
-                        "connect to " + connInfo.getIp() + ":" + connInfo.getPort() + " failed");
+                logger.error("connect to {}:{} failed. ", connInfo.getIp(), connInfo.getPort());
             } else {
                 connectFuture.cause().printStackTrace();
                 logger.error(
                         "connect to {}:{} failed. {}",
                         connInfo.getIp(),
                         connInfo.getPort(),
-                        connectFuture.cause());
+                        connectFuture.cause().getMessage());
             }
             errorMessageList.add(
                     "connect to " + connInfo.getIp() + ":" + connInfo.getPort() + " failed");
