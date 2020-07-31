@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.callback.TransactionCallback;
@@ -34,9 +35,19 @@ public interface TransactionManagerInterface {
 
     public void sendTransactionOnly(TransactionRequest transactionRequest);
 
+    public void sendTransaction(String signedTransaction, TransactionCallback callback);
+
     public TransactionResponse sendTransaction(TransactionRequest transactionRequest);
 
-    public void sendTransaction(String signedTransaction, TransactionCallback callback);
+    public void sendTransaction(
+            BigInteger gasPrice,
+            BigInteger gasLimit,
+            String to,
+            String data,
+            BigInteger value,
+            BigInteger chainId,
+            BigInteger groupId,
+            TransactionCallback callback);
 
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             TransactionRequest transactionRequest);

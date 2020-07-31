@@ -31,9 +31,9 @@ public interface TransactionPusherInterface {
 
     public TransactionReceipt push(String signedTransaction);
 
-    public CompletableFuture<TransactionReceipt> pushAsync(String signedTransaction);
-
     public Call push(String from, String to, String encodedFunction);
+
+    public CompletableFuture<TransactionReceipt> pushAsync(String signedTransaction);
 
     public void pushAsync(String signedTransaction, TransactionCallback callback);
 }

@@ -82,6 +82,22 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
+    public void sendTransaction(
+            BigInteger gasPrice,
+            BigInteger gasLimit,
+            String to,
+            String data,
+            BigInteger value,
+            BigInteger chainId,
+            BigInteger groupId,
+            TransactionCallback callback) {
+        RawTransaction transaction =
+                this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
+        String signedTransaction = this.sign(transaction);
+        this.sendTransaction(signedTransaction, callback);
+    }
+
+    @Override
     public TransactionResponse sendTransaction(TransactionRequest transactionRequest) {
         String contract = transactionRequest.getContractName();
         TransactionReceipt receipt =
@@ -108,22 +124,16 @@ public class TransactionManager implements TransactionManagerInterface {
 
     @Override
     public CallResponse sendCall(CallRequest callRequest) {
+        // TODO
         return null;
     }
 
     @Override
     public String getCurrentExternalAccountAddress() {
+        // TODO
         return null;
     }
 
-    /**
-     * @param gasPrice
-     * @param gasLimit
-     * @param to
-     * @param data
-     * @param value
-     * @return
-     */
     @SuppressWarnings("unlikely-arg-type")
     public RawTransaction createTransaction(
             BigInteger gasPrice,
@@ -153,34 +163,6 @@ public class TransactionManager implements TransactionManagerInterface {
                 extraData);
     }
 
-    /**
-     * @param gasPrice
-     * @param gasLimit
-     * @param to
-     * @param data
-     * @param value
-     * @param object
-     * @param callback
-     */
-    public void sendTransaction(
-            BigInteger gasPrice,
-            BigInteger gasLimit,
-            String to,
-            String data,
-            BigInteger value,
-            BigInteger chainId,
-            BigInteger groupId,
-            TransactionCallback callback) {
-        RawTransaction transaction =
-                this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
-        String signedTransaction = this.sign(transaction);
-        this.sendTransaction(signedTransaction, callback);
-    }
-
-    /**
-     * @param rawTransaction
-     * @return
-     */
     public String sign(RawTransaction rawTransaction) {
         byte[] bytes = this.transactionEncoder.encode(rawTransaction, null);
         SignatureResult signatureResult = this.transactionSigner.sign(bytes);
@@ -188,15 +170,6 @@ public class TransactionManager implements TransactionManagerInterface {
         return Numeric.toHexString(encoded);
     }
 
-    /**
-     * @param gasPrice
-     * @param gasLimit
-     * @param to
-     * @param data
-     * @param value
-     * @param object
-     * @return
-     */
     public TransactionReceipt executeTransaction(
             BigInteger gasPrice,
             BigInteger gasLimit,

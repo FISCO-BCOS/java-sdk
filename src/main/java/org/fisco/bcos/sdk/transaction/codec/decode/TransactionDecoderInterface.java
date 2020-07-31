@@ -35,6 +35,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
  */
 public interface TransactionDecoderInterface {
 
+    @SuppressWarnings("rawtypes")
     public List<Type> decode(String rawInput, String abi) throws TransactionBaseException;
 
     public String decodeCall(String rawInput, String abi) throws TransactionBaseException;
@@ -48,11 +49,11 @@ public interface TransactionDecoderInterface {
     public String decodeEventReturnJson(String abi, TransactionReceipt transactionReceipt)
             throws TransactionBaseException, IOException;
 
-    public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(
-            String abi, TransactionReceipt transactionReceipt)
+    public String decodeEventReturnJson(String abi, List<Logs> logList)
             throws TransactionBaseException, IOException;
 
-    public String decodeEventReturnJson(String abi, List<Logs> logList)
+    public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(
+            String abi, TransactionReceipt transactionReceipt)
             throws TransactionBaseException, IOException;
 
     public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(

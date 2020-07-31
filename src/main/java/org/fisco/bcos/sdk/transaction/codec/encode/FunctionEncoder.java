@@ -58,6 +58,10 @@ public class FunctionEncoder implements FunctionEncoderInterface {
         return FunctionEncoder.encodeConstructor(solArgs);
     }
 
+    public static String encodeConstructor(List<Type> parameters) {
+        return encodeParameters(parameters, new StringBuilder());
+    }
+
     private void ensureValid(AbiDefinition abiDefinition, List<Object> args) {
         // The case where no constructor is defined, abi is null
         if (abiDefinition == null && (CollectionUtils.isEmpty(args))) {
@@ -78,10 +82,6 @@ public class FunctionEncoder implements FunctionEncoderInterface {
         result.append(methodId);
 
         return encodeParameters(parameters, result);
-    }
-
-    public static String encodeConstructor(List<Type> parameters) {
-        return encodeParameters(parameters, new StringBuilder());
     }
 
     public static String encodeParameters(List<Type> parameters, StringBuilder result) {

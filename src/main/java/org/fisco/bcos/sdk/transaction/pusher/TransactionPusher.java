@@ -37,6 +37,12 @@ public class TransactionPusher implements TransactionPusherInterface {
     }
 
     @Override
+    public Call push(String from, String to, String encodedFunction) {
+        Transaction transaction = new Transaction(from, to, encodedFunction);
+        return client.call(transaction);
+    }
+
+    @Override
     public TransactionReceipt push(String signedTransaction) {
         return client.sendRawTransactionAndGetReceipt(signedTransaction);
     }
@@ -51,12 +57,6 @@ public class TransactionPusher implements TransactionPusherInterface {
         CompletableFuture<TransactionReceipt> future =
                 CompletableFuture.supplyAsync(() -> push(signedTransaction));
         return future;
-    }
-
-    @Override
-    public Call push(String from, String to, String encodedFunction) {
-        Transaction transaction = new Transaction(from, to, encodedFunction);
-        return client.call(transaction);
     }
 
     /** @return the client */

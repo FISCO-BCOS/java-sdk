@@ -737,7 +737,8 @@ public class ABIObject {
                             Objects.isNull(dynamicBytesValue)
                                     ? "null"
                                     : dynamicBytesValue.getValue();
-                case STRING:
+                    // case STRING:
+                default:
                     str += ", stringValue=";
                     str += Objects.isNull(stringValue) ? "null" : stringValue.getValue();
             }
