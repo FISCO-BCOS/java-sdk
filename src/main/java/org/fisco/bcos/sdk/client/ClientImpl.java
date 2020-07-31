@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.request.GenerateGroupParam;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcMethods;
+import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
@@ -54,7 +55,6 @@ import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
-import org.fisco.bcos.sdk.model.JsonRpcRequest;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.utils.Numeric;
 
