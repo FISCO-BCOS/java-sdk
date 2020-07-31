@@ -75,4 +75,14 @@ public class FunctionEncoder {
         byte[] hash = cryptoInterface.hash(input);
         return Numeric.toHexString(hash).substring(0, 10);
     }
+
+    /** @return the cryptoInterface */
+    public CryptoInterface getCryptoInterface() {
+        return cryptoInterface;
+    }
+
+    /** @param cryptoInterface the cryptoInterface to set */
+    public void setCryptoInterface(CryptoInterface cryptoInterface) {
+        this.cryptoInterface = cryptoInterface;
+    }
 }

@@ -25,9 +25,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.AbiDefinition;
-import org.fisco.bcos.sdk.transaction.domain.AbiInfo;
-import org.fisco.bcos.sdk.transaction.domain.BinInfo;
-import org.fisco.bcos.sdk.transaction.domain.CommonConstant;
+import org.fisco.bcos.sdk.transaction.model.CommonConstant;
+import org.fisco.bcos.sdk.transaction.model.bo.AbiInfo;
+import org.fisco.bcos.sdk.transaction.model.bo.BinInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

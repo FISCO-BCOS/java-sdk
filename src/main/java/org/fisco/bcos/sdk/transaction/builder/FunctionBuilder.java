@@ -25,7 +25,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Function;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.model.SolidityConstructor;
 import org.fisco.bcos.sdk.model.SolidityFunction;
-import org.fisco.bcos.sdk.transaction.codec.FunctionEncoder;
+import org.fisco.bcos.sdk.transaction.codec.encode.FunctionEncoder;
 import org.fisco.bcos.sdk.transaction.tools.AbiMatchHandler;
 import org.fisco.bcos.sdk.transaction.tools.ArgsConvertHandler;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;

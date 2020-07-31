@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.abi.AbiDefinition;
-import org.fisco.bcos.sdk.transaction.domain.CommonConstant;
+import org.fisco.bcos.sdk.transaction.model.CommonConstant;
 
 public class AbiMatchHandler {
 

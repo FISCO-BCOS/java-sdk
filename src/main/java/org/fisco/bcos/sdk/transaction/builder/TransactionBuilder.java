@@ -17,8 +17,8 @@ package org.fisco.bcos.sdk.transaction.builder;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.transaction.domain.CommonConstant;
-import org.fisco.bcos.sdk.transaction.domain.RawTransaction;
+import org.fisco.bcos.sdk.transaction.model.gas.DefaultGasProvider;
+import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 
 public class TransactionBuilder implements TransactionBuilderInterface {
 
@@ -60,8 +60,8 @@ public class TransactionBuilder implements TransactionBuilderInterface {
     public RawTransaction createTransaction(String to, String data, BigInteger groupId) {
 
         return createTransaction(
-                CommonConstant.GAS_PRICE,
-                CommonConstant.GAS_LIMIT,
+                DefaultGasProvider.GAS_PRICE,
+                DefaultGasProvider.GAS_LIMIT,
                 to,
                 data,
                 BigInteger.ZERO,

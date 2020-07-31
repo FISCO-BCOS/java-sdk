@@ -4,9 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import org.fisco.bcos.sdk.abi.AbiDefinition;
 import org.fisco.bcos.sdk.abi.TypeReference;
-import org.fisco.bcos.sdk.transaction.domain.DynamicArrayReference;
-import org.fisco.bcos.sdk.transaction.domain.StaticArrayReference;
-import org.fisco.bcos.sdk.transaction.exception.BaseException;
+import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
 
 public class ContractAbiExtUtils {
 
@@ -16,14 +14,14 @@ public class ContractAbiExtUtils {
      *
      * @param solTypeDef
      * @return
-     * @throws BaseException
+     * @throws TransactionBaseException
      */
     public static TypeReference<?> paramInput(AbiDefinition.NamedType solTypeDef)
-            throws BaseException {
+            throws TransactionBaseException {
         AbiDefinition.NamedType.Type type = new AbiDefinition.NamedType.Type(solTypeDef.getType());
         // nested array , not support now.
         if (type.getDepth() > 1) {
-            throw new BaseException(
+            throw new TransactionBaseException(
                     201202, String.format("type:%s unsupported array decoding", type.getName()));
         }
 

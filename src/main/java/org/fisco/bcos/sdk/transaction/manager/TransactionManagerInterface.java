@@ -17,10 +17,10 @@ package org.fisco.bcos.sdk.transaction.manager;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.callback.TransactionCallback;
-import org.fisco.bcos.sdk.transaction.domain.dto.CallRequest;
-import org.fisco.bcos.sdk.transaction.domain.dto.CallResponse;
-import org.fisco.bcos.sdk.transaction.domain.dto.TransactionRequest;
-import org.fisco.bcos.sdk.transaction.domain.dto.TransactionResponse;
+import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
+import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
+import org.fisco.bcos.sdk.transaction.model.dto.TransactionRequest;
+import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 
 /**
  * TransactionManagerInterface @Description: TransactionManagerInterface

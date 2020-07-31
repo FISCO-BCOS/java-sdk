@@ -23,11 +23,9 @@ import org.fisco.bcos.sdk.abi.AbiDefinition.NamedType;
 import org.fisco.bcos.sdk.abi.EventValues;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
-import org.fisco.bcos.sdk.transaction.domain.Contract;
-import org.fisco.bcos.sdk.transaction.domain.DynamicArrayReference;
-import org.fisco.bcos.sdk.transaction.domain.Log;
-import org.fisco.bcos.sdk.transaction.domain.StaticArrayReference;
-import org.fisco.bcos.sdk.transaction.exception.BaseException;
+import org.fisco.bcos.sdk.model.EventLog;
+import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.transaction.model.po.Contract;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,10 +137,10 @@ public class ContractAbiUtil {
     /**
      * @param paramTypes
      * @return
-     * @throws BaseException
+     * @throws TransactionBaseException
      */
     public static List<TypeReference<?>> paramFormat(List<NamedType> paramTypes)
-            throws BaseException {
+            throws TransactionBaseException {
         List<TypeReference<?>> finalOutputs = new ArrayList<>();
 
         for (int i = 0; i < paramTypes.size(); i++) {
@@ -151,7 +149,7 @@ public class ContractAbiUtil {
                     new AbiDefinition.NamedType.Type(paramTypes.get(i).getType());
             // nested array , not support now.
             if (type.getDepth() > 1) {
-                throw new BaseException(
+                throw new TransactionBaseException(
                         201202,
                         String.format("type:%s unsupported array decoding", type.getName()));
             }
@@ -183,10 +181,10 @@ public class ContractAbiUtil {
      * @param log
      * @param abiDefinition
      * @return
-     * @throws BaseException
+     * @throws TransactionBaseException
      */
-    public static EventValues decodeEvent(Log log, AbiDefinition abiDefinition)
-            throws BaseException {
+    public static EventValues decodeEvent(EventLog log, AbiDefinition abiDefinition)
+            throws TransactionBaseException {
 
         List<TypeReference<?>> finalOutputs = paramFormat(abiDefinition.getInputs());
         Event event = new Event(abiDefinition.getName(), finalOutputs);

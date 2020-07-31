@@ -115,7 +115,7 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.Uint8;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint80;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint88;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint96;
-import org.fisco.bcos.sdk.transaction.exception.BaseException;
+import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
 
 public class ContractTypeUtil {
 
@@ -164,7 +164,7 @@ public class ContractTypeUtil {
         }
     }
 
-    public static Class<? extends Type> getType(String type) throws BaseException {
+    public static Class<? extends Type> getType(String type) throws TransactionBaseException {
         switch (type) {
             case "address":
                 return Address.class;
@@ -371,7 +371,7 @@ public class ContractTypeUtil {
             case "bytes32":
                 return Bytes32.class;
             default:
-                throw new BaseException(
+                throw new TransactionBaseException(
                         201201, String.format("type:%s unsupported encoding", type));
         }
     }
