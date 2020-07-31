@@ -12,7 +12,7 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.model;
+package org.fisco.bcos.sdk.client.protocol.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

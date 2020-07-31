@@ -29,7 +29,7 @@ public interface EventSubscribe {
     /**
      * Create a Event Subscribe instance
      *
-     * @param channel
+     * @param groupManagerService
      * @param groupId
      * @return EventSubscribe Object
      */

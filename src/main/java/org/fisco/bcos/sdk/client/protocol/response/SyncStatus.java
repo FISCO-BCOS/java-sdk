@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.client.protocol.response;
 
 import java.util.List;
 import java.util.Objects;
-import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
 /**
  * getSyncStatus.
