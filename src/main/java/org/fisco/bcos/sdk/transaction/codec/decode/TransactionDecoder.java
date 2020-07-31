@@ -254,6 +254,65 @@ public class TransactionDecoder {
         return resultEntityMap;
     }
 
+    public Tuple2<AbiDefinition, List<EventResultEntity>> decodeEventReturnObject(Logs log)
+            throws TransactionBaseException, IOException {
+
+        Tuple2<AbiDefinition, List<EventResultEntity>> result = null;
+
+        // decode log
+        List<AbiDefinition> abiDefinitions = ContractAbiUtil.getEventAbiDefinitions(abi);
+
+        for (AbiDefinition abiDefinition : abiDefinitions) {
+
+            String eventSignature =
+                    eventEncoder.buildEventSignature(decodeMethodSign(abiDefinition));
+
+            List<String> topics = log.getTopics();
+            if ((null == topics) || topics.isEmpty() || !topics.get(0).equals(eventSignature)) {
+                continue;
+            }
+
+            EventValues eventValued = ContractAbiUtil.decodeEvent(log, abiDefinition);
+            if (null != eventValued) {
+                List<EventResultEntity> resultEntityList = new ArrayList<EventResultEntity>();
+                List<NamedType> inputs = abiDefinition.getInputs();
+                List<NamedType> indexedInputs =
+                        inputs.stream().filter(NamedType::isIndexed).collect(Collectors.toList());
+                List<NamedType> nonIndexedInputs =
+                        inputs.stream().filter(p -> !p.isIndexed()).collect(Collectors.toList());
+
+                for (int i = 0; i < indexedInputs.size(); i++) {
+                    EventResultEntity eventEntity =
+                            new EventResultEntity(
+                                    indexedInputs.get(i).getName(),
+                                    indexedInputs.get(i).getType(),
+                                    true,
+                                    eventValued.getIndexedValues().get(i));
+
+                    resultEntityList.add(eventEntity);
+                }
+
+                for (int i = 0; i < nonIndexedInputs.size(); i++) {
+                    EventResultEntity eventEntity =
+                            new EventResultEntity(
+                                    nonIndexedInputs.get(i).getName(),
+                                    nonIndexedInputs.get(i).getType(),
+                                    false,
+                                    eventValued.getNonIndexedValues().get(i));
+
+                    resultEntityList.add(eventEntity);
+                }
+
+                result =
+                        new Tuple2<AbiDefinition, List<EventResultEntity>>(
+                                abiDefinition, resultEntityList);
+                break;
+            }
+        }
+
+        return result;
+    }
+
     /**
      * @param log
      * @return LogResult
@@ -318,65 +377,6 @@ public class TransactionDecoder {
         }
 
         return null;
-    }
-
-    public Tuple2<AbiDefinition, List<EventResultEntity>> decodeEventReturnObject(Logs log)
-            throws TransactionBaseException, IOException {
-
-        Tuple2<AbiDefinition, List<EventResultEntity>> result = null;
-
-        // decode log
-        List<AbiDefinition> abiDefinitions = ContractAbiUtil.getEventAbiDefinitions(abi);
-
-        for (AbiDefinition abiDefinition : abiDefinitions) {
-
-            String eventSignature =
-                    eventEncoder.buildEventSignature(decodeMethodSign(abiDefinition));
-
-            List<String> topics = log.getTopics();
-            if ((null == topics) || topics.isEmpty() || !topics.get(0).equals(eventSignature)) {
-                continue;
-            }
-
-            EventValues eventValued = ContractAbiUtil.decodeEvent(log, abiDefinition);
-            if (null != eventValued) {
-                List<EventResultEntity> resultEntityList = new ArrayList<EventResultEntity>();
-                List<NamedType> inputs = abiDefinition.getInputs();
-                List<NamedType> indexedInputs =
-                        inputs.stream().filter(NamedType::isIndexed).collect(Collectors.toList());
-                List<NamedType> nonIndexedInputs =
-                        inputs.stream().filter(p -> !p.isIndexed()).collect(Collectors.toList());
-
-                for (int i = 0; i < indexedInputs.size(); i++) {
-                    EventResultEntity eventEntity =
-                            new EventResultEntity(
-                                    indexedInputs.get(i).getName(),
-                                    indexedInputs.get(i).getType(),
-                                    true,
-                                    eventValued.getIndexedValues().get(i));
-
-                    resultEntityList.add(eventEntity);
-                }
-
-                for (int i = 0; i < nonIndexedInputs.size(); i++) {
-                    EventResultEntity eventEntity =
-                            new EventResultEntity(
-                                    nonIndexedInputs.get(i).getName(),
-                                    nonIndexedInputs.get(i).getType(),
-                                    false,
-                                    eventValued.getNonIndexedValues().get(i));
-
-                    resultEntityList.add(eventEntity);
-                }
-
-                result =
-                        new Tuple2<AbiDefinition, List<EventResultEntity>>(
-                                abiDefinition, resultEntityList);
-                break;
-            }
-        }
-
-        return result;
     }
 
     /**
