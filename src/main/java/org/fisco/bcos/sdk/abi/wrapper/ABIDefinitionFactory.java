@@ -23,12 +23,12 @@ public class ABIDefinitionFactory {
      */
     public ContractABIDefinition loadABI(String abi) {
         try {
-            ABIDefinition[] ABIDefinitions =
+            ABIDefinition[] abiDefinitions =
                     ObjectMapperFactory.getObjectMapper().readValue(abi, ABIDefinition[].class);
 
             ContractABIDefinition contractABIDefinition =
                     new ContractABIDefinition(cryptoInterface);
-            for (ABIDefinition ABIDefinition : ABIDefinitions) {
+            for (ABIDefinition ABIDefinition : abiDefinitions) {
                 if (ABIDefinition.getType().equals("constructor")) {
                     contractABIDefinition.setConstructor(ABIDefinition);
                 } else if (ABIDefinition.getType().equals("function")) {
@@ -40,7 +40,7 @@ public class ABIDefinitionFactory {
                 }
 
                 if (logger.isInfoEnabled()) {
-                    logger.info(" ABIDefinition: {}", ABIDefinition);
+                    logger.info(" abiDefinitions: {}", ABIDefinition);
                 }
             }
 

@@ -8,14 +8,14 @@ public class ABIObjectFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(ABIObjectFactory.class);
 
-    public static ABIObject createInputObject(ABIDefinition ABIDefinition) {
+    public static ABIObject createInputObject(ABIDefinition abiDefinitions) {
         return createObject(
-                ABIDefinition.getName(), ABIDefinition.getType(), ABIDefinition.getInputs());
+                abiDefinitions.getName(), abiDefinitions.getType(), abiDefinitions.getInputs());
     }
 
-    public static ABIObject createOutputObject(ABIDefinition ABIDefinition) {
+    public static ABIObject createOutputObject(ABIDefinition abiDefinitions) {
         return createObject(
-                ABIDefinition.getName(), ABIDefinition.getType(), ABIDefinition.getOutputs());
+                abiDefinitions.getName(), abiDefinitions.getType(), abiDefinitions.getOutputs());
     }
 
     private static ABIObject createObject(
