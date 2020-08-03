@@ -81,8 +81,8 @@ public class ContractABIDefinition {
 
     public void addEvent(String name, ABIDefinition abiDefinition) {
         events.putIfAbsent(name, new ArrayList<>());
-        List<ABIDefinition> ABIDefinitions = events.get(name);
-        ABIDefinitions.add(abiDefinition);
+        List<ABIDefinition> abiDefinitions = events.get(name);
+        abiDefinitions.add(abiDefinition);
         logger.info(" name: {}, abi: {}", name, abiDefinition);
     }
 
