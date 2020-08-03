@@ -13,9 +13,9 @@ public class ABIObjectFactory {
                 abiDefinition.getName(), abiDefinition.getType(), abiDefinition.getInputs());
     }
 
-    public static ABIObject createOutputObject(ABIDefinition abiDefinitions) {
+    public static ABIObject createOutputObject(ABIDefinition abiDefinition) {
         return createObject(
-                abiDefinitions.getName(), abiDefinitions.getType(), abiDefinitions.getOutputs());
+                abiDefinition.getName(), abiDefinition.getType(), abiDefinition.getOutputs());
     }
 
     private static ABIObject createObject(

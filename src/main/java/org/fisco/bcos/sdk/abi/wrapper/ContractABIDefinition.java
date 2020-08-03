@@ -58,16 +58,16 @@ public class ContractABIDefinition {
 
     public void addFunction(String name, ABIDefinition abiDefinition) {
 
-        List<ABIDefinition> ABIDefinitions = functions.get(name);
-        if (ABIDefinitions == null) {
+        List<ABIDefinition> abiDefinitions = functions.get(name);
+        if (abiDefinitions == null) {
             functions.put(name, new ArrayList<>());
-            ABIDefinitions = functions.get(name);
+            abiDefinitions = functions.get(name);
         } else {
-            logger.info(" overload method ??? name: {}, ABIDefinition: {}", name, abiDefinition);
+            logger.info(" overload method ??? name: {}, abiDefinition: {}", name, abiDefinition);
         }
-        ABIDefinitions.add(abiDefinition);
+        abiDefinitions.add(abiDefinition);
 
-        // calculate method id and add ABIDefinition to methodIdToFunctions
+        // calculate method id and add abiDefinition to methodIdToFunctions
         String methodId = abiDefinition.getMethodId(cryptoInterface);
         methodIDToFunctions.put(methodId, abiDefinition);
 
