@@ -102,4 +102,8 @@ public class CryptoInterface {
     public CryptoKeyPair createKeyPair(KeyPair keyPair) {
         return this.keyPairFactory.createKeyPair(keyPair);
     }
+
+    public CryptoKeyPair getKeyPairFactory() {
+        return keyPairFactory;
+    }
 }

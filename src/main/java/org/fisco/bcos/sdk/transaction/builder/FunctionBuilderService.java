@@ -25,6 +25,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Function;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.tools.AbiMatchHandler;
 import org.fisco.bcos.sdk.abi.tools.ArgsConvertHandler;
+import org.fisco.bcos.sdk.abi.tools.ContractAbiUtil;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.model.SolidityConstructor;
 import org.fisco.bcos.sdk.model.SolidityFunction;
@@ -45,14 +46,25 @@ public class FunctionBuilderService implements FunctionBuilderInterface {
 
     @Override
     public SolidityFunction buildFunction(
-            String contractName, String contractAddress, String functionName, List<Object> args) {
-        List<ABIDefinition> contractFunctions =
+            String contractName, String functionName, List<Object> args) {
+        List<ABIDefinition> definitions =
                 contractLoader.getFunctionABIListByContractName(contractName);
-        if (contractFunctions == null) {
-            throw new RuntimeException("Unconfigured contract :" + contractName);
+        return buildFunctionByABIDefinitionList(definitions, functionName, args);
+    }
+
+    @Override
+    public SolidityFunction buildFunctionByAbi(String abi, String functionName, List<Object> args) {
+        List<ABIDefinition> definitions = ContractAbiUtil.getFuncABIDefinition(abi);
+        return buildFunctionByABIDefinitionList(definitions, functionName, args);
+    }
+
+    public SolidityFunction buildFunctionByABIDefinitionList(
+            List<ABIDefinition> definitions, String functionName, List<Object> args) {
+        if (definitions == null) {
+            throw new RuntimeException("Unconfigured contract functionName :" + functionName);
         }
         // Build function from java inputs
-        return buildFunc(contractFunctions, functionName, args);
+        return buildFunc(definitions, functionName, args);
     }
 
     @Override
@@ -61,7 +73,13 @@ public class FunctionBuilderService implements FunctionBuilderInterface {
         if (StringUtils.isEmpty(bin)) {
             throw new RuntimeException("bin not found");
         }
-        // Encode constructor args
+        return buildConstructor(
+                contractLoader.getABIByContractName(contractName), bin, contractName, args);
+    }
+
+    @Override
+    public SolidityConstructor buildConstructor(
+            String abi, String bin, String contractName, List<Object> args) {
         String encodedConstructorArgs = encodeConstuctorArgs(contractName, args);
         // Build deploy transaction data
         String data = bin + encodedConstructorArgs;

@@ -27,7 +27,12 @@ import org.fisco.bcos.sdk.model.SolidityFunction;
 public interface FunctionBuilderInterface {
 
     public SolidityFunction buildFunction(
-            String contractName, String contractAddress, String functionName, List<Object> args);
+            String contractName, String functionName, List<Object> args);
+
+    public SolidityFunction buildFunctionByAbi(String abi, String functionName, List<Object> args);
 
     public SolidityConstructor buildConstructor(String contractName, List<Object> args);
+
+    public SolidityConstructor buildConstructor(
+            String abi, String bin, String contractName, List<Object> args);
 }

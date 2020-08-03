@@ -14,15 +14,15 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
-import com.webank.pkeysign.utils.Numeric;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderInterface;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
@@ -47,6 +47,8 @@ import org.slf4j.LoggerFactory;
  */
 public class TransactionManager implements TransactionManagerInterface {
     protected static Logger log = LoggerFactory.getLogger(TransactionManager.class);
+    private CryptoInterface cryptoInterface;
+    private TransactionBuilderInterface transactionBuilder;
     private TransactionPusherInterface transactionPusher;
     private TransactionDecoderInterface transactionDecoder;
     private TransactionSignerInterface transactionSigner;
@@ -70,7 +72,7 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public void sendTransactionOnly(TransactionRequest transactionRequest) {
+    public void sendTransaction(TransactionRequest transactionRequest) {
         this.transactionPusher.pushOnly(transactionRequest.getSignedData());
     }
 
@@ -84,14 +86,17 @@ public class TransactionManager implements TransactionManagerInterface {
             BigInteger chainId,
             BigInteger groupId,
             TransactionCallback callback) {
-        RawTransaction transaction =
-                this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
-        String signedTransaction = this.sign(transaction);
-        this.sendTransaction(signedTransaction, callback);
+        RawTransaction rawTransaction =
+                transactionBuilder.createTransaction(
+                        gasPrice, gasLimit, to, data, value, chainId, groupId, "");
+        byte[] signedTransaction =
+                transactionEncoder.signMessage(rawTransaction, cryptoInterface.getKeyPairFactory());
+        this.sendTransactionAsync(signedTransaction.toString(), callback);
     }
 
     @Override
-    public TransactionResponse sendTransaction(TransactionRequest transactionRequest) {
+    public TransactionResponse sendTransactionAndGetResponse(
+            TransactionRequest transactionRequest) {
         String contract = transactionRequest.getContractName();
         TransactionReceipt receipt =
                 this.transactionPusher.push(transactionRequest.getSignedData());
@@ -105,7 +110,7 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public void sendTransaction(String signedTransaction, TransactionCallback callback) {
+    public void sendTransactionAsync(String signedTransaction, TransactionCallback callback) {
         this.transactionPusher.pushAsync(signedTransaction, callback);
     }
 
@@ -125,56 +130,5 @@ public class TransactionManager implements TransactionManagerInterface {
     public String getCurrentExternalAccountAddress() {
         // TODO
         return null;
-    }
-
-    @SuppressWarnings("unlikely-arg-type")
-    public RawTransaction createTransaction(
-            BigInteger gasPrice,
-            BigInteger gasLimit,
-            String to,
-            String data,
-            BigInteger value,
-            BigInteger chainId,
-            BigInteger groupId,
-            String extraData) {
-        BigInteger randomId = new BigInteger(250, secureRandom);
-        Client client = this.clients.get(groupId);
-        if (client == null) {
-            throw new IllegalArgumentException("Invalid groupId " + groupId);
-        }
-        BigInteger blockLimit = client.getBlockLimit();
-        return RawTransaction.createTransaction(
-                randomId,
-                gasPrice,
-                gasLimit,
-                blockLimit,
-                to,
-                value,
-                data,
-                chainId,
-                groupId,
-                extraData);
-    }
-
-    public String sign(RawTransaction rawTransaction) {
-        byte[] bytes = this.transactionEncoder.encode(rawTransaction, null);
-        SignatureResult signatureResult = this.transactionSigner.sign(bytes);
-        byte[] encoded = this.transactionEncoder.encode(rawTransaction, signatureResult);
-        return Numeric.toHexString(encoded);
-    }
-
-    public TransactionReceipt executeTransaction(
-            BigInteger gasPrice,
-            BigInteger gasLimit,
-            String to,
-            String data,
-            BigInteger value,
-            BigInteger chainId,
-            BigInteger groupId,
-            Object object) {
-        RawTransaction transaction =
-                this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
-        String signedTransaction = this.sign(transaction);
-        return this.transactionPusher.push(signedTransaction);
     }
 }

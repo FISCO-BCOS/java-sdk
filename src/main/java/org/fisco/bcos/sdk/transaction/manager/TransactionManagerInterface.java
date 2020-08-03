@@ -33,11 +33,7 @@ public interface TransactionManagerInterface {
 
     public TransactionResponse deploy(TransactionRequest transactionRequest);
 
-    public void sendTransactionOnly(TransactionRequest transactionRequest);
-
-    public void sendTransaction(String signedTransaction, TransactionCallback callback);
-
-    public TransactionResponse sendTransaction(TransactionRequest transactionRequest);
+    public void sendTransaction(TransactionRequest transactionRequest);
 
     public void sendTransaction(
             BigInteger gasPrice,
@@ -48,6 +44,10 @@ public interface TransactionManagerInterface {
             BigInteger chainId,
             BigInteger groupId,
             TransactionCallback callback);
+
+    public TransactionResponse sendTransactionAndGetResponse(TransactionRequest transactionRequest);
+
+    public void sendTransactionAsync(String signedTransaction, TransactionCallback callback);
 
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             TransactionRequest transactionRequest);

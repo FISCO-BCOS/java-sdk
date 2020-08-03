@@ -16,6 +16,8 @@ package org.fisco.bcos.sdk.transaction.codec.encode;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.rlp.RlpEncoder;
 import org.fisco.bcos.sdk.rlp.RlpList;
@@ -26,6 +28,21 @@ import org.fisco.bcos.sdk.utils.Numeric;
 
 public class TransactionEncoderService implements TransactionEncoderInterface {
 
+    private Signature signature;
+
+    /** @param signature */
+    public TransactionEncoderService(Signature signature) {
+        super();
+        this.signature = signature;
+    }
+
+    @Override
+    public byte[] signMessage(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair) {
+        byte[] encodedTransaction = encode(rawTransaction, null);
+        SignatureResult result = signature.sign(encodedTransaction, cryptoKeyPair);
+        return encode(rawTransaction, result);
+    }
+
     @Override
     public byte[] encode(RawTransaction transaction, SignatureResult signature) {
         List<RlpType> values = asRlpValues(transaction, signature);
@@ -33,7 +50,7 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
         return RlpEncoder.encode(rlpList);
     }
 
-    static List<RlpType> asRlpValues(
+    public static List<RlpType> asRlpValues(
             RawTransaction rawTransaction, SignatureResult signatureResult) {
         List<RlpType> result = new ArrayList<>();
         result.add(RlpString.create(rawTransaction.getRandomid()));
@@ -66,8 +83,18 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
                     RlpString.create(Numeric.hexStringToByteArray(rawTransaction.getExtraData())));
         }
         if (signatureResult != null) {
-            throw new RuntimeException("Invalid sinature result, cann't be null");
+            result.addAll(signatureResult.encode());
         }
         return result;
+    }
+
+    /** @return the signature */
+    public Signature getSignature() {
+        return signature;
+    }
+
+    /** @param signature the signature to set */
+    public void setSignature(Signature signature) {
+        this.signature = signature;
     }
 }
