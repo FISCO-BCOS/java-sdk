@@ -56,34 +56,34 @@ public class ContractABIDefinition {
         this.methodIDToFunctions = methodIDToFunctions;
     }
 
-    public void addFunction(String name, ABIDefinition abiDefinitions) {
+    public void addFunction(String name, ABIDefinition abiDefinition) {
 
         List<ABIDefinition> ABIDefinitions = functions.get(name);
         if (ABIDefinitions == null) {
             functions.put(name, new ArrayList<>());
             ABIDefinitions = functions.get(name);
         } else {
-            logger.info(" overload method ??? name: {}, ABIDefinition: {}", name, abiDefinitions);
+            logger.info(" overload method ??? name: {}, ABIDefinition: {}", name, abiDefinition);
         }
-        ABIDefinitions.add(abiDefinitions);
+        ABIDefinitions.add(abiDefinition);
 
         // calculate method id and add ABIDefinition to methodIdToFunctions
-        String methodId = abiDefinitions.getMethodId(cryptoInterface);
-        methodIDToFunctions.put(methodId, abiDefinitions);
+        String methodId = abiDefinition.getMethodId(cryptoInterface);
+        methodIDToFunctions.put(methodId, abiDefinition);
 
         logger.info(
                 " name: {}, methodId: {}, methodSignature: {}, abi: {}",
                 name,
                 methodId,
-                abiDefinitions.getMethodSignatureAsString(),
-                abiDefinitions);
+                abiDefinition.getMethodSignatureAsString(),
+                abiDefinition);
     }
 
-    public void addEvent(String name, ABIDefinition abiDefinitions) {
+    public void addEvent(String name, ABIDefinition abiDefinition) {
         events.putIfAbsent(name, new ArrayList<>());
         List<ABIDefinition> ABIDefinitions = events.get(name);
-        ABIDefinitions.add(abiDefinitions);
-        logger.info(" name: {}, abi: {}", name, abiDefinitions);
+        ABIDefinitions.add(abiDefinition);
+        logger.info(" name: {}, abi: {}", name, abiDefinition);
     }
 
     public ABIDefinition getABIDefinitionByMethodId(String methodId) {

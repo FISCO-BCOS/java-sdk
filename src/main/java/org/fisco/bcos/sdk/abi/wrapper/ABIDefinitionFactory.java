@@ -28,19 +28,19 @@ public class ABIDefinitionFactory {
 
             ContractABIDefinition contractABIDefinition =
                     new ContractABIDefinition(cryptoInterface);
-            for (ABIDefinition ABIDefinition : abiDefinitions) {
-                if (ABIDefinition.getType().equals("constructor")) {
-                    contractABIDefinition.setConstructor(ABIDefinition);
-                } else if (ABIDefinition.getType().equals("function")) {
-                    contractABIDefinition.addFunction(ABIDefinition.getName(), ABIDefinition);
-                } else if (ABIDefinition.getType().equals("event")) {
-                    contractABIDefinition.addEvent(ABIDefinition.getName(), ABIDefinition);
+            for (ABIDefinition abiDefinition : abiDefinitions) {
+                if (abiDefinition.getType().equals("constructor")) {
+                    contractABIDefinition.setConstructor(abiDefinition);
+                } else if (abiDefinition.getType().equals("function")) {
+                    contractABIDefinition.addFunction(abiDefinition.getName(), abiDefinition);
+                } else if (abiDefinition.getType().equals("event")) {
+                    contractABIDefinition.addEvent(abiDefinition.getName(), abiDefinition);
                 } else {
                     // skip and do nothing
                 }
 
                 if (logger.isInfoEnabled()) {
-                    logger.info(" abiDefinitions: {}", ABIDefinition);
+                    logger.info(" abiDefinition: {}", abiDefinition);
                 }
             }
 

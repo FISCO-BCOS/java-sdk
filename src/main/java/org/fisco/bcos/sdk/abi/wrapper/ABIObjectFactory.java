@@ -8,9 +8,9 @@ public class ABIObjectFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(ABIObjectFactory.class);
 
-    public static ABIObject createInputObject(ABIDefinition abiDefinitions) {
+    public static ABIObject createInputObject(ABIDefinition abiDefinition) {
         return createObject(
-                abiDefinitions.getName(), abiDefinitions.getType(), abiDefinitions.getInputs());
+                abiDefinition.getName(), abiDefinition.getType(), abiDefinition.getInputs());
     }
 
     public static ABIObject createOutputObject(ABIDefinition abiDefinitions) {
