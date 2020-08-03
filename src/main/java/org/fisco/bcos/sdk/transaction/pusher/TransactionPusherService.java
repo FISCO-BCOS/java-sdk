@@ -21,12 +21,12 @@ import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.callback.TransactionCallback;
 
-public class TransactionPusher implements TransactionPusherInterface {
+public class TransactionPusherService implements TransactionPusherInterface {
 
     private Client client;
 
     /** @param client */
-    public TransactionPusher(Client client) {
+    public TransactionPusherService(Client client) {
         super();
         this.client = client;
     }

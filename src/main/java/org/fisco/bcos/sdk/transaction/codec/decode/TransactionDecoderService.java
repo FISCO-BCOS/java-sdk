@@ -19,10 +19,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.fisco.bcos.sdk.abi.AbiDefinition;
 import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
+import org.fisco.bcos.sdk.abi.tools.ContractAbiUtil;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.EventResultEntity;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -31,7 +32,6 @@ import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.exception.TransactionException;
 import org.fisco.bcos.sdk.transaction.model.bo.InputAndOutputResult;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
-import org.fisco.bcos.sdk.transaction.tools.ContractAbiUtil;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.fisco.bcos.sdk.transaction.tools.ReceiptStatusUtil;
 
@@ -47,7 +47,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
 
     @Override
     public List<Type> decode(String rawInput, String abi) throws TransactionBaseException {
-        AbiDefinition ad = JsonUtils.fromJson(abi, AbiDefinition.class);
+        ABIDefinition ad = JsonUtils.fromJson(abi, ABIDefinition.class);
         List<TypeReference<Type>> list =
                 ContractAbiUtil.paramFormat(ad.getOutputs())
                         .stream()

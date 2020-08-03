@@ -24,7 +24,8 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.fisco.bcos.sdk.abi.AbiDefinition;
+import org.fisco.bcos.sdk.abi.tools.ContractAbiUtil;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.transaction.model.CommonConstant;
 import org.fisco.bcos.sdk.transaction.model.bo.AbiInfo;
 import org.fisco.bcos.sdk.transaction.model.bo.BinInfo;
@@ -39,16 +40,13 @@ import org.slf4j.LoggerFactory;
  */
 public class ContractLoader {
     private static final Logger log = LoggerFactory.getLogger(ContractLoader.class);
-
-    private int readType;
     private String path;
-    private Map<String, List<AbiDefinition>> contractFuncAbis;
-    private Map<String, AbiDefinition> contractConstructorAbi;
+    private Map<String, List<ABIDefinition>> contractFuncAbis;
+    private Map<String, ABIDefinition> contractConstructorAbi;
     private Map<String, String> contractBinMap;
     private Map<String, String> contractAbiMap;
 
-    public ContractLoader(int readType, String path) throws Exception {
-        this.readType = readType;
+    public ContractLoader(String path) throws Exception {
         this.path = path;
         // TODO readType
         this.binInfo();
@@ -81,8 +79,8 @@ public class ContractLoader {
         this.contractAbiMap = new HashMap<>();
         for (File file : fileCollection) {
             String contract = parseContractName(file);
-            List<AbiDefinition> abiList = parseAbiBody(file);
-            AbiDefinition constructorAbi = selectConstructor(abiList);
+            List<ABIDefinition> abiList = parseAbiBody(file);
+            ABIDefinition constructorAbi = selectConstructor(abiList);
             contractFuncAbis.put(contract, abiList);
             contractConstructorAbi.put(contract, constructorAbi);
             contractAbiMap.put(contract, FileUtils.readFileToString(file));
@@ -90,10 +88,10 @@ public class ContractLoader {
         return new AbiInfo(contractFuncAbis, contractConstructorAbi);
     }
 
-    private AbiDefinition selectConstructor(List<AbiDefinition> abiList) {
-        for (AbiDefinition abiDefinition : abiList) {
-            if (abiDefinition.getType().equals(CommonConstant.ABI_CONSTRUCTOR)) {
-                return abiDefinition;
+    private ABIDefinition selectConstructor(List<ABIDefinition> abiList) {
+        for (ABIDefinition ABIDefinition : abiList) {
+            if (ABIDefinition.getType().equals(CommonConstant.ABI_CONSTRUCTOR)) {
+                return ABIDefinition;
             }
         }
         // The case where the sol file does not define constructor
@@ -105,9 +103,9 @@ public class ContractLoader {
         return StringUtils.substringBefore(fileName, ".");
     }
 
-    private List<AbiDefinition> parseAbiBody(File file) throws Exception {
+    private List<ABIDefinition> parseAbiBody(File file) throws Exception {
         String abiStr = FileUtils.readFileToString(file);
-        return ContractAbiUtil.getFuncAbiDefinition(abiStr);
+        return ContractAbiUtil.getFuncABIDefinition(abiStr);
     }
 
     public String getABIByContractName(String contractName) {
@@ -122,22 +120,12 @@ public class ContractLoader {
         return Pair.of(contractAbiMap.get(contractName), contractBinMap.get(contractName));
     }
 
-    public AbiDefinition getConstructorABIByContractName(String contractName) {
+    public ABIDefinition getConstructorABIByContractName(String contractName) {
         return selectConstructor(getFunctionABIListByContractName(contractName));
     }
 
-    public List<AbiDefinition> getFunctionABIListByContractName(String contractName) {
+    public List<ABIDefinition> getFunctionABIListByContractName(String contractName) {
         return contractFuncAbis.get(contractName);
-    }
-
-    /** @return the readType */
-    public int getReadType() {
-        return readType;
-    }
-
-    /** @param readType the readType to set */
-    public void setReadType(int readType) {
-        this.readType = readType;
     }
 
     /** @return the path */

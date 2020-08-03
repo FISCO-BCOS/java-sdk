@@ -322,9 +322,9 @@ public class ABIObjectTest {
                         + "48656c6c6f20776f726c64210000000000000000000000000000000000000000",
                 encodeHex);
 
-        ABIDefinition abiDefinition =
+        ABIDefinition ABIDefinition =
                 Utils.getContractABIDefinition(abiDesc).getFunctions().get("test").get(0);
-        ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+        ABIObject inputObject = ABIObjectFactory.createInputObject(ABIDefinition);
         ABIObject decodeObject = inputObject.decode(encodeHex);
 
         Assert.assertEquals(encodeHex, decodeObject.encode());

@@ -15,16 +15,15 @@ package org.fisco.bcos.sdk.transaction.tools;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.transaction.exception.JsonException;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +36,7 @@ import org.slf4j.LoggerFactory;
 public class JsonUtils {
     protected static Logger log = LoggerFactory.getLogger(JsonUtils.class);
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
-
-    static {
-        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        // objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
+    private static ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {

@@ -27,7 +27,7 @@ public class Utils {
 
     public static ContractABIDefinition getContractABIDefinition(String abiDesc) {
         CryptoInterface cryptoInterface = getCryptoInterface();
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
-        return abiDefinitionFactory.loadABI(abiDesc);
+        ABIDefinitionFactory ABIDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
+        return ABIDefinitionFactory.loadABI(abiDesc);
     }
 }

@@ -18,7 +18,7 @@ import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 
-public class TransactionSigner implements TransactionSignerInterface {
+public class TransactionSignerServcie implements TransactionSignerInterface {
 
     private Signature signature;
     private CryptoKeyPair cryptoKeyPair;
@@ -27,7 +27,7 @@ public class TransactionSigner implements TransactionSignerInterface {
      * @param encryptType
      * @param cryptoKeyPair
      */
-    public TransactionSigner(Signature signature, CryptoKeyPair cryptoKeyPair) {
+    public TransactionSignerServcie(Signature signature, CryptoKeyPair cryptoKeyPair) {
         super();
         this.signature = signature;
         this.cryptoKeyPair = cryptoKeyPair;

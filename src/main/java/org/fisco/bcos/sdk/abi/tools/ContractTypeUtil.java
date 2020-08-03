@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.fisco.bcos.sdk.transaction.tools;
+package org.fisco.bcos.sdk.abi.tools;
 
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.Bool;

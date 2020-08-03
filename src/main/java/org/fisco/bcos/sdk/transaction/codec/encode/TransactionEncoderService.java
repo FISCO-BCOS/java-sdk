@@ -24,7 +24,7 @@ import org.fisco.bcos.sdk.rlp.RlpType;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.utils.Numeric;
 
-public class TransactionEncoder implements TransactionEncoderInterface {
+public class TransactionEncoderService implements TransactionEncoderInterface {
 
     @Override
     public byte[] encode(RawTransaction transaction, SignatureResult signature) {

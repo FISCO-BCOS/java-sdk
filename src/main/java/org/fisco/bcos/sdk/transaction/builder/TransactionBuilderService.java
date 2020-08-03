@@ -20,13 +20,13 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.transaction.model.gas.DefaultGasProvider;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 
-public class TransactionBuilder implements TransactionBuilderInterface {
+public class TransactionBuilderService implements TransactionBuilderInterface {
 
     private SecureRandom secureRandom = new SecureRandom();
     private Client client;
 
     /** @param client */
-    public TransactionBuilder(Client client) {
+    public TransactionBuilderService(Client client) {
         super();
         this.client = client;
     }

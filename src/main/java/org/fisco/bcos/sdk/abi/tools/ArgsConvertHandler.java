@@ -1,14 +1,14 @@
-package org.fisco.bcos.sdk.transaction.tools;
+package org.fisco.bcos.sdk.abi.tools;
 
 import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import org.fisco.bcos.sdk.abi.AbiDefinition;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.Utils;
 import org.fisco.bcos.sdk.abi.datatypes.Array;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +16,12 @@ public class ArgsConvertHandler {
     protected static Logger log = LoggerFactory.getLogger(ArgsConvertHandler.class);
 
     public static List<Type> tryConvertToSolArgs(
-            List<Object> javaArgs, AbiDefinition abiDefinition) {
+            List<Object> javaArgs, ABIDefinition ABIDefinition) {
         try {
             int size = javaArgs.size();
             List<Type> solArgs = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
-                AbiDefinition.NamedType solArgDef = abiDefinition.getInputs().get(i);
+                ABIDefinition.NamedType solArgDef = ABIDefinition.getInputs().get(i);
                 Object javaArg = javaArgs.get(i);
                 javaArg = unifyJavaArgs(solArgDef.getType(), javaArg);
                 Type solArg = convertToSolType(solArgDef, javaArg);
@@ -34,7 +34,7 @@ public class ArgsConvertHandler {
         }
     }
 
-    private static Type convertToSolType(AbiDefinition.NamedType namedType, Object javaArg) {
+    private static Type convertToSolType(ABIDefinition.NamedType namedType, Object javaArg) {
         try {
             TypeReference<?> typeReference = ContractAbiUtil.paramInput(namedType);
             if (Array.class.isAssignableFrom(typeReference.getClassType())) {
@@ -55,9 +55,9 @@ public class ArgsConvertHandler {
     }
 
     private static Object unifyJavaArgs(String typeName, Object javaArg) {
-        AbiDefinition.NamedType.Type type = new AbiDefinition.NamedType.Type(typeName);
-        if (type.arrayType()) {
-            String elementType = type.baseName;
+        ABIDefinition.Type type = new ABIDefinition.Type(typeName);
+        if (type.isList()) {
+            String elementType = type.rawType;
             List<Object> result = new ArrayList<>();
             // Array
             if (javaArg.getClass().isArray()) {

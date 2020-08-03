@@ -14,8 +14,8 @@
  */
 package org.fisco.bcos.sdk.model;
 
-import org.fisco.bcos.sdk.abi.AbiDefinition;
 import org.fisco.bcos.sdk.abi.datatypes.Function;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 
 /**
  * Function @Description: SolidityFunction
@@ -27,13 +27,13 @@ public class SolidityFunction {
 
     private Function function;
 
-    private AbiDefinition functionAbi;
+    private ABIDefinition functionAbi;
 
     /**
      * @param function
      * @param functionAbi
      */
-    public SolidityFunction(Function function, AbiDefinition functionAbi) {
+    public SolidityFunction(Function function, ABIDefinition functionAbi) {
         super();
         this.function = function;
         this.functionAbi = functionAbi;
@@ -50,12 +50,12 @@ public class SolidityFunction {
     }
 
     /** @return the functionAbi */
-    public AbiDefinition getFunctionAbi() {
+    public ABIDefinition getFunctionAbi() {
         return functionAbi;
     }
 
     /** @param functionAbi the functionAbi to set */
-    public void setFunctionAbi(AbiDefinition functionAbi) {
+    public void setFunctionAbi(ABIDefinition functionAbi) {
         this.functionAbi = functionAbi;
     }
 }

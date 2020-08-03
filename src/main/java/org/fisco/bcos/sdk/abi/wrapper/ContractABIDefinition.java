@@ -56,34 +56,34 @@ public class ContractABIDefinition {
         this.methodIDToFunctions = methodIDToFunctions;
     }
 
-    public void addFunction(String name, ABIDefinition abiDefinition) {
+    public void addFunction(String name, ABIDefinition ABIDefinition) {
 
-        List<ABIDefinition> abiDefinitions = functions.get(name);
-        if (abiDefinitions == null) {
+        List<ABIDefinition> ABIDefinitions = functions.get(name);
+        if (ABIDefinitions == null) {
             functions.put(name, new ArrayList<>());
-            abiDefinitions = functions.get(name);
+            ABIDefinitions = functions.get(name);
         } else {
-            logger.info(" overload method ??? name: {}, abiDefinition: {}", name, abiDefinition);
+            logger.info(" overload method ??? name: {}, ABIDefinition: {}", name, ABIDefinition);
         }
-        abiDefinitions.add(abiDefinition);
+        ABIDefinitions.add(ABIDefinition);
 
-        // calculate method id and add abiDefinition to methodIdToFunctions
-        String methodId = abiDefinition.getMethodId(cryptoInterface);
-        methodIDToFunctions.put(methodId, abiDefinition);
+        // calculate method id and add ABIDefinition to methodIdToFunctions
+        String methodId = ABIDefinition.getMethodId(cryptoInterface);
+        methodIDToFunctions.put(methodId, ABIDefinition);
 
         logger.info(
                 " name: {}, methodId: {}, methodSignature: {}, abi: {}",
                 name,
                 methodId,
-                abiDefinition.getMethodSignatureAsString(),
-                abiDefinition);
+                ABIDefinition.getMethodSignatureAsString(),
+                ABIDefinition);
     }
 
-    public void addEvent(String name, ABIDefinition abiDefinition) {
+    public void addEvent(String name, ABIDefinition ABIDefinition) {
         events.putIfAbsent(name, new ArrayList<>());
-        List<ABIDefinition> abiDefinitions = events.get(name);
-        abiDefinitions.add(abiDefinition);
-        logger.info(" name: {}, abi: {}", name, abiDefinition);
+        List<ABIDefinition> ABIDefinitions = events.get(name);
+        ABIDefinitions.add(ABIDefinition);
+        logger.info(" name: {}, abi: {}", name, ABIDefinition);
     }
 
     public ABIDefinition getABIDefinitionByMethodId(String methodId) {

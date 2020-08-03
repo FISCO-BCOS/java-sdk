@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.fisco.bcos.sdk.transaction.tools;
+package org.fisco.bcos.sdk.abi.tools;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,11 +20,11 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import org.fisco.bcos.sdk.abi.AbiDefinition;
-import org.fisco.bcos.sdk.abi.AbiDefinition.NamedType;
 import org.fisco.bcos.sdk.abi.EventValues;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition.NamedType;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.model.po.Contract;
@@ -45,15 +45,15 @@ public class ContractAbiUtil {
      * @param contractAbi
      * @return
      */
-    public static AbiDefinition getConstructorAbiDefinition(String contractAbi) {
+    public static ABIDefinition getConstructorABIDefinition(String contractAbi) {
         try {
             ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-            AbiDefinition[] abiDefinitions =
-                    objectMapper.readValue(contractAbi, AbiDefinition[].class);
+            ABIDefinition[] ABIDefinitions =
+                    objectMapper.readValue(contractAbi, ABIDefinition[].class);
 
-            for (AbiDefinition abiDefinition : abiDefinitions) {
-                if (TYPE_CONSTRUCTOR.equals(abiDefinition.getType())) {
-                    return abiDefinition;
+            for (ABIDefinition ABIDefinition : ABIDefinitions) {
+                if (TYPE_CONSTRUCTOR.equals(ABIDefinition.getType())) {
+                    return ABIDefinition;
                 }
             }
         } catch (JsonProcessingException e) {
@@ -66,17 +66,17 @@ public class ContractAbiUtil {
      * @param contractAbi
      * @return
      */
-    public static List<AbiDefinition> getFuncAbiDefinition(String contractAbi) {
-        List<AbiDefinition> result = new ArrayList<>();
+    public static List<ABIDefinition> getFuncABIDefinition(String contractAbi) {
+        List<ABIDefinition> result = new ArrayList<>();
         try {
             ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-            AbiDefinition[] abiDefinitions =
-                    objectMapper.readValue(contractAbi, AbiDefinition[].class);
+            ABIDefinition[] ABIDefinitions =
+                    objectMapper.readValue(contractAbi, ABIDefinition[].class);
 
-            for (AbiDefinition abiDefinition : abiDefinitions) {
-                if (TYPE_FUNCTION.equals(abiDefinition.getType())
-                        || TYPE_CONSTRUCTOR.equals(abiDefinition.getType())) {
-                    result.add(abiDefinition);
+            for (ABIDefinition ABIDefinition : ABIDefinitions) {
+                if (TYPE_FUNCTION.equals(ABIDefinition.getType())
+                        || TYPE_CONSTRUCTOR.equals(ABIDefinition.getType())) {
+                    result.add(ABIDefinition);
                 }
             }
         } catch (JsonProcessingException e) {
@@ -89,17 +89,17 @@ public class ContractAbiUtil {
      * @param contractAbi
      * @return
      */
-    public static List<AbiDefinition> getEventAbiDefinitions(String contractAbi) {
+    public static List<ABIDefinition> getEventABIDefinitions(String contractAbi) {
 
-        List<AbiDefinition> result = new ArrayList<>();
+        List<ABIDefinition> result = new ArrayList<>();
         try {
             ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-            AbiDefinition[] abiDefinitions =
-                    objectMapper.readValue(contractAbi, AbiDefinition[].class);
+            ABIDefinition[] ABIDefinitions =
+                    objectMapper.readValue(contractAbi, ABIDefinition[].class);
 
-            for (AbiDefinition abiDefinition : abiDefinitions) {
-                if (TYPE_EVENT.equals(abiDefinition.getType())) {
-                    result.add(abiDefinition);
+            for (ABIDefinition ABIDefinition : ABIDefinitions) {
+                if (TYPE_EVENT.equals(ABIDefinition.getType())) {
+                    result.add(ABIDefinition);
                 }
             }
         } catch (JsonProcessingException e) {
@@ -109,13 +109,13 @@ public class ContractAbiUtil {
     }
 
     /**
-     * @param abiDefinition
+     * @param ABIDefinition
      * @return
      */
-    public static List<String> getFuncInputType(AbiDefinition abiDefinition) {
+    public static List<String> getFuncInputType(ABIDefinition ABIDefinition) {
         List<String> inputList = new ArrayList<>();
-        if (abiDefinition != null) {
-            List<NamedType> inputs = abiDefinition.getInputs();
+        if (ABIDefinition != null) {
+            List<NamedType> inputs = ABIDefinition.getInputs();
             for (NamedType input : inputs) {
                 inputList.add(input.getType());
             }
@@ -124,12 +124,12 @@ public class ContractAbiUtil {
     }
 
     /**
-     * @param abiDefinition
+     * @param ABIDefinition
      * @return
      */
-    public static List<String> getFuncOutputType(AbiDefinition abiDefinition) {
+    public static List<String> getFuncOutputType(ABIDefinition ABIDefinition) {
         List<String> outputList = new ArrayList<>();
-        List<NamedType> outputs = abiDefinition.getOutputs();
+        List<NamedType> outputs = ABIDefinition.getOutputs();
         for (NamedType output : outputs) {
             outputList.add(output.getType());
         }
@@ -147,25 +147,24 @@ public class ContractAbiUtil {
 
         for (int i = 0; i < paramTypes.size(); i++) {
 
-            AbiDefinition.NamedType.Type type =
-                    new AbiDefinition.NamedType.Type(paramTypes.get(i).getType());
+            ABIDefinition.Type type = new ABIDefinition.Type(paramTypes.get(i).getType());
             // nested array , not support now.
-            if (type.getDepth() > 1) {
+            if (type.getDimensions().size() > 1) {
                 throw new TransactionBaseException(
                         201202,
-                        String.format("type:%s unsupported array decoding", type.getName()));
+                        String.format("type:%s unsupported array decoding", type.getType()));
             }
 
             TypeReference<?> typeReference = null;
-            if (type.dynamicArray()) {
+            if (type.isDynamicList()) {
                 typeReference =
                         DynamicArrayReference.create(
-                                type.getBaseName(), paramTypes.get(i).isIndexed());
-            } else if (type.staticArray()) {
+                                type.getRawType(), paramTypes.get(i).isIndexed());
+            } else if (type.isFixedList()) {
                 typeReference =
                         StaticArrayReference.create(
-                                type.getBaseName(),
-                                type.getDimensions(),
+                                type.getRawType(),
+                                type.getLastDimension(),
                                 paramTypes.get(i).isIndexed());
             } else {
                 typeReference =
@@ -181,15 +180,15 @@ public class ContractAbiUtil {
 
     /**
      * @param log
-     * @param abiDefinition
+     * @param ABIDefinition
      * @return
      * @throws TransactionBaseException
      */
-    public static EventValues decodeEvent(Logs log, AbiDefinition abiDefinition)
+    public static EventValues decodeEvent(Logs log, ABIDefinition ABIDefinition)
             throws TransactionBaseException {
 
-        List<TypeReference<?>> finalOutputs = paramFormat(abiDefinition.getInputs());
-        Event event = new Event(abiDefinition.getName(), finalOutputs);
+        List<TypeReference<?>> finalOutputs = paramFormat(ABIDefinition.getInputs());
+        Event event = new Event(ABIDefinition.getName(), finalOutputs);
         EventValues eventValues = Contract.staticExtractEventParameters(event, log);
         return eventValues;
     }
@@ -202,23 +201,22 @@ public class ContractAbiUtil {
      * @return
      * @throws TransactionBaseException
      */
-    public static TypeReference<?> paramInput(AbiDefinition.NamedType solTypeDef)
+    public static TypeReference<?> paramInput(ABIDefinition.NamedType solTypeDef)
             throws TransactionBaseException {
-        AbiDefinition.NamedType.Type type = new AbiDefinition.NamedType.Type(solTypeDef.getType());
+        ABIDefinition.Type type = new ABIDefinition.Type(solTypeDef.getType());
         // nested array , not support now.
-        if (type.getDepth() > 1) {
+        if (type.getDimensions().size() > 1) {
             throw new TransactionBaseException(
-                    201202, String.format("type:%s unsupported array decoding", type.getName()));
+                    201202, String.format("type:%s unsupported array decoding", type.getType()));
         }
 
         TypeReference<?> typeReference = null;
-        if (type.dynamicArray()) {
-            typeReference =
-                    DynamicArrayReference.create(type.getBaseName(), solTypeDef.isIndexed());
-        } else if (type.staticArray()) {
+        if (type.isDynamicList()) {
+            typeReference = DynamicArrayReference.create(type.getRawType(), solTypeDef.isIndexed());
+        } else if (type.isFixedList()) {
             typeReference =
                     StaticArrayReference.create(
-                            type.getBaseName(), type.getDimensions(), solTypeDef.isIndexed());
+                            type.getRawType(), type.getLastDimension(), solTypeDef.isIndexed());
         } else {
             typeReference =
                     TypeReference.create(
