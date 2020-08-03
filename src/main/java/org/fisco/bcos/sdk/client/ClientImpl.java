@@ -58,7 +58,7 @@ import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
-import org.fisco.bcos.sdk.transaction.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 public class ClientImpl implements Client {

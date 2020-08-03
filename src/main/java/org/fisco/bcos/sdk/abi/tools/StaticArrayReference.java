@@ -72,7 +72,7 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.StaticArray7;
 import org.fisco.bcos.sdk.abi.datatypes.generated.StaticArray8;
 import org.fisco.bcos.sdk.abi.datatypes.generated.StaticArray9;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
-import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 
 public class StaticArrayReference {
 

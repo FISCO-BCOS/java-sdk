@@ -22,7 +22,7 @@ import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
-import org.fisco.bcos.sdk.transaction.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
 
 public interface GroupManagerService {
     public static final BigInteger BLOCK_LIMIT = BigInteger.valueOf(500);

@@ -115,7 +115,7 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.Uint8;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint80;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint88;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint96;
-import org.fisco.bcos.sdk.transaction.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 
 public class ContractTypeUtil {
 

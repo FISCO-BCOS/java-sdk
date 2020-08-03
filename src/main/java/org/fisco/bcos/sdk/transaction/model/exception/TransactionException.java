@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.transaction.exception;
+package org.fisco.bcos.sdk.transaction.model.exception;
 
 import java.math.BigInteger;
 import java.util.Optional;

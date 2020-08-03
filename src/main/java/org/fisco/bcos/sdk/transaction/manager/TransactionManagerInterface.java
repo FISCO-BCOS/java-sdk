@@ -17,7 +17,7 @@ package org.fisco.bcos.sdk.transaction.manager;
 import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.callback.TransactionCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionRequest;

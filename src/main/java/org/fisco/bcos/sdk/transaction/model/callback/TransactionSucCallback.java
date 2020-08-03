@@ -12,7 +12,7 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.transaction.callback;
+package org.fisco.bcos.sdk.transaction.model.callback;
 
 import io.netty.util.Timeout;
 import org.fisco.bcos.sdk.channel.model.ChannelMessageError;

@@ -19,7 +19,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.callback.TransactionCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 public class TransactionPusherService implements TransactionPusherInterface {
 

@@ -11,7 +11,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.transaction.exception;
+package org.fisco.bcos.sdk.transaction.model.exception;
 
 /**
  * JacksonException @Description: JacksonException
