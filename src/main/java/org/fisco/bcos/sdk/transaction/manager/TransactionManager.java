@@ -16,12 +16,14 @@ package org.fisco.bcos.sdk.transaction.manager;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.SolidityConstructor;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.builder.FunctionBuilderInterface;
 import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderInterface;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
@@ -35,7 +37,6 @@ import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface;
-import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,14 +48,26 @@ import org.slf4j.LoggerFactory;
  */
 public class TransactionManager implements TransactionManagerInterface {
     protected static Logger log = LoggerFactory.getLogger(TransactionManager.class);
+    private BigInteger groupId;
     private CryptoInterface cryptoInterface;
+    private FunctionBuilderInterface functionBuilder;
     private TransactionBuilderInterface transactionBuilder;
+    private TransactionEncoderService transactionEncoder;
     private TransactionPusherInterface transactionPusher;
     private TransactionDecoderInterface transactionDecoder;
-    private TransactionSignerInterface transactionSigner;
-    private TransactionEncoderService transactionEncoder;
-    private SecureRandom secureRandom;
     private Map<Integer, Client> clients;
+
+    public TransactionResponse deploy(
+            String abi, String bin, String contractName, List<Object> args) {
+        SolidityConstructor constructor =
+                functionBuilder.buildConstructor(abi, bin, contractName, args);
+        RawTransaction rawTransaction =
+                transactionBuilder.createTransaction(null, constructor.getData(), groupId);
+        String signedData = transactionEncoder.encodeAndSign(rawTransaction);
+        TransactionRequest transactionRequest = new TransactionRequest();
+        transactionRequest.setSignedData(signedData);
+        return deploy(transactionRequest);
+    }
 
     @Override
     public TransactionResponse deploy(TransactionRequest transactionRequest) {
@@ -89,9 +102,8 @@ public class TransactionManager implements TransactionManagerInterface {
         RawTransaction rawTransaction =
                 transactionBuilder.createTransaction(
                         gasPrice, gasLimit, to, data, value, chainId, groupId, "");
-        byte[] signedTransaction =
-                transactionEncoder.signMessage(rawTransaction, cryptoInterface.getKeyPairFactory());
-        this.sendTransactionAsync(signedTransaction.toString(), callback);
+        String signedData = transactionEncoder.encodeAndSign(rawTransaction);
+        this.sendTransactionAsync(signedData, callback);
     }
 
     @Override

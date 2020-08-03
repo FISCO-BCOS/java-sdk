@@ -24,22 +24,33 @@ import org.fisco.bcos.sdk.rlp.RlpList;
 import org.fisco.bcos.sdk.rlp.RlpString;
 import org.fisco.bcos.sdk.rlp.RlpType;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
+import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
+import org.fisco.bcos.sdk.transaction.signer.TransactionSignerServcie;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 public class TransactionEncoderService implements TransactionEncoderInterface {
 
-    private Signature signature;
+    private final Signature signature;
+    private final CryptoKeyPair cryptoKeyPair;
+    private final TransactionSignerInterface transactionSignerService;
 
     /** @param signature */
-    public TransactionEncoderService(Signature signature) {
+    public TransactionEncoderService(Signature signature, CryptoKeyPair cryptoKeyPair) {
         super();
         this.signature = signature;
+        this.cryptoKeyPair = cryptoKeyPair;
+        this.transactionSignerService = new TransactionSignerServcie(signature, cryptoKeyPair);
     }
 
     @Override
-    public byte[] signMessage(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair) {
+    public String encodeAndSign(RawTransaction rawTransaction) {
+        return Numeric.toHexString(encodeAndSignBytes(rawTransaction));
+    }
+
+    @Override
+    public byte[] encodeAndSignBytes(RawTransaction rawTransaction) {
         byte[] encodedTransaction = encode(rawTransaction, null);
-        SignatureResult result = signature.sign(encodedTransaction, cryptoKeyPair);
+        SignatureResult result = transactionSignerService.sign(encodedTransaction);
         return encode(rawTransaction, result);
     }
 
@@ -93,8 +104,8 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
         return signature;
     }
 
-    /** @param signature the signature to set */
-    public void setSignature(Signature signature) {
-        this.signature = signature;
+    /** @return the cryptoKeyPair */
+    public CryptoKeyPair getCryptoKeyPair() {
+        return cryptoKeyPair;
     }
 }

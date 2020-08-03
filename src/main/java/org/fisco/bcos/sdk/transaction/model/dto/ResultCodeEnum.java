@@ -26,7 +26,8 @@ public enum ResultCodeEnum {
     UNKNOWN(3, "unknown exception"),
     EVM_ERROR(4, "evm error"),
     EXCEPTION_OCCUR(5, "exception occur"),
-    PARAMETER_ERROR(6, "param error");
+    PARAMETER_ERROR(6, "param error"),
+    PARSE_ERROR(7, "parse error");
 
     private int code;
     private String message;

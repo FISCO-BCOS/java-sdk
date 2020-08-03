@@ -14,7 +14,6 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.encode;
 
-import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 
@@ -28,5 +27,7 @@ public interface TransactionEncoderInterface {
 
     byte[] encode(RawTransaction transaction, SignatureResult signature);
 
-    byte[] signMessage(RawTransaction rawTransaction, CryptoKeyPair credentials);
+    byte[] encodeAndSignBytes(RawTransaction rawTransaction);
+
+    String encodeAndSign(RawTransaction rawTransaction);
 }
