@@ -47,32 +47,23 @@ import org.slf4j.LoggerFactory;
  */
 public class TransactionManager implements TransactionManagerInterface {
     protected static Logger log = LoggerFactory.getLogger(TransactionManager.class);
-
     private TransactionPusherInterface transactionPusher;
-
     private TransactionDecoderInterface transactionDecoder;
-
     private TransactionSignerInterface transactionSigner;
-
     private TransactionEncoder transactionEncoder;
-
     private SecureRandom secureRandom;
-
     private Map<Integer, Client> clients;
 
     @Override
     public TransactionResponse deploy(TransactionRequest transactionRequest) {
         String contract = transactionRequest.getContractName();
-        TransactionReceipt receipt =
-                this.transactionPusher.push(transactionRequest.getSignedData());
+        TransactionReceipt receipt = transactionPusher.push(transactionRequest.getSignedData());
         try {
-            TransactionResponse response =
-                    transactionDecoder.decodeTransactionReceipt(contract, receipt);
+            TransactionResponse response = transactionDecoder.decodeTransactionReceipt(contract, receipt);
             return response;
         } catch (TransactionBaseException | TransactionException | IOException e) {
             log.error("deploy exception: {}", e.getMessage());
-            return new TransactionResponse(
-                    ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
+            return new TransactionResponse(ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
         }
     }
 
@@ -82,17 +73,9 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public void sendTransaction(
-            BigInteger gasPrice,
-            BigInteger gasLimit,
-            String to,
-            String data,
-            BigInteger value,
-            BigInteger chainId,
-            BigInteger groupId,
-            TransactionCallback callback) {
-        RawTransaction transaction =
-                this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
+    public void sendTransaction(BigInteger gasPrice, BigInteger gasLimit, String to, String data, BigInteger value,
+            BigInteger chainId, BigInteger groupId, TransactionCallback callback) {
+        RawTransaction transaction = this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
         String signedTransaction = this.sign(transaction);
         this.sendTransaction(signedTransaction, callback);
     }
@@ -100,14 +83,12 @@ public class TransactionManager implements TransactionManagerInterface {
     @Override
     public TransactionResponse sendTransaction(TransactionRequest transactionRequest) {
         String contract = transactionRequest.getContractName();
-        TransactionReceipt receipt =
-                this.transactionPusher.push(transactionRequest.getSignedData());
+        TransactionReceipt receipt = this.transactionPusher.push(transactionRequest.getSignedData());
         try {
             return transactionDecoder.decodeTransactionReceipt(contract, receipt);
         } catch (TransactionBaseException | TransactionException | IOException e) {
             log.error("sendTransaction exception: {}", e.getMessage());
-            return new TransactionResponse(
-                    ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
+            return new TransactionResponse(ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
         }
     }
 
@@ -117,8 +98,7 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public CompletableFuture<TransactionReceipt> sendTransactionAsync(
-            TransactionRequest transactionRequest) {
+    public CompletableFuture<TransactionReceipt> sendTransactionAsync(TransactionRequest transactionRequest) {
         return this.transactionPusher.pushAsync(transactionRequest.getSignedData());
     }
 
@@ -135,32 +115,16 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @SuppressWarnings("unlikely-arg-type")
-    public RawTransaction createTransaction(
-            BigInteger gasPrice,
-            BigInteger gasLimit,
-            String to,
-            String data,
-            BigInteger value,
-            BigInteger chainId,
-            BigInteger groupId,
-            String extraData) {
+    public RawTransaction createTransaction(BigInteger gasPrice, BigInteger gasLimit, String to, String data,
+            BigInteger value, BigInteger chainId, BigInteger groupId, String extraData) {
         BigInteger randomId = new BigInteger(250, secureRandom);
         Client client = this.clients.get(groupId);
         if (client == null) {
             throw new IllegalArgumentException("Invalid groupId " + groupId);
         }
         BigInteger blockLimit = client.getBlockLimit();
-        return RawTransaction.createTransaction(
-                randomId,
-                gasPrice,
-                gasLimit,
-                blockLimit,
-                to,
-                value,
-                data,
-                chainId,
-                groupId,
-                extraData);
+        return RawTransaction.createTransaction(randomId, gasPrice, gasLimit, blockLimit, to, value, data, chainId,
+                groupId, extraData);
     }
 
     public String sign(RawTransaction rawTransaction) {
@@ -170,17 +134,9 @@ public class TransactionManager implements TransactionManagerInterface {
         return Numeric.toHexString(encoded);
     }
 
-    public TransactionReceipt executeTransaction(
-            BigInteger gasPrice,
-            BigInteger gasLimit,
-            String to,
-            String data,
-            BigInteger value,
-            BigInteger chainId,
-            BigInteger groupId,
-            Object object) {
-        RawTransaction transaction =
-                this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
+    public TransactionReceipt executeTransaction(BigInteger gasPrice, BigInteger gasLimit, String to, String data,
+            BigInteger value, BigInteger chainId, BigInteger groupId, Object object) {
+        RawTransaction transaction = this.createTransaction(gasPrice, gasLimit, to, data, value, chainId, groupId, "");
         String signedTransaction = this.sign(transaction);
         return this.transactionPusher.push(signedTransaction);
     }

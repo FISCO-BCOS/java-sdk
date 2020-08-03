@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.Optional;
 
 public class TransactionException extends Exception {
+    private static final long serialVersionUID = -2204228001512046284L;
     private Optional<String> transactionHash = Optional.empty();
     private String status;
     private BigInteger gasUsed;
