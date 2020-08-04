@@ -35,8 +35,6 @@ import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
 import org.fisco.bcos.sdk.channel.model.HeartBeatParser;
 import org.fisco.bcos.sdk.channel.model.NodeHeartbeat;
 import org.fisco.bcos.sdk.channel.model.Options;
-import org.fisco.bcos.sdk.config.Config;
-import org.fisco.bcos.sdk.config.ConfigException;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
@@ -69,14 +67,9 @@ public class ChannelImp implements Channel {
     private long heartBeatDelay = (long) 2000;
     private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
-    public ChannelImp(String filepath) {
-        try {
-            ConfigOption config = Config.load(filepath);
-            msgHandler = new ChannelMsgHandler();
-            network = new NetworkImp(config, msgHandler);
-        } catch (ConfigException e) {
-            logger.error("init channel config error, {} ", e.getMessage());
-        }
+    public ChannelImp(ConfigOption config) {
+        msgHandler = new ChannelMsgHandler();
+        network = new NetworkImp(config, msgHandler);
     }
 
     @Override
@@ -310,9 +303,9 @@ public class ChannelImp implements Channel {
     @Override
     public void asyncSendToPeer(
             Message out, String peerIpPort, ResponseCallback callback, Options options) {
-        msgHandler.addSeq2CallBack(out.getSeq(), callback);
         ChannelHandlerContext ctx = msgHandler.getAvailablePeer().get(peerIpPort);
         if (ctx != null) {
+            msgHandler.addSeq2CallBack(out.getSeq(), callback);
             if (options.getTimeout() > 0) {
                 callback.setTimeout(
                         timeoutHandler.newTimeout(

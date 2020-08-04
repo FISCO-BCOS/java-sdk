@@ -130,5 +130,10 @@ public interface GroupManagerService {
     void broadcastMessageToGroup(Integer groupId, Message message);
 
     void asyncSendTransaction(
-            Integer groupId, Message transactionData, TransactionSucCallback callback);
+            Integer groupId,
+            Message transactionData,
+            TransactionSucCallback callback,
+            ResponseCallback responseCallback);
+
+    void eraseTransactionSeq(String seq);
 }

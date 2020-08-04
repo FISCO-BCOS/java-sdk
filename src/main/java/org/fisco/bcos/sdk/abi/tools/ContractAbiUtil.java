@@ -20,14 +20,15 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import org.fisco.bcos.sdk.abi.EventEncoder;
 import org.fisco.bcos.sdk.abi.EventValues;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition.NamedType;
+import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
-import org.fisco.bcos.sdk.transaction.model.po.Contract;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,13 +185,12 @@ public class ContractAbiUtil {
      * @return
      * @throws TransactionBaseException
      */
-    public static EventValues decodeEvent(Logs log, ABIDefinition ABIDefinition)
+    public static EventValues decodeEvent(
+            EventEncoder eventEncoder, Logs log, ABIDefinition ABIDefinition)
             throws TransactionBaseException {
-
         List<TypeReference<?>> finalOutputs = paramFormat(ABIDefinition.getInputs());
         Event event = new Event(ABIDefinition.getName(), finalOutputs);
-        EventValues eventValues = Contract.staticExtractEventParameters(event, log);
-        return eventValues;
+        return Contract.staticExtractEventParameters(eventEncoder, event, log);
     }
 
     /**

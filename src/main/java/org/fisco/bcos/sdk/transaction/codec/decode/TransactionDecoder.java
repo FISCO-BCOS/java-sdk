@@ -272,7 +272,7 @@ public class TransactionDecoder {
                 continue;
             }
 
-            EventValues eventValued = ContractAbiUtil.decodeEvent(log, ABIDefinition);
+            EventValues eventValued = ContractAbiUtil.decodeEvent(eventEncoder, log, ABIDefinition);
             if (null != eventValued) {
                 List<EventResultEntity> resultEntityList = new ArrayList<EventResultEntity>();
                 List<NamedType> inputs = ABIDefinition.getInputs();
@@ -333,7 +333,7 @@ public class TransactionDecoder {
                 continue;
             }
 
-            EventValues eventValued = ContractAbiUtil.decodeEvent(log, ABIDefinition);
+            EventValues eventValued = ContractAbiUtil.decodeEvent(eventEncoder, log, ABIDefinition);
             if (null != eventValued) {
                 List<EventResultEntity> resultEntityList = new ArrayList<EventResultEntity>();
                 List<NamedType> inputs = ABIDefinition.getInputs();

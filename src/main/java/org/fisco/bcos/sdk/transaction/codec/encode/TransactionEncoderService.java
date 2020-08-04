@@ -27,9 +27,11 @@ import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerServcie;
 import org.fisco.bcos.sdk.utils.Numeric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TransactionEncoderService implements TransactionEncoderInterface {
-
+    protected static Logger logger = LoggerFactory.getLogger(TransactionEncoderService.class);
     private final Signature signature;
     private final CryptoKeyPair cryptoKeyPair;
     private final TransactionSignerInterface transactionSignerService;

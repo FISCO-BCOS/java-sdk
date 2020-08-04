@@ -19,9 +19,13 @@ import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.rlp.RlpString;
 import org.fisco.bcos.sdk.rlp.RlpType;
 import org.fisco.bcos.sdk.utils.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ECDSASignatureResult extends SignatureResult {
+    protected static Logger logger = LoggerFactory.getLogger(SignatureResult.class);
     protected byte v;
+    protected static int VBASE = 27;
 
     ECDSASignatureResult(byte v, byte[] r, byte[] s) {
         super(r, s);
@@ -54,7 +58,8 @@ public class ECDSASignatureResult extends SignatureResult {
     @Override
     public List<RlpType> encode() {
         List<RlpType> encodeResult = new ArrayList<>();
-        encodeResult.add(RlpString.create(this.v));
+        int encodedV = this.v + VBASE;
+        encodeResult.add(RlpString.create((byte) encodedV));
         super.encodeCommonField(encodeResult);
         return encodeResult;
     }

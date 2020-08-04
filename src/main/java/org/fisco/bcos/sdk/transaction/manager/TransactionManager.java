@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.transaction.manager;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
@@ -26,6 +25,7 @@ import org.fisco.bcos.sdk.model.SolidityConstructor;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.builder.FunctionBuilderInterface;
 import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderInterface;
+import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderService;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
@@ -37,6 +37,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
+import org.fisco.bcos.sdk.transaction.model.gas.DefaultGasProvider;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface;
 import org.slf4j.Logger;
@@ -50,21 +51,34 @@ import org.slf4j.LoggerFactory;
  */
 public class TransactionManager implements TransactionManagerInterface {
     protected static Logger log = LoggerFactory.getLogger(TransactionManager.class);
-    private BigInteger groupId;
-    private CryptoInterface cryptoInterface;
+    private final Client client;
+    private final Integer groupId;
+    private final String chainId;
+    private final TransactionBuilderInterface transactionBuilder;
     private FunctionBuilderInterface functionBuilder;
-    private TransactionBuilderInterface transactionBuilder;
     private TransactionEncoderService transactionEncoder;
     private TransactionPusherInterface transactionPusher;
     private TransactionDecoderInterface transactionDecoder;
-    private Map<Integer, Client> clients;
+
+    public TransactionManager(
+            Client client, CryptoInterface cryptoInterface, Integer groupId, String chainId) {
+        this.client = client;
+        this.groupId = groupId;
+        this.chainId = chainId;
+        this.transactionBuilder = new TransactionBuilderService(client);
+        this.transactionEncoder =
+                new TransactionEncoderService(
+                        cryptoInterface.getSignatureImpl(), cryptoInterface.createKeyPair());
+        // TODO: init functionBuilder, transactionPusher and transactionDecoder
+    }
 
     public TransactionResponse deploy(
             String abi, String bin, String contractName, List<Object> args) {
         SolidityConstructor constructor =
                 functionBuilder.buildConstructor(abi, bin, contractName, args);
         RawTransaction rawTransaction =
-                transactionBuilder.createTransaction(null, constructor.getData(), groupId);
+                transactionBuilder.createTransaction(
+                        null, constructor.getData(), BigInteger.valueOf(groupId));
         String signedData = transactionEncoder.encodeAndSign(rawTransaction);
         TransactionRequest transactionRequest = new TransactionRequest();
         transactionRequest.setSignedData(signedData);
@@ -92,25 +106,20 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public void sendTransaction(
-            BigInteger gasPrice,
-            BigInteger gasLimit,
-            String to,
-            String data,
-            BigInteger value,
-            BigInteger chainId,
-            BigInteger groupId,
-            TransactionCallback callback) {
+    public TransactionReceipt sendTransaction(String to, String data) {
+        DefaultGasProvider defaultGasProvider = new DefaultGasProvider();
         RawTransaction rawTransaction =
                 transactionBuilder.createTransaction(
-                        gasPrice, gasLimit, to, data, value, chainId, groupId, "");
+                        defaultGasProvider.getGasPrice(),
+                        defaultGasProvider.getGasLimit(),
+                        to,
+                        data,
+                        BigInteger.ZERO,
+                        new BigInteger(this.chainId),
+                        BigInteger.valueOf(this.groupId),
+                        "");
         String signedData = transactionEncoder.encodeAndSign(rawTransaction);
-        this.sendTransactionAsync(signedData, callback);
-    }
-
-    @Override
-    public TransactionReceipt sendTransaction(String to, String data) {
-        return null;
+        return this.client.sendRawTransactionAndGetReceipt(signedData);
     }
 
     @Override
@@ -134,9 +143,20 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public CompletableFuture<TransactionReceipt> sendTransactionAsync(
-            String to, String data, TransactionSucCallback callback) {
-        return null;
+    public void sendTransactionAsync(String to, String data, TransactionSucCallback callback) {
+        DefaultGasProvider defaultGasProvider = new DefaultGasProvider();
+        RawTransaction rawTransaction =
+                transactionBuilder.createTransaction(
+                        defaultGasProvider.getGasPrice(),
+                        defaultGasProvider.getGasLimit(),
+                        to,
+                        data,
+                        BigInteger.ZERO,
+                        new BigInteger(this.chainId),
+                        BigInteger.valueOf(this.groupId),
+                        "");
+        String signedData = transactionEncoder.encodeAndSign(rawTransaction);
+        this.client.asyncSendRawTransaction(signedData, callback);
     }
 
     @Override

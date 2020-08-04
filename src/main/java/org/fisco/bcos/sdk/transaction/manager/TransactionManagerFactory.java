@@ -45,7 +45,7 @@ public class TransactionManagerFactory {
             if (EnumNodeVersion.BCOS_2_0_0_RC1.equals(binaryVersion)
                     || EnumNodeVersion.BCOS_2_0_0_RC1.equals(supportedVersion)) {
                 logger.debug("createTransactionManager for rc1 node");
-                return new TransactionManager();
+                return new TransactionManager(client, credential, null, null);
             }
             // transaction manager for >=rc2 transaction (with groupId and chainId)
             else {
@@ -57,13 +57,13 @@ public class TransactionManagerFactory {
                         "createTransactionManager for >=rc2 node, chainId: {}, groupId: {}",
                         chainId,
                         groupId);
-                return new TransactionManager();
+                return new TransactionManager(client, credential, groupId, chainId);
             }
         } catch (ClientException e) {
             logger.error(
                     "createTransactionManager for query nodeVersion failed, error info: {}",
                     e.getMessage());
         }
-        return new TransactionManager();
+        return new TransactionManager(client, credential, null, null);
     }
 }
