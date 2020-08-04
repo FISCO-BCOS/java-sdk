@@ -44,4 +44,14 @@ public class EventEncoder {
         byte[] hash = cryptoInterface.hash(input);
         return Numeric.toHexString(hash);
     }
+
+    /** @return the cryptoInterface */
+    public CryptoInterface getCryptoInterface() {
+        return cryptoInterface;
+    }
+
+    /** @param cryptoInterface the cryptoInterface to set */
+    public void setCryptoInterface(CryptoInterface cryptoInterface) {
+        this.cryptoInterface = cryptoInterface;
+    }
 }

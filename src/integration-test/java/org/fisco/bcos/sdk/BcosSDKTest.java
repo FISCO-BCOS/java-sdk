@@ -14,6 +14,11 @@
  */
 
 package org.fisco.bcos.sdk;
+import java.math.BigInteger;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
@@ -22,7 +27,6 @@ import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.ConsensusStatus;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.client.protocol.response.GroupPeers;
-import org.fisco.bcos.sdk.client.protocol.response.NodeVersion;
 import org.fisco.bcos.sdk.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.client.protocol.response.Peers;
 import org.fisco.bcos.sdk.client.protocol.response.PendingTransactions;
@@ -30,14 +34,10 @@ import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
+import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.math.BigInteger;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class BcosSDKTest
 {
