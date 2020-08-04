@@ -77,11 +77,11 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
     implementation 'org.apache.commons:commons-lang3:3.1'
     implementation 'io.netty:netty-all:4.1.50.Final'
+    implementation ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
     implementation group: 'commons-codec', name: 'commons-codec', version: '1.14'
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
     implementation 'org.slf4j:slf4j-api:1.7.30'
-    implementation ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
     implementation 'com.google.guava:guava:29.0-jre'
     implementation 'commons-io:commons-io:2.4'
     implementation 'org.apache.commons:commons-collections4:4.0'
@@ -93,6 +93,9 @@ dependencies {
 
     integrationTestCompile 'junit:junit:4.12'
     integrationTestCompile 'org.mockito:mockito-core:2.23.0'
+    integrationTestCompile 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+    integrationTestCompile 'io.netty:netty-all:4.1.50.Final'
+    integrationTestCompile ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
 }
 
 // check.dependsOn integrationTest
