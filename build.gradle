@@ -10,29 +10,15 @@ plugins {
     id 'jacoco'
 }
 
-
-
-
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    //jcenter()
-    mavenLocal()
-    mavenCentral()
-
-    maven { url 'https://dl.bintray.com/ethereum/maven/' }
     maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    mavenCentral()
 }
 
 sourceCompatibility = '1.8'
 version = '3.0.0'
-
-//task javadocJar(type: Jar) {
-//    // from javadoc
-//    classifier = 'javadoc'
-//}
 
 googleJavaFormat {
     options style: 'AOSP'
@@ -53,6 +39,16 @@ jacocoTestReport {
     }
 }
 sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+            srcDir 'src/demo/java'
+        }
+
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
     integrationTest {
         java {
             compileClasspath += main.output + test.output
@@ -74,34 +70,25 @@ task integrationTest(type: Test) {
 }
 
 dependencies {
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
-    implementation 'org.apache.commons:commons-lang3:3.1'
-    implementation 'io.netty:netty-all:4.1.50.Final'
-    implementation ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
-    implementation group: 'commons-codec', name: 'commons-codec', version: '1.14'
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
-    implementation 'org.slf4j:slf4j-api:1.7.30'
-    implementation 'com.google.guava:guava:29.0-jre'
-    implementation 'commons-io:commons-io:2.4'
-    implementation 'org.apache.commons:commons-collections4:4.0'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.60'
+    compile 'org.apache.commons:commons-lang3:3.1'
+    compile 'io.netty:netty-all:4.1.50.Final'
+    compile 'org.fisco-bcos:netty-sm-ssl-context:1.0.0'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.14'
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
+    compile 'org.slf4j:slf4j-api:1.7.30'
+    compile 'com.google.guava:guava:29.0-jre'
+    compile 'org.apache.commons:commons-collections4:4.4'
+    compile 'commons-io:commons-io:2.4'
+    compile 'com.squareup:javapoet:1.7.0'
+    compile 'info.picocli:picocli:3.6.0'
+    compile group: 'org.fisco-bcos', name: 'solcJ', version: '0.4.25-rc1'
     
     compile files('lib/pkey-sign.jar')
-    
+
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.23.0'
-
-    testCompile 'org.bouncycastle:bcprov-jdk15on:1.60'
-    testCompile 'org.apache.commons:commons-lang3:3.1'
-    testCompile 'io.netty:netty-all:4.1.50.Final'
-    testCompile ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
-    testCompile 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
-    testCompile group: 'commons-codec', name: 'commons-codec', version: '1.14'
-    testCompile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
-    testCompile 'org.slf4j:slf4j-api:1.7.30'
-    testCompile 'com.google.guava:guava:29.0-jre'
-    testCompile 'commons-io:commons-io:2.4'
-    testCompile 'org.apache.commons:commons-collections4:4.0'
 }
 
 // check.dependsOn integrationTest
@@ -115,6 +102,53 @@ jacocoTestReport {
     reports {
         xml.enabled true
         html.enabled false
+    }
+}
+jar {
+    // destinationDir file('dist/apps')
+    // archiveName project.name + '-' + project.version + '.jar'
+    exclude '**/*.xml'
+    exclude '**/*.properties'
+
+    manifest {
+        try {
+            def repo = grgit.open()
+            if (repo != null) {
+                def user = System.getProperty("user.name")
+                def date = new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                def branch = repo.branch.getCurrent().getName()
+                def commit = repo.head().getAbbreviatedId(40)
+
+                attributes(["Built-By"                : user,
+                            "Implementation-Timestamp": date,
+                            "Git-Branch"              : branch,
+                            "Git-Commit"              : commit
+                ])
+
+                logger.info("  Commit : ")
+                logger.info("  => user: {}", user)
+                logger.info("  => date: {}", date)
+                logger.info("  => branch: {}", branch)
+                logger.info("  => commit: {}", commit)
+            }
+        } catch (Exception e) {
+            // logger.warn(' .git not exist, cannot found commit info')
+        }
+    } from sourceSets.main.output
+
+    doLast {
+        copy {
+            from destinationDir
+            into 'dist/apps'
+        }
+        copy {
+            from configurations.runtime
+            into 'dist/lib'
+        }
+        copy {
+            from file('src/test/resources/')
+            into 'dist/conf'
+        }
     }
 }
 

@@ -26,6 +26,12 @@ public class CallRequest extends CommonRequest {
     private String encodedFunction;
     private String abi;
 
+    public CallRequest(String from, String to, String encodedFunction) {
+        this.from = from;
+        this.to = to;
+        this.encodedFunction = encodedFunction;
+    }
+
     /** @return the from */
     public String getFrom() {
         return from;
