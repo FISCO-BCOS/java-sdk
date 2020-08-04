@@ -14,6 +14,8 @@
  */
 package org.fisco.bcos.sdk.transaction.model.dto;
 
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+
 /**
  * CallRequest @Description: CallRequest
  *
@@ -24,7 +26,7 @@ public class CallRequest extends CommonRequest {
     private String from;
     private String to;
     private String encodedFunction;
-    private String abi;
+    private ABIDefinition abi;
 
     public CallRequest(String from, String to, String encodedFunction) {
         this.from = from;
@@ -57,11 +59,11 @@ public class CallRequest extends CommonRequest {
         this.encodedFunction = encodedFunction;
     }
     /** @return the abi */
-    public String getAbi() {
+    public ABIDefinition getAbi() {
         return abi;
     }
     /** @param abi the abi to set */
-    public void setAbi(String abi) {
+    public void setAbi(ABIDefinition abi) {
         this.abi = abi;
     }
 }
