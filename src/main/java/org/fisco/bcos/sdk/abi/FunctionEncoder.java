@@ -33,11 +33,11 @@ public class FunctionEncoder {
         return encodeParameters(parameters, result);
     }
 
-    public String encodeConstructor(List<Type> parameters) {
+    public static String encodeConstructor(List<Type> parameters) {
         return encodeParameters(parameters, new StringBuilder());
     }
 
-    public String encodeParameters(List<Type> parameters, StringBuilder result) {
+    public static String encodeParameters(List<Type> parameters, StringBuilder result) {
         int dynamicDataOffset = Utils.getLength(parameters) * Type.MAX_BYTE_LENGTH;
         StringBuilder dynamicData = new StringBuilder();
 
@@ -59,7 +59,7 @@ public class FunctionEncoder {
         return result.toString();
     }
 
-    private String buildMethodSignature(String methodName, List<Type> parameters) {
+    public static String buildMethodSignature(String methodName, List<Type> parameters) {
         StringBuilder result = new StringBuilder();
         result.append(methodName);
         result.append("(");
@@ -74,5 +74,15 @@ public class FunctionEncoder {
         byte[] input = methodSignature.getBytes();
         byte[] hash = cryptoInterface.hash(input);
         return Numeric.toHexString(hash).substring(0, 10);
+    }
+
+    /** @return the cryptoInterface */
+    public CryptoInterface getCryptoInterface() {
+        return cryptoInterface;
+    }
+
+    /** @param cryptoInterface the cryptoInterface to set */
+    public void setCryptoInterface(CryptoInterface cryptoInterface) {
+        this.cryptoInterface = cryptoInterface;
     }
 }
