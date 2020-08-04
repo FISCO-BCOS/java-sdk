@@ -91,13 +91,17 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.23.0'
 
-    integrationTestCompile 'junit:junit:4.12'
-    integrationTestCompile 'org.mockito:mockito-core:2.23.0'
-    integrationTestCompile 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
-    integrationTestCompile 'io.netty:netty-all:4.1.50.Final'
-    integrationTestCompile ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
-    integrationTestCompile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
-    integrationTestCompile 'org.slf4j:slf4j-api:1.7.30'
+    testCompile 'org.bouncycastle:bcprov-jdk15on:1.60'
+    testCompile 'org.apache.commons:commons-lang3:3.1'
+    testCompile 'io.netty:netty-all:4.1.50.Final'
+    testCompile ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
+    testCompile 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+    testCompile group: 'commons-codec', name: 'commons-codec', version: '1.14'
+    testCompile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
+    testCompile 'org.slf4j:slf4j-api:1.7.30'
+    testCompile 'com.google.guava:guava:29.0-jre'
+    testCompile 'commons-io:commons-io:2.4'
+    testCompile 'org.apache.commons:commons-collections4:4.0'
 }
 
 // check.dependsOn integrationTest
