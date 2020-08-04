@@ -10,6 +10,7 @@ java-sdk.iml
 .settings/
 bin/
 out/
+dist/
 
 ## integration test files
 nodes/
