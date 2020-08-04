@@ -202,4 +202,24 @@ public class Utils {
         }
         return result;
     }
+
+    @SuppressWarnings("rawtypes")
+    public static List typeMapWithoutGenericType(List input, Class destType)
+            throws TypeMappingException {
+        List result = new ArrayList(input.size());
+        if (!input.isEmpty()) {
+            try {
+                Constructor constructor = destType.getDeclaredConstructor(input.get(0).getClass());
+                for (Object value : input) {
+                    result.add(constructor.newInstance(value));
+                }
+            } catch (NoSuchMethodException
+                    | IllegalAccessException
+                    | InvocationTargetException
+                    | InstantiationException e) {
+                throw new TypeMappingException(e);
+            }
+        }
+        return result;
+    }
 }

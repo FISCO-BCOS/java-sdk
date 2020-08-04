@@ -14,10 +14,48 @@
  */
 package org.fisco.bcos.sdk.model;
 
+import org.fisco.bcos.sdk.abi.datatypes.Function;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+
 /**
  * Function @Description: SolidityFunction
  *
  * @author maojiayu
  * @data Jul 17, 2020 2:36:36 PM
  */
-public class SolidityFunction {}
+public class SolidityFunction {
+
+    private Function function;
+
+    private ABIDefinition functionAbi;
+
+    /**
+     * @param function
+     * @param functionAbi
+     */
+    public SolidityFunction(Function function, ABIDefinition functionAbi) {
+        super();
+        this.function = function;
+        this.functionAbi = functionAbi;
+    }
+
+    /** @return the function */
+    public Function getFunction() {
+        return function;
+    }
+
+    /** @param function the function to set */
+    public void setFunction(Function function) {
+        this.function = function;
+    }
+
+    /** @return the functionAbi */
+    public ABIDefinition getFunctionAbi() {
+        return functionAbi;
+    }
+
+    /** @param functionAbi the functionAbi to set */
+    public void setFunctionAbi(ABIDefinition functionAbi) {
+        this.functionAbi = functionAbi;
+    }
+}

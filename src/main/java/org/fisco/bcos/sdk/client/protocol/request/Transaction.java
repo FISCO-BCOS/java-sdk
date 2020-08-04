@@ -15,4 +15,45 @@
 
 package org.fisco.bcos.sdk.client.protocol.request;
 
-public class Transaction {}
+public class Transaction {
+    private String from;
+    private String to;
+    private String encodedFunction;
+
+    /**
+     * @param from
+     * @param to
+     * @param encodedFunction
+     */
+    public Transaction(String from, String to, String encodedFunction) {
+        super();
+        this.from = from;
+        this.to = to;
+        this.encodedFunction = encodedFunction;
+    }
+
+    /** @return the from */
+    public String getFrom() {
+        return from;
+    }
+    /** @param from the from to set */
+    public void setFrom(String from) {
+        this.from = from;
+    }
+    /** @return the to */
+    public String getTo() {
+        return to;
+    }
+    /** @param to the to to set */
+    public void setTo(String to) {
+        this.to = to;
+    }
+    /** @return the encodedFunction */
+    public String getEncodedFunction() {
+        return encodedFunction;
+    }
+    /** @param encodedFunction the encodedFunction to set */
+    public void setEncodedFunction(String encodedFunction) {
+        this.encodedFunction = encodedFunction;
+    }
+}

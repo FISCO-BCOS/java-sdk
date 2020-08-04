@@ -39,11 +39,11 @@ public class TypeEncoder {
         }
     }
 
-    static String encodeAddress(Address address) {
+    public static String encodeAddress(Address address) {
         return encodeNumeric(address.toUint160());
     }
 
-    static String encodeNumeric(NumericType numericType) {
+    public static String encodeNumeric(NumericType numericType) {
         byte[] rawValue = toByteArray(numericType);
         byte paddingValue = getPaddingValue(numericType);
         byte[] paddedRawValue = new byte[MAX_BYTE_LENGTH];

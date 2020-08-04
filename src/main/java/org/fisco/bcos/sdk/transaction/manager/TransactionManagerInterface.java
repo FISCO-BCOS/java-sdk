@@ -14,13 +14,14 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
-import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.domain.dto.CallRequest;
-import org.fisco.bcos.sdk.transaction.domain.dto.CallResponse;
-import org.fisco.bcos.sdk.transaction.domain.dto.TransactionRequest;
-import org.fisco.bcos.sdk.transaction.domain.dto.TransactionResponse;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
+import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
+import org.fisco.bcos.sdk.transaction.model.dto.TransactionRequest;
+import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 
 /**
  * TransactionManagerInterface @Description: TransactionManagerInterface
@@ -32,12 +33,21 @@ public interface TransactionManagerInterface {
 
     public TransactionResponse deploy(TransactionRequest transactionRequest);
 
-    public void sendTransactionOnly(TransactionRequest transactionRequest);
+    public void sendTransaction(TransactionRequest transactionRequest);
 
-    public TransactionResponse sendTransaction(TransactionRequest transactionRequest);
+    public void sendTransaction(
+            BigInteger gasPrice,
+            BigInteger gasLimit,
+            String to,
+            String data,
+            BigInteger value,
+            BigInteger chainId,
+            BigInteger groupId,
+            TransactionCallback callback);
 
-    public TransactionReceipt sendTransaction(
-            int groupId, String signedTransaction, RespCallback<TransactionResponse> callback);
+    public TransactionResponse sendTransactionAndGetResponse(TransactionRequest transactionRequest);
+
+    public void sendTransactionAsync(String signedTransaction, TransactionCallback callback);
 
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             TransactionRequest transactionRequest);

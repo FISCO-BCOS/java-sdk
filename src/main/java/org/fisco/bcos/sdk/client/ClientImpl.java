@@ -38,7 +38,6 @@ import org.fisco.bcos.sdk.client.protocol.response.GenerateGroup;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.client.protocol.response.GroupPeers;
 import org.fisco.bcos.sdk.client.protocol.response.NodeIDList;
-import org.fisco.bcos.sdk.client.protocol.response.NodeVersion;
 import org.fisco.bcos.sdk.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.client.protocol.response.Peers;
@@ -56,9 +55,10 @@ import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
+import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
-import org.fisco.bcos.sdk.transaction.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 public class ClientImpl implements Client {
