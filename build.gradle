@@ -96,6 +96,8 @@ dependencies {
     integrationTestCompile 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
     integrationTestCompile 'io.netty:netty-all:4.1.50.Final'
     integrationTestCompile ('org.fisco-bcos:netty-sm-ssl-context:1.0.0')
+    integrationTestCompile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.0'
+    integrationTestCompile 'org.slf4j:slf4j-api:1.7.30'
 }
 
 // check.dependsOn integrationTest
