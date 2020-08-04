@@ -99,7 +99,7 @@ public class Contract {
             Constructor<T> constructor =
                     type.getDeclaredConstructor(String.class, Client.class, CryptoInterface.class);
             constructor.setAccessible(true);
-            T contract = constructor.newInstance(null, null, client, credential);
+            T contract = constructor.newInstance(null, client, credential);
             return create(contract, binary, encodedConstructor);
         } catch (InstantiationException
                 | InvocationTargetException
@@ -116,7 +116,13 @@ public class Contract {
             CryptoInterface credential,
             String binary,
             String encodedConstructor) {
-        return deploy(type, client, credential, binary, encodedConstructor);
+        return deploy(
+                type,
+                client,
+                credential,
+                TransactionManagerFactory.createTransactionManager(client, credential),
+                binary,
+                encodedConstructor);
     }
 
     private static <T extends Contract> T create(
@@ -284,8 +290,8 @@ public class Contract {
         this.subscribeEvent(filter, callback);
     }
 
-    protected EventValues extractEventParameters(Event event, TransactionReceipt.Logs log) {
-
+    public static EventValues staticExtractEventParameters(
+            EventEncoder eventEncoder, Event event, TransactionReceipt.Logs log) {
         List<String> topics = log.getTopics();
         String encodedEventSignature = eventEncoder.encode(event);
         if (!topics.get(0).equals(encodedEventSignature)) {
@@ -304,6 +310,10 @@ public class Contract {
             indexedValues.add(value);
         }
         return new EventValues(indexedValues, nonIndexedValues);
+    }
+
+    protected EventValues extractEventParameters(Event event, TransactionReceipt.Logs log) {
+        return staticExtractEventParameters(eventEncoder, event, log);
     }
 
     protected List<EventValues> extractEventParameters(

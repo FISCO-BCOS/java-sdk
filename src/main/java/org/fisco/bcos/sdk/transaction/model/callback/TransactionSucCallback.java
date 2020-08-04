@@ -26,11 +26,19 @@ public abstract class TransactionSucCallback {
 
     public abstract void onResponse(TransactionReceipt receipt);
 
+    public void onError(String errorMessage) {
+        logger.error("transaction exceptioned");
+        TransactionReceipt receipt = new TransactionReceipt();
+        receipt.setStatus("transaction exceptioned, error information:" + errorMessage);
+        onResponse(receipt);
+    }
+
     public void onTimeout() {
         logger.error("transactionSuc timeout");
         TransactionReceipt receipt = new TransactionReceipt();
-        receipt.setStatus("Transaction receipt timeout.");
-        receipt.setStatus(String.valueOf(ChannelMessageError.MESSAGE_TIMEOUT.getError()));
+        receipt.setStatus(
+                "Transaction receipt timeout, error code:"
+                        + String.valueOf(ChannelMessageError.MESSAGE_TIMEOUT.getError()));
         onResponse(receipt);
     }
 

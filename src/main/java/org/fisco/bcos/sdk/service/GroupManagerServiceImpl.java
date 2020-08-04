@@ -40,6 +40,7 @@ import org.fisco.bcos.sdk.client.handler.BlockNumberNotifyHandler;
 import org.fisco.bcos.sdk.client.handler.TransactionNotifyHandler;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.model.Message;
+import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
@@ -119,8 +120,8 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                                         });
                             }
                         });
-        this.channel.addConnectHandler(handler);
-        logger.debug("registerBlockNumberNotifyHandler");
+        this.channel.addMessageHandler(MsgType.BLOCK_NOTIFY, handler);
+        logger.info("registerBlockNumberNotifyHandler");
     }
 
     public void registerTransactionNotifyHandler() {
@@ -139,8 +140,8 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                                         });
                             }
                         });
-        this.channel.addConnectHandler(handler);
-        logger.debug("registerTransactionNotifyHandler");
+        this.channel.addMessageHandler(MsgType.TRANSACTION_NOTIFY, handler);
+        logger.info("registerTransactionNotifyHandler");
     }
 
     /**
@@ -213,9 +214,19 @@ public class GroupManagerServiceImpl implements GroupManagerService {
 
     @Override
     public void asyncSendTransaction(
-            Integer groupId, Message transactionMessage, TransactionSucCallback callback) {
+            Integer groupId,
+            Message transactionMessage,
+            TransactionSucCallback callback,
+            ResponseCallback responseCallback) {
         seq2TransactionCallback.put(transactionMessage.getSeq(), callback);
-        asyncSendMessageToGroup(groupId, transactionMessage, null);
+        asyncSendMessageToGroup(groupId, transactionMessage, responseCallback);
+    }
+
+    @Override
+    public void eraseTransactionSeq(String seq) {
+        if (seq2TransactionCallback.contains(seq)) {
+            seq2TransactionCallback.remove(seq);
+        }
     }
 
     @Override
