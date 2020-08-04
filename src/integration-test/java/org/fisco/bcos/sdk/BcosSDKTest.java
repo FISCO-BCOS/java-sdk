@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
@@ -34,8 +35,10 @@ import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
+import org.fisco.bcos.sdk.config.ConfigException;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.service.GroupManagerService;
+import org.fisco.bcos.sdk.demo.contract.HelloWorld;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,8 +46,7 @@ public class BcosSDKTest
 {
     private static final String configFile = BcosSDKTest.class.getClassLoader().getResource("config-example.yaml").getPath();
     @Test
-    public void testClient()
-    {
+    public void testClient() throws ConfigException {
         BcosSDK sdk = new BcosSDK(configFile);
         // check groupList
         Assert.assertTrue(sdk.getChannel().getAvailablePeer().size() >= 1);
@@ -61,11 +63,10 @@ public class BcosSDKTest
 
         // test getBlockNumber
         BlockNumber blockNumber = client.getBlockNumber();
-        Assert.assertEquals(BigInteger.valueOf(0), blockNumber.getBlockNumber());
 
         // test getBlockByNumber
-        BcosBlock block = client.getBlockByNumber(blockNumber.getBlockNumber(), false);
-        Assert.assertEquals(blockNumber.getBlockNumber(), block.getBlock().getNumber());
+        BcosBlock block = client.getBlockByNumber(BigInteger.ZERO, false);
+        Assert.assertEquals(BigInteger.ZERO, block.getBlock().getNumber());
         // the genesis block with zero transactions
         Assert.assertEquals(0, block.getBlock().getTransactions().size());
         // the genesis block with 0 sealer
@@ -80,21 +81,26 @@ public class BcosSDKTest
         Assert.assertEquals(block2.getBlock().getHash(), block.getBlock().getHash());
 
         // get blockHash
-        BlockHash blockHash = client.getBlockHashByNumber(blockNumber.getBlockNumber());
+        BlockHash blockHash = client.getBlockHashByNumber(BigInteger.ZERO);
         Assert.assertEquals(blockHash.getBlockHashByNumber(), block.getBlock().getHash());
 
-        // Note: FISCO BCOS supported_version >= v2.6.0 has this RPC interface
-        // get blockHeader
-        BcosBlockHeader blockHeader = client.getBlockHeaderByHash(blockHash.getBlockHashByNumber(), true);
-        if(blockHeader.getError() == null) {
-            Assert.assertEquals(blockNumber.getBlockNumber(), blockHeader.getBlockHeader().getNumber());
-            Assert.assertEquals(block.getBlock().getHash(), blockHeader.getBlockHeader().getHash());
+        try
+        {
+            // Note: FISCO BCOS supported_version >= v2.6.0 has this RPC interface
+            // get blockHeader
+            BcosBlockHeader blockHeader = client.getBlockHeaderByHash(blockHash.getBlockHashByNumber(), true);
+            if(blockHeader.getError() == null) {
+                Assert.assertEquals(BigInteger.ZERO, blockHeader.getBlockHeader().getNumber());
+                Assert.assertEquals(block.getBlock().getHash(), blockHeader.getBlockHeader().getHash());
 
-            BcosBlockHeader blockHeader2 = client.getBlockHeaderByNumber(blockNumber.getBlockNumber(), true);
-            Assert.assertEquals(blockHeader.getBlockHeader(), blockHeader2.getBlockHeader());
+                BcosBlockHeader blockHeader2 = client.getBlockHeaderByNumber(BigInteger.ZERO, true);
+                Assert.assertEquals(blockHeader.getBlockHeader(), blockHeader2.getBlockHeader());
+            }
         }
-
-
+        catch (ClientException e)
+        {
+            System.out.println("getBlockHeaderByHash failed, error information: " + e.getMessage());
+        }
 
         // get SealerList
         SealerList sealerList = client.getSealerList();
@@ -142,11 +148,12 @@ public class BcosSDKTest
         client.getPbftView();
 
         // getSyncStatus
+        BlockHash latestHash = client.getBlockHashByNumber(blockNumber.getBlockNumber());
         SyncStatus syncStatus = client.getSyncStatus();
         Assert.assertEquals("0", syncStatus.getSyncStatus().getTxPoolSize());
-        Assert.assertEquals(blockHash.getBlockHashByNumber(), "0x" + syncStatus.getSyncStatus().getLatestHash());
+        Assert.assertEquals(latestHash.getBlockHashByNumber(), "0x" + syncStatus.getSyncStatus().getLatestHash());
         Assert.assertEquals(blockHash.getBlockHashByNumber(), "0x" + syncStatus.getSyncStatus().getGenesisHash());
-        Assert.assertEquals( blockHash.getBlockHashByNumber(), "0x" + syncStatus.getSyncStatus().getKnownLatestHash());
+        Assert.assertEquals( latestHash.getBlockHashByNumber(), "0x" + syncStatus.getSyncStatus().getKnownLatestHash());
         Assert.assertEquals(blockNumber.getBlockNumber(), new BigInteger(syncStatus.getSyncStatus().getKnownHighestNumber()));
         Assert.assertEquals(peers.getPeers().size(), syncStatus.getSyncStatus().getPeers().size());
 
@@ -171,6 +178,15 @@ public class BcosSDKTest
         Assert.assertEquals("true", consensusStatus.getConsensusStatus().getBaseConsensusInfo().getAllowFutureBlocks());
         Assert.assertEquals("true", consensusStatus.getConsensusStatus().getBaseConsensusInfo().getOmitEmptyBlock());
         Assert.assertEquals(blockNumber.getBlockNumber(), new BigInteger(consensusStatus.getConsensusStatus().getBaseConsensusInfo().getHighestblockNumber()));
-        Assert.assertEquals(blockHash.getBlockHashByNumber(), consensusStatus.getConsensusStatus().getBaseConsensusInfo().getHighestblockHash());
+        Assert.assertEquals(latestHash.getBlockHashByNumber(), consensusStatus.getConsensusStatus().getBaseConsensusInfo().getHighestblockHash());
+    }
+
+    @Test
+    public void testTransactions() throws ConfigException {
+        BcosSDK sdk = new BcosSDK(configFile);
+        Client client = sdk.getClient(Integer.valueOf(1));
+        HelloWorld helloWorld = HelloWorld.deploy(client, sdk.getCryptoInterface());
+        Assert.assertTrue(helloWorld != null);
+        Assert.assertTrue(helloWorld.getContractAddress() != null);
     }
 }

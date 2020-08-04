@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.channel;
 import java.util.List;
 import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
 import org.fisco.bcos.sdk.channel.model.Options;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -34,11 +35,11 @@ public interface Channel {
     /**
      * Init channel module
      *
-     * @param filepath config file path.
+     * @param config config file path.
      * @return a channel instance
      */
-    static Channel build(String filepath) {
-        return new ChannelImp(filepath);
+    static Channel build(ConfigOption config) {
+        return new ChannelImp(config);
     }
 
     void start();

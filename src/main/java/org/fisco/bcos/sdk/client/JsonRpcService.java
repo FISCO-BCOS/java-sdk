@@ -96,7 +96,7 @@ public class JsonRpcService {
             Class<T> responseType,
             RespCallback<T> callback) {
         Message message =
-                encodeRequestToMessage(request, Short.valueOf((short) messageType.ordinal()));
+                encodeRequestToMessage(request, Short.valueOf((short) messageType.getType()));
         this.channel.asyncSendToPeer(
                 message,
                 peerIpAndPort,
@@ -128,7 +128,7 @@ public class JsonRpcService {
             Class<T> responseType,
             RespCallback<T> callback) {
         Message message =
-                encodeRequestToMessage(request, Short.valueOf((short) messageType.ordinal()));
+                encodeRequestToMessage(request, Short.valueOf((short) messageType.getType()));
         this.groupManagerService.asyncSendMessageToGroup(
                 this.groupId,
                 message,
@@ -148,12 +148,28 @@ public class JsonRpcService {
                 });
     }
 
-    public void asyncSendTransactionToGroup(
-            JsonRpcRequest request, TransactionSucCallback callback) {
+    public <T extends JsonRpcResponse> void asyncSendTransactionToGroup(
+            JsonRpcRequest request, TransactionSucCallback callback, Class<T> responseType) {
         Message message =
                 encodeRequestToMessage(
-                        request, Short.valueOf((short) MsgType.CHANNEL_RPC_REQUEST.ordinal()));
-        this.groupManagerService.asyncSendTransaction(this.groupId, message, callback);
+                        request, Short.valueOf((short) MsgType.CHANNEL_RPC_REQUEST.getType()));
+        this.groupManagerService.asyncSendTransaction(
+                this.groupId,
+                message,
+                callback,
+                new ResponseCallback() {
+                    @Override
+                    public void onResponse(Response response) {
+                        try {
+                            // decode the transaction
+                            parseResponseIntoJsonRpcResponse(request, response, responseType);
+                        } catch (ClientException e) {
+                            groupManagerService.eraseTransactionSeq(response.getMessageID());
+                            // fake the transactionReceipt
+                            callback.onError(e.getMessage());
+                        }
+                    }
+                });
     }
 
     protected <T extends JsonRpcResponse> T parseResponseIntoJsonRpcResponse(
@@ -170,6 +186,15 @@ public class JsonRpcService {
                             response.getMessageID(),
                             jsonRpcResponse.getError().getMessage(),
                             jsonRpcResponse.getError().getCode());
+                    throw new ClientException(
+                            "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: "
+                                    + request.getMethod()
+                                    + ", group: {}"
+                                    + this.groupId
+                                    + ", seq:"
+                                    + response.getMessageID()
+                                    + ",retErrorMessage: "
+                                    + jsonRpcResponse.getError().getMessage());
                 } else {
                     parseResponseOutput(jsonRpcResponse);
                 }
