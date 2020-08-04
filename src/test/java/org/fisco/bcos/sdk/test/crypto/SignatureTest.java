@@ -16,6 +16,9 @@ package org.fisco.bcos.sdk.test.crypto;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
+import org.fisco.bcos.sdk.crypto.hash.Hash;
+import org.fisco.bcos.sdk.crypto.hash.Keccak256;
+import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.SM2KeyPair;
@@ -50,14 +53,16 @@ public class SignatureTest {
     public void testECDSASignature() {
         Signature ecdsaSignature = new ECDSASignature();
         CryptoKeyPair keyPair = (new ECDSAKeyPair()).generateKeyPair();
-        testSignature(ecdsaSignature, keyPair);
+        Hash hasher = new Keccak256();
+        testSignature(hasher, ecdsaSignature, keyPair);
     }
 
     @Test
     public void testSM2Signature() {
         Signature sm2Signature = new SM2Signature();
         CryptoKeyPair keyPair = (new SM2KeyPair()).generateKeyPair();
-        testSignature(sm2Signature, keyPair);
+        Hash hasher = new SM3Hash();
+        testSignature(hasher, sm2Signature, keyPair);
     }
 
     @Test
@@ -178,11 +183,12 @@ public class SignatureTest {
         keyPair.getAddress("123xyz");
     }
 
-    public void testSignature(Signature signature, CryptoKeyPair keyPair) {
+    public void testSignature(Hash hasher, Signature signature, CryptoKeyPair keyPair) {
         String message = "abcde";
+
         // check valid case
         for (int i = 0; i < 10; i++) {
-            message = "abcd----" + Integer.toString(i);
+            message = hasher.hash("abcd----" + Integer.toString(i));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify
@@ -197,8 +203,8 @@ public class SignatureTest {
 
         // check invalid case
         for (int i = 0; i < 10; i++) {
-            message = "abcd----" + Integer.toString(i);
-            String invaidMessage = "abcd---" + Integer.toString(i + 1);
+            message = hasher.hash("abcd----" + Integer.toString(i));
+            String invaidMessage = hasher.hash("abcd---" + Integer.toString(i + 1));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify
@@ -222,7 +228,8 @@ public class SignatureTest {
         String message = "abcde";
         // check valid case
         for (int i = 0; i < 10; i++) {
-            message = "abcd----" + Integer.toString(i);
+            // Note: the message must be hash
+            message = signature.hash("abcd----" + Integer.toString(i));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify
@@ -237,8 +244,8 @@ public class SignatureTest {
 
         // check invalid case
         for (int i = 0; i < 10; i++) {
-            message = "abcd----" + Integer.toString(i);
-            String invaidMessage = "abcd---" + Integer.toString(i + 1);
+            message = signature.hash("abcd----" + Integer.toString(i));
+            String invaidMessage = signature.hash("abcd---" + Integer.toString(i + 1));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify

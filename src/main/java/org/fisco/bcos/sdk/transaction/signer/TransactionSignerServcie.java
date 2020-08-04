@@ -24,7 +24,7 @@ public class TransactionSignerServcie implements TransactionSignerInterface {
     private CryptoKeyPair cryptoKeyPair;
 
     /**
-     * @param encryptType
+     * @param signature
      * @param cryptoKeyPair
      */
     public TransactionSignerServcie(Signature signature, CryptoKeyPair cryptoKeyPair) {
@@ -34,8 +34,8 @@ public class TransactionSignerServcie implements TransactionSignerInterface {
     }
 
     @Override
-    public SignatureResult sign(byte[] bytes) {
-        return signature.sign(bytes, cryptoKeyPair);
+    public SignatureResult sign(String hash) {
+        return signature.sign(hash, this.cryptoKeyPair);
     }
 
     /** @return the cryptoKeyPair */

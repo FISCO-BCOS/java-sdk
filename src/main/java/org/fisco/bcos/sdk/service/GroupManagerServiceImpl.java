@@ -13,6 +13,10 @@
  */
 package org.fisco.bcos.sdk.service;
 
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -60,6 +64,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     private ConcurrentHashMap<String, List<String>> nodeToGroupIDList = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, TransactionSucCallback> seq2TransactionCallback =
             new ConcurrentHashMap<>();
+    private final Timer timeoutHandler = new HashedWheelTimer();
 
     private Client groupInfoGetter;
     // TODO: get the fetchGroupListIntervalMs from the configuration
@@ -186,7 +191,6 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             logger.error("transaction callback is null, seq: {}", seq);
             return;
         }
-
         // decode the message into receipt
         TransactionReceipt receipt = null;
         try {
@@ -201,11 +205,6 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             receipt.setMessage(
                     "Decode receipt error, seq: " + seq + ", reason: " + e.getLocalizedMessage());
         }
-
-        // call the transaction callback
-        if (callback.getTimeout() != null) {
-            callback.getTimeout().cancel();
-        }
         // TODO: parse the receipt information
         callback.onResponse(receipt);
         // remove the callback
@@ -218,6 +217,17 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             Message transactionMessage,
             TransactionSucCallback callback,
             ResponseCallback responseCallback) {
+        callback.setTimeoutHandler(
+                timeoutHandler.newTimeout(
+                        new TimerTask() {
+                            @Override
+                            public void run(Timeout timeout) throws Exception {
+                                callback.onTimeout();
+                                seq2TransactionCallback.remove(transactionMessage.getSeq());
+                            }
+                        },
+                        callback.getTimeout(),
+                        TimeUnit.MILLISECONDS));
         seq2TransactionCallback.put(transactionMessage.getSeq(), callback);
         asyncSendMessageToGroup(groupId, transactionMessage, responseCallback);
     }

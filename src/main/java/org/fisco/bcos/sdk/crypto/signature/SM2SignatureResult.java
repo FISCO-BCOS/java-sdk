@@ -24,7 +24,7 @@ public class SM2SignatureResult extends SignatureResult {
 
     SM2SignatureResult(final String hexPublicKey, final String signatureString) {
         super(signatureString);
-        this.pub = Hex.decode(hexPublicKey);
+        this.pub = Hex.decode(hexPublicKey.substring(2));
     }
 
     SM2SignatureResult(byte[] pub, byte[] r, byte[] s) {
