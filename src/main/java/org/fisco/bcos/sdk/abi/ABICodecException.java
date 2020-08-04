@@ -15,4 +15,9 @@
 
 package org.fisco.bcos.sdk.abi;
 
-public class ABICodecException extends Exception {}
+public class ABICodecException extends Exception {
+
+    public ABICodecException(String message) {
+        super(message);
+    }
+}
