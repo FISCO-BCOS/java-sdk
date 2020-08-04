@@ -911,7 +911,8 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(
                         JsonRpcMethods.SEND_RAWTRANSACTION,
                         Arrays.asList(this.groupId, signedTransactionData)),
-                callback);
+                callback,
+                SendTransaction.class);
     }
 
     @Override
@@ -921,7 +922,8 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(
                         JsonRpcMethods.SEND_RAWTRANSACTION_AND_GET_PROOF,
                         Arrays.asList(this.groupId, signedTransactionData)),
-                callback);
+                callback,
+                SendTransaction.class);
     }
 
     @Override

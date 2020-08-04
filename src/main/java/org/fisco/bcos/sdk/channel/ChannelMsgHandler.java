@@ -54,7 +54,7 @@ public class ChannelMsgHandler implements MsgHandler {
 
     private List<MsgHandler> msgConnectHandlerList = new ArrayList<>();
     private List<MsgHandler> msgDisconnectHandleList = new ArrayList<>();
-    private Map<MsgType, MsgHandler> msgHandlers = new ConcurrentHashMap<>();
+    private Map<Integer, MsgHandler> msgHandlers = new ConcurrentHashMap<>();
     private Map<String, ResponseCallback> seq2Callback = new ConcurrentHashMap<>();
     private Map<String, ChannelHandlerContext> availablePeer = new ConcurrentHashMap<>();
 
@@ -67,7 +67,7 @@ public class ChannelMsgHandler implements MsgHandler {
     }
 
     public void addMessageHandler(MsgType type, MsgHandler handler) {
-        msgHandlers.put(type, handler);
+        msgHandlers.put(type.getType(), handler);
     }
 
     public void addDisconnectHandler(MsgHandler handler) {
@@ -132,13 +132,15 @@ public class ChannelMsgHandler implements MsgHandler {
             response.setContent(new String(msg.getData()));
             callback.onResponse(response);
         } else {
-            logger.trace(
+            logger.info(
                     " receive response with invalid seq, type: {}, result: {}, content: {}",
                     (int) msg.getType(),
                     msg.getResult(),
                     new String(msg.getData()));
-            MsgHandler msgHandler = msgHandlers.get(msg.getType());
-            msgHandler.onMessage(ctx, msg);
+            MsgHandler msgHandler = msgHandlers.get(msg.getType().intValue());
+            if (msgHandler != null) {
+                msgHandler.onMessage(ctx, msg);
+            }
         }
     }
 

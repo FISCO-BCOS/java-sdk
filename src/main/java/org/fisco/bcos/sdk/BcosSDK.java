@@ -16,6 +16,10 @@ package org.fisco.bcos.sdk;
 import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.config.Config;
+import org.fisco.bcos.sdk.config.ConfigException;
+import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.service.GroupManagerServiceImpl;
 import org.slf4j.Logger;
@@ -23,16 +27,42 @@ import org.slf4j.LoggerFactory;
 
 public class BcosSDK {
     private static Logger logger = LoggerFactory.getLogger(BcosSDK.class);
+    public static final String ECDSA_TYPE_STR = "ecdsa";
+    public static final String SM_TYPE_STR = "sm";
+
+    private final ConfigOption config;
     private final Channel channel;
     private final GroupManagerService groupManagerService;
+    private final CryptoInterface cryptoInterface;
     private ConcurrentHashMap<Integer, Client> groupToClient = new ConcurrentHashMap<>();
     private long maxWaitEstablishConnectionTime = 30000;
 
-    public BcosSDK(String configPath) {
+    public BcosSDK(String configPath) throws ConfigException {
         logger.info("create BcosSDK, configPath: {}", configPath);
+        // load configuration file
+        this.config = Config.load(configPath);
+        logger.info("create BcosSDK, load configPath: {} succ", configPath);
+
+        // get cryptoInterface according to config
+        if (this.config.cryptoMaterial.get("algorithm").compareToIgnoreCase(ECDSA_TYPE_STR) == 0) {
+            this.cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+        } else if (this.config.cryptoMaterial.get("algorithm").compareToIgnoreCase(SM_TYPE_STR)
+                == 0) {
+            this.cryptoInterface = new CryptoInterface(CryptoInterface.SM_TYPE);
+        } else {
+            throw new BcosSDKException(
+                    "create cryptoInterface failed for unsupported crypto type: "
+                            + this.config.cryptoMaterial.get("algorithm"));
+        }
+        logger.info(
+                "create BcosSDK, creat cryptoInterface, type: {}",
+                this.config.cryptoMaterial.get("algorithm"));
+
         // create channel
-        this.channel = Channel.build(configPath);
+        this.channel = Channel.build(this.config);
         this.channel.start();
+        logger.info("create BcosSDK, start channel succ");
+
         if (!waitForEstablishConnection()) {
             logger.error("create BcosSDK failed for the number of available peers is 0");
             throw new BcosSDKException(
@@ -40,6 +70,7 @@ public class BcosSDK {
         }
         // create GroupMangerService
         this.groupManagerService = new GroupManagerServiceImpl(this.channel);
+        logger.info("create BcosSDK, create groupManagerService succ");
     }
 
     private boolean waitForEstablishConnection() {
@@ -75,5 +106,13 @@ public class BcosSDK {
 
     public GroupManagerService getGroupManagerService() {
         return this.groupManagerService;
+    }
+
+    public ConfigOption getConfig() {
+        return this.config;
+    }
+
+    public CryptoInterface getCryptoInterface() {
+        return this.cryptoInterface;
     }
 }
