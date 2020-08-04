@@ -1,6 +1,7 @@
 package org.fisco.bcos.sdk.channel.model;
 
 public enum EnumNodeVersion {
+    BCOS_2_0_0_RC1("2.0.0-rc1"),
     BCOS_2_0_0("2.0.0"),
     BCOS_2_1_0("2.1.0");
 

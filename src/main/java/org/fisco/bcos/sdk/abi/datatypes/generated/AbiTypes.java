@@ -218,12 +218,6 @@ public final class AbiTypes {
                 return Bytes31.class;
             case "bytes32":
                 return Bytes32.class;
-
-                /*case "TransactionSucCallback":
-                    return TransactionSucCallbac.class;
-                case "EventLogPushCallback":
-                    return EventLogPushWithDecodeCallback.class;*/
-
             default:
                 throw new UnsupportedOperationException("Unsupported type encountered: " + type);
         }
