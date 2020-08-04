@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.math.BigInteger;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -482,6 +484,240 @@ public class ABICodecJsonWrapper {
                 case STRUCT:
                     {
                         result.add(argNode.toPrettyString());
+                        break;
+                    }
+                default:
+                    {
+                        throw new UnsupportedOperationException(
+                                " Unsupported objectType: " + argObject.getType());
+                    }
+            }
+        }
+
+        return result;
+    }
+
+    public ABIObject encodeJavaObject(ABIObject template, List<Object> inputs)
+            throws InvalidParameterException, UnsupportedOperationException {
+
+        ABIObject abiObject = template.newObject();
+
+        // check parameters match
+        if (inputs.size() != abiObject.getStructFields().size()) {
+            errorReport(
+                    "arguments size",
+                    String.valueOf(abiObject.getStructFields().size()),
+                    String.valueOf(inputs.size()));
+        }
+
+        for (int i = 0; i < abiObject.getStructFields().size(); ++i) {
+
+            ABIObject argObject = abiObject.getStructFields().get(i).newObject();
+            Object value = inputs.get(i);
+
+            switch (argObject.getType()) {
+                case VALUE:
+                    {
+                        switch (argObject.getValueType()) {
+                            case BOOL:
+                                {
+                                    if (value instanceof Boolean) {
+                                        argObject.setBoolValue(new Bool((Boolean) value));
+                                    } else {
+                                        errorReport(
+                                                " type mismatch",
+                                                argObject.getValueType().getClass().getName(),
+                                                value.getClass().getName());
+                                    }
+                                    break;
+                                }
+                            case UINT:
+                                {
+                                    if (value instanceof BigInteger) {
+                                        argObject.setNumericValue(new Uint256((BigInteger) value));
+                                    } else {
+                                        errorReport(
+                                                " type mismatch",
+                                                argObject.getValueType().getClass().getName(),
+                                                value.getClass().getName());
+                                    }
+                                    break;
+                                }
+                            case INT:
+                                {
+                                    if (value instanceof BigInteger) {
+                                        argObject.setNumericValue(new Int256((BigInteger) value));
+                                    } else {
+                                        errorReport(
+                                                " type mismatch",
+                                                argObject.getValueType().getClass().getName(),
+                                                value.getClass().getName());
+                                    }
+                                    break;
+                                }
+                            case ADDRESS:
+                                {
+                                    if (value instanceof String) {
+                                        argObject.setAddressValue(new Address((String) value));
+                                    } else {
+                                        errorReport(
+                                                " type mismatch",
+                                                argObject.getValueType().getClass().getName(),
+                                                value.getClass().getName());
+                                    }
+                                    break;
+                                }
+                            case BYTES:
+                                {
+                                    if (value instanceof ParameterizedType) {
+                                        if (((ParameterizedType) value)
+                                                .getRawType()
+                                                .equals(Byte.class)) {
+                                            byte[] bytesValue = (byte[]) value;
+                                            argObject.setBytesValue(
+                                                    new Bytes(bytesValue.length, bytesValue));
+                                        }
+
+                                    } else {
+                                        errorReport(
+                                                " type mismatch",
+                                                argObject.getValueType().getClass().getName(),
+                                                value.getClass().getName());
+                                    }
+                                    break;
+                                }
+                            case DBYTES:
+                                {
+                                    if (value instanceof ParameterizedType
+                                            && (((ParameterizedType) value)
+                                                    .getRawType()
+                                                    .equals(Byte.class))) {
+                                        byte[] bytesValue = (byte[]) value;
+                                        argObject.setDynamicBytesValue(
+                                                new DynamicBytes(bytesValue));
+                                    } else {
+                                        errorReport(
+                                                " type mismatch",
+                                                argObject.getValueType().getClass().getName(),
+                                                value.getClass().getName());
+                                        break;
+                                    }
+                                }
+                            case STRING:
+                                {
+                                    if (value instanceof String) {
+                                        argObject.setStringValue(new Utf8String((String) value));
+                                    } else {
+                                        errorReport(
+                                                " type mismatch",
+                                                argObject.getValueType().getClass().getName(),
+                                                value.getClass().getName());
+                                    }
+                                    break;
+                                }
+                            default:
+                                {
+                                    throw new UnsupportedOperationException(
+                                            "Unrecognized valueType: " + argObject.getValueType());
+                                }
+                        }
+                    }
+                case STRUCT:
+                case LIST:
+                    {
+                        if (value instanceof ParameterizedType) {
+                            List<Object> src = (List<Object>) value;
+                            argObject = encodeJavaObject(argObject, src);
+                        } else {
+                            errorReport(
+                                    " type mismatch",
+                                    argObject.getValueType().getClass().getName(),
+                                    value.getClass().getName());
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        throw new UnsupportedOperationException(
+                                " Unsupported objectType: " + argObject.getType());
+                    }
+            }
+
+            abiObject.getStructFields().set(i, argObject);
+        }
+        return abiObject;
+    }
+
+    public List<Object> decodeJavaObject(ABIObject template, String argStr) {
+
+        if (logger.isTraceEnabled()) {
+            logger.trace(" ABIObject: {}, abi: {}", template.toString(), argStr);
+        }
+
+        argStr = Numeric.cleanHexPrefix(argStr);
+
+        ABIObject abiObject = template.decode(argStr);
+
+        // ABIObject -> java List<Object>
+        List<Object> result = decodeJavaObject(abiObject);
+
+        return result;
+    }
+
+    private List<Object> decodeJavaObject(ABIObject template) throws UnsupportedOperationException {
+        List<Object> result = new ArrayList<Object>();
+        for (int i = 0; i < template.getStructFields().size(); ++i) {
+            ABIObject argObject = template.getStructFields().get(i);
+            switch (argObject.getType()) {
+                case VALUE:
+                    {
+                        switch (argObject.getValueType()) {
+                            case BOOL:
+                                {
+                                    result.add(argObject.getBoolValue().getValue());
+                                    break;
+                                }
+                            case UINT:
+                            case INT:
+                                {
+                                    result.add(argObject.getNumericValue().getValue());
+                                    break;
+                                }
+                            case ADDRESS:
+                                {
+                                    result.add(argObject.getAddressValue().toString());
+                                    break;
+                                }
+                            case BYTES:
+                                {
+                                    result.add(new String(argObject.getBytesValue().getValue()));
+                                    break;
+                                }
+                            case DBYTES:
+                                {
+                                    result.add(
+                                            new String(
+                                                    argObject.getDynamicBytesValue().getValue()));
+                                    break;
+                                }
+                            case STRING:
+                                {
+                                    result.add(argObject.getStringValue());
+                                    break;
+                                }
+                            default:
+                                {
+                                    throw new UnsupportedOperationException(
+                                            " Unsupported valueType: " + argObject.getValueType());
+                                }
+                        }
+                        break;
+                    }
+                case LIST:
+                case STRUCT:
+                    {
+                        List<Object> node = decodeJavaObject(argObject);
+                        result.add(node);
                         break;
                     }
                 default:

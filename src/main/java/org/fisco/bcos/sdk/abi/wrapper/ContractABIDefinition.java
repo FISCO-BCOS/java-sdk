@@ -18,6 +18,8 @@ public class ContractABIDefinition {
     private Map<String, List<ABIDefinition>> events = new HashMap<>();
     // method id => function
     private Map<String, ABIDefinition> methodIDToFunctions = new HashMap<>();
+    // event topic => topic
+    private Map<String, ABIDefinition> eventTopicToEvents = new HashMap<>();
     private CryptoInterface cryptoInterface;
 
     public ContractABIDefinition(CryptoInterface cryptoInterface) {
@@ -56,6 +58,14 @@ public class ContractABIDefinition {
         this.methodIDToFunctions = methodIDToFunctions;
     }
 
+    public Map<String, ABIDefinition> getEventTopicToEvents() {
+        return eventTopicToEvents;
+    }
+
+    public void setEvectTopicToEvents(Map<String, ABIDefinition> eventTopicToEvents) {
+        this.eventTopicToEvents = eventTopicToEvents;
+    }
+
     public void addFunction(String name, ABIDefinition abiDefinition) {
 
         List<ABIDefinition> abiDefinitions = functions.get(name);
@@ -88,5 +98,9 @@ public class ContractABIDefinition {
 
     public ABIDefinition getABIDefinitionByMethodId(String methodId) {
         return methodIDToFunctions.get(Numeric.prependHexPrefix(methodId));
+    }
+
+    public ABIDefinition getABIDefinitionByEventTopic(String topic) {
+        return eventTopicToEvents.get(Numeric.prependHexPrefix(topic));
     }
 }
