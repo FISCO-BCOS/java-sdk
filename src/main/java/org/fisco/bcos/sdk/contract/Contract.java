@@ -358,4 +358,8 @@ public class Contract {
         }
         return out;
     }
+
+    public TransactionManager getTransactionManager() {
+        return this.transactionManager;
+    }
 }

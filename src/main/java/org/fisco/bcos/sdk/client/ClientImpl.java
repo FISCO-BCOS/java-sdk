@@ -887,6 +887,7 @@ public class ClientImpl implements Client {
         // wait until get the transactionReceipt
         @Override
         public void onResponse(TransactionReceipt receipt) {
+            cancelTimeout();
             this.receipt = receipt;
             semaphore.release();
         }

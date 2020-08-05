@@ -13,22 +13,24 @@
  */
 package org.fisco.bcos.sdk.crypto.signature;
 
-import com.webank.pkeysign.service.ECCSignService;
+import com.webank.wedpr.crypto.CryptoResult;
+import com.webank.wedpr.crypto.NativeInterface;
 import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 
 public class ECDSASignature implements Signature {
-
-    public static final ECCSignService eccSignService = new ECCSignService();
-
     @Override
     public SignatureResult sign(final String message, final CryptoKeyPair keyPair) {
-        String signature = eccSignService.sign(message, keyPair.getHexPrivateKey());
-        if (signature == null) {
-            throw new SignatureException("Sign with secp256k1 failed");
+        CryptoResult signatureResult =
+                NativeInterface.secp256k1Sign(keyPair.getHexPrivateKey(), message);
+        // call secp256k1Sign failed
+        if (signatureResult.wedprErrorMessage != null
+                && !signatureResult.wedprErrorMessage.isEmpty()) {
+            throw new SignatureException(
+                    "Sign with secp256k1 failed:" + signatureResult.wedprErrorMessage);
         }
         // convert signature string to SignatureResult struct
-        return new ECDSASignatureResult(signature);
+        return new ECDSASignatureResult(signatureResult.signature);
     }
 
     @Override
@@ -38,7 +40,13 @@ public class ECDSASignature implements Signature {
 
     @Override
     public boolean verify(final String publicKey, final String message, final String signature) {
-        return eccSignService.verify(message, signature, publicKey);
+        CryptoResult verifyResult = NativeInterface.secp256k1verify(publicKey, message, signature);
+        // call secp256k1verify failed
+        if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
+            throw new SignatureException(
+                    "Verify with secp256k1 failed:" + verifyResult.wedprErrorMessage);
+        }
+        return verifyResult.result;
     }
 
     @Override

@@ -228,7 +228,7 @@ public class ConnectionManager {
 
             // Init SslContext
             logger.info(" build SM ssl context with configured certificates ");
-            return SMSslClientContextFactory.build(caCert, sslCert, sslKey, enCert, enKey);
+            return SMSslClientContextFactory.build(caCert, enCert, enKey, sslCert, sslKey);
         } catch (IOException
                 | CertificateException
                 | NoSuchAlgorithmException

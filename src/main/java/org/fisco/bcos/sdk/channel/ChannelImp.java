@@ -323,7 +323,7 @@ public class ChannelImp implements Channel {
             ctx.writeAndFlush(out);
             logger.debug("send message to {} success ", peerIpPort);
         } else {
-            logger.debug("send message to {} failed ", peerIpPort);
+            logger.error("send message to {} failed ", peerIpPort);
             Response response = new Response();
             response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
             response.setErrorMessage(
