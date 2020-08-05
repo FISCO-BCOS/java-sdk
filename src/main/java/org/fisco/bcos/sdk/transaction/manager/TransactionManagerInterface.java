@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -23,6 +24,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 
 /**
  * TransactionManagerInterface @Description: TransactionManagerInterface
@@ -34,9 +36,19 @@ public interface TransactionManagerInterface {
 
     public TransactionResponse deploy(TransactionRequest transactionRequest);
 
-    public void sendTransaction(TransactionRequest transactionRequest);
+    public TransactionResponse deploy(
+            String abi, String bin, String contractName, List<Object> args);
 
-    public TransactionReceipt sendTransaction(String to, String data);
+    public TransactionResponse deployByContractLoader(String contractName, List<Object> args)
+            throws TransactionBaseException;
+
+    public void sendTransactionOnly(TransactionRequest transactionRequest);
+
+    public TransactionReceipt sendTransactionAndGetReceipt(String to, String data);
+
+    public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
+            String contractName, String contractAddress, String functionName, List<Object> args)
+            throws TransactionBaseException;
 
     public TransactionResponse sendTransactionAndGetResponse(TransactionRequest transactionRequest);
 
@@ -47,7 +59,11 @@ public interface TransactionManagerInterface {
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             TransactionRequest transactionRequest);
 
-    public CallResponse sendCall(CallRequest callRequest);
+    public CallResponse sendCall(CallRequest callRequest) throws TransactionBaseException;
+
+    public CallResponse sendCallByContractLoader(
+            String contractName, String contractAddress, String functionName, List<Object> args)
+            throws TransactionBaseException;
 
     public String getCurrentExternalAccountAddress();
 

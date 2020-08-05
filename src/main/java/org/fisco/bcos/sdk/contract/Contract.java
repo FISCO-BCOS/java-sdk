@@ -219,7 +219,7 @@ public class Contract {
     }
 
     protected TransactionReceipt executeTransaction(String data, String functionName) {
-        return transactionManager.sendTransaction(contractAddress, data);
+        return transactionManager.sendTransactionAndGetReceipt(contractAddress, data);
     }
 
     /** Adds a log field to {@link EventValues}. */
