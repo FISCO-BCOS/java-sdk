@@ -19,18 +19,25 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.NodeVersion;
+import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TransactionManagerFactory {
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagerFactory.class);
+
     /**
      * @param client
      * @param credential
      * @return
      */
     public static TransactionManager createTransactionManager(
-            Client client, CryptoInterface credential) {
+            Client client, CryptoInterface cryptoInterface) {
+        return createTransactionManager(client, cryptoInterface, null);
+    }
+
+    public static TransactionManager createTransactionManager(
+            Client client, CryptoInterface cryptoInterface, ContractLoader contractLoader) {
         try {
             // get supported version of the node
             NodeVersion version = client.getNodeVersion();
@@ -45,7 +52,7 @@ public class TransactionManagerFactory {
             if (EnumNodeVersion.BCOS_2_0_0_RC1.equals(binaryVersion)
                     || EnumNodeVersion.BCOS_2_0_0_RC1.equals(supportedVersion)) {
                 logger.debug("createTransactionManager for rc1 node");
-                return new TransactionManager(client, credential, null, null);
+                return new TransactionManager(client, cryptoInterface, null, null, contractLoader);
             }
             // transaction manager for >=rc2 transaction (with groupId and chainId)
             else {
@@ -57,13 +64,14 @@ public class TransactionManagerFactory {
                         "createTransactionManager for >=rc2 node, chainId: {}, groupId: {}",
                         chainId,
                         groupId);
-                return new TransactionManager(client, credential, groupId, chainId);
+                return new TransactionManager(
+                        client, cryptoInterface, groupId, chainId, contractLoader);
             }
         } catch (ClientException e) {
             logger.error(
                     "createTransactionManager for query nodeVersion failed, error info: {}",
                     e.getMessage());
         }
-        return new TransactionManager(client, credential, null, null);
+        return new TransactionManager(client, cryptoInterface, null, null, contractLoader);
     }
 }

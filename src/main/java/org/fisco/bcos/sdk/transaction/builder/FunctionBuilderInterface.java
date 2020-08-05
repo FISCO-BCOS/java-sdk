@@ -15,8 +15,11 @@
 package org.fisco.bcos.sdk.transaction.builder;
 
 import java.util.List;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.model.SolidityConstructor;
 import org.fisco.bcos.sdk.model.SolidityFunction;
+import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 
 /**
  * FunctionBuilderInterface @Description: FunctionBuilderInterface
@@ -27,12 +30,21 @@ import org.fisco.bcos.sdk.model.SolidityFunction;
 public interface FunctionBuilderInterface {
 
     public SolidityFunction buildFunction(
-            String contractName, String functionName, List<Object> args);
+            String contractName, String functionName, List<Object> args)
+            throws TransactionBaseException;
 
     public SolidityFunction buildFunctionByAbi(String abi, String functionName, List<Object> args);
 
-    public SolidityConstructor buildConstructor(String contractName, List<Object> args);
+    public SolidityFunction buildFunctionByABIDefinitionList(
+            List<ABIDefinition> definitions, String functionName, List<Object> args);
+
+    public SolidityConstructor buildConstructor(String contractName, List<Object> args)
+            throws TransactionBaseException;
 
     public SolidityConstructor buildConstructor(
             String abi, String bin, String contractName, List<Object> args);
+
+    public ContractLoader getContractLoader();
+
+    public void setContractLoader(ContractLoader contractLoader);
 }
