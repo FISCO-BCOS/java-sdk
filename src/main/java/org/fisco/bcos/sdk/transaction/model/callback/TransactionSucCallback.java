@@ -22,18 +22,28 @@ import org.slf4j.LoggerFactory;
 
 public abstract class TransactionSucCallback {
     private static Logger logger = LoggerFactory.getLogger(TransactionSucCallback.class);
-    private Timeout timeout;
+    private Timeout timeoutHandler;
+    public static Integer DEFAULT_TRANS_TIMEOUT = 10 * 1000;
+    private Integer timeout = DEFAULT_TRANS_TIMEOUT;
 
     public abstract void onResponse(TransactionReceipt receipt);
 
     public void onError(String errorMessage) {
+        cancelTimeout();
         logger.error("transaction exceptioned");
         TransactionReceipt receipt = new TransactionReceipt();
         receipt.setStatus("transaction exceptioned, error information:" + errorMessage);
         onResponse(receipt);
     }
 
+    protected void cancelTimeout() {
+        if (getTimeoutHandler() != null && !getTimeoutHandler().isCancelled()) {
+            getTimeoutHandler().cancel();
+        }
+    }
+
     public void onTimeout() {
+        cancelTimeout();
         logger.error("transactionSuc timeout");
         TransactionReceipt receipt = new TransactionReceipt();
         receipt.setStatus(
@@ -42,11 +52,19 @@ public abstract class TransactionSucCallback {
         onResponse(receipt);
     }
 
-    public Timeout getTimeout() {
-        return timeout;
+    public Timeout getTimeoutHandler() {
+        return timeoutHandler;
     }
 
-    public void setTimeout(Timeout timeout) {
+    public void setTimeoutHandler(Timeout timeoutHandler) {
+        this.timeoutHandler = timeoutHandler;
+    }
+
+    public void setTimeout(Integer timeout) {
         this.timeout = timeout;
+    }
+
+    public Integer getTimeout() {
+        return this.timeout;
     }
 }

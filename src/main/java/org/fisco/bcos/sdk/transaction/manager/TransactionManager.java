@@ -54,6 +54,7 @@ public class TransactionManager implements TransactionManagerInterface {
     private final Client client;
     private final Integer groupId;
     private final String chainId;
+    private final CryptoInterface cryptoInterface;
     private final TransactionBuilderInterface transactionBuilder;
     private FunctionBuilderInterface functionBuilder;
     private TransactionEncoderService transactionEncoder;
@@ -66,9 +67,8 @@ public class TransactionManager implements TransactionManagerInterface {
         this.groupId = groupId;
         this.chainId = chainId;
         this.transactionBuilder = new TransactionBuilderService(client);
-        this.transactionEncoder =
-                new TransactionEncoderService(
-                        cryptoInterface.getSignatureImpl(), cryptoInterface.createKeyPair());
+        this.cryptoInterface = cryptoInterface;
+        this.transactionEncoder = new TransactionEncoderService(cryptoInterface);
         // TODO: init functionBuilder, transactionPusher and transactionDecoder
     }
 
@@ -173,8 +173,7 @@ public class TransactionManager implements TransactionManagerInterface {
 
     @Override
     public String getCurrentExternalAccountAddress() {
-        // TODO
-        return null;
+        return this.cryptoInterface.getCryptoKeyPair().getAddress();
     }
 
     @Override
