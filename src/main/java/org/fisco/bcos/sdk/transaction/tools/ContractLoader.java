@@ -88,7 +88,7 @@ public class ContractLoader {
         return new AbiInfo(contractFuncAbis, contractConstructorAbi);
     }
 
-    private ABIDefinition selectConstructor(List<ABIDefinition> abiList) {
+    public static ABIDefinition selectConstructor(List<ABIDefinition> abiList) {
         for (ABIDefinition ABIDefinition : abiList) {
             if (ABIDefinition.getType().equals(CommonConstant.ABI_CONSTRUCTOR)) {
                 return ABIDefinition;
