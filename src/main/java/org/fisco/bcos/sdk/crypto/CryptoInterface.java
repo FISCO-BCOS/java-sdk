@@ -35,7 +35,7 @@ public class CryptoInterface {
     public final Signature signatureImpl;
     public final Hash hashImpl;
     private final CryptoKeyPair keyPairFactory;
-
+    private CryptoKeyPair cryptoKeyPair;
     /**
      * init the common crypto implementation accordign to the crypto type
      *
@@ -57,6 +57,8 @@ public class CryptoInterface {
             throw new UnsupportedCryptoTypeException(
                     "only support " + ECDSA_TYPE + "/" + SM_TYPE + " crypto type");
         }
+        // create keyPair randomly
+        createKeyPair();
     }
 
     public int getCryptoTypeConfig() {
@@ -96,14 +98,20 @@ public class CryptoInterface {
     }
 
     public CryptoKeyPair createKeyPair() {
-        return this.keyPairFactory.generateKeyPair();
+        this.cryptoKeyPair = this.keyPairFactory.generateKeyPair();
+        return this.cryptoKeyPair;
     }
 
     public CryptoKeyPair createKeyPair(KeyPair keyPair) {
-        return this.keyPairFactory.createKeyPair(keyPair);
+        this.cryptoKeyPair = this.keyPairFactory.createKeyPair(keyPair);
+        return this.cryptoKeyPair;
     }
 
-    public CryptoKeyPair getKeyPairFactory() {
-        return keyPairFactory;
+    public void setCryptoKeyPair(CryptoKeyPair cryptoKeyPair) {
+        this.cryptoKeyPair = cryptoKeyPair;
+    }
+
+    public CryptoKeyPair getCryptoKeyPair() {
+        return this.cryptoKeyPair;
     }
 }

@@ -61,7 +61,6 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
 import org.fisco.bcos.sdk.utils.Collection;
 import org.fisco.bcos.sdk.utils.StringUtils;
-import org.fisco.bcos.sdk.utils.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,16 +90,6 @@ public class SolidityContractWrapper {
     private static final String FUNC_NAME_PREFIX = "FUNC_";
     private static final String EVENT_ENCODER = "eventEncoder";
 
-    private static final String CODEGEN_WARNING =
-            "<p>Auto generated code.\n"
-                    + "<p><strong>Do not modify!</strong>\n"
-                    + "<p>Please use the "
-                    + "<a href=\"https://docs.web3j.io/command_line.html\">web3j command line tools</a>,\n"
-                    + "or the "
-                    + SolidityContractGenerator.class.getName()
-                    + " in the \n"
-                    + "<a href=\"https://github.com/web3j/web3j/tree/master/codegen\">"
-                    + "codegen module</a> to update.\n";
     private static final String regex = "(\\w+)(?:\\[(.*?)\\])(?:\\[(.*?)\\])?";
     private static final Pattern pattern = Pattern.compile(regex);
 
@@ -151,12 +140,9 @@ public class SolidityContractWrapper {
 
     private TypeSpec.Builder createClassBuilder(
             String className, String binary, String smBinary, String abi) {
-
-        String javadoc = CODEGEN_WARNING + getJavaSDKVersion();
         TypeSpec.Builder builder =
                 TypeSpec.classBuilder(className)
                         .addModifiers(Modifier.PUBLIC)
-                        .addJavadoc(javadoc)
                         .superclass(Contract.class)
                         .addAnnotation(
                                 AnnotationSpec.builder(SuppressWarnings.class)
@@ -172,19 +158,6 @@ public class SolidityContractWrapper {
                         .addField(createDefinition(ABI_NAME, ABI_ARRAY_NAME));
 
         return builder;
-    }
-
-    private String getJavaSDKVersion() {
-        String version;
-
-        try {
-            // This only works if run as part of the web3j command line tools which contains
-            // a version.properties file
-            version = Version.getVersion();
-        } catch (IOException | NullPointerException e) {
-            version = Version.DEFAULT;
-        }
-        return "\n<p>Generated with java sdk version " + version + ".\n";
     }
 
     public List<String> stringToArrayString(String binary) {
