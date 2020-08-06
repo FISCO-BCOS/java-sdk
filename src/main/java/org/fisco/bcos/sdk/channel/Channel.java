@@ -96,21 +96,33 @@ public interface Channel {
     Response sendToPeer(Message out, String peerIpPort);
 
     /**
-     * Synchronize interface, randomly select nodes to send messages
+     * Synchronize interface with timeout, send a message to the given peer, and get the response
      *
      * @param out: Message to be sent
+     * @param peerIpPort: Remote ip:port information
+     * @param options: Include timeout
      * @return: Remote reply
      */
-    Response sendToRandom(Message out);
+    Response sendToPeerWithTimeOut(Message out, String peerIpPort, Options options);
 
     /**
-     * Synchronize interface, send message to peer select by client`s rule
+     * Synchronize interface with timeout, randomly select nodes to send messages
+     *
+     * @param out: Message to be sent
+     * @param options: Include timeout
+     * @return: Remote reply
+     */
+    Response sendToRandomWithTimeOut(Message out, Options options);
+
+    /**
+     * Synchronize interface with timeout, send message to peer select by client`s rule
      *
      * @param out: Message to be sent
      * @param rule: Rule set by client
+     * @param options: Include timeout
      * @return: Remote reply
      */
-    Response sendToPeerByRule(Message out, PeerSelectRule rule);
+    Response sendToPeerByRuleWithTimeOut(Message out, PeerSelectRule rule, Options options);
 
     /**
      * Asynchronous interface, send message to peer
