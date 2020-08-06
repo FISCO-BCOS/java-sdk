@@ -53,4 +53,9 @@ public class RetCode {
     public int hashCode() {
         return Objects.hash(code, message);
     }
+
+    @Override
+    public String toString() {
+        return "RetCode{" + "code=" + code + ", message='" + message + '\'' + '}';
+    }
 }

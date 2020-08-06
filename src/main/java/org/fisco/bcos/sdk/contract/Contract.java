@@ -32,6 +32,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Function;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
+import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.eventsub.EventLogParams;
@@ -40,12 +41,8 @@ import org.fisco.bcos.sdk.transaction.manager.TransactionManager;
 import org.fisco.bcos.sdk.transaction.manager.TransactionManagerFactory;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Contract {
-    private static final Logger logger = LoggerFactory.getLogger(Contract.class);
-
     protected final String contractBinary;
     protected String contractAddress;
     // transactionReceipt after deploying the contract
@@ -94,7 +91,8 @@ public class Contract {
             CryptoInterface credential,
             TransactionManager transactionManager,
             String binary,
-            String encodedConstructor) {
+            String encodedConstructor)
+            throws ContractException {
         try {
             Constructor<T> constructor =
                     type.getDeclaredConstructor(String.class, Client.class, CryptoInterface.class);
@@ -105,8 +103,7 @@ public class Contract {
                 | InvocationTargetException
                 | NoSuchMethodException
                 | IllegalAccessException e) {
-            logger.error("deploy contract failed, error info: {}", e.getMessage());
-            return null;
+            throw new ContractException("deploy contract failed, error info: " + e.getMessage());
         }
     }
 
@@ -115,7 +112,8 @@ public class Contract {
             Client client,
             CryptoInterface credential,
             String binary,
-            String encodedConstructor) {
+            String encodedConstructor)
+            throws ContractException {
         return deploy(
                 type,
                 client,
@@ -126,14 +124,15 @@ public class Contract {
     }
 
     private static <T extends Contract> T create(
-            T contract, String binary, String encodedConstructor) {
+            T contract, String binary, String encodedConstructor) throws ContractException {
         TransactionReceipt transactionReceipt =
                 contract.executeTransaction(binary + encodedConstructor, FUNC_DEPLOY);
 
         String contractAddress = transactionReceipt.getContractAddress();
         if (contractAddress == null) {
-            logger.error("Deploy contract failed: empty contract address returned");
-            return null;
+            throw new ContractException(
+                    "Deploy contract failed: empty contract address returned, transactionReceipt: "
+                            + transactionReceipt.toString());
         }
         contract.setContractAddress(contractAddress);
         contract.setDeployReceipt(transactionReceipt);
@@ -170,22 +169,23 @@ public class Contract {
         return FunctionReturnDecoder.decode(callResult, function.getOutputParameters());
     }
 
-    protected <T extends Type> T executeCallWithSingleValueReturn(Function function) {
+    protected <T extends Type> T executeCallWithSingleValueReturn(Function function)
+            throws ContractException {
         List<Type> values = executeCall(function);
         if (!values.isEmpty()) {
             return (T) values.get(0);
         } else {
-            return null;
+            throw new ContractException(
+                    "executeCall for function "
+                            + function.getName()
+                            + " failed for empty returned value from the contract "
+                            + contractAddress);
         }
     }
 
     protected <T extends Type, R> R executeCallWithSingleValueReturn(
-            Function function, Class<R> returnType) {
+            Function function, Class<R> returnType) throws ContractException {
         T result = executeCallWithSingleValueReturn(function);
-        if (result == null) {
-            logger.error("Empty value (0x) returned from contract!");
-            return null;
-        }
         // cast the value into returnType
         Object value = result.getValue();
         if (returnType.isAssignableFrom(value.getClass())) {
@@ -193,11 +193,11 @@ public class Contract {
         } else if (result.getClass().equals(Address.class) && returnType.equals(String.class)) {
             return (R) result.toString(); // cast isn't necessary
         } else {
-            logger.error(
-                    "Unable to convert response: {} to expected type: {}",
-                    value,
-                    returnType.getSimpleName());
-            return null;
+            throw new ContractException(
+                    "Unable convert response "
+                            + value
+                            + " to expected type "
+                            + returnType.getSimpleName());
         }
     }
 

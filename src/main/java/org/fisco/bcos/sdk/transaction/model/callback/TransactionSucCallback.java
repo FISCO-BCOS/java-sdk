@@ -28,11 +28,15 @@ public abstract class TransactionSucCallback {
 
     public abstract void onResponse(TransactionReceipt receipt);
 
-    public void onError(String errorMessage) {
+    public void onError(int errorCode, String errorMessage) {
         cancelTimeout();
-        logger.error("transaction exceptioned");
+        logger.error(
+                "transaction exceptioned, errorCode: {}, errorMessage: {}",
+                errorCode,
+                errorMessage);
         TransactionReceipt receipt = new TransactionReceipt();
-        receipt.setStatus("transaction exceptioned, error information:" + errorMessage);
+        receipt.setStatus(String.valueOf(errorCode));
+        receipt.setMessage(errorMessage);
         onResponse(receipt);
     }
 

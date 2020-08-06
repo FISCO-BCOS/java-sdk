@@ -132,12 +132,6 @@ public class PrecompiledRetCodeTest {
         checkResponse(
                 PrecompiledRetCode.CODE_SUCCESS.getCode(),
                 PrecompiledRetCode.CODE_SUCCESS.getMessage());
-        checkResponse(
-                PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST.getCode(),
-                PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST.getMessage());
-        checkResponse(
-                PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST.getCode(),
-                PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST.getMessage());
     }
 
     private void checkResponse(int code, String expectedMessage) {

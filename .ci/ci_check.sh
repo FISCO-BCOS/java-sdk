@@ -67,7 +67,7 @@ check_standard_node()
   build_node
   prepare_environment
   ## run integration test
-  bash gradlew integrationTest
+  bash gradlew clean integrationTest
   ## clean
   clean_node
 }
@@ -77,7 +77,7 @@ check_sm_node()
   build_node "sm"
   prepare_environment "sm"
   ## run integration test
-  bash gradlew integrationTest
+  bash gradlew clean integrationTest
   ## clean
   clean_node
 }
