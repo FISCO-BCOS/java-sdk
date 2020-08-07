@@ -65,6 +65,7 @@ import org.fisco.bcos.sdk.utils.Numeric;
 public class ClientImpl implements Client {
     private final JsonRpcService jsonRpcService;
     private final Integer groupId;
+    private final Integer DefaultGroupId = Integer.valueOf(1);
     private final EventSubscribe eventSubscribe;
 
     protected ClientImpl(
@@ -710,7 +711,7 @@ public class ClientImpl implements Client {
     @Override
     public Peers getPeers() {
         return this.jsonRpcService.sendRequestToGroup(
-                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(DefaultGroupId)),
                 Peers.class);
     }
 
@@ -725,7 +726,7 @@ public class ClientImpl implements Client {
     @Override
     public NodeIDList getNodeIDList() {
         return this.jsonRpcService.sendRequestToGroup(
-                new JsonRpcRequest(JsonRpcMethods.GET_NODEIDLIST, Arrays.asList()),
+                new JsonRpcRequest(JsonRpcMethods.GET_NODEIDLIST, Arrays.asList(DefaultGroupId)),
                 NodeIDList.class);
     }
 
