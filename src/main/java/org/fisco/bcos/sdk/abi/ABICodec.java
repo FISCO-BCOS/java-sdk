@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.abi;
 import java.io.IOException;
 import java.util.List;
 import org.fisco.bcos.sdk.abi.wrapper.ABICodecJsonWrapper;
+import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
@@ -50,9 +51,9 @@ public class ABICodec {
             if (abiDefinition.getInputs().size() == params.size()) {
                 ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-                ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+                ABICodecObject abiCodecObject = new ABICodecObject();
                 try {
-                    return abiCodecJsonWrapper.encodeJavaObject(inputABIObject, params).encode();
+                    return abiCodecObject.encodeValue(inputABIObject, params).encode();
                 } catch (Exception e) {
                     logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
                 }
@@ -71,9 +72,9 @@ public class ABICodec {
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+        ABICodecObject abiCodecObject = new ABICodecObject();
         try {
-            return abiCodecJsonWrapper.encodeJavaObject(inputABIObject, params).encode();
+            return abiCodecObject.encodeValue(inputABIObject, params).encode();
         } catch (Exception e) {
             logger.error(" exception in encodeMethodByIdFromObject : {}", e.getMessage());
         }
@@ -152,9 +153,9 @@ public class ABICodec {
             if (abiDefinition.getInputs().size() == params.size()) {
                 ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-                ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+                ABICodecObject abiCodecObject = new ABICodecObject();
                 try {
-                    return abiCodecJsonWrapper.encodeJavaObject(inputABIObject, params).encode();
+                    return abiCodecObject.encodeValue(inputABIObject, params).encode();
                 } catch (Exception e) {
                     logger.error(" exception in encodeEventFromObject : {}", e.getMessage());
                 }
@@ -174,9 +175,9 @@ public class ABICodec {
                 contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+        ABICodecObject abiCodecObject = new ABICodecObject();
         try {
-            return abiCodecJsonWrapper.encodeJavaObject(inputABIObject, params).encode();
+            return abiCodecObject.encodeValue(inputABIObject, params).encode();
         } catch (Exception e) {
             logger.error(" exception in encodeEventByTopicFromObject : {}", e.getMessage());
         }
@@ -249,9 +250,9 @@ public class ABICodec {
         for (ABIDefinition abiDefinition : methods) {
             ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
             ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
-            ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+            ABICodecObject abiCodecObject = new ABICodecObject();
             try {
-                return abiCodecJsonWrapper.decodeJavaObject(outputABIObject, output);
+                return abiCodecObject.decodeJavaObject(outputABIObject, output);
             } catch (Exception e) {
                 logger.error(" exception in decodeMethodToObject : {}", e.getMessage());
             }
@@ -269,9 +270,9 @@ public class ABICodec {
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+        ABICodecObject abiCodecObject = new ABICodecObject();
         try {
-            return abiCodecJsonWrapper.decodeJavaObject(outputABIObject, output);
+            return abiCodecObject.decodeJavaObject(outputABIObject, output);
         } catch (Exception e) {
             logger.error(" exception in decodeMethodByIdToObject : {}", e.getMessage());
         }
@@ -346,9 +347,9 @@ public class ABICodec {
         for (ABIDefinition abiDefinition : events) {
             ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
             ABIObject outputObject = abiObjectFactory.createOutputObject(abiDefinition);
-            ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+            ABICodecObject abiCodecObject = new ABICodecObject();
             try {
-                return abiCodecJsonWrapper.decodeJavaObject(outputObject, output);
+                return abiCodecObject.decodeJavaObject(outputObject, output);
             } catch (Exception e) {
                 logger.error(" exception in decodeEventToObject : {}", e.getMessage());
             }
@@ -367,9 +368,9 @@ public class ABICodec {
                 contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject outputObject = abiObjectFactory.createOutputObject(abiDefinition);
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+        ABICodecObject abiCodecObject = new ABICodecObject();
         try {
-            return abiCodecJsonWrapper.decodeJavaObject(outputObject, output);
+            return abiCodecObject.decodeJavaObject(outputObject, output);
         } catch (Exception e) {
             logger.error(" exception in decodeEventByTopicToObject : {}", e.getMessage());
         }
