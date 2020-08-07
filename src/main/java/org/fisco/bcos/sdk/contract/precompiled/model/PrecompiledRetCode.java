@@ -20,9 +20,6 @@ import java.util.Map;
 import org.fisco.bcos.sdk.model.RetCode;
 
 public class PrecompiledRetCode {
-    // constant value
-    public static final int CNS_MAX_VERSION_LENGTH = 40;
-
     // ChainGovernancePrecompiled -52099 ~ -52000
     public static final RetCode CODE_CURRENT_VALUE_IS_EXPECTED_VALUE =
             new RetCode(-52012, "The current value is expected");
@@ -122,6 +119,41 @@ public class PrecompiledRetCode {
     // correct return: code great or equal 0
     public static final RetCode CODE_SUCCESS = new RetCode(0, "Success");
 
+    public static final RetCode CODE_NO_AUTHORIZED = new RetCode(-50000, "Permission denied");
+    public static final RetCode CODE_TABLE_NAME_ALREADY_EXIST =
+            new RetCode(-50001, "The table already exist");
+    public static final RetCode CODE_TABLE_NAME_LENGTH_OVERFLOW =
+            new RetCode(
+                    -50002,
+                    "The table name length exceeds the limit "
+                            + PrecompiledConstant.USER_TABLE_NAME_MAX_LENGTH);
+    public static final RetCode CODE_TABLE_FILED_LENGTH_OVERFLOW =
+            new RetCode(
+                    -50003,
+                    "The table field name exceeds the limit "
+                            + PrecompiledConstant.TABLE_FIELD_NAME_MAX_LENGTH);
+    public static final RetCode CODE_TABLE_FILED_TOTALLENGTH_OVERFLOW =
+            new RetCode(
+                    -50004,
+                    "The length of all the fields name exceeds the limit "
+                            + PrecompiledConstant.TABLE_VALUE_FIELD_MAX_LENGTH);
+    public static final RetCode CODE_TABLE_KEYVALUE_LENGTH_OVERFLOW =
+            new RetCode(
+                    -50005,
+                    "The value exceeds the limit, key max length is "
+                            + PrecompiledConstant.TABLE_KEY_VALUE_MAX_LENGTH
+                            + ", field value max length is "
+                            + PrecompiledConstant.TABLE_VALUE_FIELD_MAX_LENGTH);
+    public static final RetCode CODE_TABLE_FIELDVALUE_LENGTH_OVERFLOW =
+            new RetCode(
+                    -50006,
+                    "The field value exceeds the limit "
+                            + PrecompiledConstant.TABLE_VALUE_FIELD_MAX_LENGTH);
+    public static final RetCode CODE_TABLE_DUMPLICATE_FIELD =
+            new RetCode(-50007, "The table contains duplicated field");
+    public static final RetCode CODE_TABLE_INVALIDATE_FIELD =
+            new RetCode(-50008, "Invalid table name or field name");
+
     // internal error(for example: params check failed, etc.): -29999~-20000
     public static final String MUST_EXIST_IN_NODE_LIST =
             "The operated node must be in the list returned by getNodeIDList";
@@ -132,7 +164,11 @@ public class PrecompiledRetCode {
 
     public static final String OVER_CONTRACT_VERSION_LEN_LIMIT =
             "The length of contract version over the limit, must be smaller than "
-                    + CNS_MAX_VERSION_LENGTH;
+                    + PrecompiledConstant.CNS_MAX_VERSION_LENGTH;
+
+    public static final String OVER_TABLE_KEY_LENGTH_LIMIT =
+            "The length of the table key exceeds the maximum limit "
+                    + PrecompiledConstant.TABLE_KEY_MAX_LENGTH;
 
     protected static Map<Integer, RetCode> codeToMessage = new HashMap<>();
 
@@ -152,10 +188,10 @@ public class PrecompiledRetCode {
 
     private PrecompiledRetCode() {}
 
-    public static RetCode getPrecompiledResponse(int responseCode) {
+    public static RetCode getPrecompiledResponse(int responseCode, String message) {
         if (codeToMessage.containsKey(responseCode)) {
             return codeToMessage.get(responseCode);
         }
-        return new RetCode(responseCode, "");
+        return new RetCode(responseCode, message);
     }
 }
