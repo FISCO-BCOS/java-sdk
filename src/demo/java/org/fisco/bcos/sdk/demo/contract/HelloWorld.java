@@ -11,6 +11,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple1;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.Contract;
+import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
@@ -98,7 +99,7 @@ public class HelloWorld extends Contract {
         return new Tuple1<String>((String) results.get(0).getValue());
     }
 
-    public String get() {
+    public String get() throws ContractException {
         final Function function =
                 new Function(
                         FUNC_GET,
@@ -112,7 +113,8 @@ public class HelloWorld extends Contract {
         return new HelloWorld(contractAddress, client, credential);
     }
 
-    public static HelloWorld deploy(Client client, CryptoInterface credential) {
+    public static HelloWorld deploy(Client client, CryptoInterface credential)
+            throws ContractException {
         return deploy(HelloWorld.class, client, credential, getBinary(credential), "");
     }
 }

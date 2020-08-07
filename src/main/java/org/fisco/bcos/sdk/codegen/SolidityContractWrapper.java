@@ -55,6 +55,7 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codegen.exceptions.CodeGenException;
 import org.fisco.bcos.sdk.contract.Contract;
+import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -395,6 +396,7 @@ public class SolidityContractWrapper {
     private static MethodSpec.Builder getDeployMethodSpec(
             String className, Class authType, String authName) {
         return MethodSpec.methodBuilder("deploy")
+                .addException(ContractException.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(TypeVariableName.get(className, Type.class))
                 .addParameter(Client.class, CLIENT)
@@ -820,7 +822,7 @@ public class SolidityContractWrapper {
             throws ClassNotFoundException {
 
         String functionName = functionDefinition.getName();
-
+        methodBuilder.addException(ContractException.class);
         if (outputParameterTypes.isEmpty()) {
             methodBuilder.addStatement(
                     "throw new RuntimeException"

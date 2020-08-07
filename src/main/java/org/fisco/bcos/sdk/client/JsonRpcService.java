@@ -166,7 +166,7 @@ public class JsonRpcService {
                         } catch (ClientException e) {
                             groupManagerService.eraseTransactionSeq(response.getMessageID());
                             // fake the transactionReceipt
-                            callback.onError(e.getMessage());
+                            callback.onError(e.getErrorCode(), e.getErrorMessage());
                         }
                     }
                 });
@@ -187,9 +187,11 @@ public class JsonRpcService {
                             jsonRpcResponse.getError().getMessage(),
                             jsonRpcResponse.getError().getCode());
                     throw new ClientException(
+                            jsonRpcResponse.getError().getCode(),
+                            jsonRpcResponse.getError().getMessage(),
                             "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: "
                                     + request.getMethod()
-                                    + ", group: {}"
+                                    + ", group: "
                                     + this.groupId
                                     + ", seq:"
                                     + response.getMessageID()

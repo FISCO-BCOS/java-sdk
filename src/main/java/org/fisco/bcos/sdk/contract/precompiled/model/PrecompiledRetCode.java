@@ -20,6 +20,9 @@ import java.util.Map;
 import org.fisco.bcos.sdk.model.RetCode;
 
 public class PrecompiledRetCode {
+    // constant value
+    public static final int CNS_MAX_VERSION_LENGTH = 40;
+
     // ChainGovernancePrecompiled -52099 ~ -52000
     public static final RetCode CODE_CURRENT_VALUE_IS_EXPECTED_VALUE =
             new RetCode(-52012, "The current value is expected");
@@ -120,10 +123,17 @@ public class PrecompiledRetCode {
     public static final RetCode CODE_SUCCESS = new RetCode(0, "Success");
 
     // internal error(for example: params check failed, etc.): -29999~-20000
-    public static final RetCode MUST_EXIST_IN_NODE_LIST =
-            new RetCode(-20000, "The operated node must be in the list returned by getNodeIDList");
-    public static final RetCode ALREADY_EXISTS_IN_SEALER_LIST =
-            new RetCode(-20001, "The node already exists in the sealerList");
+    public static final String MUST_EXIST_IN_NODE_LIST =
+            "The operated node must be in the list returned by getNodeIDList";
+    public static final String ALREADY_EXISTS_IN_SEALER_LIST =
+            "The node already exists in the sealerList";
+    public static final String ALREADY_EXISTS_IN_OBSERVER_LIST =
+            "The node already exists in the observerList";
+
+    public static final String OVER_CONTRACT_VERSION_LEN_LIMIT =
+            "The length of contract version over the limit, must be smaller than "
+                    + CNS_MAX_VERSION_LENGTH;
+
     protected static Map<Integer, RetCode> codeToMessage = new HashMap<>();
 
     static {

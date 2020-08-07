@@ -15,10 +15,12 @@
 
 package org.fisco.bcos.sdk.client.protocol.request;
 
+import java.util.Objects;
+
 public class Transaction {
     private String from;
     private String to;
-    private String encodedFunction;
+    private String data;
 
     /**
      * @param from
@@ -29,31 +31,45 @@ public class Transaction {
         super();
         this.from = from;
         this.to = to;
-        this.encodedFunction = encodedFunction;
+        this.data = encodedFunction;
     }
 
-    /** @return the from */
     public String getFrom() {
         return from;
     }
-    /** @param from the from to set */
+
     public void setFrom(String from) {
         this.from = from;
     }
-    /** @return the to */
+
     public String getTo() {
         return to;
     }
-    /** @param to the to to set */
+
     public void setTo(String to) {
         this.to = to;
     }
-    /** @return the encodedFunction */
-    public String getEncodedFunction() {
-        return encodedFunction;
+
+    public String getData() {
+        return data;
     }
-    /** @param encodedFunction the encodedFunction to set */
-    public void setEncodedFunction(String encodedFunction) {
-        this.encodedFunction = encodedFunction;
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Transaction that = (Transaction) o;
+        return Objects.equals(from, that.from)
+                && Objects.equals(to, that.to)
+                && Objects.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(from, to, data);
     }
 }
