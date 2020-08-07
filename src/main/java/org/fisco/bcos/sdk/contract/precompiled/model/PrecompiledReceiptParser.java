@@ -14,23 +14,35 @@
  */
 package org.fisco.bcos.sdk.contract.precompiled.model;
 
+import java.math.BigInteger;
 import org.fisco.bcos.sdk.contract.precompiled.exceptions.PrecompiledException;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceiptStatus;
-import org.fisco.bcos.sdk.utils.Numeric;
 
 public class PrecompiledReceiptParser {
+    private PrecompiledReceiptParser() {}
+
     public static RetCode parsePrecompiledReceipt(TransactionReceipt receipt)
             throws PrecompiledException {
-        String status = receipt.getStatus();
-        if (!"0x0".equals(status)) {
-            RetCode retCode =
-                    TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
-            throw new PrecompiledException(retCode.getMessage());
-        } else {
-            int statusValue = Numeric.decodeQuantity(receipt.getOutput().substring(2)).intValue();
-            return PrecompiledRetCode.getPrecompiledResponse(statusValue);
+        try {
+            String status = receipt.getStatus();
+            if (!"0x0".equals(status)) {
+                RetCode retCode =
+                        TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
+                throw new PrecompiledException(retCode.getMessage());
+            } else {
+                String output = receipt.getOutput();
+                int statusValue =
+                        new BigInteger(output.substring(2, output.length()), 16).intValue();
+                return PrecompiledRetCode.getPrecompiledResponse(statusValue);
+            }
+        } catch (NumberFormatException e) {
+            throw new PrecompiledException(
+                    "NumberFormatException when parse receipt, receipt info: "
+                            + receipt.toString()
+                            + ", error info: "
+                            + e.getMessage());
         }
     }
 }
