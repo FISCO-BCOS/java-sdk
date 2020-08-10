@@ -179,6 +179,13 @@ public class ChannelImp implements Channel {
 
     @Override
     public Response sendToPeer(Message out, String peerIpPort) {
+        Options options = new Options();
+        options.setTimeout(10000);
+        return sendToPeerWithTimeOut(out, peerIpPort, options);
+    }
+
+    @Override
+    public Response sendToPeerWithTimeOut(Message out, String peerIpPort, Options options) {
         class Callback extends ResponseCallback {
             public transient Response retResponse;
             public transient Semaphore semaphore = new Semaphore(1, true);
@@ -207,7 +214,7 @@ public class ChannelImp implements Channel {
         }
 
         Callback callback = new Callback();
-        asyncSendToPeer(out, peerIpPort, callback, new Options());
+        asyncSendToPeer(out, peerIpPort, callback, options);
         try {
             callback.semaphore.acquire(1);
         } catch (InterruptedException e) {
@@ -219,7 +226,7 @@ public class ChannelImp implements Channel {
     }
 
     @Override
-    public Response sendToRandom(Message out) {
+    public Response sendToRandomWithTimeOut(Message out, Options options) {
         class Callback extends ResponseCallback {
             public transient Response retResponse;
             public transient Semaphore semaphore = new Semaphore(1, true);
@@ -248,7 +255,7 @@ public class ChannelImp implements Channel {
         }
 
         Callback callback = new Callback();
-        asyncSendToRandom(out, callback, new Options());
+        asyncSendToRandom(out, callback, options);
         try {
             callback.semaphore.acquire(1);
         } catch (InterruptedException e) {
@@ -260,7 +267,7 @@ public class ChannelImp implements Channel {
     }
 
     @Override
-    public Response sendToPeerByRule(Message out, PeerSelectRule rule) {
+    public Response sendToPeerByRuleWithTimeOut(Message out, PeerSelectRule rule, Options options) {
         class Callback extends ResponseCallback {
             public transient Response retResponse;
             public transient Semaphore semaphore = new Semaphore(1, true);
@@ -289,7 +296,7 @@ public class ChannelImp implements Channel {
         }
 
         Callback callback = new Callback();
-        asyncSendToPeerByRule(out, rule, callback, new Options());
+        asyncSendToPeerByRule(out, rule, callback, options);
         try {
             callback.semaphore.acquire(1);
         } catch (InterruptedException e) {

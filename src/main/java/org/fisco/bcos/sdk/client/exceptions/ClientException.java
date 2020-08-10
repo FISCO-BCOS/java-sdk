@@ -13,13 +13,64 @@
  */
 package org.fisco.bcos.sdk.client.exceptions;
 
+import java.util.Objects;
+
 /** Exceptioned when calling. */
 public class ClientException extends RuntimeException {
+    private int errorCode;
+    private String errorMessage;
+
+    public ClientException(int errorCode, String errorMessage, String message) {
+        super(message);
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+    }
+
     public ClientException(String message) {
         super(message);
     }
 
     public ClientException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    @Override
+    public String toString() {
+        return "ClientException{"
+                + "errorCode="
+                + errorCode
+                + ", errorMessage='"
+                + errorMessage
+                + '\''
+                + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClientException that = (ClientException) o;
+        return errorCode == that.errorCode && Objects.equals(errorMessage, that.errorMessage);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(errorCode, errorMessage);
     }
 }

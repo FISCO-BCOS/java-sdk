@@ -11,14 +11,14 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.contract.exceptions;
+package org.fisco.bcos.sdk.contract.precompiled.exceptions;
 
-public class ContractException extends Exception {
-    public ContractException(String message) {
+public class PrecompiledException extends Exception {
+    public PrecompiledException(String message) {
         super(message);
     }
 
-    public ContractException(String message, Throwable cause) {
+    public PrecompiledException(String message, Throwable cause) {
         super(message, cause);
     }
 }
