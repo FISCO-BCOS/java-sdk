@@ -56,7 +56,7 @@ public class PrecompiledTest
         try {
             BcosSDK sdk = new BcosSDK(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            ConsensusService consensusService = new ConsensusService(client, sdk.getCryptoInterface());
+            ConsensusService consensusService = new ConsensusService(client, client.getCryptoInterface());
             // get the current sealerList
             List<String> sealerList = client.getSealerList().getResult();
 
@@ -118,11 +118,11 @@ public class PrecompiledTest
         try {
             BcosSDK sdk = new BcosSDK(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            HelloWorld helloWorld = HelloWorld.deploy(client, sdk.getCryptoInterface());
+            HelloWorld helloWorld = HelloWorld.deploy(client, client.getCryptoInterface());
             String contractAddress = helloWorld.getContractAddress();
             String contractName = "HelloWorld";
             String contractVersion = "1.0";
-            CnsService cnsService = new CnsService(client, sdk.getCryptoInterface());
+            CnsService cnsService = new CnsService(client, client.getCryptoInterface());
             RetCode retCode = cnsService.registerCNS(contractName, contractVersion, contractAddress, "");
             // query the cns information
             List<CnsInfo> cnsInfos = cnsService.selectByName(contractName);
@@ -161,7 +161,7 @@ public class PrecompiledTest
                 Assert.assertTrue(cnsService.getContractAddress(contractName, contractVersion2).equals(contractAddress));
             }
             // insert anther cns for other contract
-            HelloWorld helloWorld2 = HelloWorld.deploy(client, sdk.getCryptoInterface());
+            HelloWorld helloWorld2 = HelloWorld.deploy(client, client.getCryptoInterface());
             String contractAddress2 = helloWorld2.getContractAddress();
             String contractName2 = "hello";
             retCode = cnsService.registerCNS(contractName2, contractVersion, contractAddress2, "");
@@ -183,7 +183,7 @@ public class PrecompiledTest
         {
             BcosSDK sdk = new BcosSDK(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            SystemConfigService systemConfigService = new SystemConfigService(client, sdk.getCryptoInterface());
+            SystemConfigService systemConfigService = new SystemConfigService(client, client.getCryptoInterface());
             testSystemConfigService(client, systemConfigService, "tx_count_limit");
             testSystemConfigService(client, systemConfigService,"tx_gas_limit");
         }
@@ -209,7 +209,7 @@ public class PrecompiledTest
         try {
             BcosSDK sdk = new BcosSDK(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            TableCRUDService tableCRUDService = new TableCRUDService(client, sdk.getCryptoInterface());
+            TableCRUDService tableCRUDService = new TableCRUDService(client, client.getCryptoInterface());
             // create a user table
             String tableName = "test";
             String key = "key";
@@ -256,14 +256,14 @@ public class PrecompiledTest
         try {
             BcosSDK sdk = new BcosSDK(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            CryptoInterface cryptoInterface = sdk.getCryptoInterface();
+            CryptoInterface cryptoInterface = client.getCryptoInterface();
             PermissionService permissionService = new PermissionService(client, cryptoInterface);
 
             String tableName = "test";
             permissionService.grantPermission(tableName, cryptoInterface.getCryptoKeyPair().getAddress());
 
             // insert data to the table with the account without permission
-            CryptoInterface invalidCryptoInterface = new CryptoInterface(sdk.getCryptoInterface().getCryptoTypeConfig());
+            CryptoInterface invalidCryptoInterface = new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
             TableCRUDService tableCRUDService = new TableCRUDService(client, invalidCryptoInterface);
             String key = "key2";
             Map<String, String> value = new HashMap<>(5);
@@ -295,7 +295,7 @@ public class PrecompiledTest
         try {
             BcosSDK sdk = new BcosSDK(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            CryptoInterface cryptoInterface = sdk.getCryptoInterface();
+            CryptoInterface cryptoInterface = client.getCryptoInterface();
             ContractLifeCycleService contractLifeCycleService = new ContractLifeCycleService(client, cryptoInterface);
             // deploy a helloWorld
             HelloWorld helloWorld = HelloWorld.deploy(client, cryptoInterface);
@@ -318,7 +318,7 @@ public class PrecompiledTest
             value = helloWorld.get();
             Assert.assertTrue("Hello, Fisco1".equals(value));
             // grant Manager
-            CryptoInterface cryptoInterface1 = new CryptoInterface(sdk.getCryptoInterface().getCryptoTypeConfig());
+            CryptoInterface cryptoInterface1 = new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
             ContractLifeCycleService contractLifeCycleService1 = new ContractLifeCycleService(client, cryptoInterface1);
             // freeze contract without grant manager
             RetCode retCode = contractLifeCycleService1.freeze(helloWorld.getContractAddress());
@@ -345,7 +345,7 @@ public class PrecompiledTest
         try {
             BcosSDK sdk = new BcosSDK(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            CryptoInterface cryptoInterface = sdk.getCryptoInterface();
+            CryptoInterface cryptoInterface = client.getCryptoInterface();
             ChainGovernanceService chainGovernanceService = new ChainGovernanceService(client, cryptoInterface);
 
             List<PermissionInfo> orgPermissionInfos = chainGovernanceService.listCommitteeMembers();
@@ -360,12 +360,12 @@ public class PrecompiledTest
 
             // create a new account and grantOperator
             int orgOperatorSize = chainGovernanceService.listOperators().size();
-            CryptoInterface cryptoInterface1 = new CryptoInterface(sdk.getCryptoInterface().getCryptoTypeConfig());
+            CryptoInterface cryptoInterface1 = new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
             chainGovernanceService.grantOperator(cryptoInterface1.getCryptoKeyPair().getAddress());
             Assert.assertTrue(chainGovernanceService.listOperators().size() == orgOperatorSize + 1);
 
             // only the committeeMember can freeze account
-            CryptoInterface cryptoInterface2 = new CryptoInterface(sdk.getCryptoInterface().getCryptoTypeConfig());
+            CryptoInterface cryptoInterface2 = new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
             chainGovernanceService.grantOperator(cryptoInterface2.getCryptoKeyPair().getAddress());
             // create the account
             HelloWorld helloWorld = HelloWorld.deploy(client, cryptoInterface2);

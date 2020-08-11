@@ -50,6 +50,7 @@ import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -74,17 +75,41 @@ public interface Client {
      */
     static Client build(GroupManagerService groupManagerService, Channel channel, Integer groupId) {
         // check the groupList
-        Set<String> groupList = groupManagerService.getGroupNodeList(groupId);
-        if (groupList == null || groupList.size() == 0) {
+        Set<String> nodeList = groupManagerService.getGroupNodeList(groupId);
+        if (nodeList == null || nodeList.size() == 0) {
             logger.warn("build client failed for no peers setup the group {}", groupId);
             return null;
         }
-        return new ClientImpl(groupManagerService, channel, groupId);
+        // get cryptoType
+        Integer cryptoType = null;
+        NodeVersion nodeVersion = null;
+        for (String node : nodeList) {
+            cryptoType = groupManagerService.getCryptoType(node);
+            if (cryptoType != null) {
+                nodeVersion = groupManagerService.getNodeVersion(node);
+                break;
+            }
+        }
+        if (cryptoType == null || nodeVersion == null) {
+            logger.warn(
+                    "build client failed for get crypto type or nodeVersion failed, groupId: {}",
+                    groupId);
+            return null;
+        }
+        CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
+        logger.info("build client success for group {}", groupId);
+        return new ClientImpl(groupManagerService, channel, groupId, cryptoInterface, nodeVersion);
     }
 
     static Client build(Channel channel) {
         return new ClientImpl(channel);
     }
+
+    CryptoInterface getCryptoInterface();
+
+    NodeVersion getClientNodeVersion();
+
+    Integer getCryptoType();
 
     EventSubscribe getEventSubscribe();
     /**
@@ -673,6 +698,7 @@ public interface Client {
      */
     void getPbftViewAsync(RespCallback<PbftView> callback);
 
+    NodeVersion getNodeVersion(String ipAndPort);
     /**
      * Peer operation: get node version
      *

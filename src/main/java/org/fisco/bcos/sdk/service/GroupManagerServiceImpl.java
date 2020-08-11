@@ -41,10 +41,13 @@ import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.handler.BlockNumberNotifyHandler;
+import org.fisco.bcos.sdk.client.handler.GetNodeVersionHandler;
 import org.fisco.bcos.sdk.client.handler.TransactionNotifyHandler;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
+import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
@@ -56,12 +59,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GroupManagerServiceImpl implements GroupManagerService {
+    public static final String SM_CRYPTO_STR = "gm";
+
     private static Logger logger = LoggerFactory.getLogger(GroupManagerServiceImpl.class);
     private final Channel channel;
     private final BlockNumberMessageDecoder blockNumberMessageDecoder;
     private final GroupServiceFactory groupServiceFactory;
     private ConcurrentHashMap<Integer, GroupService> groupIdToService = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, List<String>> nodeToGroupIDList = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, NodeVersion> nodeToNodeVersion = new ConcurrentHashMap<>();
+
     private ConcurrentHashMap<String, TransactionSucCallback> seq2TransactionCallback =
             new ConcurrentHashMap<>();
     private final Timer timeoutHandler = new HashedWheelTimer();
@@ -81,9 +88,77 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         this.groupServiceFactory = new GroupServiceFactory();
         this.groupInfoGetter = Client.build(channel);
         fetchGroupList();
+        updateNodeVersion();
         this.start();
+        registerGetNodeVersionHandler();
         registerBlockNumberNotifyHandler();
         registerTransactionNotifyHandler();
+    }
+
+    @Override
+    public Integer getCryptoType(String peerInfo) {
+        if (!nodeToNodeVersion.containsKey(peerInfo)) {
+            return null;
+        }
+        NodeVersion nodeVersion = nodeToNodeVersion.get(peerInfo);
+        if (nodeVersion.getNodeVersion().getVersion().contains(SM_CRYPTO_STR)) {
+            return CryptoInterface.SM_TYPE;
+        }
+        return CryptoInterface.ECDSA_TYPE;
+    }
+
+    @Override
+    public NodeVersion getNodeVersion(String peerInfo) {
+        if (!nodeToNodeVersion.containsKey(peerInfo)) {
+            return null;
+        }
+        return nodeToNodeVersion.get(peerInfo);
+    }
+
+    private void updateNodeVersion() {
+        List<String> peers = this.channel.getAvailablePeer();
+        for (String peer : peers) {
+            updateNodeVersion(peer);
+        }
+    }
+
+    private void updateNodeVersion(String peerIpAndPort) {
+        NodeVersion nodeVersion = groupInfoGetter.getNodeVersion(peerIpAndPort);
+        nodeToNodeVersion.put(peerIpAndPort, nodeVersion);
+    }
+
+    public void registerGetNodeVersionHandler() {
+        GetNodeVersionHandler handler =
+                new GetNodeVersionHandler(
+                        new Consumer<String>() {
+                            @Override
+                            public void accept(String peerIpAndPort) {
+                                threadPool.execute(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                fetchGroupList(peerIpAndPort);
+                                                updateNodeVersion(peerIpAndPort);
+                                            }
+                                        });
+                            }
+                        });
+        this.channel.addEstablishHandler(handler);
+    }
+
+    private void onDisconnect(String peerIpAndPort) {
+        nodeToNodeVersion.remove(peerIpAndPort);
+        if (!nodeToGroupIDList.containsKey(peerIpAndPort)) {
+            return;
+        }
+        List<String> groupList = nodeToGroupIDList.get(peerIpAndPort);
+        for (String group : groupList) {
+            GroupService groupService = groupIdToService.get(Integer.valueOf(group));
+            if (groupService == null) {
+                continue;
+            }
+            groupService.removeNode(peerIpAndPort);
+        }
     }
 
     public void registerBlockNumberNotifyHandler() {
@@ -110,22 +185,13 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                                         new Runnable() {
                                             @Override
                                             public void run() {
-                                                // remove groupList info from the nodeToGroupIDList
-                                                if (nodeToGroupIDList.contains(
-                                                        disconnectedEndpoint)) {
-                                                    nodeToGroupIDList.remove(disconnectedEndpoint);
-                                                }
-                                                // update groupIdToService
-                                                for (Integer group : groupIdToService.keySet()) {
-                                                    groupIdToService
-                                                            .get(group)
-                                                            .removeNode(disconnectedEndpoint);
-                                                }
+                                                onDisconnect(disconnectedEndpoint);
                                             }
                                         });
                             }
                         });
         this.channel.addMessageHandler(MsgType.BLOCK_NOTIFY, handler);
+        this.channel.addDisconnectHandler(handler);
         logger.info("registerBlockNumberNotifyHandler");
     }
 
@@ -198,7 +264,6 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                     ObjectMapperFactory.getObjectMapper()
                             .readValue(message.getData(), TransactionReceipt.class);
         } catch (IOException e) {
-            // e.printStackTrace();
             // fake the receipt
             receipt = new TransactionReceipt();
             receipt.setStatus(String.valueOf(ChannelMessageError.MESSAGE_DECODE_ERROR.getError()));
@@ -523,12 +588,17 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     protected void fetchGroupList() {
         List<String> peers = this.channel.getAvailablePeer();
         for (String peerEndPoint : peers) {
-            try {
-                GroupList groupList = this.groupInfoGetter.getGroupList(peerEndPoint);
-                this.updateGroupInfo(peerEndPoint, groupList.getGroupList());
-            } catch (ClientException e) {
-                logger.warn("fetchGroupList from failed, error info: {}", e.getMessage());
-            }
+            fetchGroupList(peerEndPoint);
+        }
+    }
+
+    private void fetchGroupList(String peerEndPoint) {
+        try {
+            GroupList groupList = this.groupInfoGetter.getGroupList(peerEndPoint);
+            this.updateGroupInfo(peerEndPoint, groupList.getGroupList());
+        } catch (ClientException e) {
+            logger.warn(
+                    "fetchGroupList from {} failed, error info: {}", peerEndPoint, e.getMessage());
         }
     }
 }
