@@ -20,7 +20,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
 
@@ -32,11 +34,25 @@ public class P12Manager extends KeyManager {
         super(keyStoreFile, password);
     }
 
+    @Override
+    public PublicKey getPublicKey() {
+        try {
+            Certificate certificate = keyStore.getCertificate(NAME);
+            return certificate.getPublicKey();
+        } catch (KeyStoreException e) {
+            throw new LoadKeyStoreException(
+                    "getPublicKey from p12 file "
+                            + keyStoreFile
+                            + " failed, error message: "
+                            + e.getMessage(),
+                    e);
+        }
+    }
+
     /**
      * load keyPair from the given input stream
      *
      * @param in: the input stream that should used to load keyPair
-     * @param password: the password to load the keyPair
      */
     protected void load(InputStream in) {
         try {
@@ -50,7 +66,7 @@ public class P12Manager extends KeyManager {
             String errorMessage =
                     "load keys from p12 file "
                             + keyStoreFile
-                            + "failed, error message:"
+                            + " failed, error message:"
                             + e.getMessage();
             logger.error(errorMessage);
             throw new LoadKeyStoreException(errorMessage, e);
@@ -69,7 +85,7 @@ public class P12Manager extends KeyManager {
             String errorMessage =
                     "get private key from "
                             + keyStoreFile
-                            + "failed for UnrecoverableKeyException, error message"
+                            + " failed for UnrecoverableKeyException, error message"
                             + e.getMessage();
             logger.error(errorMessage);
             throw new LoadKeyStoreException(errorMessage, e);

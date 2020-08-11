@@ -17,11 +17,9 @@ import com.webank.wedpr.crypto.CryptoResult;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.Arrays;
-import java.util.Objects;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
+import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.fisco.bcos.sdk.utils.StringUtils;
@@ -34,9 +32,6 @@ public abstract class CryptoKeyPair {
     public static final int PUBLIC_KEY_SIZE = 64;
     public static final int PUBLIC_KEY_LENGTH_IN_HEX = PUBLIC_KEY_SIZE << 1;
 
-    private BigInteger privateKey;
-    protected BigInteger publicKey;
-
     protected String hexPrivateKey;
     protected String hexPublicKey;
     public KeyPair keyPair;
@@ -44,23 +39,6 @@ public abstract class CryptoKeyPair {
     protected Hash hashImpl;
 
     public CryptoKeyPair() {}
-
-    public CryptoKeyPair(final BigInteger privateKey) {
-        this.privateKey = privateKey;
-        /**
-         * todo: get publicKey according to privateKey this.publicKey =
-         * privateKeyToPublic(privateKey);
-         */
-        this.keyPair = null;
-        calculateHexedKeyPair();
-    }
-
-    public CryptoKeyPair(final BigInteger privateKey, final BigInteger publicKey) {
-        this.privateKey = privateKey;
-        this.publicKey = publicKey;
-        this.keyPair = null;
-        calculateHexedKeyPair();
-    }
 
     /**
      * init CryptoKeyPair from the keyPair
@@ -70,14 +48,8 @@ public abstract class CryptoKeyPair {
     public CryptoKeyPair(KeyPair keyPair) {
         this.keyPair = keyPair;
         // init privateKey/publicKey from the keyPair
-        this.privateKey = ((BCECPrivateKey) keyPair.getPrivate()).getD();
-        byte[] publicKeyBytes = ((BCECPublicKey) keyPair.getPublic()).getQ().getEncoded(false);
-        this.publicKey =
-                new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
-        calculateHexedKeyPair();
-        // Note: In the current version of sm2 verification, the public key prefix must contain 04,
-        // otherwise an error will be reported
-        this.hexPublicKey = "04" + this.hexPublicKey;
+        this.hexPrivateKey = KeyManager.getHexedPrivateKey(keyPair.getPrivate());
+        this.hexPublicKey = KeyManager.getHexedPublicKey(keyPair.getPublic());
     }
     /**
      * get CryptoKeyPair information from CryptoResult
@@ -87,23 +59,6 @@ public abstract class CryptoKeyPair {
     CryptoKeyPair(final CryptoResult nativeResult) {
         this.hexPrivateKey = nativeResult.privteKey;
         this.hexPublicKey = nativeResult.publicKey;
-        this.privateKey = new BigInteger(this.hexPrivateKey, 16);
-        // Note: The generated publicKey is prefixed with 04, When converting it to BigInteger, need
-        // to remove 04
-        this.publicKey = new BigInteger(this.hexPublicKey.substring(2), 16);
-    }
-
-    private void calculateHexedKeyPair() {
-        this.hexPrivateKey = this.privateKey.toString(16);
-        this.hexPublicKey = this.publicKey.toString(16);
-    }
-
-    public BigInteger getPrivateKey() {
-        return privateKey;
-    }
-
-    public BigInteger getPublicKey() {
-        return publicKey;
     }
 
     public String getHexPrivateKey() {
@@ -116,20 +71,6 @@ public abstract class CryptoKeyPair {
 
     public KeyPair getKeyPair() {
         return this.keyPair;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CryptoKeyPair comparedKeyPair = (CryptoKeyPair) o;
-        return Objects.equals(this.privateKey, comparedKeyPair.privateKey)
-                && Objects.equals(this.publicKey, comparedKeyPair.publicKey);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(privateKey, publicKey);
     }
 
     /**

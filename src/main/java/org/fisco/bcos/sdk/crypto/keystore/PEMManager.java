@@ -20,8 +20,10 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -34,6 +36,23 @@ public class PEMManager extends KeyManager {
         super(keyStoreFile);
     }
 
+    @Override
+    protected PublicKey getPublicKey() {
+        try {
+            X509EncodedKeySpec encodedKeySpec = new X509EncodedKeySpec(pem.getContent());
+            KeyFactory keyFacotry =
+                    KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
+            return keyFacotry.generatePublic(encodedKeySpec);
+        } catch (InvalidKeySpecException | NoSuchProviderException | NoSuchAlgorithmException e) {
+            throw new LoadKeyStoreException(
+                    "getPublicKey from pem file "
+                            + keyStoreFile
+                            + " failed, error message: "
+                            + e.getMessage(),
+                    e);
+        }
+    }
+
     protected void load(InputStream in) {
         try {
             PemReader pemReader = new PemReader(new InputStreamReader(in));
@@ -43,7 +62,7 @@ public class PEMManager extends KeyManager {
             String errorMessage =
                     "load key info from the pem file "
                             + keyStoreFile
-                            + "failed, error message:"
+                            + " failed, error message:"
                             + e.getMessage();
             logger.error(errorMessage);
             throw new LoadKeyStoreException(errorMessage, e);
@@ -64,7 +83,7 @@ public class PEMManager extends KeyManager {
             String errorMessage =
                     "getPrivateKey from pem file "
                             + keyStoreFile
-                            + "failed, error message:"
+                            + " failed, error message:"
                             + e.getMessage();
             logger.error(errorMessage);
             throw new LoadKeyStoreException(errorMessage, e);
