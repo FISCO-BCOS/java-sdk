@@ -55,6 +55,7 @@ import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -67,12 +68,20 @@ public class ClientImpl implements Client {
     private final Integer groupId;
     private final Integer DefaultGroupId = Integer.valueOf(1);
     private final EventSubscribe eventSubscribe;
+    private final CryptoInterface cryptoInterface;
+    private final NodeVersion nodeVersion;
 
     protected ClientImpl(
-            GroupManagerService groupManagerService, Channel channel, Integer groupId) {
+            GroupManagerService groupManagerService,
+            Channel channel,
+            Integer groupId,
+            CryptoInterface cryptoInterface,
+            NodeVersion nodeVersion) {
         this.jsonRpcService = new JsonRpcService(groupManagerService, channel, groupId);
         this.groupId = groupId;
         this.eventSubscribe = EventSubscribe.build(groupManagerService, groupId);
+        this.cryptoInterface = cryptoInterface;
+        this.nodeVersion = nodeVersion;
         // send request to the group, and get the blockNumber information
         getBlockLimit();
     }
@@ -81,6 +90,23 @@ public class ClientImpl implements Client {
         this.jsonRpcService = new JsonRpcService(null, channel, null);
         this.groupId = null;
         this.eventSubscribe = null;
+        this.cryptoInterface = null;
+        this.nodeVersion = null;
+    }
+
+    @Override
+    public CryptoInterface getCryptoInterface() {
+        return this.cryptoInterface;
+    }
+
+    @Override
+    public NodeVersion getClientNodeVersion() {
+        return this.nodeVersion;
+    }
+
+    @Override
+    public Integer getCryptoType() {
+        return this.cryptoInterface.getCryptoTypeConfig();
     }
 
     @Override
@@ -787,6 +813,14 @@ public class ClientImpl implements Client {
     public NodeVersion getNodeVersion() {
         return this.jsonRpcService.sendRequestToGroup(
                 new JsonRpcRequest(JsonRpcMethods.GET_NODE_VERSION, Arrays.asList()),
+                NodeVersion.class);
+    }
+
+    @Override
+    public NodeVersion getNodeVersion(String ipAndPort) {
+        return this.jsonRpcService.sendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.GET_NODE_VERSION, Arrays.asList()),
+                ipAndPort,
                 NodeVersion.class);
     }
 

@@ -64,6 +64,14 @@ public interface Channel {
     void addConnectHandler(MsgHandler handler);
 
     /**
+     * Add a establish handler, when the SDK establishes a connection with the node, call the
+     * handler
+     *
+     * @param handler
+     */
+    void addEstablishHandler(MsgHandler handler);
+
+    /**
      * Add a disconnect handler, when one connection disconnect,
      * handler.onDisconnect(ChannleHandlerContext ctx) is called
      *
