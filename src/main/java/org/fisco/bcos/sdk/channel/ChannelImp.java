@@ -333,9 +333,9 @@ public class ChannelImp implements Channel {
                                 TimeUnit.MILLISECONDS));
             }
             ctx.writeAndFlush(out);
-            logger.debug("send message to {} success ", peerIpPort);
+            logger.debug("send message {} to {} success ", out.getSeq(), peerIpPort);
         } else {
-            logger.error("send message to {} failed ", peerIpPort);
+            logger.debug("send message {} to {} failed ", out.getSeq(), peerIpPort);
             Response response = new Response();
             response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
             response.setErrorMessage(
