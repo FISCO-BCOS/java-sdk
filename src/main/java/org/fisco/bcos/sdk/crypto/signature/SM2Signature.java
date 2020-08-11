@@ -21,18 +21,24 @@ import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 public class SM2Signature implements Signature {
     @Override
     public SignatureResult sign(final String message, final CryptoKeyPair keyPair) {
+        return new SM2SignatureResult(
+                keyPair.getHexPublicKey(), signWithStringSignature(message, keyPair));
+    }
+
+    @Override
+    public SignatureResult sign(final byte[] message, final CryptoKeyPair keyPair) {
+        return sign(new String(message), keyPair);
+    }
+
+    @Override
+    public String signWithStringSignature(final String message, final CryptoKeyPair keyPair) {
         CryptoResult signatureResult = NativeInterface.sm2Sign(keyPair.getHexPrivateKey(), message);
         if (signatureResult.wedprErrorMessage != null
                 && !signatureResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
                     "Sign with sm2 failed:" + signatureResult.wedprErrorMessage);
         }
-        return new SM2SignatureResult(keyPair.getHexPublicKey(), signatureResult.signature);
-    }
-
-    @Override
-    public SignatureResult sign(final byte[] message, final CryptoKeyPair keyPair) {
-        return sign(new String(message), keyPair);
+        return signatureResult.signature;
     }
 
     @Override
