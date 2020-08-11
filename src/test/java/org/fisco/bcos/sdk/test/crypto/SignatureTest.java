@@ -22,6 +22,9 @@ import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.SM2KeyPair;
+import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
+import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
 import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
 import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
@@ -262,6 +265,28 @@ public class SignatureTest {
                             keyPair.getHexPublicKey(),
                             invaidMessage,
                             signResult.convertToString()));
+        }
+    }
+
+    @Test
+    public void testSignAndVerifyWithKeyManager() {
+        String publicKeyPem =
+                "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.public.pem";
+        KeyManager verifykeyManager =
+                new PEMManager(getClass().getClassLoader().getResource(publicKeyPem).getPath());
+
+        String keyPairPem = "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.p12";
+        KeyManager signKeyManager =
+                new P12Manager(
+                        getClass().getClassLoader().getResource(keyPairPem).getPath(), "123456");
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+        // sign and verify message with keyManager
+        for (int i = 0; i < 10; i++) {
+            String message = cryptoInterface.hash("abcd----" + Integer.toString(i));
+            String signature = cryptoInterface.sign(signKeyManager, message);
+            Assert.assertTrue(cryptoInterface.verify(verifykeyManager, message, signature));
+            String invalidMessage = cryptoInterface.hash("abcde----" + Integer.toString(i));
+            Assert.assertTrue(!cryptoInterface.verify(verifykeyManager, invalidMessage, signature));
         }
     }
 }

@@ -21,6 +21,17 @@ import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 public class ECDSASignature implements Signature {
     @Override
     public SignatureResult sign(final String message, final CryptoKeyPair keyPair) {
+        // convert signature string to SignatureResult struct
+        return new ECDSASignatureResult(signWithStringSignature(message, keyPair));
+    }
+
+    @Override
+    public SignatureResult sign(final byte[] message, final CryptoKeyPair keyPair) {
+        return sign(new String(message), keyPair);
+    }
+
+    @Override
+    public String signWithStringSignature(final String message, final CryptoKeyPair keyPair) {
         CryptoResult signatureResult =
                 NativeInterface.secp256k1Sign(keyPair.getHexPrivateKey(), message);
         // call secp256k1Sign failed
@@ -30,12 +41,7 @@ public class ECDSASignature implements Signature {
                     "Sign with secp256k1 failed:" + signatureResult.wedprErrorMessage);
         }
         // convert signature string to SignatureResult struct
-        return new ECDSASignatureResult(signatureResult.signature);
-    }
-
-    @Override
-    public SignatureResult sign(final byte[] message, final CryptoKeyPair keyPair) {
-        return sign(new String(message), keyPair);
+        return signatureResult.signature;
     }
 
     @Override
