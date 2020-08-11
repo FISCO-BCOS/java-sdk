@@ -21,6 +21,7 @@ import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.SM2KeyPair;
+import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
 import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
 import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
@@ -87,6 +88,17 @@ public class CryptoInterface {
 
     public SignatureResult sign(final String message, final CryptoKeyPair keyPair) {
         return signatureImpl.sign(message, keyPair);
+    }
+
+    // for AMOP topic verify, generate signature
+    public String sign(KeyManager keyManager, String message) {
+        CryptoKeyPair cryptoKeyPair = this.keyPairFactory.createKeyPair(keyManager.getKeyPair());
+        return signatureImpl.signWithStringSignature(message, cryptoKeyPair);
+    }
+
+    // for AMOP topic verify, verify the signature
+    public boolean verify(KeyManager keyManager, String message, String signature) {
+        return verify(keyManager.getHexedPublicKey(), message, signature);
     }
 
     public boolean verify(final String publicKey, final String message, final String signature) {

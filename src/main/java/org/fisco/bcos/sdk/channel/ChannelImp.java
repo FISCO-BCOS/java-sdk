@@ -143,6 +143,11 @@ public class ChannelImp implements Channel {
     }
 
     @Override
+    public void addEstablishHandler(MsgHandler handler) {
+        msgHandler.addEstablishHandler(handler);
+    }
+
+    @Override
     public void addMessageHandler(MsgType type, MsgHandler handler) {
         msgHandler.addMessageHandler(type, handler);
     }

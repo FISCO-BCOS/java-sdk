@@ -189,7 +189,7 @@ public class BcosSDKTest
             //BigInteger blockLimit = sdk.getGroupManagerService().getBlockLimitByGroup(groupId);
             BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
             // deploy the HelloWorld contract
-            HelloWorld helloWorld = HelloWorld.deploy(client, sdk.getCryptoInterface());
+            HelloWorld helloWorld = HelloWorld.deploy(client, client.getCryptoInterface());
             checkReceipt(helloWorld, client, blockNumber.add(BigInteger.ONE), helloWorld.getDeployReceipt(), false);
 
             // check the blockLimit has been modified
@@ -208,7 +208,7 @@ public class BcosSDKTest
             Assert.assertTrue(getValue.equals(settedString));
 
             // load contract from the contract adddress
-            HelloWorld helloWorld2 = HelloWorld.load(helloWorld.getContractAddress(), client, sdk.getCryptoInterface());
+            HelloWorld helloWorld2 = HelloWorld.load(helloWorld.getContractAddress(), client, client.getCryptoInterface());
             Assert.assertTrue(helloWorld2.getContractAddress().equals(helloWorld.getContractAddress()));
             settedString = "Hello, Fisco2";
             TransactionReceipt receipt2 = helloWorld2.set(settedString);

@@ -15,24 +15,25 @@ package org.fisco.bcos.sdk.crypto.keystore;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
-import java.security.cert.CertificateException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.Collections;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -48,6 +49,7 @@ public abstract class KeyManager {
     protected final String keyStoreFile;
     protected final String password;
     protected KeyStore keyStore;
+    private String hexedPublicKey = "";
 
     /**
      * constructor for the P12: with password
@@ -69,30 +71,49 @@ public abstract class KeyManager {
      * @param keyStoreFile:the path of the keystore file
      */
     public KeyManager(final String keyStoreFile) {
-        this.keyStoreFile = keyStoreFile;
-        this.password = null;
-        Security.setProperty("crypto.policy", "unlimited");
-        Security.addProvider(new BouncyCastleProvider());
-        load();
+        this(keyStoreFile, null);
     }
 
     protected abstract PrivateKey getPrivateKey();
-    /**
-     * load information from the given input stream
-     *
-     * @param in: the input stream that should used to load keyPair
-     * @param password: the password to load the keyPair
-     * @throws NoSuchAlgorithmException
-     * @throws CertificateException
-     * @throws IOException
-     * @throws KeyStoreException
-     * @throws NoSuchProviderException
-     */
+
     public final String getKeyStoreFile() {
         return this.keyStoreFile;
     }
 
+    /**
+     * get keyPair loaded from the keyStore file
+     *
+     * @return: the keyPair
+     */
+    public KeyPair getKeyPair() {
+        PrivateKey privateKey = getPrivateKey();
+        PublicKey publicKey = getPublicKeyFromPrivateKey();
+        return new KeyPair(publicKey, privateKey);
+    }
+
+    protected abstract PublicKey getPublicKey();
+
+    public static String getHexedPublicKey(PublicKey publicKey) {
+        byte[] publicKeyBytes = ((BCECPublicKey) publicKey).getQ().getEncoded(false);
+        BigInteger publicKeyValue =
+                new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
+        return ("04" + publicKeyValue.toString(16));
+    }
+
+    public String getHexedPublicKey() {
+        if (!"".equals(hexedPublicKey)) {
+            return this.hexedPublicKey;
+        }
+        this.hexedPublicKey = getHexedPublicKey(getPublicKey());
+        return this.hexedPublicKey;
+    }
+
+    public static String getHexedPrivateKey(PrivateKey privateKey) {
+        return (((BCECPrivateKey) privateKey).getD()).toString(16);
+    }
+
     protected abstract void load(InputStream in);
+
     /** load information from the keyStoreFile */
     protected void load() {
         try {
@@ -109,7 +130,7 @@ public abstract class KeyManager {
         }
     }
 
-    protected PublicKey getPublicKey() {
+    protected PublicKey getPublicKeyFromPrivateKey() {
         try {
             ECPrivateKey privateKey = (ECPrivateKey) getPrivateKey();
             ECParameterSpec params = privateKey.getParams();
@@ -135,17 +156,6 @@ public abstract class KeyManager {
             logger.error(errorMessage);
             throw new LoadKeyStoreException(errorMessage, e);
         }
-    }
-
-    /**
-     * get keyPair loaded from the keyStore file
-     *
-     * @return: the keyPair
-     */
-    public KeyPair getKeyPair() {
-        PrivateKey privateKey = getPrivateKey();
-        PublicKey publicKey = getPublicKey();
-        return new KeyPair(publicKey, privateKey);
     }
 
     @SuppressWarnings("unchecked")

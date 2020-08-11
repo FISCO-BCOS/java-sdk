@@ -29,6 +29,8 @@ public interface Signature {
 
     SignatureResult sign(final String message, final CryptoKeyPair keyPair);
 
+    String signWithStringSignature(final String message, final CryptoKeyPair keyPair);
+
     /**
      * verify signature
      *

@@ -135,7 +135,7 @@ public class PrecompiledRetCodeTest {
     }
 
     private void checkResponse(int code, String expectedMessage) {
-        RetCode retCode = PrecompiledRetCode.getPrecompiledResponse(code);
+        RetCode retCode = PrecompiledRetCode.getPrecompiledResponse(code, "");
         Assert.assertTrue(expectedMessage.equals(retCode.getMessage()));
         Assert.assertEquals(code, retCode.getCode());
     }

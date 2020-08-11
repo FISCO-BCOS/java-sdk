@@ -28,7 +28,7 @@ public class TransactionManagerFactory {
 
     /**
      * @param client
-     * @param credential
+     * @param cryptoInterface
      * @return
      */
     public static TransactionManager createTransactionManager(
@@ -40,7 +40,7 @@ public class TransactionManagerFactory {
             Client client, CryptoInterface cryptoInterface, ContractLoader contractLoader) {
         try {
             // get supported version of the node
-            NodeVersion version = client.getNodeVersion();
+            NodeVersion version = client.getClientNodeVersion();
             String binaryVersion = version.getNodeVersion().getVersion();
             String supportedVersion = version.getNodeVersion().getSupportedVersion();
             logger.debug(

@@ -20,6 +20,7 @@ import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.PeerSelectRule;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.model.Message;
+import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
@@ -136,4 +137,8 @@ public interface GroupManagerService {
             ResponseCallback responseCallback);
 
     void eraseTransactionSeq(String seq);
+
+    NodeVersion getNodeVersion(String peerInfo);
+
+    Integer getCryptoType(String peerInfo);
 }
