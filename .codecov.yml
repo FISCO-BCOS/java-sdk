@@ -1,6 +1,8 @@
 codecov:
   branch: *
 coverage:
+  ignore:
+    - "src/integration-test/**/*"
   status:
     project:
       default:
