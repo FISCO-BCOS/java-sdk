@@ -15,14 +15,11 @@
 
 package org.fisco.bcos.sdk.amop.topic;
 
-import java.security.KeyStore;
-import java.util.List;
-import org.fisco.bcos.sdk.amop.AmopCallback;
+public enum TopicType {
+    /** Type of AMOP topic */
+    PUBLIC_TOPIC(0),
+    PRIVATE_TOPIC(1),
+    ;
 
-public class AmopTopic {
-    private String topicName;
-    private TopicType type;
-    private AmopCallback callback;
-    private KeyStore privateKey;
-    private List<KeyStore> publicKeys;
+    TopicType(int i) {}
 }

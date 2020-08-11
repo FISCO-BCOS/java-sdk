@@ -16,9 +16,9 @@
 package org.fisco.bcos.sdk.amop;
 
 import java.util.List;
-import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.service.GroupManagerService;
 
 /**
  * AMOP module interface.
@@ -29,12 +29,12 @@ public interface Amop {
     /**
      * Create a Amop object.
      *
-     * @param channel
+     * @param groupManager
      * @param config
      * @return Amop instance
      */
-    static Amop build(Channel channel, ConfigOption config) {
-        return null;
+    static Amop build(GroupManagerService groupManager, ConfigOption config) {
+        return new AmopImp(groupManager, config);
     }
 
     /**
