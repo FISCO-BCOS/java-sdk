@@ -55,6 +55,8 @@ public class ChannelMsgHandler implements MsgHandler {
     private List<MsgHandler> msgConnectHandlerList = new ArrayList<>();
     private List<MsgHandler> msgDisconnectHandleList = new ArrayList<>();
     private Map<Integer, MsgHandler> msgHandlers = new ConcurrentHashMap<>();
+    private List<MsgHandler> msgEstablishHandlerList = new ArrayList<>();
+
     private Map<String, ResponseCallback> seq2Callback = new ConcurrentHashMap<>();
     private Map<String, ChannelHandlerContext> availablePeer = new ConcurrentHashMap<>();
 
@@ -64,6 +66,10 @@ public class ChannelMsgHandler implements MsgHandler {
 
     public void addConnectHandler(MsgHandler handler) {
         msgConnectHandlerList.add(handler);
+    }
+
+    public void addEstablishHandler(MsgHandler handler) {
+        msgEstablishHandlerList.add(handler);
     }
 
     public void addMessageHandler(MsgType type, MsgHandler handler) {
@@ -84,6 +90,9 @@ public class ChannelMsgHandler implements MsgHandler {
 
     private void addAvailablePeer(String host, ChannelHandlerContext ctx) {
         availablePeer.put(host, ctx);
+        for (MsgHandler handle : msgEstablishHandlerList) {
+            handle.onConnect(ctx);
+        }
     }
 
     private ResponseCallback getAndRemoveSeq(String seq) {
