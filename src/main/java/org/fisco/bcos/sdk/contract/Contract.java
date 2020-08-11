@@ -36,6 +36,7 @@ import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.eventsub.EventLogParams;
+import org.fisco.bcos.sdk.model.ReceiptParser;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.manager.TransactionManager;
 import org.fisco.bcos.sdk.transaction.manager.TransactionManagerFactory;
@@ -155,7 +156,7 @@ public class Contract {
         this.deployReceipt = deployReceipt;
     }
 
-    private List<Type> executeCall(Function function) {
+    private List<Type> executeCall(Function function) throws ContractException {
 
         String encodedFunctionData = functionEncoder.encode(function);
         CallRequest callRequest =
@@ -166,7 +167,24 @@ public class Contract {
         Call response = transactionManager.executeCall(callRequest);
         // get value from the response
         String callResult = response.getCallResult().getOutput();
-        return FunctionReturnDecoder.decode(callResult, function.getOutputParameters());
+        if (!response.getCallResult().getStatus().equals("0x0")) {
+            ContractException contractException =
+                    new ContractException(
+                            "execute "
+                                    + function.getName()
+                                    + " failed for non-zero status "
+                                    + response.getCallResult().getStatus(),
+                            response.getCallResult());
+            throw ReceiptParser.parseExceptionCall(contractException);
+        }
+        try {
+            return FunctionReturnDecoder.decode(callResult, function.getOutputParameters());
+        } catch (Exception e) {
+            throw new ContractException(
+                    "decode callResult failed, error info:" + e.getMessage(),
+                    e,
+                    response.getCallResult());
+        }
     }
 
     protected <T extends Type> T executeCallWithSingleValueReturn(Function function)
@@ -201,7 +219,8 @@ public class Contract {
         }
     }
 
-    protected List<Type> executeCallWithMultipleValueReturn(Function function) {
+    protected List<Type> executeCallWithMultipleValueReturn(Function function)
+            throws ContractException {
         return executeCall(function);
     }
 

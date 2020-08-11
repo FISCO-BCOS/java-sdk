@@ -19,11 +19,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
-import org.fisco.bcos.sdk.contract.precompiled.exceptions.PrecompiledException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
-import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledReceiptParser;
+import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.ReceiptParser;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
@@ -37,48 +37,50 @@ public class CnsService {
 
     public RetCode registerCNS(
             String contractName, String contractVersion, String contractAddress, String abiData)
-            throws PrecompiledException {
+            throws ContractException {
         // check the length of the contractVersion
-        if (contractVersion.length() > PrecompiledRetCode.CNS_MAX_VERSION_LENGTH) {
-            throw new PrecompiledException(PrecompiledRetCode.OVER_CONTRACT_VERSION_LEN_LIMIT);
+        if (contractVersion.length() > PrecompiledConstant.CNS_MAX_VERSION_LENGTH) {
+            throw new ContractException(PrecompiledRetCode.OVER_CONTRACT_VERSION_LEN_LIMIT);
         }
-        return PrecompiledReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parsePrecompiledReceipt(
                 cnsPrecompiled.insert(contractName, contractVersion, contractAddress, abiData));
     }
 
-    public List<CnsInfo> selectByName(String contractName) throws PrecompiledException {
+    public List<CnsInfo> selectByName(String contractName) throws ContractException {
         try {
             String cnsInfo = cnsPrecompiled.selectByName(contractName);
             return ObjectMapperFactory.getObjectMapper()
                     .readValue(cnsInfo, new TypeReference<List<CnsInfo>>() {});
-        } catch (JsonProcessingException | ContractException e) {
-            throw new PrecompiledException(
+        } catch (JsonProcessingException e) {
+            throw new ContractException(
                     "CnsService: failed to call selectByName interface, error message: "
                             + e.getMessage());
+        } catch (ContractException e) {
+            throw ReceiptParser.parseExceptionCall(e);
         }
     }
 
     public CnsInfo selectByNameAndVersion(String contractName, String contractVersion)
-            throws PrecompiledException {
+            throws ContractException {
         try {
             String cnsInfo = cnsPrecompiled.selectByNameAndVersion(contractName, contractVersion);
             return ObjectMapperFactory.getObjectMapper()
                     .readValue(cnsInfo, new TypeReference<CnsInfo>() {});
-        } catch (ContractException | JsonProcessingException e) {
-            throw new PrecompiledException(
+        } catch (JsonProcessingException e) {
+            throw new ContractException(
                     "CnsService: failed to call selectByNameAndVersion interface, error message: "
                             + e.getMessage());
+        } catch (ContractException e) {
+            throw ReceiptParser.parseExceptionCall(e);
         }
     }
 
     public String getContractAddress(String contractName, String contractVersion)
-            throws PrecompiledException {
+            throws ContractException {
         try {
             return cnsPrecompiled.getContractAddress(contractName, contractVersion);
         } catch (ContractException e) {
-            throw new PrecompiledException(
-                    "CnsService: failed to call getContractAddress, error message: "
-                            + e.getMessage());
+            throw ReceiptParser.parseExceptionCall(e);
         }
     }
 }

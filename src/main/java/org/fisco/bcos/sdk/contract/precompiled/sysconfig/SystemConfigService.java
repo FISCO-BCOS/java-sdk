@@ -15,10 +15,10 @@
 package org.fisco.bcos.sdk.contract.precompiled.sysconfig;
 
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.contract.precompiled.exceptions.PrecompiledException;
+import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
-import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledReceiptParser;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.ReceiptParser;
 import org.fisco.bcos.sdk.model.RetCode;
 
 public class SystemConfigService {
@@ -30,8 +30,8 @@ public class SystemConfigService {
                         PrecompiledAddress.SYSCONFIG_PRECOMPILED_ADDRESS, client, credential);
     }
 
-    public RetCode setValueByKey(String key, String value) throws PrecompiledException {
-        return PrecompiledReceiptParser.parsePrecompiledReceipt(
+    public RetCode setValueByKey(String key, String value) throws ContractException {
+        return ReceiptParser.parsePrecompiledReceipt(
                 systemConfigPrecompiled.setValueByKey(key, value));
     }
 }

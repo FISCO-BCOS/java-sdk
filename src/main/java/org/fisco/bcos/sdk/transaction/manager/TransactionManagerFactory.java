@@ -28,7 +28,7 @@ public class TransactionManagerFactory {
 
     /**
      * @param client
-     * @param credential
+     * @param cryptoInterface
      * @return
      */
     public static TransactionManager createTransactionManager(

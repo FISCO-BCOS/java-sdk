@@ -13,12 +13,72 @@
  */
 package org.fisco.bcos.sdk.contract.exceptions;
 
+import java.util.Objects;
+import org.fisco.bcos.sdk.client.protocol.response.Call;
+
 public class ContractException extends Exception {
+    private Call.CallOutput responseOutput = null;
+    private int errorCode;
+
+    public ContractException(String errorMessage, int errorCode) {
+        super(errorMessage);
+        this.errorCode = errorCode;
+    }
+
     public ContractException(String message) {
         super(message);
     }
 
     public ContractException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public ContractException(String message, Throwable cause, Call.CallOutput responseOutput) {
+        super(message, cause);
+        this.responseOutput = responseOutput;
+    }
+
+    public ContractException(String message, Call.CallOutput responseOutput) {
+        super(message);
+        this.responseOutput = responseOutput;
+    }
+
+    public Call.CallOutput getResponseOutput() {
+        return this.responseOutput;
+    }
+
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public void setResponseOutput(Call.CallOutput responseOutput) {
+        this.responseOutput = responseOutput;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ContractException that = (ContractException) o;
+        return errorCode == that.errorCode && Objects.equals(responseOutput, that.responseOutput);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(responseOutput, errorCode);
+    }
+
+    @Override
+    public String toString() {
+        return "ContractException{"
+                + "responseOutput="
+                + responseOutput.toString()
+                + ", errorCode="
+                + errorCode
+                + '}';
     }
 }
