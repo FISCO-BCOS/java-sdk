@@ -712,6 +712,7 @@ public class SolidityContractWrapper {
         String name = functionDefinition.getName();
         for (int i = 0; i < nameTypes.size(); i++) {
             ABIDefinition.Type type = nameTypes.get(i).newType();
+            name += StringUtils.capitaliseFirstLetter(type.getRawType());
             if (!type.isList()) {
                 continue;
             }
