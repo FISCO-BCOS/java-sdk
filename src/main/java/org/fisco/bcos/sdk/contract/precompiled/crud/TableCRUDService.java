@@ -35,6 +35,7 @@ import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.ReceiptParser;
 import org.fisco.bcos.sdk.model.RetCode;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.fisco.bcos.sdk.utils.StringUtils;
 
@@ -209,6 +210,71 @@ public class TableCRUDService {
                     e);
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);
+        }
+    }
+
+    public void asyncInsert(
+            String tableName,
+            String key,
+            Entry fieldNameToValue,
+            Condition condition,
+            TransactionSucCallback callback)
+            throws ContractException {
+        checkKey(key);
+        try {
+            String fieldNameToValueStr =
+                    ObjectMapperFactory.getObjectMapper()
+                            .writeValueAsString(fieldNameToValue.getFieldNameToValue());
+            String conditionStr = encodeCondition(condition);
+            this.crudService.insert(tableName, key, fieldNameToValueStr, conditionStr, callback);
+        } catch (JsonProcessingException e) {
+            throw new ContractException(
+                    "asyncInsert "
+                            + fieldNameToValue.toString()
+                            + " to "
+                            + tableName
+                            + " failed, error info:"
+                            + e.getMessage(),
+                    e);
+        }
+    }
+
+    public void asyncUpdate(
+            String tableName,
+            String key,
+            Entry fieldNameToValue,
+            Condition condition,
+            TransactionSucCallback callback)
+            throws ContractException {
+        checkKey(key);
+        try {
+            String fieldNameToValueStr =
+                    ObjectMapperFactory.getObjectMapper()
+                            .writeValueAsString(fieldNameToValue.getFieldNameToValue());
+            String conditionStr = encodeCondition(condition);
+            this.crudService.update(
+                    tableName, key, fieldNameToValueStr, conditionStr, "", callback);
+        } catch (JsonProcessingException e) {
+            throw new ContractException(
+                    "asyncUpdate "
+                            + fieldNameToValue.toString()
+                            + " to "
+                            + tableName
+                            + " failed, error info:"
+                            + e.getMessage(),
+                    e);
+        }
+    }
+
+    public void asyncRemove(
+            String tableName, String key, Condition condition, TransactionSucCallback callback)
+            throws ContractException {
+        checkKey(key);
+        try {
+            this.crudService.remove(tableName, key, encodeCondition(condition), "", callback);
+        } catch (JsonProcessingException e) {
+            throw new ContractException(
+                    "asyncRemove " + key + " with condition from " + tableName + " failed");
         }
     }
 }

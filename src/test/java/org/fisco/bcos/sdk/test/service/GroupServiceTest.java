@@ -124,7 +124,7 @@ public class GroupServiceTest {
         awaitAfterShutdown(threadPool2);
     }
 
-    public void awaitAfterShutdown(ExecutorService threadPool) {
+    public static void awaitAfterShutdown(ExecutorService threadPool) {
         threadPool.shutdown();
         try {
             while (!threadPool.isTerminated()) {

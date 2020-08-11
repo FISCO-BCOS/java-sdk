@@ -36,6 +36,8 @@ import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.demo.contract.HelloWorld;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.test.service.GroupServiceTest;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -46,6 +48,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PrecompiledTest
@@ -203,7 +208,7 @@ public class PrecompiledTest
         Assert.assertTrue(queriedValue.equals(updatedValue));
         Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(1000))));
     }
-
+    // Note: Please make sure that the ut is before the permission-related ut
     @Test
     public void test5CRUDService() throws ConfigException, ContractException {
         try {
@@ -248,6 +253,134 @@ public class PrecompiledTest
         catch(ContractException e)
         {
             System.out.println("testCRUDPrecompiled exceptioned, error info: " + e.getMessage());
+        }
+    }
+
+    // Note: Please make sure that the ut is before the permission-related ut
+    @Test
+    public void test51SyncCRUDService() throws ConfigException {
+        try {
+            BcosSDK sdk = new BcosSDK(configFile);
+            Client client = sdk.getClient(Integer.valueOf(1));
+            CryptoInterface cryptoInterface = client.getCryptoInterface();
+            TableCRUDService crudService = new TableCRUDService(client, cryptoInterface);
+            String tableName = "test_sync";
+            List<String> valueFiled = new ArrayList<>();
+            valueFiled.add("field");
+            RetCode retCode = crudService.createTable(tableName, "key", valueFiled);
+            System.out.println("createResult: " + retCode.getCode() + ", message: " + retCode.getMessage());
+            // create a thread pool to parallel insert and select
+            ExecutorService threadPool = Executors.newFixedThreadPool(50);
+
+            BigInteger orgTxCount = new BigInteger(client.getTotalTransactionCount().getTotalTransactionCount().getTxSum().substring(2), 16);
+            for(int i = 0; i < 100; i++)
+            {
+                final Integer index = i;
+                threadPool.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Map<String, String> value = new HashMap<>();
+                            value.put("field", "field" + index);
+                            String valueOfKey = "key_value" + index;
+                            // insert
+                            crudService.insert(tableName, valueOfKey , new Entry(value), null);
+                            // select
+                            crudService.select(tableName, valueOfKey, null);
+                            // update
+                            value.clear();
+                            value.put("field", "field" + index + 100);
+                            crudService.update(tableName, valueOfKey, new Entry(value), null);
+                            // remove
+                            crudService.remove(tableName, valueOfKey, null);
+                        }catch(ContractException e)
+                        {
+                            System.out.println("call crudService failed, error information: " + e.getMessage());
+                        }
+                    }
+                });
+            }
+            GroupServiceTest.awaitAfterShutdown(threadPool);
+            BigInteger currentTxCount = new BigInteger(client.getTotalTransactionCount().getTotalTransactionCount().getTxSum().substring(2), 16);
+            System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
+            Assert.assertTrue(currentTxCount.equals(orgTxCount.add(BigInteger.valueOf(300))));
+        }catch(ContractException e)
+        {
+            System.out.println("test9SyncCRUDService failed, error info: " + e.getMessage());
+        }
+    }
+
+    class FakeTransactionCallback extends TransactionSucCallback {
+        public TransactionReceipt receipt;
+        public AtomicLong receiptCount = new AtomicLong();
+        @Override
+        public void onTimeout() {
+            super.onTimeout();
+        }
+
+        // wait until get the transactionReceipt
+        @Override
+        public void onResponse(TransactionReceipt receipt) {
+            cancelTimeout();
+            this.receipt = receipt;
+            receiptCount.addAndGet(1);
+        }
+    }
+
+    @Test
+    public void test52AsyncCRUDService()
+    {
+        try {
+            BcosSDK sdk = new BcosSDK(configFile);
+            Client client = sdk.getClient(Integer.valueOf(1));
+            CryptoInterface cryptoInterface = client.getCryptoInterface();
+            TableCRUDService crudService = new TableCRUDService(client, cryptoInterface);
+            // create table
+            String tableName = "send_async";
+            List<String> valueFiled = new ArrayList<>();
+            valueFiled.add("field");
+            String key = "key";
+            crudService.createTable(tableName, key, valueFiled);
+            // create a thread pool to parallel insert and select
+            ExecutorService threadPool = Executors.newFixedThreadPool(50);
+            FakeTransactionCallback callback = new FakeTransactionCallback();
+            BigInteger orgTxCount = new BigInteger(client.getTotalTransactionCount().getTotalTransactionCount().getTxSum().substring(2), 16);
+            for(int i = 0; i < 100; i++)
+            {
+                final Integer index = i;
+                threadPool.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Map<String, String> value = new HashMap<>();
+                            value.put("field", "field" + index);
+                            String valueOfKey = "key_value" + index;
+                            // insert
+                            crudService.asyncInsert(tableName, valueOfKey , new Entry(value), null, callback);
+                            // update
+                            value.clear();
+                            value.put("field", "field" + index + 100);
+                            crudService.asyncUpdate(tableName, valueOfKey, new Entry(value), null, callback);
+                            // remove
+                            crudService.asyncRemove(tableName, valueOfKey, null, callback);
+                        }catch(ContractException e)
+                        {
+                            System.out.println("call crudService failed, error information: " + e.getMessage());
+                        }
+                    }
+                });
+            }
+            while(callback.receiptCount.get() != 300)
+            {
+                Thread.sleep(1000);
+            }
+            GroupServiceTest.awaitAfterShutdown(threadPool);
+            BigInteger currentTxCount = new BigInteger(client.getTotalTransactionCount().getTotalTransactionCount().getTxSum().substring(2), 16);
+            System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
+            Assert.assertTrue(currentTxCount.equals(orgTxCount.add(BigInteger.valueOf(300))));
+        }catch(ContractException | ConfigException | InterruptedException e)
+        {
+            System.out.println("test10AsyncCRUDService failed, error info: " + e.getMessage());
         }
     }
 
