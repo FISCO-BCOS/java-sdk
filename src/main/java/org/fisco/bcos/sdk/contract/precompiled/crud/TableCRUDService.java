@@ -192,7 +192,7 @@ public class TableCRUDService {
 
     public List<Map<String, String>> desc(String tableName) throws ContractException {
         try {
-            NodeVersion nodeVersion = client.getNodeVersion();
+            NodeVersion nodeVersion = client.getClientNodeVersion();
             EnumNodeVersion.Version enumNodeVersion =
                     EnumNodeVersion.getClassVersion(
                             nodeVersion.getNodeVersion().getSupportedVersion());
