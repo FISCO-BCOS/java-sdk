@@ -16,17 +16,25 @@
 package org.fisco.bcos.sdk.amop.topic;
 
 import java.security.KeyStore;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.fisco.bcos.sdk.amop.AmopCallback;
 
 public class TopicManager {
     Map<String, AmopCallback> seq2Callback;
     Map<String, KeyStore> topic2PrivateKey;
     Map<String, List<KeyStore>> topic2PublicKey;
+    Set<String> topics = new HashSet<>();
+    Map<String, Set<String>> peer2BlockNotify = new HashMap<>();
 
-    public void addTopic(String topicName, AmopCallback callback) {
-        return;
+    public void addTopic(String topicString, AmopCallback callback) {
+        topics.add(topicString);
+        if (callback == null) {
+            return;
+        }
     }
 
     public void addPrivateTopic(String topicName, KeyStore privateKeyStore, AmopCallback callback) {
@@ -39,5 +47,34 @@ public class TopicManager {
 
     public AmopCallback getCallback(String seq) {
         return seq2Callback.get(seq);
+    }
+
+    public Set<String> getSubByPeer(String peerIpPort) {
+        Set<String> notify = peer2BlockNotify.get(peerIpPort);
+        if (notify != null && topics != null) {
+            Set<String> peerSub = new HashSet<>();
+            peerSub.addAll(topics);
+            peerSub.addAll(notify);
+            return peerSub;
+        } else if (notify != null && topics == null) {
+            return notify;
+        } else {
+            return topics;
+        }
+    }
+
+    public void addBlockNotify(String peerIpPort, List<String> groupInfo) {
+        Set<String> pnf = peer2BlockNotify.get(peerIpPort);
+        if (null == pnf) {
+            pnf = new HashSet<>();
+            for (String group : groupInfo) {
+                pnf.add("_block_notify_" + group);
+            }
+            peer2BlockNotify.put(peerIpPort, pnf);
+        } else {
+            for (String group : groupInfo) {
+                pnf.add("_block_notify_" + group);
+            }
+        }
     }
 }

@@ -68,7 +68,7 @@ public class NetworkImp implements Network {
     @Override
     public void start() throws NetworkException {
         connManager.startConnect();
-        connManager.startReconnectSchedule();
+        // connManager.startReconnectSchedule();
     }
 
     @Override
