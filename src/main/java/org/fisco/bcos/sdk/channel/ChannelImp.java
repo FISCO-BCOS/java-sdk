@@ -204,6 +204,12 @@ public class ChannelImp implements Channel {
             }
 
             @Override
+            public void onTimeout() {
+                super.onTimeout();
+                semaphore.release();
+            }
+
+            @Override
             public void onResponse(Response response) {
                 retResponse = response;
 

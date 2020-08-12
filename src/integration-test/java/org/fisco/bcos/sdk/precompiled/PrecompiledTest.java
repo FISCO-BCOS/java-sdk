@@ -56,6 +56,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class PrecompiledTest
 {
     private static final String configFile = BcosSDKTest.class.getClassLoader().getResource("config-example.yaml").getPath();
+    public AtomicLong receiptCount = new AtomicLong();
     @Test
     public void test1ConsensusService() throws ConfigException, ContractException {
         try {
@@ -312,16 +313,9 @@ public class PrecompiledTest
 
     class FakeTransactionCallback extends TransactionSucCallback {
         public TransactionReceipt receipt;
-        public AtomicLong receiptCount = new AtomicLong();
-        @Override
-        public void onTimeout() {
-            super.onTimeout();
-        }
-
         // wait until get the transactionReceipt
         @Override
         public void onResponse(TransactionReceipt receipt) {
-            cancelTimeout();
             this.receipt = receipt;
             receiptCount.addAndGet(1);
         }
@@ -343,7 +337,6 @@ public class PrecompiledTest
             crudService.createTable(tableName, key, valueFiled);
             // create a thread pool to parallel insert and select
             ExecutorService threadPool = Executors.newFixedThreadPool(50);
-            FakeTransactionCallback callback = new FakeTransactionCallback();
             BigInteger orgTxCount = new BigInteger(client.getTotalTransactionCount().getTotalTransactionCount().getTxSum().substring(2), 16);
             for(int i = 0; i < 100; i++)
             {
@@ -356,13 +349,16 @@ public class PrecompiledTest
                             value.put("field", "field" + index);
                             String valueOfKey = "key_value" + index;
                             // insert
+                            FakeTransactionCallback callback = new FakeTransactionCallback();
                             crudService.asyncInsert(tableName, valueOfKey , new Entry(value), null, callback);
                             // update
                             value.clear();
                             value.put("field", "field" + index + 100);
-                            crudService.asyncUpdate(tableName, valueOfKey, new Entry(value), null, callback);
+                            FakeTransactionCallback callback2 = new FakeTransactionCallback();
+                            crudService.asyncUpdate(tableName, valueOfKey, new Entry(value), null, callback2);
                             // remove
-                            crudService.asyncRemove(tableName, valueOfKey, null, callback);
+                            FakeTransactionCallback callback3 = new FakeTransactionCallback();
+                            crudService.asyncRemove(tableName, valueOfKey, null, callback3);
                         }catch(ContractException e)
                         {
                             System.out.println("call crudService failed, error information: " + e.getMessage());
@@ -370,7 +366,7 @@ public class PrecompiledTest
                     }
                 });
             }
-            while(callback.receiptCount.get() != 300)
+            while(receiptCount.get() != 300)
             {
                 Thread.sleep(1000);
             }

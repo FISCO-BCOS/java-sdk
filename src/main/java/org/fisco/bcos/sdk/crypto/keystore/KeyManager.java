@@ -123,7 +123,7 @@ public abstract class KeyManager {
             String errorMessage =
                     "load keys from "
                             + keyStoreFile
-                            + "failed for FileNotFoundException, error message:"
+                            + " failed for FileNotFoundException, error message:"
                             + e.getMessage();
             logger.error(errorMessage);
             throw new LoadKeyStoreException(errorMessage, e);
@@ -151,7 +151,7 @@ public abstract class KeyManager {
             String errorMessage =
                     "get publicKey from "
                             + keyStoreFile
-                            + "failed, error message:"
+                            + " failed, error message:"
                             + e.getMessage();
             logger.error(errorMessage);
             throw new LoadKeyStoreException(errorMessage, e);
