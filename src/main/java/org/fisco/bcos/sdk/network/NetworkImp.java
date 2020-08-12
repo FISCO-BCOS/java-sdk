@@ -19,7 +19,7 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public class NetworkImp implements Network {
     }
 
     @Override
-    public void setMsgHandleThreadPool(ThreadPoolExecutor threadPool) {
+    public void setMsgHandleThreadPool(ExecutorService threadPool) {
         connManager.setMsgHandleThreadPool(threadPool);
     }
 

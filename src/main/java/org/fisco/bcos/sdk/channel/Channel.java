@@ -16,7 +16,7 @@
 package org.fisco.bcos.sdk.channel;
 
 import java.util.List;
-import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
+import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
@@ -177,5 +177,5 @@ public interface Channel {
      */
     List<String> getAvailablePeer();
 
-    EnumChannelProtocolVersion getVersion();
+    void setThreadPool(ExecutorService threadPool);
 }

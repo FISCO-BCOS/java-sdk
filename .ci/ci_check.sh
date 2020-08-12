@@ -69,7 +69,7 @@ check_standard_node()
   build_node
   prepare_environment
   ## run integration test
-  bash gradlew clean integrationTest
+  bash gradlew clean integrationTest --info
   ## clean
   clean_node
 }
@@ -79,7 +79,7 @@ check_sm_node()
   build_node "sm"
   prepare_environment "sm"
   ## run integration test
-  bash gradlew clean integrationTest
+  bash gradlew clean integrationTest --info
   ## clean
   clean_node
 }
@@ -92,3 +92,6 @@ LOG_INFO "------ check_sm_node---------"
 check_sm_node
 LOG_INFO "------ check_basic---------"
 check_basic
+LOG_INFO "------ check_log---------"
+cat log/* |grep -i error
+cat log/* |grep -i warn

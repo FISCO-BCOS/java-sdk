@@ -467,7 +467,7 @@ public class PrecompiledTest
             contractLifeCycleService1.unfreeze(helloWorld.getContractAddress());
             helloWorld.set("Hello, fisco3");
             Assert.assertTrue("Hello, fisco3".equals(helloWorld.get()));
-        }catch(ContractException e)
+        }catch(ContractException | ClientException e)
         {
             System.out.println("testContractLifeCycleService failed, error info:" + e.getMessage());
         }

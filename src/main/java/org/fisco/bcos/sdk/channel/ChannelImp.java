@@ -24,14 +24,13 @@ import io.netty.util.TimerTask;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
 import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
-import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
 import org.fisco.bcos.sdk.channel.model.HeartBeatParser;
 import org.fisco.bcos.sdk.channel.model.NodeHeartbeat;
 import org.fisco.bcos.sdk.channel.model.Options;
@@ -315,7 +314,10 @@ public class ChannelImp implements Channel {
     @Override
     public void asyncSendToPeer(
             Message out, String peerIpPort, ResponseCallback callback, Options options) {
-        ChannelHandlerContext ctx = msgHandler.getAvailablePeer().get(peerIpPort);
+        ChannelHandlerContext ctx = null;
+        if (msgHandler.getAvailablePeer() != null) {
+            ctx = msgHandler.getAvailablePeer().get(peerIpPort);
+        }
         if (ctx != null) {
             msgHandler.addSeq2CallBack(out.getSeq(), callback);
             if (options.getTimeout() > 0) {
@@ -339,9 +341,7 @@ public class ChannelImp implements Channel {
             Response response = new Response();
             response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
             response.setErrorMessage(
-                    "The connection to peer "
-                            + ChannelVersionNegotiation.getPeerHost(ctx)
-                            + " is invalid.");
+                    "The connection to peer " + peerIpPort + " failed for not connected.");
             response.setContent("");
             callback.onResponse(response);
         }
@@ -378,11 +378,6 @@ public class ChannelImp implements Channel {
                             peerList.add(peer);
                         });
         return peerList;
-    }
-
-    @Override
-    public EnumChannelProtocolVersion getVersion() {
-        return null;
     }
 
     private void broadcastHeartbeat() {
@@ -458,7 +453,8 @@ public class ChannelImp implements Channel {
         msgHandler.addSeq2CallBack(seq, callback);
     }
 
-    public void setThreadPool(ThreadPoolExecutor threadPool) {
+    @Override
+    public void setThreadPool(ExecutorService threadPool) {
         network.setMsgHandleThreadPool(threadPool);
     }
 }

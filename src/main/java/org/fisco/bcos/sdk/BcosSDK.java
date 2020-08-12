@@ -14,6 +14,9 @@
 package org.fisco.bcos.sdk;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
@@ -34,6 +37,9 @@ public class BcosSDK {
     private final GroupManagerService groupManagerService;
     private ConcurrentHashMap<Integer, Client> groupToClient = new ConcurrentHashMap<>();
     private long maxWaitEstablishConnectionTime = 30000;
+    // TODO: configure the thread pool
+    private ExecutorService threadPool = Executors.newCachedThreadPool();
+    private Amop amop;
 
     public BcosSDK(String configPath) throws ConfigException {
         logger.info("create BcosSDK, configPath: {}", configPath);
@@ -42,6 +48,7 @@ public class BcosSDK {
         logger.info("create BcosSDK, load configPath: {} succ", configPath);
         // create channel
         this.channel = Channel.build(this.config);
+        channel.setThreadPool(threadPool);
         this.channel.start();
         logger.info("create BcosSDK, start channel succ");
         if (!waitForEstablishConnection()) {
@@ -51,7 +58,10 @@ public class BcosSDK {
         }
         // create GroupMangerService
         this.groupManagerService = new GroupManagerServiceImpl(this.channel);
-        logger.info("create BcosSDK, create groupManagerService succ");
+        logger.info("create BcosSDK, create groupManagerService success");
+        // init amop
+        amop = Amop.build(groupManagerService, config);
+        logger.info("create BcosSDK, create Amop success");
     }
 
     private boolean waitForEstablishConnection() {
@@ -94,5 +104,9 @@ public class BcosSDK {
 
     public ConfigOption getConfig() {
         return this.config;
+    }
+
+    public Amop getAmop() {
+        return amop;
     }
 }

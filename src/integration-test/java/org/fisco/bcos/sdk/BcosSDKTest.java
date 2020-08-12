@@ -30,7 +30,6 @@ import org.fisco.bcos.sdk.client.protocol.response.PendingTransactions;
 import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
-import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.config.ConfigException;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.model.NodeVersion;
@@ -186,14 +185,16 @@ public class BcosSDKTest
             BcosSDK sdk = new BcosSDK(configFile);
             Integer groupId = Integer.valueOf(1);
             Client client = sdk.getClient(groupId);
-            //BigInteger blockLimit = sdk.getGroupManagerService().getBlockLimitByGroup(groupId);
+            BigInteger blockLimit = sdk.getGroupManagerService().getBlockLimitByGroup(groupId);
             BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
             // deploy the HelloWorld contract
             HelloWorld helloWorld = HelloWorld.deploy(client, client.getCryptoInterface());
             checkReceipt(helloWorld, client, blockNumber.add(BigInteger.ONE), helloWorld.getDeployReceipt(), false);
 
             // check the blockLimit has been modified
-            //Assert.assertTrue(sdk.getGroupManagerService().getBlockLimitByGroup(groupId).equals(blockLimit.add(BigInteger.ONE)));
+            // wait the block number notification
+            Thread.sleep(1000);
+            Assert.assertTrue(sdk.getGroupManagerService().getBlockLimitByGroup(groupId).equals(blockLimit.add(BigInteger.ONE)));
             Assert.assertTrue(helloWorld != null);
             Assert.assertTrue(helloWorld.getContractAddress() != null);
 
@@ -202,12 +203,14 @@ public class BcosSDKTest
             TransactionReceipt receipt = helloWorld.set(settedString);
             Assert.assertTrue(receipt != null);
             checkReceipt(helloWorld, client, blockNumber.add(BigInteger.valueOf(2)), receipt, true);
-            //Assert.assertTrue(sdk.getGroupManagerService().getBlockLimitByGroup(groupId).equals(blockLimit.add(BigInteger.ONE)));
+            // wait the blocknumber notification
+            Thread.sleep(1000);
+            Assert.assertTrue(sdk.getGroupManagerService().getBlockLimitByGroup(groupId).equals(blockLimit.add(BigInteger.valueOf(2))));
             // get the modified value
             String getValue = helloWorld.get();
             Assert.assertTrue(getValue.equals(settedString));
 
-            // load contract from the contract adddress
+            // load contract from the contract address
             HelloWorld helloWorld2 = HelloWorld.load(helloWorld.getContractAddress(), client, client.getCryptoInterface());
             Assert.assertTrue(helloWorld2.getContractAddress().equals(helloWorld.getContractAddress()));
             settedString = "Hello, Fisco2";
@@ -216,7 +219,7 @@ public class BcosSDKTest
             Assert.assertTrue(helloWorld.get().equals(settedString));
             Assert.assertTrue(helloWorld2.get().equals(settedString));
         }
-        catch(ContractException | ClientException e)
+        catch(ContractException | ClientException | InterruptedException e)
         {
             System.out.println("testSendTransactions exceptioned, error info:" + e.getMessage());
         }
