@@ -21,7 +21,6 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
-import org.fisco.bcos.sdk.transaction.model.dto.TransactionRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 
@@ -32,41 +31,64 @@ import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
  * @data Jul 17, 2020 2:59:21 PM
  */
 public interface TransactionManagerInterface {
+    public TransactionReceipt deployAndGetReceipt(String data);
 
-    public TransactionResponse deploy(TransactionRequest transactionRequest);
+    public void deployOnly(String abi, String bin, String contractName, List<Object> params);
 
-    public TransactionResponse deploy(
-            String abi, String bin, String contractName, List<Object> args);
+    public TransactionResponse deployAndGetResponse(String abi, String signedData);
 
-    public TransactionResponse deployByContractLoader(String contractName, List<Object> args)
+    public TransactionResponse deployAndGetResponse(
+            String abi, String bin, String contractName, List<Object> params);
+
+    public void deployAsync(
+            String abi,
+            String bin,
+            String contractName,
+            List<Object> params,
+            TransactionCallback callback);
+
+    public void sendTransactionOnly(String signedData);
+
+    public TransactionResponse sendTransactionAndGetResponse(String to, String abi, String data)
             throws TransactionBaseException;
 
-    public void sendTransactionOnly(TransactionRequest transactionRequest);
+    public TransactionResponse sendTransactionAndGetResponse(
+            String to, String abi, String functionName, List<Object> params)
+            throws TransactionBaseException;
 
     public TransactionReceipt sendTransactionAndGetReceipt(String to, String data);
-
-    public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
-            String contractName, String contractAddress, String functionName, List<Object> args)
-            throws TransactionBaseException;
-
-    public TransactionResponse sendTransactionAndGetResponse(TransactionRequest transactionRequest);
 
     public void sendTransactionAsync(String signedTransaction, TransactionCallback callback);
 
     public void sendTransactionAsync(String to, String data, TransactionCallback callback);
 
-    public CompletableFuture<TransactionReceipt> sendTransactionAsync(
-            TransactionRequest transactionRequest);
+    public void sendTransactionAsync(
+            String to,
+            String abi,
+            String functionName,
+            List<Object> params,
+            TransactionSucCallback callback)
+            throws TransactionBaseException;
+
+    public CompletableFuture<TransactionReceipt> sendTransactionAsync(String signedData);
+
+    public CallResponse sendCall(
+            String from, String to, String abi, String functionName, List<Object> args)
+            throws TransactionBaseException;
 
     public CallResponse sendCall(CallRequest callRequest) throws TransactionBaseException;
 
-    public CallResponse sendCallByContractLoader(
-            String contractName, String contractAddress, String functionName, List<Object> args)
-            throws TransactionBaseException;
+    public Call executeCall(CallRequest callRequest);
+
+    public Call executeCall(String from, String to, String encodedFunction);
 
     public String getCurrentExternalAccountAddress();
 
-    public Call executeCall(CallRequest callRequest);
+    public String createSignedConstructor(
+            String abi, String bin, String contractName, List<Object> params);
+
+    public String encodeFunction(String abi, String functionName, List<Object> params)
+            throws TransactionBaseException;
 
     public String createSignedTransaction(String to, String data);
 }
