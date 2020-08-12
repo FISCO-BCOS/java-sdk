@@ -58,7 +58,7 @@ public class TransactionManagerFactory {
         return new TransactionManager(client, cryptoInterface, pair.getRight(), pair.getLeft());
     }
 
-    public static ContractlessTransactionManager ContractlessTransactionManager(
+    public static ContractlessTransactionManager createContractlessTransactionManager(
             Client client, CryptoInterface cryptoInterface, String abiFilePath, String binFilePath)
             throws Exception {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
