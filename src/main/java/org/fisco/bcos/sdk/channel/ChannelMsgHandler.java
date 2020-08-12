@@ -123,7 +123,7 @@ public class ChannelMsgHandler implements MsgHandler {
 
         if (callback != null) {
             if (callback.getTimeout() != null) {
-                callback.getTimeout().cancel();
+                callback.cancelTimeout();
             }
 
             logger.trace(
@@ -141,7 +141,7 @@ public class ChannelMsgHandler implements MsgHandler {
             response.setContent(new String(msg.getData()));
             callback.onResponse(response);
         } else {
-            logger.info(
+            logger.trace(
                     " receive response with invalid seq, type: {}, result: {}, content: {}",
                     (int) msg.getType(),
                     msg.getResult(),

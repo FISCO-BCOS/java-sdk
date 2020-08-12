@@ -18,7 +18,7 @@ package org.fisco.bcos.sdk.network;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 
@@ -83,7 +83,7 @@ public interface Network {
      *
      * @param threadPool
      */
-    void setMsgHandleThreadPool(ThreadPoolExecutor threadPool);
+    void setMsgHandleThreadPool(ExecutorService threadPool);
 
     /** Exit gracefully */
     void stop();

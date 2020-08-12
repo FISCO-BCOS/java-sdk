@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.amop;
 import java.util.List;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 
 /**

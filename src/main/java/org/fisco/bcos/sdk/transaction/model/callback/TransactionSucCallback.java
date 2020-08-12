@@ -40,7 +40,7 @@ public abstract class TransactionSucCallback {
         onResponse(receipt);
     }
 
-    protected void cancelTimeout() {
+    public void cancelTimeout() {
         if (getTimeoutHandler() != null && !getTimeoutHandler().isCancelled()) {
             getTimeoutHandler().cancel();
         }
@@ -48,7 +48,7 @@ public abstract class TransactionSucCallback {
 
     public void onTimeout() {
         cancelTimeout();
-        logger.error("transactionSuc timeout");
+        logger.warn("transactionSuc timeout");
         TransactionReceipt receipt = new TransactionReceipt();
         receipt.setStatus(
                 "Transaction receipt timeout, error code:"
