@@ -39,6 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
@@ -195,6 +196,7 @@ public class ConnectionManager {
 
     private SslContext initSslContext() throws NetworkException {
         try {
+            Security.setProperty("jdk.disabled.namedCurves", "");
             // Get file, file existence is already checked when check config file.
             FileInputStream caCert = new FileInputStream(new File(configOps.getCaCert()));
             FileInputStream sslCert = new FileInputStream(new File(configOps.getSslCert()));

@@ -24,6 +24,7 @@ import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;

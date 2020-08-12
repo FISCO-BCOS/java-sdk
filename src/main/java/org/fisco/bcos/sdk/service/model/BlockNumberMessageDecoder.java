@@ -16,38 +16,24 @@ package org.fisco.bcos.sdk.service.model;
 import java.io.IOException;
 import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
 import org.fisco.bcos.sdk.model.Message;
-import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BlockNumberMessageDecoder {
     private static Logger logger = LoggerFactory.getLogger(BlockNumberMessageDecoder.class);
-    private EnumChannelProtocolVersion version;
 
-    public BlockNumberMessageDecoder(EnumChannelProtocolVersion version) {
-        this.version = version;
-    }
-
-    public BlockNumberNotification decode(Message message) {
-        if (!message.getType().equals(Short.valueOf((short) MsgType.BLOCK_NOTIFY.ordinal()))) {
-            logger.warn(
-                    "[BlockNumberMessageDecoder] invalid message, type: {}, seq: {}, size: {}",
-                    message.getType(),
-                    message.getSeq(),
-                    message.getLength());
-            return null;
-        }
+    public BlockNumberNotification decode(EnumChannelProtocolVersion version, Message message) {
         BlockNumberNotification blockNumberNotification;
-        switch (this.version) {
+        switch (version) {
             case VERSION_1:
                 {
-                    blockNumberNotification = decodeByDefault(message);
+                    blockNumberNotification = decodeV1(message);
                 }
                 break;
             default:
                 {
-                    blockNumberNotification = decodeV1(message);
+                    blockNumberNotification = decodeByDefault(message);
                 }
                 break;
         }
@@ -63,8 +49,8 @@ public class BlockNumberMessageDecoder {
             return ObjectMapperFactory.getObjectMapper()
                     .readValue(message.getData(), BlockNumberNotification.class);
         } catch (IOException e) {
-            logger.warn(
-                    "[BlockNumberMessageDecoder] [] decode BlockNumberNotification message failed, type: {}, seq: {}, size: {}, reason: {}",
+            logger.error(
+                    "BlockNumberMessageDecoder: decode BlockNumberNotification message failed, type: {}, seq: {}, size: {}, reason: {}",
                     message.getType(),
                     message.getSeq(),
                     message.getLength(),

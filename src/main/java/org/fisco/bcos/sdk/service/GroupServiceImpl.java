@@ -103,8 +103,10 @@ public class GroupServiceImpl implements GroupService {
                 maxBlockNumberNode = groupNode;
             }
         }
-        if (maxBlockNumber != null && !maxBlockNumberNode.equals("")) {
-            latestBlockNumber.set(maxBlockNumber.longValue());
+        if (maxBlockNumber != null
+                && !maxBlockNumberNode.equals("")
+                && !latestBlockNumber.equals(maxBlockNumber)) {
+            latestBlockNumber.getAndSet(maxBlockNumber.longValue());
             nodeWithLatestBlockNumber = maxBlockNumberNode;
             logger.debug(
                     "g:{}, resetLatestBlockNumber, latestBlockNumber: {}, nodeWithLatestBlockNumber:{}",

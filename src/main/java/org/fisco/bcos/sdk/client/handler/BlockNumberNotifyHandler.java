@@ -16,9 +16,13 @@
 package org.fisco.bcos.sdk.client.handler;
 
 import io.netty.channel.ChannelHandlerContext;
-import java.util.function.BiConsumer;
+import io.netty.util.AttributeKey;
 import java.util.function.Consumer;
 import org.fisco.bcos.sdk.channel.ChannelVersionNegotiation;
+import org.fisco.bcos.sdk.channel.model.ChannelProtocol;
+import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
+import org.fisco.bcos.sdk.channel.model.EnumSocketChannelAttributeKey;
+import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.network.MsgHandler;
@@ -27,11 +31,11 @@ import org.slf4j.LoggerFactory;
 
 public class BlockNumberNotifyHandler implements MsgHandler {
     private static Logger logger = LoggerFactory.getLogger(BlockNumberNotifyHandler.class);
-    private final BiConsumer<String, Message> blockNumberUpdater;
+    private final OnReceiveBlockNotifyFunc blockNumberUpdater;
     private final Consumer<String> disconnectHandler;
 
     public BlockNumberNotifyHandler(
-            BiConsumer<String, Message> blockNumberUpdater, Consumer<String> disconnectHandler) {
+            OnReceiveBlockNotifyFunc blockNumberUpdater, Consumer<String> disconnectHandler) {
         this.blockNumberUpdater = blockNumberUpdater;
         this.disconnectHandler = disconnectHandler;
     }
@@ -46,10 +50,24 @@ public class BlockNumberNotifyHandler implements MsgHandler {
         if (msg.getType() != MsgType.BLOCK_NOTIFY.getType()) {
             return;
         }
+        // get version
+        ChannelProtocol protocol =
+                (ChannelProtocol)
+                        (ctx.channel()
+                                .attr(
+                                        AttributeKey.valueOf(
+                                                EnumSocketChannelAttributeKey.CHANNEL_PROTOCOL_KEY
+                                                        .getKey()))
+                                .get());
+
+        EnumChannelProtocolVersion channelProtocolVersion = protocol.getEnumProtocol();
         // get host
         String peerIpAndPort = ChannelVersionNegotiation.getPeerHost(ctx);
+        // get block notification data
+        AmopMsg amopMsg = new AmopMsg(msg);
+        amopMsg.decodeAmopBody(msg.getData());
         // update block number information
-        blockNumberUpdater.accept(peerIpAndPort, msg);
+        blockNumberUpdater.OnReceiveBlockNotify(channelProtocolVersion, peerIpAndPort, amopMsg);
     }
 
     @Override
