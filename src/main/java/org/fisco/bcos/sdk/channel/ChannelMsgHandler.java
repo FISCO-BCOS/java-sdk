@@ -122,10 +122,7 @@ public class ChannelMsgHandler implements MsgHandler {
         ResponseCallback callback = getAndRemoveSeq(msg.getSeq());
 
         if (callback != null) {
-            if (callback.getTimeout() != null) {
-                callback.cancelTimeout();
-            }
-
+            callback.cancelTimeout();
             logger.trace(
                     " receive response, seq: {}, result: {}, content: {}",
                     msg.getSeq(),

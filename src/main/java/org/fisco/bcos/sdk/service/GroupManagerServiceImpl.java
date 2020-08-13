@@ -291,7 +291,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
 
     @Override
     public void eraseTransactionSeq(String seq) {
-        if (seq2TransactionCallback.contains(seq)) {
+        if (seq2TransactionCallback.containsKey(seq)) {
             seq2TransactionCallback.remove(seq);
         }
     }

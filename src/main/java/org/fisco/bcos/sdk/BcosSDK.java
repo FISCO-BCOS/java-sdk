@@ -82,7 +82,7 @@ public class BcosSDK {
             logger.error("get client for group: {} failed for the number of available peers is 0");
             return null;
         }
-        if (!groupToClient.contains(groupId)) {
+        if (!groupToClient.containsKey(groupId)) {
             // create a new client for the specified group
             Client client = Client.build(this.groupManagerService, this.channel, groupId);
             if (client == null) {
