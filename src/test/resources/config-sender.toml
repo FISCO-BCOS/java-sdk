@@ -15,16 +15,10 @@ peers=["127.0.0.1:20200", "127.0.0.1:20201"]
 
 # Configure a "need verify AMOP topic" as a topic message sender.
 [[amop]]
-topicName = "t1"
+topicName = "privTopic"
 # Public keys of the nodes that you want to send AMOP message of this topic to.
-publicKeys = [ "conf/consumer_public_key_1.pem" ]
+publicKeys = [ "conf/consumer_public_key_1.pem"]
 
-# Configure a "need verify AMOP topic" as a topic subscriber.
-[[amop]]
-topicName = "t2"
-# Your private key that used to subscriber verification.
-privateKey = "conf/consumer_private_key.p12"
-password = "123456"
 
 [account]
 # The directory where the account private key file is placed in

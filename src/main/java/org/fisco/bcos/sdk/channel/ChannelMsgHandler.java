@@ -126,7 +126,6 @@ public class ChannelMsgHandler implements MsgHandler {
                 msg.getSeq(),
                 (int) msg.getType());
         ResponseCallback callback = getAndRemoveSeq(msg.getSeq());
-
         if (callback != null) {
             callback.cancelTimeout();
             logger.trace(
@@ -141,7 +140,7 @@ public class ChannelMsgHandler implements MsgHandler {
             }
             response.setErrorCode(msg.getResult());
             response.setMessageID(msg.getSeq());
-            response.setContent(new String(msg.getData()));
+            response.setContentBytes(msg.getData());
             response.setCtx(ctx);
             callback.onResponse(response);
         } else {

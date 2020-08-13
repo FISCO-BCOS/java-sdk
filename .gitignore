@@ -17,3 +17,8 @@ conf/
 nodes/
 src/integration-test/resources/
 build_chain.sh
+account/
+conf/
+gmcert.cnf
+gmsm2.param
+integrationTestEnv.sh
