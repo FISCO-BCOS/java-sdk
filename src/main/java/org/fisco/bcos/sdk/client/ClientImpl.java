@@ -60,7 +60,7 @@ import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 public class ClientImpl implements Client {
@@ -901,7 +901,7 @@ public class ClientImpl implements Client {
                 callback);
     }
 
-    class SynchronousTransactionCallback extends TransactionSucCallback {
+    class SynchronousTransactionCallback extends TransactionCallback {
         public TransactionReceipt receipt;
         public Semaphore semaphore = new Semaphore(1, true);
 
@@ -941,7 +941,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void asyncSendRawTransaction(
-            String signedTransactionData, TransactionSucCallback callback) {
+            String signedTransactionData, TransactionCallback callback) {
         this.jsonRpcService.asyncSendTransactionToGroup(
                 new JsonRpcRequest(
                         JsonRpcMethods.SEND_RAWTRANSACTION,
@@ -952,7 +952,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void asyncsendRawTransactionAndGetProof(
-            String signedTransactionData, TransactionSucCallback callback) {
+            String signedTransactionData, TransactionCallback callback) {
         this.jsonRpcService.asyncSendTransactionToGroup(
                 new JsonRpcRequest(
                         JsonRpcMethods.SEND_RAWTRANSACTION_AND_GET_PROOF,

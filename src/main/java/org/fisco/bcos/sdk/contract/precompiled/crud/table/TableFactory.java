@@ -18,7 +18,7 @@ import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 @SuppressWarnings("unchecked")
 public class TableFactory extends Contract {
@@ -63,7 +63,7 @@ public class TableFactory extends Contract {
     }
 
     public void createTable(
-            String param0, String param1, String param2, TransactionSucCallback callback) {
+            String param0, String param1, String param2, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_CREATETABLE,

@@ -40,7 +40,7 @@ import org.fisco.bcos.sdk.model.ReceiptParser;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.manager.TransactionManager;
 import org.fisco.bcos.sdk.transaction.manager.TransactionManagerFactory;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 
 public class Contract {
@@ -225,11 +225,11 @@ public class Contract {
     }
 
     protected void asyncExecuteTransaction(
-            String data, String funName, TransactionSucCallback callback) {
+            String data, String funName, TransactionCallback callback) {
         transactionManager.sendTransactionAsync(contractAddress, data, callback);
     }
 
-    protected void asyncExecuteTransaction(Function function, TransactionSucCallback callback) {
+    protected void asyncExecuteTransaction(Function function, TransactionCallback callback) {
         asyncExecuteTransaction(functionEncoder.encode(function), function.getName(), callback);
     }
 

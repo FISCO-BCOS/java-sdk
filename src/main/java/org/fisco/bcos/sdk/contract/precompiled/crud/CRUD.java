@@ -19,7 +19,7 @@ import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 @SuppressWarnings("unchecked")
 public class CRUD extends Contract {
@@ -78,7 +78,7 @@ public class CRUD extends Contract {
             String entry,
             String condition,
             String param4,
-            TransactionSucCallback callback) {
+            TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_UPDATE,
@@ -186,7 +186,7 @@ public class CRUD extends Contract {
             String key,
             String entry,
             String param3,
-            TransactionSucCallback callback) {
+            TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_INSERT,
@@ -263,7 +263,7 @@ public class CRUD extends Contract {
             String key,
             String condition,
             String param3,
-            TransactionSucCallback callback) {
+            TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_REMOVE,
