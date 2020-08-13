@@ -53,7 +53,7 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
 import org.fisco.bcos.sdk.service.model.BlockNumberMessageDecoder;
 import org.fisco.bcos.sdk.service.model.BlockNumberNotification;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     private ConcurrentHashMap<String, List<String>> nodeToGroupIDList = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, NodeVersion> nodeToNodeVersion = new ConcurrentHashMap<>();
 
-    private ConcurrentHashMap<String, TransactionSucCallback> seq2TransactionCallback =
+    private ConcurrentHashMap<String, TransactionCallback> seq2TransactionCallback =
             new ConcurrentHashMap<>();
     private final Timer timeoutHandler = new HashedWheelTimer();
 
@@ -244,7 +244,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     protected void onReceiveTransactionNotify(Message message) {
         String seq = message.getSeq();
         // get the transaction callback
-        TransactionSucCallback callback = seq2TransactionCallback.get(seq);
+        TransactionCallback callback = seq2TransactionCallback.get(seq);
         // remove the callback
         seq2TransactionCallback.remove(seq);
         if (callback == null) {
@@ -272,7 +272,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     public void asyncSendTransaction(
             Integer groupId,
             Message transactionMessage,
-            TransactionSucCallback callback,
+            TransactionCallback callback,
             ResponseCallback responseCallback) {
         callback.setTimeoutHandler(
                 timeoutHandler.newTimeout(

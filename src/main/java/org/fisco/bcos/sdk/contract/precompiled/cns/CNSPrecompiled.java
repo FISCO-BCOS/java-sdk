@@ -18,7 +18,7 @@ import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 @SuppressWarnings("unchecked")
 public class CNSPrecompiled extends Contract {
@@ -88,7 +88,7 @@ public class CNSPrecompiled extends Contract {
     }
 
     public void insert(
-            String name, String version, String addr, String abi, TransactionSucCallback callback) {
+            String name, String version, String addr, String abi, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_INSERT,

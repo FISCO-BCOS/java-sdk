@@ -41,7 +41,6 @@ import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.ResultCodeEnum;
@@ -204,7 +203,7 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public void sendTransactionAsync(String to, String data, TransactionSucCallback callback) {
+    public void sendTransactionAsync(String to, String data, TransactionCallback callback) {
         String signedData = createSignedTransaction(to, data);
         this.client.asyncSendRawTransaction(signedData, callback);
     }

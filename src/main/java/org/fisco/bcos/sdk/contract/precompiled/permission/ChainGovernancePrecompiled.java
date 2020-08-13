@@ -19,7 +19,7 @@ import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 @SuppressWarnings("unchecked")
 public class ChainGovernancePrecompiled extends Contract {
@@ -95,7 +95,7 @@ public class ChainGovernancePrecompiled extends Contract {
     }
 
     public void updateCommitteeMemberWeight(
-            String user, BigInteger weight, TransactionSucCallback callback) {
+            String user, BigInteger weight, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_UPDATECOMMITTEEMEMBERWEIGHT,
@@ -175,7 +175,7 @@ public class ChainGovernancePrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void grantCommitteeMember(String user, TransactionSucCallback callback) {
+    public void grantCommitteeMember(String user, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_GRANTCOMMITTEEMEMBER,
@@ -224,7 +224,7 @@ public class ChainGovernancePrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void unfreezeAccount(String account, TransactionSucCallback callback) {
+    public void unfreezeAccount(String account, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_UNFREEZEACCOUNT,
@@ -283,7 +283,7 @@ public class ChainGovernancePrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void updateThreshold(BigInteger threshold, TransactionSucCallback callback) {
+    public void updateThreshold(BigInteger threshold, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_UPDATETHRESHOLD,
@@ -334,7 +334,7 @@ public class ChainGovernancePrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void revokeCommitteeMember(String user, TransactionSucCallback callback) {
+    public void revokeCommitteeMember(String user, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_REVOKECOMMITTEEMEMBER,
@@ -384,7 +384,7 @@ public class ChainGovernancePrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void grantOperator(String user, TransactionSucCallback callback) {
+    public void grantOperator(String user, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_GRANTOPERATOR,
@@ -433,7 +433,7 @@ public class ChainGovernancePrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void freezeAccount(String account, TransactionSucCallback callback) {
+    public void freezeAccount(String account, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_FREEZEACCOUNT,
@@ -482,7 +482,7 @@ public class ChainGovernancePrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void revokeOperator(String user, TransactionSucCallback callback) {
+    public void revokeOperator(String user, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_REVOKEOPERATOR,

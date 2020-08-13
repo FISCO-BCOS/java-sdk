@@ -19,7 +19,7 @@ import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 @SuppressWarnings("unchecked")
 public class ContractLifeCyclePrecompiled extends Contract {
@@ -80,7 +80,7 @@ public class ContractLifeCyclePrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void unfreeze(String addr, TransactionSucCallback callback) {
+    public void unfreeze(String addr, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_UNFREEZE,
@@ -129,7 +129,7 @@ public class ContractLifeCyclePrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void freeze(String addr, TransactionSucCallback callback) {
+    public void freeze(String addr, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_FREEZE,
@@ -180,8 +180,7 @@ public class ContractLifeCyclePrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void grantManager(
-            String contractAddr, String userAddr, TransactionSucCallback callback) {
+    public void grantManager(String contractAddr, String userAddr, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_GRANTMANAGER,
