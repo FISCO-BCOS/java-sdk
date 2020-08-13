@@ -37,11 +37,11 @@ public class SubscribeTest {
         EventSubscribe eventSubscribe = EventSubscribe.build(sdk.getGroupManagerService(), 1);
         eventSubscribe.start();
 
-        EventLogParams eventLogParams = new EventLogParams();
-        eventLogParams.setFromBlock("1");
-        eventLogParams.setToBlock("latest");
-        eventLogParams.setAddresses(new ArrayList<String>());
-        eventLogParams.setTopics(new ArrayList<Object>());
+        EventLogParams eventLogParams1 = new EventLogParams();
+        eventLogParams1.setFromBlock("1");
+        eventLogParams1.setToBlock("latest");
+        eventLogParams1.setAddresses(new ArrayList<String>());
+        eventLogParams1.setTopics(new ArrayList<Object>());
 
         EventCallback eventCallback = new EventCallback() {
             @Override
@@ -51,19 +51,17 @@ public class SubscribeTest {
 
             @Override
             public void onReceiveLog(int status, List<LogResult> logs) {
-                String str = "callback in event : ";
-                for (LogResult log: logs) {
-                    str += log.toString();
-                }
+                String str = "status in onReceiveLog : " + status;
                 logger.debug(str);
             }
         };
+        eventSubscribe.subscribeEvent(eventLogParams1, eventCallback);
+
         try {
-            Thread.sleep(10000);
+            Thread.sleep(6000);
         } catch (InterruptedException e) {
             logger.error(e.getMessage());
         }
-        eventSubscribe.subscribeEvent(eventLogParams, eventCallback);
         eventSubscribe.stop();
     }
 }

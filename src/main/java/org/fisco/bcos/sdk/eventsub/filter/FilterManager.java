@@ -99,4 +99,25 @@ public class FilterManager {
         }
         return filters;
     }
+
+    // update event filter status when socket disconnect
+    public void updateEventLogFilterStatus(ChannelHandlerContext ctx) {
+        synchronized (this) {
+            for (EventLogFilter filter : regId2Filter.values()) {
+                if (filter.getCtx() == ctx) {
+                    filter.setCtx(null);
+                    filter.setStatus(EventLogFilterStatus.WAITING_REQUEST);
+                    removeCallback(filter.getFilterID());
+
+                    logger.info(
+                            " disconnect, update event filter status, ctx: {}, status: {}, registerID: {}, filterID: {}, filter: {}",
+                            System.identityHashCode(ctx),
+                            filter.getStatus(),
+                            filter.getFilterID(),
+                            filter.getRegisterID(),
+                            filter);
+                }
+            }
+        }
+    }
 }

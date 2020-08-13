@@ -53,6 +53,7 @@ public class EventSubscribeImp implements EventSubscribe {
         filterManager = new FilterManager();
         msgHander = new EventPushMsgHandler(filterManager);
         channel.addMessageHandler(MsgType.EVENT_LOG_PUSH, msgHander);
+        channel.addDisconnectHandler(msgHander);
     }
 
     @Override
@@ -91,12 +92,14 @@ public class EventSubscribeImp implements EventSubscribe {
                 },
                 0,
                 ScheduleTimeConfig.resendFrequency,
-                TimeUnit.SECONDS);
+                TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void stop() {
+        running = false;
         resendSchedule.shutdown();
+        // TODO: unsubscribeEvent
     }
 
     private void resendWaitingFilters() {
@@ -110,7 +113,7 @@ public class EventSubscribeImp implements EventSubscribe {
     private void sendFilter(EventLogFilter filter) {
         Message msg = new Message();
         msg.setSeq(EventSubscribe.newSeq());
-        msg.setType((short) MsgType.CLIENT_REGISTER_EVENT_LOG.ordinal());
+        msg.setType(Short.valueOf((short) MsgType.CLIENT_REGISTER_EVENT_LOG.getType()));
         msg.setResult(0);
         try {
             String content = filter.getNewParamJsonString(String.valueOf(groupId));
@@ -129,10 +132,12 @@ public class EventSubscribeImp implements EventSubscribe {
         }
 
         filterManager.addCallback(filter.getFilterID(), filter.getCallback());
-
+        EventMsg eventMsg = new EventMsg(msg);
+        eventMsg.setTopic("");
+        eventMsg.setData(msg.getData());
         this.groupManagerService.asyncSendMessageToGroup(
                 groupId,
-                msg,
+                eventMsg,
                 new RegisterEventSubRespCallback(
                         filterManager, filter, filter.getFilterID(), filter.getRegisterID()));
     }
@@ -167,11 +172,15 @@ public class EventSubscribeImp implements EventSubscribe {
                 if (0 == response.getErrorCode()) {
                     EventLogResponse resp =
                             ObjectMapperFactory.getObjectMapper()
-                                    .readValue(response.getContent(), EventLogResponse.class);
+                                    .readValue(
+                                            response.getContent().trim(), EventLogResponse.class);
                     if (resp.getResult() == 0) {
                         // node give an "OK" response, event log will be pushed soon
                         filterManager.updateFilterStatus(
-                                filter, EventLogFilterStatus.EVENT_LOG_PUSHING, null);
+                                filter, EventLogFilterStatus.EVENT_LOG_PUSHING, response.getCtx());
+                        logger.info(
+                                " filter {} status changed to EVENT_LOG_PUSHING",
+                                filter.getFilterID());
                     } else {
                         // node give a bad response, will not push event log, trigger callback
                         filter.getCallback().onReceiveLog(resp.getResult(), null);
