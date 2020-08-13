@@ -20,17 +20,24 @@ import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
 
 public class SM2KeyPair extends CryptoKeyPair {
     public SM2KeyPair() {
-        hashImpl = new SM3Hash();
+        initSM2KeyPairObject();
     }
 
     public SM2KeyPair(KeyPair javaKeyPair) {
         super(javaKeyPair);
-        hashImpl = new SM3Hash();
+        initSM2KeyPairObject();
     }
 
     protected SM2KeyPair(CryptoResult sm2keyPairInfo) {
         super(sm2keyPairInfo);
-        hashImpl = new SM3Hash();
+        initSM2KeyPairObject();
+    }
+
+    private void initSM2KeyPairObject() {
+        this.keyStoreSubDir = GM_ACCOUNT_SUBDIR;
+        this.hashImpl = new SM3Hash();
+        this.curveName = CryptoKeyPair.SM2_CURVE_NAME;
+        this.signatureAlgorithm = SM_SIGNATURE_ALGORITHM;
     }
 
     /**

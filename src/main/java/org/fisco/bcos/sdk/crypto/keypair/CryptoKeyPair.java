@@ -14,29 +14,56 @@
 package org.fisco.bcos.sdk.crypto.keypair;
 
 import com.webank.wedpr.crypto.CryptoResult;
+import java.io.File;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.Arrays;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
+import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.fisco.bcos.sdk.utils.StringUtils;
 import org.fisco.bcos.sdk.utils.exceptions.DecoderException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class CryptoKeyPair {
+    protected static Logger logger = LoggerFactory.getLogger(CryptoKeyPair.class);
     public static final int ADDRESS_SIZE = 160;
     public static final int ADDRESS_LENGTH_IN_HEX = ADDRESS_SIZE >> 2;
 
     public static final int PUBLIC_KEY_SIZE = 64;
     public static final int PUBLIC_KEY_LENGTH_IN_HEX = PUBLIC_KEY_SIZE << 1;
 
+    public static final String ECDSA_CURVE_NAME = "secp256k1";
+    public static final String SM2_CURVE_NAME = "sm2p256v1";
+    public static final String PEM_FILE_POSTFIX = ".pem";
+    public static final String P12_FILE_POSTFIX = ".p12";
+    public static final String GM_ACCOUNT_SUBDIR = "gm";
+    public static final String ECDSA_ACCOUNT_SUBDIR = "ecdsa";
+
+    protected static final String ECDSA_SIGNATURE_ALGORITHM = "SHA256WITHECDSA";
+    protected static final String SM_SIGNATURE_ALGORITHM = "1.2.156.10197.1.501";
+
     protected String hexPrivateKey;
     protected String hexPublicKey;
     public KeyPair keyPair;
 
     protected Hash hashImpl;
+    // Curve name corresponding to the KeyPair
+    protected String curveName;
+    protected String keyStoreSubDir = "";
+
+    protected ConfigOption config;
+    // The path to save the account pem file corresponding to the CryptoKeyPair
+    protected String pemKeyStoreFilePath = "";
+    // The path to save the account p12 file
+    protected String p12KeyStoreFilePath = "";
+    protected String signatureAlgorithm;
 
     public CryptoKeyPair() {}
 
@@ -59,6 +86,10 @@ public abstract class CryptoKeyPair {
     CryptoKeyPair(final CryptoResult nativeResult) {
         this.hexPrivateKey = nativeResult.privteKey;
         this.hexPublicKey = nativeResult.publicKey;
+    }
+
+    public void setConfig(ConfigOption config) {
+        this.config = config;
     }
 
     public String getHexPrivateKey() {
@@ -133,5 +164,68 @@ public abstract class CryptoKeyPair {
     public byte[] getAddress(BigInteger publicKey) {
         byte[] publicKeyBytes = Numeric.toBytesPadded(publicKey, PUBLIC_KEY_SIZE);
         return getAddress(publicKeyBytes);
+    }
+
+    public void storeKeyPairWithPem(String keyStoreFilePath) {
+        PEMManager.storeKeyPairWithPemFormat(this.hexPrivateKey, keyStoreFilePath, curveName);
+    }
+
+    public void storeKeyPairWithPemFormat() {
+        String pemKeyStoreFilePath = getPemKeyStoreFilePath();
+        File file = new File(pemKeyStoreFilePath);
+        if (file.exists()) {
+            return;
+        }
+        File parentFile = file.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+        logger.debug("store account {} to pem file: {}", getAddress(), pemKeyStoreFilePath);
+        storeKeyPairWithPem(pemKeyStoreFilePath);
+    }
+
+    public void storeKeyPairWithP12(String p12FilePath, String password) {
+        P12Manager.storeKeyPairWithP12Format(
+                this.hexPrivateKey, password, p12FilePath, curveName, signatureAlgorithm);
+    }
+
+    public void storeKeyPairWithP12Format(String password) {
+        String p12KeyStoreFilePath = getP12KeyStoreFilePath();
+        File file = new File(p12KeyStoreFilePath);
+        if (file.exists()) {
+            return;
+        }
+        File parentFile = file.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+        logger.debug("store account {} to p12 file: {}", getAddress(), p12KeyStoreFilePath);
+        storeKeyPairWithP12(p12KeyStoreFilePath, password);
+    }
+
+    public String getKeyStoreSubDir() {
+        return this.keyStoreSubDir;
+    }
+
+    public String getPemKeyStoreFilePath() {
+        pemKeyStoreFilePath = getKeyStoreFilePath(pemKeyStoreFilePath, PEM_FILE_POSTFIX);
+        return pemKeyStoreFilePath;
+    }
+
+    public String getP12KeyStoreFilePath() {
+        p12KeyStoreFilePath = getKeyStoreFilePath(p12KeyStoreFilePath, P12_FILE_POSTFIX);
+        return p12KeyStoreFilePath;
+    }
+
+    protected String getKeyStoreFilePath(String keyStoreFilePath, String postFix) {
+        if (!keyStoreFilePath.equals("")) {
+            return keyStoreFilePath;
+        }
+        String keyStoreFileDir = "account";
+        if (config != null) {
+            keyStoreFileDir = config.getKeystoreDir();
+        }
+        keyStoreFileDir = keyStoreFileDir + File.separator + keyStoreSubDir + File.separator;
+        return keyStoreFileDir + File.separator + getAddress() + postFix;
     }
 }

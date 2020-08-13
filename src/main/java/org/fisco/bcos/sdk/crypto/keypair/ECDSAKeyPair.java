@@ -19,19 +19,25 @@ import java.security.KeyPair;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
 
 public class ECDSAKeyPair extends CryptoKeyPair {
-
     public ECDSAKeyPair() {
-        hashImpl = new Keccak256();
+        initECDSAKeyPair();
     }
 
     public ECDSAKeyPair(KeyPair javaKeyPair) {
         super(javaKeyPair);
-        hashImpl = new Keccak256();
+        initECDSAKeyPair();
     }
 
     protected ECDSAKeyPair(final CryptoResult ecKeyPairInfo) {
         super(ecKeyPairInfo);
-        hashImpl = new Keccak256();
+        initECDSAKeyPair();
+    }
+
+    private void initECDSAKeyPair() {
+        this.hashImpl = new Keccak256();
+        this.curveName = CryptoKeyPair.ECDSA_CURVE_NAME;
+        this.keyStoreSubDir = ECDSA_ACCOUNT_SUBDIR;
+        this.signatureAlgorithm = ECDSA_SIGNATURE_ALGORITHM;
     }
 
     /**

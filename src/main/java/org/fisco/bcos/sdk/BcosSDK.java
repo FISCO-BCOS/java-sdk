@@ -58,6 +58,7 @@ public class BcosSDK {
         }
         // create GroupMangerService
         this.groupManagerService = new GroupManagerServiceImpl(this.channel);
+        this.groupManagerService.setConfig(config);
         logger.info("create BcosSDK, create groupManagerService success");
         // init amop
         amop = Amop.build(groupManagerService, config);

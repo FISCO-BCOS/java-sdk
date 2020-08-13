@@ -96,7 +96,8 @@ public interface Client {
                     groupId);
             return null;
         }
-        CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
+        CryptoInterface cryptoInterface =
+                new CryptoInterface(cryptoType, groupManagerService.getConfig());
         logger.info("build client success for group {}", groupId);
         return new ClientImpl(groupManagerService, channel, groupId, cryptoInterface, nodeVersion);
     }
