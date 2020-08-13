@@ -31,6 +31,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.PeerSelectRule;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
@@ -43,6 +45,7 @@ import org.fisco.bcos.sdk.client.handler.BlockNumberNotifyHandler;
 import org.fisco.bcos.sdk.client.handler.GetNodeVersionHandler;
 import org.fisco.bcos.sdk.client.handler.OnReceiveBlockNotifyFunc;
 import org.fisco.bcos.sdk.client.handler.TransactionNotifyHandler;
+import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.Message;
@@ -353,6 +356,8 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             }
             // create groupService for the new groupId
             if (tryToCreateGroupService(peerIpAndPort, groupId)) {
+                // fetch the block number information for the group
+                getBlockLimitByGroup(groupId);
                 return;
             }
             // update the group information
@@ -368,6 +373,10 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         // update the blockNumber Info for the group
         GroupService groupService = groupIdToService.get(groupId);
         groupService.updatePeersBlockNumberInfo(peerInfo, currentBlockNumber);
+        logger.debug(
+                "updateBlockNumberInfo, peer: {}, currentBlockNumber: {}",
+                peerInfo,
+                currentBlockNumber);
     }
 
     private boolean tryToCreateGroupService(String peerIpAndPort, Integer groupId) {
@@ -382,10 +391,41 @@ public class GroupManagerServiceImpl implements GroupManagerService {
 
     @Override
     public BigInteger getBlockLimitByGroup(Integer groupId) {
-        if (!groupIdToService.containsKey(groupId)) {
-            return BLOCK_LIMIT;
+        if (groupIdToService.containsKey(groupId)) {
+            Pair<String, BigInteger> blockNumberInfo = getBlockNumberByRandom(groupId);
+            if (blockNumberInfo == null) {
+                logger.warn(
+                        "GetBlockNumber for group {} failed, set blockLimit to {}",
+                        groupId,
+                        GroupManagerService.BLOCK_LIMIT);
+                return GroupManagerService.BLOCK_LIMIT;
+            }
+            // update the block number information
+            updateBlockNumberInfo(groupId, blockNumberInfo.getKey(), blockNumberInfo.getValue());
+            logger.debug(
+                    "update the blockNumber information, groupId: {}, peer:{}, blockNumber: {}",
+                    groupId,
+                    blockNumberInfo.getKey(),
+                    blockNumberInfo.getValue());
         }
         return groupIdToService.get(groupId).getLastestBlockNumber().add(BLOCK_LIMIT);
+    }
+
+    private Pair<String, BigInteger> getBlockNumberByRandom(Integer groupId) {
+        List<String> availablePeers = getGroupAvailablePeers(groupId);
+        for (String peer : availablePeers) {
+            try {
+                BlockNumber blockNumber = this.groupInfoGetter.getBlockNumber(groupId, peer);
+                return new MutablePair<>(peer, blockNumber.getBlockNumber());
+            } catch (ClientException e) {
+                logger.error(
+                        "GetBlockNumber from {} failed, error information:{}",
+                        peer,
+                        e.getMessage());
+                continue;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -419,6 +459,14 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         }
         // get the node with the latest block number
         String targetNode = groupIdToService.get(groupId).getNodeWithTheLatestBlockNumber();
+        if (targetNode == null) {
+            logger.error(
+                    "sendMessageToGroup message failed for get the node with the latest block number failed, seq: {}, type: {}",
+                    groupId,
+                    message.getSeq(),
+                    message.getType());
+            return null;
+        }
         logger.trace(
                 "g:{}, sendMessageToGroup, selectedPeer: {}, message type: {}, seq: {}, length:{}",
                 groupId,
@@ -437,6 +485,14 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         }
         // get the node with the latest block number
         String targetNode = groupIdToService.get(groupId).getNodeWithTheLatestBlockNumber();
+        if (targetNode == null) {
+            logger.warn(
+                    "g:{}, asyncSendMessageToGroup, selectedPeer failed, seq: {}, type: {}",
+                    groupId,
+                    message.getSeq(),
+                    message.getType());
+            return;
+        }
         logger.trace(
                 "g:{}, asyncSendMessageToGroup, selectedPeer:{}, message type: {}, seq: {}, length:{}",
                 groupId,
