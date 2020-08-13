@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class TransactionManagerFactory {
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagerFactory.class);
 
+    @SuppressWarnings("unlikely-arg-type")
     public static Pair<String, Integer> getChainIdAndGroupId(Client client) {
         NodeVersion version = client.getClientNodeVersion();
         String binaryVersion = version.getNodeVersion().getVersion();
@@ -58,12 +59,19 @@ public class TransactionManagerFactory {
         return new TransactionManager(client, cryptoInterface, pair.getRight(), pair.getLeft());
     }
 
-    public static ContractlessTransactionManager createContractlessTransactionManager(
+    public static AssembleTransactionManager createAssembleTransactionManager(
+            Client client, CryptoInterface cryptoInterface) throws Exception {
+        Pair<String, Integer> pair = getChainIdAndGroupId(client);
+        return new AssembleTransactionManager(
+                client, cryptoInterface, pair.getRight(), pair.getLeft(), null);
+    }
+
+    public static AssembleTransactionManager createAssembleTransactionManager(
             Client client, CryptoInterface cryptoInterface, String abiFilePath, String binFilePath)
             throws Exception {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
         ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
-        return new ContractlessTransactionManager(
+        return new AssembleTransactionManager(
                 client, cryptoInterface, pair.getRight(), pair.getLeft(), contractLoader);
     }
 }

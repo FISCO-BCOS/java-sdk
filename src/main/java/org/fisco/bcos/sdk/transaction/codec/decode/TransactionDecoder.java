@@ -216,7 +216,6 @@ public class TransactionDecoder {
         Map<String, List<List<EventResultEntity>>> resultEntityMap =
                 decodeEventReturnObject(logList);
         String result = mapper.writeValueAsString(resultEntityMap);
-
         return result;
     }
 

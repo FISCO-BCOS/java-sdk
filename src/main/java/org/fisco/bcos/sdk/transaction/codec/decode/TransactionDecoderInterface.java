@@ -61,7 +61,10 @@ public interface TransactionDecoderInterface {
 
     public String decodeReceiptMessage(String input);
 
-    public TransactionResponse decodeTransactionReceipt(String abi, TransactionReceipt receipt)
+    public TransactionResponse decodeEventsAndValues(String abi, TransactionReceipt receipt)
             throws JsonProcessingException, TransactionBaseException, TransactionException,
                     IOException;
+
+    public TransactionResponse decodeEvents(String abi, TransactionReceipt transactionReceipt)
+            throws TransactionBaseException, TransactionException, IOException;
 }

@@ -52,7 +52,7 @@ public class FunctionBuilderService implements FunctionBuilderInterface {
 
     @Override
     public SolidityFunction buildFunction(
-            String contractName, String functionName, List<Object> args)
+            String contractName, String functionName, List<Object> paramsList)
             throws TransactionBaseException {
         if (contractLoader == null) {
             throw new TransactionBaseException(
@@ -60,27 +60,30 @@ public class FunctionBuilderService implements FunctionBuilderInterface {
         }
         List<ABIDefinition> definitions =
                 contractLoader.getFunctionABIListByContractName(contractName);
-        return buildFunctionByABIDefinitionList(definitions, functionName, args);
+        return buildFunctionByABIDefinitionList(definitions, functionName, paramsList);
     }
 
     @Override
-    public SolidityFunction buildFunctionByAbi(String abi, String functionName, List<Object> args) {
+    public SolidityFunction buildFunctionByAbi(
+            String abi, String functionName, List<Object> paramsList)
+            throws TransactionBaseException {
         List<ABIDefinition> definitions = ContractAbiUtil.getFuncABIDefinition(abi);
-        return buildFunctionByABIDefinitionList(definitions, functionName, args);
+        return buildFunctionByABIDefinitionList(definitions, functionName, paramsList);
     }
 
     @Override
     public SolidityFunction buildFunctionByABIDefinitionList(
-            List<ABIDefinition> definitions, String functionName, List<Object> args) {
+            List<ABIDefinition> definitions, String functionName, List<Object> paramsList)
+            throws TransactionBaseException {
         if (definitions == null) {
             throw new RuntimeException("Unconfigured contract functionName :" + functionName);
         }
         // Build function from java inputs
-        return buildFunc(definitions, functionName, args);
+        return buildFunc(definitions, functionName, paramsList);
     }
 
     @Override
-    public SolidityConstructor buildConstructor(String contractName, List<Object> args)
+    public SolidityConstructor buildConstructor(String contractName, List<Object> paramsList)
             throws TransactionBaseException {
         if (contractLoader == null) {
             throw new TransactionBaseException(
@@ -91,31 +94,35 @@ public class FunctionBuilderService implements FunctionBuilderInterface {
             throw new RuntimeException("bin not found");
         }
         return buildConstructor(
-                contractLoader.getABIByContractName(contractName), bin, contractName, args);
+                contractLoader.getABIByContractName(contractName), bin, contractName, paramsList);
     }
 
     @Override
     public SolidityConstructor buildConstructor(
-            String abi, String bin, String contractName, List<Object> args) {
-        String encodedConstructorArgs = encodeConstuctorArgs(abi, args);
+            String abi, String bin, String contractName, List<Object> paramsList) {
+        String encodedConstructorparams = encodeConstuctorparams(abi, paramsList);
         // Build deploy transaction data
-        String data = bin + encodedConstructorArgs;
-        return new SolidityConstructor(contractName, args, bin, abi, data);
+        String data = bin + encodedConstructorparams;
+        return new SolidityConstructor(contractName, paramsList, bin, abi, data);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public SolidityFunction buildFunc(
-            List<ABIDefinition> contractFunctions, String functionName, List<Object> args) {
-
-        if (args == null) args = Collections.EMPTY_LIST;
+            List<ABIDefinition> contractFunctions, String functionName, List<Object> funcParamsList)
+            throws TransactionBaseException {
+        if (funcParamsList == null) {
+            funcParamsList = Collections.EMPTY_LIST;
+        }
         // match possible definitions
         Stream<ABIDefinition> possibleDefinitions =
-                AbiMatchHandler.matchPossibleDefinitions(contractFunctions, functionName, args);
+                AbiMatchHandler.matchPossibleDefinitions(
+                        contractFunctions, functionName, funcParamsList);
         // match on build
         Iterator<ABIDefinition> iterator = possibleDefinitions.iterator();
         while (iterator.hasNext()) {
             ABIDefinition ABIDefinition = iterator.next();
-            List<Type> params = ArgsConvertHandler.tryConvertToSolArgs(args, ABIDefinition);
+            List<Type> params =
+                    ArgsConvertHandler.tryConvertToSolArgs(funcParamsList, ABIDefinition);
             if (params == null) {
                 log.debug(
                         "Skip abi definition for {}:{}, type not match",
@@ -123,7 +130,7 @@ public class FunctionBuilderService implements FunctionBuilderInterface {
                         ABIDefinition.getInputs().size());
                 continue;
             }
-            if (params.size() != args.size()) {
+            if (params.size() != funcParamsList.size()) {
                 log.debug(
                         "Skip abi definition for {}:{}, arg size not match",
                         ABIDefinition.getName(),
@@ -133,27 +140,29 @@ public class FunctionBuilderService implements FunctionBuilderInterface {
             Function result = new Function(functionName, params, Collections.EMPTY_LIST);
             return new SolidityFunction(result, ABIDefinition);
         }
-        throw new RuntimeException("No matching args for function " + functionName);
+        throw new TransactionBaseException(
+                ResultCodeEnum.PARSE_ERROR.getCode(),
+                "No matching params for function " + functionName);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public String encodeConstuctorArgs(String abi, List<Object> args) {
-        if (args == null) {
-            args = Collections.EMPTY_LIST;
+    public String encodeConstuctorparams(String abi, List<Object> paramsList) {
+        if (paramsList == null) {
+            paramsList = Collections.EMPTY_LIST;
         }
         List<ABIDefinition> abiList = ContractAbiUtil.getFuncABIDefinition(abi);
         ABIDefinition ABIDefinition = ContractLoader.selectConstructor(abiList);
-        ensureValid(ABIDefinition, args);
-        List<Type> solArgs = ArgsConvertHandler.tryConvertToSolArgs(args, ABIDefinition);
-        return FunctionEncoder.encodeConstructor(solArgs);
+        ensureValid(ABIDefinition, paramsList);
+        List<Type> solparams = ArgsConvertHandler.tryConvertToSolArgs(paramsList, ABIDefinition);
+        return FunctionEncoder.encodeConstructor(solparams);
     }
 
-    private void ensureValid(ABIDefinition ABIDefinition, List<Object> args) {
+    private void ensureValid(ABIDefinition ABIDefinition, List<Object> paramsList) {
         // The case where no constructor is defined, abi is null
-        if (ABIDefinition == null && (CollectionUtils.isEmpty(args))) {
+        if (ABIDefinition == null && (CollectionUtils.isEmpty(paramsList))) {
             return;
         }
-        if (ABIDefinition != null && ABIDefinition.getInputs().size() == args.size()) {
+        if (ABIDefinition != null && ABIDefinition.getInputs().size() == paramsList.size()) {
             return;
         }
         throw new RuntimeException("Arguments size not match");
