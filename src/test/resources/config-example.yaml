@@ -30,7 +30,7 @@ cryptoMaterial:
   # Required. SSL cert file path
   sslCert: conf/sdk.crt
 
-  # Required. SSK key file path
+  # Required. SSL key file path
   sslKey: conf/sdk.key
 
   #[Option] if algorithm is sm, enSslCert and enSslKey is required
