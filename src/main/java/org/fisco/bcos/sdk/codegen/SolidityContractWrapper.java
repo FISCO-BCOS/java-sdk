@@ -59,7 +59,7 @@ import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.utils.Collection;
 import org.fisco.bcos.sdk.utils.StringUtils;
 import org.slf4j.Logger;
@@ -695,7 +695,7 @@ public class SolidityContractWrapper {
                     functionDefinition, methodBuilder, outputParameterTypes, inputParams);
         } else {
             String inputParams = addParameters(methodBuilder, functionDefinition.getInputs());
-            methodBuilder.addParameter(TransactionSucCallback.class, "callback");
+            methodBuilder.addParameter(TransactionCallback.class, "callback");
             buildTransactionFunctionWithCallback(functionDefinition, methodBuilder, inputParams);
         }
 

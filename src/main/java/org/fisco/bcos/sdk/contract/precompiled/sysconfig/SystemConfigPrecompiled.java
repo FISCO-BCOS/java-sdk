@@ -17,7 +17,7 @@ import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 @SuppressWarnings("unchecked")
 public class SystemConfigPrecompiled extends Contract {
@@ -59,7 +59,7 @@ public class SystemConfigPrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void setValueByKey(String key, String value, TransactionSucCallback callback) {
+    public void setValueByKey(String key, String value, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_SETVALUEBYKEY,

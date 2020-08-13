@@ -14,7 +14,7 @@ import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 /**
  * Auto generated code.
@@ -70,7 +70,7 @@ public class HelloWorld extends Contract {
         return executeTransaction(function);
     }
 
-    public void set(String n, TransactionSucCallback callback) {
+    public void set(String n, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_SET,

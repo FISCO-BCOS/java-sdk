@@ -18,7 +18,7 @@ import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 @SuppressWarnings("unchecked")
 public class PermissionPrecompiled extends Contract {
@@ -70,7 +70,7 @@ public class PermissionPrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void insert(String table_name, String addr, TransactionSucCallback callback) {
+    public void insert(String table_name, String addr, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_INSERT,
@@ -138,7 +138,7 @@ public class PermissionPrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void remove(String table_name, String addr, TransactionSucCallback callback) {
+    public void remove(String table_name, String addr, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_REMOVE,
@@ -206,7 +206,7 @@ public class PermissionPrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void grantWrite(String contractAddr, String user, TransactionSucCallback callback) {
+    public void grantWrite(String contractAddr, String user, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_GRANTWRITE,
@@ -263,7 +263,7 @@ public class PermissionPrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void revokeWrite(String contractAddr, String user, TransactionSucCallback callback) {
+    public void revokeWrite(String contractAddr, String user, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_REVOKEWRITE,

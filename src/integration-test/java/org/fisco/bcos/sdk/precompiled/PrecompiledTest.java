@@ -37,7 +37,7 @@ import org.fisco.bcos.sdk.demo.contract.HelloWorld;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.test.service.GroupServiceTest;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -311,7 +311,7 @@ public class PrecompiledTest
         }
     }
 
-    class FakeTransactionCallback extends TransactionSucCallback {
+    class FakeTransactionCallback extends TransactionCallback {
         public TransactionReceipt receipt;
         // wait until get the transactionReceipt
         @Override

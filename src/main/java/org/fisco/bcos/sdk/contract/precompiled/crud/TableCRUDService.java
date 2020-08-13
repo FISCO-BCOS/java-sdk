@@ -35,7 +35,7 @@ import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.ReceiptParser;
 import org.fisco.bcos.sdk.model.RetCode;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.fisco.bcos.sdk.utils.StringUtils;
 
@@ -218,7 +218,7 @@ public class TableCRUDService {
             String key,
             Entry fieldNameToValue,
             Condition condition,
-            TransactionSucCallback callback)
+            TransactionCallback callback)
             throws ContractException {
         checkKey(key);
         try {
@@ -244,7 +244,7 @@ public class TableCRUDService {
             String key,
             Entry fieldNameToValue,
             Condition condition,
-            TransactionSucCallback callback)
+            TransactionCallback callback)
             throws ContractException {
         checkKey(key);
         try {
@@ -267,7 +267,7 @@ public class TableCRUDService {
     }
 
     public void asyncRemove(
-            String tableName, String key, Condition condition, TransactionSucCallback callback)
+            String tableName, String key, Condition condition, TransactionCallback callback)
             throws ContractException {
         checkKey(key);
         try {

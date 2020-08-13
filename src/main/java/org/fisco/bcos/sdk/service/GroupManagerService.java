@@ -23,7 +23,7 @@ import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 public interface GroupManagerService {
     public static final BigInteger BLOCK_LIMIT = BigInteger.valueOf(500);
@@ -133,7 +133,7 @@ public interface GroupManagerService {
     void asyncSendTransaction(
             Integer groupId,
             Message transactionData,
-            TransactionSucCallback callback,
+            TransactionCallback callback,
             ResponseCallback responseCallback);
 
     void eraseTransactionSeq(String seq);

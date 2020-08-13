@@ -16,7 +16,7 @@ import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 @SuppressWarnings("unchecked")
 public class ConsensusPrecompiled extends Contract {
@@ -61,7 +61,7 @@ public class ConsensusPrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void addObserver(String param0, TransactionSucCallback callback) {
+    public void addObserver(String param0, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_ADDOBSERVER,
@@ -113,7 +113,7 @@ public class ConsensusPrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void remove(String param0, TransactionSucCallback callback) {
+    public void remove(String param0, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_REMOVE,
@@ -165,7 +165,7 @@ public class ConsensusPrecompiled extends Contract {
         return executeTransaction(function);
     }
 
-    public void addSealer(String param0, TransactionSucCallback callback) {
+    public void addSealer(String param0, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_ADDSEALER,

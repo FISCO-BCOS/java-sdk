@@ -55,7 +55,7 @@ import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionSucCallback;
+import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -785,23 +785,23 @@ public interface Client {
     TransactionReceipt sendRawTransactionAndGetReceipt(String signedTransactionData);
 
     /**
-     * send transaction to the node, and calls TransactionSucCallback when get the transaction
-     * receipt response
+     * send transaction to the node, and calls TransactionCallback when get the transaction receipt
+     * response
      *
      * @param signedTransactionData: the transaction sent to the node
-     * @param callback: the TransactionSucCallback called after get the transaction receipt
+     * @param callback: the TransactionCallback called after get the transaction receipt
      */
-    void asyncSendRawTransaction(String signedTransactionData, TransactionSucCallback callback);
+    void asyncSendRawTransaction(String signedTransactionData, TransactionCallback callback);
 
     /**
-     * calls sendRawTransactionAndGetProof interface, calls TransactionSucCallback when get the
+     * calls sendRawTransactionAndGetProof interface, calls TransactionCallback when get the
      * transaction receipt
      *
      * @param signedTransactionData: the transaction sent to the node
-     * @param callback: the TransactionSucCallback called after get the transaction receipt
+     * @param callback: the TransactionCallback called after get the transaction receipt
      */
     void asyncsendRawTransactionAndGetProof(
-            String signedTransactionData, TransactionSucCallback callback);
+            String signedTransactionData, TransactionCallback callback);
 
     /**
      * calls sendRawTransactionAndGetProof interface and get the transaction receipt
