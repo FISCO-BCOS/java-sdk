@@ -17,10 +17,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.channel.Channel;
-import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.request.GenerateGroupParam;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcMethods;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
@@ -180,6 +177,14 @@ public class ClientImpl implements Client {
         JsonRpcRequest request =
                 new JsonRpcRequest(JsonRpcMethods.GET_BLOCK_NUMBER, Arrays.asList(this.groupId));
         return this.jsonRpcService.sendRequestToGroup(request, BlockNumber.class);
+    }
+
+    @Override
+    public BlockNumber getBlockNumber(Integer groupId, String peerIpAndPort) {
+        // create request
+        JsonRpcRequest request =
+                new JsonRpcRequest(JsonRpcMethods.GET_BLOCK_NUMBER, Arrays.asList(groupId));
+        return this.jsonRpcService.sendRequestToPeer(request, peerIpAndPort, BlockNumber.class);
     }
 
     @Override
@@ -485,52 +490,7 @@ public class ClientImpl implements Client {
     @Override
     public BigInteger getBlockLimit() {
         Integer groupId = Integer.valueOf(this.groupId);
-        if (this.jsonRpcService.getGroupManagerService().getBlockLimitByGroup(groupId)
-                == GroupManagerService.BLOCK_LIMIT) {
-            Pair<String, BigInteger> blockNumberInfo = getBlockNumberByRandom();
-            if (blockNumberInfo == null) {
-                logger.warn(
-                        "GetBlockNumber for group {} failed, set blockLimit to {}",
-                        groupId,
-                        GroupManagerService.BLOCK_LIMIT);
-                return GroupManagerService.BLOCK_LIMIT;
-            }
-            // update the block number information
-            this.jsonRpcService
-                    .getGroupManagerService()
-                    .updateBlockNumberInfo(
-                            this.groupId, blockNumberInfo.getKey(), blockNumberInfo.getValue());
-            logger.debug(
-                    "update the blockNumber information, groupId: {}, peer:{}, blockNumber: {}",
-                    this.groupId,
-                    blockNumberInfo.getKey(),
-                    blockNumberInfo.getValue());
-        }
         return this.jsonRpcService.getGroupManagerService().getBlockLimitByGroup(groupId);
-    }
-
-    private Pair<String, BigInteger> getBlockNumberByRandom() {
-        List<String> availablePeers =
-                this.jsonRpcService.getGroupManagerService().getGroupAvailablePeers(this.groupId);
-        for (String peer : availablePeers) {
-            try {
-                BlockNumber blockNumber =
-                        this.jsonRpcService.sendRequestToPeer(
-                                new JsonRpcRequest(
-                                        JsonRpcMethods.GET_BLOCK_NUMBER,
-                                        Arrays.asList(this.groupId)),
-                                peer,
-                                BlockNumber.class);
-                return new MutablePair<>(peer, blockNumber.getBlockNumber());
-            } catch (ClientException e) {
-                logger.error(
-                        "GetBlockNumber from {} failed, error information:{}",
-                        peer,
-                        e.getMessage());
-                continue;
-            }
-        }
-        return null;
     }
 
     @Override

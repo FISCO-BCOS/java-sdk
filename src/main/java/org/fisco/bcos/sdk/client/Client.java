@@ -175,6 +175,7 @@ public interface Client {
      */
     BlockNumber getBlockNumber();
 
+    BlockNumber getBlockNumber(Integer groupId, String peerIpAndPort);
     /**
      * Ledger operation: async get block number
      *

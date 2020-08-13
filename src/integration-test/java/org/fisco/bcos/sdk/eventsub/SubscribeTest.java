@@ -15,17 +15,55 @@
 
 package org.fisco.bcos.sdk.eventsub;
 
-import org.fisco.bcos.sdk.channel.Channel;
-import org.fisco.bcos.sdk.service.GroupManagerService;
-import org.fisco.bcos.sdk.service.GroupManagerServiceImpl;
+import org.fisco.bcos.sdk.BcosSDK;
+import org.fisco.bcos.sdk.config.ConfigException;
+import org.fisco.bcos.sdk.model.EventLog;
+import org.fisco.bcos.sdk.model.LogResult;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SubscribeTest {
+    private static final String configFile = SubscribeTest.class.getClassLoader().getResource("config-example.yaml").getPath();
+    private static final Logger logger = LoggerFactory.getLogger(SubscribeTest.class);
 
     @Test
-    public void TestInitEventSubModule(){
+    public void TestInitEventSubModule() throws ConfigException {
         // Init event subscribe module.
+        BcosSDK sdk = new BcosSDK(configFile);
+        EventSubscribe eventSubscribe = EventSubscribe.build(sdk.getGroupManagerService(), 1);
+        eventSubscribe.start();
 
+        EventLogParams eventLogParams = new EventLogParams();
+        eventLogParams.setFromBlock("1");
+        eventLogParams.setToBlock("latest");
+        eventLogParams.setAddresses(new ArrayList<String>());
+        eventLogParams.setTopics(new ArrayList<Object>());
 
+        EventCallback eventCallback = new EventCallback() {
+            @Override
+            public LogResult decodeLog(EventLog log) {
+                return null;
+            }
+
+            @Override
+            public void onReceiveLog(int status, List<LogResult> logs) {
+                String str = "callback in event : ";
+                for (LogResult log: logs) {
+                    str += log.toString();
+                }
+                logger.debug(str);
+            }
+        };
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+        }
+        eventSubscribe.subscribeEvent(eventLogParams, eventCallback);
+        eventSubscribe.stop();
     }
 }
