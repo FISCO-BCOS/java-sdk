@@ -13,6 +13,7 @@
  */
 package org.fisco.bcos.sdk.crypto.keystore;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,9 +28,12 @@ import java.security.spec.X509EncodedKeySpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.bouncycastle.util.io.pem.PemWriter;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
+import org.fisco.bcos.sdk.crypto.exceptions.SaveKeyStoreException;
 
 public class PEMManager extends KeyManager {
+    public static final String PRIVATE_KEY = "PRIVATE KEY";
     private PemObject pem;
 
     public PEMManager(final String keyStoreFile) {
@@ -40,14 +44,35 @@ public class PEMManager extends KeyManager {
     protected PublicKey getPublicKey() {
         try {
             X509EncodedKeySpec encodedKeySpec = new X509EncodedKeySpec(pem.getContent());
-            KeyFactory keyFacotry =
+            KeyFactory keyFactory =
                     KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
-            return keyFacotry.generatePublic(encodedKeySpec);
+            return keyFactory.generatePublic(encodedKeySpec);
         } catch (InvalidKeySpecException | NoSuchProviderException | NoSuchAlgorithmException e) {
             throw new LoadKeyStoreException(
                     "getPublicKey from pem file "
                             + keyStoreFile
                             + " failed, error message: "
+                            + e.getMessage(),
+                    e);
+        }
+    }
+
+    public static void storeKeyPairWithPemFormat(
+            String hexedPrivateKey, String privateKeyFilePath, String curveName)
+            throws SaveKeyStoreException {
+        try {
+            PrivateKey privateKey = convertHexedStringToPrivateKey(hexedPrivateKey, curveName);
+            // save the private key
+            PemWriter writer = new PemWriter(new FileWriter(privateKeyFilePath));
+            writer.writeObject(new PemObject(PRIVATE_KEY, privateKey.getEncoded()));
+            writer.flush();
+            writer.close();
+            storePublicKeyWithPem(privateKey, privateKeyFilePath);
+        } catch (IOException | LoadKeyStoreException e) {
+            throw new SaveKeyStoreException(
+                    "save keys into "
+                            + privateKeyFilePath
+                            + " failed, error information: "
                             + e.getMessage(),
                     e);
         }

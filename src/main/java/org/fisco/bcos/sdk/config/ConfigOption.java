@@ -15,6 +15,8 @@
 
 package org.fisco.bcos.sdk.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +25,55 @@ import java.util.Map;
  *
  * @author Maggie
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigOption {
+    public static String KEYSTORE_DIR = "keyStoreDir";
+    public static String ACCOUNT_NAME = "accountName";
+    public static String PASSWORD = "password";
+    public static String ACCOUNT_FILE_FORMAT = "accountFileFormat";
+
     public Map<String, String> cryptoMaterial;
     public List<String> peers;
     public List<AmopTopic> AMOPKeys;
+
+    @JsonProperty("Account")
+    public Map<String, String> account;
+
+    public Map<String, String> getAccount() {
+        return account;
+    }
+
+    public void setAccount(Map<String, String> account) {
+        this.account = account;
+    }
+
+    public String getKeystoreDir() {
+        if (this.account == null) {
+            return null;
+        }
+        return this.account.get(KEYSTORE_DIR);
+    }
+
+    public String getAccountName() {
+        if (this.account == null) {
+            return null;
+        }
+        return this.account.get(ACCOUNT_NAME);
+    }
+
+    public String getAccountFileFormat() {
+        if (this.account == null) {
+            return null;
+        }
+        return this.account.get(ACCOUNT_FILE_FORMAT);
+    }
+
+    public String getPassword() {
+        if (this.account == null) {
+            return null;
+        }
+        return this.account.get(PASSWORD);
+    }
 
     public List<String> getPeers() {
         return peers;

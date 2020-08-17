@@ -15,6 +15,8 @@ package org.fisco.bcos.sdk.crypto.keystore;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -39,7 +41,11 @@ import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECNamedCurveSpec;
+import org.bouncycastle.jce.spec.ECPrivateKeySpec;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemWriter;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
+import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,8 +66,7 @@ public abstract class KeyManager {
     public KeyManager(final String keyStoreFile, final String password) {
         this.keyStoreFile = keyStoreFile;
         this.password = password;
-        Security.setProperty("crypto.policy", "unlimited");
-        Security.addProvider(new BouncyCastleProvider());
+        initSecurity();
         load();
     }
 
@@ -75,6 +80,11 @@ public abstract class KeyManager {
     }
 
     protected abstract PrivateKey getPrivateKey();
+
+    private static void initSecurity() {
+        Security.setProperty("crypto.policy", "unlimited");
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     public final String getKeyStoreFile() {
         return this.keyStoreFile;
@@ -97,7 +107,7 @@ public abstract class KeyManager {
         byte[] publicKeyBytes = ((BCECPublicKey) publicKey).getQ().getEncoded(false);
         BigInteger publicKeyValue =
                 new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
-        return ("04" + publicKeyValue.toString(16));
+        return ("04" + Numeric.toHexStringNoPrefixZeroPadded(publicKeyValue, 128));
     }
 
     public String getHexedPublicKey() {
@@ -109,7 +119,48 @@ public abstract class KeyManager {
     }
 
     public static String getHexedPrivateKey(PrivateKey privateKey) {
-        return (((BCECPrivateKey) privateKey).getD()).toString(16);
+        return Numeric.toHexStringNoPrefixZeroPadded(((BCECPrivateKey) privateKey).getD(), 64);
+    }
+
+    /**
+     * convert hexed string into PrivateKey type storePublicKeyWithPem
+     *
+     * @param hexedPrivateKey: the hexed privateKey
+     * @param curveName: the curve name
+     * @return: the converted privateKey
+     * @throws LoadKeyStoreException: convert exception, return exception information
+     */
+    public static PrivateKey convertHexedStringToPrivateKey(
+            String hexedPrivateKey, String curveName) throws LoadKeyStoreException {
+        try {
+            Security.setProperty("crypto.policy", "unlimited");
+            Security.addProvider(new BouncyCastleProvider());
+            BigInteger privateKeyValue = new BigInteger(hexedPrivateKey, 16);
+            org.bouncycastle.jce.spec.ECParameterSpec ecParameterSpec =
+                    ECNamedCurveTable.getParameterSpec(curveName);
+            ECPrivateKeySpec privateKeySpec =
+                    new ECPrivateKeySpec(privateKeyValue, ecParameterSpec);
+            KeyFactory keyFactory =
+                    KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
+            // get private key
+            return keyFactory.generatePrivate(privateKeySpec);
+        } catch (NoSuchProviderException | InvalidKeySpecException | NoSuchAlgorithmException e) {
+            throw new LoadKeyStoreException(
+                    "covert private key into PrivateKey type failed, "
+                            + " error information: "
+                            + e.getMessage(),
+                    e);
+        }
+    }
+
+    public static void storePublicKeyWithPem(PrivateKey privateKey, String privateKeyFilePath)
+            throws IOException {
+        String publicKeyPath = privateKeyFilePath + ".pub";
+        PemWriter writer = new PemWriter(new FileWriter(publicKeyPath));
+        PublicKey publicKey = getPublicKeyFromPrivateKey(privateKey);
+        writer.writeObject(new PemObject("PUBLIC KEY", publicKey.getEncoded()));
+        writer.flush();
+        writer.close();
     }
 
     protected abstract void load(InputStream in);
@@ -131,12 +182,17 @@ public abstract class KeyManager {
     }
 
     protected PublicKey getPublicKeyFromPrivateKey() {
+        return getPublicKeyFromPrivateKey(getPrivateKey());
+    }
+
+    protected static PublicKey getPublicKeyFromPrivateKey(PrivateKey privateKey) {
         try {
-            ECPrivateKey privateKey = (ECPrivateKey) getPrivateKey();
-            ECParameterSpec params = privateKey.getParams();
+            initSecurity();
+            ECPrivateKey ecPrivateKey = (ECPrivateKey) privateKey;
+            ECParameterSpec params = ecPrivateKey.getParams();
 
             org.bouncycastle.jce.spec.ECParameterSpec bcSpec = EC5Util.convertSpec(params, false);
-            org.bouncycastle.math.ec.ECPoint q = bcSpec.getG().multiply(privateKey.getS());
+            org.bouncycastle.math.ec.ECPoint q = bcSpec.getG().multiply(ecPrivateKey.getS());
             org.bouncycastle.math.ec.ECPoint bcW =
                     bcSpec.getCurve().decodePoint(q.getEncoded(false));
             ECPoint w =
@@ -149,9 +205,7 @@ public abstract class KeyManager {
                             .generatePublic(keySpec);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException e) {
             String errorMessage =
-                    "get publicKey from "
-                            + keyStoreFile
-                            + " failed, error message:"
+                    "get publicKey from given the private key failed, error message:"
                             + e.getMessage();
             logger.error(errorMessage);
             throw new LoadKeyStoreException(errorMessage, e);
