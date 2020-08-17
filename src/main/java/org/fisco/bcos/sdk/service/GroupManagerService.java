@@ -143,7 +143,5 @@ public interface GroupManagerService {
 
     Integer getCryptoType(String peerInfo);
 
-    void setConfig(ConfigOption config);
-
     ConfigOption getConfig();
 }

@@ -77,6 +77,12 @@ public class JsonRpcService {
         Message message =
                 encodeRequestToMessage(request, Short.valueOf((short) messageType.getType()));
         Response response = this.groupManagerService.sendMessageToGroup(this.groupId, message);
+        if (response == null) {
+            throw new ClientException(
+                    "sendRequestToGroup to "
+                            + this.groupId
+                            + " failed for select peers to send message failed, please make sure that the group exists");
+        }
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
 

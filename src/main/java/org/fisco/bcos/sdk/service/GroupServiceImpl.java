@@ -85,7 +85,14 @@ public class GroupServiceImpl implements GroupService {
     public void updatePeersBlockNumberInfo(String peerIpAndPort, BigInteger blockNumber) {
         // Note: In order to ensure that the cache information is updated in time when the node is
         // restarted, the block height information of the node must be directly updated
-        groupNodeToBlockNumber.put(peerIpAndPort, blockNumber);
+        if (!groupNodeToBlockNumber.containsKey(peerIpAndPort)
+                || !groupNodeToBlockNumber.get(peerIpAndPort).equals(blockNumber)) {
+            logger.debug(
+                    "updatePeersBlockNumberInfo for {}, updated blockNumber: {}",
+                    peerIpAndPort,
+                    blockNumber);
+            groupNodeToBlockNumber.put(peerIpAndPort, blockNumber);
+        }
         if (!groupNodeSet.contains(peerIpAndPort)) {
             groupNodeSet.add(peerIpAndPort);
         }
@@ -103,16 +110,17 @@ public class GroupServiceImpl implements GroupService {
                 maxBlockNumberNode = groupNode;
             }
         }
-        if (maxBlockNumber != null
-                && !maxBlockNumberNode.equals("")
-                && !latestBlockNumber.equals(maxBlockNumber)) {
-            latestBlockNumber.getAndSet(maxBlockNumber.longValue());
-            nodeWithLatestBlockNumber = maxBlockNumberNode;
-            logger.debug(
-                    "g:{}, resetLatestBlockNumber, latestBlockNumber: {}, nodeWithLatestBlockNumber:{}",
-                    groupId,
-                    maxBlockNumber,
-                    maxBlockNumberNode);
+        if (maxBlockNumber != null && !maxBlockNumberNode.equals("")) {
+            if (nodeWithLatestBlockNumber == null || !latestBlockNumber.equals(maxBlockNumber)) {
+                logger.debug(
+                        "g:{}, resetLatestBlockNumber, latestBlockNumber: {}, nodeWithLatestBlockNumber:{},  maxBlockNumber: {}",
+                        groupId,
+                        maxBlockNumber,
+                        maxBlockNumberNode,
+                        maxBlockNumber);
+                latestBlockNumber.getAndSet(maxBlockNumber.longValue());
+                nodeWithLatestBlockNumber = maxBlockNumberNode;
+            }
         }
     }
 

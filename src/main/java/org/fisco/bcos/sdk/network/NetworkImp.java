@@ -44,7 +44,7 @@ public class NetworkImp implements Network {
         conns.forEach(
                 (peer, ctx) -> {
                     ctx.writeAndFlush(out);
-                    logger.debug("send message to  {} success ", peer);
+                    logger.trace("send message to  {} success ", peer);
                 });
     }
 
@@ -53,9 +53,9 @@ public class NetworkImp implements Network {
         ChannelHandlerContext ctx = connManager.getConnectionCtx(peerIpPort);
         if (Objects.isNull(ctx)) {
             ctx.writeAndFlush(out);
-            logger.debug("send message to  {} success ", peerIpPort);
+            logger.trace("send message to  {} success ", peerIpPort);
         } else {
-            logger.debug("send message to  {} failed ", peerIpPort);
+            logger.warn("send message to  {} failed ", peerIpPort);
             throw new NetworkException("Peer not available. Peer: " + peerIpPort);
         }
     }
