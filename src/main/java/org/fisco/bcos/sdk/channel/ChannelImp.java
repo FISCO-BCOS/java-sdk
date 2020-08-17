@@ -177,7 +177,7 @@ public class ChannelImp implements Channel {
                 .forEach(
                         (peer, ctx) -> {
                             ctx.writeAndFlush(out);
-                            logger.debug("send message to {} success ", peer);
+                            logger.trace("send message to {} success ", peer);
                         });
     }
 
@@ -214,7 +214,7 @@ public class ChannelImp implements Channel {
                 retResponse = response;
 
                 if (retResponse != null && retResponse.getContent() != null) {
-                    logger.debug("response: {}", retResponse.getContent());
+                    logger.trace("response: {}", retResponse.getContent());
                 } else {
                     logger.error("response is null");
                 }
@@ -255,7 +255,7 @@ public class ChannelImp implements Channel {
                 retResponse = response;
 
                 if (retResponse != null && retResponse.getContent() != null) {
-                    logger.debug("response: {}", retResponse.getContent());
+                    logger.trace("response: {}", retResponse.getContent());
                 } else {
                     logger.error("response is null");
                 }
@@ -296,7 +296,7 @@ public class ChannelImp implements Channel {
                 retResponse = response;
 
                 if (retResponse != null && retResponse.getContent() != null) {
-                    logger.debug("response: {}", retResponse.getContent());
+                    logger.trace("response: {}", retResponse.getContent());
                 } else {
                     logger.error("response is null");
                 }
@@ -341,9 +341,9 @@ public class ChannelImp implements Channel {
                                 TimeUnit.MILLISECONDS));
             }
             ctx.writeAndFlush(out);
-            logger.debug("send message {} to {} success ", out.getSeq(), peerIpPort);
+            logger.trace("send message {} to {} success ", out.getSeq(), peerIpPort);
         } else {
-            logger.debug("send message {} to {} failed ", out.getSeq(), peerIpPort);
+            logger.warn("send message {} to {} failed ", out.getSeq(), peerIpPort);
             Response response = new Response();
             response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
             response.setErrorMessage(
@@ -358,7 +358,7 @@ public class ChannelImp implements Channel {
         List<String> peerList = getAvailablePeer();
         int random = (int) (Math.random() * (peerList.size()));
         String peerIpPort = peerList.get(random);
-        logger.debug("send message to random peer {} ", peerIpPort);
+        logger.trace("send message to random peer {} ", peerIpPort);
         asyncSendToPeer(out, peerIpPort, callback, options);
     }
 

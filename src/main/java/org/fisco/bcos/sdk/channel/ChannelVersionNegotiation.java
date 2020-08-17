@@ -40,13 +40,12 @@ public class ChannelVersionNegotiation {
         if (ctx.channel().hasAttr(attributeKey)) {
             ChannelProtocol channelProtocol = ctx.channel().attr(attributeKey).get();
             if (null != channelProtocol) {
-                logger.debug(" host: {}, channel protocol: {}", host, channelProtocol);
                 return channelProtocol.getEnumProtocol();
             } else {
-                logger.debug(" channel has attr but get null, host: {}", host);
+                logger.warn(" channel has attr but get null, host: {}", host);
             }
         } else {
-            logger.debug(" channel has not attr, host: {}", host);
+            logger.warn(" channel has not attr, host: {}", host);
         }
 
         return null;
