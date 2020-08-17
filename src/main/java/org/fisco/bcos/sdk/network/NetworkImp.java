@@ -88,6 +88,7 @@ public class NetworkImp implements Network {
 
     @Override
     public void stop() {
+        logger.debug("stop Network...");
         connManager.stopReconnectSchedule();
         connManager.stopNetty();
         return;

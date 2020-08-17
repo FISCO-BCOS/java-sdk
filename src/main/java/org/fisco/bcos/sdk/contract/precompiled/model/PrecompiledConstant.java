@@ -33,4 +33,7 @@ public class PrecompiledConstant {
     // user table prefix
     public static final String USER_TABLE_PREFIX = "_user_";
     public static final String USER_TABLE_PREFIX_2_2_0_VERSION = "u_";
+
+    public static final String KEY_FIELD_NAME = "key_field";
+    public static final String VALUE_FIELD_NAME = "value_field";
 }

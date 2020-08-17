@@ -186,7 +186,8 @@ public class TableCRUDService {
         Tuple2<String, String> tableDesc = crudService.desc(tableName);
         List<Map<String, String>> tableDescList = new ArrayList<>(1);
         Map<String, String> keyToValue = new HashMap<>();
-        keyToValue.put(tableDesc.getValue1(), tableDesc.getValue2());
+        keyToValue.put(PrecompiledConstant.KEY_FIELD_NAME, tableDesc.getValue1());
+        keyToValue.put(PrecompiledConstant.VALUE_FIELD_NAME, tableDesc.getValue2());
         tableDescList.add(0, keyToValue);
         return tableDescList;
     }

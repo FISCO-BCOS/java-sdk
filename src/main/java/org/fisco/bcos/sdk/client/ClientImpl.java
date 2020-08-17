@@ -415,6 +415,29 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public BcosTransaction getTransactionByBlockHashAndIndex(
+            String blockHash, BigInteger transactionIndex) {
+        return jsonRpcService.sendRequestToGroup(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_TRANSACTION_BY_BLOCKHASH_AND_INDEX,
+                        Arrays.asList(
+                                this.groupId, blockHash, Numeric.encodeQuantity(transactionIndex))),
+                BcosTransaction.class);
+    }
+
+    @Override
+    public void getTransactionByBlockHashAndIndexAsync(
+            String blockHash, BigInteger transactionIndex, RespCallback<BcosTransaction> callback) {
+        jsonRpcService.asyncSendRequestToGroup(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_TRANSACTION_BY_BLOCKHASH_AND_INDEX,
+                        Arrays.asList(
+                                this.groupId, blockHash, Numeric.encodeQuantity(transactionIndex))),
+                BcosTransaction.class,
+                callback);
+    }
+
+    @Override
     public BcosTransactionReceipt getTransactionReceipt(String transactionHash) {
         return this.jsonRpcService.sendRequestToGroup(
                 new JsonRpcRequest(

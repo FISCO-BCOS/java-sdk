@@ -40,7 +40,13 @@ public abstract class SignatureResult {
         this.signatureBytes = Hex.decode(signatureString);
         // at least 64 bytes
         if (this.signatureBytes.length < 64) {
-            throw new SignatureException("Invalid signature: " + signatureString);
+            throw new SignatureException(
+                    "Invalid signature: "
+                            + signatureString
+                            + ", signatureString len: "
+                            + signatureString.length()
+                            + ", signatureBytes size:"
+                            + signatureBytes.length);
         }
         // get R
         this.r = new byte[32];
