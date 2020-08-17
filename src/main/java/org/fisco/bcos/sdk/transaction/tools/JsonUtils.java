@@ -15,6 +15,7 @@ package org.fisco.bcos.sdk.transaction.tools;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,6 +62,15 @@ public class JsonUtils {
             return fromJsonWithException(json, type);
         } catch (IOException e) {
             throw new JsonException(e);
+        }
+    }
+
+    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
+        try {
+            return objectMapper.readValue(json, typeReference);
+        } catch (Exception e) {
+            log.error("json is: " + json, e);
+            return null;
         }
     }
 

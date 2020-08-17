@@ -45,6 +45,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         this.cryptoInterface = cryptoInterface;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public List<Type> decode(String rawInput, String abi) throws TransactionBaseException {
         ABIDefinition ad = JsonUtils.fromJson(abi, ABIDefinition.class);
@@ -108,21 +109,28 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     }
 
     @Override
-    public TransactionResponse decodeTransactionReceipt(
+    public TransactionResponse decodeEventsAndValues(
             String abi, TransactionReceipt transactionReceipt)
             throws TransactionBaseException, TransactionException, IOException {
         String values =
                 decodeOutputReturnJson(
                         abi, transactionReceipt.getInput(), transactionReceipt.getOutput());
+        TransactionResponse response = decodeEvents(abi, transactionReceipt);
+        response.setValues(values);
+        return response;
+    }
+
+    @Override
+    public TransactionResponse decodeEvents(String abi, TransactionReceipt transactionReceipt)
+            throws TransactionBaseException, TransactionException, IOException {
         String events = decodeEventReturnJson(abi, transactionReceipt.getLogs());
         TransactionResponse response = new TransactionResponse();
         response.setTransactionReceipt(transactionReceipt);
         response.setEvents(events);
-        response.setValues(values);
         response.setContractAddress(transactionReceipt.getContractAddress());
         response.setReceiptMessages(decodeReceiptMessage(transactionReceipt.getOutput()));
         response.setReturnCode(0);
-        return null;
+        return response;
     }
 
     /** @return the cryptoInterface */

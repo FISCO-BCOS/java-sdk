@@ -33,10 +33,12 @@ public interface FunctionBuilderInterface {
             String contractName, String functionName, List<Object> args)
             throws TransactionBaseException;
 
-    public SolidityFunction buildFunctionByAbi(String abi, String functionName, List<Object> args);
+    public SolidityFunction buildFunctionByAbi(String abi, String functionName, List<Object> args)
+            throws TransactionBaseException;
 
     public SolidityFunction buildFunctionByABIDefinitionList(
-            List<ABIDefinition> definitions, String functionName, List<Object> args);
+            List<ABIDefinition> definitions, String functionName, List<Object> args)
+            throws TransactionBaseException;
 
     public SolidityConstructor buildConstructor(String contractName, List<Object> args)
             throws TransactionBaseException;

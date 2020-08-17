@@ -20,6 +20,8 @@ import org.fisco.bcos.sdk.transaction.model.bo.ResultEntity;
 public class EventResultEntity extends ResultEntity {
     private boolean indexed;
 
+    public EventResultEntity() {}
+
     public boolean isIndexed() {
         return indexed;
     }
