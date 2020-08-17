@@ -24,8 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -59,6 +57,7 @@ import org.fisco.bcos.sdk.service.model.BlockNumberMessageDecoder;
 import org.fisco.bcos.sdk.service.model.BlockNumberNotification;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
+import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,18 +77,21 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     private final Timer timeoutHandler = new HashedWheelTimer();
 
     private Client groupInfoGetter;
-    // TODO: get the fetchGroupListIntervalMs from the configuration
     private long fetchGroupListIntervalMs = 60000;
     private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
     // the thread pool is used to handle the block_notify message and transaction_notify message
-    private ExecutorService threadPool = Executors.newCachedThreadPool();
+    private final ThreadPoolService threadPool;
     AtomicBoolean running = new AtomicBoolean(false);
 
-    private ConfigOption config;
+    private final ConfigOption config;
 
-    public GroupManagerServiceImpl(Channel channel) {
+    public GroupManagerServiceImpl(Channel channel, ConfigOption configOption) {
         this.channel = channel;
+        this.config = configOption;
+        this.threadPool =
+                new ThreadPoolService(
+                        "GroupManagerServiceImpl", configOption.getReceiptProcessorThreadSize());
         this.blockNumberMessageDecoder = new BlockNumberMessageDecoder();
         this.groupServiceFactory = new GroupServiceFactory();
         this.groupInfoGetter = Client.build(channel);
@@ -99,11 +101,6 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         registerGetNodeVersionHandler();
         registerBlockNumberNotifyHandler();
         registerTransactionNotifyHandler();
-    }
-
-    @Override
-    public void setConfig(ConfigOption config) {
-        this.config = config;
     }
 
     @Override
@@ -149,14 +146,16 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                         new Consumer<String>() {
                             @Override
                             public void accept(String peerIpAndPort) {
-                                threadPool.execute(
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                fetchGroupList(peerIpAndPort);
-                                                updateNodeVersion(peerIpAndPort);
-                                            }
-                                        });
+                                threadPool
+                                        .getThreadPool()
+                                        .execute(
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        fetchGroupList(peerIpAndPort);
+                                                        updateNodeVersion(peerIpAndPort);
+                                                    }
+                                                });
                             }
                         });
         this.channel.addEstablishHandler(handler);
@@ -180,27 +179,33 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     public void registerBlockNumberNotifyHandler() {
         OnReceiveBlockNotifyFunc onReceiveBlockNotifyFunc =
                 (version, peerIpAndPort, blockNumberNotifyMessage) ->
-                        threadPool.execute(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        onReceiveBlockNotifyImpl(
-                                                version, peerIpAndPort, blockNumberNotifyMessage);
-                                    }
-                                });
+                        threadPool
+                                .getThreadPool()
+                                .execute(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                onReceiveBlockNotifyImpl(
+                                                        version,
+                                                        peerIpAndPort,
+                                                        blockNumberNotifyMessage);
+                                            }
+                                        });
         BlockNumberNotifyHandler handler =
                 new BlockNumberNotifyHandler(
                         onReceiveBlockNotifyFunc,
                         new Consumer<String>() {
                             @Override
                             public void accept(String disconnectedEndpoint) {
-                                threadPool.execute(
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                onDisconnect(disconnectedEndpoint);
-                                            }
-                                        });
+                                threadPool
+                                        .getThreadPool()
+                                        .execute(
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        onDisconnect(disconnectedEndpoint);
+                                                    }
+                                                });
                             }
                         });
         this.channel.addMessageHandler(MsgType.BLOCK_NOTIFY, handler);
@@ -214,14 +219,16 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                         new Consumer<Message>() {
                             @Override
                             public void accept(Message message) {
-                                threadPool.execute(
-                                        new Runnable() {
-                                            // decode the message into transaction
-                                            @Override
-                                            public void run() {
-                                                onReceiveTransactionNotify(message);
-                                            }
-                                        });
+                                threadPool
+                                        .getThreadPool()
+                                        .execute(
+                                                new Runnable() {
+                                                    // decode the message into transaction
+                                                    @Override
+                                                    public void run() {
+                                                        onReceiveTransactionNotify(message);
+                                                    }
+                                                });
                             }
                         });
         this.channel.addMessageHandler(MsgType.TRANSACTION_NOTIFY, handler);
@@ -290,17 +297,21 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             Message transactionMessage,
             TransactionCallback callback,
             ResponseCallback responseCallback) {
-        callback.setTimeoutHandler(
-                timeoutHandler.newTimeout(
-                        new TimerTask() {
-                            @Override
-                            public void run(Timeout timeout) throws Exception {
-                                callback.onTimeout();
-                                seq2TransactionCallback.remove(transactionMessage.getSeq());
-                            }
-                        },
-                        callback.getTimeout(),
-                        TimeUnit.MILLISECONDS));
+        if (callback.getTimeout() > 0) {
+            callback.setTimeoutHandler(
+                    timeoutHandler.newTimeout(
+                            new TimerTask() {
+                                @Override
+                                public void run(Timeout timeout) throws Exception {
+                                    callback.onTimeout();
+                                    logger.info(
+                                            "Transaction timeout: {}", transactionMessage.getSeq());
+                                    seq2TransactionCallback.remove(transactionMessage.getSeq());
+                                }
+                            },
+                            callback.getTimeout(),
+                            TimeUnit.MILLISECONDS));
+        }
         seq2TransactionCallback.put(transactionMessage.getSeq(), callback);
         asyncSendMessageToGroup(groupId, transactionMessage, responseCallback);
     }
@@ -328,22 +339,9 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             return;
         }
         logger.debug("stop GroupManagerService...");
-        awaitAfterShutdown(scheduledExecutorService);
-        awaitAfterShutdown(threadPool);
+        ThreadPoolService.stopThreadPool(scheduledExecutorService);
+        threadPool.stop();
         running.set(false);
-    }
-
-    private void awaitAfterShutdown(ExecutorService threadPool) {
-        threadPool.shutdown();
-        try {
-            while (!threadPool.isTerminated()) {
-                threadPool.awaitTermination(10, TimeUnit.MILLISECONDS);
-            }
-            threadPool.shutdownNow();
-        } catch (InterruptedException ex) {
-            threadPool.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
     }
 
     /** start the thread to obtain group list information periodically */
@@ -371,7 +369,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             if (tryToCreateGroupService(peerIpAndPort, groupId)) {
                 // fetch the block number information for the group
                 getBlockLimitByGroup(groupId);
-                return;
+                continue;
             }
             // update the group information
             groupIdToService.get(groupId).insertNode(peerIpAndPort);
@@ -386,10 +384,6 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         // update the blockNumber Info for the group
         GroupService groupService = groupIdToService.get(groupId);
         groupService.updatePeersBlockNumberInfo(peerInfo, currentBlockNumber);
-        logger.debug(
-                "updateBlockNumberInfo, peer: {}, currentBlockNumber: {}",
-                peerInfo,
-                currentBlockNumber);
     }
 
     private boolean tryToCreateGroupService(String peerIpAndPort, Integer groupId) {
@@ -404,7 +398,8 @@ public class GroupManagerServiceImpl implements GroupManagerService {
 
     @Override
     public BigInteger getBlockLimitByGroup(Integer groupId) {
-        if (groupIdToService.containsKey(groupId)) {
+        if (groupIdToService.containsKey(groupId)
+                && groupIdToService.get(groupId).getLastestBlockNumber().equals(BigInteger.ZERO)) {
             Pair<String, BigInteger> blockNumberInfo = getBlockNumberByRandom(groupId);
             if (blockNumberInfo == null) {
                 logger.warn(
@@ -504,7 +499,11 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                     groupId,
                     message.getSeq(),
                     message.getType());
-            return;
+            throw new ClientException(
+                    "asyncSendMessageToGroup to "
+                            + groupId
+                            + " failed for selectPeer failed, messageSeq: "
+                            + message.getSeq());
         }
         logger.trace(
                 "g:{}, asyncSendMessageToGroup, selectedPeer:{}, message type: {}, seq: {}, length:{}",

@@ -36,6 +36,10 @@ public class TransactionReceipt {
     private List<MerkleProofUnit> receiptProof;
     private String message;
 
+    public boolean isStatusOK() {
+        return status.equals("0x0");
+    }
+
     public static class Logs {
         private String address;
         private List<String> topics;

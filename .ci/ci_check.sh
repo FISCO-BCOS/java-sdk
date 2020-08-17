@@ -33,13 +33,15 @@ prepare_environment()
 {
   ## prepare resources for integration test
   mkdir -p src/integration-test/resources/
-  cp -r nodes/127.0.0.1/sdk/* src/integration-test/resources/
-  cp src/main/resources/config-example.yaml src/integration-test/resources/config-example.yaml
+  mkdir -p conf
+  cp -r nodes/127.0.0.1/sdk/* conf
+  cp src/test/resources/config-example.yaml src/integration-test/resources/config-example.yaml
   cp src/test/resources/log4j.properties src/integration-test/resources/
+  sed_cmd=$(get_sed_cmd)
 
   local node_type="${1}"
   if [ "${node_type}" == "sm" ];then
-    cp src/main/resources/smconfig-example.yaml src/integration-test/resources/config-example.yaml
+    cp src/test/resources/smconfig-example.yaml src/integration-test/resources/config-example.yaml
   fi
 }
 

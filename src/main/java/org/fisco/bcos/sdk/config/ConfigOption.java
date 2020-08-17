@@ -31,6 +31,8 @@ public class ConfigOption {
     public static String ACCOUNT_NAME = "accountName";
     public static String PASSWORD = "password";
     public static String ACCOUNT_FILE_FORMAT = "accountFileFormat";
+    public static String CHANNEL_PROCESSOR_THREAD_SIZE = "channelProcessorThreadSize";
+    public static String RECEIPT_PROCESSOR_THREAD_SIZE = "receiptProcessorThreadSize";
 
     public Map<String, String> cryptoMaterial;
     public List<String> peers;
@@ -38,6 +40,31 @@ public class ConfigOption {
 
     @JsonProperty("Account")
     public Map<String, String> account;
+
+    @JsonProperty("threadPool")
+    public Map<String, String> threadPool;
+
+    public Map<String, String> getThreadPool() {
+        return threadPool;
+    }
+
+    public void setThreadPool(Map<String, String> threadPool) {
+        this.threadPool = threadPool;
+    }
+
+    public Integer getChannelProcessorThreadSize() {
+        if (this.threadPool == null) {
+            return Runtime.getRuntime().availableProcessors();
+        }
+        return Integer.valueOf(this.threadPool.get(CHANNEL_PROCESSOR_THREAD_SIZE));
+    }
+
+    public Integer getReceiptProcessorThreadSize() {
+        if (this.threadPool == null) {
+            return Runtime.getRuntime().availableProcessors();
+        }
+        return Integer.valueOf(this.threadPool.get(RECEIPT_PROCESSOR_THREAD_SIZE));
+    }
 
     public Map<String, String> getAccount() {
         return account;

@@ -114,7 +114,7 @@ public class ChannelMsgHandler implements MsgHandler {
 
     @Override
     public void onMessage(ChannelHandlerContext ctx, Message msg) {
-        logger.debug(
+        logger.trace(
                 "onMessage in ChannelMsgHandler called, host : {}, seq : {}, msgType : {}",
                 ChannelVersionNegotiation.getPeerHost(ctx),
                 msg.getSeq(),

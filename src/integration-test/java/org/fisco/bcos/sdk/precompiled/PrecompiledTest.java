@@ -445,6 +445,7 @@ public class PrecompiledTest
 
             helloWorld.set("Hello, Fisco1");
             value = helloWorld.get();
+            System.out.println("==== after set: " + value);
             Assert.assertTrue("Hello, Fisco1".equals(value));
             // grant Manager
             CryptoInterface cryptoInterface1 = new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());

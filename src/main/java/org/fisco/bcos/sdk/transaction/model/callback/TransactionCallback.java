@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public abstract class TransactionCallback {
     private static Logger logger = LoggerFactory.getLogger(TransactionCallback.class);
     private Timeout timeoutHandler;
-    public static Integer DEFAULT_TRANS_TIMEOUT = 10 * 1000;
+    public static Integer DEFAULT_TRANS_TIMEOUT = 30 * 1000;
     private Integer timeout = DEFAULT_TRANS_TIMEOUT;
 
     public abstract void onResponse(TransactionReceipt receipt);
