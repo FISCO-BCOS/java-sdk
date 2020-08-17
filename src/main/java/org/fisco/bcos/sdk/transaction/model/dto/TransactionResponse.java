@@ -41,6 +41,11 @@ public class TransactionResponse extends CommonResponse {
         super(returnCode, returnMessage);
     }
 
+    public TransactionResponse(TransactionReceipt tr, int returnCode, String returnMessage) {
+        super(returnCode, returnMessage);
+        this.transactionReceipt = tr;
+    }
+
     /** @return the bcosTransactionReceipt */
     public TransactionReceipt getTransactionReceipt() {
         return transactionReceipt;

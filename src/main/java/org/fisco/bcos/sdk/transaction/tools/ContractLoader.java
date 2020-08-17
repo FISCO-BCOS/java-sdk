@@ -40,23 +40,19 @@ import org.slf4j.LoggerFactory;
  */
 public class ContractLoader {
     private static final Logger log = LoggerFactory.getLogger(ContractLoader.class);
-    private String path;
     private Map<String, List<ABIDefinition>> contractFuncAbis;
     private Map<String, ABIDefinition> contractConstructorAbi;
     private Map<String, String> contractBinMap;
     private Map<String, String> contractAbiMap;
 
-    public ContractLoader(String path) throws Exception {
-        this.path = path;
-        // TODO readType
-        this.binInfo();
-        this.abiInfo();
+    public ContractLoader(String abiFilePath, String binaryFilePath) throws Exception {
+        this.binInfo(binaryFilePath);
+        this.abiInfo(abiFilePath);
     }
 
-    public BinInfo binInfo() throws IOException {
+    public BinInfo binInfo(String binaryFilePath) throws IOException {
         String[] s = {"bin"};
-        Collection<File> fileCollection =
-                FileUtils.listFiles(new File(path + "/" + CommonConstant.BIN), s, true);
+        Collection<File> fileCollection = FileUtils.listFiles(new File(binaryFilePath), s, true);
         if (fileCollection.isEmpty()) {
             log.warn("No bin found, cannot deploy any contract");
             return new BinInfo(Collections.emptyMap());
@@ -70,10 +66,9 @@ public class ContractLoader {
         return new BinInfo(contractBinMap);
     }
 
-    public AbiInfo abiInfo() throws Exception {
+    public AbiInfo abiInfo(String abiFilePath) throws Exception {
         String[] s = {"abi"};
-        Collection<File> fileCollection =
-                FileUtils.listFiles(new File(path + "/" + CommonConstant.ABI), s, true);
+        Collection<File> fileCollection = FileUtils.listFiles(new File(abiFilePath), s, true);
         this.contractFuncAbis = new HashMap<>();
         this.contractConstructorAbi = new HashMap<>();
         this.contractAbiMap = new HashMap<>();
@@ -126,15 +121,5 @@ public class ContractLoader {
 
     public List<ABIDefinition> getFunctionABIListByContractName(String contractName) {
         return contractFuncAbis.get(contractName);
-    }
-
-    /** @return the path */
-    public String getPath() {
-        return path;
-    }
-
-    /** @param path the path to set */
-    public void setPath(String path) {
-        this.path = path;
     }
 }

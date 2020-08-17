@@ -21,6 +21,8 @@ public class ResultEntity {
     private Object data;
     @JsonIgnore private Type typeObject;
 
+    public ResultEntity() {}
+
     @SuppressWarnings("rawtypes")
     public ResultEntity(String name, String type, Type data) {
         this.name = name;
@@ -57,7 +59,7 @@ public class ResultEntity {
         return typeObject;
     }
 
-    public void setData(Type data) {
+    public void setData(Object data) {
         this.data = data;
     }
 

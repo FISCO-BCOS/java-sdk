@@ -37,11 +37,20 @@ prepare_environment()
   cp -r nodes/127.0.0.1/sdk/* conf
   cp src/test/resources/config-example.yaml src/integration-test/resources/config-example.yaml
   cp src/test/resources/log4j.properties src/integration-test/resources/
+  rm -rf src/integration-test/resources/abi
+  rm -rf src/integration-test/resources/bin
+  cp -r src/test/resources/ecdsa/abi src/integration-test/resources/abi
+  cp -r src/test/resources/ecdsa/bin src/integration-test/resources/bin
+
   sed_cmd=$(get_sed_cmd)
 
   local node_type="${1}"
   if [ "${node_type}" == "sm" ];then
     cp src/test/resources/smconfig-example.yaml src/integration-test/resources/config-example.yaml
+    rm -rf src/integration-test/resources/abi
+    rm -rf src/integration-test/resources/bin
+    cp -r src/test/resources/gm/abi src/integration-test/resources/abi
+    cp -r src/test/resources/gm/bin src/integration-test/resources/bin
   fi
 }
 

@@ -22,7 +22,7 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
  * @author maojiayu
  * @data Jul 17, 2020 3:09:48 PM
  */
-public class CallRequest extends CommonRequest {
+public class CallRequest {
     private String from;
     private String to;
     private String encodedFunction;
@@ -34,34 +34,52 @@ public class CallRequest extends CommonRequest {
         this.encodedFunction = encodedFunction;
     }
 
+    /**
+     * @param from
+     * @param to
+     * @param encodedFunction
+     * @param abi
+     */
+    public CallRequest(String from, String to, String encodedFunction, ABIDefinition abi) {
+        this(from, to, encodedFunction);
+        this.abi = abi;
+    }
+
     /** @return the from */
     public String getFrom() {
         return from;
     }
+
     /** @param from the from to set */
     public void setFrom(String from) {
         this.from = from;
     }
+
     /** @return the to */
     public String getTo() {
         return to;
     }
+
     /** @param to the to to set */
     public void setTo(String to) {
         this.to = to;
     }
+
     /** @return the encodedFunction */
     public String getEncodedFunction() {
         return encodedFunction;
     }
+
     /** @param encodedFunction the encodedFunction to set */
     public void setEncodedFunction(String encodedFunction) {
         this.encodedFunction = encodedFunction;
     }
+
     /** @return the abi */
     public ABIDefinition getAbi() {
         return abi;
     }
+
     /** @param abi the abi to set */
     public void setAbi(ABIDefinition abi) {
         this.abi = abi;
