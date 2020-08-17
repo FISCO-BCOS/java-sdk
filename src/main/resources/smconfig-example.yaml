@@ -58,3 +58,13 @@ AMOPKeys:
   - topicName: t2  #认证Topic订阅者配置方法
     # Your private key that used to subscriber verification.
     privateKey: consumer_private_key.pem
+
+Account:
+  # The directory where the account private key file is placed in
+  keyStoreDir: account
+  # The address of the account used to send transactions
+  # When it's empty, use a randomly generated account to send transactions,
+  # and the randomly generated account information is stored in tmp sub-directory of keyStoreDir
+  accountName:
+  # The password used to load the account private key file
+  password:

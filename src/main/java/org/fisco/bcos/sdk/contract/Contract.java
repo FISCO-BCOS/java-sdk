@@ -99,6 +99,8 @@ public class Contract {
                     type.getDeclaredConstructor(String.class, Client.class, CryptoInterface.class);
             constructor.setAccessible(true);
             T contract = constructor.newInstance(null, client, credential);
+            // store the keyPair in the account directory
+            credential.getCryptoKeyPair().storeKeyPairWithPemFormat();
             return create(contract, binary, encodedConstructor);
         } catch (InstantiationException
                 | InvocationTargetException

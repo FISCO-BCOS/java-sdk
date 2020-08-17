@@ -13,7 +13,10 @@
  */
 package org.fisco.bcos.sdk.crypto;
 
+import java.io.File;
 import java.security.KeyPair;
+import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
 import org.fisco.bcos.sdk.crypto.exceptions.UnsupportedCryptoTypeException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
@@ -22,12 +25,18 @@ import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.SM2KeyPair;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
+import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
 import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
 import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CryptoInterface {
+
+    private static Logger logger = LoggerFactory.getLogger(CryptoInterface.class);
 
     public static final int ECDSA_TYPE = 0;
     public static final int SM_TYPE = 1;
@@ -37,6 +46,21 @@ public class CryptoInterface {
     public final Hash hashImpl;
     private final CryptoKeyPair keyPairFactory;
     private CryptoKeyPair cryptoKeyPair;
+    private ConfigOption config;
+
+    public CryptoInterface(int cryptoTypeConfig, ConfigOption configOption) {
+        this(cryptoTypeConfig);
+        logger.info("init CryptoInterface, cryptoType: {}", cryptoTypeConfig);
+        setConfig(configOption);
+        // doesn't set the account name, generate the keyPair randomly
+        if (configOption.getAccount() == null
+                || configOption.getAccountName() == null
+                || configOption.getAccountName().equals("")) {
+            createKeyPair();
+            return;
+        }
+        loadAccount(configOption);
+    }
     /**
      * init the common crypto implementation accordign to the crypto type
      *
@@ -60,6 +84,29 @@ public class CryptoInterface {
         }
         // create keyPair randomly
         createKeyPair();
+    }
+
+    private void loadAccount(ConfigOption configOption) {
+        String accountFilePath =
+                configOption.getKeystoreDir() + File.separator + configOption.getAccountName();
+        KeyManager keyManager;
+        if (configOption.getAccountFileFormat().compareToIgnoreCase("p12") == 0) {
+            accountFilePath = accountFilePath + CryptoKeyPair.P12_FILE_POSTFIX;
+            keyManager = new P12Manager(accountFilePath, configOption.getPassword());
+        } else if (configOption.getAccountFileFormat().compareToIgnoreCase("pem") == 0) {
+            accountFilePath = accountFilePath + CryptoKeyPair.PEM_FILE_POSTFIX;
+            keyManager = new PEMManager(accountFilePath);
+        } else {
+            throw new LoadKeyStoreException(
+                    "unsupported account file format : "
+                            + configOption.getAccountFileFormat()
+                            + ", current supported are p12 and pem");
+        }
+        createKeyPair(keyManager.getKeyPair());
+    }
+
+    public void setConfig(ConfigOption config) {
+        this.config = config;
     }
 
     public int getCryptoTypeConfig() {
@@ -111,11 +158,13 @@ public class CryptoInterface {
 
     public CryptoKeyPair createKeyPair() {
         this.cryptoKeyPair = this.keyPairFactory.generateKeyPair();
+        this.cryptoKeyPair.setConfig(config);
         return this.cryptoKeyPair;
     }
 
     public CryptoKeyPair createKeyPair(KeyPair keyPair) {
         this.cryptoKeyPair = this.keyPairFactory.createKeyPair(keyPair);
+        this.cryptoKeyPair.setConfig(config);
         return this.cryptoKeyPair;
     }
 

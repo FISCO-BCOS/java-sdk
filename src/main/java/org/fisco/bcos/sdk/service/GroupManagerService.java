@@ -19,6 +19,7 @@ import java.util.Set;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.PeerSelectRule;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.Response;
@@ -141,4 +142,8 @@ public interface GroupManagerService {
     NodeVersion getNodeVersion(String peerInfo);
 
     Integer getCryptoType(String peerInfo);
+
+    void setConfig(ConfigOption config);
+
+    ConfigOption getConfig();
 }

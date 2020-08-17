@@ -47,6 +47,7 @@ import org.fisco.bcos.sdk.client.handler.OnReceiveBlockNotifyFunc;
 import org.fisco.bcos.sdk.client.handler.TransactionNotifyHandler;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
@@ -85,6 +86,8 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     private ExecutorService threadPool = Executors.newCachedThreadPool();
     AtomicBoolean running = new AtomicBoolean(false);
 
+    private ConfigOption config;
+
     public GroupManagerServiceImpl(Channel channel) {
         this.channel = channel;
         this.blockNumberMessageDecoder = new BlockNumberMessageDecoder();
@@ -96,6 +99,16 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         registerGetNodeVersionHandler();
         registerBlockNumberNotifyHandler();
         registerTransactionNotifyHandler();
+    }
+
+    @Override
+    public void setConfig(ConfigOption config) {
+        this.config = config;
+    }
+
+    @Override
+    public ConfigOption getConfig() {
+        return this.config;
     }
 
     @Override

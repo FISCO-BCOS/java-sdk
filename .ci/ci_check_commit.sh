@@ -3,9 +3,8 @@
 set -e
 
 scan_code_script="cobra/cobra.py -f json -o /tmp/report.json -t "
-ignore_files=(sh crt key json toml)
+ignore_files=(sh crt key json toml SignatureTest.java)
 commit_limit=6
-skip_check_words="sync code"
 
 LOG_ERROR() {
     content=${1}
@@ -35,7 +34,7 @@ scan_code() {
         if should_ignore "${file}"; then continue; fi
         if [ ! -f "${file}" ]; then continue; fi
         LOG_INFO "check file ${file}"
-        python "${scan_code_script}" "$file"
+        python ${scan_code_script} "$file"
         trigger_rules=$(jq -r '.' /tmp/report.json | grep 'trigger_rules' | awk '{print $2}' | sed 's/,//g')
         echo "trigger_rules is ${trigger_rules}"
         rm /tmp/report.json
@@ -54,15 +53,6 @@ install_cobra() {
 
 check_commit_message()
 {
-    if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then
-        local skip=$(curl -s https://api.github.com/repos/FISCO-BCOS/java-sdk/pulls/${TRAVIS_PULL_REQUEST} | grep "title\"" | grep "${skip_check_words}")
-        if [ ! -n "${skip}" ]; then
-            LOG_INFO "sync code PR, skip PR limit check!"
-            exit 0
-        else
-            LOG_INFO "PR-${TRAVIS_PULL_REQUEST}, checking PR limit..."
-        fi
-    fi
     local commits=$(git rev-list --count HEAD^..HEAD)
     if [ ${commit_limit} -lt ${commits} ]; then
         LOG_ERROR "${commits} commits, limit is ${commit_limit}"

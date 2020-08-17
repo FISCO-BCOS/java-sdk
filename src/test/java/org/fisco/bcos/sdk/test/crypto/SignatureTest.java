@@ -13,7 +13,11 @@
  */
 package org.fisco.bcos.sdk.test.crypto;
 
+import java.io.File;
 import java.math.BigInteger;
+import org.fisco.bcos.sdk.config.Config;
+import org.fisco.bcos.sdk.config.ConfigException;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
@@ -34,6 +38,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class SignatureTest {
+    private static final String configFile =
+            SignatureTest.class.getClassLoader().getResource("config-example.yaml").getPath();
+
     @Test
     public void testCryptoInterfaceForECDSA() {
         CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
@@ -287,6 +294,125 @@ public class SignatureTest {
             Assert.assertTrue(cryptoInterface.verify(verifykeyManager, message, signature));
             String invalidMessage = cryptoInterface.hash("abcde----" + Integer.toString(i));
             Assert.assertTrue(!cryptoInterface.verify(verifykeyManager, invalidMessage, signature));
+        }
+    }
+
+    public String getKeyStoreFilePath(
+            CryptoInterface cryptoInterface, ConfigOption configOption, String postFix) {
+        return configOption.getKeystoreDir()
+                + File.separator
+                + cryptoInterface.getCryptoKeyPair().getKeyStoreSubDir()
+                + File.separator
+                + cryptoInterface.getCryptoKeyPair().getAddress()
+                + postFix;
+    }
+
+    @Test
+    public void testSMLoadAndStoreKeyPairWithPEM() throws ConfigException {
+        testLoadAndStoreKeyPairWithPEM(CryptoInterface.SM_TYPE);
+    }
+
+    @Test
+    public void testECDSALoadAndStoreKeyPairWithPEM() throws ConfigException {
+        testLoadAndStoreKeyPairWithPEM(CryptoInterface.ECDSA_TYPE);
+    }
+
+    @Test
+    public void testSMLoadAndStoreKeyPairWithP12() throws ConfigException {
+        testLoadAndStoreKeyPairWithP12(CryptoInterface.SM_TYPE);
+    }
+
+    @Test
+    public void testECDSALoadAndStoreKeyPairWithP12() throws ConfigException {
+        testLoadAndStoreKeyPairWithP12(CryptoInterface.ECDSA_TYPE);
+    }
+
+    public void testLoadAndStoreKeyPairWithPEM(int cryptoType) throws ConfigException {
+        ConfigOption configOption = Config.load(configFile);
+        CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
+        cryptoInterface.getCryptoKeyPair().setConfig(configOption);
+        cryptoInterface.getCryptoKeyPair().storeKeyPairWithPemFormat();
+        CryptoKeyPair orgKeyPair = cryptoInterface.getCryptoKeyPair();
+
+        // get pem file path
+        String pemFilePath =
+                getKeyStoreFilePath(cryptoInterface, configOption, CryptoKeyPair.PEM_FILE_POSTFIX);
+        // load pem file
+        KeyManager pemManager = new PEMManager(pemFilePath);
+        CryptoKeyPair decodedCryptoKeyPair = cryptoInterface.createKeyPair(pemManager.getKeyPair());
+
+        System.out.println("PEM   orgKeyPair   pub: " + orgKeyPair.getHexPublicKey());
+        System.out.println("PEM decodedKeyPair pub: " + decodedCryptoKeyPair.getHexPublicKey());
+
+        System.out.println("PEM   orgKeyPair   pri: " + orgKeyPair.getHexPrivateKey());
+        System.out.println("PEM decodedKeyPair pr: " + decodedCryptoKeyPair.getHexPrivateKey());
+
+        // test sign and verify message with
+        String publicPemPath = pemFilePath + ".pub";
+        KeyManager verifyKeyManager = new PEMManager(publicPemPath);
+
+        checkSignAndVerifyWithKeyManager(
+                pemManager, decodedCryptoKeyPair, verifyKeyManager, cryptoInterface);
+    }
+
+    public void testLoadAndStoreKeyPairWithP12(int cryptoType) throws ConfigException {
+        ConfigOption configOption = Config.load(configFile);
+        CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
+        cryptoInterface.getCryptoKeyPair().setConfig(configOption);
+        String password = "123";
+        cryptoInterface.getCryptoKeyPair().storeKeyPairWithP12Format(password);
+        CryptoKeyPair orgKeyPair = cryptoInterface.getCryptoKeyPair();
+
+        // get p12 file path
+        String p12FilePath =
+                getKeyStoreFilePath(cryptoInterface, configOption, CryptoKeyPair.P12_FILE_POSTFIX);
+        // load p12 file
+        KeyManager p12Manager = new P12Manager(p12FilePath, password);
+        CryptoKeyPair decodedCryptoKeyPair = cryptoInterface.createKeyPair(p12Manager.getKeyPair());
+        // check the keyPair
+        System.out.println("P12   orgKeyPair   pub: " + orgKeyPair.getHexPublicKey());
+        System.out.println("P12 decodedKeyPair pub: " + decodedCryptoKeyPair.getHexPublicKey());
+
+        System.out.println("P12   orgKeyPair   pri: " + orgKeyPair.getHexPrivateKey());
+        System.out.println("P12 decodedKeyPair pr: " + decodedCryptoKeyPair.getHexPrivateKey());
+
+        Assert.assertTrue(
+                orgKeyPair.getHexPrivateKey().equals(decodedCryptoKeyPair.getHexPrivateKey()));
+        Assert.assertTrue(
+                orgKeyPair.getHexPublicKey().equals(decodedCryptoKeyPair.getHexPublicKey()));
+
+        // test sign and verify message with
+        String publicP12Path = p12FilePath + ".pub";
+        KeyManager verifyKeyManager = new PEMManager(publicP12Path);
+        checkSignAndVerifyWithKeyManager(
+                p12Manager, decodedCryptoKeyPair, verifyKeyManager, cryptoInterface);
+    }
+
+    private void checkSignAndVerifyWithKeyManager(
+            KeyManager pemManager,
+            CryptoKeyPair cryptoKeyPair,
+            KeyManager verifyKeyManager,
+            CryptoInterface cryptoInterface) {
+        // sign and verify message with cryptoKeyPair
+        for (int i = 0; i < 10; i++) {
+            String message = cryptoInterface.hash("abcd----" + Integer.toString(i));
+            SignatureResult signature = cryptoInterface.sign(message, cryptoKeyPair);
+            Assert.assertTrue(
+                    cryptoInterface.verify(
+                            cryptoKeyPair.getHexPublicKey(), message, signature.convertToString()));
+            String invalidMessage = cryptoInterface.hash("abcde----" + Integer.toString(i));
+            Assert.assertTrue(
+                    !cryptoInterface.verify(
+                            cryptoKeyPair.getHexPublicKey(),
+                            invalidMessage,
+                            signature.convertToString()));
+        }
+        for (int i = 0; i < 10; i++) {
+            String message = cryptoInterface.hash("abcd----" + Integer.toString(i));
+            String signature = cryptoInterface.sign(pemManager, message);
+            Assert.assertTrue(cryptoInterface.verify(verifyKeyManager, message, signature));
+            String invalidMessage = cryptoInterface.hash("abcde----" + Integer.toString(i));
+            Assert.assertTrue(!cryptoInterface.verify(verifyKeyManager, invalidMessage, signature));
         }
     }
 }

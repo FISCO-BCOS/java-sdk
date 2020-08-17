@@ -54,7 +54,6 @@ public class BcosSDKTest
             if(groupInfo.size() > 0) {
                 Assert.assertEquals(1, groupInfo.size());
                 Assert.assertEquals("1", groupInfo.get(0));
-                Assert.assertTrue(sdk.getGroupManagerService().getGroupNodeList(1).contains(endPoint));
             }
         }
         // get the client

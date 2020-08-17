@@ -10,7 +10,7 @@ check_basic()
 # check code format
 bash gradlew verifyGoogleJavaFormat
 # build
-bash gradlew build
+bash gradlew build --info
 }
 
 download_build_chain()
@@ -84,6 +84,8 @@ check_sm_node()
   clean_node
 }
 
+LOG_INFO "------ check_basic---------"
+./gradlew build -x test
 LOG_INFO "------ download_build_chain---------"
 download_build_chain
 LOG_INFO "------ check_standard_node---------"
