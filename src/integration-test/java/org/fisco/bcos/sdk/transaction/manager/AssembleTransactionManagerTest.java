@@ -24,7 +24,6 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.EventResultEntity;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.bo.InputAndOutputResult;
@@ -106,7 +105,7 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
-                new CryptoInterface(0), abiFile, binFile);
+                client.getCryptoInterface(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -136,7 +135,7 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
-                new CryptoInterface(0), abiFile, binFile);
+                client.getCryptoInterface(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -167,7 +166,7 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
-                new CryptoInterface(0), abiFile, binFile);
+                client.getCryptoInterface(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -189,7 +188,7 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
-                new CryptoInterface(0), abiFile, binFile);
+                client.getCryptoInterface(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -216,8 +215,7 @@ public class AssembleTransactionManagerTest {
                                     JsonUtils.fromJsonList(callResponse3.getValues(), ResultEntity.class);
                             Assert.assertEquals(11, resultEntityList.get(0).getData());
                         } catch (TransactionBaseException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            System.out.println(e.getMessage());
                         }
                     }
                 });
@@ -229,7 +227,7 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
-                new CryptoInterface(0), abiFile, binFile);
+                client.getCryptoInterface(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -260,7 +258,7 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
-                new CryptoInterface(0), abiFile, binFile);
+                client.getCryptoInterface(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -296,7 +294,7 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
-                new CryptoInterface(0), abiFile, binFile);
+                client.getCryptoInterface(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
