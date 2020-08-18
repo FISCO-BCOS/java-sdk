@@ -91,6 +91,7 @@ public class EventPushMsgHandler implements MsgHandler {
 
     @Override
     public void onDisconnect(ChannelHandlerContext ctx) {
-        logger.warn("onDisconnect accidentally called");
+        logger.info(" filter connection disconnect");
+        filterManager.updateEventLogFilterStatus(ctx);
     }
 }
