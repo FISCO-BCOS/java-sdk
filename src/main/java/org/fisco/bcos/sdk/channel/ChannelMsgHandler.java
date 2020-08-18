@@ -136,6 +136,7 @@ public class ChannelMsgHandler implements MsgHandler {
             response.setErrorCode(msg.getResult());
             response.setMessageID(msg.getSeq());
             response.setContent(new String(msg.getData()));
+            response.setCtx(ctx);
             callback.onResponse(response);
         } else {
             logger.trace(
