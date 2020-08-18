@@ -32,6 +32,7 @@ import org.fisco.bcos.sdk.transaction.model.bo.ResultEntity;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -204,14 +205,22 @@ public class AssembleTransactionManagerTest {
                     @Override
                     public void onResponse(TransactionReceipt receipt) {
                         Assert.assertEquals("0x0", receipt.getStatus());
+                        // getV
+                        CallResponse callResponse3;
+                        try {
+                            callResponse3 =
+                                    manager.sendCall(client.getCryptoInterface().getCryptoKeyPair().getAddress(),
+                                            contractAddress, abi, "getUint256", Lists.newArrayList());
+                            Assert.assertEquals(0, callResponse3.getReturnCode());
+                            List<ResultEntity> resultEntityList =
+                                    JsonUtils.fromJsonList(callResponse3.getValues(), ResultEntity.class);
+                            Assert.assertEquals(11, resultEntityList.get(0).getData());
+                        } catch (TransactionBaseException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
                     }
                 });
-        // getV
-        CallResponse callResponse3 = manager.sendCall(client.getCryptoInterface().getCryptoKeyPair().getAddress(),
-                contractAddress, abi, "getUint256", Lists.newArrayList());
-        Assert.assertEquals(0, callResponse3.getReturnCode());
-        List<ResultEntity> resultEntityList = JsonUtils.fromJsonList(callResponse3.getValues(), ResultEntity.class);
-        Assert.assertEquals(11, resultEntityList.get(0).getData());
     }
 
     @Test
