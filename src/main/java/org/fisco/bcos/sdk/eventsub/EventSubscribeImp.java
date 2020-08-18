@@ -134,12 +134,7 @@ public class EventSubscribeImp implements EventSubscribe {
             EventCallback callback =
                     new EventCallback() {
                         @Override
-                        public LogResult decodeLog(EventLog log) {
-                            return null;
-                        }
-
-                        @Override
-                        public void onReceiveLog(int status, List<LogResult> logs) {}
+                        public void onReceiveLog(int status, List<EventLog> logs) {}
                     };
             unsubscribeEvent(filter.getRegisterID(), callback);
         }
@@ -262,7 +257,7 @@ public class EventSubscribeImp implements EventSubscribe {
         public void onResponse(Response response) {
             String registerId = filter.getRegisterID();
             logger.info(
-                    " event unregister callback response, registerID: {}, seq: {}, error code: {},  content: {}",
+                    " unregister event callback response, registerID: {}, seq: {}, error code: {}, content: {}",
                     registerId,
                     response.getMessageID(),
                     response.getErrorCode(),

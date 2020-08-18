@@ -45,12 +45,7 @@ public class SubscribeTest {
 
         EventCallback eventCallback = new EventCallback() {
             @Override
-            public LogResult decodeLog(EventLog log) {
-                return null;
-            }
-
-            @Override
-            public void onReceiveLog(int status, List<LogResult> logs) {
+            public void onReceiveLog(int status, List<EventLog> logs) {
                 String str = "status in onReceiveLog : " + status;
                 logger.debug(str);
             }
