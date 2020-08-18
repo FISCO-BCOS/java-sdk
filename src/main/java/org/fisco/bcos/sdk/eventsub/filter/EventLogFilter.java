@@ -35,8 +35,8 @@ public class EventLogFilter {
         String newFilterId = EventSubscribe.newSeq();
         EventLogRequestParams requestParams =
                 new EventLogRequestParams(generateNewParams(), groupId, newFilterId);
-        String content = ObjectMapperFactory.getObjectMapper().writeValueAsString(requestParams);
         filterID = newFilterId;
+        String content = requestParams.toJsonString();
         return content;
     }
 
@@ -60,6 +60,19 @@ public class EventLogFilter {
 
         public void setFilterID(String filterID) {
             this.filterID = filterID;
+        }
+
+        public String getGroupID() {
+            return this.groupID;
+        }
+
+        public String getFilterID() {
+            return this.filterID;
+        }
+
+        public String toJsonString() throws JsonProcessingException {
+            String content = ObjectMapperFactory.getObjectMapper().writeValueAsString(this);
+            return content;
         }
     }
 

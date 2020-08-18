@@ -15,11 +15,14 @@
 
 package org.fisco.bcos.sdk.model;
 
+import io.netty.channel.ChannelHandlerContext;
+
 public class Response {
     private Integer errorCode;
     private String errorMessage;
     private String messageID;
     private String content;
+    private ChannelHandlerContext ctx;
 
     public Integer getErrorCode() {
         return errorCode;
@@ -51,5 +54,13 @@ public class Response {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public ChannelHandlerContext getCtx() {
+        return ctx;
+    }
+
+    public void setCtx(ChannelHandlerContext ctx) {
+        this.ctx = ctx;
     }
 }
