@@ -14,7 +14,14 @@
  */
 package org.fisco.bcos.sdk.transaction.model.dto;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.fisco.bcos.sdk.model.EventResultEntity;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.model.bo.InputAndOutputResult;
+import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 
 /**
  * TransactionResponse @Description: TransactionResponse
@@ -76,9 +83,24 @@ public class TransactionResponse extends CommonResponse {
         this.values = values;
     }
 
+    public InputAndOutputResult getInputAndOutput() {
+        if (StringUtils.isEmpty(values)) {
+            return null;
+        }
+        return JsonUtils.fromJson(values, InputAndOutputResult.class);
+    }
+
     /** @return the events */
     public String getEvents() {
         return events;
+    }
+
+    public Map<String, List<List<EventResultEntity>>> getEventResultEntityMap() {
+        if (StringUtils.isEmpty(events)) {
+            return null;
+        }
+        return JsonUtils.fromJson(
+                events, new TypeReference<Map<String, List<List<EventResultEntity>>>>() {});
     }
 
     /** @param events the events to set */
