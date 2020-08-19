@@ -15,6 +15,7 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -29,6 +30,7 @@ import java.util.Objects;
 import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
     @Override
     @JsonDeserialize(using = BcosBlock.BlockDeserialiser.class)
@@ -42,7 +44,41 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
 
     public interface TransactionResult<T> {}
 
-    public static class TransactionHash implements TransactionResult<String> {}
+    public static class TransactionHash implements TransactionResult<String> {
+        private String value;
+
+        public TransactionHash() {}
+
+        public TransactionHash(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TransactionHash that = (TransactionHash) o;
+            return Objects.equals(value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
+
+        @Override
+        public String toString() {
+            return "TransactionHash{" + "value='" + value + '\'' + '}';
+        }
+    }
 
     public static class TransactionObject extends JsonTransactionResponse
             implements TransactionResult<JsonTransactionResponse> {}

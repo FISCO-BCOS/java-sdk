@@ -110,4 +110,10 @@ public class BcosSDK {
     public Amop getAmop() {
         return amop;
     }
+
+    public void stopAll() {
+        this.channel.stop();
+        this.threadPoolService.stop();
+        this.groupManagerService.stop();
+    }
 }

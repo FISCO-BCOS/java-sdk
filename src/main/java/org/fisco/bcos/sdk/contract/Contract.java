@@ -42,8 +42,11 @@ import org.fisco.bcos.sdk.transaction.manager.TransactionManager;
 import org.fisco.bcos.sdk.transaction.manager.TransactionManagerFactory;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Contract {
+    protected static Logger logger = LoggerFactory.getLogger(Contract.class);
     protected final String contractBinary;
     protected String contractAddress;
     // transactionReceipt after deploying the contract
@@ -177,6 +180,10 @@ public class Contract {
                                     + " failed for non-zero status "
                                     + response.getCallResult().getStatus(),
                             response.getCallResult());
+            logger.warn(
+                    "status of executeCall is non-success, status: {}, callResult: {}",
+                    response.getCallResult().getStatus(),
+                    response.getCallResult().toString());
             throw ReceiptParser.parseExceptionCall(contractException);
         }
         try {
