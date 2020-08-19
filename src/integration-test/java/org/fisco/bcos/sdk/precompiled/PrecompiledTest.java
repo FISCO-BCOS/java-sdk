@@ -375,7 +375,7 @@ public class PrecompiledTest
             BigInteger currentTxCount = new BigInteger(client.getTotalTransactionCount().getTotalTransactionCount().getTxSum().substring(2), 16);
             System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
             Assert.assertTrue(currentTxCount.equals(orgTxCount.add(BigInteger.valueOf(300))));
-        }catch(ContractException | ConfigException | InterruptedException e)
+        }catch(ContractException | InterruptedException e)
         {
             System.out.println("test10AsyncCRUDService failed, error info: " + e.getMessage());
         }

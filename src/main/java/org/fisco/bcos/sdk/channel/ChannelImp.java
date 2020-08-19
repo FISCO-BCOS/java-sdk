@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.channel;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -78,7 +79,9 @@ public class ChannelImp implements Channel {
             network.start();
             checkConnectionsToStartPeriodTask();
         } catch (NetworkException e) {
+            network.stop();
             logger.error("init channel network error, {} ", e.getMessage());
+            throw new ChannelException("init channel network error: " + e.getMessage(), e);
         }
     }
 

@@ -21,8 +21,8 @@ package org.fisco.bcos.sdk.transaction.model.dto;
  * @data Jul 17, 2020 3:15:35 PM
  */
 public class CommonResponse {
-    private int returnCode;
-    private String returnMessage;
+    private int returnCode = 0;
+    private String returnMessage = "";
 
     public CommonResponse() {
         super();
