@@ -28,9 +28,7 @@ import org.fisco.bcos.sdk.eventsub.filter.EventPushMsgHandler;
 import org.fisco.bcos.sdk.eventsub.filter.EventSubNodeRespStatus;
 import org.fisco.bcos.sdk.eventsub.filter.FilterManager;
 import org.fisco.bcos.sdk.eventsub.filter.ScheduleTimeConfig;
-import org.fisco.bcos.sdk.model.Message;
-import org.fisco.bcos.sdk.model.MsgType;
-import org.fisco.bcos.sdk.model.Response;
+import org.fisco.bcos.sdk.model.*;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
@@ -57,10 +55,10 @@ public class EventSubscribeImp implements EventSubscribe {
     }
 
     @Override
-    public void subscribeEvent(EventLogParams params, EventCallback callback) {
+    public String subscribeEvent(EventLogParams params, EventCallback callback) {
         if (!params.valid()) {
             callback.onReceiveLog(EventSubNodeRespStatus.INVALID_PARAMS.getStatus(), null);
-            return;
+            return null;
         }
         EventLogFilter filter = new EventLogFilter();
         filter.setRegisterID(EventSubscribe.newSeq());
@@ -68,11 +66,42 @@ public class EventSubscribeImp implements EventSubscribe {
         filter.setCallback(callback);
         filterManager.addFilter(filter);
         sendFilter(filter);
+
+        return filter.getRegisterID();
     }
 
     @Override
-    public void unsubscribeEvent(String filterID) {
-        // Todo need node support
+    public void unsubscribeEvent(String registerID, EventCallback callback) {
+        EventLogFilter filter = filterManager.getFilter(registerID);
+        if (filter == null) {
+            logger.info(" try to unsubscribe an nonexistent event");
+            return;
+        }
+        // update callback to handle unsubscribe result
+        filter.setCallback(callback);
+        filterManager.addCallback(filter.getFilterID(), callback);
+
+        // send message to unsubscribe event
+        Message msg = new Message();
+        msg.setSeq(EventSubscribe.newSeq());
+        msg.setType(Short.valueOf((short) MsgType.CLIENT_UNREGISTER_EVENT_LOG.getType()));
+        msg.setResult(0);
+        try {
+            String content = filter.getNewParamJsonString(String.valueOf(groupId));
+            msg.setData(content.getBytes());
+        } catch (JsonProcessingException e) {
+            logger.error(
+                    " unsubscribe event error, registerID: {},filterID : {}, error: {}",
+                    filter.getRegisterID(),
+                    filter.getFilterID(),
+                    e.getMessage());
+        }
+
+        EventMsg eventMsg = new EventMsg(msg);
+        eventMsg.setTopic("");
+        eventMsg.setData(msg.getData());
+        this.groupManagerService.asyncSendMessageToGroup(
+                groupId, eventMsg, new UnRegisterEventSubRespCallback(filterManager, filter));
     }
 
     @Override
@@ -99,7 +128,16 @@ public class EventSubscribeImp implements EventSubscribe {
     public void stop() {
         running = false;
         resendSchedule.shutdown();
-        // TODO: unsubscribeEvent
+        // unsubscribe events
+        List<EventLogFilter> filterList = getAllSubscribedEvent();
+        for (EventLogFilter filter : filterList) {
+            EventCallback callback =
+                    new EventCallback() {
+                        @Override
+                        public void onReceiveLog(int status, List<EventLog> logs) {}
+                    };
+            unsubscribeEvent(filter.getRegisterID(), callback);
+        }
     }
 
     private void resendWaitingFilters() {
@@ -202,6 +240,50 @@ public class EventSubscribeImp implements EventSubscribe {
                         .onReceiveLog(EventSubNodeRespStatus.OTHER_ERROR.getStatus(), null);
                 filterManager.removeFilter(registerID);
                 filterManager.removeCallback(filterID);
+            }
+        }
+    }
+
+    class UnRegisterEventSubRespCallback extends ResponseCallback {
+        FilterManager filterManager;
+        EventLogFilter filter;
+
+        public UnRegisterEventSubRespCallback(FilterManager filterManager, EventLogFilter filter) {
+            this.filterManager = filterManager;
+            this.filter = filter;
+        }
+
+        @Override
+        public void onResponse(Response response) {
+            String registerId = filter.getRegisterID();
+            logger.info(
+                    " unregister event callback response, registerID: {}, seq: {}, error code: {}, content: {}",
+                    registerId,
+                    response.getMessageID(),
+                    response.getErrorCode(),
+                    response.getContent());
+            try {
+                if (0 == response.getErrorCode()) {
+                    EventLogResponse resp =
+                            ObjectMapperFactory.getObjectMapper()
+                                    .readValue(
+                                            response.getContent().trim(), EventLogResponse.class);
+                    if (resp.getResult() == 0) {
+                        // node give an "OK" response, event log will be deleted
+                        logger.info(" unregister event success");
+                        filterManager.removeFilter(filter.getRegisterID());
+                    } else {
+                        logger.warn(" unregister event fail");
+                        filter.getCallback().onReceiveLog(resp.getResult(), null);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error(
+                        " unregister event response message exception, registerID: {}, exception message: {}",
+                        registerId,
+                        e.getMessage());
+                filter.getCallback()
+                        .onReceiveLog(EventSubNodeRespStatus.OTHER_ERROR.getStatus(), null);
             }
         }
     }
