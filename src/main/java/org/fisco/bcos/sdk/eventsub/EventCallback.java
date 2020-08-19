@@ -18,7 +18,6 @@ package org.fisco.bcos.sdk.eventsub;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.model.EventLog;
-import org.fisco.bcos.sdk.model.LogResult;
 
 /** Event callback */
 public abstract class EventCallback {
@@ -29,35 +28,28 @@ public abstract class EventCallback {
         return lastBlockNumber;
     }
 
-    public void updateCountsAndLatestBlock(List<LogResult> logs) {
+    public void updateCountsAndLatestBlock(List<EventLog> logs) {
         if (logs.isEmpty()) {
             return;
         }
-        LogResult latestOne = logs.get(logs.size() - 1);
+        EventLog latestOne = logs.get(logs.size() - 1);
         if (lastBlockNumber == null) {
-            lastBlockNumber = latestOne.getLog().getBlockNumber();
+            lastBlockNumber = latestOne.getBlockNumber();
             logCount += logs.size();
         } else {
-            if (latestOne.getLog().getBlockNumber().compareTo(lastBlockNumber) > 0) {
-                lastBlockNumber = latestOne.getLog().getBlockNumber();
+            if (latestOne.getBlockNumber().compareTo(lastBlockNumber) > 0) {
+                lastBlockNumber = latestOne.getBlockNumber();
                 logCount += logs.size();
             }
         }
     }
 
     /**
-     * according to the abi, decode the log.
-     *
-     * @param log log receive from peer
-     * @return decoded log result
-     */
-    public abstract LogResult decodeLog(EventLog log);
-
-    /**
-     * onReceiveLog called when sdk receive any response of the target subscription.
+     * onReceiveLog called when sdk receive any response of the target subscription. logs will be
+     * parsed by the user through the ABI module.
      *
      * @param status the status that peer response to sdk.
      * @param logs logs from the message.
      */
-    public abstract void onReceiveLog(int status, List<LogResult> logs);
+    public abstract void onReceiveLog(int status, List<EventLog> logs);
 }

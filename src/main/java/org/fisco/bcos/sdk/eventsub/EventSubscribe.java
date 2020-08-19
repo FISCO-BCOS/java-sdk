@@ -47,15 +47,17 @@ public interface EventSubscribe {
      *
      * @param params
      * @param callback
+     * @return RegisterId of event
      */
-    void subscribeEvent(EventLogParams params, EventCallback callback);
+    String subscribeEvent(EventLogParams params, EventCallback callback);
 
     /**
      * Unsubscribe events
      *
-     * @param filterID
+     * @param registerID
+     * @param callback
      */
-    void unsubscribeEvent(String filterID);
+    void unsubscribeEvent(String registerID, EventCallback callback);
 
     /**
      * Get all subscribed event.

@@ -58,8 +58,13 @@ public class FilterManager {
                 filter);
     }
 
+    public EventLogFilter getFilter(String registerId) {
+        return regId2Filter.get(registerId);
+    }
+
     public void removeFilter(String registerId) {
-        logger.info("remove filter");
+        logger.info("remove filter, registerID: {}", registerId);
+        regId2Filter.remove(registerId);
     }
 
     public void addCallback(String filterID, EventCallback callback) {

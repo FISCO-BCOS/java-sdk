@@ -70,6 +70,11 @@ public class ABICodec {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
+        if (abiDefinition == null) {
+            String errorMsg = " methodId " + methodId + " is invalid";
+            logger.error(errorMsg);
+            throw new ABICodecException(errorMsg);
+        }
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
@@ -121,6 +126,11 @@ public class ABICodec {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
+        if (abiDefinition == null) {
+            String errorMsg = " methodId " + methodId + " is invalid";
+            logger.error(errorMsg);
+            throw new ABICodecException(errorMsg);
+        }
 
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
@@ -268,6 +278,11 @@ public class ABICodec {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
+        if (abiDefinition == null) {
+            String errorMsg = " methodId " + methodId + " is invalid";
+            logger.error(errorMsg);
+            throw new ABICodecException(errorMsg);
+        }
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
@@ -315,7 +330,11 @@ public class ABICodec {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
-
+        if (abiDefinition == null) {
+            String errorMsg = " methodId " + methodId + " is invalid";
+            logger.error(errorMsg);
+            throw new ABICodecException(errorMsg);
+        }
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();

@@ -39,6 +39,7 @@ public enum MsgType {
      * filter register request and response message EVENT_LOG_PUSH:type of event log push message
      */
     CLIENT_REGISTER_EVENT_LOG(0x15),
+    CLIENT_UNREGISTER_EVENT_LOG(0x16),
     EVENT_LOG_PUSH(0x1002),
 
     /**
