@@ -53,6 +53,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +133,7 @@ public class ConnectionManager {
     }
 
     public void stopReconnectSchedule() {
-        reconnSchedule.shutdown();
+        ThreadPoolService.stopThreadPool(reconnSchedule);
     }
 
     public void stopNetty() {
@@ -287,7 +288,6 @@ public class ConnectionManager {
             if (Objects.isNull(connectFuture.cause())) {
                 logger.error("connect to {}:{} failed. ", connInfo.getIp(), connInfo.getPort());
             } else {
-                connectFuture.cause().printStackTrace();
                 logger.error(
                         "connect to {}:{} failed. {}",
                         connInfo.getIp(),

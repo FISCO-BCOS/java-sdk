@@ -20,6 +20,8 @@ import java.util.Map;
 public class Entry {
     private Map<String, String> fieldNameToValue = new HashMap<>();
 
+    public Entry() {}
+
     public Entry(Map<String, String> fieldNameToValue) {
         this.fieldNameToValue = fieldNameToValue;
     }

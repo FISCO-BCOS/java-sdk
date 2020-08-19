@@ -144,4 +144,6 @@ public interface GroupManagerService {
     Integer getCryptoType(String peerInfo);
 
     ConfigOption getConfig();
+
+    void stop();
 }

@@ -359,6 +359,11 @@ public interface Client {
             BigInteger transactionIndex,
             RespCallback<BcosTransaction> callback);
 
+    BcosTransaction getTransactionByBlockHashAndIndex(
+            String blockHash, BigInteger transactionIndex);
+
+    void getTransactionByBlockHashAndIndexAsync(
+            String blockHash, BigInteger transactionIndex, RespCallback<BcosTransaction> callback);
     /**
      * Ledger operation: get transaction receipt by transaction hash
      *

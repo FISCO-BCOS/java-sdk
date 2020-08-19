@@ -34,6 +34,9 @@ public class ReceiptParser {
                 String output = receipt.getOutput();
                 int statusValue =
                         new BigInteger(output.substring(2, output.length()), 16).intValue();
+                if (receipt.getMessage() == null || receipt.getMessage().equals("")) {
+                    receipt.setMessage(PrecompiledRetCode.CODE_SUCCESS.getMessage());
+                }
                 return PrecompiledRetCode.getPrecompiledResponse(statusValue, receipt.getMessage());
             }
         } catch (NumberFormatException e) {
@@ -64,7 +67,9 @@ public class ReceiptParser {
                                             .substring(2, callResult.getOutput().length()),
                                     16)
                             .intValue();
-            RetCode ret = PrecompiledRetCode.getPrecompiledResponse(statusValue, "");
+            RetCode ret =
+                    PrecompiledRetCode.getPrecompiledResponse(
+                            statusValue, PrecompiledRetCode.CODE_SUCCESS.getMessage());
             return new ContractException(ret.getMessage(), ret.getCode());
         } catch (Exception e) {
             return new ContractException(exception.getMessage(), e);

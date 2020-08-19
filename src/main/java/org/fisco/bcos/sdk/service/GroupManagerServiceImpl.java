@@ -328,19 +328,18 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         return this.channel;
     }
 
-    protected void finalize() {
-        stop();
-    }
-
     /** Stop group list fetching thread */
-    protected void stop() {
+    @Override
+    public void stop() {
         if (!running.get()) {
             logger.warn("GroupManagerService has already been stopped!");
             return;
         }
         logger.debug("stop GroupManagerService...");
+        timeoutHandler.stop();
         ThreadPoolService.stopThreadPool(scheduledExecutorService);
         threadPool.stop();
+        logger.debug("stop GroupManagerService succ...");
         running.set(false);
     }
 

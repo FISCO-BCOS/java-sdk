@@ -45,6 +45,7 @@ import org.fisco.bcos.sdk.network.NetworkException;
 import org.fisco.bcos.sdk.network.NetworkImp;
 import org.fisco.bcos.sdk.utils.ChannelUtils;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
+import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,8 +133,11 @@ public class ChannelImp implements Channel {
 
     @Override
     public void stop() {
-        scheduledExecutorService.shutdownNow();
+        logger.debug("stop channel...");
+        timeoutHandler.stop();
+        ThreadPoolService.stopThreadPool(scheduledExecutorService);
         network.stop();
+        logger.debug("stop channel succ...");
     }
 
     @Override
