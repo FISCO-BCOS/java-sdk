@@ -18,13 +18,13 @@ package org.fisco.bcos.sdk.eventsub;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.config.ConfigException;
 import org.fisco.bcos.sdk.model.EventLog;
-import org.fisco.bcos.sdk.model.LogResult;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class SubscribeTest {
     private static final String configFile = SubscribeTest.class.getClassLoader().getResource("config-example.yaml").getPath();
@@ -43,20 +43,47 @@ public class SubscribeTest {
         eventLogParams1.setAddresses(new ArrayList<String>());
         eventLogParams1.setTopics(new ArrayList<Object>());
 
-        EventCallback eventCallback = new EventCallback() {
+        class SubscribeCallback extends EventCallback {
+            public transient Semaphore semaphore = new Semaphore(1, true);
+
+            SubscribeCallback() {
+                try {
+                    semaphore.acquire(1);
+                } catch (InterruptedException e) {
+                    logger.error("error :", e);
+                    Thread.currentThread().interrupt();
+                }
+            }
+
             @Override
             public void onReceiveLog(int status, List<EventLog> logs) {
                 String str = "status in onReceiveLog : " + status;
                 logger.debug(str);
+                semaphore.release();
+            }
+        }
+
+        logger.info("subscribe event");
+        SubscribeCallback subscribeEventCallback1 = new SubscribeCallback();
+        String registerId1 = eventSubscribe.subscribeEvent(eventLogParams1, subscribeEventCallback1);
+        try {
+            subscribeEventCallback1.semaphore.acquire(1);
+            logger.info("subscribe successful, registerId is " + registerId1);
+        } catch (InterruptedException e) {
+            logger.error("system error:", e);
+            Thread.currentThread().interrupt();
+        }
+
+        logger.info("unregister event");
+        EventCallback callback = new EventCallback() {
+            @Override
+            public void onReceiveLog(int status, List<EventLog> logs) {
+                Assert.assertEquals(status, 0);
             }
         };
-        eventSubscribe.subscribeEvent(eventLogParams1, eventCallback);
+        eventSubscribe.unsubscribeEvent(registerId1, callback);
 
-        try {
-            Thread.sleep(6000);
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage());
-        }
         eventSubscribe.stop();
+        sdk.getChannel().stop();
     }
 }

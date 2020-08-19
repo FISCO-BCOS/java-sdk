@@ -288,6 +288,8 @@ public class ABICodecTest {
                     + "000000000000000000000000000000000000000000000000000000000000000c"
                     + "48656c6c6f20776f726c64210000000000000000000000000000000000000000";
 
+    private String encodedWithMethodId = "0x00a3c75d" + encoded;
+
     @Test
     public void testEncodeFromString() {
         List<String> args = new ArrayList<String>();
@@ -317,8 +319,10 @@ public class ABICodecTest {
         try {
             // Method
             // encode
-            Assert.assertEquals(encoded, abiCodec.encodeMethodFromString(abiDesc, "test", args));
-            Assert.assertEquals(encoded, abiCodec.encodeMethod(abiDesc, "test", argsObjects));
+            Assert.assertEquals(
+                    encodedWithMethodId, abiCodec.encodeMethodFromString(abiDesc, "test", args));
+            Assert.assertEquals(
+                    encodedWithMethodId, abiCodec.encodeMethod(abiDesc, "test", argsObjects));
             // decode
             ContractABIDefinition contractABIDefinition = Utils.getContractABIDefinition(abiDesc);
             ABIObject inputObject =
@@ -326,24 +330,25 @@ public class ABICodecTest {
                             contractABIDefinition.getFunctions().get("test").get(0));
             ABICodecObject abiCodecObject = new ABICodecObject();
             List<Object> abiObjects = abiCodecObject.decodeJavaObject(inputObject, encoded);
-            Assert.assertEquals(encoded, abiCodec.encodeMethod(abiDesc, "test", abiObjects));
+            Assert.assertEquals(
+                    encodedWithMethodId, abiCodec.encodeMethod(abiDesc, "test", abiObjects));
             // MethodById String & JavaObject
             ABIDefinition test = contractABIDefinition.getFunctions().get("test").get(0);
             Assert.assertEquals(
-                    encoded,
+                    encodedWithMethodId,
                     abiCodec.encodeMethodByIdFromString(
                             abiDesc, test.getMethodId(Utils.getCryptoInterface()), args));
             Assert.assertEquals(
-                    encoded,
+                    encodedWithMethodId,
                     abiCodec.encodeMethodById(
                             abiDesc, test.getMethodId(Utils.getCryptoInterface()), abiObjects));
             // MethodByInterface String & JavaObject
             Assert.assertEquals(
-                    encoded,
+                    encodedWithMethodId,
                     abiCodec.encodeMethodByInterfaceFromString(
                             abiDesc, test.getMethodSignatureAsString(), args));
             Assert.assertEquals(
-                    encoded,
+                    encodedWithMethodId,
                     abiCodec.encodeMethodByInterface(
                             abiDesc, test.getMethodSignatureAsString(), abiObjects));
         } catch (ABICodecException e) {

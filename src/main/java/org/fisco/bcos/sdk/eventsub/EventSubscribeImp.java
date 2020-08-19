@@ -221,10 +221,10 @@ public class EventSubscribeImp implements EventSubscribe {
                                 filter.getFilterID());
                     } else {
                         // node give a bad response, will not push event log, trigger callback
-                        filter.getCallback().onReceiveLog(resp.getResult(), null);
                         filterManager.removeFilter(registerID);
                         filterManager.removeCallback(filterID);
                     }
+                    filter.getCallback().onReceiveLog(resp.getResult(), null);
                 } else {
                     filterManager.updateFilterStatus(
                             filter, EventLogFilterStatus.WAITING_REQUEST, null);

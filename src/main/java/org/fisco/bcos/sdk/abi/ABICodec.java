@@ -53,7 +53,8 @@ public class ABICodec {
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
                 ABICodecObject abiCodecObject = new ABICodecObject();
                 try {
-                    return abiCodecObject.encodeValue(inputABIObject, params).encode();
+                    String methodId = abiDefinition.getMethodId(cryptoInterface);
+                    return methodId + abiCodecObject.encodeValue(inputABIObject, params).encode();
                 } catch (Exception e) {
                     logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
                 }
@@ -79,7 +80,7 @@ public class ABICodec {
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
-            return abiCodecObject.encodeValue(inputABIObject, params).encode();
+            return methodId + abiCodecObject.encodeValue(inputABIObject, params).encode();
         } catch (Exception e) {
             logger.error(" exception in encodeMethodByIdFromObject : {}", e.getMessage());
         }
@@ -109,7 +110,8 @@ public class ABICodec {
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
                 ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
                 try {
-                    return abiCodecJsonWrapper.encode(inputABIObject, params).encode();
+                    String methodId = abiDefinition.getMethodId(cryptoInterface);
+                    return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
                 } catch (IOException e) {
                     logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
                 }
@@ -136,7 +138,7 @@ public class ABICodec {
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         try {
-            return abiCodecJsonWrapper.encode(inputABIObject, params).encode();
+            return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
         } catch (IOException e) {
             logger.error(" exception in encodeMethodByIdFromString : {}", e.getMessage());
         }
