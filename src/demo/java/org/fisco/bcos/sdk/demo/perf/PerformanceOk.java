@@ -17,8 +17,8 @@ import com.google.common.util.concurrent.RateLimiter;
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.fisco.bcos.sdk.BcosSDK;
+import org.fisco.bcos.sdk.BcosSDKException;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.config.ConfigException;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.demo.perf.callback.PerformanceCallback;
 import org.fisco.bcos.sdk.demo.perf.collector.PerformanceCollector;
@@ -106,7 +106,7 @@ public class PerformanceOk {
                 Thread.sleep(1000);
             }
             threadPoolService.stop();
-        } catch (ConfigException | ContractException | InterruptedException e) {
+        } catch (BcosSDKException | ContractException | InterruptedException e) {
             System.out.println(
                     "====== PerformanceOk test failed, error message: " + e.getMessage());
         }

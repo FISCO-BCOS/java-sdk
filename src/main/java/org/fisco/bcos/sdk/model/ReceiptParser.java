@@ -29,7 +29,7 @@ public class ReceiptParser {
             if (!"0x0".equals(status)) {
                 RetCode retCode =
                         TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
-                throw new ContractException(retCode.getMessage());
+                throw new ContractException(retCode.getMessage(), retCode.getCode());
             } else {
                 String output = receipt.getOutput();
                 int statusValue =
@@ -53,26 +53,24 @@ public class ReceiptParser {
         if (callResult == null) {
             return new ContractException(exception.getMessage(), exception);
         }
-        try {
-            if (!callResult.getStatus().equals("0x0")) {
-                RetCode retCode =
-                        TransactionReceiptStatus.getStatusMessage(
-                                callResult.getStatus(), exception.getMessage());
-                return new ContractException(retCode.getMessage(), retCode.getCode());
-            }
-            int statusValue =
-                    new BigInteger(
-                                    callResult
-                                            .getOutput()
-                                            .substring(2, callResult.getOutput().length()),
-                                    16)
-                            .intValue();
-            RetCode ret =
-                    PrecompiledRetCode.getPrecompiledResponse(
-                            statusValue, PrecompiledRetCode.CODE_SUCCESS.getMessage());
-            return new ContractException(ret.getMessage(), ret.getCode());
-        } catch (Exception e) {
-            return new ContractException(exception.getMessage(), e);
+        RetCode retCode = parseCallOutput(callResult, exception.getMessage());
+        return new ContractException(retCode.getMessage(), retCode.getCode());
+    }
+
+    public static RetCode parseCallOutput(Call.CallOutput callResult, String message) {
+        if (!callResult.getStatus().equals("0x0")) {
+            return TransactionReceiptStatus.getStatusMessage(callResult.getStatus(), message);
         }
+        int statusValue =
+                new BigInteger(
+                                callResult
+                                        .getOutput()
+                                        .substring(2, callResult.getOutput().length()),
+                                16)
+                        .intValue();
+        RetCode ret =
+                PrecompiledRetCode.getPrecompiledResponse(
+                        statusValue, PrecompiledRetCode.CODE_SUCCESS.getMessage());
+        return new RetCode(ret.getCode(), ret.getMessage());
     }
 }

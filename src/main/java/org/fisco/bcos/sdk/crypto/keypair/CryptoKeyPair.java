@@ -208,24 +208,35 @@ public abstract class CryptoKeyPair {
     }
 
     public String getPemKeyStoreFilePath() {
-        pemKeyStoreFilePath = getKeyStoreFilePath(pemKeyStoreFilePath, PEM_FILE_POSTFIX);
+        if (!pemKeyStoreFilePath.equals("")) {
+            return pemKeyStoreFilePath;
+        }
+        pemKeyStoreFilePath = getPemKeyStoreFilePath(getAddress());
         return pemKeyStoreFilePath;
     }
 
+    public String getPemKeyStoreFilePath(String address) {
+        return getKeyStoreFilePath(address, PEM_FILE_POSTFIX);
+    }
+
+    public String getP12KeyStoreFilePath(String address) {
+        return getKeyStoreFilePath(address, P12_FILE_POSTFIX);
+    }
+
     public String getP12KeyStoreFilePath() {
-        p12KeyStoreFilePath = getKeyStoreFilePath(p12KeyStoreFilePath, P12_FILE_POSTFIX);
+        if (!p12KeyStoreFilePath.equals("")) {
+            return p12KeyStoreFilePath;
+        }
+        p12KeyStoreFilePath = getP12KeyStoreFilePath(getAddress());
         return p12KeyStoreFilePath;
     }
 
-    protected String getKeyStoreFilePath(String keyStoreFilePath, String postFix) {
-        if (!keyStoreFilePath.equals("")) {
-            return keyStoreFilePath;
-        }
+    protected String getKeyStoreFilePath(String address, String postFix) {
         String keyStoreFileDir = "account";
         if (config != null) {
             keyStoreFileDir = config.getKeystoreDir();
         }
         keyStoreFileDir = keyStoreFileDir + File.separator + keyStoreSubDir + File.separator;
-        return keyStoreFileDir + File.separator + getAddress() + postFix;
+        return keyStoreFileDir + File.separator + address + postFix;
     }
 }

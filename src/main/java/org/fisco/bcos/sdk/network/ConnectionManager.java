@@ -92,9 +92,9 @@ public class ConnectionManager {
             return;
         }
         logger.debug(" start connect. ");
-
         /** init netty * */
         initNetty();
+        running = true;
 
         /** try connection */
         List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
@@ -119,7 +119,6 @@ public class ConnectionManager {
             logger.error(" all connections have failed, {} ", errorMessageList);
             throw new NetworkException(" Failed to connect to nodes: " + errorMessageList);
         }
-        running = true;
         logger.debug(" start connect end. ");
     }
 

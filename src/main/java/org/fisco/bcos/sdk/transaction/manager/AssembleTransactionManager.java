@@ -27,7 +27,11 @@ import org.fisco.bcos.sdk.abi.tools.ContractAbiUtil;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
+import org.fisco.bcos.sdk.contract.exceptions.ContractException;
+import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.ReceiptParser;
+import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.SolidityConstructor;
 import org.fisco.bcos.sdk.model.SolidityFunction;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -101,9 +105,12 @@ public class AssembleTransactionManager extends TransactionManager
     @Override
     public TransactionResponse deployAndGetResponse(String abi, String signedData) {
         TransactionReceipt receipt = transactionPusher.push(signedData);
-        try {
-            TransactionResponse response = transactionDecoder.decodeEvents(abi, receipt);
+        TransactionResponse response = parseExceptionedReceipt(receipt);
+        if (response != null) {
             return response;
+        }
+        try {
+            return transactionDecoder.decodeEvents(abi, receipt);
         } catch (TransactionBaseException | TransactionException | IOException e) {
             log.error("deploy exception: {}", e.getMessage());
             return new TransactionResponse(
@@ -160,6 +167,10 @@ public class AssembleTransactionManager extends TransactionManager
             throws TransactionBaseException {
         String signedData = createSignedTransaction(to, data);
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
+        TransactionResponse response = parseExceptionedReceipt(receipt);
+        if (response != null) {
+            return response;
+        }
         try {
             return transactionDecoder.decodeEventsAndValues(abi, receipt);
         } catch (TransactionBaseException | TransactionException | IOException e) {
@@ -281,6 +292,10 @@ public class AssembleTransactionManager extends TransactionManager
     @Override
     public CallResponse sendCall(CallRequest callRequest) throws TransactionBaseException {
         Call call = executeCall(callRequest);
+        CallResponse callResponse = parseCallResponse(call.getCallResult());
+        if (callResponse != null) {
+            return callResponse;
+        }
         String callOutput = call.getCallResult().getOutput();
         ABIDefinition ad = callRequest.getAbi();
         List<TypeReference<Type>> list =
@@ -289,7 +304,7 @@ public class AssembleTransactionManager extends TransactionManager
                         .map(l -> (TypeReference<Type>) l)
                         .collect(Collectors.toList());
         List<Type> values = FunctionReturnDecoder.decode(callOutput, list);
-        CallResponse callResponse = new CallResponse();
+        callResponse = new CallResponse();
         if (CollectionUtils.isEmpty(values)) {
             return callResponse;
         }
@@ -318,5 +333,37 @@ public class AssembleTransactionManager extends TransactionManager
                     "Wrong transaction type, actually it's a call");
         }
         return functionEncoder.encode(solidityFunction.getFunction());
+    }
+
+    private TransactionResponse parseExceptionedReceipt(TransactionReceipt receipt) {
+        if (receipt.getStatus().equals("0x0")) {
+            return null;
+        }
+        RetCode retCode = null;
+        try {
+            retCode = ReceiptParser.parsePrecompiledReceipt(receipt);
+        } catch (ContractException exception) {
+            retCode = new RetCode(exception.getErrorCode(), exception.getMessage());
+        }
+        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            return null;
+        }
+        TransactionResponse response = new TransactionResponse();
+        response.setReceiptMessages(retCode.getMessage());
+        response.setReturnCode(retCode.getCode());
+        response.setTransactionReceipt(receipt);
+        response.setReturnMessage(retCode.getMessage());
+        return response;
+    }
+
+    private CallResponse parseCallResponse(Call.CallOutput callOutput) {
+        RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
+        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            return null;
+        }
+        CallResponse callResponse = new CallResponse();
+        callResponse.setReturnCode(retCode.getCode());
+        callResponse.setReturnMessage(retCode.getMessage());
+        return callResponse;
     }
 }
