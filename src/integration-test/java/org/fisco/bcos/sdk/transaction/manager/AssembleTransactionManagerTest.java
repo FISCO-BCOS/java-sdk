@@ -24,6 +24,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.EventResultEntity;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.bo.InputAndOutputResult;
@@ -149,15 +150,21 @@ public class AssembleTransactionManagerTest {
         CallResponse callResponse1 =
                 manager.sendCallByContractLoader("ComplexSol", contractAddress, "_intV", new ArrayList<>());
         // System.out.println(JsonUtils.toJson(callResponse1));
-        List<ResultEntity> entities = JsonUtils.fromJsonList(callResponse1.getValues(), ResultEntity.class);
-        Assert.assertEquals(entities.size(), 1);
-        Assert.assertEquals(entities.get(0).getData(), 1);
+        System.out.println("callResponse1 : " + callResponse1.getReturnMessage());
+        if(callResponse1.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            List<ResultEntity> entities = JsonUtils.fromJsonList(callResponse1.getValues(), ResultEntity.class);
+            Assert.assertEquals(entities.size(), 1);
+            Assert.assertEquals(entities.get(0).getData(), 1);
+        }
         CallResponse callResponse2 =
                 manager.sendCallByContractLoader("ComplexSol", contractAddress, "_s", new ArrayList<>());
-        // System.out.println(JsonUtils.toJson(callResponse2));
-        List<ResultEntity> entities2 = JsonUtils.fromJsonList(callResponse2.getValues(), ResultEntity.class);
-        Assert.assertEquals(entities2.size(), 1);
-        Assert.assertEquals(entities2.get(0).getData(), "test2");
+        System.out.println("callResponse2 : " + callResponse2.getReturnMessage());
+        if(callResponse2.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            // System.out.println(JsonUtils.toJson(callResponse2));
+            List<ResultEntity> entities2 = JsonUtils.fromJsonList(callResponse2.getValues(), ResultEntity.class);
+            Assert.assertEquals(entities2.size(), 1);
+            Assert.assertEquals(entities2.get(0).getData(), "test2");
+        }
     }
 
     @Test

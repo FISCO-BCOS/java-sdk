@@ -13,7 +13,6 @@
  */
 package org.fisco.bcos.sdk.crypto;
 
-import java.io.File;
 import java.security.KeyPair;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
@@ -87,15 +86,16 @@ public class CryptoInterface {
     }
 
     private void loadAccount(ConfigOption configOption) {
-        String accountFilePath =
-                configOption.getKeystoreDir() + File.separator + configOption.getAccountName();
         KeyManager keyManager;
         if (configOption.getAccountFileFormat().compareToIgnoreCase("p12") == 0) {
-            accountFilePath = accountFilePath + CryptoKeyPair.P12_FILE_POSTFIX;
-            keyManager = new P12Manager(accountFilePath, configOption.getPassword());
+            keyManager =
+                    new P12Manager(
+                            keyPairFactory.getP12KeyStoreFilePath(configOption.getAccountName()),
+                            configOption.getPassword());
         } else if (configOption.getAccountFileFormat().compareToIgnoreCase("pem") == 0) {
-            accountFilePath = accountFilePath + CryptoKeyPair.PEM_FILE_POSTFIX;
-            keyManager = new PEMManager(accountFilePath);
+            keyManager =
+                    new PEMManager(
+                            keyPairFactory.getPemKeyStoreFilePath(configOption.getAccountName()));
         } else {
             throw new LoadKeyStoreException(
                     "unsupported account file format : "
@@ -107,6 +107,7 @@ public class CryptoInterface {
 
     public void setConfig(ConfigOption config) {
         this.config = config;
+        this.keyPairFactory.setConfig(config);
     }
 
     public int getCryptoTypeConfig() {

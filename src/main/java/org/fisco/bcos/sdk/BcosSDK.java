@@ -13,6 +13,7 @@
  */
 package org.fisco.bcos.sdk;
 
+import io.netty.channel.ChannelException;
 import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.channel.Channel;
@@ -39,30 +40,35 @@ public class BcosSDK {
     private Amop amop;
     private ThreadPoolService threadPoolService;
 
-    public BcosSDK(String configPath) throws ConfigException {
-        logger.info("create BcosSDK, configPath: {}", configPath);
-        // load configuration file
-        this.config = Config.load(configPath);
-        logger.info("create BcosSDK, load configPath: {} succ", configPath);
-        // create channel
-        this.channel = Channel.build(this.config);
-        threadPoolService =
-                new ThreadPoolService(
-                        "channelProcessor", this.config.getChannelProcessorThreadSize());
-        channel.setThreadPool(threadPoolService.getThreadPool());
-        this.channel.start();
-        logger.info("create BcosSDK, start channel succ");
-        if (!waitForEstablishConnection()) {
-            logger.error("create BcosSDK failed for the number of available peers is 0");
-            throw new BcosSDKException(
-                    "create BcosSDK failed for the number of available peers is 0");
+    public BcosSDK(String configPath) throws BcosSDKException {
+        try {
+            logger.info("create BcosSDK, configPath: {}", configPath);
+            // load configuration file
+            this.config = Config.load(configPath);
+            logger.info("create BcosSDK, load configPath: {} succ", configPath);
+            // create channel
+            this.channel = Channel.build(this.config);
+            this.channel.start();
+            threadPoolService =
+                    new ThreadPoolService(
+                            "channelProcessor", this.config.getChannelProcessorThreadSize());
+            channel.setThreadPool(threadPoolService.getThreadPool());
+            logger.info("create BcosSDK, start channel succ");
+            if (!waitForEstablishConnection()) {
+                logger.error("create BcosSDK failed for the number of available peers is 0");
+                throw new BcosSDKException(
+                        "create BcosSDK failed for the number of available peers is 0");
+            }
+            // create GroupMangerService
+            this.groupManagerService = new GroupManagerServiceImpl(this.channel, this.config);
+            logger.info("create BcosSDK, create groupManagerService success");
+            // init amop
+            amop = Amop.build(groupManagerService, config);
+            logger.info("create BcosSDK, create Amop success");
+        } catch (ChannelException | ConfigException e) {
+            stopAll();
+            throw new BcosSDKException("create BcosSDK failed, error info: " + e.getMessage(), e);
         }
-        // create GroupMangerService
-        this.groupManagerService = new GroupManagerServiceImpl(this.channel, this.config);
-        logger.info("create BcosSDK, create groupManagerService success");
-        // init amop
-        amop = Amop.build(groupManagerService, config);
-        logger.info("create BcosSDK, create Amop success");
     }
 
     private boolean waitForEstablishConnection() {
@@ -112,8 +118,14 @@ public class BcosSDK {
     }
 
     public void stopAll() {
-        this.channel.stop();
-        this.threadPoolService.stop();
-        this.groupManagerService.stop();
+        if (this.channel != null) {
+            this.channel.stop();
+        }
+        if (this.threadPoolService != null) {
+            this.threadPoolService.stop();
+        }
+        if (this.groupManagerService != null) {
+            this.groupManagerService.stop();
+        }
     }
 }
