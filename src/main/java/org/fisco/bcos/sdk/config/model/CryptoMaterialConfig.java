@@ -27,12 +27,13 @@ public class CryptoMaterialConfig {
     private String sdkPrivateKeyPath;
     private String enSSLCertPath;
     private String enSSLPrivateKeyPath;
-    private String sslCryptoType;
+    private int sslCryptoType;
 
     protected CryptoMaterialConfig() {}
 
     public CryptoMaterialConfig(ConfigProperty configProperty, int cryptoType)
             throws ConfigException {
+        this.sslCryptoType = cryptoType;
         Map<String, String> cryptoMaterialProperty = configProperty.getCryptoMaterial();
         this.certPath = ConfigProperty.getValue(cryptoMaterialProperty, "certPath", this.certPath);
         CryptoMaterialConfig defaultCryptoMaterialConfig =
@@ -60,7 +61,7 @@ public class CryptoMaterialConfig {
         this.enSSLPrivateKeyPath =
                 ConfigProperty.getValue(
                         cryptoMaterialProperty,
-                        "enSslCert",
+                        "enSslKey",
                         defaultCryptoMaterialConfig.getEnSSLPrivateKeyPath());
         checkCryptoMaterial(cryptoType);
     }
@@ -181,5 +182,13 @@ public class CryptoMaterialConfig {
 
     public void setEnSSLPrivateKeyPath(String enSSLPrivateKeyPath) {
         this.enSSLPrivateKeyPath = enSSLPrivateKeyPath;
+    }
+
+    public int getSslCryptoType() {
+        return sslCryptoType;
+    }
+
+    public void setSslCryptoType(int sslCryptoType) {
+        this.sslCryptoType = sslCryptoType;
     }
 }

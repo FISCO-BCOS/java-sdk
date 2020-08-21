@@ -53,6 +53,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,37 +65,30 @@ import org.slf4j.LoggerFactory;
  */
 public class ConnectionManager {
     private static Logger logger = LoggerFactory.getLogger(ConnectionManager.class);
-    private ConfigOption configOps;
     private ChannelHandler channelHandler;
     private List<ConnectionInfo> connectionInfoList = new ArrayList<ConnectionInfo>();
     private Map<String, ChannelHandlerContext> availableConnections = new HashMap<>();
     private EventLoopGroup workerGroup;
     private Boolean running = false;
     private Bootstrap bootstrap = new Bootstrap();
-    private String algorithm = "ecdsa";
     private ScheduledExecutorService reconnSchedule = new ScheduledThreadPoolExecutor(1);
 
-    public ConnectionManager(ConfigOption configOps, MsgHandler msgHandler) {
-        this.configOps = configOps;
-        for (String peerIpPort : configOps.getNetworkConfig().getPeers()) {
+    public ConnectionManager(ConfigOption configOption, MsgHandler msgHandler) {
+        for (String peerIpPort : configOption.getNetworkConfig().getPeers()) {
             connectionInfoList.add(new ConnectionInfo(peerIpPort));
         }
-        /*
-        if (Objects.nonNull(configOps.getAlgorithm()) && "sm".equals(configOps.getAlgorithm())) {
-            this.algorithm = "sm";
-        }*/
         channelHandler = new ChannelHandler(this, msgHandler);
         logger.info(" all connections: {}", connectionInfoList);
     }
 
-    public void startConnect() throws NetworkException {
+    public void startConnect(ConfigOption configOption) throws NetworkException {
         if (running) {
             logger.debug("running");
             return;
         }
         logger.debug(" start connect. ");
         /** init netty * */
-        initNetty();
+        initNetty(configOption);
         running = true;
 
         /** try connection */
@@ -195,19 +189,20 @@ public class ConnectionManager {
         return availableConnections.get(peer);
     }
 
-    private SslContext initSslContext() throws NetworkException {
+    private SslContext initSslContext(ConfigOption configOption) throws NetworkException {
         try {
             Security.setProperty("jdk.disabled.namedCurves", "");
             // Get file, file existence is already checked when check config file.
             FileInputStream caCert =
                     new FileInputStream(
-                            new File(configOps.getCryptoMaterialConfig().getCertPath()));
+                            new File(configOption.getCryptoMaterialConfig().getCaCertPath()));
             FileInputStream sslCert =
                     new FileInputStream(
-                            new File(configOps.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
+                            new File(configOption.getCryptoMaterialConfig().getSdkCertPath()));
             FileInputStream sslKey =
                     new FileInputStream(
-                            new File(configOps.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
+                            new File(
+                                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
 
             // Init SslContext
             logger.info(" build ECDSA ssl context with configured certificates ");
@@ -221,29 +216,34 @@ public class ConnectionManager {
             return sslCtx;
         } catch (FileNotFoundException | SSLException e) {
             throw new NetworkException(
-                    "SSL context init failed, please make sure your cert and key files are properly configured. ",
+                    "SSL context init failed, please make sure your cert and key files are properly configured. error info: "
+                            + e.getMessage(),
                     e);
         }
     }
 
-    private SslContext initSMSslContext() throws NetworkException {
+    private SslContext initSMSslContext(ConfigOption configOption) throws NetworkException {
         try {
             // Get file, file existence is already checked when check config file.
             FileInputStream caCert =
                     new FileInputStream(
-                            new File(configOps.getCryptoMaterialConfig().getCertPath()));
+                            new File(configOption.getCryptoMaterialConfig().getCaCertPath()));
             FileInputStream sslCert =
                     new FileInputStream(
-                            new File(configOps.getCryptoMaterialConfig().getSdkCertPath()));
+                            new File(configOption.getCryptoMaterialConfig().getSdkCertPath()));
             FileInputStream sslKey =
                     new FileInputStream(
-                            new File(configOps.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
+                            new File(
+                                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
             FileInputStream enCert =
                     new FileInputStream(
-                            new File(configOps.getCryptoMaterialConfig().getEnSSLCertPath()));
+                            new File(configOption.getCryptoMaterialConfig().getEnSSLCertPath()));
             FileInputStream enKey =
                     new FileInputStream(
-                            new File(configOps.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()));
+                            new File(
+                                    configOption
+                                            .getCryptoMaterialConfig()
+                                            .getEnSSLPrivateKeyPath()));
 
             // Init SslContext
             logger.info(" build SM ssl context with configured certificates ");
@@ -254,19 +254,24 @@ public class ConnectionManager {
                 | InvalidKeySpecException
                 | NoSuchProviderException e) {
             throw new NetworkException(
-                    "SSL context init failed, please make sure your cert and key files are properly configured. ",
+                    "SSL context init failed, please make sure your cert and key files are properly configured. error info: "
+                            + e.getMessage(),
                     e);
         }
     }
 
-    private void initNetty() throws NetworkException {
+    private void initNetty(ConfigOption configOption) throws NetworkException {
         workerGroup = new NioEventLoopGroup();
         bootstrap.group(workerGroup);
         bootstrap.channel(NioSocketChannel.class);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
         // set connection timeout
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeoutConfig.connectTimeout);
-        SslContext sslContext = (algorithm.equals("ecdsa") ? initSslContext() : initSMSslContext());
+        int sslCryptoType = configOption.getCryptoMaterialConfig().getSslCryptoType();
+        SslContext sslContext =
+                (sslCryptoType == CryptoInterface.ECDSA_TYPE
+                        ? initSslContext(configOption)
+                        : initSMSslContext(configOption));
         SslContext finalSslContext = sslContext;
         ChannelInitializer<SocketChannel> initializer =
                 new ChannelInitializer<SocketChannel>() {

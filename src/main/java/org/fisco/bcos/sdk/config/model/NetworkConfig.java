@@ -21,7 +21,7 @@ import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.utils.Host;
 
 public class NetworkConfig {
-    List<String> peers;
+    private List<String> peers;
 
     public NetworkConfig(ConfigProperty configProperty) throws ConfigException {
         peers = configProperty.getPeers();

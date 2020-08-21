@@ -17,7 +17,7 @@ package org.fisco.bcos.sdk.amop;
 
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.BcosSDKTest;
-import org.fisco.bcos.sdk.config.ConfigException;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.junit.Assert;
 import org.junit.Test;
 

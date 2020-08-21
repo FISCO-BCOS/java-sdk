@@ -35,7 +35,7 @@ import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
 import org.fisco.bcos.sdk.channel.model.HeartBeatParser;
 import org.fisco.bcos.sdk.channel.model.NodeHeartbeat;
 import org.fisco.bcos.sdk.channel.model.Options;
-import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -68,9 +68,14 @@ public class ChannelImp implements Channel {
     private long heartBeatDelay = (long) 2000;
     private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
-    public ChannelImp(ConfigOption config) {
+    public ChannelImp(String configFilePath) throws ConfigException {
         msgHandler = new ChannelMsgHandler();
-        network = new NetworkImp(config, msgHandler);
+        network = new NetworkImp(configFilePath, msgHandler);
+    }
+
+    @Override
+    public Network getNetwork() {
+        return this.network;
     }
 
     @Override

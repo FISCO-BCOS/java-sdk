@@ -46,7 +46,6 @@ prepare_environment()
 
   local node_type="${1}"
   if [ "${node_type}" == "sm" ];then
-    cp src/test/resources/smconfig-example.yaml src/integration-test/resources/config-example.yaml
     rm -rf src/integration-test/resources/abi
     rm -rf src/integration-test/resources/bin
     cp -r src/test/resources/gm/abi src/integration-test/resources/abi
