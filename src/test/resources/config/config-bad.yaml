@@ -3,11 +3,6 @@ cryptoMateral:
   caCert: cryptopath/ca.crt
   sslCert: cryptopath/sdk.crt
   sslKey: cryptopath/sdk.key
-peers:
-  - "127.0.0.1:20200"
-  - "127.0.0.1:20208"
-  - "127.0.0.1:20203"
-  - "127.0.0.1:20201"
 AMOPKeys:
   - topicName: t1  #认证Topic发送者配置方法
     publicKeys:

@@ -16,9 +16,13 @@
 package org.fisco.bcos.sdk.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
-import java.util.Map;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.config.model.AccountConfig;
+import org.fisco.bcos.sdk.config.model.AmopConfig;
+import org.fisco.bcos.sdk.config.model.ConfigProperty;
+import org.fisco.bcos.sdk.config.model.CryptoMaterialConfig;
+import org.fisco.bcos.sdk.config.model.NetworkConfig;
+import org.fisco.bcos.sdk.config.model.ThreadPoolConfig;
 
 /**
  * ConfigOption is the java object of the config file.
@@ -27,126 +31,62 @@ import java.util.Map;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigOption {
-    public static String KEYSTORE_DIR = "keyStoreDir";
-    public static String ACCOUNT_NAME = "accountName";
-    public static String PASSWORD = "password";
-    public static String ACCOUNT_FILE_FORMAT = "accountFileFormat";
-    public static String CHANNEL_PROCESSOR_THREAD_SIZE = "channelProcessorThreadSize";
-    public static String RECEIPT_PROCESSOR_THREAD_SIZE = "receiptProcessorThreadSize";
+    private CryptoMaterialConfig cryptoMaterialConfig;
+    private AccountConfig accountConfig;
+    private AmopConfig amopConfig;
+    private NetworkConfig networkConfig;
+    private ThreadPoolConfig threadPoolConfig;
 
-    public Map<String, String> cryptoMaterial;
-    public List<String> peers;
-    public List<AmopTopic> AMOPKeys;
-
-    @JsonProperty("Account")
-    public Map<String, String> account;
-
-    @JsonProperty("threadPool")
-    public Map<String, String> threadPool;
-
-    public Map<String, String> getThreadPool() {
-        return threadPool;
+    public ConfigOption(ConfigProperty configProperty, int cryptoType) throws ConfigException {
+        // load cryptoMaterialConfig
+        cryptoMaterialConfig = new CryptoMaterialConfig(configProperty, cryptoType);
+        // load accountConfig
+        accountConfig = new AccountConfig(configProperty);
+        // load AmopConfig
+        amopConfig = new AmopConfig(configProperty);
+        // load networkConfig
+        networkConfig = new NetworkConfig(configProperty);
+        // load threadPoolConfig
+        threadPoolConfig = new ThreadPoolConfig(configProperty);
     }
 
-    public void setThreadPool(Map<String, String> threadPool) {
-        this.threadPool = threadPool;
+    public CryptoMaterialConfig getCryptoMaterialConfig() {
+        return cryptoMaterialConfig;
     }
 
-    public Integer getChannelProcessorThreadSize() {
-        if (this.threadPool == null) {
-            return Runtime.getRuntime().availableProcessors();
-        }
-        return Integer.valueOf(this.threadPool.get(CHANNEL_PROCESSOR_THREAD_SIZE));
+    public void setCryptoMaterialConfig(CryptoMaterialConfig cryptoMaterialConfig) {
+        this.cryptoMaterialConfig = cryptoMaterialConfig;
     }
 
-    public Integer getReceiptProcessorThreadSize() {
-        if (this.threadPool == null) {
-            return Runtime.getRuntime().availableProcessors();
-        }
-        return Integer.valueOf(this.threadPool.get(RECEIPT_PROCESSOR_THREAD_SIZE));
+    public AccountConfig getAccountConfig() {
+        return accountConfig;
     }
 
-    public Map<String, String> getAccount() {
-        return account;
+    public void setAccountConfig(AccountConfig accountConfig) {
+        this.accountConfig = accountConfig;
     }
 
-    public void setAccount(Map<String, String> account) {
-        this.account = account;
+    public AmopConfig getAmopConfig() {
+        return amopConfig;
     }
 
-    public String getKeystoreDir() {
-        if (this.account == null) {
-            return null;
-        }
-        return this.account.get(KEYSTORE_DIR);
+    public void setAmopConfig(AmopConfig amopConfig) {
+        this.amopConfig = amopConfig;
     }
 
-    public String getAccountName() {
-        if (this.account == null) {
-            return null;
-        }
-        return this.account.get(ACCOUNT_NAME);
+    public NetworkConfig getNetworkConfig() {
+        return networkConfig;
     }
 
-    public String getAccountFileFormat() {
-        if (this.account == null) {
-            return null;
-        }
-        return this.account.get(ACCOUNT_FILE_FORMAT);
+    public void setNetworkConfig(NetworkConfig networkConfig) {
+        this.networkConfig = networkConfig;
     }
 
-    public String getPassword() {
-        if (this.account == null) {
-            return null;
-        }
-        return this.account.get(PASSWORD);
+    public ThreadPoolConfig getThreadPoolConfig() {
+        return threadPoolConfig;
     }
 
-    public List<String> getPeers() {
-        return peers;
-    }
-
-    public void setPeers(List<String> peers) {
-        this.peers = peers;
-    }
-
-    public List<AmopTopic> getAMOPKeys() {
-        return AMOPKeys;
-    }
-
-    public void setAMOPKeys(List<AmopTopic> AMOPKeys) {
-        this.AMOPKeys = AMOPKeys;
-    }
-
-    public Map<String, String> getCryptoMaterial() {
-        return cryptoMaterial;
-    }
-
-    public void setCryptoMaterial(Map<String, String> cryptoMaterial) {
-        this.cryptoMaterial = cryptoMaterial;
-    }
-
-    public String getAlgorithm() {
-        return cryptoMaterial.get("algorithm");
-    }
-
-    public String getCaCert() {
-        return cryptoMaterial.get("caCert");
-    }
-
-    public String getSslCert() {
-        return cryptoMaterial.get("sslCert");
-    }
-
-    public String getSslKey() {
-        return cryptoMaterial.get("sslKey");
-    }
-
-    public String getEnSslCert() {
-        return cryptoMaterial.get("enSSLCert");
-    }
-
-    public String getEnSslKey() {
-        return cryptoMaterial.get("enSSLKey");
+    public void setThreadPoolConfig(ThreadPoolConfig threadPoolConfig) {
+        this.threadPoolConfig = threadPoolConfig;
     }
 }

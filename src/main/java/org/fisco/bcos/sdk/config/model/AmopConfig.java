@@ -13,18 +13,23 @@
  *
  */
 
-package org.fisco.bcos.sdk.config;
+package org.fisco.bcos.sdk.config.model;
 
-public class ConfigException extends Exception {
-    public ConfigException(String message) {
-        super(message);
+import java.util.List;
+
+public class AmopConfig {
+    // AMOP topic related config
+    private List<AmopTopic> amopTopicConfig;
+
+    public AmopConfig(ConfigProperty configProperty) {
+        this.amopTopicConfig = configProperty.getAmopConfig();
     }
 
-    public ConfigException(Throwable cause) {
-        super(cause);
+    public List<AmopTopic> getAmopTopicConfig() {
+        return amopTopicConfig;
     }
 
-    public ConfigException(String message, Throwable cause) {
-        super(message, cause);
+    public void setAmopTopicConfig(List<AmopTopic> amopTopicConfig) {
+        this.amopTopicConfig = amopTopicConfig;
     }
 }

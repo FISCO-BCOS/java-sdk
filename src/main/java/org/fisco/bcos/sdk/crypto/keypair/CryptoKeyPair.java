@@ -234,7 +234,7 @@ public abstract class CryptoKeyPair {
     protected String getKeyStoreFilePath(String address, String postFix) {
         String keyStoreFileDir = "account";
         if (config != null) {
-            keyStoreFileDir = config.getKeystoreDir();
+            keyStoreFileDir = config.getAccountConfig().getKeyStoreDir();
         }
         keyStoreFileDir = keyStoreFileDir + File.separator + keyStoreSubDir + File.separator;
         return keyStoreFileDir + File.separator + address + postFix;

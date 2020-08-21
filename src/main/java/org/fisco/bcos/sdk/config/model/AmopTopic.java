@@ -13,7 +13,7 @@
  *
  */
 
-package org.fisco.bcos.sdk.config;
+package org.fisco.bcos.sdk.config.model;
 
 import java.util.List;
 

@@ -76,12 +76,13 @@ public class ConnectionManager {
 
     public ConnectionManager(ConfigOption configOps, MsgHandler msgHandler) {
         this.configOps = configOps;
-        for (String peerIpPort : configOps.getPeers()) {
+        for (String peerIpPort : configOps.getNetworkConfig().getPeers()) {
             connectionInfoList.add(new ConnectionInfo(peerIpPort));
         }
+        /*
         if (Objects.nonNull(configOps.getAlgorithm()) && "sm".equals(configOps.getAlgorithm())) {
             this.algorithm = "sm";
-        }
+        }*/
         channelHandler = new ChannelHandler(this, msgHandler);
         logger.info(" all connections: {}", connectionInfoList);
     }
@@ -198,9 +199,15 @@ public class ConnectionManager {
         try {
             Security.setProperty("jdk.disabled.namedCurves", "");
             // Get file, file existence is already checked when check config file.
-            FileInputStream caCert = new FileInputStream(new File(configOps.getCaCert()));
-            FileInputStream sslCert = new FileInputStream(new File(configOps.getSslCert()));
-            FileInputStream sslKey = new FileInputStream(new File(configOps.getSslKey()));
+            FileInputStream caCert =
+                    new FileInputStream(
+                            new File(configOps.getCryptoMaterialConfig().getCertPath()));
+            FileInputStream sslCert =
+                    new FileInputStream(
+                            new File(configOps.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
+            FileInputStream sslKey =
+                    new FileInputStream(
+                            new File(configOps.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
 
             // Init SslContext
             logger.info(" build ECDSA ssl context with configured certificates ");
@@ -222,11 +229,21 @@ public class ConnectionManager {
     private SslContext initSMSslContext() throws NetworkException {
         try {
             // Get file, file existence is already checked when check config file.
-            FileInputStream caCert = new FileInputStream(new File(configOps.getCaCert()));
-            FileInputStream sslCert = new FileInputStream(new File(configOps.getSslCert()));
-            FileInputStream sslKey = new FileInputStream(new File(configOps.getSslKey()));
-            FileInputStream enCert = new FileInputStream(new File(configOps.getEnSslCert()));
-            FileInputStream enKey = new FileInputStream(new File(configOps.getEnSslKey()));
+            FileInputStream caCert =
+                    new FileInputStream(
+                            new File(configOps.getCryptoMaterialConfig().getCertPath()));
+            FileInputStream sslCert =
+                    new FileInputStream(
+                            new File(configOps.getCryptoMaterialConfig().getSdkCertPath()));
+            FileInputStream sslKey =
+                    new FileInputStream(
+                            new File(configOps.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
+            FileInputStream enCert =
+                    new FileInputStream(
+                            new File(configOps.getCryptoMaterialConfig().getEnSSLCertPath()));
+            FileInputStream enKey =
+                    new FileInputStream(
+                            new File(configOps.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()));
 
             // Init SslContext
             logger.info(" build SM ssl context with configured certificates ");

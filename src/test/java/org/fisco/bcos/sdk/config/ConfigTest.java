@@ -15,22 +15,28 @@
 
 package org.fisco.bcos.sdk.config;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.junit.Test;
 
 public class ConfigTest {
     @Test(expected = ConfigException.class)
     public void testLoadConfig() throws ConfigException {
-        ConfigOption config = Config.load("src/test/resources/config/config-bad.yaml");
+        ConfigOption config =
+                Config.load(
+                        "src/test/resources/config/config-bad.yaml", CryptoInterface.ECDSA_TYPE);
     }
 
     @Test
     public void testLoadRightConfig() {
         try {
-            ConfigOption config = Config.load("src/test/resources/config/config-example.yaml");
-            assertEquals("ecdsa", config.getAlgorithm());
+            ConfigOption config =
+                    Config.load(
+                            "src/test/resources/config/config-example.yaml",
+                            CryptoInterface.ECDSA_TYPE);
+            // assertEquals("ecdsa", config.getAlgorithm());
         } catch (ConfigException e) {
             e.printStackTrace();
             fail("No exception is needed.");

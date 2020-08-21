@@ -22,16 +22,17 @@ cryptoMaterial:
 
   # [Option] Config the crypto algorithm here, we support ecdsa and sm.
   # If not configured, ecdsa is the default option.
-  algorithm: ecdsa
+  # algorithm: ecdsa
+  certPath: conf
 
   # Required. CA cert file path
-  caCert: conf/ca.crt
+  # caCert: conf/ca.crt
 
   # Required. SSL cert file path
-  sslCert: conf/sdk.crt
+  # sslCert: conf/sdk.crt
 
   # Required. SSL key file path
-  sslKey: conf/sdk.key
+  # sslKey: conf/sdk.key
 
   #[Option] if algorithm is sm, enSslCert and enSslKey is required
   # enSslCert: src/test/resources/en.crt
@@ -67,7 +68,7 @@ Account:
   # The address of the account used to send transactions
   # When it's empty, use a randomly generated account to send transactions,
   # and the randomly generated account information is stored in tmp sub-directory of keyStoreDir
-  accountName:
+  accountAddress:
   # The password used to load the account private key file
   password:
 

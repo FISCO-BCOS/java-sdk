@@ -19,8 +19,9 @@ import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
-import org.fisco.bcos.sdk.config.ConfigException;
 import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.service.GroupManagerServiceImpl;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
@@ -44,14 +45,15 @@ public class BcosSDK {
         try {
             logger.info("create BcosSDK, configPath: {}", configPath);
             // load configuration file
-            this.config = Config.load(configPath);
+            this.config = Config.load(configPath, CryptoInterface.ECDSA_TYPE);
             logger.info("create BcosSDK, load configPath: {} succ", configPath);
             // create channel
             this.channel = Channel.build(this.config);
             this.channel.start();
             threadPoolService =
                     new ThreadPoolService(
-                            "channelProcessor", this.config.getChannelProcessorThreadSize());
+                            "channelProcessor",
+                            this.config.getThreadPoolConfig().getChannelProcessorThreadSize());
             channel.setThreadPool(threadPoolService.getThreadPool());
             logger.info("create BcosSDK, start channel succ");
             if (!waitForEstablishConnection()) {
