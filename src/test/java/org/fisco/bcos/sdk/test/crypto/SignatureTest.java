@@ -16,8 +16,8 @@ package org.fisco.bcos.sdk.test.crypto;
 import java.io.File;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.config.Config;
-import org.fisco.bcos.sdk.config.ConfigException;
 import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
@@ -299,7 +299,7 @@ public class SignatureTest {
 
     public String getKeyStoreFilePath(
             CryptoInterface cryptoInterface, ConfigOption configOption, String postFix) {
-        return configOption.getKeystoreDir()
+        return configOption.getAccountConfig().getKeyStoreDir()
                 + File.separator
                 + cryptoInterface.getCryptoKeyPair().getKeyStoreSubDir()
                 + File.separator
@@ -328,7 +328,7 @@ public class SignatureTest {
     }
 
     public void testLoadAndStoreKeyPairWithPEM(int cryptoType) throws ConfigException {
-        ConfigOption configOption = Config.load(configFile);
+        ConfigOption configOption = Config.load(configFile, CryptoInterface.ECDSA_TYPE);
         CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
         cryptoInterface.getCryptoKeyPair().setConfig(configOption);
         cryptoInterface.getCryptoKeyPair().storeKeyPairWithPemFormat();
@@ -356,7 +356,7 @@ public class SignatureTest {
     }
 
     public void testLoadAndStoreKeyPairWithP12(int cryptoType) throws ConfigException {
-        ConfigOption configOption = Config.load(configFile);
+        ConfigOption configOption = Config.load(configFile, CryptoInterface.ECDSA_TYPE);
         CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
         cryptoInterface.getCryptoKeyPair().setConfig(configOption);
         String password = "123";

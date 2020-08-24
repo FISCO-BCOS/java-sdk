@@ -18,12 +18,13 @@ package org.fisco.bcos.sdk.channel;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.channel.model.Options;
-import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
 import org.fisco.bcos.sdk.network.MsgHandler;
+import org.fisco.bcos.sdk.network.Network;
 
 /**
  * The channel module interface.
@@ -35,12 +36,14 @@ public interface Channel {
     /**
      * Init channel module
      *
-     * @param config config file path.
+     * @param configFilePath config file path.
      * @return a channel instance
      */
-    static Channel build(ConfigOption config) {
-        return new ChannelImp(config);
+    static Channel build(String configFilePath) throws ConfigException {
+        return new ChannelImp(configFilePath);
     }
+
+    Network getNetwork();
 
     void start();
 

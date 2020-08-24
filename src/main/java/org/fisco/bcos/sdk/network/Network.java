@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.Message;
 
 /** Network interface Modules interact with the network module through this interface. */
@@ -27,13 +28,17 @@ public interface Network {
     /**
      * Init network module
      *
-     * @param config the config options read from yaml config file
+     * @param configFilePath the path of the yaml config file
      * @param handler message handler
      * @return a Network implementation instance
      */
-    static Network build(ConfigOption config, MsgHandler handler) {
-        return new NetworkImp(config, handler);
+    static Network build(String configFilePath, MsgHandler handler) throws ConfigException {
+        return new NetworkImp(configFilePath, handler);
     }
+
+    ConfigOption getConfigOption();
+
+    int getSslCryptoType();
 
     /**
      * Broadcast message

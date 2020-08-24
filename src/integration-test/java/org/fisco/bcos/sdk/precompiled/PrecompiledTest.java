@@ -28,7 +28,7 @@ import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.BcosSDKTest;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
-import org.fisco.bcos.sdk.config.ConfigException;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsService;
