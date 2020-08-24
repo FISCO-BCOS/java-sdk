@@ -43,14 +43,18 @@ public class PerformanceCollector {
         this.total = total;
     }
 
+    public Integer getReceived() {
+        return received.get();
+    }
+
+    public void setReceived(Integer received) {
+        this.received.getAndSet(received);
+    }
+
     public void onMessage(TransactionReceipt receipt, Long cost) {
         try {
             if (!receipt.isStatusOK()) {
                 error.addAndGet(1);
-            } else {
-                if (receipt.getLogs().isEmpty()) {
-                    error.addAndGet(1);
-                }
             }
 
             if ((received.get() + 1) % (total / 10) == 0) {
@@ -146,11 +150,17 @@ public class PerformanceCollector {
                                 + "  : "
                                 + String.valueOf((double) timeout2000.get() / total * 100)
                                 + "%");
-
-                System.exit(0);
             }
         } catch (Exception e) {
             logger.error("error:", e);
         }
+    }
+
+    public void setStartTimestamp(Long startTimestamp) {
+        this.startTimestamp = startTimestamp;
+    }
+
+    public Long getStartTimestamp() {
+        return startTimestamp;
     }
 }

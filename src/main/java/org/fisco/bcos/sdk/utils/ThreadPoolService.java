@@ -22,21 +22,15 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 public class ThreadPoolService {
     public static Integer DEFAULT_KEEP_ALIVETIME = 60;
-    public static Integer DEFAULT_MAX_BLOCKING_QUEUE_SIZE = 1024;
-
     private final ExecutorService threadPool;
 
-    public ThreadPoolService(String threadName) {
-        this(threadName, Runtime.getRuntime().availableProcessors());
+    public ThreadPoolService(String threadName, Integer maxBlockingQueueSize) {
+        this(threadName, Runtime.getRuntime().availableProcessors(), maxBlockingQueueSize);
     }
 
-    public ThreadPoolService(String threadName, Integer corePoolSize) {
-        this(
-                threadName,
-                corePoolSize,
-                corePoolSize,
-                DEFAULT_KEEP_ALIVETIME,
-                DEFAULT_MAX_BLOCKING_QUEUE_SIZE);
+    public ThreadPoolService(
+            String threadName, Integer corePoolSize, Integer maxBlockingQueueSize) {
+        this(threadName, corePoolSize, corePoolSize, DEFAULT_KEEP_ALIVETIME, maxBlockingQueueSize);
     }
 
     public ThreadPoolService(

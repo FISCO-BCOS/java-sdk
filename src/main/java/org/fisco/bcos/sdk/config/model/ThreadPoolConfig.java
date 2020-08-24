@@ -18,8 +18,10 @@ package org.fisco.bcos.sdk.config.model;
 import java.util.Map;
 
 public class ThreadPoolConfig {
+    public static String DEFAULT_MAX_BLOCKING_QUEUE_SIZE = "102400";
     private Integer channelProcessorThreadSize;
     private Integer receiptProcessorThreadSize;
+    private Integer maxBlockingQueueSize;
 
     public ThreadPoolConfig(ConfigProperty configProperty) {
         Map<String, String> threadPoolConfig = configProperty.getThreadPoolConfig();
@@ -28,8 +30,15 @@ public class ThreadPoolConfig {
                 ConfigProperty.getValue(threadPoolConfig, "channelProcessorThreadSize", cpuNum);
         String receiptProcessors =
                 ConfigProperty.getValue(threadPoolConfig, "receiptProcessorThreadSize", cpuNum);
+
         channelProcessorThreadSize = Integer.valueOf(channelProcessors);
         receiptProcessorThreadSize = Integer.valueOf(receiptProcessors);
+        maxBlockingQueueSize =
+                Integer.valueOf(
+                        ConfigProperty.getValue(
+                                threadPoolConfig,
+                                "maxBlockingQueueSize",
+                                DEFAULT_MAX_BLOCKING_QUEUE_SIZE));
     }
 
     public Integer getChannelProcessorThreadSize() {
@@ -46,5 +55,13 @@ public class ThreadPoolConfig {
 
     public void setReceiptProcessorThreadSize(Integer receiptProcessorThreadSize) {
         this.receiptProcessorThreadSize = receiptProcessorThreadSize;
+    }
+
+    public Integer getMaxBlockingQueueSize() {
+        return maxBlockingQueueSize;
+    }
+
+    public void setMaxBlockingQueueSize(Integer maxBlockingQueueSize) {
+        this.maxBlockingQueueSize = maxBlockingQueueSize;
     }
 }

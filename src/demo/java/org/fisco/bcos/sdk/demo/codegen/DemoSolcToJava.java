@@ -44,7 +44,19 @@ public class DemoSolcToJava {
         }
 
         File solFileList = new File(SOLIDITY_PATH);
-        String tempDirPath = new File(JAVA_PATH).getAbsolutePath();
+        File javaPath = new File(JAVA_PATH);
+        if (!javaPath.exists()) {
+            javaPath.mkdirs();
+        }
+        File abiPath = new File(ABI_PATH + File.separator + "sm");
+        if (!abiPath.exists()) {
+            abiPath.mkdirs();
+        }
+        File binPath = new File(BIN_PATH + File.separator + "sm");
+        if (!binPath.exists()) {
+            binPath.mkdirs();
+        }
+        String tempDirPath = javaPath.getAbsolutePath();
         try {
             compileSolToJava("*", tempDirPath, args[0], solFileList, ABI_PATH, BIN_PATH);
             System.out.println(

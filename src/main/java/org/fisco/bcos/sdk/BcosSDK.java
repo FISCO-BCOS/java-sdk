@@ -53,7 +53,8 @@ public class BcosSDK {
             threadPoolService =
                     new ThreadPoolService(
                             "channelProcessor",
-                            this.config.getThreadPoolConfig().getChannelProcessorThreadSize());
+                            this.config.getThreadPoolConfig().getChannelProcessorThreadSize(),
+                            this.config.getThreadPoolConfig().getMaxBlockingQueueSize());
             channel.setThreadPool(threadPoolService.getThreadPool());
             logger.info(
                     "create BcosSDK, start channel succ, channelProcessorThreadSize: {}, receiptProcessorThreadSize: {}",
@@ -106,8 +107,8 @@ public class BcosSDK {
         return groupToClient.get(groupId);
     }
 
-    public Channel getChannel() {
-        return this.channel;
+    public int getSSLCryptoType() {
+        return this.channel.getNetwork().getSslCryptoType();
     }
 
     public GroupManagerService getGroupManagerService() {
@@ -120,6 +121,10 @@ public class BcosSDK {
 
     public Amop getAmop() {
         return amop;
+    }
+
+    public Channel getChannel() {
+        return channel;
     }
 
     public void stopAll() {

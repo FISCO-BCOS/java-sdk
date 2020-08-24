@@ -77,3 +77,5 @@ threadPool:
   # channelProcessorThreadSize: 16
   # The size of the thread pool used to process the transaction receipt notification
   # receiptProcessorThreadSize: 16
+  # the max blocking queue size of the thread pool
+  # maxBlockingQueueSize: 102400
