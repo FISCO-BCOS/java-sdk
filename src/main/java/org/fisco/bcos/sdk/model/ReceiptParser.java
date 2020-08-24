@@ -22,7 +22,7 @@ import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
 public class ReceiptParser {
     private ReceiptParser() {}
 
-    public static RetCode parsePrecompiledReceipt(TransactionReceipt receipt)
+    public static RetCode parseTransactionReceipt(TransactionReceipt receipt)
             throws ContractException {
         try {
             String status = receipt.getStatus();
@@ -32,8 +32,12 @@ public class ReceiptParser {
                 throw new ContractException(retCode.getMessage(), retCode.getCode());
             } else {
                 String output = receipt.getOutput();
+                if (output.equals("0x")) {
+                    return PrecompiledRetCode.CODE_SUCCESS;
+                }
                 int statusValue =
                         new BigInteger(output.substring(2, output.length()), 16).intValue();
+                System.out.println("statusValue: " + statusValue);
                 if (receipt.getMessage() == null || receipt.getMessage().equals("")) {
                     receipt.setMessage(PrecompiledRetCode.CODE_SUCCESS.getMessage());
                 }

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
+import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.model.EventResultEntity;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
@@ -61,10 +62,14 @@ public interface TransactionDecoderInterface {
 
     public String decodeReceiptMessage(String input);
 
-    public TransactionResponse decodeEventsAndValues(String abi, TransactionReceipt receipt)
+    public TransactionResponse decodeReceiptWithValues(String abi, TransactionReceipt receipt)
             throws JsonProcessingException, TransactionBaseException, TransactionException,
-                    IOException;
+                    IOException, ContractException;
 
-    public TransactionResponse decodeEvents(String abi, TransactionReceipt transactionReceipt)
-            throws TransactionBaseException, TransactionException, IOException;
+    public TransactionResponse decodeReceiptWithoutValues(
+            String abi, TransactionReceipt transactionReceipt)
+            throws TransactionBaseException, TransactionException, IOException, ContractException;
+
+    public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt)
+            throws ContractException;
 }

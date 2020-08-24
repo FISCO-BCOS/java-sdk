@@ -70,7 +70,7 @@ public class TableCRUDService {
             throws ContractException {
         checkKey(keyFieldName);
         String valueFieldsString = convertValueFieldsToString(valueFields);
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 tableFactory.createTable(tableName, keyFieldName, valueFieldsString));
     }
 
@@ -82,7 +82,7 @@ public class TableCRUDService {
                     ObjectMapperFactory.getObjectMapper()
                             .writeValueAsString(fieldNameToValue.getFieldNameToValue());
             String conditionStr = encodeCondition(condition);
-            return ReceiptParser.parsePrecompiledReceipt(
+            return ReceiptParser.parseTransactionReceipt(
                     crudService.insert(tableName, key, fieldNameToValueStr, conditionStr));
         } catch (JsonProcessingException e) {
             throw new ContractException(
@@ -104,7 +104,7 @@ public class TableCRUDService {
                     ObjectMapperFactory.getObjectMapper()
                             .writeValueAsString(fieldNameToValue.getFieldNameToValue());
             String conditionStr = encodeCondition(condition);
-            return ReceiptParser.parsePrecompiledReceipt(
+            return ReceiptParser.parseTransactionReceipt(
                     crudService.update(tableName, key, fieldNameToValueStr, conditionStr, ""));
         } catch (JsonProcessingException e) {
             throw new ContractException(
@@ -130,7 +130,7 @@ public class TableCRUDService {
         checkKey(key);
         try {
             String conditionStr = encodeCondition(condition);
-            return ReceiptParser.parsePrecompiledReceipt(
+            return ReceiptParser.parseTransactionReceipt(
                     crudService.remove(tableName, key, conditionStr, ""));
         } catch (JsonProcessingException e) {
             throw new ContractException(
