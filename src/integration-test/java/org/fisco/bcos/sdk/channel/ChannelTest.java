@@ -21,9 +21,7 @@ import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
 import org.fisco.bcos.sdk.channel.model.HeartBeatParser;
 import org.fisco.bcos.sdk.channel.model.NodeHeartbeat;
 import org.fisco.bcos.sdk.channel.model.Options;
-import org.fisco.bcos.sdk.config.Config;
-import org.fisco.bcos.sdk.config.ConfigException;
-import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -44,8 +42,7 @@ public class ChannelTest {
 
     @Test
     public void testConnect() throws ConfigException {
-        ConfigOption config = Config.load("src/integration-test/resources/config-example.yaml");
-        channel = Channel.build(config);
+        channel = Channel.build("src/integration-test/resources/config-example.yaml");
         class TestMsgHandler implements MsgHandler {
             @Override
             public void onConnect(ChannelHandlerContext ctx) {
@@ -70,7 +67,7 @@ public class ChannelTest {
             Thread.sleep(10000);
             channel.stop();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("testConnect failed, error info: " + e.getMessage());
             fail("Exception is not expected");
         }
     }

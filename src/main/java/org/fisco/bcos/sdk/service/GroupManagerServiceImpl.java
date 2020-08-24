@@ -91,7 +91,8 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         this.config = configOption;
         this.threadPool =
                 new ThreadPoolService(
-                        "GroupManagerServiceImpl", configOption.getReceiptProcessorThreadSize());
+                        "GroupManagerServiceImpl",
+                        configOption.getThreadPoolConfig().getReceiptProcessorThreadSize());
         this.blockNumberMessageDecoder = new BlockNumberMessageDecoder();
         this.groupServiceFactory = new GroupServiceFactory();
         this.groupInfoGetter = Client.build(channel);

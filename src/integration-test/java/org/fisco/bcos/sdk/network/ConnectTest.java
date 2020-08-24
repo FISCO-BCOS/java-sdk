@@ -16,9 +16,7 @@
 package org.fisco.bcos.sdk.network;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.fisco.bcos.sdk.config.Config;
-import org.fisco.bcos.sdk.config.ConfigException;
-import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.Message;
 import org.junit.Test;
 
@@ -27,7 +25,6 @@ import static org.junit.Assert.fail;
 public class ConnectTest {
     @Test
     public void testConnect() throws ConfigException {
-        ConfigOption config = Config.load("src/integration-test/resources/config-example.yaml");
         class TestMsgHandler implements MsgHandler{
 
             @Override
@@ -43,12 +40,12 @@ public class ConnectTest {
             public void onDisconnect(ChannelHandlerContext ctx) {
             }
         }
-        Network network = Network.build(config,new TestMsgHandler());
+        Network network = Network.build("src/integration-test/resources/config-example.yaml",new TestMsgHandler());
         try{
             network.start();
             Thread.sleep(3000);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("testConnect failed, error message:" + e.getMessage());
             fail("Exception is not expected");
         }
 

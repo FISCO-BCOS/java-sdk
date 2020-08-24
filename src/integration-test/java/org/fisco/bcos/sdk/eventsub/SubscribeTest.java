@@ -16,7 +16,7 @@
 package org.fisco.bcos.sdk.eventsub;
 
 import org.fisco.bcos.sdk.BcosSDK;
-import org.fisco.bcos.sdk.config.ConfigException;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.junit.Assert;
 import org.junit.Test;

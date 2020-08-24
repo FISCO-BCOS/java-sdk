@@ -15,6 +15,7 @@ package org.fisco.bcos.sdk.crypto;
 
 import java.security.KeyPair;
 import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.model.AccountConfig;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
 import org.fisco.bcos.sdk.crypto.exceptions.UnsupportedCryptoTypeException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
@@ -52,9 +53,7 @@ public class CryptoInterface {
         logger.info("init CryptoInterface, cryptoType: {}", cryptoTypeConfig);
         setConfig(configOption);
         // doesn't set the account name, generate the keyPair randomly
-        if (configOption.getAccount() == null
-                || configOption.getAccountName() == null
-                || configOption.getAccountName().equals("")) {
+        if (configOption.getAccountConfig().getAccountAddress().equals("")) {
             createKeyPair();
             return;
         }
@@ -87,19 +86,22 @@ public class CryptoInterface {
 
     private void loadAccount(ConfigOption configOption) {
         KeyManager keyManager;
-        if (configOption.getAccountFileFormat().compareToIgnoreCase("p12") == 0) {
+        AccountConfig accountConfig = configOption.getAccountConfig();
+        if (accountConfig.getAccountFileFormat().compareToIgnoreCase("p12") == 0) {
             keyManager =
                     new P12Manager(
-                            keyPairFactory.getP12KeyStoreFilePath(configOption.getAccountName()),
-                            configOption.getPassword());
-        } else if (configOption.getAccountFileFormat().compareToIgnoreCase("pem") == 0) {
+                            keyPairFactory.getP12KeyStoreFilePath(
+                                    accountConfig.getAccountAddress()),
+                            accountConfig.getAccountPassword());
+        } else if (accountConfig.getAccountFileFormat().compareToIgnoreCase("pem") == 0) {
             keyManager =
                     new PEMManager(
-                            keyPairFactory.getPemKeyStoreFilePath(configOption.getAccountName()));
+                            keyPairFactory.getPemKeyStoreFilePath(
+                                    accountConfig.getAccountAddress()));
         } else {
             throw new LoadKeyStoreException(
                     "unsupported account file format : "
-                            + configOption.getAccountFileFormat()
+                            + accountConfig.getAccountFileFormat()
                             + ", current supported are p12 and pem");
         }
         createKeyPair(keyManager.getKeyPair());

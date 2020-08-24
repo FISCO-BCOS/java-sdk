@@ -20,7 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
+import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +35,27 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkImp implements Network {
     private static Logger logger = LoggerFactory.getLogger(NetworkImp.class);
-    ConnectionManager connManager;
+    private ConnectionManager connManager;
+    private ConfigOption configOption;
+    private String configFilePath;
+    private MsgHandler handler;
 
-    public NetworkImp(ConfigOption config, MsgHandler handler) {
-        connManager = new ConnectionManager(config, handler);
+    public NetworkImp(String configFilePath, MsgHandler handler) throws ConfigException {
+        this.configFilePath = configFilePath;
+        this.handler = handler;
+        // default load ECDSA certificates
+        this.configOption = Config.load(configFilePath, CryptoInterface.ECDSA_TYPE);
+        connManager = new ConnectionManager(configOption, handler);
+    }
+
+    @Override
+    public ConfigOption getConfigOption() {
+        return configOption;
+    }
+
+    @Override
+    public int getSslCryptoType() {
+        return configOption.getCryptoMaterialConfig().getSslCryptoType();
     }
 
     @Override
@@ -67,8 +87,26 @@ public class NetworkImp implements Network {
 
     @Override
     public void start() throws NetworkException {
-        connManager.startConnect();
-        // connManager.startReconnectSchedule();
+        try {
+            try {
+                logger.debug("start connManager with ECDSA sslContext");
+                connManager.startConnect(configOption);
+                return;
+            } catch (NetworkException e) {
+                connManager.stopNetty();
+                logger.debug(
+                        "start connManager with the ECDSA sslContext failed, try to use SM sslContext, error info: {}",
+                        e.getMessage());
+            }
+            // create a new connectionManager to connect the node with the SM sslContext
+            connManager = new ConnectionManager(configOption, handler);
+            configOption = Config.load(configFilePath, CryptoInterface.SM_TYPE);
+            connManager.startConnect(configOption);
+        } catch (ConfigException e) {
+            throw new NetworkException(
+                    "start connManager with the SM algorithm failed, error info: " + e.getMessage(),
+                    e);
+        }
     }
 
     @Override
