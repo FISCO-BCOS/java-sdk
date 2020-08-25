@@ -24,8 +24,11 @@ import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.tools.ContractAbiUtil;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.EventResultEntity;
+import org.fisco.bcos.sdk.model.ReceiptParser;
+import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.transaction.model.bo.InputAndOutputResult;
@@ -109,27 +112,39 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     }
 
     @Override
-    public TransactionResponse decodeEventsAndValues(
+    public TransactionResponse decodeReceiptWithValues(
             String abi, TransactionReceipt transactionReceipt)
-            throws TransactionBaseException, TransactionException, IOException {
-        String values =
-                decodeOutputReturnJson(
-                        abi, transactionReceipt.getInput(), transactionReceipt.getOutput());
-        TransactionResponse response = decodeEvents(abi, transactionReceipt);
-        response.setValues(values);
+            throws TransactionBaseException, TransactionException, IOException, ContractException {
+        TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
+        // only successful tx has return values.
+        if (transactionReceipt.getStatus().equals("0x0")) {
+            String values =
+                    decodeOutputReturnJson(
+                            abi, transactionReceipt.getInput(), transactionReceipt.getOutput());
+            response.setValues(values);
+        }
         return response;
     }
 
     @Override
-    public TransactionResponse decodeEvents(String abi, TransactionReceipt transactionReceipt)
-            throws TransactionBaseException, TransactionException, IOException {
+    public TransactionResponse decodeReceiptWithoutValues(
+            String abi, TransactionReceipt transactionReceipt)
+            throws TransactionBaseException, TransactionException, IOException, ContractException {
+        TransactionResponse response = decodeReceiptStatus(transactionReceipt);
         String events = decodeEventReturnJson(abi, transactionReceipt.getLogs());
-        TransactionResponse response = new TransactionResponse();
         response.setTransactionReceipt(transactionReceipt);
         response.setEvents(events);
         response.setContractAddress(transactionReceipt.getContractAddress());
-        response.setReceiptMessages(decodeReceiptMessage(transactionReceipt.getOutput()));
-        response.setReturnCode(0);
+        return response;
+    }
+
+    @Override
+    public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt)
+            throws ContractException {
+        RetCode retCode = ReceiptParser.parseTransactionReceipt(receipt);
+        TransactionResponse response = new TransactionResponse();
+        response.setReturnCode(retCode.getCode());
+        response.setReceiptMessages(retCode.getMessage());
         return response;
     }
 

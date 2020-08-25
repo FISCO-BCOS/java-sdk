@@ -31,7 +31,7 @@ public class SystemConfigService {
     }
 
     public RetCode setValueByKey(String key, String value) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 systemConfigPrecompiled.setValueByKey(key, value));
     }
 }

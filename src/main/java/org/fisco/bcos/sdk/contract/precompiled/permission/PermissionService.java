@@ -36,12 +36,12 @@ public class PermissionService {
     }
 
     public RetCode grantPermission(String tableName, String userAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.permissionPrecompiled.insert(tableName, userAddress));
     }
 
     public RetCode revokePermission(String tableName, String userAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.permissionPrecompiled.remove(tableName, userAddress));
     }
 
@@ -72,13 +72,13 @@ public class PermissionService {
     }
 
     public RetCode grantWrite(String contractAddress, String userAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.permissionPrecompiled.grantWrite(contractAddress, userAddress));
     }
 
     public RetCode revokeWrite(String contractAddress, String userAddress)
             throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.permissionPrecompiled.revokeWrite(contractAddress, userAddress));
     }
 

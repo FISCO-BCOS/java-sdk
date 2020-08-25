@@ -37,18 +37,18 @@ public class ContractLifeCycleService {
     }
 
     public RetCode freeze(String contractAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.contractLifeCyclePrecompiled.freeze(contractAddress));
     }
 
     public RetCode unfreeze(String contractAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.contractLifeCyclePrecompiled.unfreeze(contractAddress));
     }
 
     public RetCode grantManager(String contractAddress, String userAddress)
             throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.contractLifeCyclePrecompiled.grantManager(contractAddress, userAddress));
     }
 

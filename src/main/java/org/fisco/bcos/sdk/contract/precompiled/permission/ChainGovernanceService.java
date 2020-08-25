@@ -36,12 +36,12 @@ public class ChainGovernanceService {
     }
 
     public RetCode grantCommitteeMember(String userAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.grantCommitteeMember(userAddress));
     }
 
     public RetCode revokeCommitteeMember(String userAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.revokeCommitteeMember(userAddress));
     }
 
@@ -59,12 +59,12 @@ public class ChainGovernanceService {
 
     public RetCode updateCommitteeMemberWeight(String userAddress, BigInteger weight)
             throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.updateCommitteeMemberWeight(userAddress, weight));
     }
 
     public RetCode updateThreshold(BigInteger threshold) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.updateThreshold(threshold));
     }
 
@@ -96,12 +96,12 @@ public class ChainGovernanceService {
     }
 
     public RetCode grantOperator(String userAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.grantOperator(userAddress));
     }
 
     public RetCode revokeOperator(String userAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.revokeOperator(userAddress));
     }
 
@@ -118,12 +118,12 @@ public class ChainGovernanceService {
     }
 
     public RetCode freezeAccount(String userAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.freezeAccount(userAddress));
     }
 
     public RetCode unfreezeAccount(String userAddress) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.unfreezeAccount(userAddress));
     }
 

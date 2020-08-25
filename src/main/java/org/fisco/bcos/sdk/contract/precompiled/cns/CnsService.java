@@ -42,7 +42,7 @@ public class CnsService {
         if (contractVersion.length() > PrecompiledConstant.CNS_MAX_VERSION_LENGTH) {
             throw new ContractException(PrecompiledRetCode.OVER_CONTRACT_VERSION_LEN_LIMIT);
         }
-        return ReceiptParser.parsePrecompiledReceipt(
+        return ReceiptParser.parseTransactionReceipt(
                 cnsPrecompiled.insert(contractName, contractVersion, contractAddress, abiData));
     }
 

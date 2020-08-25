@@ -13,7 +13,7 @@
  */
 package org.fisco.bcos.sdk.transaction.model.exception;
 
-import org.fisco.bcos.sdk.transaction.model.dto.RetCode;
+import org.fisco.bcos.sdk.model.RetCode;
 
 /** BaseException. */
 public class TransactionBaseException extends Exception {
@@ -22,7 +22,7 @@ public class TransactionBaseException extends Exception {
     private RetCode retCode;
 
     public TransactionBaseException(RetCode retCode) {
-        super(retCode.getMsg());
+        super(retCode.getMessage());
         this.retCode = retCode;
     }
 
