@@ -50,7 +50,7 @@ public class ConsensusService {
         if (sealerList.contains(nodeId)) {
             throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST);
         }
-        return ReceiptParser.parsePrecompiledReceipt(consensusPrecompiled.addSealer(nodeId));
+        return ReceiptParser.parseTransactionReceipt(consensusPrecompiled.addSealer(nodeId));
     }
 
     public RetCode addObserver(String nodeId) throws ContractException {
@@ -58,10 +58,10 @@ public class ConsensusService {
         if (observerList.contains(nodeId)) {
             throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
         }
-        return ReceiptParser.parsePrecompiledReceipt(consensusPrecompiled.addObserver(nodeId));
+        return ReceiptParser.parseTransactionReceipt(consensusPrecompiled.addObserver(nodeId));
     }
 
     public RetCode removeNode(String nodeId) throws ContractException {
-        return ReceiptParser.parsePrecompiledReceipt(consensusPrecompiled.remove(nodeId));
+        return ReceiptParser.parseTransactionReceipt(consensusPrecompiled.remove(nodeId));
     }
 }

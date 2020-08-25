@@ -67,7 +67,7 @@ public class AssembleTransactionManagerTest {
                 client.getCryptoInterface(), abiFile, binFile);
         // deploy
         TransactionResponse response = manager.deployByContractLoader("HelloWorld", new ArrayList<>());
-        // System.out.println(JsonUtils.toJson(response));
+        System.out.println(JsonUtils.toJson(response));
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             return;
         }
@@ -151,7 +151,7 @@ public class AssembleTransactionManagerTest {
                 manager.sendCallByContractLoader("ComplexSol", contractAddress, "_intV", new ArrayList<>());
         // System.out.println(JsonUtils.toJson(callResponse1));
         System.out.println("callResponse1 : " + callResponse1.getReturnMessage());
-        if(callResponse1.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+        if (callResponse1.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
             List<ResultEntity> entities = JsonUtils.fromJsonList(callResponse1.getValues(), ResultEntity.class);
             Assert.assertEquals(entities.size(), 1);
             Assert.assertEquals(entities.get(0).getData(), 1);
@@ -159,7 +159,7 @@ public class AssembleTransactionManagerTest {
         CallResponse callResponse2 =
                 manager.sendCallByContractLoader("ComplexSol", contractAddress, "_s", new ArrayList<>());
         System.out.println("callResponse2 : " + callResponse2.getReturnMessage());
-        if(callResponse2.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+        if (callResponse2.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
             // System.out.println(JsonUtils.toJson(callResponse2));
             List<ResultEntity> entities2 = JsonUtils.fromJsonList(callResponse2.getValues(), ResultEntity.class);
             Assert.assertEquals(entities2.size(), 1);
