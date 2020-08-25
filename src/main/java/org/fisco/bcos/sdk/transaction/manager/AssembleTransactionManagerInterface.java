@@ -63,7 +63,7 @@ public interface AssembleTransactionManagerInterface {
 
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
-            throws TransactionBaseException;
+            throws ABICodecException, TransactionBaseException;
 
     public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
             String to, String abi, String functionName, List<String> params)
@@ -77,7 +77,7 @@ public interface AssembleTransactionManagerInterface {
             String functionName,
             List<Object> params,
             TransactionCallback callback)
-            throws TransactionBaseException;
+            throws TransactionBaseException, ABICodecException;
 
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(String signedData);
 
@@ -103,5 +103,5 @@ public interface AssembleTransactionManagerInterface {
             String abi, String bin, String contractName, List<Object> params);
 
     public String encodeFunction(String abi, String functionName, List<Object> params)
-            throws TransactionBaseException;
+            throws ABICodecException;
 }

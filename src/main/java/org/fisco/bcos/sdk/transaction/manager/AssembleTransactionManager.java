@@ -184,7 +184,7 @@ public class AssembleTransactionManager extends TransactionManager
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
-            throws TransactionBaseException {
+            throws ABICodecException, TransactionBaseException {
         String data = encodeFunction(abi, functionName, params);
         return sendTransactionAndGetResponse(to, abi, data);
     }
@@ -233,7 +233,7 @@ public class AssembleTransactionManager extends TransactionManager
             String functionName,
             List<Object> params,
             TransactionCallback callback)
-            throws TransactionBaseException {
+            throws TransactionBaseException, ABICodecException {
         String data = encodeFunction(abi, functionName, params);
         sendTransactionAsync(to, data, callback);
     }
@@ -329,15 +329,8 @@ public class AssembleTransactionManager extends TransactionManager
 
     @Override
     public String encodeFunction(String abi, String functionName, List<Object> params)
-            throws TransactionBaseException {
-        SolidityFunction solidityFunction =
-                functionBuilder.buildFunctionByAbi(abi, functionName, params);
-        if (solidityFunction.getFunctionAbi().isConstant()) {
-            throw new TransactionBaseException(
-                    ResultCodeEnum.PARAMETER_ERROR.getCode(),
-                    "Wrong transaction type, actually it's a call");
-        }
-        return functionEncoder.encode(solidityFunction.getFunction());
+            throws ABICodecException {
+        return abiCodec.encodeMethod(abi, functionName, params);
     }
 
     private CallResponse parseCallResponseStatus(Call.CallOutput callOutput) {

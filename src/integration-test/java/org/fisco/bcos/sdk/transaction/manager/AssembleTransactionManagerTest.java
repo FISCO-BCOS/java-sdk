@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.util.encoders.Base64;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
@@ -206,7 +208,7 @@ public class AssembleTransactionManagerTest {
         }
         String contractAddress = response.getContractAddress();
         // increment v
-        manager.sendTransactionAsync(contractAddress, abi, "incrementUint256", Lists.newArrayList(10),
+        manager.sendTransactionAsync(contractAddress, abi, "incrementUint256", Lists.newArrayList(BigInteger.valueOf(10)),
                 new TransactionCallback() {
                     @Override
                     public void onResponse(TransactionReceipt receipt) {
@@ -276,9 +278,9 @@ public class AssembleTransactionManagerTest {
         }
         String contractAddress = response.getContractAddress();
         // setBytes
-        List<Object> paramsSetBytes = Lists.newArrayList("set bytes test".getBytes());
+        List<String> paramsSetBytes = Lists.newArrayList(Base64.toBase64String("set bytes test".getBytes()));
         TransactionResponse transactionResponse3 =
-                manager.sendTransactionAndGetResponse(contractAddress, abi, "setBytes", paramsSetBytes);
+                manager.sendTransactionWithStringParamsAndGetResponse(contractAddress, abi, "setBytes", paramsSetBytes);
         InputAndOutputResult entities3 = transactionResponse3.getInputAndOutput();
         Assert.assertEquals(entities3.getResult().size(), 1);
         Assert.assertEquals(entities3.getResult().get(0).getData(), "set bytes test");
