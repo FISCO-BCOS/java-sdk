@@ -160,7 +160,7 @@ public class JsonTransactionResponse {
 
     @Override
     public String toString() {
-        return "JsonTransactionResponse{"
+        return "Transaction {"
                 + "blockHash='"
                 + blockHash
                 + '\''

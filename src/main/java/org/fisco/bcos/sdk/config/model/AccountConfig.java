@@ -15,7 +15,6 @@
 
 package org.fisco.bcos.sdk.config.model;
 
-import java.io.File;
 import java.util.Objects;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 
@@ -50,17 +49,6 @@ public class AccountConfig {
             throw new ConfigException(
                     "load account failed, only support pem and p12 account file format, current configurated account file format is "
                             + accountFileFormat);
-        }
-        // check account path
-        String accountPath =
-                this.getKeyStoreDir()
-                        + File.separator
-                        + this.getAccountAddress()
-                        + "."
-                        + this.getAccountFileFormat();
-        if (!(new File(accountPath)).exists()) {
-            throw new ConfigException(
-                    "load account failed, the account file " + accountPath + " doesn't exist!");
         }
     }
 

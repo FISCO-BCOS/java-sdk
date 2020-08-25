@@ -63,7 +63,6 @@ public class CryptoMaterialConfig {
                         cryptoMaterialProperty,
                         "enSslKey",
                         defaultCryptoMaterialConfig.getEnSSLPrivateKeyPath());
-        checkCryptoMaterial(cryptoType);
     }
 
     public CryptoMaterialConfig getDefaultCaCertPath(int cryptoType, String certPath)
@@ -92,48 +91,6 @@ public class CryptoMaterialConfig {
                             + cryptoType);
         }
         return cryptoMaterialConfig;
-    }
-
-    private void checkCryptoMaterial(int cryptoType) throws ConfigException {
-        if (!(new File(this.getCertPath())).exists()) {
-            throw new ConfigException(
-                    "checkCryptoMaterial failed, the certPath "
-                            + getCertPath()
-                            + " doesn't exist!");
-        }
-        if (!(new File(this.getCaCertPath())).exists()) {
-            throw new ConfigException(
-                    "checkCryptoMaterial failed, the caCert "
-                            + getCaCertPath()
-                            + " doesn't exist!");
-        }
-        if (!(new File(this.getSdkCertPath())).exists()) {
-            throw new ConfigException(
-                    "checkCryptoMaterial failed, the sdkCert "
-                            + getSdkCertPath()
-                            + " doesn't exist!");
-        }
-        if (!(new File(this.getSdkPrivateKeyPath())).exists()) {
-            throw new ConfigException(
-                    "checkCryptoMaterial failed, the sdkPrivateKey "
-                            + getSdkPrivateKeyPath()
-                            + " doesn't exist!");
-        }
-        if (cryptoType == CryptoInterface.ECDSA_TYPE) {
-            return;
-        }
-        if (!(new File(this.getEnSSLCertPath())).exists()) {
-            throw new ConfigException(
-                    "checkCryptoMaterial failed, the enSSLCert "
-                            + getEnSSLCertPath()
-                            + " doesn't exist!");
-        }
-        if (!(new File(this.getEnSSLPrivateKeyPath())).exists()) {
-            throw new ConfigException(
-                    "checkCryptoMaterial failed, the enSSLKey "
-                            + getEnSSLPrivateKeyPath()
-                            + " doesn't exist!");
-        }
     }
 
     public String getCertPath() {

@@ -2,7 +2,7 @@
 branches:
   only:
     - /.*/
-
+    -
 jobs:
   fast_finish: true
   include:
@@ -15,62 +15,95 @@ jobs:
       script: |
         bash .ci/ci_check_commit.sh
 
-    # ubuntu 16
+    # ubuntu 16, openjdk 8
     - language: java
       jdk: openjdk8
       os: linux
       dist: xenial
       sudo: required
+      env:
+        - CACHE_NAME=ubuntu16_openjdk8
 
-    # ubuntu 16
+    # ubuntu 16, openjdk 11
     - language: java
       jdk: openjdk11
       os: linux
       dist: xenial
       sudo: required
+      env:
+        - CACHE_NAME=ubuntu16_openjdk11
 
-    # ubuntu 16
-    - language: java
-      jdk: oraclejdk11
-      os: linux
-      dist: xenial
-      sudo: required
-
-    # ubuntu 18
+    # ubuntu 18, openjdk 8
     - language: java
       jdk: openjdk8
       os: linux
       dist: bionic
       sudo: required
+      env:
+        - CACHE_NAME=ubuntu18_openjdk8
 
-    # ubuntu 18
+    # ubuntu 18, openjdk 11
     - language: java
       jdk: openjdk11
       os: linux
       dist: bionic
       sudo: required
+      env:
+        - CACHE_NAME=ubuntu18_openjdk11
 
+    # ubuntu 16, openjdk 14
+    - language: java
+      jdk: openjdk14
+      os: linux
+      dist: xenial
+      sudo: required
+      env:
+        - CACHE_NAME=ubuntu16_openjdk14
+
+    # ubuntu 18, openjdk 14
     - language: java
       jdk: openjdk14
       os: linux
       dist: bionic
       sudo: required
+      env:
+        - CACHE_NAME=ubuntu18_openjdk14
 
-    # ubuntu 18
+    # ubuntu 18, oraclejdk 14
+    - language: java
+      jdk: oraclejdk14
+      os: linux
+      dist: bionic
+      sudo: required
+      env:
+        - CACHE_NAME=ubuntu18_oraclejdk14
+
+    # ubuntu 18, oraclejdk 11
     - language: java
       jdk: oraclejdk11
       os: linux
       dist: bionic
       sudo: required
+      env:
+        - CACHE_NAME=ubuntu18_oraclejdk11
 
-    # ubuntu 18
+    # ubuntu 16, oraclejdk 11
+    - language: java
+      jdk: oraclejdk11
+      os: linux
+      dist: xenial
+      sudo: required
+      env:
+        - CACHE_NAME=ubuntu16_oraclejdk11
+
+    # ubuntu 16, oraclejdk 14
     - language: java
       jdk: oraclejdk14
-
       os: linux
-      dist: bionic
+      dist: xenial
       sudo: required
-
+      env:
+        - CACHE_NAME=ubuntu16_oraclejdk14
 addons:
   apt:
     packages:
