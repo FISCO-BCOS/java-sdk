@@ -68,7 +68,7 @@ public class PerformanceOk {
 
             System.out.println("====== PerformanceOk trans start ======");
 
-            ThreadPoolService threadPoolService = new ThreadPoolService("PerformanceOk");
+            ThreadPoolService threadPoolService = new ThreadPoolService("PerformanceOk", 102400);
 
             for (Integer i = 0; i < count; ++i) {
                 limiter.acquire();

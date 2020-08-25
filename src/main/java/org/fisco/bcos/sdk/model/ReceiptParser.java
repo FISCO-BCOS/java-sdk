@@ -37,7 +37,6 @@ public class ReceiptParser {
                 }
                 int statusValue =
                         new BigInteger(output.substring(2, output.length()), 16).intValue();
-                System.out.println("statusValue: " + statusValue);
                 if (receipt.getMessage() == null || receipt.getMessage().equals("")) {
                     receipt.setMessage(PrecompiledRetCode.CODE_SUCCESS.getMessage());
                 }
