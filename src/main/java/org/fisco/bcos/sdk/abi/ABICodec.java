@@ -34,6 +34,15 @@ public class ABICodec {
 
     private CryptoInterface cryptoInterface;
 
+    public ABICodec() {
+        super();
+    }
+
+    public ABICodec(CryptoInterface cryptoInterface) {
+        super();
+        this.cryptoInterface = cryptoInterface;
+    }
+
     public void setCryptoInterface(CryptoInterface cryptoInterface) {
         this.cryptoInterface = cryptoInterface;
     }

@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
+import org.fisco.bcos.sdk.abi.ABICodec;
+import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.abi.TypeReference;
@@ -67,6 +69,7 @@ public class AssembleTransactionManager extends TransactionManager
     protected final FunctionEncoder functionEncoder;
     protected final TransactionDecoderInterface transactionDecoder;
     protected final TransactionPusherInterface transactionPusher;
+    protected final ABICodec abiCodec;
 
     /**
      * In file mode, use abi and bin to send transactions.
@@ -88,6 +91,7 @@ public class AssembleTransactionManager extends TransactionManager
         this.functionEncoder = new FunctionEncoder(cryptoInterface);
         this.transactionDecoder = new TransactionDecoderService(cryptoInterface);
         this.transactionPusher = new TransactionPusherService(client);
+        this.abiCodec = new ABICodec(cryptoInterface);
     }
 
     @Override
@@ -182,6 +186,14 @@ public class AssembleTransactionManager extends TransactionManager
             String to, String abi, String functionName, List<Object> params)
             throws TransactionBaseException {
         String data = encodeFunction(abi, functionName, params);
+        return sendTransactionAndGetResponse(to, abi, data);
+    }
+
+    @Override
+    public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
+            String to, String abi, String functionName, List<String> params)
+            throws ABICodecException, TransactionBaseException {
+        String data = abiCodec.encodeMethodFromString(abi, functionName, params);
         return sendTransactionAndGetResponse(to, abi, data);
     }
 

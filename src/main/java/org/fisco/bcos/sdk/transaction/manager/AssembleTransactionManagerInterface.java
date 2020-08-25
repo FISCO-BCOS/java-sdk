@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.transaction.manager;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
@@ -63,6 +64,10 @@ public interface AssembleTransactionManagerInterface {
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
             throws TransactionBaseException;
+
+    public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
+            String to, String abi, String functionName, List<String> params)
+            throws ABICodecException, TransactionBaseException;
 
     public void sendTransactionAsync(String signedTransaction, TransactionCallback callback);
 
