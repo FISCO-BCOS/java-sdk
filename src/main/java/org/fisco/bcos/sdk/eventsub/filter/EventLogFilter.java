@@ -40,6 +40,14 @@ public class EventLogFilter {
         return content;
     }
 
+    public String getParamJsonString(String groupId, String filterId)
+            throws JsonProcessingException {
+        EventLogRequestParams requestParams =
+                new EventLogRequestParams(generateNewParams(), groupId, filterId);
+        String content = requestParams.toJsonString();
+        return content;
+    }
+
     public class EventLogRequestParams extends EventLogParams {
         private String groupID;
         private String filterID;

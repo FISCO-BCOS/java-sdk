@@ -47,7 +47,7 @@ public interface EventSubscribe {
      *
      * @param params
      * @param callback
-     * @return RegisterId of event
+     * @return registerId of event
      */
     String subscribeEvent(EventLogParams params, EventCallback callback);
 
