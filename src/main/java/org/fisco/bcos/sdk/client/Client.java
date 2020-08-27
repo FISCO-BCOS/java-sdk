@@ -106,6 +106,8 @@ public interface Client {
         return new ClientImpl(channel);
     }
 
+    GroupManagerService getGroupManagerService();
+
     CryptoInterface getCryptoInterface();
 
     NodeVersion getClientNodeVersion();
@@ -641,6 +643,13 @@ public interface Client {
      * @return peers
      */
     Peers getPeers();
+
+    /**
+     * Peer operation: get connected peers
+     *
+     * @return peers
+     */
+    Peers getPeers(String endpoint);
 
     /**
      * Peer operation: async get connected peers

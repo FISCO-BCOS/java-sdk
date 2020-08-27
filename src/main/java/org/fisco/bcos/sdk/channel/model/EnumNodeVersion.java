@@ -39,6 +39,10 @@ public enum EnumNodeVersion {
                     + "]";
         }
 
+        public String toVersionString() {
+            return this.getMajor() + "." + this.getMinor();
+        }
+
         public int getMajor() {
             return major;
         }

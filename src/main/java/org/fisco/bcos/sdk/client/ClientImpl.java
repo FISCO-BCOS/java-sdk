@@ -67,6 +67,7 @@ public class ClientImpl implements Client {
     private final EventSubscribe eventSubscribe;
     private final CryptoInterface cryptoInterface;
     private final NodeVersion nodeVersion;
+    private final GroupManagerService groupManagerService;
 
     protected ClientImpl(
             GroupManagerService groupManagerService,
@@ -79,6 +80,7 @@ public class ClientImpl implements Client {
         this.eventSubscribe = EventSubscribe.build(groupManagerService, groupId);
         this.cryptoInterface = cryptoInterface;
         this.nodeVersion = nodeVersion;
+        this.groupManagerService = groupManagerService;
         // send request to the group, and get the blockNumber information
         getBlockLimit();
     }
@@ -89,6 +91,12 @@ public class ClientImpl implements Client {
         this.eventSubscribe = null;
         this.cryptoInterface = null;
         this.nodeVersion = null;
+        this.groupManagerService = null;
+    }
+
+    @Override
+    public GroupManagerService getGroupManagerService() {
+        return this.groupManagerService;
     }
 
     @Override
@@ -721,6 +729,14 @@ public class ClientImpl implements Client {
     public Peers getPeers() {
         return this.jsonRpcService.sendRequestToGroup(
                 new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(DefaultGroupId)),
+                Peers.class);
+    }
+
+    @Override
+    public Peers getPeers(String endpoint) {
+        return this.jsonRpcService.sendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(DefaultGroupId)),
+                endpoint,
                 Peers.class);
     }
 
