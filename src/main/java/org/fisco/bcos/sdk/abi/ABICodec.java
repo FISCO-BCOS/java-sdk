@@ -53,6 +53,17 @@ public class ABICodec {
 
     public String encodeMethod(String ABI, String methodName, List<Object> params)
             throws ABICodecException {
+        return encodeMethod(ABI, methodName, params, false, false);
+    }
+
+    @SuppressWarnings("static-access")
+    public String encodeMethod(
+            String ABI,
+            String methodName,
+            List<Object> params,
+            boolean checkMode,
+            boolean isConstant)
+            throws ABICodecException {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
@@ -62,6 +73,9 @@ public class ABICodec {
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
                 ABICodecObject abiCodecObject = new ABICodecObject();
                 try {
+                    if (checkMode && abiDefinition.isConstant() != isConstant) {
+                        continue;
+                    }
                     String methodId = abiDefinition.getMethodId(cryptoInterface);
                     return methodId + abiCodecObject.encodeValue(inputABIObject, params).encode();
                 } catch (Exception e) {
@@ -263,6 +277,21 @@ public class ABICodec {
         return null;
     }
 
+    public List<Object> decodeMethod(ABIDefinition abiDefinition, String output)
+            throws ABICodecException {
+        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
+        ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
+        ABICodecObject abiCodecObject = new ABICodecObject();
+        try {
+            return abiCodecObject.decodeJavaObject(outputABIObject, output);
+        } catch (Exception e) {
+            logger.error(" exception in decodeMethodToObject : {}", e.getMessage());
+        }
+        String errorMsg = " cannot decode in decodeMethodToObject with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ABICodecException(errorMsg);
+    }
+
     public List<Object> decodeMethod(String ABI, String methodName, String output)
             throws ABICodecException {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
@@ -376,7 +405,7 @@ public class ABICodec {
 
         for (ABIDefinition abiDefinition : events) {
             ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
-            ABIObject outputObject = abiObjectFactory.createOutputObject(abiDefinition);
+            ABIObject outputObject = abiObjectFactory.createInputObject(abiDefinition);
             ABICodecObject abiCodecObject = new ABICodecObject();
             try {
                 return abiCodecObject.decodeJavaObject(outputObject, output);

@@ -25,12 +25,10 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.fisco.bcos.sdk.BcosSDK;
+import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
-import org.fisco.bcos.sdk.model.EventResultEntity;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.bo.InputAndOutputResult;
-import org.fisco.bcos.sdk.transaction.model.bo.ResultEntity;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
@@ -41,7 +39,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
 /**
@@ -83,9 +80,9 @@ public class AssembleTransactionManagerTest {
         CallResponse callResponse1 =
                 manager.sendCallByContractLoader("HelloWorld", helloWorldAddrss, "name", new ArrayList<>());
         // System.out.println(JsonUtils.toJson(callResponse1));
-        List<ResultEntity> l = JsonUtils.fromJsonList(callResponse1.getValues(), ResultEntity.class);
+        List<Object> l = JsonUtils.fromJsonList(callResponse1.getValues(), Object.class);
         Assert.assertEquals(l.size(), 1);
-        Assert.assertEquals(l.get(0).getData(), "Hello, World!");
+        Assert.assertEquals(l.get(0), "Hello, World!");
         // send transaction
         List<Object> params = new ArrayList<>();
         params.add("test");
@@ -97,9 +94,9 @@ public class AssembleTransactionManagerTest {
         CallResponse callResponse2 =
                 manager.sendCallByContractLoader("HelloWorld", helloWorldAddrss, "name", new ArrayList<>());
         // System.out.println(JsonUtils.toJson(callResponse2));
-        l = JsonUtils.fromJsonList(callResponse2.getValues(), ResultEntity.class);
+        l = JsonUtils.fromJsonList(callResponse2.getValues(), Object.class);
         Assert.assertEquals(l.size(), 1);
-        Assert.assertEquals(l.get(0).getData(), "test");
+        Assert.assertEquals(l.get(0), "test");
     }
 
     @Test
@@ -114,6 +111,7 @@ public class AssembleTransactionManagerTest {
         params.add(1);
         params.add("test2");
         TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
+        //System.out.println(JsonUtils.toJson(response));
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             return;
         }
@@ -124,12 +122,8 @@ public class AssembleTransactionManagerTest {
                 StringUtils.isNotBlank(response.getContractAddress()) && !StringUtils.equalsIgnoreCase(contractAddress,
                         "0x0000000000000000000000000000000000000000000000000000000000000000"));
         // System.out.println(JsonUtils.toJson(response));
-        Map<String, List<List<EventResultEntity>>> map = response.getEventResultEntityMap();
-        String eventsList = JsonUtils.toJson(map.get("LogInit(address,string)"));
-        List<ArrayList<EventResultEntity>> eventResult =
-                JsonUtils.fromJson(eventsList, new TypeReference<ArrayList<ArrayList<EventResultEntity>>>() {
-                });
-        Assert.assertEquals("test2", eventResult.get(0).get(1).getData());
+        Map<String, List<Object>> map = response.getEventResultMap();
+        Assert.assertEquals("test2", map.get("LogInit").get(1));
     }
 
     @Test
@@ -154,18 +148,18 @@ public class AssembleTransactionManagerTest {
         // System.out.println(JsonUtils.toJson(callResponse1));
         // System.out.println("callResponse1 : " + callResponse1.getReturnMessage());
         if (callResponse1.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            List<ResultEntity> entities = JsonUtils.fromJsonList(callResponse1.getValues(), ResultEntity.class);
+            List<Object> entities = JsonUtils.fromJsonList(callResponse1.getValues(), Object.class);
             Assert.assertEquals(entities.size(), 1);
-            Assert.assertEquals(entities.get(0).getData(), 1);
+            Assert.assertEquals(entities.get(0), 1);
         }
         CallResponse callResponse2 =
                 manager.sendCallByContractLoader("ComplexSol", contractAddress, "_s", new ArrayList<>());
         // System.out.println("callResponse2 : " + callResponse2.getReturnMessage());
         if (callResponse2.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
             // System.out.println(JsonUtils.toJson(callResponse2));
-            List<ResultEntity> entities2 = JsonUtils.fromJsonList(callResponse2.getValues(), ResultEntity.class);
+            List<Object> entities2 = JsonUtils.fromJsonList(callResponse2.getValues(), Object.class);
             Assert.assertEquals(entities2.size(), 1);
-            Assert.assertEquals(entities2.get(0).getData(), "test2");
+            Assert.assertEquals(entities2.get(0), "test2");
         }
     }
 
@@ -208,8 +202,8 @@ public class AssembleTransactionManagerTest {
         }
         String contractAddress = response.getContractAddress();
         // increment v
-        manager.sendTransactionAsync(contractAddress, abi, "incrementUint256", Lists.newArrayList(BigInteger.valueOf(10)),
-                new TransactionCallback() {
+        manager.sendTransactionAsync(contractAddress, abi, "incrementUint256",
+                Lists.newArrayList(BigInteger.valueOf(10)), new TransactionCallback() {
                     @Override
                     public void onResponse(TransactionReceipt receipt) {
                         Assert.assertEquals("0x0", receipt.getStatus());
@@ -220,10 +214,8 @@ public class AssembleTransactionManagerTest {
                                     manager.sendCall(client.getCryptoInterface().getCryptoKeyPair().getAddress(),
                                             contractAddress, abi, "getUint256", Lists.newArrayList());
                             Assert.assertEquals(0, callResponse3.getReturnCode());
-                            List<ResultEntity> resultEntityList =
-                                    JsonUtils.fromJsonList(callResponse3.getValues(), ResultEntity.class);
-                            Assert.assertEquals(11, resultEntityList.get(0).getData());
-                        } catch (TransactionBaseException e) {
+                            // System.out.println(JsonUtils.toJson(callResponse3));
+                        } catch (TransactionBaseException | ABICodecException e) {
                             System.out.println(e.getMessage());
                         }
                     }
@@ -255,10 +247,9 @@ public class AssembleTransactionManagerTest {
         TransactionResponse transactionResponse =
                 manager.sendTransactionAndGetResponse(contractAddress, abi, "setValues", paramsSetValues);
         // System.out.println(JsonUtils.toJson(transactionResponse));
-        Map<String, List<List<EventResultEntity>>> eventsMap = transactionResponse.getEventResultEntityMap();
+        Map<String, List<Object>> eventsMap = transactionResponse.getEventResultMap();
         Assert.assertEquals(1, eventsMap.size());
-        Assert.assertEquals("set values 字符串",
-                eventsMap.get("LogSetValues(int256,address[],string)").get(0).get(2).getData());
+        Assert.assertEquals("set values 字符串", eventsMap.get("LogSetValues").get(2));
     }
 
     @Test
@@ -281,20 +272,21 @@ public class AssembleTransactionManagerTest {
         List<String> paramsSetBytes = Lists.newArrayList(Base64.toBase64String("set bytes test".getBytes()));
         TransactionResponse transactionResponse3 =
                 manager.sendTransactionWithStringParamsAndGetResponse(contractAddress, abi, "setBytes", paramsSetBytes);
-        InputAndOutputResult entities3 = transactionResponse3.getInputAndOutput();
-        Assert.assertEquals(entities3.getResult().size(), 1);
-        Assert.assertEquals(entities3.getResult().get(0).getData(), "set bytes test");
+        // System.out.println(JsonUtils.toJson(transactionResponse3));
+        Assert.assertEquals(transactionResponse3.getValuesList().size(), 1);
+        Assert.assertEquals(transactionResponse3.getValuesList().get(0), "set bytes test");
 
-        Map<String, List<List<EventResultEntity>>> eventsMap3 = transactionResponse3.getEventResultEntityMap();
+        Map<String, List<Object>> eventsMap3 = transactionResponse3.getEventResultMap();
+        // System.out.println(JsonUtils.toJson(eventsMap3));
         Assert.assertEquals(1, eventsMap3.size());
-        Assert.assertEquals("set bytes test", eventsMap3.get("LogSetBytes(bytes,bytes)").get(0).get(1).getData());
+        Assert.assertEquals("set bytes test", eventsMap3.get("LogSetBytes").get(1));
 
         // getBytes
         CallResponse callResponse4 = manager.sendCall(client.getCryptoInterface().getCryptoKeyPair().getAddress(),
                 contractAddress, abi, "_bytesV", Lists.newArrayList());
         Assert.assertEquals(0, callResponse4.getReturnCode());
-        List<ResultEntity> resultEntityList4 = JsonUtils.fromJsonList(callResponse4.getValues(), ResultEntity.class);
-        Assert.assertEquals("set bytes test", resultEntityList4.get(0).getData());
+        List<Object> resultEntityList4 = JsonUtils.fromJsonList(callResponse4.getValues(), Object.class);
+        Assert.assertEquals("set bytes test", resultEntityList4.get(0));
     }
 
     @Test

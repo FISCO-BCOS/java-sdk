@@ -120,25 +120,25 @@ public class FunctionBuilderService implements FunctionBuilderInterface {
         // match on build
         Iterator<ABIDefinition> iterator = possibleDefinitions.iterator();
         while (iterator.hasNext()) {
-            ABIDefinition ABIDefinition = iterator.next();
+            ABIDefinition abiDefinition = iterator.next();
             List<Type> params =
-                    ArgsConvertHandler.tryConvertToSolArgs(funcParamsList, ABIDefinition);
+                    ArgsConvertHandler.tryConvertToSolArgs(funcParamsList, abiDefinition);
             if (params == null) {
                 log.debug(
                         "Skip abi definition for {}:{}, type not match",
-                        ABIDefinition.getName(),
-                        ABIDefinition.getInputs().size());
+                        abiDefinition.getName(),
+                        abiDefinition.getInputs().size());
                 continue;
             }
             if (params.size() != funcParamsList.size()) {
                 log.debug(
                         "Skip abi definition for {}:{}, arg size not match",
-                        ABIDefinition.getName(),
-                        ABIDefinition.getInputs().size());
+                        abiDefinition.getName(),
+                        abiDefinition.getInputs().size());
                 continue;
             }
             Function result = new Function(functionName, params, Collections.EMPTY_LIST);
-            return new SolidityFunction(result, ABIDefinition);
+            return new SolidityFunction(result, abiDefinition);
         }
         throw new TransactionBaseException(
                 ResultCodeEnum.PARSE_ERROR.getCode(),

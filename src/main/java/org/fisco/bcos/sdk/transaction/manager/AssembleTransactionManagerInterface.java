@@ -56,10 +56,11 @@ public interface AssembleTransactionManagerInterface {
 
     public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> params)
-            throws TransactionBaseException;
+            throws ABICodecException;
 
-    public TransactionResponse sendTransactionAndGetResponse(String to, String abi, String data)
-            throws TransactionBaseException;
+    public TransactionResponse sendTransactionAndGetResponse(
+            String to, String abi, String functionName, String data)
+            throws TransactionBaseException, ABICodecException;
 
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
@@ -87,17 +88,18 @@ public interface AssembleTransactionManagerInterface {
             String functionName,
             List<Object> args,
             TransactionCallback callback)
-            throws TransactionBaseException;
+            throws ABICodecException;
 
     public CallResponse sendCallByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> params)
-            throws TransactionBaseException;
+            throws TransactionBaseException, ABICodecException;
 
     public CallResponse sendCall(
             String from, String to, String abi, String functionName, List<Object> args)
-            throws TransactionBaseException;
+            throws TransactionBaseException, ABICodecException;
 
-    public CallResponse sendCall(CallRequest callRequest) throws TransactionBaseException;
+    public CallResponse sendCall(CallRequest callRequest)
+            throws ABICodecException, TransactionBaseException;
 
     public String createSignedConstructor(
             String abi, String bin, String contractName, List<Object> params);
