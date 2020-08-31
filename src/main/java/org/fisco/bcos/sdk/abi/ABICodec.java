@@ -76,6 +76,25 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
+    public String encodeConstrucotorFromString(String ABI, String BIN, List<String> params)
+            throws ABICodecException {
+        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
+        ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
+        ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
+        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
+        @SuppressWarnings("static-access")
+        ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
+        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+        try {
+            return BIN + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
+        } catch (Exception e) {
+            logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
+        }
+        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ABICodecException(errorMsg);
+    }
+
     public String encodeMethod(
             String ABI,
             String methodName,
