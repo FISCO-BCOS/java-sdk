@@ -33,6 +33,7 @@ public class ABICodec {
     private static final Logger logger = LoggerFactory.getLogger(ABICodec.class);
 
     private CryptoInterface cryptoInterface;
+    public static final String TYPE_CONSTRUCTOR = "constructor";
 
     public ABICodec() {
         super();
@@ -56,7 +57,25 @@ public class ABICodec {
         return encodeMethod(ABI, methodName, params, false, false);
     }
 
-    @SuppressWarnings("static-access")
+    public String encodeConstrucotor(String ABI, String BIN, List<Object> params)
+            throws ABICodecException {
+        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
+        ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
+        ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
+        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
+        @SuppressWarnings("static-access")
+        ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
+        ABICodecObject abiCodecObject = new ABICodecObject();
+        try {
+            return BIN + abiCodecObject.encodeValue(inputABIObject, params).encode();
+        } catch (Exception e) {
+            logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
+        }
+        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ABICodecException(errorMsg);
+    }
+
     public String encodeMethod(
             String ABI,
             String methodName,
@@ -70,6 +89,7 @@ public class ABICodec {
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
                 ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
+                @SuppressWarnings("static-access")
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
                 ABICodecObject abiCodecObject = new ABICodecObject();
                 try {

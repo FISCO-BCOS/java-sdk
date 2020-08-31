@@ -24,10 +24,7 @@ import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.RetCode;
-import org.fisco.bcos.sdk.model.SolidityConstructor;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.builder.FunctionBuilderInterface;
-import org.fisco.bcos.sdk.transaction.builder.FunctionBuilderService;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -54,21 +51,11 @@ import org.slf4j.LoggerFactory;
 public class AssembleTransactionManager extends TransactionManager
         implements AssembleTransactionManagerInterface {
     protected static Logger log = LoggerFactory.getLogger(AssembleTransactionManager.class);
-    protected final FunctionBuilderInterface functionBuilder;
     protected final TransactionDecoderInterface transactionDecoder;
     protected final TransactionPusherInterface transactionPusher;
     protected final ABICodec abiCodec;
     private ContractLoader contractLoader;
 
-    /**
-     * In file mode, use abi and bin to send transactions.
-     *
-     * @param client
-     * @param cryptoInterface
-     * @param groupId
-     * @param chainId
-     * @param contractLoader
-     */
     public AssembleTransactionManager(
             Client client,
             CryptoInterface cryptoInterface,
@@ -76,7 +63,6 @@ public class AssembleTransactionManager extends TransactionManager
             String chainId,
             ContractLoader contractLoader) {
         super(client, cryptoInterface, groupId, chainId);
-        this.functionBuilder = new FunctionBuilderService(contractLoader);
         this.transactionDecoder = new TransactionDecoderService(cryptoInterface);
         this.transactionPusher = new TransactionPusherService(client);
         this.abiCodec = new ABICodec(cryptoInterface);
@@ -84,8 +70,8 @@ public class AssembleTransactionManager extends TransactionManager
     }
 
     @Override
-    public void deployOnly(String abi, String bin, String contractName, List<Object> params) {
-        transactionPusher.pushOnly(createSignedConstructor(abi, bin, contractName, params));
+    public void deployOnly(String abi, String bin, List<Object> params) throws ABICodecException {
+        transactionPusher.pushOnly(createSignedConstructor(abi, bin, params));
     }
 
     @Override
@@ -107,26 +93,22 @@ public class AssembleTransactionManager extends TransactionManager
     }
 
     @Override
-    public TransactionResponse deployAndGetResponse(
-            String abi, String bin, String contractName, List<Object> params) {
-        return deployAndGetResponse(abi, createSignedConstructor(abi, bin, contractName, params));
+    public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
+            throws ABICodecException {
+        return deployAndGetResponse(abi, createSignedConstructor(abi, bin, params));
     }
 
     @Override
     public void deployAsync(
-            String abi,
-            String bin,
-            String contractName,
-            List<Object> params,
-            TransactionCallback callback) {
-        transactionPusher.pushAsync(
-                createSignedConstructor(abi, bin, contractName, params), callback);
+            String abi, String bin, List<Object> params, TransactionCallback callback)
+            throws ABICodecException {
+        transactionPusher.pushAsync(createSignedConstructor(abi, bin, params), callback);
     }
 
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
-            String abi, String bin, String contractName, List<Object> params) {
-        return transactionPusher.pushAsync(createSignedConstructor(abi, bin, contractName, params));
+            String abi, String bin, List<Object> params) throws ABICodecException {
+        return transactionPusher.pushAsync(createSignedConstructor(abi, bin, params));
     }
 
     /**
@@ -136,13 +118,26 @@ public class AssembleTransactionManager extends TransactionManager
      * @param args
      * @return
      * @throws TransactionBaseException
+     * @throws ABICodecException
      */
     @Override
     public TransactionResponse deployByContractLoader(String contractName, List<Object> args)
-            throws TransactionBaseException {
-        SolidityConstructor constructor = functionBuilder.buildConstructor(contractName, args);
-        String signedData = createSignedTransaction(null, constructor.getData());
-        return deployAndGetResponse(constructor.getAbi(), signedData);
+            throws ABICodecException {
+        return deployAndGetResponse(
+                contractLoader.getABIByContractName(contractName),
+                contractLoader.getBinaryByContractName(contractName),
+                args);
+    }
+
+    @Override
+    public void deployByContractLoaderAsync(
+            String contractName, List<Object> args, TransactionCallback callback)
+            throws ABICodecException {
+        deployAsync(
+                contractLoader.getABIByContractName(contractName),
+                contractLoader.getBinaryByContractName(contractName),
+                args,
+                callback);
     }
 
     @Override
@@ -179,15 +174,6 @@ public class AssembleTransactionManager extends TransactionManager
             throws ABICodecException, TransactionBaseException {
         String data = abiCodec.encodeMethodFromString(abi, functionName, params);
         return sendTransactionAndGetResponse(to, abi, functionName, data);
-    }
-
-    @Override
-    public void deployByContractLoaderAsync(
-            String contractName, List<Object> args, TransactionCallback callback)
-            throws TransactionBaseException {
-        SolidityConstructor constructor = functionBuilder.buildConstructor(contractName, args);
-        String signedData = createSignedTransaction(null, constructor.getData());
-        sendTransactionAsync(signedData, callback);
     }
 
     @Override
@@ -281,11 +267,9 @@ public class AssembleTransactionManager extends TransactionManager
     }
 
     @Override
-    public String createSignedConstructor(
-            String abi, String bin, String contractName, List<Object> params) {
-        SolidityConstructor constructor =
-                functionBuilder.buildConstructor(abi, bin, contractName, params);
-        return createSignedTransaction(null, constructor.getData());
+    public String createSignedConstructor(String abi, String bin, List<Object> params)
+            throws ABICodecException {
+        return createSignedTransaction(null, abiCodec.encodeConstrucotor(abi, bin, params));
     }
 
     @Override

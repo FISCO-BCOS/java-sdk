@@ -113,6 +113,7 @@ public class AssembleTransactionManagerTest {
         TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
         //System.out.println(JsonUtils.toJson(response));
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
+            System.out.println(response.getReturnMessage());
             return;
         }
         Assert.assertTrue(response.getReturnCode() == 0);

@@ -28,29 +28,26 @@ public interface AssembleTransactionManagerInterface {
 
     public TransactionReceipt deployAndGetReceipt(String data);
 
-    public void deployOnly(String abi, String bin, String contractName, List<Object> params);
+    public void deployOnly(String abi, String bin, List<Object> params) throws ABICodecException;
 
     public TransactionResponse deployAndGetResponse(String abi, String signedData);
 
-    public TransactionResponse deployAndGetResponse(
-            String abi, String bin, String contractName, List<Object> params);
+    public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
+            throws ABICodecException;
 
     public void deployAsync(
-            String abi,
-            String bin,
-            String contractName,
-            List<Object> params,
-            TransactionCallback callback);
+            String abi, String bin, List<Object> params, TransactionCallback callback)
+            throws ABICodecException;
 
     public CompletableFuture<TransactionReceipt> deployAsync(
-            String abi, String bin, String contractName, List<Object> params);
+            String abi, String bin, List<Object> params) throws ABICodecException;
 
     public TransactionResponse deployByContractLoader(String contractName, List<Object> params)
-            throws TransactionBaseException;
+            throws ABICodecException;
 
     public void deployByContractLoaderAsync(
             String contractName, List<Object> args, TransactionCallback callback)
-            throws TransactionBaseException;
+            throws ABICodecException;
 
     public void sendTransactionOnly(String signedData);
 
@@ -101,8 +98,8 @@ public interface AssembleTransactionManagerInterface {
     public CallResponse sendCall(CallRequest callRequest)
             throws ABICodecException, TransactionBaseException;
 
-    public String createSignedConstructor(
-            String abi, String bin, String contractName, List<Object> params);
+    public String createSignedConstructor(String abi, String bin, List<Object> params)
+            throws ABICodecException;
 
     public String encodeFunction(String abi, String functionName, List<Object> params)
             throws ABICodecException;
