@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.transaction.manager;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
@@ -27,42 +28,44 @@ public interface AssembleTransactionManagerInterface {
 
     public TransactionReceipt deployAndGetReceipt(String data);
 
-    public void deployOnly(String abi, String bin, String contractName, List<Object> params);
+    public void deployOnly(String abi, String bin, List<Object> params) throws ABICodecException;
 
     public TransactionResponse deployAndGetResponse(String abi, String signedData);
 
-    public TransactionResponse deployAndGetResponse(
-            String abi, String bin, String contractName, List<Object> params);
+    public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
+            throws ABICodecException;
 
     public void deployAsync(
-            String abi,
-            String bin,
-            String contractName,
-            List<Object> params,
-            TransactionCallback callback);
+            String abi, String bin, List<Object> params, TransactionCallback callback)
+            throws ABICodecException;
 
     public CompletableFuture<TransactionReceipt> deployAsync(
-            String abi, String bin, String contractName, List<Object> params);
+            String abi, String bin, List<Object> params) throws ABICodecException;
 
     public TransactionResponse deployByContractLoader(String contractName, List<Object> params)
-            throws TransactionBaseException;
+            throws ABICodecException;
 
     public void deployByContractLoaderAsync(
             String contractName, List<Object> args, TransactionCallback callback)
-            throws TransactionBaseException;
+            throws ABICodecException;
 
     public void sendTransactionOnly(String signedData);
 
     public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> params)
-            throws TransactionBaseException;
+            throws ABICodecException;
 
-    public TransactionResponse sendTransactionAndGetResponse(String to, String abi, String data)
-            throws TransactionBaseException;
+    public TransactionResponse sendTransactionAndGetResponse(
+            String to, String abi, String functionName, String data)
+            throws TransactionBaseException, ABICodecException;
 
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
-            throws TransactionBaseException;
+            throws ABICodecException, TransactionBaseException;
+
+    public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
+            String to, String abi, String functionName, List<String> params)
+            throws ABICodecException, TransactionBaseException;
 
     public void sendTransactionAsync(String signedTransaction, TransactionCallback callback);
 
@@ -72,7 +75,7 @@ public interface AssembleTransactionManagerInterface {
             String functionName,
             List<Object> params,
             TransactionCallback callback)
-            throws TransactionBaseException;
+            throws TransactionBaseException, ABICodecException;
 
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(String signedData);
 
@@ -82,21 +85,22 @@ public interface AssembleTransactionManagerInterface {
             String functionName,
             List<Object> args,
             TransactionCallback callback)
-            throws TransactionBaseException;
+            throws ABICodecException;
 
     public CallResponse sendCallByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> params)
-            throws TransactionBaseException;
+            throws TransactionBaseException, ABICodecException;
 
     public CallResponse sendCall(
             String from, String to, String abi, String functionName, List<Object> args)
-            throws TransactionBaseException;
+            throws TransactionBaseException, ABICodecException;
 
-    public CallResponse sendCall(CallRequest callRequest) throws TransactionBaseException;
+    public CallResponse sendCall(CallRequest callRequest)
+            throws ABICodecException, TransactionBaseException;
 
-    public String createSignedConstructor(
-            String abi, String bin, String contractName, List<Object> params);
+    public String createSignedConstructor(String abi, String bin, List<Object> params)
+            throws ABICodecException;
 
     public String encodeFunction(String abi, String functionName, List<Object> params)
-            throws TransactionBaseException;
+            throws ABICodecException;
 }

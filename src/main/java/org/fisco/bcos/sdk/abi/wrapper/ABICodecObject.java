@@ -1,13 +1,13 @@
 package org.fisco.bcos.sdk.abi.wrapper;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.Bool;
 import org.fisco.bcos.sdk.abi.datatypes.Bytes;
@@ -199,6 +199,9 @@ public class ABICodecObject {
                     {
                         if (value instanceof BigInteger) {
                             abiObject.setNumericValue(new Uint256((BigInteger) value));
+                        } else if (StringUtils.isNumeric(value.toString())) {
+                            abiObject.setNumericValue(
+                                    new Uint256((new BigInteger(value.toString()))));
                         } else {
                             errorReport(
                                     " valueType mismatch",
@@ -211,6 +214,9 @@ public class ABICodecObject {
                     {
                         if (value instanceof BigInteger) {
                             abiObject.setNumericValue(new Int256((BigInteger) value));
+                        } else if (StringUtils.isNumeric(value.toString())) {
+                            abiObject.setNumericValue(
+                                    new Uint256((new BigInteger(value.toString()))));
                         } else {
                             errorReport(
                                     " valueType mismatch",
@@ -233,11 +239,9 @@ public class ABICodecObject {
                     }
                 case BYTES:
                     {
-                        if (value instanceof List) {
-                            if (((ParameterizedType) value).getRawType().equals(Byte.class)) {
-                                byte[] bytesValue = (byte[]) value;
-                                abiObject.setBytesValue(new Bytes(bytesValue.length, bytesValue));
-                            }
+                        if (value instanceof byte[]) {
+                            byte[] bytesValue = (byte[]) value;
+                            abiObject.setBytesValue(new Bytes(bytesValue.length, bytesValue));
 
                         } else {
                             errorReport(
@@ -249,8 +253,7 @@ public class ABICodecObject {
                     }
                 case DBYTES:
                     {
-                        if (value instanceof List
-                                && (((ParameterizedType) value).getRawType().equals(Byte.class))) {
+                        if (value instanceof byte[]) {
                             byte[] bytesValue = (byte[]) value;
                             abiObject.setDynamicBytesValue(new DynamicBytes(bytesValue));
                         } else {
@@ -260,6 +263,7 @@ public class ABICodecObject {
                                     value.getClass().getName());
                             break;
                         }
+                        break;
                     }
                 case STRING:
                     {

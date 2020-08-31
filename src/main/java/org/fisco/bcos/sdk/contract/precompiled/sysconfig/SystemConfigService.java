@@ -18,8 +18,8 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
-import org.fisco.bcos.sdk.model.ReceiptParser;
 import org.fisco.bcos.sdk.model.RetCode;
+import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 
 public class SystemConfigService {
     private final SystemConfigPrecompiled systemConfigPrecompiled;
