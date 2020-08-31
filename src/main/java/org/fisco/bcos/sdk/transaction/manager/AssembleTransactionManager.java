@@ -99,6 +99,15 @@ public class AssembleTransactionManager extends TransactionManager
     }
 
     @Override
+    public TransactionResponse deployAndGetResponseWithStringParams(
+            String abi, String bin, List<String> params) throws ABICodecException {
+        return deployAndGetResponse(
+                abi,
+                createSignedTransaction(
+                        null, abiCodec.encodeConstrucotorFromString(abi, bin, params)));
+    }
+
+    @Override
     public void deployAsync(
             String abi, String bin, List<Object> params, TransactionCallback callback)
             throws ABICodecException {
@@ -247,12 +256,7 @@ public class AssembleTransactionManager extends TransactionManager
             String from, String to, String abi, String functionName, List<Object> paramsList)
             throws TransactionBaseException, ABICodecException {
         String data = abiCodec.encodeMethod(abi, functionName, paramsList, true, true);
-        Call call = executeCall(from, to, data);
-        CallResponse callResponse = parseCallResponseStatus(call.getCallResult());
-        List<Object> results =
-                abiCodec.decodeMethod(abi, functionName, call.getCallResult().getOutput());
-        callResponse.setValues(JsonUtils.toJson(results));
-        return callResponse;
+        return callAndGetResponse(from, to, abi, functionName, data);
     }
 
     @Override
@@ -262,6 +266,25 @@ public class AssembleTransactionManager extends TransactionManager
         CallResponse callResponse = parseCallResponseStatus(call.getCallResult());
         String callOutput = call.getCallResult().getOutput();
         List<Object> results = abiCodec.decodeMethod(callRequest.getAbi(), callOutput);
+        callResponse.setValues(JsonUtils.toJson(results));
+        return callResponse;
+    }
+
+    @Override
+    public CallResponse sendCallWithStringParams(
+            String from, String to, String abi, String functionName, List<String> paramsList)
+            throws TransactionBaseException, ABICodecException {
+        String data = abiCodec.encodeMethodFromString(abi, functionName, paramsList);
+        return callAndGetResponse(from, to, abi, functionName, data);
+    }
+
+    public CallResponse callAndGetResponse(
+            String from, String to, String abi, String functionName, String data)
+            throws ABICodecException {
+        Call call = executeCall(from, to, data);
+        CallResponse callResponse = parseCallResponseStatus(call.getCallResult());
+        List<Object> results =
+                abiCodec.decodeMethod(abi, functionName, call.getCallResult().getOutput());
         callResponse.setValues(JsonUtils.toJson(results));
         return callResponse;
     }
