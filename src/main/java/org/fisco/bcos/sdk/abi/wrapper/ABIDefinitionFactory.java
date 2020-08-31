@@ -43,7 +43,10 @@ public class ABIDefinitionFactory {
                     logger.info(" abiDefinition: {}", abiDefinition);
                 }
             }
-
+            if (contractABIDefinition.getConstructor() == null) {
+                contractABIDefinition.setConstructor(
+                        ABIDefinition.createDefaultConstructorABIDefinition());
+            }
             logger.info(" contractABIDefinition {} ", contractABIDefinition);
 
             return contractABIDefinition;

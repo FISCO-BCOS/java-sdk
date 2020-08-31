@@ -49,7 +49,8 @@ public abstract class TransactionCallback {
         cancelTimeout();
         logger.warn("transactionSuc timeout");
         TransactionReceipt receipt = new TransactionReceipt();
-        receipt.setStatus(
+        receipt.setStatus(String.valueOf(ChannelMessageError.MESSAGE_TIMEOUT.getError()));
+        receipt.setMessage(
                 "Transaction receipt timeout, error code:"
                         + String.valueOf(ChannelMessageError.MESSAGE_TIMEOUT.getError()));
         onResponse(receipt);

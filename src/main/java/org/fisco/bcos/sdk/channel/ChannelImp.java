@@ -60,6 +60,7 @@ public class ChannelImp implements Channel {
     private static Logger logger = LoggerFactory.getLogger(ChannelImp.class);
     private Integer connectSeconds = 30;
     private Integer connectSleepPerMillis = 30;
+    private boolean running = false;
 
     private ChannelMsgHandler msgHandler;
     private Network network;
@@ -81,8 +82,13 @@ public class ChannelImp implements Channel {
     @Override
     public void start() {
         try {
+            if (running) {
+                logger.warn("The channel has already been started!");
+            }
             network.start();
             checkConnectionsToStartPeriodTask();
+            running = true;
+            logger.debug("Start the channel success");
         } catch (NetworkException e) {
             network.stop();
             logger.error("init channel network error, {} ", e.getMessage());
@@ -141,10 +147,15 @@ public class ChannelImp implements Channel {
 
     @Override
     public void stop() {
+        if (!running) {
+            logger.warn("The channel has already been stopped!");
+        }
         logger.debug("stop channel...");
         timeoutHandler.stop();
         ThreadPoolService.stopThreadPool(scheduledExecutorService);
         network.stop();
+        Thread.currentThread().interrupt();
+        running = false;
         logger.debug("stop channel succ...");
     }
 
@@ -200,132 +211,68 @@ public class ChannelImp implements Channel {
         return sendToPeerWithTimeOut(out, peerIpPort, options);
     }
 
-    @Override
-    public Response sendToPeerWithTimeOut(Message out, String peerIpPort, Options options) {
-        class Callback extends ResponseCallback {
-            public transient Response retResponse;
-            public transient Semaphore semaphore = new Semaphore(1, true);
+    class Callback extends ResponseCallback {
+        public transient Response retResponse;
+        public transient Semaphore semaphore = new Semaphore(1, true);
 
-            Callback() {
-                try {
-                    semaphore.acquire(1);
-                } catch (InterruptedException e) {
-                    logger.error("error :", e);
-                    Thread.currentThread().interrupt();
-                }
-            }
-
-            @Override
-            public void onTimeout() {
-                super.onTimeout();
-                semaphore.release();
-            }
-
-            @Override
-            public void onResponse(Response response) {
-                retResponse = response;
-
-                if (retResponse != null && retResponse.getContent() != null) {
-                    logger.trace("response: {}", retResponse.getContent());
-                } else {
-                    logger.error("response is null");
-                }
-
-                semaphore.release();
+        Callback() {
+            try {
+                semaphore.acquire(1);
+            } catch (InterruptedException e) {
+                logger.error("error :", e);
+                Thread.currentThread().interrupt();
             }
         }
 
-        Callback callback = new Callback();
-        asyncSendToPeer(out, peerIpPort, callback, options);
+        @Override
+        public void onTimeout() {
+            super.onTimeout();
+            semaphore.release();
+        }
+
+        @Override
+        public void onResponse(Response response) {
+            retResponse = response;
+            if (retResponse != null && retResponse.getContent() != null) {
+                logger.trace("response: {}", retResponse.getContent());
+            } else {
+                logger.error("response is null");
+            }
+
+            semaphore.release();
+        }
+    }
+
+    public void waitResponse(Callback callback, Options options) {
         try {
             callback.semaphore.acquire(1);
         } catch (InterruptedException e) {
-            logger.error("system error:", e);
+            logger.error("waitResponse exception, error info: {}", e.getMessage());
             Thread.currentThread().interrupt();
         }
+    }
 
+    @Override
+    public Response sendToPeerWithTimeOut(Message out, String peerIpPort, Options options) {
+        Callback callback = new Callback();
+        asyncSendToPeer(out, peerIpPort, callback, options);
+        waitResponse(callback, options);
         return callback.retResponse;
     }
 
     @Override
     public Response sendToRandomWithTimeOut(Message out, Options options) {
-        class Callback extends ResponseCallback {
-            public transient Response retResponse;
-            public transient Semaphore semaphore = new Semaphore(1, true);
-
-            Callback() {
-                try {
-                    semaphore.acquire(1);
-                } catch (InterruptedException e) {
-                    logger.error("error :", e);
-                    Thread.currentThread().interrupt();
-                }
-            }
-
-            @Override
-            public void onResponse(Response response) {
-                retResponse = response;
-
-                if (retResponse != null && retResponse.getContent() != null) {
-                    logger.trace("response: {}", retResponse.getContent());
-                } else {
-                    logger.error("response is null");
-                }
-
-                semaphore.release();
-            }
-        }
-
         Callback callback = new Callback();
         asyncSendToRandom(out, callback, options);
-        try {
-            callback.semaphore.acquire(1);
-        } catch (InterruptedException e) {
-            logger.error("system error:", e);
-            Thread.currentThread().interrupt();
-        }
-
+        waitResponse(callback, options);
         return callback.retResponse;
     }
 
     @Override
     public Response sendToPeerByRuleWithTimeOut(Message out, PeerSelectRule rule, Options options) {
-        class Callback extends ResponseCallback {
-            public transient Response retResponse;
-            public transient Semaphore semaphore = new Semaphore(1, true);
-
-            Callback() {
-                try {
-                    semaphore.acquire(1);
-                } catch (InterruptedException e) {
-                    logger.error("error :", e);
-                    Thread.currentThread().interrupt();
-                }
-            }
-
-            @Override
-            public void onResponse(Response response) {
-                retResponse = response;
-
-                if (retResponse != null && retResponse.getContent() != null) {
-                    logger.trace("response: {}", retResponse.getContent());
-                } else {
-                    logger.error("response is null");
-                }
-
-                semaphore.release();
-            }
-        }
-
         Callback callback = new Callback();
         asyncSendToPeerByRule(out, rule, callback, options);
-        try {
-            callback.semaphore.acquire(1);
-        } catch (InterruptedException e) {
-            logger.error("system error:", e);
-            Thread.currentThread().interrupt();
-        }
-
+        waitResponse(callback, options);
         return callback.retResponse;
     }
 

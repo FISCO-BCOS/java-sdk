@@ -207,14 +207,14 @@ public class ClientImpl implements Client {
     public Code getCode(String address) {
         // create request
         JsonRpcRequest request =
-                new JsonRpcRequest(JsonRpcMethods.GET_CODE, Arrays.asList(this.groupId));
+                new JsonRpcRequest(JsonRpcMethods.GET_CODE, Arrays.asList(this.groupId, address));
         return this.jsonRpcService.sendRequestToGroup(request, Code.class);
     }
 
     @Override
     public void getCodeAsync(String address, RespCallback<Code> callback) {
         this.jsonRpcService.asyncSendRequestToGroup(
-                new JsonRpcRequest(JsonRpcMethods.GET_CODE, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_CODE, Arrays.asList(this.groupId, address)),
                 Code.class,
                 callback);
     }
@@ -971,5 +971,10 @@ public class ClientImpl implements Client {
             Thread.currentThread().interrupt();
         }
         return callback.receipt;
+    }
+
+    @Override
+    public void stop() {
+        Thread.currentThread().interrupt();
     }
 }

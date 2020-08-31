@@ -91,9 +91,13 @@ public class NetworkImp implements Network {
             try {
                 logger.debug("start connManager with ECDSA sslContext");
                 connManager.startConnect(configOption);
+                connManager.startReconnectSchedule();
                 return;
             } catch (NetworkException e) {
                 connManager.stopNetty();
+                if (e.getErrorCode() == NetworkException.CONNECT_FAILED) {
+                    throw e;
+                }
                 logger.debug(
                         "start connManager with the ECDSA sslContext failed, try to use SM sslContext, error info: {}",
                         e.getMessage());
@@ -102,6 +106,7 @@ public class NetworkImp implements Network {
             connManager = new ConnectionManager(configOption, handler);
             configOption = Config.load(configFilePath, CryptoInterface.SM_TYPE);
             connManager.startConnect(configOption);
+            connManager.startReconnectSchedule();
         } catch (ConfigException e) {
             throw new NetworkException(
                     "start connManager with the SM algorithm failed, error info: " + e.getMessage(),
