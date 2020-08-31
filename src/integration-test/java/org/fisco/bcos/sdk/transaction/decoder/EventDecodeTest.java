@@ -57,11 +57,14 @@ public class EventDecodeTest {
         params.add(1);
         params.add("test2");
         TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
+        if(!response.getTransactionReceipt().getStatus().equals("0x0")) {
+            System.out.println(response.getReturnMessage());
+            return;
+        }
         List<Object> list =
                 abiCodec.decodeEvent(abi, "LogInit", response.getTransactionReceipt().getLogs().get(0).getData());
         Assert.assertEquals("test2", list.get(1));
         Map<String, List<Object>> map = response.getEventResultMap();
         Assert.assertEquals("test2", map.get("LogInit").get(1));
     }
-
 }
