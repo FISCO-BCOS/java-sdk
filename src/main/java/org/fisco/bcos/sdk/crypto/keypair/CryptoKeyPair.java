@@ -145,7 +145,7 @@ public abstract class CryptoKeyPair {
             // calculate hash for the public key
             String publicKeyHash = Hex.toHexString(hashImpl.hash(Hex.decode(publicKeyNoPrefix)));
             // right most 160 bits
-            return publicKeyHash.substring(publicKeyHash.length() - ADDRESS_LENGTH_IN_HEX);
+            return "0x" + publicKeyHash.substring(publicKeyHash.length() - ADDRESS_LENGTH_IN_HEX);
         } catch (DecoderException e) {
             throw new KeyPairException(
                     "getAddress for "

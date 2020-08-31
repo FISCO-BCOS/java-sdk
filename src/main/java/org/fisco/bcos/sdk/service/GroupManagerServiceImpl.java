@@ -138,8 +138,15 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     }
 
     private void updateNodeVersion(String peerIpAndPort) {
-        NodeVersion nodeVersion = groupInfoGetter.getNodeVersion(peerIpAndPort);
-        nodeToNodeVersion.put(peerIpAndPort, nodeVersion);
+        try {
+            NodeVersion nodeVersion = groupInfoGetter.getNodeVersion(peerIpAndPort);
+            nodeToNodeVersion.put(peerIpAndPort, nodeVersion);
+        } catch (Exception e) {
+            logger.error(
+                    "updateNodeVersion for {} failed, error message: {}",
+                    peerIpAndPort,
+                    e.getMessage());
+        }
     }
 
     public void registerGetNodeVersionHandler() {
@@ -248,17 +255,21 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             EnumChannelProtocolVersion version,
             String peerIpAndPort,
             Message blockNumberNotifyMessage) {
-        BlockNumberNotification blockNumberInfo =
-                blockNumberMessageDecoder.decode(version, blockNumberNotifyMessage);
-        if (blockNumberInfo == null) {
-            return;
-        }
+        try {
+            BlockNumberNotification blockNumberInfo =
+                    blockNumberMessageDecoder.decode(version, blockNumberNotifyMessage);
+            if (blockNumberInfo == null) {
+                return;
+            }
 
-        // set the block number
-        updateBlockNumberInfo(
-                Integer.valueOf(blockNumberInfo.getGroupId()),
-                peerIpAndPort,
-                new BigInteger(blockNumberInfo.getBlockNumber()));
+            // set the block number
+            updateBlockNumberInfo(
+                    Integer.valueOf(blockNumberInfo.getGroupId()),
+                    peerIpAndPort,
+                    new BigInteger(blockNumberInfo.getBlockNumber()));
+        } catch (Exception e) {
+            logger.error("onReceiveBlockNotify failed, error message: {}", e.getMessage());
+        }
     }
 
     /**

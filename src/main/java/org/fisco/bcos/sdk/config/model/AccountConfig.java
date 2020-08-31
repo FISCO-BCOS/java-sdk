@@ -23,6 +23,7 @@ public class AccountConfig {
     private String accountAddress;
     private String accountFileFormat;
     private String accountPassword;
+    private String accountFilePath;
 
     public AccountConfig(ConfigProperty configProperty) throws ConfigException {
         this.keyStoreDir =
@@ -35,7 +36,8 @@ public class AccountConfig {
                         configProperty.getAccountConfig(), "accountFileFormat", "pem");
         this.accountPassword =
                 ConfigProperty.getValue(configProperty.getAccountConfig(), "password", "");
-
+        this.accountFilePath =
+                ConfigProperty.getValue(configProperty.getAccountConfig(), "accountFilePath", "");
         checkAccountConfig();
     }
 
@@ -50,6 +52,14 @@ public class AccountConfig {
                     "load account failed, only support pem and p12 account file format, current configurated account file format is "
                             + accountFileFormat);
         }
+    }
+
+    public String getAccountFilePath() {
+        return accountFilePath;
+    }
+
+    public void setAccountFilePath(String accountFilePath) {
+        this.accountFilePath = accountFilePath;
     }
 
     public String getKeyStoreDir() {

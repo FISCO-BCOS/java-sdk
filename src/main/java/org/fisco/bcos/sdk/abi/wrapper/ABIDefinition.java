@@ -80,6 +80,11 @@ public class ABIDefinition {
         this.stateMutability = stateMutability;
     }
 
+    public static ABIDefinition createDefaultConstructorABIDefinition() {
+        return new ABIDefinition(
+                false, new ArrayList<>(), null, null, "constructor", false, "nonpayable");
+    }
+
     /**
      * string method signature
      *

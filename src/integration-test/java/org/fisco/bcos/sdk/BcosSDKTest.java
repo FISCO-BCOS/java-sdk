@@ -174,7 +174,7 @@ public class BcosSDKTest
         Assert.assertEquals(null, receipt.getReceiptProof());
         Assert.assertEquals(null, receipt.getTxProof());
         System.out.println("getCurrentExternalAccountAddress: " + helloWorld.getTransactionManager().getCurrentExternalAccountAddress() + ", receipt.getFrom()" + receipt.getFrom());
-        Assert.assertEquals("0x" + helloWorld.getTransactionManager().getCurrentExternalAccountAddress(), receipt.getFrom());
+        Assert.assertEquals(helloWorld.getTransactionManager().getCurrentExternalAccountAddress(), receipt.getFrom());
         if(checkTo) {
             Assert.assertEquals(helloWorld.getContractAddress(), receipt.getTo());
         }

@@ -3,7 +3,7 @@
 set -e
 
 scan_code_script="cobra/cobra.py -f json -o /tmp/report.json -t "
-ignore_files=(sh crt key json toml SignatureTest.java Ok.java bin abi ChannelTest.java ParallelOkDemo.java DagPrecompiledDemo.java)
+ignore_files=(sh crt key json toml SignatureTest.java Ok.java bin abi ChannelTest.java ParallelOkDemo.java DagPrecompiledDemo.java KeyManagerTest.java CryptoInterface.java)
 commit_limit=6
 
 LOG_ERROR() {

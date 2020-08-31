@@ -76,7 +76,7 @@ public class ContractLifeCycleService {
         try {
             Tuple2<BigInteger, List<String>> result =
                     this.contractLifeCyclePrecompiled.listManager(contractAddress);
-            if (!result.getValue1().equals(PrecompiledRetCode.CODE_SUCCESS)) {
+            if (result.getValue1().intValue() != PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 String errorMessage =
                         PrecompiledRetCode.getPrecompiledResponse(
                                         result.getValue1().intValue(),

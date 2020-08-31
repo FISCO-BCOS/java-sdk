@@ -54,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +101,7 @@ public class ConnectionManager {
 
         /** check connection result */
         boolean atLeastOneConnectSuccess = false;
-        List<String> errorMessageList = new ArrayList<>();
+        List<RetCode> errorMessageList = new ArrayList<>();
         for (int i = 0; i < connectionInfoList.size(); i++) {
             ConnectionInfo connInfo = connectionInfoList.get(i);
             ChannelFuture connectFuture = connChannelFuture.get(i);
@@ -112,7 +113,22 @@ public class ConnectionManager {
         /** check available connection */
         if (!atLeastOneConnectSuccess) {
             logger.error(" all connections have failed, {} ", errorMessageList);
-            throw new NetworkException(" Failed to connect to nodes: " + errorMessageList);
+            String errorMessageString = "[";
+            for (RetCode errorRetCode : errorMessageList) {
+                errorMessageString += errorRetCode.getMessage() + ",";
+            }
+            errorMessageString += "]";
+
+            for (RetCode errorRetCode : errorMessageList) {
+                if (errorRetCode.getCode() == NetworkException.SSL_HANDSHAKE_FAILED) {
+                    throw new NetworkException(
+                            " Failed to connect to nodes: " + errorMessageString,
+                            NetworkException.SSL_HANDSHAKE_FAILED);
+                }
+            }
+            throw new NetworkException(
+                    " Failed to connect to nodes: " + errorMessageString,
+                    NetworkException.CONNECT_FAILED);
         }
         logger.debug(" start connect end. ");
     }
@@ -157,7 +173,7 @@ public class ConnectionManager {
         for (ConnectionInfo connectionInfo : needReconnect) {
             ChannelFuture connectFuture =
                     bootstrap.connect(connectionInfo.getIp(), connectionInfo.getPort());
-            List<String> errorMessageList = new ArrayList<>();
+            List<RetCode> errorMessageList = new ArrayList<>();
             if (checkConnectionResult(connectionInfo, connectFuture, errorMessageList)) {
                 logger.trace(
                         " reconnect to {}:{} success",
@@ -302,7 +318,7 @@ public class ConnectionManager {
     }
 
     private boolean checkConnectionResult(
-            ConnectionInfo connInfo, ChannelFuture connectFuture, List<String> errorMessageList) {
+            ConnectionInfo connInfo, ChannelFuture connectFuture, List<RetCode> errorMessageList) {
         connectFuture.awaitUninterruptibly();
         if (!connectFuture.isSuccess()) {
             /** connect failed. */
@@ -316,16 +332,30 @@ public class ConnectionManager {
                         connectFuture.cause().getMessage());
             }
             errorMessageList.add(
-                    "connect to " + connInfo.getIp() + ":" + connInfo.getPort() + " failed");
+                    new RetCode(
+                            NetworkException.CONNECT_FAILED,
+                            "connect to "
+                                    + connInfo.getIp()
+                                    + ":"
+                                    + connInfo.getPort()
+                                    + " failed"));
             return false;
         } else {
             /** connect success, check ssl handshake result. */
             SslHandler sslhandler = connectFuture.channel().pipeline().get(SslHandler.class);
+            String checkerMessage =
+                    "! Please check the certificate and ensure that the SDK and the node are in the same agency!";
             if (Objects.isNull(sslhandler)) {
                 String sslHandshakeFailedMessage =
-                        " ssl handshake failed:/" + connInfo.getIp() + ":" + connInfo.getPort();
+                        " ssl handshake failed:/"
+                                + connInfo.getIp()
+                                + ":"
+                                + connInfo.getPort()
+                                + checkerMessage;
                 logger.debug(sslHandshakeFailedMessage);
-                errorMessageList.add(sslHandshakeFailedMessage);
+                errorMessageList.add(
+                        new RetCode(
+                                NetworkException.SSL_HANDSHAKE_FAILED, sslHandshakeFailedMessage));
                 return false;
             }
 
@@ -336,13 +366,19 @@ public class ConnectionManager {
                 return true;
             } else {
                 String sslHandshakeFailedMessage =
-                        " ssl handshake failed:/" + connInfo.getIp() + ":" + connInfo.getPort();
+                        " ssl handshake failed:/"
+                                + connInfo.getIp()
+                                + ":"
+                                + connInfo.getPort()
+                                + checkerMessage;
                 logger.debug(sslHandshakeFailedMessage);
-                errorMessageList.add(sslHandshakeFailedMessage);
+                errorMessageList.add(
+                        new RetCode(
+                                NetworkException.SSL_HANDSHAKE_FAILED, sslHandshakeFailedMessage));
                 return false;
             }
         }
-    };
+    }
 
     protected ChannelHandlerContext addConnectionContext(
             String ip, int port, ChannelHandlerContext ctx) {

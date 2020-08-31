@@ -15,6 +15,7 @@ package org.fisco.bcos.sdk.demo.perf;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URL;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
@@ -24,8 +25,6 @@ import org.fisco.bcos.sdk.demo.perf.parallel.DagPrecompiledDemo;
 import org.fisco.bcos.sdk.demo.perf.parallel.ParallelOkDemo;
 
 public class ParallelOkPerf {
-    private static String configFile =
-            ParallelOkPerf.class.getClassLoader().getResource("config-example.yaml").getPath();
     private static Client client;
     private static DagUserInfo dagUserInfo = new DagUserInfo();
 
@@ -45,6 +44,12 @@ public class ParallelOkPerf {
 
     public static void main(String[] args)
             throws ContractException, IOException, InterruptedException {
+        String configFileName = "config.yaml";
+        URL configUrl = ParallelOkPerf.class.getClassLoader().getResource(configFileName);
+        if (configUrl == null) {
+            System.out.println("The configFile " + configFileName + " doesn't exist!");
+            return;
+        }
         if (args.length < 6) {
             Usage();
             return;
@@ -56,6 +61,7 @@ public class ParallelOkPerf {
         Integer qps = Integer.valueOf(args[4]);
         String userFile = args[5];
 
+        String configFile = configUrl.getPath();
         BcosSDK sdk = new BcosSDK(configFile);
         client = sdk.getClient(Integer.valueOf(groupId));
         dagUserInfo.setFile(userFile);

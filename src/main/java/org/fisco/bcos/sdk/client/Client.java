@@ -826,4 +826,6 @@ public interface Client {
      * @return: the transaction receipt
      */
     TransactionReceipt sendRawTransactionAndGetReceiptWithProof(String signedTransactionData);
+
+    void stop();
 }

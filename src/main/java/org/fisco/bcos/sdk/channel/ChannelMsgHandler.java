@@ -95,6 +95,12 @@ public class ChannelMsgHandler implements MsgHandler {
         }
     }
 
+    private void removeAvailablePeers(String host) {
+        if (availablePeer.containsKey(host)) {
+            availablePeer.remove(host);
+        }
+    }
+
     private ResponseCallback getAndRemoveSeq(String seq) {
         ResponseCallback callback = seq2Callback.get(seq);
         seq2Callback.remove(seq);
@@ -153,12 +159,12 @@ public class ChannelMsgHandler implements MsgHandler {
 
     @Override
     public void onDisconnect(ChannelHandlerContext ctx) {
-        logger.debug(
-                "onDisconnect in ChannelMsgHandler called, host : {}",
-                ChannelVersionNegotiation.getPeerHost(ctx));
+        String host = ChannelVersionNegotiation.getPeerHost(ctx);
+        logger.debug("onDisconnect in ChannelMsgHandler called, host : {}", host);
         for (MsgHandler handle : msgDisconnectHandleList) {
             handle.onDisconnect(ctx);
         }
+        removeAvailablePeers(host);
     }
 
     private void queryNodeVersion(ChannelHandlerContext ctx) {

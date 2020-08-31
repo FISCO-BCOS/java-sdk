@@ -15,6 +15,7 @@ package org.fisco.bcos.sdk.demo.perf;
 
 import com.google.common.util.concurrent.RateLimiter;
 import java.math.BigInteger;
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.BcosSDKException;
@@ -34,6 +35,12 @@ public class PerformanceOk {
 
     public static void main(String[] args) {
         try {
+            String configFileName = "config.yaml";
+            URL configUrl = ParallelOkPerf.class.getClassLoader().getResource(configFileName);
+            if (configUrl == null) {
+                System.out.println("The configFile " + configFileName + " doesn't exist!");
+                return;
+            }
             Integer count = Integer.valueOf(args[0]);
             Integer qps = Integer.valueOf(args[1]);
             Integer groupId = Integer.valueOf(args[2]);
@@ -44,11 +51,8 @@ public class PerformanceOk {
                             + qps
                             + ", groupId"
                             + groupId);
-            String configFile =
-                    PerformanceOk.class
-                            .getClassLoader()
-                            .getResource("config-example.yaml")
-                            .getPath();
+
+            String configFile = configUrl.getPath();
             BcosSDK sdk = new BcosSDK(configFile);
 
             // build the client

@@ -105,6 +105,9 @@ public class GroupServiceImpl implements GroupService {
         String maxBlockNumberNode = "";
         for (String groupNode : groupNodeToBlockNumber.keySet()) {
             BigInteger blockNumber = groupNodeToBlockNumber.get(groupNode);
+            if (blockNumber == null) {
+                continue;
+            }
             if (maxBlockNumber == null || blockNumber.compareTo(maxBlockNumber) > 0) {
                 maxBlockNumber = blockNumber;
                 maxBlockNumberNode = groupNode;
