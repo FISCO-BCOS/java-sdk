@@ -80,10 +80,10 @@ public class SignatureTest {
         CryptoKeyPair keyPair = (new ECDSAKeyPair()).generateKeyPair();
         String hexPublicKey =
                 "77a8f8d2f786f079bd661e774da3a9f430c76b9acbcd71f9976bff7456bb136a80cb97335cc929a531791970f8ce10c0ca6ffb391e9ef241a48cbd8f3db1a82e";
-        String expectedHash = "deaa5343178c2be2cb5e9b13000ed951e302c15d";
+        String expectedHash = "0xdeaa5343178c2be2cb5e9b13000ed951e302c15d";
 
         String hexPublicKey2 = "00000";
-        String expectedHash2 = "3f17f1962b36e491b30a40b2405849e597ba5fb5";
+        String expectedHash2 = "0x3f17f1962b36e491b30a40b2405849e597ba5fb5";
         testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2);
 
@@ -102,10 +102,10 @@ public class SignatureTest {
         CryptoKeyPair keyPair = (new SM2KeyPair()).generateKeyPair();
         String hexPublicKey =
                 "77a8f8d2f786f079bd661e774da3a9f430c76b9acbcd71f9976bff7456bb136a80cb97335cc929a531791970f8ce10c0ca6ffb391e9ef241a48cbd8f3db1a82e";
-        String expectedHash = "4b99a949a24f3dc8dc54b02d51ec0ae4c8bb7018";
+        String expectedHash = "0x4b99a949a24f3dc8dc54b02d51ec0ae4c8bb7018";
 
         String hexPublicKey2 = "00000";
-        String expectedHash2 = "0ec7f82b659cc8c6b753f26d4e9ec85bc91c231e";
+        String expectedHash2 = "0x0ec7f82b659cc8c6b753f26d4e9ec85bc91c231e";
         testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2);
 
@@ -155,11 +155,11 @@ public class SignatureTest {
     }
 
     private void testKeyPair(CryptoKeyPair keyPair, BigInteger publicKey, String expectedAddress) {
-        Assert.assertEquals(expectedAddress, Hex.toHexString(keyPair.getAddress(publicKey)));
+        Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(keyPair.getAddress(publicKey)));
     }
 
     private void testKeyPair(CryptoKeyPair keyPair, byte[] publicKey, String expectedAddress) {
-        Assert.assertEquals(expectedAddress, Hex.toHexString(keyPair.getAddress(publicKey)));
+        Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(keyPair.getAddress(publicKey)));
     }
 
     @Test(expected = KeyPairException.class)

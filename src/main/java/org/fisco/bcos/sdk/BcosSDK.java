@@ -137,5 +137,9 @@ public class BcosSDK {
         if (this.groupManagerService != null) {
             this.groupManagerService.stop();
         }
+        // stop the client
+        for (Integer groupId : groupToClient.keySet()) {
+            groupToClient.get(groupId).stop();
+        }
     }
 }

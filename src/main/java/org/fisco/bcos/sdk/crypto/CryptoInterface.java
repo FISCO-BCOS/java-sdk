@@ -84,27 +84,38 @@ public class CryptoInterface {
         createKeyPair();
     }
 
-    private void loadAccount(ConfigOption configOption) {
-        KeyManager keyManager;
-        AccountConfig accountConfig = configOption.getAccountConfig();
-        if (accountConfig.getAccountFileFormat().compareToIgnoreCase("p12") == 0) {
-            keyManager =
-                    new P12Manager(
-                            keyPairFactory.getP12KeyStoreFilePath(
-                                    accountConfig.getAccountAddress()),
-                            accountConfig.getAccountPassword());
-        } else if (accountConfig.getAccountFileFormat().compareToIgnoreCase("pem") == 0) {
-            keyManager =
-                    new PEMManager(
-                            keyPairFactory.getPemKeyStoreFilePath(
-                                    accountConfig.getAccountAddress()));
+    public void loadAccount(String accountFileFormat, String accountFilePath, String password) {
+        KeyManager keyManager = null;
+        if (accountFilePath.compareToIgnoreCase("p12") == 0) {
+            keyManager = new P12Manager(accountFilePath, password);
+        } else if (accountFileFormat.compareToIgnoreCase("pem") == 0) {
+            keyManager = new PEMManager(accountFilePath);
         } else {
             throw new LoadKeyStoreException(
                     "unsupported account file format : "
-                            + accountConfig.getAccountFileFormat()
+                            + accountFileFormat
                             + ", current supported are p12 and pem");
         }
+        logger.debug("Load account from {}", accountFilePath);
         createKeyPair(keyManager.getKeyPair());
+    }
+
+    private void loadAccount(ConfigOption configOption) {
+        AccountConfig accountConfig = configOption.getAccountConfig();
+        String accountFilePath = accountConfig.getAccountFilePath();
+        if (accountFilePath == null || accountFilePath.equals("")) {
+            if (accountConfig.getAccountFileFormat().compareToIgnoreCase("p12") == 0) {
+                accountFilePath =
+                        keyPairFactory.getP12KeyStoreFilePath(accountConfig.getAccountAddress());
+            } else if (accountConfig.getAccountFileFormat().compareToIgnoreCase("pem") == 0) {
+                accountFilePath =
+                        keyPairFactory.getPemKeyStoreFilePath(accountConfig.getAccountAddress());
+            }
+        }
+        loadAccount(
+                accountConfig.getAccountFileFormat(),
+                accountFilePath,
+                accountConfig.getAccountPassword());
     }
 
     public void setConfig(ConfigOption config) {

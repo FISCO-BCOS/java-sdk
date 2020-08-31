@@ -15,10 +15,12 @@
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
 import java.math.BigInteger;
+import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
+import org.fisco.bcos.sdk.model.RevertMessageParser;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceiptStatus;
 
@@ -32,18 +34,28 @@ public class ReceiptParser {
             if (!"0x0".equals(status)) {
                 RetCode retCode =
                         TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
+                Tuple2<Boolean, String> errorOutput =
+                        RevertMessageParser.tryResolveRevertMessage(receipt);
+                if (errorOutput.getValue1()) {
+                    throw new ContractException(errorOutput.getValue2(), retCode.getCode());
+                }
                 throw new ContractException(retCode.getMessage(), retCode.getCode());
             } else {
                 String output = receipt.getOutput();
                 if (output.equals("0x")) {
                     return PrecompiledRetCode.CODE_SUCCESS;
                 }
-                int statusValue =
-                        new BigInteger(output.substring(2, output.length()), 16).intValue();
-                if (receipt.getMessage() == null || receipt.getMessage().equals("")) {
-                    receipt.setMessage(PrecompiledRetCode.CODE_SUCCESS.getMessage());
+                try {
+                    int statusValue =
+                            new BigInteger(output.substring(2, output.length()), 16).intValue();
+                    if (receipt.getMessage() == null || receipt.getMessage().equals("")) {
+                        receipt.setMessage(PrecompiledRetCode.CODE_SUCCESS.getMessage());
+                    }
+                    return PrecompiledRetCode.getPrecompiledResponse(
+                            statusValue, receipt.getMessage());
+                } catch (Exception e) {
+                    return PrecompiledRetCode.CODE_SUCCESS;
                 }
-                return PrecompiledRetCode.getPrecompiledResponse(statusValue, receipt.getMessage());
             }
         } catch (NumberFormatException e) {
             throw new ContractException(
@@ -65,18 +77,29 @@ public class ReceiptParser {
 
     public static RetCode parseCallOutput(Call.CallOutput callResult, String message) {
         if (!callResult.getStatus().equals("0x0")) {
+            Tuple2<Boolean, String> errorOutput =
+                    RevertMessageParser.tryResolveRevertMessage(
+                            callResult.getStatus(), callResult.getOutput());
+            if (errorOutput.getValue1()) {
+                return TransactionReceiptStatus.getStatusMessage(
+                        callResult.getStatus(), errorOutput.getValue2());
+            }
             return TransactionReceiptStatus.getStatusMessage(callResult.getStatus(), message);
         }
-        int statusValue =
-                new BigInteger(
-                                callResult
-                                        .getOutput()
-                                        .substring(2, callResult.getOutput().length()),
-                                16)
-                        .intValue();
-        RetCode ret =
-                PrecompiledRetCode.getPrecompiledResponse(
-                        statusValue, PrecompiledRetCode.CODE_SUCCESS.getMessage());
-        return new RetCode(ret.getCode(), ret.getMessage());
+        try {
+            int statusValue =
+                    new BigInteger(
+                                    callResult
+                                            .getOutput()
+                                            .substring(2, callResult.getOutput().length()),
+                                    16)
+                            .intValue();
+            RetCode ret =
+                    PrecompiledRetCode.getPrecompiledResponse(
+                            statusValue, PrecompiledRetCode.CODE_SUCCESS.getMessage());
+            return new RetCode(ret.getCode(), ret.getMessage());
+        } catch (Exception e) {
+            return PrecompiledRetCode.CODE_SUCCESS;
+        }
     }
 }

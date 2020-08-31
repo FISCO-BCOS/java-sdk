@@ -21,6 +21,15 @@ package org.fisco.bcos.sdk.network;
  * @author Maggie
  */
 public class NetworkException extends Exception {
+    public static final int SSL_HANDSHAKE_FAILED = 1;
+    public static final int CONNECT_FAILED = 2;
+    private int errorCode = 0;
+
+    public NetworkException(String message, int errorCode) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+
     public NetworkException(String message) {
         super(message);
     }
@@ -31,5 +40,9 @@ public class NetworkException extends Exception {
 
     public NetworkException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public int getErrorCode() {
+        return errorCode;
     }
 }
