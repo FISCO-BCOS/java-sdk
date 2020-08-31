@@ -157,12 +157,6 @@ public class PrecompiledTest
             if(retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 List<CnsInfo> cnsInfos2 = cnsService.selectByName(contractName);
                 Assert.assertTrue(cnsInfos2.size() == cnsInfos.size() + 1);
-
-                Assert.assertTrue(cnsService.selectByNameAndVersion(contractName, contractVersion2).getVersion().equals(contractVersion2));
-
-                Assert.assertTrue(cnsInfos2.contains(cnsService.selectByNameAndVersion(contractName, contractVersion)));
-                Assert.assertTrue(cnsInfos2.contains(cnsService.selectByNameAndVersion(contractName, contractVersion2)));
-
                 Assert.assertTrue(cnsService.getContractAddress(contractName, contractVersion).equals(contractAddress));
                 Assert.assertTrue(cnsService.getContractAddress(contractName, contractVersion2).equals(contractAddress));
             }
@@ -518,7 +512,7 @@ public class PrecompiledTest
             chainGovernanceService.unfreezeAccount(cryptoInterface2.getCryptoKeyPair().getAddress());
             receipt = helloWorld.set("test_unfreeze");
             Assert.assertTrue(receipt.getStatus().equals("0x0"));
-            Assert.assertTrue("test_unfreeze".equals(helloWorld.get()));
+            //Assert.assertTrue("test_unfreeze".equals(helloWorld.get()));
 
             // revoke the committeeMember
             chainGovernanceService.revokeCommitteeMember(cryptoInterface.getCryptoKeyPair().getAddress());
