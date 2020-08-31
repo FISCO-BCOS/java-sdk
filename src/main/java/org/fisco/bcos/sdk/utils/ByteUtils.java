@@ -713,4 +713,18 @@ public class ByteUtils {
     public static byte[] parseWord(byte[] input, int offset, int idx) {
         return parseBytes(input, offset + 32 * idx, 32);
     }
+
+    public static byte[] trimLeadingBytes(byte[] bytes, byte b) {
+        int offset = 0;
+        for (; offset < bytes.length - 1; offset++) {
+            if (bytes[offset] != b) {
+                break;
+            }
+        }
+        return Arrays.copyOfRange(bytes, offset, bytes.length);
+    }
+
+    public static byte[] trimLeadingZeroes(byte[] bytes) {
+        return trimLeadingBytes(bytes, (byte) 0);
+    }
 }

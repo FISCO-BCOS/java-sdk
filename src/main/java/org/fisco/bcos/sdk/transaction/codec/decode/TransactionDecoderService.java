@@ -14,96 +14,46 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
-import org.fisco.bcos.sdk.abi.TypeReference;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.abi.tools.ContractAbiUtil;
+import org.fisco.bcos.sdk.abi.ABICodec;
+import org.fisco.bcos.sdk.abi.ABICodecException;
+import org.fisco.bcos.sdk.abi.EventEncoder;
+import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition.NamedType;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
+import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
+import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
+import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
-import org.fisco.bcos.sdk.model.EventResultEntity;
-import org.fisco.bcos.sdk.model.ReceiptParser;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
-import org.fisco.bcos.sdk.transaction.model.bo.InputAndOutputResult;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
-import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.fisco.bcos.sdk.transaction.tools.ReceiptStatusUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TransactionDecoderService implements TransactionDecoderInterface {
+    protected static Logger logger = LoggerFactory.getLogger(TransactionDecoderService.class);
 
     private CryptoInterface cryptoInterface;
+    private final ABICodec abiCodec;
+    private EventEncoder eventEncoder;
 
     /** @param cryptoInterface */
     public TransactionDecoderService(CryptoInterface cryptoInterface) {
         super();
         this.cryptoInterface = cryptoInterface;
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    @Override
-    public List<Type> decode(String rawInput, String abi) throws TransactionBaseException {
-        ABIDefinition ad = JsonUtils.fromJson(abi, ABIDefinition.class);
-        List<TypeReference<Type>> list =
-                ContractAbiUtil.paramFormat(ad.getOutputs())
-                        .stream()
-                        .map(l -> (TypeReference<Type>) l)
-                        .collect(Collectors.toList());
-        return FunctionReturnDecoder.decode(rawInput, list);
-    }
-
-    @Override
-    public String decodeCall(String rawInput, String abi) throws TransactionBaseException {
-        return JsonUtils.toJson(decode(rawInput, abi));
-    }
-
-    @Override
-    public String decodeOutputReturnJson(String abi, String input, String output)
-            throws JsonProcessingException, TransactionBaseException, TransactionException {
-        TransactionDecoder transactionDecoder = new TransactionDecoder(cryptoInterface, abi);
-        return transactionDecoder.decodeOutputReturnJson(input, output);
-    }
-
-    @Override
-    public InputAndOutputResult decodeOutputReturnObject(String abi, String input, String output)
-            throws TransactionException, TransactionBaseException {
-        TransactionDecoder transactionDecoder = new TransactionDecoder(cryptoInterface, abi);
-        return transactionDecoder.decodeOutputReturnObject(input, output);
-    }
-
-    @Override
-    public String decodeEventReturnJson(String abi, TransactionReceipt transactionReceipt)
-            throws TransactionBaseException, IOException {
-        return decodeEventReturnJson(abi, transactionReceipt.getLogs());
-    }
-
-    @Override
-    public String decodeEventReturnJson(String abi, List<Logs> logList)
-            throws TransactionBaseException, IOException {
-        TransactionDecoder transactionDecoder = new TransactionDecoder(cryptoInterface, abi);
-        return transactionDecoder.decodeEventReturnJson(logList);
-    }
-
-    @Override
-    public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(
-            String abi, TransactionReceipt transactionReceipt)
-            throws TransactionBaseException, IOException {
-        return decodeEventReturnObject(abi, transactionReceipt.getLogs());
-    }
-
-    @Override
-    public Map<String, List<List<EventResultEntity>>> decodeEventReturnObject(
-            String abi, List<Logs> logList) throws TransactionBaseException, IOException {
-        TransactionDecoder transactionDecoder = new TransactionDecoder(cryptoInterface, abi);
-        return transactionDecoder.decodeEventReturnObject(logList);
+        this.abiCodec = new ABICodec(cryptoInterface);
+        this.eventEncoder = new EventEncoder(cryptoInterface);
     }
 
     @Override
@@ -113,14 +63,15 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
 
     @Override
     public TransactionResponse decodeReceiptWithValues(
-            String abi, TransactionReceipt transactionReceipt)
-            throws TransactionBaseException, TransactionException, IOException, ContractException {
+            String abi, String functionName, TransactionReceipt transactionReceipt)
+            throws IOException, ContractException, ABICodecException, TransactionException {
         TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
         // only successful tx has return values.
         if (transactionReceipt.getStatus().equals("0x0")) {
             String values =
-                    decodeOutputReturnJson(
-                            abi, transactionReceipt.getInput(), transactionReceipt.getOutput());
+                    JsonUtils.toJson(
+                            abiCodec.decodeMethod(
+                                    abi, functionName, transactionReceipt.getOutput()));
             response.setValues(values);
         }
         return response;
@@ -129,9 +80,9 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     @Override
     public TransactionResponse decodeReceiptWithoutValues(
             String abi, TransactionReceipt transactionReceipt)
-            throws TransactionBaseException, TransactionException, IOException, ContractException {
+            throws TransactionException, IOException, ContractException, ABICodecException {
         TransactionResponse response = decodeReceiptStatus(transactionReceipt);
-        String events = decodeEventReturnJson(abi, transactionReceipt.getLogs());
+        String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogs()));
         response.setTransactionReceipt(transactionReceipt);
         response.setEvents(events);
         response.setContractAddress(transactionReceipt.getContractAddress());
@@ -146,6 +97,59 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         response.setReturnCode(retCode.getCode());
         response.setReceiptMessages(retCode.getMessage());
         return response;
+    }
+
+    @SuppressWarnings("static-access")
+    @Override
+    public Map<String, List<Object>> decodeEvents(String abi, List<Logs> logs)
+            throws ABICodecException {
+        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
+        ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(abi);
+        Map<String, List<ABIDefinition>> eventsMap = contractABIDefinition.getEvents();
+        Map<String, List<Object>> result = new HashMap<>();
+        eventsMap.forEach(
+                (name, events) -> {
+                    for (ABIDefinition abiDefinition : events) {
+                        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
+                        ABIObject outputObject = abiObjectFactory.createInputObject(abiDefinition);
+                        ABICodecObject abiCodecObject = new ABICodecObject();
+                        for (Logs log : logs) {
+                            String eventSignature =
+                                    eventEncoder.buildEventSignature(
+                                            decodeMethodSign(abiDefinition));
+                            if (log.getTopics().isEmpty()
+                                    || !log.getTopics().contains(eventSignature)) {
+                                continue;
+                            }
+                            try {
+                                List<Object> list =
+                                        abiCodecObject.decodeJavaObject(
+                                                outputObject, log.getData());
+                                if (result.containsKey(name)) {
+                                    result.get("name").addAll(list);
+                                } else {
+                                    result.put(name, list);
+                                }
+                            } catch (Exception e) {
+                                logger.error(
+                                        " exception in decodeEventToObject : {}", e.getMessage());
+                            }
+                        }
+                    }
+                });
+        return result;
+    }
+
+    private String decodeMethodSign(ABIDefinition ABIDefinition) {
+        List<NamedType> inputTypes = ABIDefinition.getInputs();
+        StringBuilder methodSign = new StringBuilder();
+        methodSign.append(ABIDefinition.getName());
+        methodSign.append("(");
+        String params =
+                inputTypes.stream().map(NamedType::getType).collect(Collectors.joining(","));
+        methodSign.append(params);
+        methodSign.append(")");
+        return methodSign.toString();
     }
 
     /** @return the cryptoInterface */

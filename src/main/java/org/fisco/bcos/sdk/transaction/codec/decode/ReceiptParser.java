@@ -12,12 +12,15 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.model;
+package org.fisco.bcos.sdk.transaction.codec.decode;
 
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
+import org.fisco.bcos.sdk.model.RetCode;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.model.TransactionReceiptStatus;
 
 public class ReceiptParser {
     private ReceiptParser() {}

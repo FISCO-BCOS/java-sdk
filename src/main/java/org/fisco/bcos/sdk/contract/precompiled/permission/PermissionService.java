@@ -22,8 +22,8 @@ import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
-import org.fisco.bcos.sdk.model.ReceiptParser;
 import org.fisco.bcos.sdk.model.RetCode;
+import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 public class PermissionService {

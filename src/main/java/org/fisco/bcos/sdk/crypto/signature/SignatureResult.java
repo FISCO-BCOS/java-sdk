@@ -17,7 +17,7 @@ import java.util.List;
 import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.rlp.RlpString;
 import org.fisco.bcos.sdk.rlp.RlpType;
-import org.fisco.bcos.sdk.utils.Bytes;
+import org.fisco.bcos.sdk.utils.ByteUtils;
 import org.fisco.bcos.sdk.utils.Hex;
 
 public abstract class SignatureResult {
@@ -65,8 +65,8 @@ public abstract class SignatureResult {
     }
 
     protected void encodeCommonField(List<RlpType> encodeResult) {
-        encodeResult.add(RlpString.create(Bytes.trimLeadingZeroes(this.getR())));
-        encodeResult.add(RlpString.create(Bytes.trimLeadingZeroes(this.getS())));
+        encodeResult.add(RlpString.create(ByteUtils.trimLeadingZeroes(this.getR())));
+        encodeResult.add(RlpString.create(ByteUtils.trimLeadingZeroes(this.getS())));
     }
 
     /**
