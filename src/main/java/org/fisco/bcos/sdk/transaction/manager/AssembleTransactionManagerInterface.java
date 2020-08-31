@@ -35,6 +35,9 @@ public interface AssembleTransactionManagerInterface {
     public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
             throws ABICodecException;
 
+    public TransactionResponse deployAndGetResponseWithStringParams(
+            String abi, String bin, List<String> params) throws ABICodecException;
+
     public void deployAsync(
             String abi, String bin, List<Object> params, TransactionCallback callback)
             throws ABICodecException;
@@ -97,6 +100,10 @@ public interface AssembleTransactionManagerInterface {
 
     public CallResponse sendCall(CallRequest callRequest)
             throws ABICodecException, TransactionBaseException;
+
+    public CallResponse sendCallWithStringParams(
+            String from, String to, String abi, String functionName, List<String> paramsList)
+            throws TransactionBaseException, ABICodecException;
 
     public String createSignedConstructor(String abi, String bin, List<Object> params)
             throws ABICodecException;
