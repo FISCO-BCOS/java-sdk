@@ -14,8 +14,10 @@
  */
 package org.fisco.bcos.sdk.contract.precompiled.cns;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CnsInfo {
     private String name;
     private String version;

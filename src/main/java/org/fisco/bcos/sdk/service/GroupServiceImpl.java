@@ -69,16 +69,16 @@ public class GroupServiceImpl implements GroupService {
     public void insertNode(String nodeAddress) {
         if (!groupNodeSet.contains(nodeAddress)) {
             groupNodeSet.add(nodeAddress);
+            logger.debug(
+                    "g:{}, insertNode={}, nodeSize={}, blockNumberInfoSize={}",
+                    groupId,
+                    nodeAddress,
+                    this.groupNodeSet.size(),
+                    this.groupNodeSet.size());
         }
         if (!groupNodeToBlockNumber.containsKey(nodeAddress)) {
             groupNodeToBlockNumber.put(nodeAddress, BigInteger.valueOf(0));
         }
-        logger.debug(
-                "g:{}, insertNode={}, nodeSize={}, blockNumberInfoSize={}",
-                groupId,
-                nodeAddress,
-                this.groupNodeSet.size(),
-                this.groupNodeSet.size());
     }
 
     @Override

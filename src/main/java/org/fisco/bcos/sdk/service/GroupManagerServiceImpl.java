@@ -360,7 +360,19 @@ public class GroupManagerServiceImpl implements GroupManagerService {
 
     @Override
     public void updateGroupInfo(String peerIpAndPort, List<String> groupList) {
+        List<String> orgGroupList = nodeToGroupIDList.get(peerIpAndPort);
+        if (orgGroupList != null) {
+            for (int i = 0; i < orgGroupList.size(); i++) {
+                Integer groupId = Integer.valueOf(orgGroupList.get(i));
+                if (!groupList.contains(orgGroupList.get(i))
+                        && groupIdToService.containsKey(groupId)) {
+                    groupIdToService.get(groupId).removeNode(peerIpAndPort);
+                    logger.info("remove group {} from {}", orgGroupList.get(i), peerIpAndPort);
+                }
+            }
+        }
         nodeToGroupIDList.put(peerIpAndPort, groupList);
+
         for (String groupIdStr : groupList) {
             Integer groupId = Integer.valueOf(groupIdStr);
             if (groupId == null) {
@@ -375,7 +387,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             // update the group information
             groupIdToService.get(groupId).insertNode(peerIpAndPort);
         }
-        logger.debug("update groupInfo for {}, groupList: {}", peerIpAndPort, groupList);
+        logger.trace("update groupInfo for {}, groupList: {}", peerIpAndPort, groupList);
     }
 
     @Override

@@ -60,16 +60,19 @@ public class CnsService {
         }
     }
 
-    public CnsInfo selectByNameAndVersion(String contractName, String contractVersion)
+    public List<CnsInfo> selectByNameAndVersion(String contractName, String contractVersion)
             throws ContractException {
+        String cnsInfo = null;
         try {
-            String cnsInfo = cnsPrecompiled.selectByNameAndVersion(contractName, contractVersion);
+            cnsInfo = cnsPrecompiled.selectByNameAndVersion(contractName, contractVersion);
             return ObjectMapperFactory.getObjectMapper()
-                    .readValue(cnsInfo, new TypeReference<CnsInfo>() {});
+                    .readValue(cnsInfo, new TypeReference<List<CnsInfo>>() {});
         } catch (JsonProcessingException e) {
             throw new ContractException(
                     "CnsService: failed to call selectByNameAndVersion interface, error message: "
-                            + e.getMessage());
+                            + e.getMessage()
+                            + ", return cnsInfo: "
+                            + cnsInfo);
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);
         }
