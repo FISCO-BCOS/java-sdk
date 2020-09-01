@@ -67,6 +67,10 @@ public class EventSubscribeImp implements EventSubscribe {
         filterManager.addFilter(filter);
         sendFilter(filter);
 
+        logger.info(
+                " subscribe event, registerID: {}, filterID : {}",
+                filter.getRegisterID(),
+                filter.getFilterID());
         return filter.getRegisterID();
     }
 
@@ -87,14 +91,15 @@ public class EventSubscribeImp implements EventSubscribe {
         msg.setType(Short.valueOf((short) MsgType.CLIENT_UNREGISTER_EVENT_LOG.getType()));
         msg.setResult(0);
         try {
-            String content = filter.getNewParamJsonString(String.valueOf(groupId));
+            String content =
+                    filter.getParamJsonString(String.valueOf(groupId), filter.getFilterID());
+            logger.info(
+                    " unsubscribe event, registerID: {}, filterID : {}",
+                    filter.getRegisterID(),
+                    filter.getFilterID());
             msg.setData(content.getBytes());
         } catch (JsonProcessingException e) {
-            logger.error(
-                    " unsubscribe event error, registerID: {},filterID : {}, error: {}",
-                    filter.getRegisterID(),
-                    filter.getFilterID(),
-                    e.getMessage());
+            logger.error(" unsubscribe event error: {}", e.getMessage());
         }
 
         EventMsg eventMsg = new EventMsg(msg);
@@ -134,7 +139,12 @@ public class EventSubscribeImp implements EventSubscribe {
             EventCallback callback =
                     new EventCallback() {
                         @Override
-                        public void onReceiveLog(int status, List<EventLog> logs) {}
+                        public void onReceiveLog(int status, List<EventLog> logs) {
+                            logger.info(
+                                    "unsubscribe event registerId : {}, result : {}",
+                                    filter.getRegisterID(),
+                                    status);
+                        }
                     };
             unsubscribeEvent(filter.getRegisterID(), callback);
         }
@@ -272,10 +282,11 @@ public class EventSubscribeImp implements EventSubscribe {
                         // node give an "OK" response, event log will be deleted
                         logger.info(" unregister event success");
                         filterManager.removeFilter(filter.getRegisterID());
+                        filterManager.removeCallback(filter.getFilterID());
                     } else {
                         logger.warn(" unregister event fail");
-                        filter.getCallback().onReceiveLog(resp.getResult(), null);
                     }
+                    filter.getCallback().onReceiveLog(resp.getResult(), null);
                 }
             } catch (Exception e) {
                 logger.error(
