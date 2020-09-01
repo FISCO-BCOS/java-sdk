@@ -18,13 +18,14 @@ package org.fisco.bcos.sdk.amop;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.BcosSDKTest;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
 
 public class blockNotifyTest {
-    private static final String configFile = BcosSDKTest.class.getClassLoader().getResource("config-example.yaml").getPath();
+    private static final String configFile = BcosSDKTest.class.getClassLoader().getResource(ConstantConfig.CONFIG_FILE_NAME).getPath();
 
     @Test
     public void testBlockNotify() throws ConfigException, InterruptedException {

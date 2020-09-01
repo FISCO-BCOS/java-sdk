@@ -33,13 +33,17 @@ import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
 import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class SignatureTest {
     private static final String configFile =
-            SignatureTest.class.getClassLoader().getResource("config-example.yaml").getPath();
+            SignatureTest.class
+                    .getClassLoader()
+                    .getResource(ConstantConfig.CONFIG_FILE_NAME)
+                    .getPath();
 
     @Test
     public void testCryptoInterfaceForECDSA() {

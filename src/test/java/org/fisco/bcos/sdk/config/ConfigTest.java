@@ -19,18 +19,22 @@ import static org.junit.Assert.fail;
 
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.ConstantConfig;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class ConfigTest {
-    @Test(expected = ConfigException.class)
-    public void testLoadConfig() throws ConfigException {
-        Config.load("src/test/resources/config/config-bad.yaml", CryptoInterface.ECDSA_TYPE);
-    }
-
     @Test
     public void testLoadRightConfig() {
         try {
-            Config.load("src/test/resources/config-example.yaml", CryptoInterface.ECDSA_TYPE);
+            ConfigOption configOption =
+                    Config.load(
+                            "src/test/resources/" + ConstantConfig.CONFIG_FILE_NAME,
+                            CryptoInterface.ECDSA_TYPE);
+            Assert.assertTrue(configOption.getAccountConfig() != null);
+            System.out.println(
+                    "configOption.getAccountConfig: "
+                            + configOption.getAccountConfig().getKeyStoreDir());
             // assertEquals("ecdsa", config.getAlgorithm());
         } catch (ConfigException e) {
             System.out.println("testLoadRightConfig failed, error message: " + e.getMessage());

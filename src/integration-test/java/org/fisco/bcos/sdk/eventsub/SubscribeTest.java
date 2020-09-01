@@ -21,6 +21,7 @@ import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.abi.tools.TopicTools;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionManager;
 import org.fisco.bcos.sdk.transaction.manager.TransactionManagerFactory;
@@ -34,7 +35,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 public class SubscribeTest {
-    private static final String configFile = SubscribeTest.class.getClassLoader().getResource("config-example.yaml").getPath();
+    private static final String configFile = SubscribeTest.class.getClassLoader().getResource(ConstantConfig.CONFIG_FILE_NAME).getPath();
     private static final Logger logger = LoggerFactory.getLogger(SubscribeTest.class);
 
     @Test
