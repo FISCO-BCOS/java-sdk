@@ -27,17 +27,14 @@ public class AccountConfig {
 
     public AccountConfig(ConfigProperty configProperty) throws ConfigException {
         this.keyStoreDir =
-                ConfigProperty.getValue(
-                        configProperty.getAccountConfig(), "keyStoreDir", "account");
+                ConfigProperty.getValue(configProperty.getAccount(), "keyStoreDir", "account");
         this.accountAddress =
-                ConfigProperty.getValue(configProperty.getAccountConfig(), "accountAddress", "");
+                ConfigProperty.getValue(configProperty.getAccount(), "accountAddress", "");
         this.accountFileFormat =
-                ConfigProperty.getValue(
-                        configProperty.getAccountConfig(), "accountFileFormat", "pem");
-        this.accountPassword =
-                ConfigProperty.getValue(configProperty.getAccountConfig(), "password", "");
+                ConfigProperty.getValue(configProperty.getAccount(), "accountFileFormat", "pem");
+        this.accountPassword = ConfigProperty.getValue(configProperty.getAccount(), "password", "");
         this.accountFilePath =
-                ConfigProperty.getValue(configProperty.getAccountConfig(), "accountFilePath", "");
+                ConfigProperty.getValue(configProperty.getAccount(), "accountFilePath", "");
         checkAccountConfig();
     }
 

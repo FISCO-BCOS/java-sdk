@@ -85,7 +85,10 @@ public class AssembleTransactionManager extends TransactionManager
         TransactionReceipt receipt = transactionPusher.push(signedData);
         try {
             return transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
-        } catch (TransactionException | IOException | ContractException | ABICodecException e) {
+        } catch (ContractException e) {
+            log.error("deploy exception: {}", e.getMessage());
+            return new TransactionResponse(receipt, e.getErrorCode(), e.getMessage());
+        } catch (TransactionException | IOException | ABICodecException e) {
             log.error("deploy exception: {}", e.getMessage());
             return new TransactionResponse(
                     receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
