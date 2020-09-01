@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.channel.model.HeartBeatParser;
 import org.fisco.bcos.sdk.channel.model.NodeHeartbeat;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -42,7 +43,7 @@ public class ChannelTest {
 
     @Test
     public void testConnect() throws ConfigException {
-        channel = Channel.build("src/integration-test/resources/config-example.yaml");
+        channel = Channel.build("src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME);
         class TestMsgHandler implements MsgHandler {
             @Override
             public void onConnect(ChannelHandlerContext ctx) {

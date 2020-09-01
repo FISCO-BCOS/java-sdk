@@ -15,8 +15,7 @@
 
 package org.fisco.bcos.sdk.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.moandjiezana.toml.Toml;
 import java.io.File;
 import java.io.IOException;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
@@ -29,22 +28,20 @@ import org.fisco.bcos.sdk.config.model.ConfigProperty;
  */
 public class Config {
     /**
-     * @param yamlConfigFile
+     * @param tomlConfigFile
      * @return ConfigOption
      * @throws IOException
      */
-    public static ConfigOption load(String yamlConfigFile, int cryptoType) throws ConfigException {
-        // Load a yaml config file to an java object
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        mapper.findAndRegisterModules();
-        File configFile = new File(yamlConfigFile);
+    public static ConfigOption load(String tomlConfigFile, int cryptoType) throws ConfigException {
+        // Load a toml config file to an java object
+        File configFile = new File(tomlConfigFile);
         try {
-            ConfigProperty configProperty = mapper.readValue(configFile, ConfigProperty.class);
+            ConfigProperty configProperty = new Toml().read(configFile).to(ConfigProperty.class);
             ConfigOption configOption = new ConfigOption(configProperty, cryptoType);
             return configOption;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new ConfigException(
-                    "parse Config " + yamlConfigFile + " failed, error info: " + e.getMessage(), e);
+                    "parse Config " + tomlConfigFile + " failed, error info: " + e.getMessage(), e);
         }
     }
 }

@@ -32,6 +32,7 @@ import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
@@ -42,7 +43,7 @@ import org.junit.Test;
 
 public class BcosSDKTest
 {
-    private static final String configFile = BcosSDKTest.class.getClassLoader().getResource("config-example.yaml").getPath();
+    private static final String configFile = BcosSDKTest.class.getClassLoader().getResource(ConstantConfig.CONFIG_FILE_NAME).getPath();
     @Test
     public void testClient() throws ConfigException {
         BcosSDK sdk = new BcosSDK(configFile);

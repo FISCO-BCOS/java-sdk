@@ -27,33 +27,35 @@ import java.util.Map;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigProperty {
+    @JsonProperty("cryptoMaterial")
+    public Map<String, Object> cryptoMaterial;
 
-    public Map<String, String> cryptoMaterial;
-    public List<String> peers;
+    @JsonProperty("network")
+    public Map<String, Object> network;
 
     @JsonProperty("AMOPKeys")
     public List<AmopTopic> amopConfig;
 
     @JsonProperty("Account")
-    public Map<String, String> accountConfig;
+    public Map<String, Object> accountConfig;
 
     @JsonProperty("threadPool")
-    public Map<String, String> threadPoolConfig;
+    public Map<String, Object> threadPoolConfig;
 
-    public Map<String, String> getCryptoMaterial() {
+    public Map<String, Object> getCryptoMaterial() {
         return cryptoMaterial;
     }
 
-    public void setCryptoMaterial(Map<String, String> cryptoMaterial) {
+    public void setCryptoMaterial(Map<String, Object> cryptoMaterial) {
         this.cryptoMaterial = cryptoMaterial;
     }
 
-    public List<String> getPeers() {
-        return peers;
+    public Map<String, Object> getNetwork() {
+        return network;
     }
 
-    public void setPeers(List<String> peers) {
-        this.peers = peers;
+    public void setNetwork(Map<String, Object> network) {
+        this.network = network;
     }
 
     public List<AmopTopic> getAmopConfig() {
@@ -64,26 +66,34 @@ public class ConfigProperty {
         this.amopConfig = amopConfig;
     }
 
-    public Map<String, String> getAccountConfig() {
+    public Map<String, Object> getAccountConfig() {
         return accountConfig;
     }
 
-    public void setAccountConfig(Map<String, String> accountConfig) {
+    public void setAccountConfig(Map<String, Object> accountConfig) {
         this.accountConfig = accountConfig;
     }
 
-    public Map<String, String> getThreadPoolConfig() {
+    public Map<String, Object> getThreadPoolConfig() {
         return threadPoolConfig;
     }
 
-    public void setThreadPoolConfig(Map<String, String> threadPoolConfig) {
+    public void setThreadPoolConfig(Map<String, Object> threadPoolConfig) {
         this.threadPoolConfig = threadPoolConfig;
     }
 
-    public static String getValue(Map<String, String> config, String key, String defaultValue) {
+    public static String getValue(Map<String, Object> config, String key, String defaultValue) {
         if (config == null || config.get(key) == null) {
             return defaultValue;
         }
-        return config.get(key);
+        return (String) config.get(key);
+    }
+
+    public static Integer getIntegerValue(
+            Map<String, Object> config, String key, Integer defaultValue) {
+        if (config == null || config.get(key) == null) {
+            return defaultValue;
+        }
+        return (Integer) config.get(key);
     }
 }

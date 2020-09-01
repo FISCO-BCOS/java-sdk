@@ -86,7 +86,7 @@ public class CryptoInterface {
 
     public void loadAccount(String accountFileFormat, String accountFilePath, String password) {
         KeyManager keyManager = null;
-        if (accountFilePath.compareToIgnoreCase("p12") == 0) {
+        if (accountFileFormat.compareToIgnoreCase("p12") == 0) {
             keyManager = new P12Manager(accountFilePath, password);
         } else if (accountFileFormat.compareToIgnoreCase("pem") == 0) {
             keyManager = new PEMManager(accountFilePath);

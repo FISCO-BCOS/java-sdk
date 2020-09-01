@@ -294,7 +294,9 @@ public class ABICodecJsonWrapper {
                                 case BYTES:
                                     {
                                         // Binary data requires base64 encoding
-                                        byte[] bytesValue = Base64.getDecoder().decode(value);
+                                        byte[] bytesValue =
+                                                Base64.getDecoder()
+                                                        .decode(Numeric.cleanHexPrefix(value));
                                         argObject.setBytesValue(
                                                 new Bytes(bytesValue.length, bytesValue));
                                         break;
@@ -302,7 +304,9 @@ public class ABICodecJsonWrapper {
                                 case DBYTES:
                                     {
                                         // Binary data requires base64 encoding
-                                        byte[] bytesValue = Base64.getDecoder().decode(value);
+                                        byte[] bytesValue =
+                                                Base64.getDecoder()
+                                                        .decode(Numeric.cleanHexPrefix(value));
                                         argObject.setDynamicBytesValue(
                                                 new DynamicBytes(bytesValue));
                                         break;
@@ -320,7 +324,7 @@ public class ABICodecJsonWrapper {
                                     }
                             }
                         } catch (Exception e) {
-                            logger.error(" e: ", e);
+                            logger.error(" e: {}", e.getMessage());
                             errorReport("ROOT", argObject.getValueType().toString(), value);
                         }
 

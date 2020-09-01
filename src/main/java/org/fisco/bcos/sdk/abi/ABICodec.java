@@ -165,7 +165,17 @@ public class ABICodec {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
-
+        if (methods == null) {
+            logger.debug(
+                    "Invalid methodName: {}, all the functions are: {}",
+                    methodName,
+                    contractABIDefinition.getFunctions());
+            throw new ABICodecException(
+                    "Invalid method "
+                            + methodName
+                            + " , supported functions are: "
+                            + contractABIDefinition.getFunctions().keySet());
+        }
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
                 ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
@@ -272,6 +282,17 @@ public class ABICodec {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getEvents().get(eventName);
+        if (methods == null) {
+            logger.debug(
+                    "Invalid eventName: {}, current supported events are: {}",
+                    eventName,
+                    contractABIDefinition.getEvents().keySet());
+            throw new ABICodecException(
+                    "Invalid event "
+                            + eventName
+                            + ", supported events are: "
+                            + contractABIDefinition.getEvents().keySet());
+        }
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
                 ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
@@ -388,6 +409,13 @@ public class ABICodec {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        if (methods == null) {
+            throw new ABICodecException(
+                    "Invalid method "
+                            + methodName
+                            + ", supported methods are: "
+                            + contractABIDefinition.getFunctions().keySet());
+        }
         for (ABIDefinition abiDefinition : methods) {
             ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
             ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
@@ -441,7 +469,13 @@ public class ABICodec {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> events = contractABIDefinition.getEvents().get(eventName);
-
+        if (events == null) {
+            throw new ABICodecException(
+                    "Invalid event "
+                            + eventName
+                            + ", supported events are: "
+                            + contractABIDefinition.getEvents().keySet());
+        }
         for (ABIDefinition abiDefinition : events) {
             ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
             ABIObject outputObject = abiObjectFactory.createInputObject(abiDefinition);
@@ -489,7 +523,13 @@ public class ABICodec {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> events = contractABIDefinition.getEvents().get(eventName);
-
+        if (events == null) {
+            throw new ABICodecException(
+                    "Invalid event "
+                            + eventName
+                            + ", current supported events are: "
+                            + contractABIDefinition.getEvents().keySet());
+        }
         for (ABIDefinition abiDefinition : events) {
             ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
             ABIObject outputObject = abiObjectFactory.createOutputObject(abiDefinition);

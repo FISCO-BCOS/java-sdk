@@ -17,6 +17,7 @@ package org.fisco.bcos.sdk.config.model;
 
 import io.netty.util.NetUtil;
 import java.util.List;
+import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.utils.Host;
 
@@ -24,7 +25,10 @@ public class NetworkConfig {
     private List<String> peers;
 
     public NetworkConfig(ConfigProperty configProperty) throws ConfigException {
-        peers = configProperty.getPeers();
+        Map<String, Object> networkProperty = configProperty.getNetwork();
+        if (networkProperty != null) {
+            peers = (List<String>) networkProperty.get("peers");
+        }
         checkPeers(peers);
     }
 
