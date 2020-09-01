@@ -20,6 +20,7 @@ import java.util.Map;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionManager;
 import org.fisco.bcos.sdk.transaction.manager.TransactionManagerFactory;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
@@ -38,7 +39,7 @@ import com.google.common.collect.Lists;
  */
 public class EventDecodeTest {
 
-    private static final String configFile = "src/integration-test/resources/config-example.yaml";
+    private static final String configFile = "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
     private static final String abiFile = "src/integration-test/resources/abi/";
     private static final String binFile = "src/integration-test/resources/bin/";
     private final String abi =

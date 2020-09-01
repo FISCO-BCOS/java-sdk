@@ -43,6 +43,7 @@ import org.fisco.bcos.sdk.contract.precompiled.permission.PermissionService;
 import org.fisco.bcos.sdk.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.demo.contract.HelloWorld;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.test.service.GroupServiceTest;
@@ -55,7 +56,7 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PrecompiledTest
 {
-    private static final String configFile = BcosSDKTest.class.getClassLoader().getResource("config-example.yaml").getPath();
+    private static final String configFile = BcosSDKTest.class.getClassLoader().getResource(ConstantConfig.CONFIG_FILE_NAME).getPath();
     public AtomicLong receiptCount = new AtomicLong();
     @Test
     public void test1ConsensusService() throws ConfigException, ContractException {

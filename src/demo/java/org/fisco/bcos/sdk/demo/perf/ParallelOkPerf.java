@@ -23,6 +23,7 @@ import org.fisco.bcos.sdk.demo.contract.ParallelOk;
 import org.fisco.bcos.sdk.demo.perf.model.DagUserInfo;
 import org.fisco.bcos.sdk.demo.perf.parallel.DagPrecompiledDemo;
 import org.fisco.bcos.sdk.demo.perf.parallel.ParallelOkDemo;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 
 public class ParallelOkPerf {
     private static Client client;
@@ -44,7 +45,7 @@ public class ParallelOkPerf {
 
     public static void main(String[] args)
             throws ContractException, IOException, InterruptedException {
-        String configFileName = "config.yaml";
+        String configFileName = ConstantConfig.CONFIG_FILE_NAME;
         URL configUrl = ParallelOkPerf.class.getClassLoader().getResource(configFileName);
         if (configUrl == null) {
             System.out.println("The configFile " + configFileName + " doesn't exist!");

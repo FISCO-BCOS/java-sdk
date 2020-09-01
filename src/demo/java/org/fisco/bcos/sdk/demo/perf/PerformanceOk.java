@@ -24,6 +24,7 @@ import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.demo.perf.callback.PerformanceCallback;
 import org.fisco.bcos.sdk.demo.perf.collector.PerformanceCollector;
 import org.fisco.bcos.sdk.demo.perf.contract.Ok;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class PerformanceOk {
 
     public static void main(String[] args) {
         try {
-            String configFileName = "config.yaml";
+            String configFileName = ConstantConfig.CONFIG_FILE_NAME;
             URL configUrl = ParallelOkPerf.class.getClassLoader().getResource(configFileName);
             if (configUrl == null) {
                 System.out.println("The configFile " + configFileName + " doesn't exist!");

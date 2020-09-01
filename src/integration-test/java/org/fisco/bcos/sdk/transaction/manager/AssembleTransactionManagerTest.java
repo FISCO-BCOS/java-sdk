@@ -28,6 +28,7 @@ import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
@@ -51,7 +52,7 @@ import com.google.common.collect.Lists;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AssembleTransactionManagerTest {
-    private static final String configFile = "src/integration-test/resources/config-example.yaml";
+    private static final String configFile = "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
     private static final String abiFile = "src/integration-test/resources/abi/";
     private static final String binFile = "src/integration-test/resources/bin/";
     private final String abi =

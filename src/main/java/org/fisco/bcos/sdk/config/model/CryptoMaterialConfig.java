@@ -34,7 +34,7 @@ public class CryptoMaterialConfig {
     public CryptoMaterialConfig(ConfigProperty configProperty, int cryptoType)
             throws ConfigException {
         this.sslCryptoType = cryptoType;
-        Map<String, String> cryptoMaterialProperty = configProperty.getCryptoMaterial();
+        Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
         this.certPath = ConfigProperty.getValue(cryptoMaterialProperty, "certPath", this.certPath);
         CryptoMaterialConfig defaultCryptoMaterialConfig =
                 getDefaultCaCertPath(cryptoType, certPath);

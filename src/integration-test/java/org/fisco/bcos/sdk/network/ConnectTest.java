@@ -17,6 +17,7 @@ package org.fisco.bcos.sdk.network;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.Message;
 import org.junit.Test;
 
@@ -40,7 +41,7 @@ public class ConnectTest {
             public void onDisconnect(ChannelHandlerContext ctx) {
             }
         }
-        Network network = Network.build("src/integration-test/resources/config-example.yaml",new TestMsgHandler());
+        Network network = Network.build("src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME,new TestMsgHandler());
         try{
             network.start();
             Thread.sleep(3000);
