@@ -16,9 +16,11 @@
 package org.fisco.bcos.sdk.amop;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 
 /**
@@ -76,21 +78,56 @@ public interface Amop {
     /**
      * Send amop msg
      *
-     * @param msg
+     * @param content
      * @param callback
      */
-    void sendAmopMsg(AmopMsg msg, AmopCallback callback);
+    void sendAmopMsg(AmopMsgOut content, ResponseCallback callback);
+
+    /**
+     * Send amop msg
+     *
+     * @param content
+     */
+    void broadcastAmopMsg(AmopMsgOut content, ResponseCallback callback);
 
     /**
      * Get all subscribe topics.
      *
      * @return topic name list
      */
-    List<String> getSubTopics();
+    Set<String> getSubTopics();
+
+    /**
+     * Get list of subscribers to a topic
+     *
+     * @param topicName the topic you want to query
+     * @return List of subscribers
+     */
+    List<String> getTopicSubscribers(String topicName);
+
+    /**
+     * set amop default callback
+     *
+     * @param cb the amop callback
+     */
+    void setCallback(AmopCallback cb);
 
     /** Start. */
     void start();
 
     /** Stop. */
     void stop();
+
+    /** If configured private topic, wait until finish verify */
+    void waitFinishPrivateTopicVerify();
+
+    /**
+     * generate message sequence string
+     *
+     * @return Sequence string
+     */
+    static String newSeq() {
+        String seq = UUID.randomUUID().toString().replaceAll("-", "");
+        return seq;
+    }
 }

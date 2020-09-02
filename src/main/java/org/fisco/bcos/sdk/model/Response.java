@@ -16,12 +16,14 @@
 package org.fisco.bcos.sdk.model;
 
 import io.netty.channel.ChannelHandlerContext;
+import java.nio.charset.StandardCharsets;
 
 public class Response {
     private Integer errorCode;
     private String errorMessage;
     private String messageID;
-    private String content;
+    private byte[] content;
+    // private String content;
     private ChannelHandlerContext ctx;
 
     public Integer getErrorCode() {
@@ -49,11 +51,19 @@ public class Response {
     }
 
     public String getContent() {
-        return content;
+        return new String(content, StandardCharsets.UTF_8);
     }
 
     public void setContent(String content) {
+        this.content = content.getBytes();
+    }
+
+    public void setContentBytes(byte[] content) {
         this.content = content;
+    }
+
+    public byte[] getContentBytes() {
+        return this.content;
     }
 
     public ChannelHandlerContext getCtx() {

@@ -30,6 +30,7 @@ public class ConfigProperty {
     public Map<String, Object> network;
     public List<AmopTopic> amop;
     public Map<String, Object> account;
+
     public Map<String, Object> threadPool;
 
     public Map<String, Object> getCryptoMaterial() {

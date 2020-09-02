@@ -32,7 +32,7 @@ public class Message implements Serializable {
     public static final int HEADER_LENGTH = 4 + 2 + 32 + 4;
 
     /**
-     * encode the messge into ByteBuf
+     * encode the message into ByteBuf
      *
      * @param encodedData: the ByteBuf stores the encodedData
      */

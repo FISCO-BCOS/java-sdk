@@ -70,6 +70,7 @@ public class BcosSDK {
             logger.info("create BcosSDK, create groupManagerService success");
             // init amop
             amop = Amop.build(groupManagerService, config);
+            amop.start();
             logger.info("create BcosSDK, create Amop success");
         } catch (ChannelException | ConfigException e) {
             stopAll();

@@ -39,6 +39,7 @@ public class EventMsg extends Message {
         writeExtra(encodedData);
     }
 
+    @Override
     public void writeHeader(ByteBuf out) {
         // total length
         try {
