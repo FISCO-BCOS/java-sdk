@@ -88,7 +88,7 @@ public interface Amop {
      *
      * @param content
      */
-    void broadcastAmopMsg(AmopMsgOut content, ResponseCallback callback);
+    void broadcastAmopMsg(AmopMsgOut content);
 
     /**
      * Get all subscribe topics.

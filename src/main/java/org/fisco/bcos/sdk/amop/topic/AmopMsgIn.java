@@ -3,12 +3,16 @@ package org.fisco.bcos.sdk.amop.topic;
 import io.netty.channel.ChannelHandlerContext;
 import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.model.MsgType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AmopMsgIn {
+    private static Logger logger = LoggerFactory.getLogger(AmopMsgIn.class);
     private String messageID;
     private byte[] content;
     private String topic;
     private Integer result;
+    protected Short type = 0;
     private ChannelHandlerContext ctx;
 
     public String getMessageID() {
@@ -51,14 +55,27 @@ public class AmopMsgIn {
         this.result = result;
     }
 
+    public Short getType() {
+        return type;
+    }
+
+    public void setType(Short type) {
+        this.type = type;
+    }
+
     public void sendResponse(byte[] content) {
+        if (type == (short) MsgType.AMOP_MULBROADCAST.getType()) {
+            // If received a broadcast msg, do not response.
+            return;
+        }
         AmopMsg msg = new AmopMsg();
         msg.setTopic(topic);
         msg.setSeq(messageID);
         msg.setResult(0);
         msg.setType((short) MsgType.AMOP_RESPONSE.getType());
         msg.setData(content);
-        System.out.println("Send response:" + messageID + " topic:" + topic);
+        logger.trace(
+                "Send response, seq:{} topic:{} content:{}", messageID, topic, new String(content));
         ctx.writeAndFlush(msg.getMessage());
     }
 }
