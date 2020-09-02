@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.network;
 
 import io.netty.channel.ChannelHandlerContext;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -85,26 +86,60 @@ public class NetworkImp implements Network {
         return connManager.getConnectionInfoList();
     }
 
+    private boolean checkCertExistence(boolean isSM) {
+        if (!new File(configOption.getCryptoMaterialConfig().getCaCertPath()).exists()) {
+            return false;
+        }
+        if (!new File(configOption.getCryptoMaterialConfig().getSdkCertPath()).exists()) {
+            return false;
+        }
+        if (!new File(configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()).exists()) {
+            return false;
+        }
+        if (!isSM) {
+            return true;
+        }
+        if (!new File(configOption.getCryptoMaterialConfig().getEnSSLCertPath()).exists()) {
+            return false;
+        }
+        if (!new File(configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()).exists()) {
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public void start() throws NetworkException {
+        boolean tryEcdsaConnect = false;
         try {
             try {
-                logger.debug("start connManager with ECDSA sslContext");
-                connManager.startConnect(configOption);
-                connManager.startReconnectSchedule();
-                return;
+                if (checkCertExistence(false)) {
+                    logger.debug("start connManager with ECDSA sslContext");
+                    connManager.startConnect(configOption);
+                    connManager.startReconnectSchedule();
+                    tryEcdsaConnect = true;
+                    return;
+                }
             } catch (NetworkException e) {
-                connManager.stopNetty();
-                if (e.getErrorCode() == NetworkException.CONNECT_FAILED) {
+                tryEcdsaConnect = true;
+                configOption = Config.load(configFilePath, CryptoInterface.SM_TYPE);
+                if (e.getErrorCode() == NetworkException.CONNECT_FAILED
+                        || !checkCertExistence(true)) {
                     throw e;
                 }
+                connManager.stopNetty();
                 logger.debug(
                         "start connManager with the ECDSA sslContext failed, try to use SM sslContext, error info: {}",
                         e.getMessage());
             }
-            // create a new connectionManager to connect the node with the SM sslContext
-            connManager = new ConnectionManager(configOption, handler);
             configOption = Config.load(configFilePath, CryptoInterface.SM_TYPE);
+            if (!checkCertExistence(true)) {
+                throw new NetworkException("The cert files are not exist!");
+            }
+            if (tryEcdsaConnect) {
+                // create a new connectionManager to connect the node with the SM sslContext
+                connManager = new ConnectionManager(configOption, handler);
+            }
             connManager.startConnect(configOption);
             connManager.startReconnectSchedule();
         } catch (ConfigException e) {

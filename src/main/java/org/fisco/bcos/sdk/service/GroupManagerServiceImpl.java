@@ -97,12 +97,13 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         this.blockNumberMessageDecoder = new BlockNumberMessageDecoder();
         this.groupServiceFactory = new GroupServiceFactory();
         this.groupInfoGetter = Client.build(channel);
-        fetchGroupList();
-        updateNodeVersion();
-        this.start();
+        // Note: must register the handlers at first
         registerGetNodeVersionHandler();
         registerBlockNumberNotifyHandler();
         registerTransactionNotifyHandler();
+        fetchGroupList();
+        updateNodeVersion();
+        this.start();
     }
 
     @Override
@@ -130,7 +131,8 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         return nodeToNodeVersion.get(peerInfo);
     }
 
-    private void updateNodeVersion() {
+    @Override
+    public void updateNodeVersion() {
         List<String> peers = this.channel.getAvailablePeer();
         for (String peer : peers) {
             updateNodeVersion(peer);
@@ -669,7 +671,8 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     }
 
     // fetch the groupIDList from all the peers
-    protected void fetchGroupList() {
+    @Override
+    public void fetchGroupList() {
         List<String> peers = this.channel.getAvailablePeer();
         for (String peerEndPoint : peers) {
             fetchGroupList(peerEndPoint);

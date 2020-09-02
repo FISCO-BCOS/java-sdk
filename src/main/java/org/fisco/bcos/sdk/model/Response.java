@@ -23,7 +23,6 @@ public class Response {
     private String errorMessage;
     private String messageID;
     private byte[] content;
-    // private String content;
     private ChannelHandlerContext ctx;
 
     public Integer getErrorCode() {
@@ -51,7 +50,10 @@ public class Response {
     }
 
     public String getContent() {
-        return new String(content, StandardCharsets.UTF_8);
+        if (content != null) {
+            return new String(content, StandardCharsets.UTF_8);
+        }
+        return null;
     }
 
     public void setContent(String content) {

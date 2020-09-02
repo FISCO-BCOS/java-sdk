@@ -309,9 +309,8 @@ public class ChannelImp implements Channel {
             logger.warn("send message {} to {} failed ", out.getSeq(), peerIpPort);
             Response response = new Response();
             response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
-            response.setErrorMessage(
-                    "The connection to peer " + peerIpPort + " failed for not connected.");
-            response.setContent("");
+            response.setErrorMessage("Send message failed for connect failed !");
+            response.setMessageID(out.getSeq());
             callback.onResponse(response);
         }
     }

@@ -123,4 +123,10 @@ public class MockGroupManager implements GroupManagerService {
     public void stop() {
         return;
     }
+
+    @Override
+    public void updateNodeVersion() {}
+
+    @Override
+    public void fetchGroupList() {}
 }
