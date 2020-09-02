@@ -14,6 +14,7 @@
 package org.fisco.bcos.sdk;
 
 import io.netty.channel.ChannelException;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.channel.Channel;
@@ -93,17 +94,36 @@ public class BcosSDK {
 
     public Client getClient(Integer groupId) {
         if (!waitForEstablishConnection()) {
-            logger.error("get client for group: {} failed for the number of available peers is 0");
-            return null;
+            logger.error(
+                    "get client for group: {} failed for the number of available peers is 0",
+                    groupId);
+            throw new BcosSDKException(
+                    "get client for group "
+                            + groupId
+                            + " failed for the number of available peers is 0");
         }
         if (!groupToClient.containsKey(groupId)) {
             // create a new client for the specified group
             Client client = Client.build(this.groupManagerService, this.channel, groupId);
             if (client == null) {
-                throw new BcosSDKException("create client for group " + groupId + " failed!");
+                throw new BcosSDKException(
+                        "create client for group "
+                                + groupId
+                                + " failed! Please check the existence of group "
+                                + groupId
+                                + " of the connected node!");
             }
             groupToClient.put(groupId, client);
             logger.info("create client for group {} success", groupId);
+        }
+        groupManagerService.fetchGroupList();
+        Set<String> nodeList = groupManagerService.getGroupNodeList(groupId);
+        if (nodeList.size() == 0) {
+            groupToClient.remove(groupId);
+            throw new BcosSDKException(
+                    "create client for group "
+                            + groupId
+                            + " failed for no peers set up the group!");
         }
         return groupToClient.get(groupId);
     }

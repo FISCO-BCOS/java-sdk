@@ -74,6 +74,8 @@ public interface Client {
      * @return a client instance
      */
     static Client build(GroupManagerService groupManagerService, Channel channel, Integer groupId) {
+        groupManagerService.fetchGroupList();
+        groupManagerService.updateNodeVersion();
         // check the groupList
         Set<String> nodeList = groupManagerService.getGroupNodeList(groupId);
         if (nodeList == null || nodeList.size() == 0) {
