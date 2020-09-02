@@ -145,5 +145,9 @@ public interface GroupManagerService {
 
     ConfigOption getConfig();
 
+    void updateNodeVersion();
+
+    void fetchGroupList();
+
     void stop();
 }
