@@ -96,6 +96,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         TransactionResponse response = new TransactionResponse();
         response.setReturnCode(retCode.getCode());
         response.setReceiptMessages(retCode.getMessage());
+        response.setReturnMessage(retCode.getMessage());
         return response;
     }
 

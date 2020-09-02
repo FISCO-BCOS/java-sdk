@@ -45,4 +45,18 @@ public class AmopTopic {
     public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
     }
+
+    @Override
+    public String toString() {
+        return "AmopTopic{"
+                + "topicName='"
+                + topicName
+                + '\''
+                + ", publicKeys="
+                + publicKeys
+                + ", privateKey='"
+                + privateKey
+                + '\''
+                + '}';
+    }
 }

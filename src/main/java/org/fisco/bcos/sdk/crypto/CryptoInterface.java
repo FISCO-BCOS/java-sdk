@@ -53,7 +53,8 @@ public class CryptoInterface {
         logger.info("init CryptoInterface, cryptoType: {}", cryptoTypeConfig);
         setConfig(configOption);
         // doesn't set the account name, generate the keyPair randomly
-        if (configOption.getAccountConfig().getAccountAddress().equals("")) {
+        if (configOption.getAccountConfig().getAccountAddress().equals("")
+                && configOption.getAccountConfig().getAccountFilePath().equals("")) {
             createKeyPair();
             return;
         }

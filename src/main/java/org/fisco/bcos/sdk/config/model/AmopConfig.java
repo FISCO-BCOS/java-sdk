@@ -22,7 +22,7 @@ public class AmopConfig {
     private List<AmopTopic> amopTopicConfig;
 
     public AmopConfig(ConfigProperty configProperty) {
-        this.amopTopicConfig = configProperty.getAmopConfig();
+        this.amopTopicConfig = configProperty.getAmop();
     }
 
     public List<AmopTopic> getAmopTopicConfig() {

@@ -161,7 +161,7 @@ public class ConnectionManager {
         int aliveConnectionCount = 0;
         for (ConnectionInfo connectionInfo : connectionInfoList) {
             ChannelHandlerContext ctx = availableConnections.get(connectionInfo.getEndPoint());
-            if (Objects.isNull(ctx) || ctx.channel().isActive()) {
+            if (Objects.isNull(ctx) || !ctx.channel().isActive()) {
                 needReconnect.add(connectionInfo);
             } else {
                 aliveConnectionCount++;
