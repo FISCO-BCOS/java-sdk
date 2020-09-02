@@ -16,7 +16,6 @@
 package org.fisco.bcos.sdk.config.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 
@@ -27,20 +26,11 @@ import java.util.Map;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigProperty {
-    @JsonProperty("cryptoMaterial")
     public Map<String, Object> cryptoMaterial;
-
-    @JsonProperty("network")
     public Map<String, Object> network;
-
-    @JsonProperty("AMOPKeys")
-    public List<AmopTopic> amopConfig;
-
-    @JsonProperty("Account")
-    public Map<String, Object> accountConfig;
-
-    @JsonProperty("threadPool")
-    public Map<String, Object> threadPoolConfig;
+    public List<AmopTopic> amop;
+    public Map<String, Object> account;
+    public Map<String, Object> threadPool;
 
     public Map<String, Object> getCryptoMaterial() {
         return cryptoMaterial;
@@ -58,28 +48,28 @@ public class ConfigProperty {
         this.network = network;
     }
 
-    public List<AmopTopic> getAmopConfig() {
-        return amopConfig;
+    public List<AmopTopic> getAmop() {
+        return amop;
     }
 
-    public void setAmopConfig(List<AmopTopic> amopConfig) {
-        this.amopConfig = amopConfig;
+    public void setAmop(List<AmopTopic> amop) {
+        this.amop = amop;
     }
 
-    public Map<String, Object> getAccountConfig() {
-        return accountConfig;
+    public Map<String, Object> getAccount() {
+        return account;
     }
 
-    public void setAccountConfig(Map<String, Object> accountConfig) {
-        this.accountConfig = accountConfig;
+    public void setAccount(Map<String, Object> account) {
+        this.account = account;
     }
 
-    public Map<String, Object> getThreadPoolConfig() {
-        return threadPoolConfig;
+    public Map<String, Object> getThreadPool() {
+        return threadPool;
     }
 
-    public void setThreadPoolConfig(Map<String, Object> threadPoolConfig) {
-        this.threadPoolConfig = threadPoolConfig;
+    public void setThreadPool(Map<String, Object> threadPool) {
+        this.threadPool = threadPool;
     }
 
     public static String getValue(Map<String, Object> config, String key, String defaultValue) {
@@ -87,13 +77,5 @@ public class ConfigProperty {
             return defaultValue;
         }
         return (String) config.get(key);
-    }
-
-    public static Integer getIntegerValue(
-            Map<String, Object> config, String key, Integer defaultValue) {
-        if (config == null || config.get(key) == null) {
-            return defaultValue;
-        }
-        return (Integer) config.get(key);
     }
 }

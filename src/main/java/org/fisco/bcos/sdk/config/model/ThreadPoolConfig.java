@@ -24,14 +24,14 @@ public class ThreadPoolConfig {
     private Integer maxBlockingQueueSize;
 
     public ThreadPoolConfig(ConfigProperty configProperty) {
-        Map<String, Object> threadPoolConfig = configProperty.getThreadPoolConfig();
-        Integer cpuNum = Runtime.getRuntime().availableProcessors();
-        channelProcessorThreadSize =
-                ConfigProperty.getIntegerValue(
-                        threadPoolConfig, "channelProcessorThreadSize", cpuNum);
-        receiptProcessorThreadSize =
-                ConfigProperty.getIntegerValue(
-                        threadPoolConfig, "receiptProcessorThreadSize", cpuNum);
+        Map<String, Object> threadPoolConfig = configProperty.getThreadPool();
+        String cpuNum = String.valueOf(Runtime.getRuntime().availableProcessors());
+        String channelProcessorThread =
+                ConfigProperty.getValue(threadPoolConfig, "channelProcessorThreadSize", cpuNum);
+        String receiptProcessorThread =
+                ConfigProperty.getValue(threadPoolConfig, "receiptProcessorThreadSize", cpuNum);
+        channelProcessorThreadSize = Integer.valueOf(channelProcessorThread);
+        receiptProcessorThreadSize = Integer.valueOf(receiptProcessorThread);
         maxBlockingQueueSize =
                 Integer.valueOf(
                         ConfigProperty.getValue(

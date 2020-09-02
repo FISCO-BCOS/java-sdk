@@ -116,7 +116,10 @@ public class JsonRpcService {
                                             request, response, responseType);
                             callback.onResponse(jsonRpcResponse);
                         } catch (ClientException e) {
-                            callback.onError(response);
+                            Response errorResponse = new Response();
+                            errorResponse.setErrorMessage(e.getErrorMessage());
+                            errorResponse.setErrorCode(e.getErrorCode());
+                            callback.onError(errorResponse);
                         }
                     }
                 },
@@ -170,7 +173,12 @@ public class JsonRpcService {
                             // decode the transaction
                             parseResponseIntoJsonRpcResponse(request, response, responseType);
                         } catch (ClientException e) {
-                            groupManagerService.eraseTransactionSeq(response.getMessageID());
+                            if (message != null) {
+                                groupManagerService.eraseTransactionSeq(message.getSeq());
+                            }
+                            if (response != null) {
+                                groupManagerService.eraseTransactionSeq(response.getMessageID());
+                            }
                             // fake the transactionReceipt
                             callback.onError(e.getErrorCode(), e.getErrorMessage());
                         }
@@ -203,8 +211,6 @@ public class JsonRpcService {
                                     + response.getMessageID()
                                     + ",retErrorMessage: "
                                     + jsonRpcResponse.getError().getMessage());
-                } else {
-                    parseResponseOutput(jsonRpcResponse);
                 }
                 return jsonRpcResponse;
             } else {
@@ -216,6 +222,8 @@ public class JsonRpcService {
                         response.getErrorMessage(),
                         response.getErrorCode());
                 throw new ClientException(
+                        response.getErrorCode(),
+                        response.getErrorMessage(),
                         "get response failed, errorCode:"
                                 + response.getErrorCode()
                                 + ", error message:"
@@ -232,10 +240,6 @@ public class JsonRpcService {
                             + e.getMessage(),
                     e);
         }
-    }
-
-    private <T extends JsonRpcResponse> void parseResponseOutput(T jsonRpcResponse) {
-        // TODO: parse the transaction outpput(especially the revertMessage for the call interface)
     }
 
     /**

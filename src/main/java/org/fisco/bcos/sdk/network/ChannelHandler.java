@@ -49,9 +49,8 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         String host = ((SocketChannel) ctx.channel()).remoteAddress().getAddress().getHostAddress();
         Integer port = ((SocketChannel) ctx.channel()).remoteAddress().getPort();
-
         if (evt instanceof IdleStateEvent) {
-            IdleStateEvent e = (IdleStateEvent) evt;
+            final IdleStateEvent e = (IdleStateEvent) evt;
             switch (e.state()) {
                 case READER_IDLE:
                 case WRITER_IDLE:
