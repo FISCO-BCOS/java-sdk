@@ -21,6 +21,7 @@ public class AmopTopic {
     public String topicName;
     public List<String> publicKeys;
     public String privateKey;
+    public String password;
 
     public String getTopicName() {
         return topicName;
@@ -44,6 +45,14 @@ public class AmopTopic {
 
     public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

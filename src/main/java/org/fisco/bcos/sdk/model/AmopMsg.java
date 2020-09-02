@@ -23,7 +23,9 @@ public class AmopMsg extends Message {
     private static final long serialVersionUID = -7276897518418560354L;
     private String topic;
 
-    public AmopMsg() {}
+    public AmopMsg() {
+        result = 0;
+    }
 
     public AmopMsg(Message msg) {
         length = msg.getLength();
@@ -39,9 +41,25 @@ public class AmopMsg extends Message {
             byte[] topicBytes = new byte[topicLength - 1];
             amopBody.readBytes(topicBytes, 0, topicLength - 1);
             topic = new String(topicBytes);
-            data = new byte[length - Message.HEADER_LENGTH - topicLength];
-            amopBody.readBytes(data, 0, length - Message.HEADER_LENGTH - topicLength);
+            /*data = new byte[length - Message.HEADER_LENGTH - topicLength];
+            amopBody.readBytes(data, 0, length - Message.HEADER_LENGTH - topicLength);*/
+            data = new byte[in.length - topicLength];
+            amopBody.readBytes(data, 0, in.length - topicLength);
         }
+    }
+
+    public Message getMessage() {
+        Message msg = new Message();
+        msg.setResult(this.result);
+        msg.setType(this.type);
+        msg.setSeq(this.seq);
+
+        byte[] msgData = new byte[length - Message.HEADER_LENGTH + 1 + topic.length()];
+        ByteBuf out = Unpooled.buffer();
+        writeExtra(out);
+        out.readBytes(msgData, 0, length - Message.HEADER_LENGTH + 1 + topic.length());
+        msg.setData(msgData);
+        return msg;
     }
 
     @Override
@@ -50,6 +68,7 @@ public class AmopMsg extends Message {
         writeExtra(encodedData);
     }
 
+    @Override
     public void writeHeader(ByteBuf out) {
         // total length
         try {

@@ -27,7 +27,7 @@ import org.fisco.bcos.sdk.service.GroupManagerService;
  */
 public interface EventSubscribe {
     /**
-     * Create a Event Subscribe instance
+     * Create a Event Subscraibe instance
      *
      * @param groupManagerService
      * @param groupId

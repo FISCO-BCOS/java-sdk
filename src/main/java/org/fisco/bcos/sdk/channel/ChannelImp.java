@@ -284,6 +284,10 @@ public class ChannelImp implements Channel {
             ctx = msgHandler.getAvailablePeer().get(peerIpPort);
         }
         if (ctx != null) {
+            if (callback == null) {
+                ctx.writeAndFlush(out);
+                return;
+            }
             msgHandler.addSeq2CallBack(out.getSeq(), callback);
             if (options.getTimeout() > 0) {
                 callback.setTimeout(
