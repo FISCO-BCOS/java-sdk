@@ -210,7 +210,7 @@ public class AmopMsgHandlerTest {
         }
 
         @Override
-        public void onSubscribedTopicMsg(AmopMsgIn msg) {
+        public void receiveAmopMsg(AmopMsgIn msg) {
             this.msg = msg;
             Assert.assertTrue(msg.getTopic().equals(topic));
             Assert.assertEquals(msg.getContent().length, content.length);

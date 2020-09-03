@@ -54,7 +54,6 @@ public class TopicManagerTest {
         Assert.assertEquals(
                 "#!$PushChannel_#!$TopicNeedVerify_priv2",
                 topicManager.getFullTopicString("priv2"));
-        Assert.assertNotNull(topicManager.getPublicKeysByTopic("#!$TopicNeedVerify_priv2"));
 
         Set<String> topics = topicManager.getTopicNames();
         Assert.assertTrue(topics.contains("test"));
@@ -110,12 +109,12 @@ public class TopicManagerTest {
         tm.addBlockNotify("127.0.0.1:3033", group);
 
         Set<String> topics = tm.getSubByPeer("127.0.0.1:3033");
-        Assert.assertEquals(7, topics.size());
+        Assert.assertEquals(6, topics.size());
         Assert.assertTrue(topics.contains("_block_notify_1"));
         Assert.assertTrue(topics.contains("_block_notify_2"));
 
         topics = tm.getSubByPeer("127.0.0.1:8000");
-        Assert.assertEquals(5, topics.size());
+        Assert.assertEquals(4, topics.size());
         Assert.assertFalse(topics.contains("_block_notify_1"));
         Assert.assertFalse(topics.contains("_block_notify_2"));
     }
@@ -156,7 +155,7 @@ public class TopicManagerTest {
     public class TestAmopCallback extends AmopCallback {
 
         @Override
-        public void onSubscribedTopicMsg(AmopMsgIn msg) {
+        public void receiveAmopMsg(AmopMsgIn msg) {
             // do nothing
         }
     }

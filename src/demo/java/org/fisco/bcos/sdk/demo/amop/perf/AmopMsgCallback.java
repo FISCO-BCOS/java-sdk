@@ -13,7 +13,7 @@ public class AmopMsgCallback extends AmopCallback {
     }
 
     @Override
-    public void onSubscribedTopicMsg(AmopMsgIn msg) {
+    public void receiveAmopMsg(AmopMsgIn msg) {
         Long cost = System.currentTimeMillis() - startTime;
         collector.onSubscribedTopicMsg(msg, cost);
     }

@@ -72,7 +72,6 @@ public class TopicManager {
                 topicName,
                 fullNameToSendToNode);
         topics.add(fullNameToSendToNode);
-        topics.add(addNeedVerifyTopicPrefix(topicName));
         topic2PublicKeys.put(addNeedVerifyTopicPrefix(topicName), publicKeyManagers);
         topicName2FullName.put(topicName, fullNameToSendToNode);
     }
@@ -168,7 +167,7 @@ public class TopicManager {
         if (out.getType() == TopicType.NORMAL_TOPIC) {
             return true;
         } else {
-            return topics.contains(out.getTopic());
+            return topic2PublicKeys.keySet().contains(out.getTopic());
         }
     }
 
