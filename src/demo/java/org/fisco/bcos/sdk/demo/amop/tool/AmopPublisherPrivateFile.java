@@ -1,5 +1,10 @@
 package org.fisco.bcos.sdk.demo.amop.tool;
 
+import static org.fisco.bcos.sdk.demo.amop.tool.FileToByteArrayHelper.byteCat;
+import static org.fisco.bcos.sdk.demo.amop.tool.FileToByteArrayHelper.getFileByteArray;
+import static org.fisco.bcos.sdk.demo.amop.tool.FileToByteArrayHelper.intToByteArray;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import org.fisco.bcos.sdk.BcosSDK;
@@ -11,14 +16,14 @@ import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
 import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
 import org.fisco.bcos.sdk.model.Response;
 
-public class AmopPublisherPrivate {
+public class AmopPublisherPrivateFile {
     private static final int parameterNum = 6;
     private static String publisherFile =
             AmopSubscribe.class.getClassLoader().getResource("config-sender.toml").getPath();
 
     /**
-     * @param args topicName, pubKey1, pubKey2, isBroadcast: true/false, content, count. if only one
-     *     public key please fill pubKey2 with null
+     * @param args topicName, pubKey1, pubKey2, isBroadcast: true/false, fileName, count. if only
+     *     one public key please fill pubKey2 with null
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
@@ -30,10 +35,11 @@ public class AmopPublisherPrivate {
         String pubkey1 = args[1];
         String pubkey2 = args[2];
         Boolean isBroadcast = Boolean.valueOf(args[3]);
-        String content = args[4];
+        String fileName = args[4];
         Integer count = Integer.parseInt(args[5]);
         BcosSDK sdk = new BcosSDK(publisherFile);
         Amop amop = sdk.getAmop();
+        // todo setup topic
 
         System.out.println("3s ...");
         Thread.sleep(1000);
@@ -61,11 +67,19 @@ public class AmopPublisherPrivate {
         System.out.println("1s ...");
         Thread.sleep(1000);
 
+        int flag = -128;
+        byte[] byteflag = intToByteArray(flag);
+        int filelength = fileName.length();
+        byte[] bytelength = intToByteArray(filelength);
+        byte[] bytefilename = fileName.getBytes();
+        byte[] contentfile = getFileByteArray(new File(fileName));
+        byte[] content = byteCat(byteCat(byteCat(byteflag, bytelength), bytefilename), contentfile);
+
         for (Integer i = 0; i < count; ++i) {
             Thread.sleep(2000);
             AmopMsgOut out = new AmopMsgOut();
             out.setType(TopicType.PRIVATE_TOPIC);
-            out.setContent(content.getBytes());
+            out.setContent(content);
             out.setTimeout(6000);
             out.setTopic(topicName);
             ResponseCallback cb =
@@ -87,19 +101,11 @@ public class AmopPublisherPrivate {
                     };
             if (isBroadcast) {
                 amop.broadcastAmopMsg(out);
-                System.out.println(
-                        "Step 1: Send out msg by broadcast, topic:"
-                                + out.getTopic()
-                                + " content:"
-                                + new String(out.getContent()));
             } else {
                 amop.sendAmopMsg(out, cb);
-                System.out.println(
-                        "Step 1: Send out msg, topic:"
-                                + out.getTopic()
-                                + " content:"
-                                + new String(out.getContent()));
             }
+            System.out.println(
+                    "Step 1: Send out msg, topic:" + out.getTopic() + " content: file " + fileName);
         }
     }
 }
