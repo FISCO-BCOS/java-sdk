@@ -149,5 +149,7 @@ public interface GroupManagerService {
 
     void fetchGroupList();
 
+    void resetLatestNodeInfo(Integer groupId);
+
     void stop();
 }

@@ -19,6 +19,7 @@ import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
+import org.fisco.bcos.sdk.client.protocol.model.JsonRpcRetCode;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
 import org.fisco.bcos.sdk.client.protocol.response.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Message;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 public class JsonRpcService {
     protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private static Logger logger = LoggerFactory.getLogger(JsonRpcService.class);
+
     private final GroupManagerService groupManagerService;
     public final Channel channel;
     private final Integer groupId;
@@ -194,20 +196,27 @@ public class JsonRpcService {
                 T jsonRpcResponse = objectMapper.readValue(response.getContent(), responseType);
                 if (jsonRpcResponse.getError() != null) {
                     logger.error(
-                            "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {}, seq: {}, messageType: {}, retErrorMessage: {}, retErrorCode: {}",
+                            "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {}, seq: {}, retErrorMessage: {}, retErrorCode: {}",
                             request.getMethod(),
                             this.groupId,
                             response.getMessageID(),
                             jsonRpcResponse.getError().getMessage(),
                             jsonRpcResponse.getError().getCode());
+
+                    if (this.groupId != null
+                            && jsonRpcResponse.getError().getCode()
+                                    == JsonRpcRetCode.SDK_PERMISSION_DENIED) {
+                        groupManagerService.resetLatestNodeInfo(groupId);
+                    }
+
                     throw new ClientException(
                             jsonRpcResponse.getError().getCode(),
                             jsonRpcResponse.getError().getMessage(),
                             "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: "
                                     + request.getMethod()
-                                    + ", group: "
+                                    + " ,group: "
                                     + this.groupId
-                                    + ", seq:"
+                                    + " ,seq:"
                                     + response.getMessageID()
                                     + ",retErrorMessage: "
                                     + jsonRpcResponse.getError().getMessage());

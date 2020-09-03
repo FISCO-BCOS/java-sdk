@@ -14,8 +14,10 @@
 package org.fisco.bcos.sdk.service;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -74,7 +76,7 @@ public class GroupServiceImpl implements GroupService {
                     groupId,
                     nodeAddress,
                     this.groupNodeSet.size(),
-                    this.groupNodeSet.size());
+                    this.groupNodeToBlockNumber.size());
         }
         if (!groupNodeToBlockNumber.containsKey(nodeAddress)) {
             groupNodeToBlockNumber.put(nodeAddress, BigInteger.valueOf(0));
@@ -114,6 +116,10 @@ public class GroupServiceImpl implements GroupService {
             }
         }
         if (maxBlockNumber != null && !maxBlockNumberNode.equals("")) {
+            // for select the node with the highest blockNumber to send requests randomly
+            if (latestBlockNumber.equals(maxBlockNumber)) {
+                nodeWithLatestBlockNumber = maxBlockNumberNode;
+            }
             if (nodeWithLatestBlockNumber == null || !latestBlockNumber.equals(maxBlockNumber)) {
                 logger.debug(
                         "g:{}, resetLatestBlockNumber, latestBlockNumber: {}, nodeWithLatestBlockNumber:{},  maxBlockNumber: {}",
@@ -134,11 +140,42 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public String getNodeWithTheLatestBlockNumber() {
-        return nodeWithLatestBlockNumber;
+        // the case that the sdk is allowed to access all the connected node, select the first
+        // connected node to send the request
+        if (nodeWithLatestBlockNumber != null) {
+            return nodeWithLatestBlockNumber;
+        }
+        // select the first element
+        if (!groupNodeSet.isEmpty()) {
+            return groupNodeSet.iterator().next();
+        }
+        return null;
     }
 
     @Override
     public boolean existPeer(String peer) {
         return groupNodeSet.contains(peer);
+    }
+
+    @Override
+    public void resetLatestNodeInfo() {
+        List<String> nodesWithHighestBlockNumber = new ArrayList<>();
+        for (String node : groupNodeToBlockNumber.keySet()) {
+            BigInteger blockNumber = groupNodeToBlockNumber.get(node);
+            if (blockNumber != null
+                    && blockNumber.compareTo(BigInteger.valueOf(latestBlockNumber.get())) >= 0) {
+                nodesWithHighestBlockNumber.add(node);
+            }
+        }
+        int random = (int) (Math.random() * (nodesWithHighestBlockNumber.size()));
+        String selectedNode = nodesWithHighestBlockNumber.get(random);
+        if (selectedNode != null) {
+            if (selectedNode.equals(nodeWithLatestBlockNumber)) {
+                nodeWithLatestBlockNumber =
+                        nodesWithHighestBlockNumber.get(
+                                (random + 1) % (nodesWithHighestBlockNumber.size()));
+            }
+            nodeWithLatestBlockNumber = selectedNode;
+        }
     }
 }

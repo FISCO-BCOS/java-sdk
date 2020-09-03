@@ -24,6 +24,7 @@ import org.fisco.bcos.sdk.demo.perf.model.DagUserInfo;
 import org.fisco.bcos.sdk.demo.perf.parallel.DagPrecompiledDemo;
 import org.fisco.bcos.sdk.demo.perf.parallel.ParallelOkDemo;
 import org.fisco.bcos.sdk.model.ConstantConfig;
+import org.fisco.bcos.sdk.utils.ThreadPoolService;
 
 public class ParallelOkPerf {
     private static Client client;
@@ -66,11 +67,15 @@ public class ParallelOkPerf {
         BcosSDK sdk = new BcosSDK(configFile);
         client = sdk.getClient(Integer.valueOf(groupId));
         dagUserInfo.setFile(userFile);
+        ThreadPoolService threadPoolService =
+                new ThreadPoolService(
+                        "ParallelOkPerf",
+                        sdk.getConfig().getThreadPoolConfig().getMaxBlockingQueueSize());
 
         if (perfType.compareToIgnoreCase("parallelok") == 0) {
-            parallelOkPerf(groupId, command, count, qps);
+            parallelOkPerf(groupId, command, count, qps, threadPoolService);
         } else if (perfType.compareToIgnoreCase("precompiled") == 0) {
-            dagTransferPerf(groupId, command, count, qps);
+            dagTransferPerf(groupId, command, count, qps, threadPoolService);
         } else {
             System.out.println(
                     "invalid perf option: "
@@ -80,7 +85,12 @@ public class ParallelOkPerf {
         }
     }
 
-    public static void parallelOkPerf(Integer groupId, String command, Integer count, Integer qps)
+    public static void parallelOkPerf(
+            Integer groupId,
+            String command,
+            Integer count,
+            Integer qps,
+            ThreadPoolService threadPoolService)
             throws IOException, InterruptedException, ContractException {
         System.out.println(
                 "====== ParallelOk trans, count: "
@@ -100,7 +110,7 @@ public class ParallelOkPerf {
                 System.out.println(
                         "====== ParallelOk userAdd, deploy success, address: "
                                 + parallelOk.getContractAddress());
-                parallelOkDemo = new ParallelOkDemo(parallelOk, dagUserInfo);
+                parallelOkDemo = new ParallelOkDemo(parallelOk, dagUserInfo, threadPoolService);
                 parallelOkDemo.userAdd(BigInteger.valueOf(count), BigInteger.valueOf(qps));
                 break;
             case "transfer":
@@ -111,7 +121,7 @@ public class ParallelOkPerf {
                 System.out.println(
                         "====== ParallelOk trans, load success, address: "
                                 + parallelOk.getContractAddress());
-                parallelOkDemo = new ParallelOkDemo(parallelOk, dagUserInfo);
+                parallelOkDemo = new ParallelOkDemo(parallelOk, dagUserInfo, threadPoolService);
                 parallelOkDemo.userTransfer(BigInteger.valueOf(count), BigInteger.valueOf(qps));
                 break;
 
@@ -122,7 +132,12 @@ public class ParallelOkPerf {
         }
     }
 
-    public static void dagTransferPerf(Integer groupId, String command, Integer count, Integer qps)
+    public static void dagTransferPerf(
+            Integer groupId,
+            String command,
+            Integer count,
+            Integer qps,
+            ThreadPoolService threadPoolService)
             throws IOException, InterruptedException, ContractException {
         System.out.println(
                 "====== DagTransfer trans, count: "
@@ -135,12 +150,12 @@ public class ParallelOkPerf {
         DagPrecompiledDemo dagPrecompiledDemo;
         switch (command) {
             case "add":
-                dagPrecompiledDemo = new DagPrecompiledDemo(client, dagUserInfo);
+                dagPrecompiledDemo = new DagPrecompiledDemo(client, dagUserInfo, threadPoolService);
                 dagPrecompiledDemo.userAdd(BigInteger.valueOf(count), BigInteger.valueOf(qps));
                 break;
             case "transfer":
                 dagUserInfo.loadDagTransferUser();
-                dagPrecompiledDemo = new DagPrecompiledDemo(client, dagUserInfo);
+                dagPrecompiledDemo = new DagPrecompiledDemo(client, dagUserInfo, threadPoolService);
                 dagPrecompiledDemo.userTransfer(BigInteger.valueOf(count), BigInteger.valueOf(qps));
                 break;
             default:

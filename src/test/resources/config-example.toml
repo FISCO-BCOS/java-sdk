@@ -42,7 +42,11 @@ accountFileFormat = "pem"
 
 [threadPool]
 # The size of the thread pool used to process the callback of the channel
-channelProcessorThreadSize = "16"
+# Default is the number of cpu cores of the physical machine
+# channelProcessorThreadSize = "16"
 # The size of the thread pool used to process the transaction receipt notification
-receiptProcessorThreadSize = "16"
+# Default is the number of cpu cores of the physical machine
+# receiptProcessorThreadSize = "16"
+# The max blocking queue size of the thread pool
+maxBlockingQueueSize = "102400"
 

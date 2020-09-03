@@ -12,10 +12,8 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.model;
+package org.fisco.bcos.sdk.client.protocol.model;
 
-public class ConstantConfig {
-    public static final String CONFIG_FILE_NAME = "config.toml";
-    public static final Integer MIN_GROUPID = 1;
-    public static final Integer MAX_GROUPID = 32767;
+public class JsonRpcRetCode {
+    public static int SDK_PERMISSION_DENIED = -40012;
 }

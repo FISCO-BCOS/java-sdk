@@ -51,4 +51,6 @@ public interface GroupService {
     String getNodeWithTheLatestBlockNumber();
 
     boolean existPeer(String peer);
+
+    void resetLatestNodeInfo();
 }

@@ -19,8 +19,11 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThreadPoolService {
+    private static final Logger logger = LoggerFactory.getLogger(ThreadPoolService.class);
     public static Integer DEFAULT_KEEP_ALIVETIME = 60;
     private final ExecutorService threadPool;
 
@@ -31,6 +34,11 @@ public class ThreadPoolService {
     public ThreadPoolService(
             String threadName, Integer corePoolSize, Integer maxBlockingQueueSize) {
         this(threadName, corePoolSize, corePoolSize, DEFAULT_KEEP_ALIVETIME, maxBlockingQueueSize);
+        logger.debug(
+                "Create ThreadPoolService, threadName: {}, corePoolSize: {}, maxBlockingQueueSize: {}",
+                threadName,
+                corePoolSize,
+                maxBlockingQueueSize);
     }
 
     public ThreadPoolService(
