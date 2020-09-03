@@ -39,12 +39,13 @@ public class ParallelOkDemo {
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final ParallelOk parallelOk;
-    private final ThreadPoolService threadPoolService =
-            new ThreadPoolService("ParallelOkDemo", 1024000);
+    private final ThreadPoolService threadPoolService;
     private final PerformanceCollector collector;
     private final DagUserInfo dagUserInfo;
 
-    public ParallelOkDemo(ParallelOk parallelOk, DagUserInfo dagUserInfo) {
+    public ParallelOkDemo(
+            ParallelOk parallelOk, DagUserInfo dagUserInfo, ThreadPoolService threadPoolService) {
+        this.threadPoolService = threadPoolService;
         this.parallelOk = parallelOk;
         this.dagUserInfo = dagUserInfo;
         this.collector = new PerformanceCollector();

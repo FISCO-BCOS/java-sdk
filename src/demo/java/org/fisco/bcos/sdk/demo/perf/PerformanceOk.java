@@ -111,6 +111,7 @@ public class PerformanceOk {
                 Thread.sleep(1000);
             }
             threadPoolService.stop();
+            System.exit(0);
         } catch (BcosSDKException | ContractException | InterruptedException e) {
             System.out.println(
                     "====== PerformanceOk test failed, error message: " + e.getMessage());

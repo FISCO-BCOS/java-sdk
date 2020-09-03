@@ -124,4 +124,20 @@ public class AccountConfig {
     public int hashCode() {
         return Objects.hash(keyStoreDir, accountAddress, accountFileFormat, accountPassword);
     }
+
+    public void clearAccount() {
+        this.accountFilePath = "";
+        this.accountAddress = "";
+        this.accountPassword = "";
+    }
+
+    public boolean isAccountConfigured() {
+        if (accountFilePath != null && !accountFilePath.equals("")) {
+            return true;
+        }
+        if (accountAddress != null && !accountAddress.equals("")) {
+            return true;
+        }
+        return false;
+    }
 }

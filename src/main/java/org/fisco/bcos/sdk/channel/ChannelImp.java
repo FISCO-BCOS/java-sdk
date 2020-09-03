@@ -306,7 +306,7 @@ public class ChannelImp implements Channel {
             ctx.writeAndFlush(out);
             logger.trace("send message {} to {} success ", out.getSeq(), peerIpPort);
         } else {
-            logger.warn("send message {} to {} failed ", out.getSeq(), peerIpPort);
+            logger.warn("send message with seq {} to {} failed ", out.getSeq(), peerIpPort);
             Response response = new Response();
             response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
             response.setErrorMessage("Send message failed for connect failed !");
