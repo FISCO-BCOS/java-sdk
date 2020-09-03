@@ -35,7 +35,8 @@ prepare_environment()
   mkdir -p src/integration-test/resources/
   mkdir -p conf
   cp -r nodes/127.0.0.1/sdk/* conf
-  cp src/test/resources/config-example.toml src/integration-test/resources/config-example.toml
+  cp src/test/resources/config-example.toml src/integration-test/resources/config.toml
+  cp src/test/resources/config-example.toml src/test/resources/config.toml
   cp src/test/resources/config-sender.toml src/integration-test/resources/config-sender.toml
   cp src/test/resources/config-subscriber.toml src/integration-test/resources/config-subscriber.toml
   cp src/test/resources/log4j.properties src/integration-test/resources/

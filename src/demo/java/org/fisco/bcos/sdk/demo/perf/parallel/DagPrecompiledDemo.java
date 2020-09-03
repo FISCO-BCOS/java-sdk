@@ -38,12 +38,13 @@ public class DagPrecompiledDemo {
     private final DagTransfer dagTransfer;
     private final DagUserInfo dagUserInfo;
     private final PerformanceCollector collector;
-    private final ThreadPoolService threadPoolService =
-            new ThreadPoolService("DagPrecompiledDemo", 102400);
+    private final ThreadPoolService threadPoolService;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final String DAG_TRANSFER_ADDR = "0x0000000000000000000000000000000000005002";
 
-    public DagPrecompiledDemo(Client client, DagUserInfo dagUserInfo) {
+    public DagPrecompiledDemo(
+            Client client, DagUserInfo dagUserInfo, ThreadPoolService threadPoolService) {
+        this.threadPoolService = threadPoolService;
         this.dagTransfer = DagTransfer.load(DAG_TRANSFER_ADDR, client, client.getCryptoInterface());
         this.dagUserInfo = dagUserInfo;
         this.collector = new PerformanceCollector();

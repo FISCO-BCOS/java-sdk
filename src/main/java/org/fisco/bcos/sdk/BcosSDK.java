@@ -21,6 +21,7 @@ import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.service.GroupManagerServiceImpl;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
@@ -92,7 +93,20 @@ public class BcosSDK {
         return (this.channel.getAvailablePeer().size() > 0);
     }
 
+    public void checkGroupId(Integer groupId) {
+        if (groupId < ConstantConfig.MIN_GROUPID || groupId > ConstantConfig.MAX_GROUPID) {
+            throw new BcosSDKException(
+                    "create client for group "
+                            + groupId
+                            + " failed for invalid groupId! The groupID must be no smaller than "
+                            + ConstantConfig.MIN_GROUPID
+                            + " and no more than "
+                            + ConstantConfig.MAX_GROUPID);
+        }
+    }
+
     public Client getClient(Integer groupId) {
+        checkGroupId(groupId);
         if (!waitForEstablishConnection()) {
             logger.error(
                     "get client for group: {} failed for the number of available peers is 0",

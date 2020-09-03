@@ -495,7 +495,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         String targetNode = groupIdToService.get(groupId).getNodeWithTheLatestBlockNumber();
         if (targetNode == null) {
             logger.error(
-                    "sendMessageToGroup message failed for get the node with the latest block number failed, seq: {}, type: {}",
+                    "sendMessageToGroup message failed for get the node with the latest block number failed, groupId: {}, seq: {}, type: {}",
                     groupId,
                     message.getSeq(),
                     message.getType());
@@ -686,6 +686,14 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         } catch (ClientException e) {
             logger.warn(
                     "fetchGroupList from {} failed, error info: {}", peerEndPoint, e.getMessage());
+        }
+    }
+
+    @Override
+    public void resetLatestNodeInfo(Integer groupId) {
+        GroupService groupService = this.groupIdToService.get(groupId);
+        if (groupService != null) {
+            groupService.resetLatestNodeInfo();
         }
     }
 }

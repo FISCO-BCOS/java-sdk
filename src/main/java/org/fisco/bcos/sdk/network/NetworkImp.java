@@ -86,34 +86,80 @@ public class NetworkImp implements Network {
         return connManager.getConnectionInfoList();
     }
 
-    private boolean checkCertExistence(boolean isSM) {
+    private class CheckCertExistenceResult {
+        private boolean checkPassed = true;
+        private String errorMessage = "";
+
+        public boolean isCheckPassed() {
+            return checkPassed;
+        }
+
+        public void setCheckPassed(boolean checkPassed) {
+            this.checkPassed = checkPassed;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+
+        public void setErrorMessage(String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+    }
+
+    private CheckCertExistenceResult checkCertExistence(boolean isSM) {
+
+        CheckCertExistenceResult result = new CheckCertExistenceResult();
+        result.setCheckPassed(true);
+        String errorMessage = "";
+        errorMessage = errorMessage + "Please make sure ";
         if (!new File(configOption.getCryptoMaterialConfig().getCaCertPath()).exists()) {
-            return false;
+            result.setCheckPassed(false);
+            errorMessage =
+                    errorMessage + configOption.getCryptoMaterialConfig().getCaCertPath() + " ";
         }
         if (!new File(configOption.getCryptoMaterialConfig().getSdkCertPath()).exists()) {
-            return false;
+            result.setCheckPassed(false);
+            errorMessage =
+                    errorMessage + configOption.getCryptoMaterialConfig().getSdkCertPath() + " ";
         }
         if (!new File(configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()).exists()) {
-            return false;
+            result.setCheckPassed(false);
+            errorMessage =
+                    errorMessage
+                            + configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()
+                            + " ";
         }
         if (!isSM) {
-            return true;
+            errorMessage = errorMessage + "exists!";
+            result.setErrorMessage(errorMessage);
+            return result;
         }
         if (!new File(configOption.getCryptoMaterialConfig().getEnSSLCertPath()).exists()) {
-            return false;
+            errorMessage =
+                    errorMessage + configOption.getCryptoMaterialConfig().getEnSSLCertPath() + " ";
+            result.setCheckPassed(false);
         }
         if (!new File(configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()).exists()) {
-            return false;
+            errorMessage =
+                    errorMessage
+                            + configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()
+                            + " ";
+            result.setCheckPassed(false);
         }
-        return true;
+        errorMessage = errorMessage + "exist!";
+        result.setErrorMessage(errorMessage);
+        return result;
     }
 
     @Override
     public void start() throws NetworkException {
         boolean tryEcdsaConnect = false;
+        CheckCertExistenceResult result = null;
         try {
             try {
-                if (checkCertExistence(false)) {
+                result = checkCertExistence(false);
+                if (result.isCheckPassed()) {
                     logger.debug("start connManager with ECDSA sslContext");
                     connManager.startConnect(configOption);
                     connManager.startReconnectSchedule();
@@ -123,8 +169,9 @@ public class NetworkImp implements Network {
             } catch (NetworkException e) {
                 tryEcdsaConnect = true;
                 configOption = Config.load(configFilePath, CryptoInterface.SM_TYPE);
+                result = checkCertExistence(true);
                 if (e.getErrorCode() == NetworkException.CONNECT_FAILED
-                        || !checkCertExistence(true)) {
+                        || !result.isCheckPassed()) {
                     throw e;
                 }
                 connManager.stopNetty();
@@ -133,8 +180,9 @@ public class NetworkImp implements Network {
                         e.getMessage());
             }
             configOption = Config.load(configFilePath, CryptoInterface.SM_TYPE);
-            if (!checkCertExistence(true)) {
-                throw new NetworkException("The cert files are not exist!");
+            result = checkCertExistence(true);
+            if (!result.isCheckPassed()) {
+                throw new NetworkException("Certificate not exist:" + result.getErrorMessage());
             }
             if (tryEcdsaConnect) {
                 // create a new connectionManager to connect the node with the SM sslContext

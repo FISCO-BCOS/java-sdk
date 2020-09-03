@@ -125,8 +125,17 @@ public class MockGroupManager implements GroupManagerService {
     }
 
     @Override
-    public void updateNodeVersion() {}
+    public void updateNodeVersion() {
+        return;
+    }
 
     @Override
-    public void fetchGroupList() {}
+    public void fetchGroupList() {
+        return;
+    }
+
+    @Override
+    public void resetLatestNodeInfo(Integer groupId) {
+        return;
+    }
 }
