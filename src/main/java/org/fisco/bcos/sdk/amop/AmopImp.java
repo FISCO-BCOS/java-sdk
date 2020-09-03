@@ -113,12 +113,13 @@ public class AmopImp implements Amop {
         msg.setData(content.getContent());
         Options ops = new Options();
         ops.setTimeout(content.getTimeout());
-        groupManager.getChannel().asyncSendToRandom(msg.getMessage(), callback, ops);
-        logger.info("send amop msg to a random peer, seq{} topic{}", msg.getSeq(), msg.getTopic());
+        groupManager.getChannel().asyncSendToRandom(msg, callback, ops);
+        logger.info(
+                "send amop msg to a random peer, seq{} topic{}", msg.getSeq(), content.getTopic());
     }
 
     @Override
-    public void broadcastAmopMsg(AmopMsgOut content, ResponseCallback callback) {
+    public void broadcastAmopMsg(AmopMsgOut content) {
         if (!topicManager.canSendTopicMsg(content)) {
             logger.error(
                     "can not send this amop private msg out, you have not configured the public keys. topic:{}",
@@ -131,10 +132,11 @@ public class AmopImp implements Amop {
         amopMsg.setTopic(content.getTopic());
         amopMsg.setData(content.getContent());
         // Add broadcast callback
-        amopMsgHandler.addCallback(amopMsg.getSeq(), callback);
         groupManager.getChannel().broadcast(amopMsg.getMessage());
         logger.info(
-                "broadcast amop msg to peers, seq{} topic{}", amopMsg.getSeq(), amopMsg.getTopic());
+                "broadcast amop msg to peers, seq:{} topic:{}",
+                amopMsg.getSeq(),
+                amopMsg.getTopic());
     }
 
     @Override

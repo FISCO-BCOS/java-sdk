@@ -287,18 +287,12 @@ public class AmopMsgHandler implements MsgHandler {
         msgIn.setContent(amopMsg.getData());
         msgIn.setResult(amopMsg.getResult());
         msgIn.setCtx(ctx);
-        callback.onSubscribedTopicMsg(msgIn);
+        msgIn.setType(amopMsg.getType());
+        callback.receiveAmopMsg(msgIn);
     }
 
     public void onAmopResponse(ChannelHandlerContext ctx, Message msg) {
         logger.debug("receive amop response. seq:{} msgtype:{} ", msg.getSeq(), msg.getType());
-        System.out.println(
-                "Receive amop response:"
-                        + msg.getSeq()
-                        + " result:"
-                        + msg.getResult()
-                        + " seq:"
-                        + msg.getSeq());
         ResponseCallback callback = seq2Callback.get(msg.getSeq());
         if (null != callback) {
             Response resp = new Response();
@@ -325,19 +319,13 @@ public class AmopMsgHandler implements MsgHandler {
             }
 
             if (msg.getData() != null) {
-                resp.setContent(msg.getData().toString());
+                AmopMsg amopMsg = new AmopMsg();
+                amopMsg.decodeAmopBody(msg.getData());
+                resp.setContent(new String(amopMsg.getData()));
             }
             callback.onResponse(resp);
         } else {
             logger.error("can not found response callback, timeout:{}", msg.getData());
-
-            System.out.println(
-                    "Received response:"
-                            + msg.getResult()
-                            + " Seq:"
-                            + msg.getSeq()
-                            + " Data:"
-                            + new String(msg.getData()));
             return;
         }
     }
