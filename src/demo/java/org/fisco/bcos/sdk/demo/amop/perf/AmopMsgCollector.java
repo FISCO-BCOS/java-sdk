@@ -76,6 +76,7 @@ public class AmopMsgCollector {
         System.out.println("Total amop msg:  " + String.valueOf(total));
         System.out.println("Total time: " + String.valueOf(totalTime) + "ms");
         System.out.println("Success received:  " + String.valueOf(received.get()));
+        System.out.println("Response error:" + String.valueOf(error.get()));
         System.out.println(
                 "Msg per second(exclude error requests): "
                         + String.valueOf(received.get() / ((double) totalTime / 1000)));

@@ -16,5 +16,6 @@ public class AmopMsgCallback extends AmopCallback {
     public void receiveAmopMsg(AmopMsgIn msg) {
         Long cost = System.currentTimeMillis() - startTime;
         collector.onSubscribedTopicMsg(msg, cost);
+        msg.sendResponse("Yes, I received!".getBytes());
     }
 }

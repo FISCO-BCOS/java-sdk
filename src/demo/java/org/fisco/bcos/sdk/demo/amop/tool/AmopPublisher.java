@@ -73,7 +73,10 @@ public class AmopPublisher {
             } else {
                 amop.sendAmopMsg(out, cb);
                 System.out.println(
-                        "Send out msg, topic:" + out.getTopic() + " content:" + out.getContent());
+                        "Step 1: Send out msg, topic:"
+                                + out.getTopic()
+                                + " content:"
+                                + new String(out.getContent()));
             }
         }
     }

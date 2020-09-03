@@ -23,6 +23,11 @@ public class AmopMsgBuilder {
                     public void onResponse(Response response) {
                         collector.addResponse();
                         if (response.getErrorCode() != 0) {
+                            System.out.println(
+                                    "error, code:"
+                                            + response.getErrorCode()
+                                            + " msg:"
+                                            + response.getErrorMessage());
                             collector.addError();
                         }
                     }

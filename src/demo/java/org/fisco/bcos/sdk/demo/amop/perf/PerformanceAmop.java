@@ -20,13 +20,26 @@ public class PerformanceAmop {
             Integer count = Integer.valueOf(args[0]);
             Integer qps = Integer.valueOf(args[1]);
             Integer msgSize = Integer.valueOf(args[2]);
-            Amop sender = new BcosSDK(senderConfig).getAmop();
-            Amop subscriber = new BcosSDK(subscriberConfig).getAmop();
-            AmopMsgCallback defaultCallback = new AmopMsgCallback();
-            AmopMsgCollector collector = defaultCallback.getCollector();
-            collector.setTotal(count);
-            subscriber.subscribeTopic("normalTopic", defaultCallback);
 
+            // Init subscriber
+            String topic = "normalTopic";
+            Amop subscriber = new BcosSDK(subscriberConfig).getAmop();
+            AmopMsgCallback cb = new AmopMsgCallback();
+            AmopMsgCollector collector = cb.getCollector();
+            collector.setTotal(count);
+            subscriber.subscribeTopic(topic, cb);
+            subscriber.setCallback(cb);
+
+            // Init publisher
+            Amop sender = new BcosSDK(senderConfig).getAmop();
+
+            System.out.println("Start test");
+            Thread.sleep(2000);
+            System.out.println("3s ...");
+            Thread.sleep(1000);
+            System.out.println("2s ...");
+            Thread.sleep(1000);
+            System.out.println("1s ...");
             Thread.sleep(1000);
             System.out.println(
                     "====== PerformanceAmop Amop public topic text message performance start ======");
