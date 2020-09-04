@@ -29,8 +29,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.PeerSelectRule;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
@@ -53,9 +51,11 @@ import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
+import org.fisco.bcos.sdk.service.callback.BlockNumberNotifyCallback;
 import org.fisco.bcos.sdk.service.model.BlockNumberMessageDecoder;
 import org.fisco.bcos.sdk.service.model.BlockNumberNotification;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.utils.ChannelUtils;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
@@ -71,6 +71,8 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     private ConcurrentHashMap<Integer, GroupService> groupIdToService = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, List<String>> nodeToGroupIDList = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, NodeVersion> nodeToNodeVersion = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, BlockNumberNotifyCallback> registerIdToBlockNotifyCallback =
+            new ConcurrentHashMap<>();
 
     private ConcurrentHashMap<String, TransactionCallback> seq2TransactionCallback =
             new ConcurrentHashMap<>();
@@ -269,8 +271,45 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                     Integer.valueOf(blockNumberInfo.getGroupId()),
                     peerIpAndPort,
                     new BigInteger(blockNumberInfo.getBlockNumber()));
+
+            threadPool
+                    .getThreadPool()
+                    .execute(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        for (String registerId :
+                                                registerIdToBlockNotifyCallback.keySet()) {
+                                            BlockNumberNotifyCallback callback =
+                                                    registerIdToBlockNotifyCallback.get(registerId);
+                                            callback.onReceiveBlockNumberInfo(
+                                                    peerIpAndPort, blockNumberInfo);
+                                        }
+                                    } catch (Exception e) {
+                                        logger.warn(
+                                                "Calls BlockNumberNotifyCallback failed, error info: {}",
+                                                e.getMessage());
+                                    }
+                                }
+                            });
         } catch (Exception e) {
             logger.error("onReceiveBlockNotify failed, error message: {}", e.getMessage());
+        }
+    }
+
+    @Override
+    public String registerBlockNotifyCallback(BlockNumberNotifyCallback callback) {
+        String registerId = ChannelUtils.newSeq();
+        registerIdToBlockNotifyCallback.put(registerId, callback);
+        logger.debug("register BlockNumberNotifyCallback, registerId: {}", registerId);
+        return registerId;
+    }
+
+    @Override
+    public void eraseBlockNotifyCallback(String registerId) {
+        if (registerIdToBlockNotifyCallback.containsKey(registerId)) {
+            registerIdToBlockNotifyCallback.remove(registerId);
         }
     }
 
@@ -424,33 +463,30 @@ public class GroupManagerServiceImpl implements GroupManagerService {
 
     @Override
     public BigInteger getBlockLimitByGroup(Integer groupId) {
-        if (groupIdToService.containsKey(groupId)
-                && groupIdToService.get(groupId).getLastestBlockNumber().equals(BigInteger.ZERO)) {
-            Pair<String, BigInteger> blockNumberInfo = getBlockNumberByRandom(groupId);
-            if (blockNumberInfo == null) {
-                logger.warn(
-                        "GetBlockNumber for group {} failed, set blockLimit to {}",
-                        groupId,
-                        GroupManagerService.BLOCK_LIMIT);
-                return GroupManagerService.BLOCK_LIMIT;
-            }
-            // update the block number information
-            updateBlockNumberInfo(groupId, blockNumberInfo.getKey(), blockNumberInfo.getValue());
-            logger.debug(
-                    "update the blockNumber information, groupId: {}, peer:{}, blockNumber: {}",
-                    groupId,
-                    blockNumberInfo.getKey(),
-                    blockNumberInfo.getValue());
-        }
-        return groupIdToService.get(groupId).getLastestBlockNumber().add(BLOCK_LIMIT);
+        return getLatestBlockNumberByGroup(groupId).add(BLOCK_LIMIT);
     }
 
-    private Pair<String, BigInteger> getBlockNumberByRandom(Integer groupId) {
+    @Override
+    public BigInteger getLatestBlockNumberByGroup(Integer groupId) {
+        if (groupIdToService.containsKey(groupId)
+                && groupIdToService.get(groupId).getLastestBlockNumber().equals(BigInteger.ZERO)) {
+            getAndUpdateBlockNumberForAllPeers(groupId);
+        }
+        return groupIdToService.get(groupId).getLastestBlockNumber();
+    }
+
+    private void getAndUpdateBlockNumberForAllPeers(Integer groupId) {
         List<String> availablePeers = getGroupAvailablePeers(groupId);
         for (String peer : availablePeers) {
             try {
                 BlockNumber blockNumber = this.groupInfoGetter.getBlockNumber(groupId, peer);
-                return new MutablePair<>(peer, blockNumber.getBlockNumber());
+                // update the block number information
+                updateBlockNumberInfo(groupId, peer, blockNumber.getBlockNumber());
+                logger.debug(
+                        "update the blockNumber information, groupId: {}, peer:{}, blockNumber: {}",
+                        groupId,
+                        peer,
+                        blockNumber.getBlockNumber());
             } catch (ClientException e) {
                 logger.error(
                         "GetBlockNumber from {} failed, error information:{}",
@@ -459,7 +495,6 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                 continue;
             }
         }
-        return null;
     }
 
     @Override

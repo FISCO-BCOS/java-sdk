@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 public class ThreadPoolService {
     private static final Logger logger = LoggerFactory.getLogger(ThreadPoolService.class);
-    public static Integer DEFAULT_KEEP_ALIVETIME = 60;
+    public static Integer DEFAULT_KEEP_ALIVE_TIME = 60;
     private final ExecutorService threadPool;
 
     public ThreadPoolService(String threadName, Integer maxBlockingQueueSize) {
@@ -33,7 +33,7 @@ public class ThreadPoolService {
 
     public ThreadPoolService(
             String threadName, Integer corePoolSize, Integer maxBlockingQueueSize) {
-        this(threadName, corePoolSize, corePoolSize, DEFAULT_KEEP_ALIVETIME, maxBlockingQueueSize);
+        this(threadName, corePoolSize, corePoolSize, DEFAULT_KEEP_ALIVE_TIME, maxBlockingQueueSize);
         logger.debug(
                 "Create ThreadPoolService, threadName: {}, corePoolSize: {}, maxBlockingQueueSize: {}",
                 threadName,
@@ -58,7 +58,7 @@ public class ThreadPoolService {
                         TimeUnit.SECONDS,
                         new LinkedBlockingQueue<>(maxBlockingQueueSize),
                         threadFactory,
-                        new ThreadPoolExecutor.AbortPolicy());
+                        new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     public ExecutorService getThreadPool() {
