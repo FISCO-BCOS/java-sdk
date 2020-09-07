@@ -57,7 +57,7 @@ public class ABICodec {
         return encodeMethod(ABI, methodName, params, false, false);
     }
 
-    public String encodeConstrucotor(String ABI, String BIN, List<Object> params)
+    public String encodeConstructor(String ABI, String BIN, List<Object> params)
             throws ABICodecException {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
@@ -76,7 +76,7 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public String encodeConstrucotorFromString(String ABI, String BIN, List<String> params)
+    public String encodeConstructorFromString(String ABI, String BIN, List<String> params)
             throws ABICodecException {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);

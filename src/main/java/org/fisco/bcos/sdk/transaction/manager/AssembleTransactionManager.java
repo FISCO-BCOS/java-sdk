@@ -107,7 +107,7 @@ public class AssembleTransactionManager extends TransactionManager
         return deployAndGetResponse(
                 abi,
                 createSignedTransaction(
-                        null, abiCodec.encodeConstrucotorFromString(abi, bin, params)));
+                        null, abiCodec.encodeConstructorFromString(abi, bin, params)));
     }
 
     @Override
@@ -295,7 +295,7 @@ public class AssembleTransactionManager extends TransactionManager
     @Override
     public String createSignedConstructor(String abi, String bin, List<Object> params)
             throws ABICodecException {
-        return createSignedTransaction(null, abiCodec.encodeConstrucotor(abi, bin, params));
+        return createSignedTransaction(null, abiCodec.encodeConstructor(abi, bin, params));
     }
 
     @Override
