@@ -14,38 +14,27 @@
  */
 package org.fisco.bcos.sdk.transaction.signer;
 
-import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 
 public class TransactionSignerServcie implements TransactionSignerInterface {
 
     private Signature signature;
-    private CryptoKeyPair cryptoKeyPair;
-
+    private final CryptoInterface cryptoInterface;
     /**
      * @param signature
-     * @param cryptoKeyPair
+     * @param cryptoInterface
      */
-    public TransactionSignerServcie(Signature signature, CryptoKeyPair cryptoKeyPair) {
+    public TransactionSignerServcie(Signature signature, CryptoInterface cryptoInterface) {
         super();
         this.signature = signature;
-        this.cryptoKeyPair = cryptoKeyPair;
+        this.cryptoInterface = cryptoInterface;
     }
 
     @Override
     public SignatureResult sign(String hash) {
-        return signature.sign(hash, this.cryptoKeyPair);
-    }
-
-    /** @return the cryptoKeyPair */
-    public CryptoKeyPair getCryptoKeyPair() {
-        return cryptoKeyPair;
-    }
-
-    /** @param cryptoKeyPair the cryptoKeyPair to set */
-    public void setCryptoKeyPair(CryptoKeyPair cryptoKeyPair) {
-        this.cryptoKeyPair = cryptoKeyPair;
+        return signature.sign(hash, this.cryptoInterface.getCryptoKeyPair());
     }
 
     /** @return the signature */

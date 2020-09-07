@@ -33,18 +33,18 @@ public class ReceiptParser {
 
     public static RetCode parseTransactionReceipt(TransactionReceipt receipt)
             throws ContractException {
+        RetCode retCode = new RetCode();
         try {
             String status = receipt.getStatus();
             if (!"0x0".equals(status)) {
-                RetCode retCode =
-                        TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
-                retCode.setTransactionReceipt(receipt);
+                retCode = TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
                 Tuple2<Boolean, String> errorOutput =
                         RevertMessageParser.tryResolveRevertMessage(receipt);
                 if (errorOutput.getValue1()) {
-                    throw new ContractException(errorOutput.getValue2(), retCode.getCode());
+                    throw new ContractException(
+                            errorOutput.getValue2(), retCode.getCode(), receipt);
                 }
-                throw new ContractException(retCode.getMessage(), retCode.getCode());
+                throw new ContractException(retCode.getMessage(), retCode.getCode(), receipt);
             } else {
                 String output = receipt.getOutput();
                 if (output.equals("0x")) {
@@ -56,15 +56,20 @@ public class ReceiptParser {
                     if (receipt.getMessage() == null || receipt.getMessage().equals("")) {
                         receipt.setMessage(PrecompiledRetCode.CODE_SUCCESS.getMessage());
                     }
-                    return PrecompiledRetCode.getPrecompiledResponse(
-                            statusValue, receipt.getMessage());
+                    retCode =
+                            PrecompiledRetCode.getPrecompiledResponse(
+                                    statusValue, receipt.getMessage());
+                    retCode.setTransactionReceipt(receipt);
+                    return retCode;
                 } catch (Exception e) {
                     logger.debug(
                             "try to parse the output failed, output: {}, status: {}, exception: {}",
                             output,
                             receipt.getStatus(),
                             e.getMessage());
-                    return PrecompiledRetCode.CODE_SUCCESS;
+                    retCode = PrecompiledRetCode.CODE_SUCCESS;
+                    retCode.setTransactionReceipt(receipt);
+                    return retCode;
                 }
             }
         } catch (NumberFormatException e) {

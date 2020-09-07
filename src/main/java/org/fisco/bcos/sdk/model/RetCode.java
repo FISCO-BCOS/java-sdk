@@ -21,6 +21,8 @@ public class RetCode {
     public int code;
     private String message;
 
+    public RetCode() {}
+
     public RetCode(int code, String message) {
         this.code = code;
         this.message = message;

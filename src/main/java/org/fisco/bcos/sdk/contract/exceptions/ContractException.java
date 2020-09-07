@@ -15,14 +15,22 @@ package org.fisco.bcos.sdk.contract.exceptions;
 
 import java.util.Objects;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
 
 public class ContractException extends Exception {
     private Call.CallOutput responseOutput = null;
     private int errorCode;
+    private TransactionReceipt receipt;
 
     public ContractException(String errorMessage, int errorCode) {
         super(errorMessage);
         this.errorCode = errorCode;
+    }
+
+    public ContractException(String errorMessage, int errorCode, TransactionReceipt receipt) {
+        super(errorMessage);
+        this.errorCode = errorCode;
+        this.receipt = receipt;
     }
 
     public ContractException(String message) {
@@ -57,6 +65,14 @@ public class ContractException extends Exception {
 
     public void setResponseOutput(Call.CallOutput responseOutput) {
         this.responseOutput = responseOutput;
+    }
+
+    public TransactionReceipt getReceipt() {
+        return receipt;
+    }
+
+    public void setReceipt(TransactionReceipt receipt) {
+        this.receipt = receipt;
     }
 
     @Override
