@@ -83,7 +83,7 @@ dependencies {
     compile 'com.squareup:javapoet:1.7.0'
     compile 'info.picocli:picocli:3.6.0'
     compile group: 'org.fisco-bcos', name: 'solcJ', version: '0.4.25.0'
-    compile group: 'org.fisco-bcos', name: 'pkey-sign', version: '0.0.2-SNAPSHOT'
+    compile group: 'org.fisco-bcos', name: 'pkey-sign', version: '0.0.1-SNAPSHOT'
     compile 'com.moandjiezana.toml:toml4j:0.7.2'
 
     testCompile 'junit:junit:4.12'

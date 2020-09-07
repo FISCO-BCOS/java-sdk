@@ -237,6 +237,6 @@ public abstract class CryptoKeyPair {
             keyStoreFileDir = config.getAccountConfig().getKeyStoreDir();
         }
         keyStoreFileDir = keyStoreFileDir + File.separator + keyStoreSubDir + File.separator;
-        return keyStoreFileDir + File.separator + address + postFix;
+        return keyStoreFileDir + address + postFix;
     }
 }

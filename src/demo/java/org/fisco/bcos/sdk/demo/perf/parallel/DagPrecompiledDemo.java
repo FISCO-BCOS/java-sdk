@@ -110,7 +110,7 @@ public class DagPrecompiledDemo {
                                 }
                             });
         }
-        while (collector.getReceived().intValue() != collector.getTotal()) {
+        while (collector.getReceived().intValue() != collector.getTotal().intValue()) {
             logger.info(
                     " received: {}, total: {}, sendFailed: {}, sended: {}",
                     collector.getReceived().intValue(),
@@ -236,7 +236,7 @@ public class DagPrecompiledDemo {
                                 }
                             });
         }
-        while (collector.getReceived().intValue() != collector.getTotal()) {
+        while (collector.getReceived().intValue() != count.intValue()) {
             Thread.sleep(2000);
             logger.info(
                     " received: {}, total: {}, sended: {}, sendFailed: {}",
