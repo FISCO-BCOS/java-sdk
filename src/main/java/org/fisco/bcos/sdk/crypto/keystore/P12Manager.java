@@ -68,7 +68,12 @@ public class P12Manager extends KeyManager {
     protected void load(InputStream in) {
         try {
             keyStore = KeyStore.getInstance("PKCS12", "BC");
-            keyStore.load(in, this.password.toCharArray());
+            String password = "";
+            if (this.password != null) {
+                password = this.password;
+            }
+            keyStore.load(in, password.toCharArray());
+
         } catch (IOException
                 | CertificateException
                 | NoSuchAlgorithmException

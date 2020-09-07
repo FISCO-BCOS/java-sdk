@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.transaction.codec.encode;
 import java.util.ArrayList;
 import java.util.List;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
-import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.rlp.RlpEncoder;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
 public class TransactionEncoderService implements TransactionEncoderInterface {
     protected static Logger logger = LoggerFactory.getLogger(TransactionEncoderService.class);
     private final Signature signature;
-    private final CryptoKeyPair cryptoKeyPair;
     private final TransactionSignerInterface transactionSignerService;
     private final CryptoInterface cryptoInterface;
 
@@ -43,8 +41,7 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
         super();
         this.cryptoInterface = cryptoInterface;
         this.signature = cryptoInterface.getSignatureImpl();
-        this.cryptoKeyPair = cryptoInterface.getCryptoKeyPair();
-        this.transactionSignerService = new TransactionSignerServcie(signature, cryptoKeyPair);
+        this.transactionSignerService = new TransactionSignerServcie(signature, cryptoInterface);
     }
 
     @Override
@@ -108,10 +105,5 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     /** @return the signature */
     public Signature getSignature() {
         return signature;
-    }
-
-    /** @return the cryptoKeyPair */
-    public CryptoKeyPair getCryptoKeyPair() {
-        return cryptoKeyPair;
     }
 }

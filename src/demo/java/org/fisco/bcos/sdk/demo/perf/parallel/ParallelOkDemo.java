@@ -169,7 +169,7 @@ public class ParallelOkDemo {
                                 }
                             });
         }
-        while (collector.getReceived() != userCount.intValue()) {
+        while (collector.getReceived().intValue() != userCount.intValue()) {
             logger.info(
                     " sendFailed: {}, received: {}, total: {}",
                     sendFailed.get(),
@@ -270,7 +270,7 @@ public class ParallelOkDemo {
                             });
         }
 
-        while (collector.getReceived() != (count.intValue() - sendFailed.get())) {
+        while (collector.getReceived().intValue() != count.intValue()) {
             Thread.sleep(3000);
             logger.info(
                     "userTransfer: sendFailed: {}, received: {}, total: {}",
