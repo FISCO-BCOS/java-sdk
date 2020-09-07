@@ -16,12 +16,13 @@ package org.fisco.bcos.sdk.demo.perf;
 import com.google.common.util.concurrent.RateLimiter;
 import java.math.BigInteger;
 import java.net.URL;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.BcosSDKException;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
-import org.fisco.bcos.sdk.demo.contract.Ok;
+import org.fisco.bcos.sdk.demo.contract.OkD;
 import org.fisco.bcos.sdk.demo.perf.callback.PerformanceCallback;
 import org.fisco.bcos.sdk.demo.perf.collector.PerformanceCollector;
 import org.fisco.bcos.sdk.model.ConstantConfig;
@@ -30,21 +31,20 @@ import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PerformanceOk {
-    private static Logger logger = LoggerFactory.getLogger(PerformanceOk.class);
+public class PerformanceOkD {
+    private static Logger logger = LoggerFactory.getLogger(PerformanceOkD.class);
     private static AtomicInteger sendedTransactions = new AtomicInteger(0);
 
     private static void Usage() {
         System.out.println(" Usage:");
         System.out.println(
-                " \t java -cp conf/:lib/*:apps/* org.fisco.bcos.sdk.demo.perf.PerformanceOk [count] [tps] [groupId].");
+                " \t java -cp conf/:lib/*:apps/* org.fisco.bcos.sdk.demo.perf.PerformanceOkD [count] [tps] [groupId].");
     }
 
     public static void main(String[] args) {
         try {
             String configFileName = ConstantConfig.CONFIG_FILE_NAME;
-            URL configUrl = PerformanceOk.class.getClassLoader().getResource(configFileName);
-
+            URL configUrl = PerformanceOkD.class.getClassLoader().getResource(configFileName);
             if (configUrl == null) {
                 System.out.println("The configFile " + configFileName + " doesn't exist!");
                 return;
@@ -57,7 +57,7 @@ public class PerformanceOk {
             Integer qps = Integer.valueOf(args[1]);
             Integer groupId = Integer.valueOf(args[2]);
             System.out.println(
-                    "====== PerformanceOk trans, count: "
+                    "====== PerformanceOkD trans, count: "
                             + count
                             + ", qps:"
                             + qps
@@ -71,10 +71,10 @@ public class PerformanceOk {
             Client client = sdk.getClient(groupId);
 
             // deploy the HelloWorld
-            System.out.println("====== Deploy Ok ====== ");
-            Ok ok = Ok.deploy(client, client.getCryptoInterface());
+            System.out.println("====== Deploy OkD ====== ");
+            OkD okd = OkD.deploy(client, client.getCryptoInterface());
             System.out.println(
-                    "====== Deploy Ok succ, address: " + ok.getContractAddress() + " ====== ");
+                    "====== Deploy OkD success, address: " + okd.getContractAddress() + " ====== ");
 
             PerformanceCollector collector = new PerformanceCollector();
             collector.setTotal(count);
@@ -82,13 +82,13 @@ public class PerformanceOk {
             Integer area = count / 10;
             final Integer total = count;
 
-            System.out.println("====== PerformanceOk trans start ======");
+            System.out.println("====== PerformanceOkD trans start ======");
 
             ThreadPoolService threadPoolService =
                     new ThreadPoolService(
-                            "PerformanceOk",
+                            "PerformanceOkD",
                             sdk.getConfig().getThreadPoolConfig().getMaxBlockingQueueSize());
-
+            Random random = new Random(System.currentTimeMillis());
             for (Integer i = 0; i < count; ++i) {
                 limiter.acquire();
                 threadPoolService
@@ -101,7 +101,10 @@ public class PerformanceOk {
                                         callback.setTimeout(0);
                                         callback.setCollector(collector);
                                         try {
-                                            ok.trans(new BigInteger("4"), callback);
+                                            okd.trans(
+                                                    String.valueOf(random.nextLong()),
+                                                    new BigInteger("1"),
+                                                    callback);
                                         } catch (Exception e) {
                                             TransactionReceipt receipt = new TransactionReceipt();
                                             receipt.setStatus("-1");
@@ -128,7 +131,7 @@ public class PerformanceOk {
             System.exit(0);
         } catch (BcosSDKException | ContractException | InterruptedException e) {
             System.out.println(
-                    "====== PerformanceOk test failed, error message: " + e.getMessage());
+                    "====== PerformanceOkD test failed, error message: " + e.getMessage());
             System.exit(0);
         }
     }

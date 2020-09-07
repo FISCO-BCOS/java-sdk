@@ -23,8 +23,12 @@ import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.RevertMessageParser;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceiptStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReceiptParser {
+    private static final Logger logger = LoggerFactory.getLogger(ReceiptParser.class);
+
     private ReceiptParser() {}
 
     public static RetCode parseTransactionReceipt(TransactionReceipt receipt)
@@ -34,6 +38,7 @@ public class ReceiptParser {
             if (!"0x0".equals(status)) {
                 RetCode retCode =
                         TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
+                retCode.setTransactionReceipt(receipt);
                 Tuple2<Boolean, String> errorOutput =
                         RevertMessageParser.tryResolveRevertMessage(receipt);
                 if (errorOutput.getValue1()) {
@@ -54,6 +59,11 @@ public class ReceiptParser {
                     return PrecompiledRetCode.getPrecompiledResponse(
                             statusValue, receipt.getMessage());
                 } catch (Exception e) {
+                    logger.debug(
+                            "try to parse the output failed, output: {}, status: {}, exception: {}",
+                            output,
+                            receipt.getStatus(),
+                            e.getMessage());
                     return PrecompiledRetCode.CODE_SUCCESS;
                 }
             }

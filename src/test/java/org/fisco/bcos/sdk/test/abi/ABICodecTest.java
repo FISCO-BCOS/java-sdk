@@ -314,8 +314,7 @@ public class ABICodecTest {
         argsObjects.add(listParams);
         argsObjects.add("Hello world!");
 
-        ABICodec abiCodec = new ABICodec();
-        abiCodec.setCryptoInterface(Utils.getCryptoInterface());
+        ABICodec abiCodec = new ABICodec(Utils.getCryptoInterface());
         try {
             // Method
             // encode

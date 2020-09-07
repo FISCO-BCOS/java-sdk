@@ -46,42 +46,47 @@ public class ParallelOkPerf {
 
     public static void main(String[] args)
             throws ContractException, IOException, InterruptedException {
-        String configFileName = ConstantConfig.CONFIG_FILE_NAME;
-        URL configUrl = ParallelOkPerf.class.getClassLoader().getResource(configFileName);
-        if (configUrl == null) {
-            System.out.println("The configFile " + configFileName + " doesn't exist!");
-            return;
-        }
-        if (args.length < 6) {
-            Usage();
-            return;
-        }
-        String perfType = args[0];
-        Integer groupId = Integer.valueOf(args[1]);
-        String command = args[2];
-        Integer count = Integer.valueOf(args[3]);
-        Integer qps = Integer.valueOf(args[4]);
-        String userFile = args[5];
+        try {
+            String configFileName = ConstantConfig.CONFIG_FILE_NAME;
+            URL configUrl = ParallelOkPerf.class.getClassLoader().getResource(configFileName);
+            if (configUrl == null) {
+                System.out.println("The configFile " + configFileName + " doesn't exist!");
+                return;
+            }
+            if (args.length < 6) {
+                Usage();
+                return;
+            }
+            String perfType = args[0];
+            Integer groupId = Integer.valueOf(args[1]);
+            String command = args[2];
+            Integer count = Integer.valueOf(args[3]);
+            Integer qps = Integer.valueOf(args[4]);
+            String userFile = args[5];
 
-        String configFile = configUrl.getPath();
-        BcosSDK sdk = new BcosSDK(configFile);
-        client = sdk.getClient(Integer.valueOf(groupId));
-        dagUserInfo.setFile(userFile);
-        ThreadPoolService threadPoolService =
-                new ThreadPoolService(
-                        "ParallelOkPerf",
-                        sdk.getConfig().getThreadPoolConfig().getMaxBlockingQueueSize());
+            String configFile = configUrl.getPath();
+            BcosSDK sdk = new BcosSDK(configFile);
+            client = sdk.getClient(Integer.valueOf(groupId));
+            dagUserInfo.setFile(userFile);
+            ThreadPoolService threadPoolService =
+                    new ThreadPoolService(
+                            "ParallelOkPerf",
+                            sdk.getConfig().getThreadPoolConfig().getMaxBlockingQueueSize());
 
-        if (perfType.compareToIgnoreCase("parallelok") == 0) {
-            parallelOkPerf(groupId, command, count, qps, threadPoolService);
-        } else if (perfType.compareToIgnoreCase("precompiled") == 0) {
-            dagTransferPerf(groupId, command, count, qps, threadPoolService);
-        } else {
-            System.out.println(
-                    "invalid perf option: "
-                            + perfType
-                            + ", only support parallelok/precompiled now");
-            Usage();
+            if (perfType.compareToIgnoreCase("parallelok") == 0) {
+                parallelOkPerf(groupId, command, count, qps, threadPoolService);
+            } else if (perfType.compareToIgnoreCase("precompiled") == 0) {
+                dagTransferPerf(groupId, command, count, qps, threadPoolService);
+            } else {
+                System.out.println(
+                        "invalid perf option: "
+                                + perfType
+                                + ", only support parallelok/precompiled now");
+                Usage();
+            }
+        } catch (Exception e) {
+            System.out.println("ParallelOkPerf test failed, error info: " + e.getMessage());
+            System.exit(0);
         }
     }
 

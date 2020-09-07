@@ -16,8 +16,8 @@
 package org.fisco.bcos.sdk.transaction.model.callback;
 
 import io.netty.util.Timeout;
-import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.model.TransactionReceiptStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +49,8 @@ public abstract class TransactionCallback {
         cancelTimeout();
         logger.warn("transactionSuc timeout");
         TransactionReceipt receipt = new TransactionReceipt();
-        receipt.setStatus(String.valueOf(ChannelMessageError.MESSAGE_TIMEOUT.getError()));
-        receipt.setMessage(
-                "Transaction receipt timeout, error code:"
-                        + String.valueOf(ChannelMessageError.MESSAGE_TIMEOUT.getError()));
+        receipt.setStatus(String.valueOf(TransactionReceiptStatus.TimeOut.getCode()));
+        receipt.setMessage(TransactionReceiptStatus.TimeOut.getMessage());
         onResponse(receipt);
     }
 

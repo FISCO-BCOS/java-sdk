@@ -59,7 +59,6 @@ public class Contract {
     protected final EventEncoder eventEncoder;
     protected static String LATEST_BLOCK = "latest";
 
-    @Deprecated
     protected Contract(
             String contractBinary,
             String contractAddress,
@@ -75,7 +74,6 @@ public class Contract {
         this.eventEncoder = new EventEncoder(credential);
     }
 
-    @Deprecated
     protected Contract(
             String contractBinary,
             String contractAddress,
