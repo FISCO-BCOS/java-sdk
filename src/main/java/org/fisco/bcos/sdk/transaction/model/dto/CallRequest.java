@@ -20,7 +20,6 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
  * CallRequest @Description: CallRequest
  *
  * @author maojiayu
- * @data Jul 17, 2020 3:09:48 PM
  */
 public class CallRequest {
     private String from;

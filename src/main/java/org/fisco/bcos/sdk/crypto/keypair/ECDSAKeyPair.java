@@ -43,7 +43,7 @@ public class ECDSAKeyPair extends CryptoKeyPair {
     /**
      * generate keyPair randomly
      *
-     * @return: the generated keyPair
+     * @return the generated keyPair
      */
     @Override
     public CryptoKeyPair generateKeyPair() {

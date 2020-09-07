@@ -60,8 +60,8 @@ public abstract class KeyManager {
     /**
      * constructor for the P12: with password
      *
-     * @param keyStoreFile: the path of the keystore file
-     * @param password: password to read the keystore file
+     * @param keyStoreFile the path of the keystore file
+     * @param password password to read the keystore file
      */
     public KeyManager(final String keyStoreFile, final String password) {
         this.keyStoreFile = keyStoreFile;
@@ -71,9 +71,9 @@ public abstract class KeyManager {
     }
 
     /**
-     * constructor for PEM: without password
+     * constructor for PEM without password
      *
-     * @param keyStoreFile:the path of the keystore file
+     * @param keyStoreFile the path of the keystore file
      */
     public KeyManager(final String keyStoreFile) {
         this(keyStoreFile, null);
@@ -93,7 +93,7 @@ public abstract class KeyManager {
     /**
      * get keyPair loaded from the keyStore file
      *
-     * @return: the keyPair
+     * @return the keyPair
      */
     public KeyPair getKeyPair() {
         PrivateKey privateKey = getPrivateKey();
@@ -125,21 +125,25 @@ public abstract class KeyManager {
     /**
      * convert hexed string into PrivateKey type storePublicKeyWithPem
      *
-     * @param hexedPrivateKey: the hexed privateKey
-     * @param curveName: the curve name
-     * @return: the converted privateKey
-     * @throws LoadKeyStoreException: convert exception, return exception information
+     * @param hexedPrivateKey the hexed privateKey
+     * @param curveName the curve name
+     * @return the converted privateKey
+     * @throws LoadKeyStoreException convert exception, return exception information
      */
     public static PrivateKey convertHexedStringToPrivateKey(
             String hexedPrivateKey, String curveName) throws LoadKeyStoreException {
+        BigInteger privateKeyValue = new BigInteger(hexedPrivateKey, 16);
+        return convertHexedStringToPrivateKey(privateKeyValue, curveName);
+    }
+
+    public static PrivateKey convertHexedStringToPrivateKey(BigInteger privateKey, String curveName)
+            throws LoadKeyStoreException {
         try {
             Security.setProperty("crypto.policy", "unlimited");
             Security.addProvider(new BouncyCastleProvider());
-            BigInteger privateKeyValue = new BigInteger(hexedPrivateKey, 16);
             org.bouncycastle.jce.spec.ECParameterSpec ecParameterSpec =
                     ECNamedCurveTable.getParameterSpec(curveName);
-            ECPrivateKeySpec privateKeySpec =
-                    new ECPrivateKeySpec(privateKeyValue, ecParameterSpec);
+            ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(privateKey, ecParameterSpec);
             KeyFactory keyFactory =
                     KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
             // get private key
@@ -185,7 +189,7 @@ public abstract class KeyManager {
         return getPublicKeyFromPrivateKey(getPrivateKey());
     }
 
-    protected static PublicKey getPublicKeyFromPrivateKey(PrivateKey privateKey) {
+    public static PublicKey getPublicKeyFromPrivateKey(PrivateKey privateKey) {
         try {
             initSecurity();
             ECPrivateKey ecPrivateKey = (ECPrivateKey) privateKey;

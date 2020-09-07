@@ -34,7 +34,7 @@ public abstract class SignatureResult {
      * Recover v, r, s from signature string The first 32 bytes are r, and the 32 bytes after r are
      * s
      *
-     * @param signatureString: the signatureString
+     * @param signatureString the signatureString
      */
     SignatureResult(final String signatureString) {
         this.signatureBytes = Hex.decode(signatureString);
@@ -72,14 +72,14 @@ public abstract class SignatureResult {
     /**
      * covert signatureResult into String
      *
-     * @return: signatureResult in string form can be used as a verify parameter
+     * @return signatureResult in string form can be used as a verify parameter
      */
     public abstract String convertToString();
 
     /**
      * encode the signatureResult into rlp-list
      *
-     * @return: the encoded rlp-list with r, s, v( or pub)
+     * @return the encoded rlp-list with r, s, v( or pub)
      */
     public abstract List<RlpType> encode();
 }

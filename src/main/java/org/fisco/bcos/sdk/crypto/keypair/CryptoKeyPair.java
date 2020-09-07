@@ -17,6 +17,8 @@ import com.webank.wedpr.crypto.CryptoResult;
 import java.io.File;
 import java.math.BigInteger;
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Arrays;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
@@ -107,11 +109,26 @@ public abstract class CryptoKeyPair {
     /**
      * generate keyPair randomly
      *
-     * @return: the generated keyPair
+     * @return the generated keyPair
      */
     public abstract CryptoKeyPair generateKeyPair();
 
     public abstract CryptoKeyPair createKeyPair(KeyPair keyPair);
+
+    public CryptoKeyPair createKeyPair(BigInteger privateKeyValue) {
+        PrivateKey privateKey =
+                KeyManager.convertHexedStringToPrivateKey(privateKeyValue, curveName);
+        PublicKey publicKey = KeyManager.getPublicKeyFromPrivateKey(privateKey);
+        KeyPair keyPair = new KeyPair(publicKey, privateKey);
+        return createKeyPair(keyPair);
+    }
+
+    public CryptoKeyPair createKeyPair(String hexPrivateKey) {
+        PrivateKey privateKey = KeyManager.convertHexedStringToPrivateKey(hexPrivateKey, curveName);
+        PublicKey publicKey = KeyManager.getPublicKeyFromPrivateKey(privateKey);
+        KeyPair keyPair = new KeyPair(publicKey, privateKey);
+        return createKeyPair(keyPair);
+    }
 
     protected String getPublicKeyNoPrefix(String publicKeyStr) {
         String publicKeyNoPrefix = Numeric.cleanHexPrefix(publicKeyStr);
@@ -126,7 +143,7 @@ public abstract class CryptoKeyPair {
     /**
      * get the address according to the public key
      *
-     * @return: the hexed address calculated from the publicKey
+     * @return the hexed address calculated from the publicKey
      */
     public String getAddress() {
         // Note: The generated publicKey is prefixed with 04, When calculate the address, need to
@@ -136,8 +153,8 @@ public abstract class CryptoKeyPair {
     /**
      * calculate the address according to the given public key
      *
-     * @param publicKey: the Hexed publicKey that need to calculate address
-     * @return
+     * @param publicKey the Hexed publicKey that need to calculate address
+     * @return the account address
      */
     public String getAddress(String publicKey) {
         try {

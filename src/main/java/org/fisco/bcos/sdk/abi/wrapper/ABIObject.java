@@ -238,7 +238,7 @@ public class ABIObject {
     /**
      * Checks to see if the current type is dynamic
      *
-     * @return
+     * @return true/false
      */
     public boolean isDynamic() {
         switch (type) {
@@ -284,7 +284,7 @@ public class ABIObject {
     /**
      * dynamic offset of this object
      *
-     * @return
+     * @return the offset of the ABIObject
      */
     public int offset() {
         if (isDynamic()) { // dynamic
@@ -320,7 +320,7 @@ public class ABIObject {
     /**
      * encode this object
      *
-     * @return
+     * @return the encoded object
      */
     public String encode() {
 
@@ -435,7 +435,7 @@ public class ABIObject {
     /**
      * decode this object
      *
-     * @return
+     * @return the decoded ABIObject
      */
     public ABIObject decode(String input) {
         return decode(input, 0);
@@ -444,7 +444,7 @@ public class ABIObject {
     /**
      * decode this object
      *
-     * @return
+     * @return the decoded ABIObject
      */
     private ABIObject decode(String input, int offset) {
 

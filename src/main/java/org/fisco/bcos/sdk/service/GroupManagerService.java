@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.service;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.PeerSelectRule;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
@@ -33,8 +34,8 @@ public interface GroupManagerService {
     /**
      * Update the group list information of the node
      *
-     * @param peerIpAndPort: Node ip and port information
-     * @param groupList: Group list of nodes
+     * @param peerIpAndPort Node ip and port information
+     * @param groupList Group list of nodes
      */
     void updateGroupInfo(String peerIpAndPort, List<String> groupList);
 
@@ -42,8 +43,8 @@ public interface GroupManagerService {
     /**
      * update the block number information for the specified group
      *
-     * @param groupId: the specified groupId
-     * @param currentBlockNumber: the current blockNumber
+     * @param groupId the specified groupId
+     * @param currentBlockNumber the current blockNumber
      */
     void updateBlockNumberInfo(Integer groupId, String peerInfo, BigInteger currentBlockNumber);
 
@@ -52,32 +53,32 @@ public interface GroupManagerService {
     /**
      * get available ip and port info of specified group
      *
-     * @param groupId: get the connection info of the group
-     * @return: the available ip and port info of the group
+     * @param groupId get the connection info of the group
+     * @return the available ip and port info of the group
      */
     List<String> getGroupAvailablePeers(Integer groupId);
 
     /**
      * Get block limit of specified group
      *
-     * @param groupId: The specified groupId
-     * @return: the blockLimit(needed by the transaction module)
+     * @param groupId The specified groupId
+     * @return the blockLimit(needed by the transaction module)
      */
     BigInteger getBlockLimitByGroup(Integer groupId);
 
     /**
      * Get the node list of the specified group
      *
-     * @param groupId: The group id
-     * @return: The node list that started the group
+     * @param groupId The group id
+     * @return The node list that started the group
      */
     Set<String> getGroupNodeList(Integer groupId);
 
     /**
      * Get the group list of specified node
      *
-     * @param nodeAddress: The ip and port info of the node
-     * @return: List of groups started by the node
+     * @param nodeAddress The ip and port info of the node
+     * @return List of groups started by the node
      */
     List<String> getGroupInfoByNodeInfo(String nodeAddress);
 
@@ -85,9 +86,9 @@ public interface GroupManagerService {
      * Send a message to a node in the group and select the node with the highest block height in
      * the group
      *
-     * @param groupId: The group the message is sent to
-     * @param message: The message to be sent
-     * @return: response of the node located in the specified group
+     * @param groupId The group the message is sent to
+     * @param message The message to be sent
+     * @return response of the node located in the specified group
      */
     Response sendMessageToGroup(Integer groupId, Message message);
 
@@ -95,10 +96,10 @@ public interface GroupManagerService {
      * Send messages to nodes in the group according to specified rules (If multiple nodes are
      * filtered out, only select one of them to send the message)
      *
-     * @param groupId: The group the message is sent to
-     * @param message: The message to be sent
-     * @param rule: Rule for filtering the target nodes
-     * @return: callback to be called after receiving response
+     * @param groupId The group the message is sent to
+     * @param message The message to be sent
+     * @param rule Rule for filtering the target nodes
+     * @return callback to be called after receiving response
      */
     Response sendMessageToGroupByRule(Integer groupId, Message message, PeerSelectRule rule);
 
@@ -106,9 +107,9 @@ public interface GroupManagerService {
      * Send a message to a node in the group and select the node with the highest block height in
      * the group
      *
-     * @param groupId: The group the message is sent to
-     * @param message: The message to be sent
-     * @param callback: callback to be called after receiving response
+     * @param groupId The group the message is sent to
+     * @param message The message to be sent
+     * @param callback callback to be called after receiving response
      */
     void asyncSendMessageToGroup(Integer groupId, Message message, ResponseCallback callback);
 
@@ -116,10 +117,10 @@ public interface GroupManagerService {
      * Send messages to nodes in the group according to specified rules (If multiple nodes are
      * filtered out, only select one of them to send the message)
      *
-     * @param groupId: The group the message is sent to
-     * @param message: The message to be sent
-     * @param rule: Rules for filtering the target nodes
-     * @param callback:: Function to be called after receiving response
+     * @param groupId The group the message is sent to
+     * @param message The message to be sent
+     * @param rule Rules for filtering the target nodes
+     * @param callback Function to be called after receiving response
      */
     void asyncSendMessageToGroupByRule(
             Integer groupId, Message message, PeerSelectRule rule, ResponseCallback callback);
@@ -127,8 +128,8 @@ public interface GroupManagerService {
     /**
      * Broadcast messages to all the nodes of the specified group
      *
-     * @param groupId: The group the message is sent to
-     * @param message: The message to be sent
+     * @param groupId The group the message is sent to
+     * @param message The message to be sent
      */
     void broadcastMessageToGroup(Integer groupId, Message message);
 
@@ -159,4 +160,8 @@ public interface GroupManagerService {
     String registerBlockNotifyCallback(BlockNumberNotifyCallback callback);
 
     void eraseBlockNotifyCallback(String registerId);
+
+    Set<Integer> getGroupList();
+
+    void registerBlockNotifyUpdater(BiConsumer<String, List<String>> blockNotifyUpdater);
 }

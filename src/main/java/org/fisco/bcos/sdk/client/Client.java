@@ -120,7 +120,7 @@ public interface Client {
     /**
      * get groupId of the client
      *
-     * @return: the groupId
+     * @return the groupId
      */
     Integer getGroupId();
     /**
@@ -300,7 +300,7 @@ public interface Client {
      *
      * @param blockNumber
      * @param returnSignatureList
-     * @return
+     * @return the block header responsed from the blockchain node
      */
     BcosBlockHeader getBlockHeaderByNumber(BigInteger blockNumber, boolean returnSignatureList);
 
@@ -797,8 +797,8 @@ public interface Client {
     /**
      * send transaction and get the receipt as the response
      *
-     * @param signedTransactionData: the transaction data sent to the node
-     * @return: the transaction receipt
+     * @param signedTransactionData the transaction data sent to the node
+     * @return the transaction receipt
      */
     TransactionReceipt sendRawTransactionAndGetReceipt(String signedTransactionData);
 
@@ -806,8 +806,8 @@ public interface Client {
      * send transaction to the node, and calls TransactionCallback when get the transaction receipt
      * response
      *
-     * @param signedTransactionData: the transaction sent to the node
-     * @param callback: the TransactionCallback called after get the transaction receipt
+     * @param signedTransactionData the transaction sent to the node
+     * @param callback the TransactionCallback called after get the transaction receipt
      */
     void asyncSendRawTransaction(String signedTransactionData, TransactionCallback callback);
 
@@ -815,8 +815,8 @@ public interface Client {
      * calls sendRawTransactionAndGetProof interface, calls TransactionCallback when get the
      * transaction receipt
      *
-     * @param signedTransactionData: the transaction sent to the node
-     * @param callback: the TransactionCallback called after get the transaction receipt
+     * @param signedTransactionData the transaction sent to the node
+     * @param callback the TransactionCallback called after get the transaction receipt
      */
     void asyncsendRawTransactionAndGetProof(
             String signedTransactionData, TransactionCallback callback);
@@ -824,8 +824,8 @@ public interface Client {
     /**
      * calls sendRawTransactionAndGetProof interface and get the transaction receipt
      *
-     * @param signedTransactionData: the transaction sent to the node
-     * @return: the transaction receipt
+     * @param signedTransactionData the transaction sent to the node
+     * @return the transaction receipt
      */
     TransactionReceipt sendRawTransactionAndGetReceiptWithProof(String signedTransactionData);
 

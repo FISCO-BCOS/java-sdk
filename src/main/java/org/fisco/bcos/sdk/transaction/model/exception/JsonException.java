@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.transaction.model.exception;
  * JacksonException @Description: JacksonException
  *
  * @author maojiayu
- * @data Dec 28, 2018 3:45:52 PM
  */
 public class JsonException extends RuntimeException {
 

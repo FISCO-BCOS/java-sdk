@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
  * ContractlessTransactionManager @Description: ContractlessTransactionManager
  *
  * @author maojiayu
- * @data Aug 11, 2020 8:04:46 PM
  */
 public class AssembleTransactionManager extends TransactionManager
         implements AssembleTransactionManagerInterface {
@@ -128,7 +127,7 @@ public class AssembleTransactionManager extends TransactionManager
      *
      * @param contractName
      * @param args
-     * @return
+     * @return the transaction response
      * @throws TransactionBaseException
      * @throws ABICodecException
      */

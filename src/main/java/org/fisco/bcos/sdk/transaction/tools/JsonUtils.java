@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
  * a useful toolkit of json based on Jackson.
  *
  * @author maojiayu
- * @data Dec 28, 2018 3:50:47 PM
  */
 public class JsonUtils {
     protected static Logger log = LoggerFactory.getLogger(JsonUtils.class);

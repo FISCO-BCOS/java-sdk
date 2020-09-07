@@ -18,7 +18,6 @@ package org.fisco.bcos.sdk.transaction.model.dto;
  * CallResponse @Description: CallResponse
  *
  * @author maojiayu
- * @data Jul 17, 2020 3:20:06 PM
  */
 public class CallResponse extends CommonResponse {
     private String values;

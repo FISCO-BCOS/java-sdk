@@ -23,7 +23,6 @@ import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
  * TransactionPusher @Description: TransactionPusherInterface
  *
  * @author maojiayu
- * @data Jul 17, 2020 2:13:39 PM
  */
 public interface TransactionPusherInterface {
 

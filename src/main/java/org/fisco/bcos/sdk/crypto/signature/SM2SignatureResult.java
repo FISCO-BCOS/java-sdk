@@ -22,12 +22,12 @@ import org.fisco.bcos.sdk.utils.Hex;
 public class SM2SignatureResult extends SignatureResult {
     protected final byte[] pub;
 
-    SM2SignatureResult(final String hexPublicKey, final String signatureString) {
+    public SM2SignatureResult(final String hexPublicKey, final String signatureString) {
         super(signatureString);
         this.pub = Hex.decode(hexPublicKey.substring(2));
     }
 
-    SM2SignatureResult(byte[] pub, byte[] r, byte[] s) {
+    public SM2SignatureResult(byte[] pub, byte[] r, byte[] s) {
         super(r, s);
         this.pub = pub;
     }
@@ -35,7 +35,7 @@ public class SM2SignatureResult extends SignatureResult {
     /**
      * covert signatureResult into String
      *
-     * @return: the signature string with [r, s]
+     * @return the signature string with [r, s]
      */
     @Override
     public String convertToString() {

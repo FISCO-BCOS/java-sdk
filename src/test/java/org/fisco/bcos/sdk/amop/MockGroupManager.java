@@ -3,6 +3,7 @@ package org.fisco.bcos.sdk.amop;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.PeerSelectRule;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
@@ -152,6 +153,16 @@ public class MockGroupManager implements GroupManagerService {
 
     @Override
     public void eraseBlockNotifyCallback(String registerId) {
+        return;
+    }
+
+    @Override
+    public Set<Integer> getGroupList() {
+        return null;
+    }
+
+    @Override
+    public void registerBlockNotifyUpdater(BiConsumer<String, List<String>> blockNotifyUpdater) {
         return;
     }
 }

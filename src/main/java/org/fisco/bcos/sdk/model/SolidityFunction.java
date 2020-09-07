@@ -21,7 +21,6 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
  * Function @Description: SolidityFunction
  *
  * @author maojiayu
- * @data Jul 17, 2020 2:36:36 PM
  */
 public class SolidityFunction {
 
