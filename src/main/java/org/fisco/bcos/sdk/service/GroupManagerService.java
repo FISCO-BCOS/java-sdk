@@ -24,6 +24,7 @@ import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
+import org.fisco.bcos.sdk.service.callback.BlockNumberNotifyCallback;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 public interface GroupManagerService {
@@ -152,4 +153,10 @@ public interface GroupManagerService {
     void resetLatestNodeInfo(Integer groupId);
 
     void stop();
+
+    BigInteger getLatestBlockNumberByGroup(Integer groupId);
+
+    String registerBlockNotifyCallback(BlockNumberNotifyCallback callback);
+
+    void eraseBlockNotifyCallback(String registerId);
 }

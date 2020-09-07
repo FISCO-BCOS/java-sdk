@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.demo.perf.contract;
+package org.fisco.bcos.sdk.demo.contract;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

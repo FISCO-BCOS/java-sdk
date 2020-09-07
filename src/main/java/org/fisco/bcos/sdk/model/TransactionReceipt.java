@@ -37,7 +37,7 @@ public class TransactionReceipt {
     private String message;
 
     public boolean isStatusOK() {
-        return status.equals("0x0");
+        return status.equals("0x0") || status.equals("0");
     }
 
     public static class Logs {

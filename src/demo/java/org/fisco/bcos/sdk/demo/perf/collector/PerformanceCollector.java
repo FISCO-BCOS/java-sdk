@@ -54,6 +54,10 @@ public class PerformanceCollector {
     public void onMessage(TransactionReceipt receipt, Long cost) {
         try {
             if (!receipt.isStatusOK()) {
+                logger.error(
+                        "error receipt, status: {}, output: {}",
+                        receipt.getStatus(),
+                        receipt.getOutput());
                 error.addAndGet(1);
             }
 

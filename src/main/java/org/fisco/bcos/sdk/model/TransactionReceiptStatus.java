@@ -63,6 +63,7 @@ public class TransactionReceiptStatus {
     public static final RetCode MalformedTx = new RetCode(10005, "Malformed transaction");
     public static final RetCode OverGroupMemoryLimit =
             new RetCode(10006, "Exceeded the group transaction pool capacity limit");
+    public static final RetCode TimeOut = new RetCode(50001, "Transaction receipt timeout");
 
     protected static Map<Integer, RetCode> codeToRetCode = new HashMap<>();
 

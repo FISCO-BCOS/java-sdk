@@ -189,4 +189,8 @@ public class CryptoInterface {
     public CryptoKeyPair getCryptoKeyPair() {
         return this.cryptoKeyPair;
     }
+
+    public ConfigOption getConfig() {
+        return this.config;
+    }
 }
