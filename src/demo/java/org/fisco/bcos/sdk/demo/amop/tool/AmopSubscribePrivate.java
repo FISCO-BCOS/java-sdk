@@ -16,7 +16,7 @@ public class AmopSubscribePrivate {
      */
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("Param: topic");
+            System.out.println("Param: topic, privateKeyFile, password");
             return;
         }
         String topic = args[0];

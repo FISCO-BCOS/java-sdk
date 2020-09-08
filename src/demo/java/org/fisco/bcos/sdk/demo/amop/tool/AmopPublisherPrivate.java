@@ -23,7 +23,8 @@ public class AmopPublisherPrivate {
      */
     public static void main(String[] args) throws Exception {
         if (args.length < parameterNum) {
-            System.out.println("param: target topic total number of request");
+            System.out.println(
+                    "param: opicName, pubKey1, pubKey2, isBroadcast: true/false, content, count");
             return;
         }
         String topicName = args[0];
@@ -52,7 +53,7 @@ public class AmopPublisherPrivate {
             KeyManager km2 = new PEMManager(pubkey2);
             kml.add(km2);
         }
-        amop.setupPrivateTopic(topicName, kml);
+        amop.publishPrivateTopic(topicName, kml);
         System.out.println("wait until finish private topic verify");
         System.out.println("3s ...");
         Thread.sleep(1000);
