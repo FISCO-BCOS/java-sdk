@@ -15,34 +15,11 @@
 
 package org.fisco.bcos.sdk.eventsub;
 
-import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.model.EventLog;
 
 /** Event callback */
-public abstract class EventCallback {
-    private BigInteger lastBlockNumber = null;
-    private long logCount = 0;
-
-    public BigInteger getLastBlockNumber() {
-        return lastBlockNumber;
-    }
-
-    public void updateCountsAndLatestBlock(List<EventLog> logs) {
-        if (logs.isEmpty()) {
-            return;
-        }
-        EventLog latestOne = logs.get(logs.size() - 1);
-        if (lastBlockNumber == null) {
-            lastBlockNumber = latestOne.getBlockNumber();
-            logCount += logs.size();
-        } else {
-            if (latestOne.getBlockNumber().compareTo(lastBlockNumber) > 0) {
-                lastBlockNumber = latestOne.getBlockNumber();
-                logCount += logs.size();
-            }
-        }
-    }
+public interface EventCallback {
 
     /**
      * onReceiveLog called when sdk receive any response of the target subscription. logs will be
@@ -51,5 +28,5 @@ public abstract class EventCallback {
      * @param status the status that peer response to sdk.
      * @param logs logs from the message.
      */
-    public abstract void onReceiveLog(int status, List<EventLog> logs);
+    void onReceiveLog(int status, List<EventLog> logs);
 }

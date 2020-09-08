@@ -50,6 +50,15 @@ public class FilterManager {
         return list;
     }
 
+    public EventLogFilter getFilterById(String filterId) {
+        for (EventLogFilter filter : regId2Filter.values()) {
+            if (filter.getFilterID().equals(filterId)) {
+                return filter;
+            }
+        }
+        return null;
+    }
+
     public void addFilter(EventLogFilter filter) {
         regId2Filter.put(filter.getRegisterID(), filter);
         logger.info(
