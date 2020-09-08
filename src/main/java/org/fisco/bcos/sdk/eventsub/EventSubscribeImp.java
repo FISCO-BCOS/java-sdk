@@ -168,14 +168,10 @@ public class EventSubscribeImp implements EventSubscribe {
             msg.setData(content.getBytes());
         } catch (JsonProcessingException e) {
             logger.error(
-                    "send filter error, registerID: {},filterID : {}, error: {}",
+                    "send filter error and remove bad filter, registerID: {},filterID : {}, error: {}",
                     filter.getRegisterID(),
                     filter.getFilterID(),
                     e.getMessage());
-            logger.error(
-                    "remove bad filter , registerID: {},filterID : {}",
-                    filter.getRegisterID(),
-                    filter.getFilterID());
             filterManager.removeFilter(filter.getRegisterID());
         }
 

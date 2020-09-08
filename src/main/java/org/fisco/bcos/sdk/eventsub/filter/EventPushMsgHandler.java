@@ -68,7 +68,12 @@ public class EventPushMsgHandler implements MsgHandler {
                 if (!logs.isEmpty()) {
                     callback.onReceiveLog(resp.getResult(), logs);
                     // update status
-                    callback.updateCountsAndLatestBlock(logs);
+                    EventLogFilter filter = filterManager.getFilterById(resp.getFilterID());
+                    if (filter != null) {
+                        filter.updateCountsAndLatestBlock(logs);
+                    } else {
+                        logger.error("cannot find filter to update log count and latest block ");
+                    }
                     logger.info(
                             " log size: {}, blocknumber: {}",
                             logs.size(),

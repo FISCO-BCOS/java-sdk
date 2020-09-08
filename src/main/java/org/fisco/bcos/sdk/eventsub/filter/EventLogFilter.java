@@ -17,9 +17,12 @@ package org.fisco.bcos.sdk.eventsub.filter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.channel.ChannelHandlerContext;
+import java.math.BigInteger;
+import java.util.List;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.eventsub.EventLogParams;
 import org.fisco.bcos.sdk.eventsub.EventSubscribe;
+import org.fisco.bcos.sdk.model.EventLog;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 /** An event log filter is a subscription. */
@@ -30,6 +33,9 @@ public class EventLogFilter {
     private EventCallback callback;
     private EventLogFilterStatus status = EventLogFilterStatus.WAITING_REQUEST;
     private ChannelHandlerContext ctx = null;
+
+    private BigInteger lastBlockNumber = null;
+    private long logCount = 0;
 
     public String getNewParamJsonString(String groupId) throws JsonProcessingException {
         String newFilterId = EventSubscribe.newSeq();
@@ -89,12 +95,28 @@ public class EventLogFilter {
         params.setToBlock(getParams().getToBlock());
         params.setAddresses(getParams().getAddresses());
         params.setTopics(getParams().getTopics());
-        if (callback.getLastBlockNumber() == null) {
+        if (lastBlockNumber == null) {
             params.setFromBlock(params.getFromBlock());
         } else {
-            params.setFromBlock(callback.getLastBlockNumber().toString());
+            params.setFromBlock(lastBlockNumber.toString());
         }
         return params;
+    }
+
+    public void updateCountsAndLatestBlock(List<EventLog> logs) {
+        if (logs.isEmpty()) {
+            return;
+        }
+        EventLog latestOne = logs.get(logs.size() - 1);
+        if (lastBlockNumber == null) {
+            lastBlockNumber = latestOne.getBlockNumber();
+            logCount += logs.size();
+        } else {
+            if (latestOne.getBlockNumber().compareTo(lastBlockNumber) > 0) {
+                lastBlockNumber = latestOne.getBlockNumber();
+                logCount += logs.size();
+            }
+        }
     }
 
     public String getRegisterID() {
