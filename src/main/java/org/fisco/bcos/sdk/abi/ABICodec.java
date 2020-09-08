@@ -32,37 +32,27 @@ public class ABICodec {
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodec.class);
 
-    private CryptoInterface cryptoInterface;
+    private final CryptoInterface cryptoInterface;
     public static final String TYPE_CONSTRUCTOR = "constructor";
-
-    public ABICodec() {
-        super();
-    }
+    private ABIDefinitionFactory abiDefinitionFactory;
+    private final ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
+    private final ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
 
     public ABICodec(CryptoInterface cryptoInterface) {
         super();
         this.cryptoInterface = cryptoInterface;
-    }
-
-    public void setCryptoInterface(CryptoInterface cryptoInterface) {
-        this.cryptoInterface = cryptoInterface;
+        abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
     }
 
     public CryptoInterface getCryptoInterface() {
         return cryptoInterface;
     }
 
-    public String encodeMethod(String ABI, String methodName, List<Object> params)
-            throws ABICodecException {
-        return encodeMethod(ABI, methodName, params, false, false);
-    }
-
     public String encodeConstructor(String ABI, String BIN, List<Object> params)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
+
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         @SuppressWarnings("static-access")
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
@@ -78,13 +68,11 @@ public class ABICodec {
 
     public String encodeConstructorFromString(String ABI, String BIN, List<String> params)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         @SuppressWarnings("static-access")
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+
         try {
             return BIN + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
         } catch (Exception e) {
@@ -95,26 +83,16 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public String encodeMethod(
-            String ABI,
-            String methodName,
-            List<Object> params,
-            boolean checkMode,
-            boolean isConstant)
+    public String encodeMethod(String ABI, String methodName, List<Object> params)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
-                ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
                 @SuppressWarnings("static-access")
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
                 ABICodecObject abiCodecObject = new ABICodecObject();
                 try {
-                    if (checkMode && abiDefinition.isConstant() != isConstant) {
-                        continue;
-                    }
                     String methodId = abiDefinition.getMethodId(cryptoInterface);
                     return methodId + abiCodecObject.encodeValue(inputABIObject, params).encode();
                 } catch (Exception e) {
@@ -130,7 +108,6 @@ public class ABICodec {
 
     public String encodeMethodById(String ABI, String methodId, List<Object> params)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         if (abiDefinition == null) {
@@ -138,7 +115,6 @@ public class ABICodec {
             logger.error(errorMsg);
             throw new ABICodecException(errorMsg);
         }
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
@@ -162,7 +138,6 @@ public class ABICodec {
 
     public String encodeMethodFromString(String ABI, String methodName, List<String> params)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
         if (methods == null) {
@@ -178,7 +153,6 @@ public class ABICodec {
         }
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
-                ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
                 ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
                 try {
@@ -197,7 +171,6 @@ public class ABICodec {
 
     public String encodeMethodByIdFromString(String ABI, String methodId, List<String> params)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         if (abiDefinition == null) {
@@ -205,8 +178,6 @@ public class ABICodec {
             logger.error(errorMsg);
             throw new ABICodecException(errorMsg);
         }
-
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         try {
@@ -230,12 +201,10 @@ public class ABICodec {
 
     public String encodeEvent(String ABI, String eventName, List<Object> params)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> events = contractABIDefinition.getEvents().get(eventName);
         for (ABIDefinition abiDefinition : events) {
             if (abiDefinition.getInputs().size() == params.size()) {
-                ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
                 ABICodecObject abiCodecObject = new ABICodecObject();
                 try {
@@ -253,11 +222,9 @@ public class ABICodec {
 
     public String encodeEventByTopic(String ABI, String eventTopic, List<Object> params)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition =
                 contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
@@ -279,7 +246,6 @@ public class ABICodec {
 
     public String encodeEventFromString(String ABI, String eventName, List<String> params)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getEvents().get(eventName);
         if (methods == null) {
@@ -295,7 +261,6 @@ public class ABICodec {
         }
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
-                ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
                 ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
                 try {
@@ -313,11 +278,9 @@ public class ABICodec {
 
     public String encodeEventByTopicFromString(String ABI, String eventTopic, List<String> params)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition =
                 contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         try {
@@ -339,7 +302,6 @@ public class ABICodec {
 
     public List<Object> decodeMethod(ABIDefinition abiDefinition, String output)
             throws ABICodecException {
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
@@ -354,11 +316,9 @@ public class ABICodec {
 
     public List<Object> decodeMethod(String ABI, String methodName, String output)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
         for (ABIDefinition abiDefinition : methods) {
-            ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
             ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
             ABICodecObject abiCodecObject = new ABICodecObject();
             try {
@@ -375,7 +335,6 @@ public class ABICodec {
 
     public List<Object> decodeMethodById(String ABI, String methodId, String output)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         if (abiDefinition == null) {
@@ -383,7 +342,6 @@ public class ABICodec {
             logger.error(errorMsg);
             throw new ABICodecException(errorMsg);
         }
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
@@ -406,7 +364,6 @@ public class ABICodec {
 
     public List<String> decodeMethodToString(String ABI, String methodName, String output)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
         if (methods == null) {
@@ -417,7 +374,6 @@ public class ABICodec {
                             + contractABIDefinition.getFunctions().keySet());
         }
         for (ABIDefinition abiDefinition : methods) {
-            ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
             ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
             ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
             try {
@@ -434,7 +390,6 @@ public class ABICodec {
 
     public List<String> decodeMethodByIdToString(String ABI, String methodId, String output)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         if (abiDefinition == null) {
@@ -442,7 +397,6 @@ public class ABICodec {
             logger.error(errorMsg);
             throw new ABICodecException(errorMsg);
         }
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         try {
@@ -466,7 +420,6 @@ public class ABICodec {
 
     public List<Object> decodeEvent(String ABI, String eventName, String output)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> events = contractABIDefinition.getEvents().get(eventName);
         if (events == null) {
@@ -477,7 +430,6 @@ public class ABICodec {
                             + contractABIDefinition.getEvents().keySet());
         }
         for (ABIDefinition abiDefinition : events) {
-            ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
             ABIObject outputObject = abiObjectFactory.createInputObject(abiDefinition);
             ABICodecObject abiCodecObject = new ABICodecObject();
             try {
@@ -494,11 +446,9 @@ public class ABICodec {
 
     public List<Object> decodeEventByTopic(String ABI, String eventTopic, String output)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition =
                 contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject outputObject = abiObjectFactory.createOutputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
@@ -520,7 +470,6 @@ public class ABICodec {
 
     public List<String> decodeEventToString(String ABI, String eventName, String output)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> events = contractABIDefinition.getEvents().get(eventName);
         if (events == null) {
@@ -531,7 +480,6 @@ public class ABICodec {
                             + contractABIDefinition.getEvents().keySet());
         }
         for (ABIDefinition abiDefinition : events) {
-            ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
             ABIObject outputObject = abiObjectFactory.createOutputObject(abiDefinition);
             ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
             try {
@@ -548,11 +496,9 @@ public class ABICodec {
 
     public List<String> decodeEventByTopicToString(String ABI, String eventTopic, String output)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition =
                 contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
-        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         ABIObject outputObject = abiObjectFactory.createOutputObject(abiDefinition);
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         try {

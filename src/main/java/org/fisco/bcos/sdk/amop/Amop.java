@@ -66,7 +66,7 @@ public interface Amop {
      * @param publicKeyManagers the public keys of the target organizations that you want to
      *     communicate with
      */
-    void setupPrivateTopic(String topicName, List<KeyManager> publicKeyManagers);
+    void publishPrivateTopic(String topicName, List<KeyManager> publicKeyManagers);
 
     /**
      * Unsubscribe a topic.

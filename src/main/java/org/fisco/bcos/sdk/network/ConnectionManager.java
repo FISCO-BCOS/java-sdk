@@ -113,21 +113,20 @@ public class ConnectionManager {
         /** check available connection */
         if (!atLeastOneConnectSuccess) {
             logger.error(" all connections have failed, {} ", errorMessageList);
-            String errorMessageString = "[";
+            String errorMessageString = "";
             for (RetCode errorRetCode : errorMessageList) {
-                errorMessageString += errorRetCode.getMessage() + ",";
+                errorMessageString += errorRetCode.getMessage() + "\n";
             }
-            errorMessageString += "]";
-
             for (RetCode errorRetCode : errorMessageList) {
                 if (errorRetCode.getCode() == NetworkException.SSL_HANDSHAKE_FAILED) {
                     throw new NetworkException(
-                            " Failed to connect to nodes: " + errorMessageString,
+                            " Failed to connect to all the nodes! errorMessage: \n"
+                                    + errorMessageString,
                             NetworkException.SSL_HANDSHAKE_FAILED);
                 }
             }
             throw new NetworkException(
-                    " Failed to connect to nodes: " + errorMessageString,
+                    " Failed to connect to all the nodes! errorMessage: \n" + errorMessageString,
                     NetworkException.CONNECT_FAILED);
         }
         logger.debug(" start connect end. ");

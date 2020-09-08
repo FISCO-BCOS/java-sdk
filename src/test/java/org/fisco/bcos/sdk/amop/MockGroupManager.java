@@ -12,6 +12,7 @@ import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
 import org.fisco.bcos.sdk.service.GroupManagerService;
+import org.fisco.bcos.sdk.service.callback.BlockNumberNotifyCallback;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 public class MockGroupManager implements GroupManagerService {
@@ -136,6 +137,21 @@ public class MockGroupManager implements GroupManagerService {
 
     @Override
     public void resetLatestNodeInfo(Integer groupId) {
+        return;
+    }
+
+    @Override
+    public BigInteger getLatestBlockNumberByGroup(Integer groupId) {
+        return BigInteger.ZERO;
+    }
+
+    @Override
+    public String registerBlockNotifyCallback(BlockNumberNotifyCallback callback) {
+        return "";
+    }
+
+    @Override
+    public void eraseBlockNotifyCallback(String registerId) {
         return;
     }
 }

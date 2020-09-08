@@ -30,6 +30,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
+import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsService;
 import org.fisco.bcos.sdk.contract.precompiled.consensus.ConsensusService;
@@ -226,7 +227,7 @@ public class PrecompiledTest
                 fieldNameToValue.put("field" + i, "value" + i);
             }
             Entry fieldNameToValueEntry = new Entry(fieldNameToValue);
-            tableCRUDService.insert(tableName, key, fieldNameToValueEntry, null);
+            tableCRUDService.insert(tableName, key, fieldNameToValueEntry);
             // select
             List<Map<String, String>> result = tableCRUDService.select(tableName, key, null);
             // field value result + key result
@@ -281,7 +282,7 @@ public class PrecompiledTest
                             value.put("field", "field" + index);
                             String valueOfKey = "key_value" + index;
                             // insert
-                            crudService.insert(tableName, valueOfKey , new Entry(value), null);
+                            crudService.insert(tableName, valueOfKey , new Entry(value));
                             // select
                             crudService.select(tableName, valueOfKey, null);
                             // update
@@ -307,12 +308,12 @@ public class PrecompiledTest
         }
     }
 
-    class FakeTransactionCallback extends TransactionCallback {
+    class FakeTransactionCallback implements PrecompiledCallback {
         public TransactionReceipt receipt;
         // wait until get the transactionReceipt
         @Override
-        public void onResponse(TransactionReceipt receipt) {
-            this.receipt = receipt;
+        public void onResponse(RetCode retCode) {
+            this.receipt = retCode.getTransactionReceipt();
             receiptCount.addAndGet(1);
         }
     }
@@ -346,7 +347,7 @@ public class PrecompiledTest
                             String valueOfKey = "key_value" + index;
                             // insert
                             FakeTransactionCallback callback = new FakeTransactionCallback();
-                            crudService.asyncInsert(tableName, valueOfKey , new Entry(value), null, callback);
+                            crudService.asyncInsert(tableName, valueOfKey , new Entry(value), callback);
                             // update
                             value.clear();
                             value.put("field", "field" + index + 100);
@@ -396,18 +397,18 @@ public class PrecompiledTest
             {
                 value.put("field" + i, "value2"+i);
             }
-            RetCode retCode = tableCRUDService.insert(tableName, key, new Entry(value), null);
+            RetCode retCode = tableCRUDService.insert(tableName, key, new Entry(value));
             Assert.assertTrue(retCode.getCode() == PrecompiledRetCode.CODE_NO_AUTHORIZED.getCode());
             Assert.assertTrue(retCode.getMessage() == PrecompiledRetCode.CODE_NO_AUTHORIZED.getMessage());
 
             // insert data to the table with the account with permission
             TableCRUDService tableCRUDService2 = new TableCRUDService(client, cryptoInterface);
-            retCode = tableCRUDService2.insert(tableName, key, new Entry(value), null);
+            retCode = tableCRUDService2.insert(tableName, key, new Entry(value));
             Assert.assertTrue(retCode.getCode() == 1);
 
             // revoke permission
             permissionService.revokePermission(tableName, cryptoInterface.getCryptoKeyPair().getAddress());
-            retCode = tableCRUDService.insert(tableName, key, new Entry(value), null);
+            retCode = tableCRUDService.insert(tableName, key, new Entry(value));
             Assert.assertTrue(retCode.getCode() == 1);
         }catch(ContractException e)
         {

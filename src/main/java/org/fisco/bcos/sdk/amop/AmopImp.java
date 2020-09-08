@@ -84,7 +84,7 @@ public class AmopImp implements Amop {
     }
 
     @Override
-    public void setupPrivateTopic(String topicName, List<KeyManager> publicKeyManagers) {
+    public void publishPrivateTopic(String topicName, List<KeyManager> publicKeyManagers) {
         logger.info(
                 "setup private topic, topic:{} pubKey len:{}", topicName, publicKeyManagers.size());
         topicManager.addPrivateTopicSend(topicName, publicKeyManagers);
@@ -234,7 +234,7 @@ public class AmopImp implements Amop {
     }
 
     private void loadConfiguredTopics(ConfigOption config) throws AmopException {
-        if (null == config.getAmopConfig().getAmopTopicConfig()) {
+        if (null == config.getAmopConfig() || null == config.getAmopConfig().getAmopTopicConfig()) {
             return;
         }
         List<AmopTopic> topics = config.getAmopConfig().getAmopTopicConfig();

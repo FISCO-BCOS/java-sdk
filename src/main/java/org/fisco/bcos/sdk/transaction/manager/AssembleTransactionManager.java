@@ -194,11 +194,7 @@ public class AssembleTransactionManager extends TransactionManager
             throws ABICodecException {
         String data =
                 abiCodec.encodeMethod(
-                        contractLoader.getABIByContractName(contractName),
-                        functionName,
-                        args,
-                        true,
-                        false);
+                        contractLoader.getABIByContractName(contractName), functionName, args);
         return sendTransactionAndGetReceipt(contractAddress, data);
     }
 
@@ -234,11 +230,7 @@ public class AssembleTransactionManager extends TransactionManager
             throws ABICodecException {
         String data =
                 abiCodec.encodeMethod(
-                        contractLoader.getABIByContractName(contractName),
-                        functionName,
-                        args,
-                        true,
-                        false);
+                        contractLoader.getABIByContractName(contractName), functionName, args);
         sendTransactionAsync(contractAddress, data, callback);
     }
 
@@ -258,7 +250,7 @@ public class AssembleTransactionManager extends TransactionManager
     public CallResponse sendCall(
             String from, String to, String abi, String functionName, List<Object> paramsList)
             throws TransactionBaseException, ABICodecException {
-        String data = abiCodec.encodeMethod(abi, functionName, paramsList, true, true);
+        String data = abiCodec.encodeMethod(abi, functionName, paramsList);
         return callAndGetResponse(from, to, abi, functionName, data);
     }
 

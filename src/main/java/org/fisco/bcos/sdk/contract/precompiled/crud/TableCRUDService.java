@@ -25,6 +25,7 @@ import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
 import org.fisco.bcos.sdk.channel.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
+import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.contract.precompiled.crud.table.TableFactory;
@@ -34,6 +35,7 @@ import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.RetCode;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
@@ -74,16 +76,15 @@ public class TableCRUDService {
                 tableFactory.createTable(tableName, keyFieldName, valueFieldsString));
     }
 
-    public RetCode insert(String tableName, String key, Entry fieldNameToValue, Condition condition)
+    public RetCode insert(String tableName, String key, Entry fieldNameToValue)
             throws ContractException {
         checkKey(key);
         try {
             String fieldNameToValueStr =
                     ObjectMapperFactory.getObjectMapper()
                             .writeValueAsString(fieldNameToValue.getFieldNameToValue());
-            String conditionStr = encodeCondition(condition);
             return ReceiptParser.parseTransactionReceipt(
-                    crudService.insert(tableName, key, fieldNameToValueStr, conditionStr));
+                    crudService.insert(tableName, key, fieldNameToValueStr, ""));
         } catch (JsonProcessingException e) {
             throw new ContractException(
                     "insert "
@@ -166,7 +167,7 @@ public class TableCRUDService {
                 objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class));
     }
 
-    private List<Map<String, String>> getTableDescBefore230(
+    private List<Map<String, String>> getTableDescLessThan230Version(
             EnumNodeVersion.Version enumNodeVersion, String tableName) throws ContractException {
         if (enumNodeVersion.getMajor() == 2 && enumNodeVersion.getMinor() < 2) {
             return select(
@@ -181,8 +182,7 @@ public class TableCRUDService {
         }
     }
 
-    private List<Map<String, String>> getTableDescAfter230(String tableName)
-            throws ContractException {
+    private List<Map<String, String>> getTableDesc(String tableName) throws ContractException {
         Tuple2<String, String> tableDesc = crudService.desc(tableName);
         List<Map<String, String>> tableDescList = new ArrayList<>(1);
         Map<String, String> keyToValue = new HashMap<>();
@@ -199,9 +199,9 @@ public class TableCRUDService {
                     EnumNodeVersion.getClassVersion(
                             nodeVersion.getNodeVersion().getSupportedVersion());
             if (enumNodeVersion.getMajor() == 2 && enumNodeVersion.getMinor() <= 3) {
-                return getTableDescBefore230(enumNodeVersion, tableName);
+                return getTableDescLessThan230Version(enumNodeVersion, tableName);
             }
-            return getTableDescAfter230(tableName);
+            return getTableDesc(tableName);
         } catch (ChannelPrococolExceiption e) {
             throw new ContractException(
                     "Obtain description for "
@@ -214,20 +214,34 @@ public class TableCRUDService {
         }
     }
 
+    private TransactionCallback createTransactionCallback(PrecompiledCallback callback) {
+        return new TransactionCallback() {
+            @Override
+            public void onResponse(TransactionReceipt receipt) {
+                RetCode retCode = null;
+                try {
+                    retCode = ReceiptParser.parseTransactionReceipt(receipt);
+
+                } catch (ContractException e) {
+                    retCode.setCode(e.getErrorCode());
+                    retCode.setMessage(e.getMessage());
+                    retCode.setTransactionReceipt(receipt);
+                }
+                callback.onResponse(retCode);
+            }
+        };
+    }
+
     public void asyncInsert(
-            String tableName,
-            String key,
-            Entry fieldNameToValue,
-            Condition condition,
-            TransactionCallback callback)
+            String tableName, String key, Entry fieldNameToValue, PrecompiledCallback callback)
             throws ContractException {
         checkKey(key);
         try {
             String fieldNameToValueStr =
                     ObjectMapperFactory.getObjectMapper()
                             .writeValueAsString(fieldNameToValue.getFieldNameToValue());
-            String conditionStr = encodeCondition(condition);
-            this.crudService.insert(tableName, key, fieldNameToValueStr, conditionStr, callback);
+            this.crudService.insert(
+                    tableName, key, fieldNameToValueStr, "", createTransactionCallback(callback));
         } catch (JsonProcessingException e) {
             throw new ContractException(
                     "asyncInsert "
@@ -245,7 +259,7 @@ public class TableCRUDService {
             String key,
             Entry fieldNameToValue,
             Condition condition,
-            TransactionCallback callback)
+            PrecompiledCallback callback)
             throws ContractException {
         checkKey(key);
         try {
@@ -254,7 +268,12 @@ public class TableCRUDService {
                             .writeValueAsString(fieldNameToValue.getFieldNameToValue());
             String conditionStr = encodeCondition(condition);
             this.crudService.update(
-                    tableName, key, fieldNameToValueStr, conditionStr, "", callback);
+                    tableName,
+                    key,
+                    fieldNameToValueStr,
+                    conditionStr,
+                    "",
+                    createTransactionCallback(callback));
         } catch (JsonProcessingException e) {
             throw new ContractException(
                     "asyncUpdate "
@@ -268,11 +287,16 @@ public class TableCRUDService {
     }
 
     public void asyncRemove(
-            String tableName, String key, Condition condition, TransactionCallback callback)
+            String tableName, String key, Condition condition, PrecompiledCallback callback)
             throws ContractException {
         checkKey(key);
         try {
-            this.crudService.remove(tableName, key, encodeCondition(condition), "", callback);
+            this.crudService.remove(
+                    tableName,
+                    key,
+                    encodeCondition(condition),
+                    "",
+                    createTransactionCallback(callback));
         } catch (JsonProcessingException e) {
             throw new ContractException(
                     "asyncRemove " + key + " with condition from " + tableName + " failed");
