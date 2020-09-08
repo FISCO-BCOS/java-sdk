@@ -58,7 +58,7 @@ public class AmopPublisherPrivateFile {
             KeyManager km2 = new PEMManager(pubkey2);
             kml.add(km2);
         }
-        amop.setupPrivateTopic(topicName, kml);
+        amop.publishPrivateTopic(topicName, kml);
         System.out.println("wait until finish private topic verify");
         System.out.println("3s ...");
         Thread.sleep(1000);
