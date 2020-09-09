@@ -15,6 +15,7 @@
 
 package org.fisco.bcos.sdk.amop.topic;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class TopicManager {
     private Map<String, List<KeyManager>> topic2PublicKeys = new ConcurrentHashMap<>();
     private Map<String, String> topicName2FullName = new ConcurrentHashMap<>();
     private Map<String, AmopCallback> topic2Callback = new ConcurrentHashMap<>();
-    private Set<String> topics = new HashSet<>();
+    private Set<String> topics = Collections.synchronizedSet(new HashSet<>());
     private Map<String, Set<String>> peer2BlockNotify = new ConcurrentHashMap<>();
     private AmopCallback callback;
 
@@ -117,22 +118,15 @@ public class TopicManager {
         return topicName2FullName.keySet();
     }
 
-    public void addBlockNotify(String peerIpPort, List<String> groupInfo) {
-        logger.trace("add block notify, peer{}, groupInfo:{}", peerIpPort, groupInfo.size());
-        Set<String> pnf = peer2BlockNotify.get(peerIpPort);
-        if (null == pnf) {
-            pnf = new HashSet<>();
-            for (String group : groupInfo) {
-                pnf.add("_block_notify_" + group);
-                logger.trace(
-                        "add block notify, peer{}, topic:{}", peerIpPort, "_block_notify_" + group);
-            }
-            peer2BlockNotify.put(peerIpPort, pnf);
-        } else {
-            for (String group : groupInfo) {
-                pnf.add("_block_notify_" + group);
-            }
+    public void updateBlockNotify(String peerIpPort, List<String> groupInfo) {
+        logger.debug("update block notify, peer: {}, groupInfo: {}", peerIpPort, groupInfo.size());
+        Set<String> pnf = new HashSet<>();
+        for (String group : groupInfo) {
+            pnf.add("_block_notify_" + group);
+            logger.debug(
+                    "add block notify, peer: {}, topic: {}", peerIpPort, "_block_notify_" + group);
         }
+        peer2BlockNotify.put(peerIpPort, pnf);
     }
 
     public AmopCallback getCallback(String topicName) {

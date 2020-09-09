@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.transaction.model.dto;
  * ResultCodeEnum @Description: ResultCodeEnum
  *
  * @author maojiayu
- * @data Apr 13, 2020 4:47:25 PM
  */
 public enum ResultCodeEnum {
     SUCCESS(0, "success"),

@@ -23,7 +23,7 @@ public interface PeerSelectRule {
      * PeerSelectRule Customize a rule to select a peer to send message to
      *
      * @param conns
-     * @return
+     * @return the selected peer
      */
     String select(List<ConnectionInfo> conns);
 }

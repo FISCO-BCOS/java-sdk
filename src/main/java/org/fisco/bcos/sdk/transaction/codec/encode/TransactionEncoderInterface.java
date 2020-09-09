@@ -21,7 +21,6 @@ import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
  * TransactionEncoderInterface @Description: TransactionEncoderInterface
  *
  * @author maojiayu
- * @data Jul 17, 2020 11:59:49 AM
  */
 public interface TransactionEncoderInterface {
 

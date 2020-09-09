@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import org.fisco.bcos.sdk.amop.exception.AmopException;
 import org.fisco.bcos.sdk.amop.topic.AmopMsgHandler;
 import org.fisco.bcos.sdk.amop.topic.TopicManager;
@@ -61,6 +62,14 @@ public class AmopImp implements Amop {
         }
         Channel ch = groupManager.getChannel();
         amopMsgHandler = new AmopMsgHandler(ch, topicManager);
+        this.groupManager.registerBlockNotifyUpdater(
+                new BiConsumer<String, List<String>>() {
+                    @Override
+                    public void accept(String peer, List<String> groupList) {
+                        topicManager.updateBlockNotify(peer, groupList);
+                        sendSubscribe();
+                    }
+                });
         ch.addMessageHandler(MsgType.REQUEST_TOPICCERT, amopMsgHandler);
         ch.addMessageHandler(MsgType.AMOP_REQUEST, amopMsgHandler);
         ch.addMessageHandler(MsgType.AMOP_MULBROADCAST, amopMsgHandler);
@@ -271,7 +280,7 @@ public class AmopImp implements Amop {
         for (String peer : peers) {
             List<String> groupInfo = groupManager.getGroupInfoByNodeInfo(peer);
             logger.trace("add peer block notify, peer:{} groupInfo:{}", peer, groupInfo.size());
-            topicManager.addBlockNotify(peer, groupInfo);
+            topicManager.updateBlockNotify(peer, groupInfo);
         }
     }
 

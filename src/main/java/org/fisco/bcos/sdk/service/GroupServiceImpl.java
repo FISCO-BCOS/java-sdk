@@ -42,6 +42,7 @@ public class GroupServiceImpl implements GroupService {
     public GroupServiceImpl(Integer groupId, String groupNodeAddress) {
         this.groupId = groupId;
         this.groupNodeSet.add(groupNodeAddress);
+        logger.debug("insert group: {} for peer {}", groupId, groupNodeAddress);
     }
 
     @Override
@@ -50,14 +51,15 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void removeNode(String nodeAddress) {
+    public boolean removeNode(String nodeAddress) {
         if (groupNodeSet.contains(nodeAddress)) {
             groupNodeSet.remove(nodeAddress);
+            return true;
         }
         if (groupNodeToBlockNumber.containsKey(nodeAddress)) {
             groupNodeToBlockNumber.remove(nodeAddress);
+            resetLatestBlockNumber();
         }
-        resetLatestBlockNumber();
         logger.debug(
                 "g:{}, removeNode={}, nodeSize={}, blockNumberInfoSize={}, latestBlockNumber:{}",
                 groupId,
@@ -65,10 +67,11 @@ public class GroupServiceImpl implements GroupService {
                 this.groupNodeSet.size(),
                 this.groupNodeToBlockNumber.size(),
                 latestBlockNumber);
+        return false;
     }
 
     @Override
-    public void insertNode(String nodeAddress) {
+    public boolean insertNode(String nodeAddress) {
         if (!groupNodeSet.contains(nodeAddress)) {
             groupNodeSet.add(nodeAddress);
             logger.debug(
@@ -77,10 +80,12 @@ public class GroupServiceImpl implements GroupService {
                     nodeAddress,
                     this.groupNodeSet.size(),
                     this.groupNodeToBlockNumber.size());
+            return true;
         }
         if (!groupNodeToBlockNumber.containsKey(nodeAddress)) {
             groupNodeToBlockNumber.put(nodeAddress, BigInteger.valueOf(0));
         }
+        return false;
     }
 
     @Override
@@ -134,7 +139,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public BigInteger getLastestBlockNumber() {
+    public BigInteger getLatestBlockNumber() {
         return BigInteger.valueOf(this.latestBlockNumber.get());
     }
 

@@ -63,7 +63,7 @@ public class P12Manager extends KeyManager {
     /**
      * load keyPair from the given input stream
      *
-     * @param in: the input stream that should used to load keyPair
+     * @param in the input stream that should used to load keyPair
      */
     protected void load(InputStream in) {
         try {
@@ -92,7 +92,7 @@ public class P12Manager extends KeyManager {
     /**
      * get private key from the keyStore
      *
-     * @return: the private key
+     * @return the private key
      */
     protected PrivateKey getPrivateKey() {
         try {
@@ -150,9 +150,9 @@ public class P12Manager extends KeyManager {
     /**
      * generate self-signed certificate
      *
-     * @param keyPair: the keyPair used to generated the certificate
-     * @param signatureAlgorithm: the signature algorithm of the cert
-     * @return
+     * @param keyPair the keyPair used to generated the certificate
+     * @param signatureAlgorithm the signature algorithm of the cert
+     * @return the generated self-signed certificate object
      */
     public static X509Certificate generateSelfSignedCertificate(
             KeyPair keyPair, String signatureAlgorithm)

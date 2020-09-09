@@ -26,7 +26,6 @@ import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
  * ReceiptStatusUtil @Description: ReceiptStatusUtil
  *
  * @author maojiayu
- * @data Jul 31, 2020 9:26:00 PM
  */
 public class ReceiptStatusUtil {
 

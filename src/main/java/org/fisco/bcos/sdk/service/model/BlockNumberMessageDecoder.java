@@ -42,7 +42,7 @@ public class BlockNumberMessageDecoder {
 
     /**
      * @param message
-     * @return
+     * @return the decoded block number information
      */
     protected BlockNumberNotification decodeByDefault(Message message) {
         try {
@@ -61,7 +61,7 @@ public class BlockNumberMessageDecoder {
 
     /**
      * @param message
-     * @return
+     * @return the decoded block number information
      */
     protected BlockNumberNotification decodeV1(Message message) {
         String[] split = message.getData().toString().split(",");

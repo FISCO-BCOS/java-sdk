@@ -52,6 +52,20 @@ public class SignatureTest {
         CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
         // test signature
         testSignature(cryptoInterface, keyPair);
+
+        // load KeyPair from the given privateKey
+        String privateKeyStr =
+                "47300381232944006945664493109832654111051142806262820216166278362539860431476";
+        String publicKeyStr =
+                "2179819159336280954262570523402774481036769289289277534998346117714415641803934346338726829054711133487295949018624582253372411779380507548447040213240521";
+        String hexedPublicKey = new BigInteger(publicKeyStr).toString(16);
+        BigInteger privateKey = new BigInteger(privateKeyStr);
+        keyPair = cryptoInterface.getKeyPairFactory().createKeyPair(privateKey);
+        // check publicKey
+        System.out.println("hexedPublicKey: " + hexedPublicKey);
+        System.out.println("keyPair.getHexPublicKey(): " + keyPair.getHexPublicKey());
+        Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey().substring(2));
+        testSignature(cryptoInterface, keyPair);
     }
 
     @Test
