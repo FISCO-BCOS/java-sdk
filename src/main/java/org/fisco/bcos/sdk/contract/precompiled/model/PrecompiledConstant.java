@@ -19,7 +19,7 @@ public class PrecompiledConstant {
     public static final int CNS_MAX_VERSION_LENGTH = 40;
     public static final int TABLE_KEY_MAX_LENGTH = 255;
     public static final int TABLE_FIELD_NAME_MAX_LENGTH = 64;
-    public static final int USER_TABLE_NAME_MAX_LENGTH = 64;
+    public static final int USER_TABLE_NAME_MAX_LENGTH = 48;
     public static final int TABLE_VALUE_FIELD_MAX_LENGTH = 1024;
     public static final int TABLE_KEY_VALUE_MAX_LENGTH = 255;
     public static final int USER_TABLE_FIELD_VALUE_MAX_LENGTH = 16 * 1024 * 1024 - 1;
