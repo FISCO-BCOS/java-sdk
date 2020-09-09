@@ -59,7 +59,7 @@ public class RevertMessageParser {
      * Does output start with the code of the Revert method, If so, the output may be error message
      *
      * @param output
-     * @return
+     * @return true/false
      */
     public static boolean isOutputStartWithRevertMethod(String output) {
         return output.startsWith(RevertMethodWithHexPrefix)
@@ -70,7 +70,7 @@ public class RevertMessageParser {
     /**
      * @param status
      * @param output
-     * @return
+     * @return true/false
      */
     public static boolean hasRevertMessage(String status, String output) {
         if (StringUtils.isEmpty(status) || StringUtils.isEmpty(output)) {
@@ -87,7 +87,7 @@ public class RevertMessageParser {
     /**
      * @param status
      * @param output
-     * @return
+     * @return the resolved revert message information
      */
     public static Tuple2<Boolean, String> tryResolveRevertMessage(String status, String output) {
         if (!hasRevertMessage(status, output)) {
@@ -117,7 +117,7 @@ public class RevertMessageParser {
 
     /**
      * @param receipt
-     * @return
+     * @return the resolved revert message information
      */
     public static Tuple2<Boolean, String> tryResolveRevertMessage(TransactionReceipt receipt) {
         return tryResolveRevertMessage(receipt.getStatus(), receipt.getOutput());

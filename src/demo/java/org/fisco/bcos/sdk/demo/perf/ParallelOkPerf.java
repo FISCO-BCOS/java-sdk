@@ -149,7 +149,7 @@ public class ParallelOkPerf {
                         + count
                         + ", qps:"
                         + qps
-                        + ", groupId"
+                        + ", groupId: "
                         + groupId);
 
         DagPrecompiledDemo dagPrecompiledDemo;

@@ -25,7 +25,6 @@ import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
  * TransactionResponse @Description: TransactionResponse
  *
  * @author maojiayu
- * @data Jul 17, 2020 3:16:51 PM
  */
 public class TransactionResponse extends CommonResponse {
     private TransactionReceipt transactionReceipt;

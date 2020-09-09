@@ -61,7 +61,7 @@ public class PerformanceOkD {
                             + count
                             + ", qps:"
                             + qps
-                            + ", groupId"
+                            + ", groupId: "
                             + groupId);
 
             String configFile = configUrl.getPath();

@@ -21,6 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,10 +53,13 @@ public class ChannelMsgHandler implements MsgHandler {
     private static Logger logger = LoggerFactory.getLogger(ChannelImp.class);
     private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
-    private List<MsgHandler> msgConnectHandlerList = new ArrayList<>();
-    private List<MsgHandler> msgDisconnectHandleList = new ArrayList<>();
+    private List<MsgHandler> msgConnectHandlerList =
+            Collections.synchronizedList(new ArrayList<>());
+    private List<MsgHandler> msgDisconnectHandleList =
+            Collections.synchronizedList(new ArrayList<>());
     private Map<Integer, MsgHandler> msgHandlers = new ConcurrentHashMap<>();
-    private List<MsgHandler> msgEstablishHandlerList = new ArrayList<>();
+    private List<MsgHandler> msgEstablishHandlerList =
+            Collections.synchronizedList(new ArrayList<>());
 
     private Map<String, ResponseCallback> seq2Callback = new ConcurrentHashMap<>();
     private Map<String, ChannelHandlerContext> availablePeer = new ConcurrentHashMap<>();

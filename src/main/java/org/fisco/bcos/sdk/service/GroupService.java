@@ -20,33 +20,33 @@ public interface GroupService {
     /**
      * Get the node information of the group
      *
-     * @return: Nodes' ip and port list
+     * @return Nodes' ip and port list
      */
     Set<String> getGroupNodesInfo();
 
     /**
      * remove node from the group
      *
-     * @param nodeAddress: the ip and port of the removed node
+     * @param nodeAddress the ip and port of the removed node
      */
-    void removeNode(String nodeAddress);
+    boolean removeNode(String nodeAddress);
 
     /**
      * add nodeInfo to the group
      *
-     * @param nodeAddress: the node ip and port
+     * @param nodeAddress the node ip and port
      */
-    void insertNode(String nodeAddress);
+    boolean insertNode(String nodeAddress);
 
     /**
      * update the latest block number of the specified group
      *
-     * @param peerIpAndPort: the node that notify the block number info
-     * @param blockNumber: the notified block number
+     * @param peerIpAndPort the node that notify the block number info
+     * @param blockNumber the notified block number
      */
     void updatePeersBlockNumberInfo(String peerIpAndPort, BigInteger blockNumber);
 
-    BigInteger getLastestBlockNumber();
+    BigInteger getLatestBlockNumber();
 
     String getNodeWithTheLatestBlockNumber();
 

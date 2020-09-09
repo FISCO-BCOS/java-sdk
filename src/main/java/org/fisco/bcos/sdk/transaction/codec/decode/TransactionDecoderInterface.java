@@ -29,7 +29,6 @@ import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
  * TransactionDecoderInterface @Description: TransactionDecoderInterface
  *
  * @author maojiayu
- * @data Jul 17, 2020 11:38:41 AM
  */
 public interface TransactionDecoderInterface {
 

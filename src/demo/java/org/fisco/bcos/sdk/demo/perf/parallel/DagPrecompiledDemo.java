@@ -183,9 +183,11 @@ public class DagPrecompiledDemo {
         collector.setTotal(count.intValue());
         collector.setStartTimestamp(startTime);
         Integer area = count.intValue() / 10;
+        RateLimiter rateLimiter = RateLimiter.create(qps.intValue());
         // transfer balance
         for (Integer i = 0; i < count.intValue(); i++) {
             final Integer index = i;
+            rateLimiter.acquire();
             threadPoolService
                     .getThreadPool()
                     .execute(

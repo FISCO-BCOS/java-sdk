@@ -254,7 +254,7 @@ public class JsonRpcService {
     /**
      * encode the request into message
      *
-     * @return: the messaged encoded from the request
+     * @return the messaged encoded from the request
      */
     private Message encodeRequestToMessage(JsonRpcRequest request, Short messageType) {
         try {

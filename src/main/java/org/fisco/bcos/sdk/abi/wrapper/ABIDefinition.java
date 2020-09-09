@@ -88,7 +88,7 @@ public class ABIDefinition {
     /**
      * string method signature
      *
-     * @return
+     * @return the method signature string
      */
     public String getMethodSignatureAsString() {
         StringBuilder result = new StringBuilder();
@@ -107,7 +107,7 @@ public class ABIDefinition {
     /**
      * method id
      *
-     * @return
+     * @return the method id
      */
     public String getMethodId(CryptoInterface cryptoInterface) {
         FunctionEncoder encoder = new FunctionEncoder(cryptoInterface);

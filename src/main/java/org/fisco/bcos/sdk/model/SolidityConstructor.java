@@ -20,7 +20,6 @@ import java.util.List;
  * Constructor @Description: SolidityConstructor
  *
  * @author maojiayu
- * @data Jul 17, 2020 2:36:50 PM
  */
 public class SolidityConstructor {
 

@@ -26,7 +26,7 @@ public class Uint extends IntType {
      * check if value between 0 ~ MAX_UINT256
      *
      * @param value
-     * @return
+     * @return true/false
      */
     public boolean validUint(BigInteger value) {
         return value.compareTo(BigInteger.ZERO) >= 0 && value.compareTo(Constant.MAX_UINT256) <= 0;

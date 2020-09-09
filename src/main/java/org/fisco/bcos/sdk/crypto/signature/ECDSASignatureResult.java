@@ -27,12 +27,12 @@ public class ECDSASignatureResult extends SignatureResult {
     protected byte v;
     protected static int VBASE = 27;
 
-    ECDSASignatureResult(byte v, byte[] r, byte[] s) {
+    public ECDSASignatureResult(byte v, byte[] r, byte[] s) {
         super(r, s);
         this.v = v;
     }
 
-    ECDSASignatureResult(final String signatureResult) {
+    public ECDSASignatureResult(final String signatureResult) {
         super(signatureResult);
         if (this.signatureBytes.length != 65) {
             throw new SignatureException(
@@ -44,7 +44,7 @@ public class ECDSASignatureResult extends SignatureResult {
     /**
      * covert signatureResult into String
      *
-     * @return: the signature string with [r, s, v]
+     * @return the signature string with [r, s, v]
      */
     @Override
     public String convertToString() {

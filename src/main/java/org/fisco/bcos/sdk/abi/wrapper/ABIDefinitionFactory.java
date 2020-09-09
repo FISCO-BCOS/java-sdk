@@ -19,7 +19,7 @@ public class ABIDefinitionFactory {
      * load ABI and construct ContractABIDefinition.
      *
      * @param abi
-     * @return
+     * @return the contract definition
      */
     public ContractABIDefinition loadABI(String abi) {
         try {

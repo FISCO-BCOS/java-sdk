@@ -18,7 +18,7 @@ public class Int extends IntType {
      * check if value between MIN_INT256 ~ MIN_INT256
      *
      * @param value
-     * @return
+     * @return true/false
      */
     public boolean validInt(BigInteger value) {
         return value.compareTo(Constant.MIN_INT256) >= 0

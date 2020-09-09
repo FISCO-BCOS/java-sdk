@@ -34,7 +34,7 @@ public class ContractAbiUtil {
 
     /**
      * @param contractAbi
-     * @return
+     * @return the abi definition
      */
     public static List<ABIDefinition> getFuncABIDefinition(String contractAbi) {
         List<ABIDefinition> result = new ArrayList<>();

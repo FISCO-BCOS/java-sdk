@@ -20,7 +20,6 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
  * TransactionSignerInterface @Description: TransactionSignerInterface
  *
  * @author maojiayu
- * @data Jul 17, 2020 11:11:24 AM
  */
 public interface TransactionSignerInterface {
     public SignatureResult sign(String hash);

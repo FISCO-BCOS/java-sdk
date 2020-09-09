@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
  * ContractLoader @Description: ContractLoader
  *
  * @author maojiayu
- * @data Jul 17, 2020 3:24:40 PM
  */
 public class ContractLoader {
     private static final Logger log = LoggerFactory.getLogger(ContractLoader.class);

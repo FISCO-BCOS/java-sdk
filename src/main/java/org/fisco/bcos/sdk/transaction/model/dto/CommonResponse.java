@@ -18,7 +18,6 @@ package org.fisco.bcos.sdk.transaction.model.dto;
  * CommonResponse @Description: CommonResponse
  *
  * @author maojiayu
- * @data Jul 17, 2020 3:15:35 PM
  */
 public class CommonResponse {
     private int returnCode = 0;

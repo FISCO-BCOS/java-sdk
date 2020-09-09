@@ -74,7 +74,7 @@ public class PerformanceTable {
                             + count
                             + ", qps:"
                             + qps
-                            + ", groupId"
+                            + ", groupId: "
                             + groupId);
 
             String configFile = configUrl.getPath();

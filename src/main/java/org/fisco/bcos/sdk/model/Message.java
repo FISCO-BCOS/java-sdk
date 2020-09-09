@@ -34,7 +34,7 @@ public class Message implements Serializable {
     /**
      * encode the message into ByteBuf
      *
-     * @param encodedData: the ByteBuf stores the encodedData
+     * @param encodedData the ByteBuf stores the encodedData
      */
     public void encode(ByteBuf encodedData) {
         writeHeader(encodedData);
@@ -44,7 +44,7 @@ public class Message implements Serializable {
     /**
      * decode the message from the given ByteBuf
      *
-     * @param in: the ByteBuf that needs to decoded into the message
+     * @param in the ByteBuf that needs to decoded into the message
      */
     public void decode(ByteBuf in) {
         readHeader(in);

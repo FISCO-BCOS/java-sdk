@@ -106,7 +106,7 @@ public class TopicManagerTest {
         List<String> group = new ArrayList<>();
         group.add("1");
         group.add("2");
-        tm.addBlockNotify("127.0.0.1:3033", group);
+        tm.updateBlockNotify("127.0.0.1:3033", group);
 
         Set<String> topics = tm.getSubByPeer("127.0.0.1:3033");
         Assert.assertEquals(6, topics.size());

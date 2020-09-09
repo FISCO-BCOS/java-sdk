@@ -42,7 +42,9 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
         return getResult();
     }
 
-    public interface TransactionResult<T> {}
+    public interface TransactionResult<T> {
+        T get();
+    }
 
     public static class TransactionHash implements TransactionResult<String> {
         private String value;
@@ -53,7 +55,7 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
             this.value = value;
         }
 
-        public String getValue() {
+        public String get() {
             return value;
         }
 
@@ -81,7 +83,11 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
     }
 
     public static class TransactionObject extends JsonTransactionResponse
-            implements TransactionResult<JsonTransactionResponse> {}
+            implements TransactionResult<JsonTransactionResponse> {
+        public JsonTransactionResponse get() {
+            return this;
+        }
+    }
 
     public static class Block extends BcosBlockHeader.BlockHeader {
         private List<TransactionResult> transactions;

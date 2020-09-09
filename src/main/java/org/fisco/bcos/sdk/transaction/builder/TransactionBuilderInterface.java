@@ -21,7 +21,6 @@ import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
  * TransactionBuilderInterface @Description: TransactionBuilderInterface
  *
  * @author maojiayu
- * @data Jul 17, 2020 11:02:36 AM
  */
 public interface TransactionBuilderInterface {
 
@@ -38,10 +37,10 @@ public interface TransactionBuilderInterface {
     /**
      * Create fisco bcos transaction for short
      *
-     * @param to, target address
-     * @param data, encoded data
-     * @param groupId
-     * @return RawTransaction
+     * @param to target address
+     * @param data encoded data
+     * @param groupId the group that need create transaction
+     * @return RawTransaction the created transaction
      */
     public RawTransaction createTransaction(String to, String data, BigInteger groupId);
 }

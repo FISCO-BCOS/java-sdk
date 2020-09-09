@@ -311,7 +311,9 @@ public class ChannelImp implements Channel {
             response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
             response.setErrorMessage("Send message failed for connect failed !");
             response.setMessageID(out.getSeq());
-            callback.onResponse(response);
+            if (callback != null) {
+                callback.onResponse(response);
+            }
         }
     }
 

@@ -23,7 +23,6 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
  * TransactionManagerInterface @Description: TransactionManagerInterface
  *
  * @author maojiayu
- * @data Jul 17, 2020 2:59:21 PM
  */
 public interface TransactionManagerInterface {
 

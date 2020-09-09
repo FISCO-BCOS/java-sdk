@@ -28,6 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.PeerSelectRule;
@@ -77,6 +78,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     private ConcurrentHashMap<String, TransactionCallback> seq2TransactionCallback =
             new ConcurrentHashMap<>();
     private final Timer timeoutHandler = new HashedWheelTimer();
+    private BiConsumer<String, List<String>> blockNotifyUpdater;
 
     private Client groupInfoGetter;
     private long fetchGroupListIntervalMs = 60000;
@@ -185,7 +187,9 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             if (groupService == null) {
                 continue;
             }
-            groupService.removeNode(peerIpAndPort);
+            if (groupService.removeNode(peerIpAndPort)) {
+                updateBlockNotify(peerIpAndPort, this.nodeToGroupIDList.get(peerIpAndPort));
+            }
         }
     }
 
@@ -252,8 +256,8 @@ public class GroupManagerServiceImpl implements GroupManagerService {
      * Get the blockNumber notify message from the AMOP module, parse the package and update the
      * latest block height of each group
      *
-     * @param peerIpAndPort: Node ip and port
-     * @param blockNumberNotifyMessage: the blockNumber notify message
+     * @param peerIpAndPort Node ip and port
+     * @param blockNumberNotifyMessage the blockNumber notify message
      */
     protected void onReceiveBlockNotifyImpl(
             EnumChannelProtocolVersion version,
@@ -316,7 +320,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     /**
      * calls the transaction callback when receive the transaction notify
      *
-     * @param message: the message contains the transactionReceipt
+     * @param message the message contains the transactionReceipt
      */
     protected void onReceiveTransactionNotify(Message message) {
         String seq = message.getSeq();
@@ -418,7 +422,9 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                 Integer groupId = Integer.valueOf(orgGroupList.get(i));
                 if (!groupList.contains(orgGroupList.get(i))
                         && groupIdToService.containsKey(groupId)) {
-                    groupIdToService.get(groupId).removeNode(peerIpAndPort);
+                    if (groupIdToService.get(groupId).removeNode(peerIpAndPort)) {
+                        updateBlockNotify(peerIpAndPort, this.nodeToGroupIDList.get(peerIpAndPort));
+                    }
                     logger.info("remove group {} from {}", orgGroupList.get(i), peerIpAndPort);
                 }
             }
@@ -437,7 +443,9 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                 continue;
             }
             // update the group information
-            groupIdToService.get(groupId).insertNode(peerIpAndPort);
+            if (groupIdToService.get(groupId).insertNode(peerIpAndPort)) {
+                updateBlockNotify(peerIpAndPort, this.nodeToGroupIDList.get(peerIpAndPort));
+            }
         }
         logger.trace("update groupInfo for {}, groupList: {}", peerIpAndPort, groupList);
     }
@@ -456,6 +464,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         if (!groupIdToService.containsKey(groupId)) {
             groupIdToService.put(
                     groupId, this.groupServiceFactory.createGroupSerivce(groupId, peerIpAndPort));
+            updateBlockNotify(peerIpAndPort, this.nodeToGroupIDList.get(peerIpAndPort));
             return true;
         }
         return false;
@@ -469,10 +478,10 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     @Override
     public BigInteger getLatestBlockNumberByGroup(Integer groupId) {
         if (groupIdToService.containsKey(groupId)
-                && groupIdToService.get(groupId).getLastestBlockNumber().equals(BigInteger.ZERO)) {
+                && groupIdToService.get(groupId).getLatestBlockNumber().equals(BigInteger.ZERO)) {
             getAndUpdateBlockNumberForAllPeers(groupId);
         }
-        return groupIdToService.get(groupId).getLastestBlockNumber();
+        return groupIdToService.get(groupId).getLatestBlockNumber();
     }
 
     private void getAndUpdateBlockNumberForAllPeers(Integer groupId) {
@@ -729,6 +738,23 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         GroupService groupService = this.groupIdToService.get(groupId);
         if (groupService != null) {
             groupService.resetLatestNodeInfo();
+        }
+    }
+
+    @Override
+    public Set<Integer> getGroupList() {
+        fetchGroupList();
+        return groupIdToService.keySet();
+    }
+
+    @Override
+    public void registerBlockNotifyUpdater(BiConsumer<String, List<String>> blockNotifyUpdater) {
+        this.blockNotifyUpdater = blockNotifyUpdater;
+    }
+
+    protected void updateBlockNotify(String peer, List<String> groupList) {
+        if (this.blockNotifyUpdater != null) {
+            this.blockNotifyUpdater.accept(peer, groupList);
         }
     }
 }
