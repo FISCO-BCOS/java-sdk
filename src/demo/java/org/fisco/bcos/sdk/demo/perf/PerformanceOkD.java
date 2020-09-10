@@ -38,7 +38,7 @@ public class PerformanceOkD {
     private static void Usage() {
         System.out.println(" Usage:");
         System.out.println(
-                " \t java -cp conf/:lib/*:apps/* org.fisco.bcos.sdk.demo.perf.PerformanceOkD [count] [tps] [groupId].");
+                " \t java -cp 'conf/:lib/*:apps/*' org.fisco.bcos.sdk.demo.perf.PerformanceOkD [count] [tps] [groupId].");
     }
 
     public static void main(String[] args) {
