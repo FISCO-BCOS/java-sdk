@@ -6,14 +6,22 @@ import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ConfigTest {
     private static final String senderConfig =
-            ConfigTest.class.getClassLoader().getResource("config-sender.toml").getPath();
+            ConfigTest.class
+                    .getClassLoader()
+                    .getResource("amop/config-sender-for-test.toml")
+                    .getPath();
     private static final String subscriberConfig =
-            ConfigTest.class.getClassLoader().getResource("config-subscriber.toml").getPath();
+            ConfigTest.class
+                    .getClassLoader()
+                    .getResource("amop/config-subscriber-for-test.toml")
+                    .getPath();
 
+    @Ignore
     @Test
     public void testConfigSenderAmop() throws ConfigException {
         System.out.println(senderConfig);
@@ -30,6 +38,7 @@ public class ConfigTest {
         }
     }
 
+    @Ignore
     @Test
     public void testConfigSubscriberAmop() throws ConfigException {
         ConfigOption configOption = Config.load(subscriberConfig, CryptoInterface.ECDSA_TYPE);

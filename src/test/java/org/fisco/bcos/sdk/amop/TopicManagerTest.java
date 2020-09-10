@@ -123,15 +123,23 @@ public class TopicManagerTest {
     public void testUpdateUUID() {
         TopicManager tm = getTestTopicManager();
         Set<String> topics = tm.getSubByPeer("127.0.0.1:3033");
+        String before = "";
+        String after = "";
         for (String topic : topics) {
-            System.out.println(topic);
+            if (topic.startsWith("#!$VerifyChannel_#!")) {
+                before = topic;
+                break;
+            }
         }
         tm.updatePrivateTopicUUID();
-        System.out.println("*****");
         topics = tm.getSubByPeer("127.0.0.1:3033");
         for (String topic : topics) {
-            System.out.println(topic);
+            if (topic.startsWith("#!$VerifyChannel_#!")) {
+                after = topic;
+                break;
+            }
         }
+        Assert.assertFalse(before.equals(after));
     }
 
     private TopicManager getTestTopicManager() {

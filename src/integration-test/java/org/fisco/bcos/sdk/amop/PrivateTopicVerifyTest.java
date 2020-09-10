@@ -14,8 +14,8 @@ import java.util.concurrent.Semaphore;
 
 public class PrivateTopicVerifyTest {
     private static Logger logger = LoggerFactory.getLogger(PrivateTopicVerifyTest.class);
-    private static final String senderConfig = PrivateTopicVerifyTest.class.getClassLoader().getResource("config-sender.toml").getPath();
-    private static final String subscriberConfig = PrivateTopicVerifyTest.class.getClassLoader().getResource("config-subscriber.toml").getPath();
+    private static final String senderConfig = PrivateTopicVerifyTest.class.getClassLoader().getResource("amop/config-sender-for-test.toml").getPath();
+    private static final String subscriberConfig = PrivateTopicVerifyTest.class.getClassLoader().getResource("amop/config-subscriber-for-test.toml").getPath();
     private Amop sender;
     private Amop subscriber;
 

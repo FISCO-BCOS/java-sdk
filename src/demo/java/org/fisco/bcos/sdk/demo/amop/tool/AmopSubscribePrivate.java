@@ -5,13 +5,14 @@ import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.amop.AmopCallback;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
 import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
+import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
 
 public class AmopSubscribePrivate {
     private static String subscriberConfigFile =
             AmopSubscribe.class.getClassLoader().getResource("config-subscriber.toml").getPath();
 
     /**
-     * @param args topic, privateKeyFile, password
+     * @param args topic, privateKeyFile, password(Option)
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
@@ -25,9 +26,16 @@ public class AmopSubscribePrivate {
         BcosSDK sdk = new BcosSDK(subscriberConfigFile);
         Amop amop = sdk.getAmop();
         AmopCallback cb = new DemoAmopCallback();
+
         System.out.println("Start test");
         amop.setCallback(cb);
-        KeyManager km = new P12Manager(privateKeyFile, password);
+
+        KeyManager km;
+        if (privateKeyFile.endsWith("p12")) {
+            km = new P12Manager(privateKeyFile, password);
+        } else {
+            km = new PEMManager(privateKeyFile);
+        }
         amop.subscribePrivateTopics(topic, km, cb);
         amop.subscribeTopic(topic, cb);
     }
