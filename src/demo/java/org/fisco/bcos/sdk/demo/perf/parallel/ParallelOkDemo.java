@@ -182,29 +182,48 @@ public class ParallelOkDemo {
         System.exit(0);
     }
 
-    public void queryAccount() throws InterruptedException {
+    public void queryAccount(BigInteger qps) throws InterruptedException {
         final List<DagTransferUser> allUsers = dagUserInfo.getUserList();
+        RateLimiter rateLimiter = RateLimiter.create(qps.intValue());
+        AtomicInteger sent = new AtomicInteger(0);
         for (Integer i = 0; i < allUsers.size(); i++) {
-            try {
-                BigInteger result = parallelOk.balanceOf(allUsers.get(i).getUser());
-                allUsers.get(i).setAmount(result);
-                int all = getted.incrementAndGet();
-                if (all >= allUsers.size()) {
-                    System.out.println(dateFormat.format(new Date()) + " Query account finished");
-                }
-            } catch (ContractException exception) {
-                logger.warn(
-                        "queryAccount for {} failed, error info: {}",
-                        allUsers.get(i).getUser(),
-                        exception.getMessage());
-            }
+            final Integer index = i;
+            rateLimiter.acquire();
+            threadPoolService
+                    .getThreadPool()
+                    .execute(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        BigInteger result =
+                                                parallelOk.balanceOf(allUsers.get(index).getUser());
+                                        allUsers.get(index).setAmount(result);
+                                        int all = sent.incrementAndGet();
+                                        if (all >= allUsers.size()) {
+                                            System.out.println(
+                                                    dateFormat.format(new Date())
+                                                            + " Query account finished");
+                                        }
+                                    } catch (ContractException exception) {
+                                        logger.warn(
+                                                "queryAccount for {} failed, error info: {}",
+                                                allUsers.get(index).getUser(),
+                                                exception.getMessage());
+                                        System.exit(0);
+                                    }
+                                }
+                            });
+        }
+        while (getted.get() < allUsers.size()) {
+            Thread.sleep(50);
         }
     }
 
     public void userTransfer(BigInteger count, BigInteger qps)
             throws InterruptedException, IOException {
         System.out.println("Querying account info...");
-        queryAccount();
+        queryAccount(qps);
         System.out.println("Sending transfer transactions...");
         RateLimiter limiter = RateLimiter.create(qps.intValue());
         int division = count.intValue() / 10;

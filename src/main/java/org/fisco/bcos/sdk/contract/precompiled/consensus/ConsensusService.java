@@ -62,6 +62,11 @@ public class ConsensusService {
     }
 
     public RetCode removeNode(String nodeId) throws ContractException {
+        List<String> sealerList = client.getSealerList().getResult();
+        List<String> observerList = client.getObserverList().getResult();
+        if (!sealerList.contains(nodeId) && !observerList.contains(nodeId)) {
+            throw new ContractException(PrecompiledRetCode.ALREADY_REMOVED_FROM_THE_GROUP);
+        }
         return ReceiptParser.parseTransactionReceipt(consensusPrecompiled.remove(nodeId));
     }
 }

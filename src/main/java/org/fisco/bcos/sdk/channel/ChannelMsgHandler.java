@@ -19,12 +19,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.fisco.bcos.sdk.channel.model.ChannelHandshake;
 import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
 import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
@@ -53,13 +52,10 @@ public class ChannelMsgHandler implements MsgHandler {
     private static Logger logger = LoggerFactory.getLogger(ChannelImp.class);
     private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
-    private List<MsgHandler> msgConnectHandlerList =
-            Collections.synchronizedList(new ArrayList<>());
-    private List<MsgHandler> msgDisconnectHandleList =
-            Collections.synchronizedList(new ArrayList<>());
+    private List<MsgHandler> msgConnectHandlerList = new CopyOnWriteArrayList<MsgHandler>();
+    private List<MsgHandler> msgDisconnectHandleList = new CopyOnWriteArrayList<MsgHandler>();
     private Map<Integer, MsgHandler> msgHandlers = new ConcurrentHashMap<>();
-    private List<MsgHandler> msgEstablishHandlerList =
-            Collections.synchronizedList(new ArrayList<>());
+    private List<MsgHandler> msgEstablishHandlerList = new CopyOnWriteArrayList<MsgHandler>();
 
     private Map<String, ResponseCallback> seq2Callback = new ConcurrentHashMap<>();
     private Map<String, ChannelHandlerContext> availablePeer = new ConcurrentHashMap<>();
@@ -94,8 +90,8 @@ public class ChannelMsgHandler implements MsgHandler {
 
     private void addAvailablePeer(String host, ChannelHandlerContext ctx) {
         availablePeer.put(host, ctx);
-        for (MsgHandler handle : msgEstablishHandlerList) {
-            handle.onConnect(ctx);
+        for (MsgHandler msgHandler : msgEstablishHandlerList) {
+            msgHandler.onConnect(ctx);
         }
     }
 
@@ -117,8 +113,8 @@ public class ChannelMsgHandler implements MsgHandler {
                 "onConnect in ChannelMsgHandler called, host : {}",
                 ChannelVersionNegotiation.getPeerHost(ctx));
         queryNodeVersion(ctx);
-        for (MsgHandler handle : msgConnectHandlerList) {
-            handle.onConnect(ctx);
+        for (MsgHandler msgHandler : msgConnectHandlerList) {
+            msgHandler.onConnect(ctx);
         }
     }
 

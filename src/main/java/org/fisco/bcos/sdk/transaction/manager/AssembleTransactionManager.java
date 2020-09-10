@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
+import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -274,7 +275,7 @@ public class AssembleTransactionManager extends TransactionManager
 
     public CallResponse callAndGetResponse(
             String from, String to, String abi, String functionName, String data)
-            throws ABICodecException {
+            throws ABICodecException, TransactionBaseException {
         Call call = executeCall(from, to, data);
         CallResponse callResponse = parseCallResponseStatus(call.getCallResult());
         List<Object> results =
@@ -295,15 +296,14 @@ public class AssembleTransactionManager extends TransactionManager
         return abiCodec.encodeMethod(abi, functionName, params);
     }
 
-    private CallResponse parseCallResponseStatus(Call.CallOutput callOutput) {
+    private CallResponse parseCallResponseStatus(Call.CallOutput callOutput)
+            throws TransactionBaseException {
         CallResponse callResponse = new CallResponse();
-        if (callOutput.getStatus().equalsIgnoreCase("0x0")) {
-            callResponse.setReturnCode(0);
-
-        } else {
-            RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
-            callResponse.setReturnCode(retCode.getCode());
-            callResponse.setReturnMessage(retCode.getMessage());
+        RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
+        callResponse.setReturnCode(retCode.getCode());
+        callResponse.setReturnMessage(retCode.getMessage());
+        if (retCode.getCode() != PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            throw new TransactionBaseException(retCode);
         }
         return callResponse;
     }
