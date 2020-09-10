@@ -127,8 +127,8 @@ public class PrecompiledRetCodeTest {
                 PrecompiledRetCode.CODE_ADDRESS_INVALID.getCode(),
                 PrecompiledRetCode.CODE_ADDRESS_INVALID.getMessage());
         checkResponse(
-                PrecompiledRetCode.CODE_UNKNOW_FUNCTION_CALL.getCode(),
-                PrecompiledRetCode.CODE_UNKNOW_FUNCTION_CALL.getMessage());
+                PrecompiledRetCode.CODE_UNKNOWN_FUNCTION_CALL.getCode(),
+                PrecompiledRetCode.CODE_UNKNOWN_FUNCTION_CALL.getMessage());
         checkResponse(
                 PrecompiledRetCode.CODE_SUCCESS.getCode(),
                 PrecompiledRetCode.CODE_SUCCESS.getMessage());
