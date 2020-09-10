@@ -14,7 +14,6 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
-import java.math.BigInteger;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
@@ -45,40 +44,20 @@ public class ReceiptParser {
                             errorOutput.getValue2(), retCode.getCode(), receipt);
                 }
                 throw new ContractException(retCode.getMessage(), retCode.getCode(), receipt);
-            } else {
-                String output = receipt.getOutput();
-                if (output.equals("0x")) {
-                    return PrecompiledRetCode.CODE_SUCCESS;
-                }
-                try {
-                    int statusValue =
-                            new BigInteger(output.substring(2, output.length()), 16).intValue();
-                    if (receipt.getMessage() == null || receipt.getMessage().equals("")) {
-                        receipt.setMessage(PrecompiledRetCode.CODE_SUCCESS.getMessage());
-                    }
-                    retCode =
-                            PrecompiledRetCode.getPrecompiledResponse(
-                                    statusValue, receipt.getMessage());
-                    retCode.setTransactionReceipt(receipt);
-                    return retCode;
-                } catch (Exception e) {
-                    logger.debug(
-                            "try to parse the output failed, output: {}, status: {}, exception: {}",
-                            output,
-                            receipt.getStatus(),
-                            e.getMessage());
-                    retCode = PrecompiledRetCode.CODE_SUCCESS;
-                    retCode.setTransactionReceipt(receipt);
-                    return retCode;
-                }
             }
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
+            logger.warn(
+                    "Exception when parse receipt, receipt: {}, status: {}, error: {}",
+                    receipt.toString(),
+                    receipt.getStatus(),
+                    e.getMessage());
             throw new ContractException(
-                    "NumberFormatException when parse receipt, receipt info: "
-                            + receipt.toString()
+                    "Exception when parse receipt, receipt status: "
+                            + receipt.getStatus()
                             + ", error info: "
                             + e.getMessage());
         }
+        return PrecompiledRetCode.CODE_SUCCESS;
     }
 
     public static ContractException parseExceptionCall(ContractException exception) {
@@ -101,23 +80,6 @@ public class ReceiptParser {
             }
             return TransactionReceiptStatus.getStatusMessage(callResult.getStatus(), message);
         }
-        try {
-            if (callResult.getOutput().equals("0x")) {
-                return PrecompiledRetCode.CODE_SUCCESS;
-            }
-            int statusValue =
-                    new BigInteger(
-                                    callResult
-                                            .getOutput()
-                                            .substring(2, callResult.getOutput().length()),
-                                    16)
-                            .intValue();
-            RetCode ret =
-                    PrecompiledRetCode.getPrecompiledResponse(
-                            statusValue, PrecompiledRetCode.CODE_SUCCESS.getMessage());
-            return new RetCode(ret.getCode(), ret.getMessage());
-        } catch (Exception e) {
-            return PrecompiledRetCode.CODE_SUCCESS;
-        }
+        return PrecompiledRetCode.CODE_SUCCESS;
     }
 }
