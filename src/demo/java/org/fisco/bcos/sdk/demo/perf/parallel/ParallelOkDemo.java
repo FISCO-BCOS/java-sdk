@@ -215,7 +215,7 @@ public class ParallelOkDemo {
                                 }
                             });
         }
-        while (getted.get() < allUsers.size()) {
+        while (sent.get() < allUsers.size()) {
             Thread.sleep(50);
         }
     }
