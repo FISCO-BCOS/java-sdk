@@ -102,6 +102,9 @@ public class ReceiptParser {
             return TransactionReceiptStatus.getStatusMessage(callResult.getStatus(), message);
         }
         try {
+            if (callResult.getOutput().equals("0x")) {
+                return PrecompiledRetCode.CODE_SUCCESS;
+            }
             int statusValue =
                     new BigInteger(
                                     callResult

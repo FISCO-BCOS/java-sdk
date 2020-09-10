@@ -162,6 +162,9 @@ public class PrecompiledRetCode {
     public static final String ALREADY_EXISTS_IN_OBSERVER_LIST =
             "The node already exists in the observerList";
 
+    public static final String ALREADY_REMOVED_FROM_THE_GROUP =
+            "The node already has been removed from the group";
+
     public static final String OVER_CONTRACT_VERSION_LEN_LIMIT =
             "The length of contract version over the limit, must be smaller than "
                     + PrecompiledConstant.CNS_MAX_VERSION_LENGTH;
