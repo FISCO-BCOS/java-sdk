@@ -162,6 +162,10 @@ public class CryptoInterface {
         return verify(keyManager.getHexedPublicKey(), message, signature);
     }
 
+    public boolean verify(KeyManager keyManager, byte[] message, byte[] signature) {
+        return verify(keyManager.getHexedPublicKey(), message, signature);
+    }
+
     public boolean verify(final String publicKey, final String message, final String signature) {
         return signatureImpl.verify(publicKey, message, signature);
     }

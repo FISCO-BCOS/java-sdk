@@ -17,6 +17,7 @@ import com.webank.wedpr.crypto.CryptoResult;
 import com.webank.wedpr.crypto.NativeInterface;
 import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.utils.Hex;
 
 public class ECDSASignature implements Signature {
     @Override
@@ -57,6 +58,6 @@ public class ECDSASignature implements Signature {
 
     @Override
     public boolean verify(final String publicKey, final byte[] message, final byte[] signature) {
-        return verify(publicKey, new String(message), new String(signature));
+        return verify(publicKey, Hex.toHexString(message), Hex.toHexString(signature));
     }
 }
