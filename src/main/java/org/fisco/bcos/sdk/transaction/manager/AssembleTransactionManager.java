@@ -302,7 +302,7 @@ public class AssembleTransactionManager extends TransactionManager
         RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
         callResponse.setReturnCode(retCode.getCode());
         callResponse.setReturnMessage(retCode.getMessage());
-        if (retCode.getCode() != PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+        if (!retCode.getMessage().equals(PrecompiledRetCode.CODE_SUCCESS.getMessage())) {
             throw new TransactionBaseException(retCode);
         }
         return callResponse;
