@@ -104,14 +104,14 @@ public class PrecompiledRetCode {
             new RetCode(-51003, "The contract is not exist");
     public static final RetCode CODE_TABLE_NAME_OVERFLOW = new RetCode(-51002, "");
     public static final RetCode CODE_TABLE_AND_ADDRESS_NOT_EXIST =
-            new RetCode(-51001, "The table name string length exceeds the maximum limit");
+            new RetCode(-51001, "The table name and address not exist");
     public static final RetCode CODE_TABLE_AND_ADDRESS_EXIST =
             new RetCode(-51000, "The table name and address already exist");
 
     // Common error code among all precompiled contracts -50199 ~ -50100
     public static final RetCode CODE_ADDRESS_INVALID =
             new RetCode(-50102, "Invalid address format");
-    public static final RetCode CODE_UNKNOW_FUNCTION_CALL =
+    public static final RetCode CODE_UNKNOWN_FUNCTION_CALL =
             new RetCode(-50101, "Undefined function");
     public static final RetCode CODE_TABLE_NOT_EXIST =
             new RetCode(-50100, "Open table failed, please check the existence of the table");
