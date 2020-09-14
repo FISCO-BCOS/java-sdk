@@ -418,6 +418,13 @@ public class SignatureTest {
             Assert.assertTrue(
                     cryptoInterface.verify(
                             cryptoKeyPair.getHexPublicKey(), message, signature.convertToString()));
+
+            Assert.assertTrue(
+                    cryptoInterface.verify(
+                            cryptoKeyPair.getHexPublicKey(),
+                            Hex.decode(message),
+                            Hex.decode(signature.convertToString())));
+
             String invalidMessage = cryptoInterface.hash("abcde----" + Integer.toString(i));
             Assert.assertTrue(
                     !cryptoInterface.verify(
@@ -429,6 +436,9 @@ public class SignatureTest {
             String message = cryptoInterface.hash("abcd----" + Integer.toString(i));
             String signature = cryptoInterface.sign(pemManager, message);
             Assert.assertTrue(cryptoInterface.verify(verifyKeyManager, message, signature));
+            Assert.assertTrue(
+                    cryptoInterface.verify(
+                            verifyKeyManager, Hex.decode(message), Hex.decode(signature)));
             String invalidMessage = cryptoInterface.hash("abcde----" + Integer.toString(i));
             Assert.assertTrue(!cryptoInterface.verify(verifyKeyManager, invalidMessage, signature));
         }

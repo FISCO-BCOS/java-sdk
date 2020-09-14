@@ -106,7 +106,9 @@ public class AmopMsgHandlerTest {
         KeyManager km = new PEMManager(keyFile);
         Assert.assertTrue(
                 cryptoInterface.verify(
-                        km, Hex.toHexString(randomValue), Hex.toHexString(amopMsg.getData())));
+                        km,
+                        Hex.toHexString(cryptoInterface.hash(randomValue)),
+                        Hex.toHexString(amopMsg.getData())));
     }
 
     @Test
