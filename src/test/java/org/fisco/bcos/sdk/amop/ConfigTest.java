@@ -26,7 +26,7 @@ public class ConfigTest {
     public void testConfigSenderAmop() throws ConfigException {
         System.out.println(senderConfig);
         ConfigOption configOption = Config.load(senderConfig, CryptoInterface.ECDSA_TYPE);
-        AmopImp amopImp = new AmopImp(new MockGroupManager(new MockChannel()), configOption);
+        AmopImp amopImp = new AmopImp(new MockChannel(), configOption);
 
         Set<String> topics = amopImp.getAllTopics();
         for (String topic : topics) {
@@ -42,7 +42,7 @@ public class ConfigTest {
     @Test
     public void testConfigSubscriberAmop() throws ConfigException {
         ConfigOption configOption = Config.load(subscriberConfig, CryptoInterface.ECDSA_TYPE);
-        AmopImp amopImp = new AmopImp(new MockGroupManager(new MockChannel()), configOption);
+        AmopImp amopImp = new AmopImp(new MockChannel(), configOption);
 
         Set<String> topics = amopImp.getAllTopics();
         for (String topic : topics) {

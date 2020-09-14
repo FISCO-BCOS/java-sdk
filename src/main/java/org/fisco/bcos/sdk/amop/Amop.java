@@ -18,10 +18,11 @@ package org.fisco.bcos.sdk.amop;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.fisco.bcos.sdk.amop.topic.TopicManager;
+import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.service.GroupManagerService;
 
 /**
  * AMOP module interface.
@@ -32,12 +33,12 @@ public interface Amop {
     /**
      * Create a Amop object.
      *
-     * @param groupManager
+     * @param channel
      * @param config
      * @return Amop instance
      */
-    static Amop build(GroupManagerService groupManager, ConfigOption config) {
-        return new AmopImp(groupManager, config);
+    static Amop build(Channel channel, ConfigOption config) {
+        return new AmopImp(channel, config);
     }
 
     /**
@@ -130,4 +131,8 @@ public interface Amop {
         String seq = UUID.randomUUID().toString().replaceAll("-", "");
         return seq;
     }
+
+    TopicManager getTopicManager();
+
+    void sendSubscribe();
 }

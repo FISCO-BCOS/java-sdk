@@ -233,7 +233,11 @@ public class ConnectionManager {
             throw new NetworkException(
                     "SSL context init failed, please make sure your cert and key files are properly configured. error info: "
                             + e.getMessage(),
-                    e);
+                    NetworkException.INIT_CONTEXT_FAILED);
+        } catch (IllegalArgumentException e) {
+            throw new NetworkException(
+                    "SSL context init failed, error info" + e.getMessage(),
+                    NetworkException.INIT_CONTEXT_FAILED);
         }
     }
 

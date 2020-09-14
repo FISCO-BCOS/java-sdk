@@ -28,8 +28,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.PeerSelectRule;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
@@ -68,6 +68,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     private static Logger logger = LoggerFactory.getLogger(GroupManagerServiceImpl.class);
     private final Channel channel;
     private final BlockNumberMessageDecoder blockNumberMessageDecoder;
+    private Amop amop;
     private final GroupServiceFactory groupServiceFactory;
     private ConcurrentHashMap<Integer, GroupService> groupIdToService = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, List<String>> nodeToGroupIDList = new ConcurrentHashMap<>();
@@ -78,8 +79,6 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     private ConcurrentHashMap<String, TransactionCallback> seq2TransactionCallback =
             new ConcurrentHashMap<>();
     private final Timer timeoutHandler = new HashedWheelTimer();
-    private BiConsumer<String, List<String>> blockNotifyUpdater;
-
     private Client groupInfoGetter;
     private long fetchGroupListIntervalMs = 60000;
     private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
@@ -747,14 +746,23 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         return groupIdToService.keySet();
     }
 
-    @Override
-    public void registerBlockNotifyUpdater(BiConsumer<String, List<String>> blockNotifyUpdater) {
-        this.blockNotifyUpdater = blockNotifyUpdater;
+    protected void updateBlockNotify(String peer, List<String> groupList) {
+        if (this.amop == null) {
+            return;
+        }
+        this.amop.getTopicManager().updateBlockNotify(peer, groupList);
+        this.amop.sendSubscribe();
     }
 
-    protected void updateBlockNotify(String peer, List<String> groupList) {
-        if (this.blockNotifyUpdater != null) {
-            this.blockNotifyUpdater.accept(peer, groupList);
+    @Override
+    public void setAmop(Amop amop) {
+        this.amop = amop;
+        List<String> availablePeers = this.channel.getAvailablePeer();
+        for (String peer : availablePeers) {
+            List<String> groupList = this.getGroupInfoByNodeInfo(peer);
+            if (groupList != null && groupList.size() > 0) {
+                updateBlockNotify(peer, groupList);
+            }
         }
     }
 }

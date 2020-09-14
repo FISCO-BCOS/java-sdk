@@ -51,7 +51,7 @@ public class SubscribeTest {
         // Init event subscribe module.
         BcosSDK sdk = new BcosSDK(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
-        EventSubscribe eventSubscribe = client.getEventSubscribe();
+        EventSubscribe eventSubscribe = sdk.getEventSubscribe(client.getGroupId());
         eventSubscribe.start();
         String contractAddress = "";
         try {

@@ -16,8 +16,11 @@
 package org.fisco.bcos.sdk.config.model;
 
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThreadPoolConfig {
+    private static final Logger logger = LoggerFactory.getLogger(ThreadPoolConfig.class);
     public static String DEFAULT_MAX_BLOCKING_QUEUE_SIZE = "102400";
     private Integer channelProcessorThreadSize;
     private Integer receiptProcessorThreadSize;
@@ -32,12 +35,26 @@ public class ThreadPoolConfig {
                 ConfigProperty.getValue(threadPoolConfig, "receiptProcessorThreadSize", cpuNum);
         channelProcessorThreadSize = Integer.valueOf(channelProcessorThread);
         receiptProcessorThreadSize = Integer.valueOf(receiptProcessorThread);
+        if (channelProcessorThreadSize.intValue() <= 0) {
+            channelProcessorThreadSize = Runtime.getRuntime().availableProcessors();
+        }
+        if (receiptProcessorThreadSize.intValue() <= 0) {
+            receiptProcessorThreadSize = Runtime.getRuntime().availableProcessors();
+        }
         maxBlockingQueueSize =
                 Integer.valueOf(
                         ConfigProperty.getValue(
                                 threadPoolConfig,
                                 "maxBlockingQueueSize",
                                 DEFAULT_MAX_BLOCKING_QUEUE_SIZE));
+        if (maxBlockingQueueSize.intValue() <= 0) {
+            maxBlockingQueueSize = Integer.valueOf(DEFAULT_MAX_BLOCKING_QUEUE_SIZE);
+        }
+        logger.debug(
+                "Init ThreadPoolConfig, channelProcessorThreadSize: {}, receiptProcessorThreadSize: {}, maxBlockingQueueSize: {}",
+                channelProcessorThreadSize,
+                receiptProcessorThreadSize,
+                maxBlockingQueueSize);
     }
 
     public Integer getChannelProcessorThreadSize() {
