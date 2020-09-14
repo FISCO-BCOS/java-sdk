@@ -37,11 +37,9 @@ prepare_environment()
   cp -r nodes/127.0.0.1/sdk/* conf
   cp src/test/resources/config-example.toml src/integration-test/resources/config.toml
   cp src/test/resources/config-example.toml src/test/resources/config.toml
-  cp src/test/resources/config-sender.toml src/integration-test/resources/config-sender.toml
-  cp src/test/resources/config-subscriber.toml src/integration-test/resources/config-subscriber.toml
   cp src/test/resources/log4j.properties src/integration-test/resources/
-  cp src/test/resources/keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.p12 conf/consumer_private_key.p12
-  cp src/test/resources/keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.public.pem conf/consumer_public_key_1.pem
+  cp -r src/test/resources/amop conf/amop
+  cp -r src/test/resources/amop src/integration-test/resources/amop
   rm -rf src/integration-test/resources/abi
   rm -rf src/integration-test/resources/bin
   cp -r src/test/resources/ecdsa/abi src/integration-test/resources/abi

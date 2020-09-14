@@ -233,6 +233,10 @@ jar {
             from file('src/test/resources/')
             into 'dist/conf'
         }
+        copy {
+            from file('src/test/resources/amop/')
+            into 'conf/amop'
+        }
     }
 }
 check.dependsOn jacocoTestReport
