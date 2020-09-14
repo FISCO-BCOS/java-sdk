@@ -3,7 +3,7 @@
 set -e
 
 scan_code_script="cobra/cobra.py -f json -o /tmp/report.json -t "
-ignore_files=(sh crt key json toml SignatureTest.java Ok.java bin abi ChannelTest.java ParallelOkDemo.java PerformanceAmop.java DagPrecompiledDemo.java KeyManagerTest.java CryptoInterface.java AmopMsgHandlerTest.java TopicManager.java PrivateTopicVerifyTest.java AmopMsgBuilder.java TopicManagerTest.java AmopSubscribe.java AmopPublisher.java AmopPublisherPrivate.java AmopSubscribePrivate.java AmopPublisherFile.java AmopPublisherPrivateFile.java DemoAmopCallback.java FileToByteArrayHelper.java OkD.java TableTest.java PerformanceTable.java)
+ignore_files=(sh crt key json toml SignatureTest.java Ok.java bin abi ChannelTest.java ParallelOkDemo.java PerformanceAmop.java DagPrecompiledDemo.java KeyManagerTest.java CryptoInterface.java AmopMsgHandlerTest.java TopicManager.java PrivateTopicVerifyTest.java AmopMsgBuilder.java TopicManagerTest.java AmopSubscribe.java AmopPublisher.java AmopPublisherPrivate.java AmopSubscribePrivate.java AmopPublisherFile.java AmopPublisherPrivateFile.java DemoAmopCallback.java FileToByteArrayHelper.java OkD.java TableTest.java PerformanceTable.java HelloWorld.java PerformanceRPC.java)
 commit_limit=6
 
 LOG_ERROR() {

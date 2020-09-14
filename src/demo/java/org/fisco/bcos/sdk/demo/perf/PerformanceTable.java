@@ -42,13 +42,13 @@ public class PerformanceTable {
         System.out.println(" Usage:");
         System.out.println("===== PerformanceTable test===========");
         System.out.println(
-                " \t java -cp conf/:lib/*:apps/* org.fisco.bcos.sdk.demo.perf.PerformanceTable [insert] [count] [tps] [groupId].");
+                " \t java -cp \'conf/:lib/*:apps/*\' org.fisco.bcos.sdk.demo.perf.PerformanceTable [insert] [count] [tps] [groupId].");
         System.out.println(
-                " \t java -cp conf/:lib/*:apps/* org.fisco.bcos.sdk.demo.perf.PerformanceTable [update] [count] [tps] [groupId].");
+                " \t java -cp \'conf/:lib/*:apps/*\' org.fisco.bcos.sdk.demo.perf.PerformanceTable [update] [count] [tps] [groupId].");
         System.out.println(
-                " \t java -cp conf/:lib/*:apps/* org.fisco.bcos.sdk.demo.perf.PerformanceTable [remove] [count] [tps] [groupId].");
+                " \t java -cp \'conf/:lib/*:apps/*\' org.fisco.bcos.sdk.demo.perf.PerformanceTable [remove] [count] [tps] [groupId].");
         System.out.println(
-                " \t java -cp conf/:lib/*:apps/* org.fisco.bcos.sdk.demo.perf.PerformanceTable [query] [count] [tps] [groupId].");
+                " \t java -cp \'conf/:lib/*:apps/*\' org.fisco.bcos.sdk.demo.perf.PerformanceTable [query] [count] [tps] [groupId].");
     }
 
     public static void main(String[] args) {

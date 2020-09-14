@@ -979,7 +979,8 @@ public class SolidityContractWrapper {
 
     private MethodSpec buildSubscribeEventFunction(String eventName) throws ClassNotFoundException {
 
-        String generatedFunctionName = "subscribe" + eventName + "Event";
+        String generatedFunctionName =
+                "subscribe" + StringUtils.capitaliseFirstLetter(eventName) + "Event";
 
         MethodSpec.Builder getEventMethodBuilder =
                 MethodSpec.methodBuilder(generatedFunctionName)
@@ -1010,10 +1011,10 @@ public class SolidityContractWrapper {
         return getEventMethodBuilder.build();
     }
 
-    private MethodSpec buildDefaultSubscribeEventLog(String eventName)
-            throws ClassNotFoundException {
+    private MethodSpec buildDefaultSubscribeEventLog(String eventName) {
 
-        String generatedFunctionName = "subscribe" + eventName + "Event";
+        String generatedFunctionName =
+                "subscribe" + StringUtils.capitaliseFirstLetter(eventName) + "Event";
 
         MethodSpec.Builder getEventMethodBuilder =
                 MethodSpec.methodBuilder(generatedFunctionName)
@@ -1085,7 +1086,23 @@ public class SolidityContractWrapper {
         List<NamedTypeName> indexedParameters = new ArrayList<>();
         List<NamedTypeName> nonIndexedParameters = new ArrayList<>();
 
+        Integer index = 0;
+        Set<String> eventParamNameFilter = new HashSet<>();
         for (ABIDefinition.NamedType namedType : inputs) {
+            if (namedType.getName() != null && !namedType.getName().equals("")) {
+                eventParamNameFilter.add(namedType.getName());
+            }
+        }
+        for (ABIDefinition.NamedType namedType : inputs) {
+            if (namedType.getName() == null || namedType.getName().equals("")) {
+                String paramName = functionName + "Param" + index;
+                while (eventParamNameFilter.contains(paramName)) {
+                    index++;
+                    paramName = functionName + "Param" + index;
+                }
+                eventParamNameFilter.add(paramName);
+                namedType.setName(paramName);
+            }
             NamedTypeName parameter =
                     new NamedTypeName(
                             namedType.getName(),
@@ -1212,8 +1229,7 @@ public class SolidityContractWrapper {
             MethodSpec.Builder methodBuilder,
             String functionName,
             String inputParameters,
-            List<TypeName> outputParameterTypes)
-            throws ClassNotFoundException {
+            List<TypeName> outputParameterTypes) {
 
         List<Object> objects = new ArrayList<>();
         objects.add(Function.class);
@@ -1245,8 +1261,7 @@ public class SolidityContractWrapper {
     private void buildTupleResultContainer(
             MethodSpec.Builder methodBuilder,
             ParameterizedTypeName tupleType,
-            List<TypeName> outputParameterTypes)
-            throws ClassNotFoundException {
+            List<TypeName> outputParameterTypes) {
 
         List<TypeName> typeArguments = tupleType.typeArguments;
 
@@ -1295,8 +1310,7 @@ public class SolidityContractWrapper {
     private void buildTupleResultContainer0(
             MethodSpec.Builder methodBuilder,
             ParameterizedTypeName tupleType,
-            List<TypeName> outputParameterTypes)
-            throws ClassNotFoundException {
+            List<TypeName> outputParameterTypes) {
 
         List<TypeName> typeArguments = tupleType.typeArguments;
 
