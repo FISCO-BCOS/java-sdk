@@ -221,7 +221,9 @@ public class AmopMsgHandler implements MsgHandler {
             KeyManager km = pks.next();
             CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
             if (cryptoInterface.verify(
-                    km, Hex.toHexString(randomValue), Hex.toHexString(signature))) {
+                    km,
+                    Hex.toHexString(cryptoInterface.hash(randomValue)),
+                    Hex.toHexString(signature))) {
                 return 0;
             }
         }
@@ -255,7 +257,8 @@ public class AmopMsgHandler implements MsgHandler {
         } else {
             CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
             try {
-                signature = cryptoInterface.sign(km, Hex.toHexString(randValue));
+                signature =
+                        cryptoInterface.sign(km, Hex.toHexString(cryptoInterface.hash(randValue)));
             } catch (Exception e) {
                 logger.error(
                         "please check the public key of topic {} is correct configured, error {}",
