@@ -61,7 +61,7 @@ public class DemoSolcToJava {
             compileSolToJava("*", tempDirPath, args[0], solFileList, ABI_PATH, BIN_PATH);
             System.out.println(
                     "\nCompile solidity contract files to java contract files successfully!");
-        } catch (IOException e) {
+        } catch (IOException | CompileSolidityException e) {
             System.out.print(e.getMessage());
             logger.error(" message: {}, e: {}", e.getMessage(), e);
         }
@@ -109,10 +109,9 @@ public class DemoSolcToJava {
             SolidityCompiler.Result res =
                     SolidityCompiler.compile(solFile, false, true, ABI, BIN, INTERFACE, METADATA);
             logger.debug(
-                    " solidity compiler result, success: {}, output: {}, error: {}",
+                    " solidity compiler result, success: {}, output: {}",
                     !res.isFailed(),
-                    res.getOutput(),
-                    res.getErrors());
+                    res.getOutput());
             if (res.isFailed() || "".equals(res.getOutput())) {
                 throw new CompileSolidityException(" Compile error: " + res.getErrors());
             }

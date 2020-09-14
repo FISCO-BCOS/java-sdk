@@ -16,17 +16,6 @@ import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
-/**
- * Auto generated code.
- *
- * <p><strong>Do not modify!</strong>
- *
- * <p>Please use the <a href="https://docs.web3j.io/command_line.html">web3j command line tools</a>,
- * or the org.fisco.bcos.sdk.codegen.SolidityContractGenerator in the <a
- * href="https://github.com/web3j/web3j/tree/master/codegen">codegen module</a> to update.
- *
- * <p>Generated with java sdk version none.
- */
 @SuppressWarnings("unchecked")
 public class HelloWorld extends Contract {
     public static final String[] BINARY_ARRAY = {
