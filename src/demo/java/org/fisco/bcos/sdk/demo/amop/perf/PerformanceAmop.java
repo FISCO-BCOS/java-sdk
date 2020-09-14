@@ -9,9 +9,15 @@ import org.fisco.bcos.sdk.utils.ThreadPoolService;
 
 public class PerformanceAmop {
     private static final String senderConfig =
-            PerformanceAmop.class.getClassLoader().getResource("config-sender.toml").getPath();
+            PerformanceAmop.class
+                    .getClassLoader()
+                    .getResource("config-sender-for-test.toml")
+                    .getPath();
     private static final String subscriberConfig =
-            PerformanceAmop.class.getClassLoader().getResource("config-subscriber.toml").getPath();
+            PerformanceAmop.class
+                    .getClassLoader()
+                    .getResource("config-subscriber-for-test.toml")
+                    .getPath();
     private static AtomicInteger sendedMsg = new AtomicInteger(0);
     private static AmopMsgBuilder msgBuilder = new AmopMsgBuilder();
 

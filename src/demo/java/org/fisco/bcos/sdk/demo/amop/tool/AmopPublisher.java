@@ -10,10 +10,13 @@ import org.fisco.bcos.sdk.model.Response;
 public class AmopPublisher {
     private static final int parameterNum = 4;
     private static String publisherFile =
-            AmopSubscribe.class.getClassLoader().getResource("config-sender.toml").getPath();
+            AmopSubscribe.class
+                    .getClassLoader()
+                    .getResource("config-sender-for-test.toml")
+                    .getPath();
 
     /**
-     * @param args topicName，isBroadcast，Content（Content you want to send out）, Count(how many msg
+     * @param args topicName, isBroadcast, Content(Content you want to send out), Count(how many msg
      *     you want to send out)
      * @throws Exception
      */
