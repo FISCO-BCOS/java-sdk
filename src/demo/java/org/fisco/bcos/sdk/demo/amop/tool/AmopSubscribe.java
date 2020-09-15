@@ -14,7 +14,7 @@ public class AmopSubscribe {
             return;
         }
         String topic = args[0];
-        BcosSDK sdk = new BcosSDK(subscriberConfigFile);
+        BcosSDK sdk = BcosSDK.build(subscriberConfigFile);
         Amop amop = sdk.getAmop();
         AmopCallback cb = new DemoAmopCallback();
         System.out.println("Start test");

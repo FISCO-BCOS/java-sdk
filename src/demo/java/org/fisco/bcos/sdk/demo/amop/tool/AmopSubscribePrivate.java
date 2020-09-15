@@ -23,7 +23,7 @@ public class AmopSubscribePrivate {
         String topic = args[0];
         String privateKeyFile = args[1];
         String password = args[2];
-        BcosSDK sdk = new BcosSDK(subscriberConfigFile);
+        BcosSDK sdk = BcosSDK.build(subscriberConfigFile);
         Amop amop = sdk.getAmop();
         AmopCallback cb = new DemoAmopCallback();
 

@@ -40,7 +40,7 @@ public class CryptoMaterialConfig {
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
         this.certPath = ConfigProperty.getValue(cryptoMaterialProperty, "certPath", this.certPath);
         CryptoMaterialConfig defaultCryptoMaterialConfig =
-                getDefaultCaCertPath(cryptoType, certPath);
+                getDefaultCaCertPath(cryptoType, this.certPath);
         this.caCertPath =
                 ConfigProperty.getValue(
                         cryptoMaterialProperty,

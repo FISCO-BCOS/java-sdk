@@ -65,7 +65,7 @@ public class PerformanceOkD {
                             + groupId);
 
             String configFile = configUrl.getPath();
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk = BcosSDK.build(configFile);
 
             // build the client
             Client client = sdk.getClient(groupId);

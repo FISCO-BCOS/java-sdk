@@ -26,7 +26,7 @@ public class Listen {
             return;
         }
         String configFile = configUrl.getPath();
-        BcosSDK sdk = new BcosSDK(configFile);
+        BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         EventSubscribe eventSubscribe = sdk.getEventSubscribe(client.getGroupId());
         eventSubscribe.start();

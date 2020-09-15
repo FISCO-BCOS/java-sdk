@@ -28,12 +28,12 @@ public interface Network {
     /**
      * Init network module
      *
-     * @param configFilePath the path of the yaml config file
+     * @param configOption the path of the yaml config file
      * @param handler message handler
      * @return a Network implementation instance
      */
-    static Network build(String configFilePath, MsgHandler handler) throws ConfigException {
-        return new NetworkImp(configFilePath, handler);
+    static Network build(ConfigOption configOption, MsgHandler handler) throws ConfigException {
+        return new NetworkImp(configOption, handler);
     }
 
     ConfigOption getConfigOption();

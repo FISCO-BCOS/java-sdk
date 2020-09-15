@@ -23,6 +23,7 @@ import org.fisco.bcos.sdk.config.model.ConfigProperty;
 import org.fisco.bcos.sdk.config.model.CryptoMaterialConfig;
 import org.fisco.bcos.sdk.config.model.NetworkConfig;
 import org.fisco.bcos.sdk.config.model.ThreadPoolConfig;
+import org.fisco.bcos.sdk.crypto.CryptoInterface;
 
 /**
  * ConfigOption is the java object of the config file.
@@ -36,6 +37,11 @@ public class ConfigOption {
     private AmopConfig amopConfig;
     private NetworkConfig networkConfig;
     private ThreadPoolConfig threadPoolConfig;
+    private ConfigProperty configProperty;
+
+    public ConfigOption(ConfigProperty configProperty) throws ConfigException {
+        this(configProperty, CryptoInterface.ECDSA_TYPE);
+    }
 
     public ConfigOption(ConfigProperty configProperty, int cryptoType) throws ConfigException {
         // load cryptoMaterialConfig
@@ -48,6 +54,12 @@ public class ConfigOption {
         networkConfig = new NetworkConfig(configProperty);
         // load threadPoolConfig
         threadPoolConfig = new ThreadPoolConfig(configProperty);
+        // init configProperty
+        this.configProperty = configProperty;
+    }
+
+    public void reloadConfig(int cryptoType) throws ConfigException {
+        cryptoMaterialConfig = new CryptoMaterialConfig(configProperty, cryptoType);
     }
 
     public CryptoMaterialConfig getCryptoMaterialConfig() {

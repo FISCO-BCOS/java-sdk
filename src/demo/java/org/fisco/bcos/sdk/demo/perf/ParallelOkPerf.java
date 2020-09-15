@@ -65,7 +65,7 @@ public class ParallelOkPerf {
             String userFile = args[5];
 
             String configFile = configUrl.getPath();
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk = BcosSDK.build(configFile);
             client = sdk.getClient(Integer.valueOf(groupId));
             dagUserInfo.setFile(userFile);
             ThreadPoolService threadPoolService =
@@ -102,7 +102,7 @@ public class ParallelOkPerf {
                         + count
                         + ", qps:"
                         + qps
-                        + ", groupId"
+                        + ", groupId: "
                         + groupId);
         ParallelOk parallelOk;
         ParallelOkDemo parallelOkDemo;

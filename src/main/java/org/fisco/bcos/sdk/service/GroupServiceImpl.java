@@ -52,13 +52,21 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public boolean removeNode(String nodeAddress) {
+        boolean shouldResetLatestBlockNumber = false;
+        if (groupNodeToBlockNumber.containsKey(nodeAddress)) {
+            groupNodeToBlockNumber.remove(nodeAddress);
+            shouldResetLatestBlockNumber = true;
+        }
+        if (nodeWithLatestBlockNumber.contains(nodeAddress)) {
+            nodeWithLatestBlockNumber.remove(nodeAddress);
+            shouldResetLatestBlockNumber = true;
+        }
+        if (shouldResetLatestBlockNumber) {
+            resetLatestBlockNumber();
+        }
         if (groupNodeSet.contains(nodeAddress)) {
             groupNodeSet.remove(nodeAddress);
             return true;
-        }
-        if (groupNodeToBlockNumber.containsKey(nodeAddress)) {
-            groupNodeToBlockNumber.remove(nodeAddress);
-            resetLatestBlockNumber();
         }
         logger.debug(
                 "g:{}, removeNode={}, nodeSize={}, blockNumberInfoSize={}, latestBlockNumber:{}",
