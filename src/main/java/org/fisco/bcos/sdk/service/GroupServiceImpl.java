@@ -14,12 +14,12 @@
 package org.fisco.bcos.sdk.service;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class GroupServiceImpl implements GroupService {
     private Set<String> groupNodeSet = Collections.synchronizedSet(new HashSet<>());
     private final Integer groupId;
     private AtomicLong latestBlockNumber = new AtomicLong(0);
-    private String nodeWithLatestBlockNumber;
+    private List<String> nodeWithLatestBlockNumber = new CopyOnWriteArrayList<String>();
 
     public GroupServiceImpl(Integer groupId) {
         this.groupId = groupId;
@@ -95,21 +95,37 @@ public class GroupServiceImpl implements GroupService {
         if (!groupNodeToBlockNumber.containsKey(peerIpAndPort)
                 || !groupNodeToBlockNumber.get(peerIpAndPort).equals(blockNumber)) {
             logger.debug(
-                    "updatePeersBlockNumberInfo for {}, updated blockNumber: {}",
+                    "updatePeersBlockNumberInfo for {}, updated blockNumber: {}, groupId: {}",
                     peerIpAndPort,
-                    blockNumber);
+                    blockNumber,
+                    groupId);
             groupNodeToBlockNumber.put(peerIpAndPort, blockNumber);
         }
         if (!groupNodeSet.contains(peerIpAndPort)) {
             groupNodeSet.add(peerIpAndPort);
         }
-        // calculate the latestBlockNumber
-        resetLatestBlockNumber();
+        updateLatestBlockNumber(peerIpAndPort, blockNumber);
+    }
+
+    private void updateLatestBlockNumber(String peerIpAndPort, BigInteger blockNumber) {
+        if (blockNumber.longValue() == latestBlockNumber.get()
+                && !nodeWithLatestBlockNumber.contains(peerIpAndPort)) {
+            nodeWithLatestBlockNumber.add(peerIpAndPort);
+        }
+        if (blockNumber.longValue() > latestBlockNumber.get()) {
+            latestBlockNumber.getAndSet(blockNumber.longValue());
+            nodeWithLatestBlockNumber.clear();
+            nodeWithLatestBlockNumber.add(peerIpAndPort);
+        }
+        logger.debug(
+                "g:{}, updateLatestBlockNumber, latestBlockNumber: {}, nodeWithLatestBlockNumber:{}",
+                groupId,
+                latestBlockNumber.get(),
+                nodeWithLatestBlockNumber.toString());
     }
 
     private void resetLatestBlockNumber() {
         BigInteger maxBlockNumber = null;
-        String maxBlockNumberNode = "";
         for (String groupNode : groupNodeToBlockNumber.keySet()) {
             BigInteger blockNumber = groupNodeToBlockNumber.get(groupNode);
             if (blockNumber == null) {
@@ -117,25 +133,25 @@ public class GroupServiceImpl implements GroupService {
             }
             if (maxBlockNumber == null || blockNumber.compareTo(maxBlockNumber) > 0) {
                 maxBlockNumber = blockNumber;
-                maxBlockNumberNode = groupNode;
             }
         }
-        if (maxBlockNumber != null && !maxBlockNumberNode.equals("")) {
-            // for select the node with the highest blockNumber to send requests randomly
-            if (latestBlockNumber.equals(maxBlockNumber)) {
-                nodeWithLatestBlockNumber = maxBlockNumberNode;
-            }
-            if (nodeWithLatestBlockNumber == null || !latestBlockNumber.equals(maxBlockNumber)) {
-                logger.debug(
-                        "g:{}, resetLatestBlockNumber, latestBlockNumber: {}, nodeWithLatestBlockNumber:{},  maxBlockNumber: {}",
-                        groupId,
-                        maxBlockNumber,
-                        maxBlockNumberNode,
-                        maxBlockNumber);
-                latestBlockNumber.getAndSet(maxBlockNumber.longValue());
-                nodeWithLatestBlockNumber = maxBlockNumberNode;
+        if (maxBlockNumber == null) {
+            return;
+        }
+        latestBlockNumber.getAndSet(maxBlockNumber.longValue());
+        nodeWithLatestBlockNumber.clear();
+        for (String groupNode : groupNodeToBlockNumber.keySet()) {
+            BigInteger blockNumber = groupNodeToBlockNumber.get(groupNode);
+            if (latestBlockNumber.equals(blockNumber)) {
+                nodeWithLatestBlockNumber.add(groupNode);
             }
         }
+        logger.debug(
+                "g:{}, resetLatestBlockNumber, latestBlockNumber: {}, nodeWithLatestBlockNumber:{}, maxBlockNumber: {}",
+                groupId,
+                latestBlockNumber.get(),
+                nodeWithLatestBlockNumber.toString(),
+                maxBlockNumber);
     }
 
     @Override
@@ -147,8 +163,9 @@ public class GroupServiceImpl implements GroupService {
     public String getNodeWithTheLatestBlockNumber() {
         // the case that the sdk is allowed to access all the connected node, select the first
         // connected node to send the request
-        if (nodeWithLatestBlockNumber != null) {
-            return nodeWithLatestBlockNumber;
+        if (nodeWithLatestBlockNumber.size() > 0) {
+            int random = (int) (Math.random() * (nodeWithLatestBlockNumber.size()));
+            return nodeWithLatestBlockNumber.get(random);
         }
         // select the first element
         if (!groupNodeSet.isEmpty()) {
@@ -160,27 +177,5 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public boolean existPeer(String peer) {
         return groupNodeSet.contains(peer);
-    }
-
-    @Override
-    public void resetLatestNodeInfo() {
-        List<String> nodesWithHighestBlockNumber = new ArrayList<>();
-        for (String node : groupNodeToBlockNumber.keySet()) {
-            BigInteger blockNumber = groupNodeToBlockNumber.get(node);
-            if (blockNumber != null
-                    && blockNumber.compareTo(BigInteger.valueOf(latestBlockNumber.get())) >= 0) {
-                nodesWithHighestBlockNumber.add(node);
-            }
-        }
-        int random = (int) (Math.random() * (nodesWithHighestBlockNumber.size()));
-        String selectedNode = nodesWithHighestBlockNumber.get(random);
-        if (selectedNode != null) {
-            if (selectedNode.equals(nodeWithLatestBlockNumber)) {
-                nodeWithLatestBlockNumber =
-                        nodesWithHighestBlockNumber.get(
-                                (random + 1) % (nodesWithHighestBlockNumber.size()));
-            }
-            nodeWithLatestBlockNumber = selectedNode;
-        }
     }
 }

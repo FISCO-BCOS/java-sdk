@@ -438,11 +438,12 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             // create groupService for the new groupId
             if (tryToCreateGroupService(peerIpAndPort, groupId)) {
                 // fetch the block number information for the group
-                getBlockLimitByGroup(groupId);
+                getAndUpdateBlockNumberForAllPeers(groupId);
                 continue;
             }
             // update the group information
             if (groupIdToService.get(groupId).insertNode(peerIpAndPort)) {
+                getAndUpdateBlockNumberForAllPeers(groupId);
                 updateBlockNotify(peerIpAndPort, this.nodeToGroupIDList.get(peerIpAndPort));
             }
         }
@@ -485,6 +486,10 @@ public class GroupManagerServiceImpl implements GroupManagerService {
 
     private void getAndUpdateBlockNumberForAllPeers(Integer groupId) {
         List<String> availablePeers = getGroupAvailablePeers(groupId);
+        logger.debug(
+                "g: {}, getAndUpdateBlockNumberForAllPeers, group availablePeers:{}",
+                groupId,
+                availablePeers.toString());
         for (String peer : availablePeers) {
             try {
                 BlockNumber blockNumber = this.groupInfoGetter.getBlockNumber(groupId, peer);
@@ -733,14 +738,6 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     }
 
     @Override
-    public void resetLatestNodeInfo(Integer groupId) {
-        GroupService groupService = this.groupIdToService.get(groupId);
-        if (groupService != null) {
-            groupService.resetLatestNodeInfo();
-        }
-    }
-
-    @Override
     public Set<Integer> getGroupList() {
         fetchGroupList();
         return groupIdToService.keySet();
@@ -760,6 +757,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         List<String> availablePeers = this.channel.getAvailablePeer();
         for (String peer : availablePeers) {
             List<String> groupList = this.getGroupInfoByNodeInfo(peer);
+            logger.debug("register blockNotify for {}, groupList: {}", peer, groupList.toString());
             if (groupList != null && groupList.size() > 0) {
                 updateBlockNotify(peer, groupList);
             }
