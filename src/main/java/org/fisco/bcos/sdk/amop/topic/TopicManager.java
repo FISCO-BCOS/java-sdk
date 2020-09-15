@@ -119,7 +119,8 @@ public class TopicManager {
     }
 
     public void updateBlockNotify(String peerIpPort, List<String> groupInfo) {
-        logger.debug("update block notify, peer: {}, groupInfo: {}", peerIpPort, groupInfo.size());
+        logger.debug(
+                "update block notify, peer: {}, groupInfo: {}", peerIpPort, groupInfo.toString());
         Set<String> pnf = new HashSet<>();
         for (String group : groupInfo) {
             pnf.add("_block_notify_" + group);

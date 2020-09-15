@@ -19,7 +19,6 @@ import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
-import org.fisco.bcos.sdk.client.protocol.model.JsonRpcRetCode;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
 import org.fisco.bcos.sdk.client.protocol.response.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Message;
@@ -202,13 +201,6 @@ public class JsonRpcService {
                             response.getMessageID(),
                             jsonRpcResponse.getError().getMessage(),
                             jsonRpcResponse.getError().getCode());
-
-                    if (this.groupId != null
-                            && jsonRpcResponse.getError().getCode()
-                                    == JsonRpcRetCode.SDK_PERMISSION_DENIED) {
-                        groupManagerService.resetLatestNodeInfo(groupId);
-                    }
-
                     throw new ClientException(
                             jsonRpcResponse.getError().getCode(),
                             jsonRpcResponse.getError().getMessage(),
