@@ -53,7 +53,6 @@ import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
-import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
@@ -64,7 +63,6 @@ public class ClientImpl implements Client {
     private final JsonRpcService jsonRpcService;
     private final Integer groupId;
     private final Integer DefaultGroupId = Integer.valueOf(1);
-    private final EventSubscribe eventSubscribe;
     private final CryptoInterface cryptoInterface;
     private final NodeVersion nodeVersion;
     private final GroupManagerService groupManagerService;
@@ -77,7 +75,6 @@ public class ClientImpl implements Client {
             NodeVersion nodeVersion) {
         this.jsonRpcService = new JsonRpcService(groupManagerService, channel, groupId);
         this.groupId = groupId;
-        this.eventSubscribe = EventSubscribe.build(groupManagerService, groupId);
         this.cryptoInterface = cryptoInterface;
         this.nodeVersion = nodeVersion;
         this.groupManagerService = groupManagerService;
@@ -88,7 +85,6 @@ public class ClientImpl implements Client {
     protected ClientImpl(Channel channel) {
         this.jsonRpcService = new JsonRpcService(null, channel, null);
         this.groupId = null;
-        this.eventSubscribe = null;
         this.cryptoInterface = null;
         this.nodeVersion = null;
         this.groupManagerService = null;
@@ -112,11 +108,6 @@ public class ClientImpl implements Client {
     @Override
     public Integer getCryptoType() {
         return this.cryptoInterface.getCryptoTypeConfig();
-    }
-
-    @Override
-    public EventSubscribe getEventSubscribe() {
-        return this.eventSubscribe;
     }
 
     @Override

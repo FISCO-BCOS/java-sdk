@@ -21,6 +21,7 @@ import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.service.GroupManagerServiceImpl;
@@ -71,7 +72,8 @@ public class BcosSDK {
             this.groupManagerService = new GroupManagerServiceImpl(this.channel, this.config);
             logger.info("create BcosSDK, create groupManagerService success");
             // init amop
-            amop = Amop.build(groupManagerService, config);
+            amop = Amop.build(this.channel, config);
+            this.groupManagerService.setAmop(amop);
             amop.start();
             logger.info("create BcosSDK, create Amop success");
         } catch (ChannelException | ConfigException e) {
@@ -156,6 +158,10 @@ public class BcosSDK {
 
     public Amop getAmop() {
         return amop;
+    }
+
+    public EventSubscribe getEventSubscribe(Integer groupId) {
+        return EventSubscribe.build(this.groupManagerService, groupId);
     }
 
     public Channel getChannel() {

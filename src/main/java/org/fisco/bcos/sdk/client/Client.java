@@ -51,7 +51,6 @@ import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
-import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
@@ -115,8 +114,6 @@ public interface Client {
     NodeVersion getClientNodeVersion();
 
     Integer getCryptoType();
-
-    EventSubscribe getEventSubscribe();
     /**
      * get groupId of the client
      *
