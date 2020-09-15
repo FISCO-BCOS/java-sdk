@@ -51,6 +51,7 @@ import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.eventsub.EventResource;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
@@ -65,6 +66,7 @@ import org.slf4j.LoggerFactory;
  */
 public interface Client {
     static Logger logger = LoggerFactory.getLogger(Client.class);
+
     /**
      * Build a client instance GroupId is identified, all interfaces are available
      *
@@ -72,7 +74,11 @@ public interface Client {
      * @param groupId
      * @return a client instance
      */
-    static Client build(GroupManagerService groupManagerService, Channel channel, Integer groupId) {
+    static Client build(
+            GroupManagerService groupManagerService,
+            Channel channel,
+            EventResource eventResource,
+            Integer groupId) {
         groupManagerService.fetchGroupList();
         groupManagerService.updateNodeVersion();
         // check the groupList
@@ -100,7 +106,8 @@ public interface Client {
         CryptoInterface cryptoInterface =
                 new CryptoInterface(cryptoType, groupManagerService.getConfig());
         logger.info("build client success for group {}", groupId);
-        return new ClientImpl(groupManagerService, channel, groupId, cryptoInterface, nodeVersion);
+        return new ClientImpl(
+                groupManagerService, channel, groupId, cryptoInterface, nodeVersion, eventResource);
     }
 
     static Client build(Channel channel) {
@@ -114,12 +121,14 @@ public interface Client {
     NodeVersion getClientNodeVersion();
 
     Integer getCryptoType();
+
     /**
      * get groupId of the client
      *
      * @return the groupId
      */
     Integer getGroupId();
+
     /**
      * Ledger operation: send transaction
      *
@@ -178,6 +187,7 @@ public interface Client {
     BlockNumber getBlockNumber();
 
     BlockNumber getBlockNumber(Integer groupId, String peerIpAndPort);
+
     /**
      * Ledger operation: async get block number
      *
@@ -305,6 +315,7 @@ public interface Client {
             BigInteger blockNumber,
             boolean returnSignatureList,
             RespCallback<BcosBlockHeader> callback);
+
     /**
      * Ledger operation: get trnasaction by hash
      *
@@ -365,6 +376,7 @@ public interface Client {
 
     void getTransactionByBlockHashAndIndexAsync(
             String blockHash, BigInteger transactionIndex, RespCallback<BcosTransaction> callback);
+
     /**
      * Ledger operation: get transaction receipt by transaction hash
      *
@@ -714,6 +726,7 @@ public interface Client {
     void getPbftViewAsync(RespCallback<PbftView> callback);
 
     NodeVersion getNodeVersion(String ipAndPort);
+
     /**
      * Peer operation: get node version
      *
@@ -825,6 +838,13 @@ public interface Client {
      * @return the transaction receipt
      */
     TransactionReceipt sendRawTransactionAndGetReceiptWithProof(String signedTransactionData);
+
+    /**
+     * Get EventPushMsgHandler and FilterManager.
+     *
+     * @return EventResource
+     */
+    EventResource getEventResource();
 
     void stop();
 }

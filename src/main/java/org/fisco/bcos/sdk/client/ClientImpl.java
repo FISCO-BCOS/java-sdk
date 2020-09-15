@@ -53,6 +53,7 @@ import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.eventsub.EventResource;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
@@ -66,18 +67,21 @@ public class ClientImpl implements Client {
     private final CryptoInterface cryptoInterface;
     private final NodeVersion nodeVersion;
     private final GroupManagerService groupManagerService;
+    private EventResource eventResource;
 
     protected ClientImpl(
             GroupManagerService groupManagerService,
             Channel channel,
             Integer groupId,
             CryptoInterface cryptoInterface,
-            NodeVersion nodeVersion) {
+            NodeVersion nodeVersion,
+            EventResource eventResource) {
         this.jsonRpcService = new JsonRpcService(groupManagerService, channel, groupId);
         this.groupId = groupId;
         this.cryptoInterface = cryptoInterface;
         this.nodeVersion = nodeVersion;
         this.groupManagerService = groupManagerService;
+        this.eventResource = eventResource;
         // send request to the group, and get the blockNumber information
         getBlockLimit();
     }
@@ -962,6 +966,11 @@ public class ClientImpl implements Client {
             Thread.currentThread().interrupt();
         }
         return callback.receipt;
+    }
+
+    @Override
+    public EventResource getEventResource() {
+        return eventResource;
     }
 
     @Override

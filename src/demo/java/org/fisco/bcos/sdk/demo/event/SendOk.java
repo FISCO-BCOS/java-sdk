@@ -22,7 +22,7 @@ import org.fisco.bcos.sdk.model.ConstantConfig;
 
 public class SendOk {
 
-    private static void Usage() {
+    private static void usage() {
         System.out.println(" Usage:");
         System.out.println(
                 " \t java -cp 'conf/:lib/*:apps/*' org.fisco.bcos.sdk.demo.event.SendOk [groupId] [count].");
@@ -38,7 +38,7 @@ public class SendOk {
                 return;
             }
             if (args.length < 2) {
-                Usage();
+                usage();
                 return;
             }
             int groupId = Integer.valueOf(args[0]).intValue();
@@ -64,11 +64,8 @@ public class SendOk {
                 System.out.println("transaction idx " + i + " sent");
             }
             System.out.println("====== Send Ok trans end ======");
-
-            System.exit(0);
         } catch (Exception e) {
             System.out.println("====== Send Ok failed, error message: " + e.getMessage());
-            System.exit(0);
         }
     }
 }
