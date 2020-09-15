@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import org.fisco.bcos.sdk.amop.exception.AmopException;
 import org.fisco.bcos.sdk.amop.topic.AmopMsgHandler;
 import org.fisco.bcos.sdk.amop.topic.TopicManager;
@@ -35,7 +34,6 @@ import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
 import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
-import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,34 +45,24 @@ import org.slf4j.LoggerFactory;
  */
 public class AmopImp implements Amop {
     private static Logger logger = LoggerFactory.getLogger(AmopImp.class);
-    private GroupManagerService groupManager;
+    private Channel channel;
     private TopicManager topicManager;
     private AmopMsgHandler amopMsgHandler;
 
-    public AmopImp(GroupManagerService groupManager, ConfigOption config) {
-        this.groupManager = groupManager;
+    public AmopImp(Channel channel, ConfigOption config) {
+        this.channel = channel;
         topicManager = new TopicManager();
-        loadBlockNotify();
         try {
             loadConfiguredTopics(config);
         } catch (AmopException e) {
             logger.error("Amop topic is not configured right, error:{}", e);
         }
-        Channel ch = groupManager.getChannel();
-        amopMsgHandler = new AmopMsgHandler(ch, topicManager);
-        this.groupManager.registerBlockNotifyUpdater(
-                new BiConsumer<String, List<String>>() {
-                    @Override
-                    public void accept(String peer, List<String> groupList) {
-                        topicManager.updateBlockNotify(peer, groupList);
-                        sendSubscribe();
-                    }
-                });
-        ch.addMessageHandler(MsgType.REQUEST_TOPICCERT, amopMsgHandler);
-        ch.addMessageHandler(MsgType.AMOP_REQUEST, amopMsgHandler);
-        ch.addMessageHandler(MsgType.AMOP_MULBROADCAST, amopMsgHandler);
-        ch.addMessageHandler(MsgType.AMOP_RESPONSE, amopMsgHandler);
-        ch.addEstablishHandler(amopMsgHandler);
+        amopMsgHandler = new AmopMsgHandler(this.channel, topicManager);
+        this.channel.addMessageHandler(MsgType.REQUEST_TOPICCERT, amopMsgHandler);
+        this.channel.addMessageHandler(MsgType.AMOP_REQUEST, amopMsgHandler);
+        this.channel.addMessageHandler(MsgType.AMOP_MULBROADCAST, amopMsgHandler);
+        this.channel.addMessageHandler(MsgType.AMOP_RESPONSE, amopMsgHandler);
+        this.channel.addEstablishHandler(amopMsgHandler);
     }
 
     @Override
@@ -122,7 +110,7 @@ public class AmopImp implements Amop {
         msg.setData(content.getContent());
         Options ops = new Options();
         ops.setTimeout(content.getTimeout());
-        groupManager.getChannel().asyncSendToRandom(msg, callback, ops);
+        this.channel.asyncSendToRandom(msg, callback, ops);
         logger.info(
                 "send amop msg to a random peer, seq{} topic{}", msg.getSeq(), content.getTopic());
     }
@@ -141,7 +129,7 @@ public class AmopImp implements Amop {
         amopMsg.setTopic(content.getTopic());
         amopMsg.setData(content.getContent());
         // Add broadcast callback
-        groupManager.getChannel().broadcast(amopMsg.getMessage());
+        this.channel.broadcast(amopMsg.getMessage());
         logger.info(
                 "broadcast amop msg to peers, seq:{} topic:{}",
                 amopMsg.getSeq(),
@@ -183,16 +171,17 @@ public class AmopImp implements Amop {
     }
 
     private void unSubscribeAll() {
-        List<String> peers = groupManager.getChannel().getAvailablePeer();
+        List<String> peers = this.channel.getAvailablePeer();
         logger.info("unsubscribe all topics, inform {} peers", peers.size());
         for (String peer : peers) {
             unSubscribeToPeer(peer);
         }
     }
 
-    private void sendSubscribe() {
+    @Override
+    public void sendSubscribe() {
         topicManager.updatePrivateTopicUUID();
-        List<String> peers = groupManager.getChannel().getAvailablePeer();
+        List<String> peers = this.channel.getAvailablePeer();
         logger.info("update subscribe inform {} peers", peers.size());
         for (String peer : peers) {
             try {
@@ -214,7 +203,7 @@ public class AmopImp implements Amop {
         msg.setSeq(newSeq());
         msg.setData(topics);
         Options opt = new Options();
-        groupManager.getChannel().asyncSendToPeer(msg, peer, null, opt);
+        this.channel.asyncSendToPeer(msg, peer, null, opt);
         logger.debug("update topics to node, node:{}, topics:{}", peer, new String(topics));
     }
 
@@ -225,7 +214,7 @@ public class AmopImp implements Amop {
         msg.setSeq(newSeq());
         msg.setData("".getBytes());
         Options opt = new Options();
-        groupManager.getChannel().asyncSendToPeer(msg, peer, null, opt);
+        this.channel.asyncSendToPeer(msg, peer, null, opt);
         logger.info(
                 " send update topic message request, seq: {}, content: {}",
                 msg.getSeq(),
@@ -274,17 +263,12 @@ public class AmopImp implements Amop {
         }
     }
 
-    private void loadBlockNotify() {
-        logger.trace("load block notify");
-        List<String> peers = groupManager.getChannel().getAvailablePeer();
-        for (String peer : peers) {
-            List<String> groupInfo = groupManager.getGroupInfoByNodeInfo(peer);
-            logger.trace("add peer block notify, peer:{} groupInfo:{}", peer, groupInfo.size());
-            topicManager.updateBlockNotify(peer, groupInfo);
-        }
-    }
-
     public Set<String> getAllTopics() {
         return topicManager.getAllTopics();
+    }
+
+    @Override
+    public TopicManager getTopicManager() {
+        return this.topicManager;
     }
 }

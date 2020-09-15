@@ -13,6 +13,19 @@ bash gradlew verifyGoogleJavaFormat
 bash gradlew build --info
 }
 
+download_tassl()
+{
+  mkdir -p ~/.fisco/
+  if [ "$(uname)" == "Darwin" ];then
+    curl -LO https://github.com/FISCO-BCOS/LargeFiles/raw/master/tools/tassl_mac.tar.gz
+    mv tassl_mac.tar.gz ~/.fisco/tassl.tar.gz
+  else
+    curl -LO https://github.com/FISCO-BCOS/LargeFiles/raw/master/tools/tassl.tar.gz
+    mv tassl.tar.gz ~/.fisco/tassl.tar.gz
+  fi
+  tar -xvf ~/.fisco/tassl.tar.gz
+}
+
 download_build_chain()
 {
   tag=$(curl -sS "https://gitee.com/api/v5/repos/FISCO-BCOS/FISCO-BCOS/tags" | grep -oe "\"name\":\"v[2-9]*\.[0-9]*\.[0-9]*\"" | cut -d \" -f 4 | sort -V | tail -n 1)
@@ -96,7 +109,8 @@ check_sm_node()
   ## clean
   clean_node
 }
-
+LOG_INFO "------ download_tassl---------"
+download_tassl
 LOG_INFO "------ check_basic---------"
 ./gradlew build -x test
 LOG_INFO "------ download_build_chain---------"

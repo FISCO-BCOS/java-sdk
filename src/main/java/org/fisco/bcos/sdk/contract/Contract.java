@@ -36,6 +36,7 @@ import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.eventsub.EventLogParams;
+import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.manager.TransactionManager;
@@ -57,6 +58,7 @@ public class Contract {
     protected final FunctionEncoder functionEncoder;
     protected final CryptoInterface credential;
     protected final EventEncoder eventEncoder;
+    private final EventSubscribe eventSubscribe;
     protected static String LATEST_BLOCK = "latest";
 
     protected Contract(
@@ -72,6 +74,9 @@ public class Contract {
         this.credential = credential;
         this.functionEncoder = new FunctionEncoder(credential);
         this.eventEncoder = new EventEncoder(credential);
+        // create eventSubscribe
+        this.eventSubscribe =
+                EventSubscribe.build(client.getGroupManagerService(), client.getGroupId());
     }
 
     protected Contract(
@@ -278,7 +283,7 @@ public class Contract {
     }
 
     public void subscribeEvent(EventLogParams params, EventCallback callback) {
-        this.client.getEventSubscribe().subscribeEvent(params, callback);
+        this.eventSubscribe.subscribeEvent(params, callback);
     }
 
     public void subscribeEvent(String abi, String bin, String topic0, EventCallback callback) {

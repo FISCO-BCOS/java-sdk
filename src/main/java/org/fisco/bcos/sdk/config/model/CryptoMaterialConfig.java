@@ -19,8 +19,11 @@ import java.io.File;
 import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CryptoMaterialConfig {
+    private static Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
     private String certPath = "conf";
     private String caCertPath;
     private String sdkCertPath;
@@ -63,6 +66,13 @@ public class CryptoMaterialConfig {
                         cryptoMaterialProperty,
                         "enSslKey",
                         defaultCryptoMaterialConfig.getEnSSLPrivateKeyPath());
+        logger.debug(
+                "Load cryptoMaterial, caCertPath: {}, sdkCertPath: {}, sdkPrivateKeyPath:{}, enSSLCertPath: {}, enSSLPrivateKeyPath:{}",
+                this.getCaCertPath(),
+                this.getSdkCertPath(),
+                this.getSdkPrivateKeyPath(),
+                this.getEnSSLCertPath(),
+                this.getEnSSLPrivateKeyPath());
     }
 
     public CryptoMaterialConfig getDefaultCaCertPath(int cryptoType, String certPath)
