@@ -21,6 +21,7 @@ import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.eventsub.EventResource;
 import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.service.GroupManagerService;
@@ -40,6 +41,7 @@ public class BcosSDK {
     private ConcurrentHashMap<Integer, Client> groupToClient = new ConcurrentHashMap<>();
     private long maxWaitEstablishConnectionTime = 30000;
     private Amop amop;
+    private EventResource eventResource;
     private ThreadPoolService threadPoolService;
 
     public BcosSDK(String configPath) throws BcosSDKException {
@@ -76,6 +78,8 @@ public class BcosSDK {
             this.groupManagerService.setAmop(amop);
             amop.start();
             logger.info("create BcosSDK, create Amop success");
+            // new EventResource
+            eventResource = new EventResource();
         } catch (ChannelException | ConfigException e) {
             stopAll();
             throw new BcosSDKException("create BcosSDK failed, error info: " + e.getMessage(), e);
@@ -120,7 +124,9 @@ public class BcosSDK {
         }
         if (!groupToClient.containsKey(groupId)) {
             // create a new client for the specified group
-            Client client = Client.build(this.groupManagerService, this.channel, groupId);
+            Client client =
+                    Client.build(
+                            this.groupManagerService, this.channel, this.eventResource, groupId);
             if (client == null) {
                 throw new BcosSDKException(
                         "create client for group "
@@ -160,8 +166,12 @@ public class BcosSDK {
         return amop;
     }
 
+    public EventResource getEventResource() {
+        return eventResource;
+    }
+
     public EventSubscribe getEventSubscribe(Integer groupId) {
-        return EventSubscribe.build(this.groupManagerService, groupId);
+        return EventSubscribe.build(this.groupManagerService, this.eventResource, groupId);
     }
 
     public Channel getChannel() {

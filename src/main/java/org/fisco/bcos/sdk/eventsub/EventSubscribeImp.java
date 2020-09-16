@@ -41,17 +41,25 @@ public class EventSubscribeImp implements EventSubscribe {
     private Integer groupId;
     private FilterManager filterManager;
     private EventPushMsgHandler msgHander;
+    private EventResource eventResource;
     private boolean running = false;
     ScheduledThreadPoolExecutor resendSchedule = new ScheduledThreadPoolExecutor(1);
 
-    public EventSubscribeImp(GroupManagerService groupManagerService, Integer groupId) {
+    public EventSubscribeImp(
+            GroupManagerService groupManagerService, EventResource eventResource, Integer groupId) {
         this.channel = groupManagerService.getChannel();
         this.groupManagerService = groupManagerService;
         this.groupId = groupId;
-        filterManager = new FilterManager();
-        msgHander = new EventPushMsgHandler(filterManager);
+        this.eventResource = eventResource;
+        filterManager = eventResource.getFilterManager();
+        msgHander = eventResource.getMsgHander();
         channel.addMessageHandler(MsgType.EVENT_LOG_PUSH, msgHander);
         channel.addDisconnectHandler(msgHander);
+    }
+
+    @Override
+    public EventResource getEventResource() {
+        return eventResource;
     }
 
     @Override
