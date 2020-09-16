@@ -45,7 +45,7 @@ public class SendOk {
             Integer count = Integer.valueOf(args[1]);
 
             String configFile = configUrl.getPath();
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk = BcosSDK.build(configFile);
 
             // build the client
             Client client = sdk.getClient(groupId);

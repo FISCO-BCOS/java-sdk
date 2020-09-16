@@ -49,7 +49,7 @@ public class SubscribeTest {
     @Test
     public void testEventSubModule() {
         // Init event subscribe module.
-        BcosSDK sdk = new BcosSDK(configFile);
+        BcosSDK sdk =  BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         EventSubscribe eventSubscribe = sdk.getEventSubscribe(client.getGroupId());
         eventSubscribe.start();

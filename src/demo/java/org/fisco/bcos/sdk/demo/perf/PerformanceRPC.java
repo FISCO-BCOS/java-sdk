@@ -43,7 +43,7 @@ public class PerformanceRPC {
             Integer qps = Integer.parseInt(args[1]);
             int groupId = Integer.valueOf(args[2]);
             String configFile = configUrl.getPath();
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(groupId);
 
             System.out.println("Start test...");

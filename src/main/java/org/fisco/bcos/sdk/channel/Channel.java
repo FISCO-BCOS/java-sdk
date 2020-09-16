@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.channel;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.channel.model.Options;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
@@ -36,11 +37,11 @@ public interface Channel {
     /**
      * Init channel module
      *
-     * @param configFilePath config file path.
+     * @param configOption config file path.
      * @return a channel instance
      */
-    static Channel build(String configFilePath) throws ConfigException {
-        return new ChannelImp(configFilePath);
+    static Channel build(ConfigOption configOption) throws ConfigException {
+        return new ChannelImp(configOption);
     }
 
     Network getNetwork();

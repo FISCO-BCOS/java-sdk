@@ -43,10 +43,11 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -67,8 +68,8 @@ import org.slf4j.LoggerFactory;
 public class ConnectionManager {
     private static Logger logger = LoggerFactory.getLogger(ConnectionManager.class);
     private ChannelHandler channelHandler;
-    private List<ConnectionInfo> connectionInfoList = new ArrayList<ConnectionInfo>();
-    private Map<String, ChannelHandlerContext> availableConnections = new HashMap<>();
+    private List<ConnectionInfo> connectionInfoList = new CopyOnWriteArrayList<>();
+    private Map<String, ChannelHandlerContext> availableConnections = new ConcurrentHashMap<>();
     private EventLoopGroup workerGroup;
     private Boolean running = false;
     private Bootstrap bootstrap = new Bootstrap();
@@ -236,7 +237,7 @@ public class ConnectionManager {
                     NetworkException.INIT_CONTEXT_FAILED);
         } catch (IllegalArgumentException e) {
             throw new NetworkException(
-                    "SSL context init failed, error info" + e.getMessage(),
+                    "SSL context init failed, error info: " + e.getMessage(),
                     NetworkException.INIT_CONTEXT_FAILED);
         }
     }

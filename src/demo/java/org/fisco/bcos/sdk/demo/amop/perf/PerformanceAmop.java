@@ -29,7 +29,7 @@ public class PerformanceAmop {
 
             // Init subscriber
             String topic = "normalTopic";
-            Amop subscriber = new BcosSDK(subscriberConfig).getAmop();
+            Amop subscriber = BcosSDK.build(subscriberConfig).getAmop();
             AmopMsgCallback cb = new AmopMsgCallback();
             AmopMsgCollector collector = cb.getCollector();
             collector.setTotal(count);
@@ -37,7 +37,7 @@ public class PerformanceAmop {
             subscriber.setCallback(cb);
 
             // Init publisher
-            Amop sender = new BcosSDK(senderConfig).getAmop();
+            Amop sender = BcosSDK.build(senderConfig).getAmop();
 
             System.out.println("Start test");
             Thread.sleep(2000);

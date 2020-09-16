@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
-import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
@@ -38,14 +37,11 @@ public class NetworkImp implements Network {
     private static Logger logger = LoggerFactory.getLogger(NetworkImp.class);
     private ConnectionManager connManager;
     private ConfigOption configOption;
-    private String configFilePath;
     private MsgHandler handler;
 
-    public NetworkImp(String configFilePath, MsgHandler handler) throws ConfigException {
-        this.configFilePath = configFilePath;
+    public NetworkImp(ConfigOption configOption, MsgHandler handler) throws ConfigException {
+        this.configOption = configOption;
         this.handler = handler;
-        // default load ECDSA certificates
-        this.configOption = Config.load(configFilePath, CryptoInterface.ECDSA_TYPE);
         connManager = new ConnectionManager(configOption, handler);
     }
 
@@ -168,7 +164,7 @@ public class NetworkImp implements Network {
                 }
             } catch (NetworkException e) {
                 tryEcdsaConnect = true;
-                configOption = Config.load(configFilePath, CryptoInterface.SM_TYPE);
+                configOption.reloadConfig(CryptoInterface.SM_TYPE);
                 result = checkCertExistence(true);
                 if (e.getErrorCode() == NetworkException.CONNECT_FAILED
                         || !result.isCheckPassed()) {
@@ -179,7 +175,8 @@ public class NetworkImp implements Network {
                         "start connManager with the ECDSA sslContext failed, try to use SM sslContext, error info: {}",
                         e.getMessage());
             }
-            configOption = Config.load(configFilePath, CryptoInterface.SM_TYPE);
+            logger.debug("start connManager with SM sslContext");
+            configOption.reloadConfig(CryptoInterface.SM_TYPE);
             result = checkCertExistence(true);
             if (!result.isCheckPassed()) {
                 throw new NetworkException("Certificate not exist:" + result.getErrorMessage());

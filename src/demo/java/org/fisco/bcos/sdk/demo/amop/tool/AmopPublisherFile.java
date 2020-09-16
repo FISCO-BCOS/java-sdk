@@ -33,7 +33,7 @@ public class AmopPublisherFile {
         Boolean isBroadcast = Boolean.valueOf(args[1]);
         String fileName = args[2];
         Integer count = Integer.parseInt(args[3]);
-        BcosSDK sdk = new BcosSDK(publisherFile);
+        BcosSDK sdk = BcosSDK.build(publisherFile);
         Amop amop = sdk.getAmop();
 
         System.out.println("3s ...");
