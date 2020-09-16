@@ -98,10 +98,10 @@ public class PrivateTopicVerifyTest {
     }
 
     private void prepareEnv() throws InterruptedException {
-        BcosSDK sdk2 = new BcosSDK(subscriberConfig);
+        BcosSDK sdk2 =  BcosSDK.build(subscriberConfig);
         Assert.assertTrue(sdk2.getChannel().getAvailablePeer().size() >= 1);
 
-        BcosSDK sdk1 = new BcosSDK(senderConfig);
+        BcosSDK sdk1 =  BcosSDK.build(senderConfig);
         Assert.assertTrue(sdk1.getChannel().getAvailablePeer().size() >= 1);
         Thread.sleep(2000);
         sender = sdk1.getAmop();

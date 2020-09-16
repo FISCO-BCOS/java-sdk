@@ -62,7 +62,7 @@ public class PrecompiledTest
     @Test
     public void test1ConsensusService() throws ConfigException, ContractException {
         try {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             ConsensusService consensusService = new ConsensusService(client, client.getCryptoInterface());
             // get the current sealerList
@@ -124,7 +124,7 @@ public class PrecompiledTest
     @Test
     public void test2CnsService() throws ConfigException {
         try {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             HelloWorld helloWorld = HelloWorld.deploy(client, client.getCryptoInterface());
             String contractAddress = helloWorld.getContractAddress();
@@ -183,7 +183,7 @@ public class PrecompiledTest
     public void test3SystemConfigService() throws ConfigException, ContractException {
         try
         {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk =  BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             SystemConfigService systemConfigService = new SystemConfigService(client, client.getCryptoInterface());
             testSystemConfigService(client, systemConfigService, "tx_count_limit");
@@ -210,7 +210,7 @@ public class PrecompiledTest
     @Test
     public void test5CRUDService() throws ConfigException, ContractException {
         try {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             TableCRUDService tableCRUDService = new TableCRUDService(client, client.getCryptoInterface());
             // create a user table
@@ -259,7 +259,7 @@ public class PrecompiledTest
     @Test
     public void test51SyncCRUDService() throws ConfigException {
         try {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             CryptoInterface cryptoInterface = client.getCryptoInterface();
             TableCRUDService crudService = new TableCRUDService(client, cryptoInterface);
@@ -323,7 +323,7 @@ public class PrecompiledTest
     public void test52AsyncCRUDService()
     {
         try {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk =  BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             CryptoInterface cryptoInterface = client.getCryptoInterface();
             TableCRUDService crudService = new TableCRUDService(client, cryptoInterface);
@@ -381,7 +381,7 @@ public class PrecompiledTest
     @Test
     public void test6PermissionService() throws ConfigException, ContractException {
         try {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk =  BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             CryptoInterface cryptoInterface = client.getCryptoInterface();
             PermissionService permissionService = new PermissionService(client, cryptoInterface);
@@ -420,7 +420,7 @@ public class PrecompiledTest
     @Test
     public void test7ContractLifeCycleService() throws ConfigException {
         try {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk =  BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             CryptoInterface cryptoInterface = client.getCryptoInterface();
             ContractLifeCycleService contractLifeCycleService = new ContractLifeCycleService(client, cryptoInterface);
@@ -471,7 +471,7 @@ public class PrecompiledTest
     @Test
     public void test8GovernanceService() throws ConfigException {
         try {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             CryptoInterface cryptoInterface = client.getCryptoInterface();
             ChainGovernanceService chainGovernanceService = new ChainGovernanceService(client, cryptoInterface);

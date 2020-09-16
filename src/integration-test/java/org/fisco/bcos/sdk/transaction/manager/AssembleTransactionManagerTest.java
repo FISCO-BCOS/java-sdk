@@ -60,7 +60,7 @@ public class AssembleTransactionManagerTest {
 
     @Test
     public void test1HelloWorld() throws Exception {
-        BcosSDK sdk = new BcosSDK(configFile);
+        BcosSDK sdk =  BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
@@ -102,7 +102,7 @@ public class AssembleTransactionManagerTest {
 
     @Test
     public void test2ComplexDeploy() throws Exception {
-        BcosSDK sdk = new BcosSDK(configFile);
+        BcosSDK sdk =  BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
@@ -131,7 +131,7 @@ public class AssembleTransactionManagerTest {
     @Test
     public void test3ComplexQuery() throws Exception {
         try {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk =  BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
             AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
@@ -172,7 +172,7 @@ public class AssembleTransactionManagerTest {
 
     @Test
     public void test4ComplexEmptyTx() throws Exception {
-        BcosSDK sdk = new BcosSDK(configFile);
+        BcosSDK sdk =  BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
@@ -194,7 +194,7 @@ public class AssembleTransactionManagerTest {
 
     @Test
     public void test5ComplexIncrement() throws Exception {
-        BcosSDK sdk = new BcosSDK(configFile);
+        BcosSDK sdk =  BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
@@ -231,7 +231,7 @@ public class AssembleTransactionManagerTest {
 
     @Test
     public void test6ComplexSetValues() throws Exception {
-        BcosSDK sdk = new BcosSDK(configFile);
+        BcosSDK sdk =  BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
@@ -261,7 +261,7 @@ public class AssembleTransactionManagerTest {
 
     @Test
     public void test7ComplexSetBytes() throws Exception {
-        BcosSDK sdk = new BcosSDK(configFile);
+        BcosSDK sdk =  BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
@@ -298,7 +298,7 @@ public class AssembleTransactionManagerTest {
 
     @Test
     public void test8ComplexSetBytesMapping() throws Exception {
-        BcosSDK sdk = new BcosSDK(configFile);
+        BcosSDK sdk =  BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,

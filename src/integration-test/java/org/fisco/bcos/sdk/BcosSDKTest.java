@@ -46,7 +46,7 @@ public class BcosSDKTest
     private static final String configFile = BcosSDKTest.class.getClassLoader().getResource(ConstantConfig.CONFIG_FILE_NAME).getPath();
     @Test
     public void testClient() throws ConfigException {
-        BcosSDK sdk = new BcosSDK(configFile);
+        BcosSDK sdk =  BcosSDK.build(configFile);
         // check groupList
         Assert.assertTrue(sdk.getChannel().getAvailablePeer().size() >= 1);
         for(String endPoint: sdk.getChannel().getAvailablePeer())
@@ -184,7 +184,7 @@ public class BcosSDKTest
     @Test
     public void testSendTransactions() throws ConfigException, ContractException {
         try {
-            BcosSDK sdk = new BcosSDK(configFile);
+            BcosSDK sdk =  BcosSDK.build(configFile);
             Integer groupId = Integer.valueOf(1);
             Client client = sdk.getClient(groupId);
             BigInteger blockLimit = sdk.getGroupManagerService().getBlockLimitByGroup(groupId);

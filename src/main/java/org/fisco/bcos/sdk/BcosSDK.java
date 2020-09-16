@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.eventsub.EventResource;
@@ -44,11 +45,20 @@ public class BcosSDK {
     private EventResource eventResource;
     private ThreadPoolService threadPoolService;
 
-    public BcosSDK(String configPath) throws BcosSDKException {
+    public static BcosSDK build(String tomlConfigFilePath) throws BcosSDKException {
         try {
-            logger.info("create BcosSDK, configPath: {}", configPath);
+            ConfigOption configOption = Config.load(tomlConfigFilePath);
+            logger.info("create BcosSDK, configPath: {}", tomlConfigFilePath);
+            return new BcosSDK(configOption);
+        } catch (ConfigException e) {
+            throw new BcosSDKException("create BcosSDK failed, error info: " + e.getMessage(), e);
+        }
+    }
+
+    public BcosSDK(ConfigOption configOption) throws BcosSDKException {
+        try {
             // create channel and load configuration file
-            this.channel = Channel.build(configPath);
+            this.channel = Channel.build(configOption);
             this.channel.start();
             this.config = this.channel.getNetwork().getConfigOption();
             logger.info(

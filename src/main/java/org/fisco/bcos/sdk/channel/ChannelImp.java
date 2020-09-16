@@ -35,6 +35,7 @@ import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
 import org.fisco.bcos.sdk.channel.model.HeartBeatParser;
 import org.fisco.bcos.sdk.channel.model.NodeHeartbeat;
 import org.fisco.bcos.sdk.channel.model.Options;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
@@ -69,9 +70,9 @@ public class ChannelImp implements Channel {
     private long heartBeatDelay = (long) 2000;
     private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
-    public ChannelImp(String configFilePath) throws ConfigException {
+    public ChannelImp(ConfigOption configOption) throws ConfigException {
         msgHandler = new ChannelMsgHandler();
-        network = new NetworkImp(configFilePath, msgHandler);
+        network = new NetworkImp(configOption, msgHandler);
     }
 
     @Override
@@ -309,7 +310,11 @@ public class ChannelImp implements Channel {
             logger.warn("send message with seq {} to {} failed ", out.getSeq(), peerIpPort);
             Response response = new Response();
             response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
-            response.setErrorMessage("Send message failed for connect failed !");
+            response.setErrorMessage(
+                    "Send message "
+                            + peerIpPort
+                            + " failed for connect failed, current available peers: "
+                            + getAvailablePeer().toString());
             response.setMessageID(out.getSeq());
             if (callback != null) {
                 callback.onResponse(response);
