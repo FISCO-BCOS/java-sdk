@@ -91,6 +91,11 @@ public class AssembleTransactionManagerTest {
                 manager.sendTransactionAndGetReceiptByContractLoader("HelloWorld", helloWorldAddrss, "set", params);
         Assert.assertEquals("0x0", tr.getStatus());
         // System.out.println(JsonUtils.toJson(tr));
+        TransactionResponse res =
+                manager.sendTransactionAndGetResponseByContractLoader("HelloWorld", helloWorldAddrss, "set", params);
+        Assert.assertEquals("0x0", res.getTransactionReceipt().getStatus());
+        // System.out.println(JsonUtils.toJson(res));
+        
         // call
         CallResponse callResponse2 =
                 manager.sendCallByContractLoader("HelloWorld", helloWorldAddrss, "name", new ArrayList<>());
@@ -220,8 +225,8 @@ public class AssembleTransactionManagerTest {
                             callResponse3 =
                                     manager.sendCall(client.getCryptoInterface().getCryptoKeyPair().getAddress(),
                                             contractAddress, abi, "getUint256", Lists.newArrayList());
-                            Assert.assertEquals(0, callResponse3.getReturnCode());
-                            // System.out.println(JsonUtils.toJson(callResponse3));
+                            //System.out.println(JsonUtils.toJson(callResponse3));
+                            Assert.assertEquals("Success", callResponse3.getReturnMessage());
                         } catch (TransactionBaseException | ABICodecException e) {
                             System.out.println(e.getMessage());
                         }

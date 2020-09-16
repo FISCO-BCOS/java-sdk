@@ -29,6 +29,8 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.transaction.model.CommonConstant;
 import org.fisco.bcos.sdk.transaction.model.bo.AbiInfo;
 import org.fisco.bcos.sdk.transaction.model.bo.BinInfo;
+import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
+import org.fisco.bcos.sdk.transaction.model.exception.TransactionRetCodeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,23 +104,49 @@ public class ContractLoader {
         return ContractAbiUtil.getFuncABIDefinition(abiStr);
     }
 
-    public String getABIByContractName(String contractName) {
+    public String getABIByContractName(String contractName) throws NoSuchTransactionFileException {
+        if (contractAbiMap.get(contractName) == null) {
+            log.error("Contract {} not found.", contractName);
+            throw new NoSuchTransactionFileException(TransactionRetCodeConstants.NO_SUCH_ABI_FILE);
+        }
         return contractAbiMap.get(contractName);
     }
 
-    public String getBinaryByContractName(String contractName) {
+    public String getBinaryByContractName(String contractName)
+            throws NoSuchTransactionFileException {
+        if (contractBinMap.get(contractName) == null) {
+            log.error("Contract {} not found.", contractName);
+            throw new NoSuchTransactionFileException(
+                    TransactionRetCodeConstants.NO_SUCH_BINARY_FILE);
+        }
         return contractBinMap.get(contractName);
     }
 
-    public Pair<String, String> getABIAndBinaryByContractName(String contractName) {
+    public Pair<String, String> getABIAndBinaryByContractName(String contractName)
+            throws NoSuchTransactionFileException {
+        if (contractAbiMap.get(contractName) == null) {
+            log.error("Contract {} not found.", contractName);
+            throw new NoSuchTransactionFileException(TransactionRetCodeConstants.NO_SUCH_ABI_FILE);
+        }
+        if (contractBinMap.get(contractName) == null) {
+            log.error("Contract {} not found.", contractName);
+            throw new NoSuchTransactionFileException(
+                    TransactionRetCodeConstants.NO_SUCH_BINARY_FILE);
+        }
         return Pair.of(contractAbiMap.get(contractName), contractBinMap.get(contractName));
     }
 
-    public ABIDefinition getConstructorABIByContractName(String contractName) {
+    public ABIDefinition getConstructorABIByContractName(String contractName)
+            throws NoSuchTransactionFileException {
         return selectConstructor(getFunctionABIListByContractName(contractName));
     }
 
-    public List<ABIDefinition> getFunctionABIListByContractName(String contractName) {
+    public List<ABIDefinition> getFunctionABIListByContractName(String contractName)
+            throws NoSuchTransactionFileException {
+        if (contractFuncAbis.get(contractName) == null) {
+            log.error("Contract {} not found.", contractName);
+            throw new NoSuchTransactionFileException(TransactionRetCodeConstants.NO_SUCH_ABI_FILE);
+        }
         return contractFuncAbis.get(contractName);
     }
 }
