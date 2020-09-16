@@ -34,6 +34,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.ResultCodeEnum;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
 import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface;
@@ -131,10 +132,11 @@ public class AssembleTransactionManager extends TransactionManager
      * @return the transaction response
      * @throws TransactionBaseException
      * @throws ABICodecException
+     * @throws NoSuchTransactionFileException
      */
     @Override
     public TransactionResponse deployByContractLoader(String contractName, List<Object> args)
-            throws ABICodecException {
+            throws ABICodecException, TransactionBaseException {
         return deployAndGetResponse(
                 contractLoader.getABIByContractName(contractName),
                 contractLoader.getBinaryByContractName(contractName),
@@ -144,7 +146,7 @@ public class AssembleTransactionManager extends TransactionManager
     @Override
     public void deployByContractLoaderAsync(
             String contractName, List<Object> args, TransactionCallback callback)
-            throws ABICodecException {
+            throws ABICodecException, NoSuchTransactionFileException {
         deployAsync(
                 contractLoader.getABIByContractName(contractName),
                 contractLoader.getBinaryByContractName(contractName),
@@ -191,7 +193,7 @@ public class AssembleTransactionManager extends TransactionManager
     @Override
     public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> args)
-            throws ABICodecException {
+            throws ABICodecException, TransactionBaseException {
         String data =
                 abiCodec.encodeMethod(
                         contractLoader.getABIByContractName(contractName), functionName, args);
@@ -227,7 +229,7 @@ public class AssembleTransactionManager extends TransactionManager
             String functionName,
             List<Object> args,
             TransactionCallback callback)
-            throws ABICodecException {
+            throws ABICodecException, TransactionBaseException {
         String data =
                 abiCodec.encodeMethod(
                         contractLoader.getABIByContractName(contractName), functionName, args);

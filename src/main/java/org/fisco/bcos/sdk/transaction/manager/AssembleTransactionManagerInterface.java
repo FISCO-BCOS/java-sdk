@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 
 public interface AssembleTransactionManagerInterface {
@@ -46,17 +47,17 @@ public interface AssembleTransactionManagerInterface {
             String abi, String bin, List<Object> params) throws ABICodecException;
 
     public TransactionResponse deployByContractLoader(String contractName, List<Object> params)
-            throws ABICodecException;
+            throws ABICodecException, TransactionBaseException;
 
     public void deployByContractLoaderAsync(
             String contractName, List<Object> args, TransactionCallback callback)
-            throws ABICodecException;
+            throws ABICodecException, NoSuchTransactionFileException;
 
     public void sendTransactionOnly(String signedData);
 
     public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> params)
-            throws ABICodecException;
+            throws ABICodecException, TransactionBaseException;
 
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, String data)
@@ -88,7 +89,7 @@ public interface AssembleTransactionManagerInterface {
             String functionName,
             List<Object> args,
             TransactionCallback callback)
-            throws ABICodecException;
+            throws ABICodecException, TransactionBaseException;
 
     public CallResponse sendCallByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> params)
