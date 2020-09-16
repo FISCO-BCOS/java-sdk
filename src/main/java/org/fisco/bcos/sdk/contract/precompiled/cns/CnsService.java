@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
+import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
@@ -29,10 +30,12 @@ import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 public class CnsService {
     private final CNSPrecompiled cnsPrecompiled;
+    private String currentVersion;
 
     public CnsService(Client client, CryptoInterface credential) {
         this.cnsPrecompiled =
                 CNSPrecompiled.load(PrecompiledAddress.CNS_PRECOMPILED_ADDRESS, client, credential);
+        this.currentVersion = client.getClientNodeVersion().getNodeVersion().getSupportedVersion();
     }
 
     public RetCode registerCNS(
@@ -81,6 +84,8 @@ public class CnsService {
     public String getContractAddress(String contractName, String contractVersion)
             throws ContractException {
         try {
+            PrecompiledVersionCheck.CNS_GET_CONTRACT_ADDRESS_PRECOMPILED_VERSION.checkVersion(
+                    currentVersion);
             return cnsPrecompiled.getContractAddress(contractName, contractVersion);
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);

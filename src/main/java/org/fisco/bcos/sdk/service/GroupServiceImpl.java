@@ -14,12 +14,11 @@
 package org.fisco.bcos.sdk.service;
 
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ public class GroupServiceImpl implements GroupService {
 
     private ConcurrentHashMap<String, BigInteger> groupNodeToBlockNumber =
             new ConcurrentHashMap<>();
-    private Set<String> groupNodeSet = Collections.synchronizedSet(new HashSet<>());
+    private Set<String> groupNodeSet = new CopyOnWriteArraySet<>();
     private final Integer groupId;
     private AtomicLong latestBlockNumber = new AtomicLong(0);
     private List<String> nodeWithLatestBlockNumber = new CopyOnWriteArrayList<String>();
