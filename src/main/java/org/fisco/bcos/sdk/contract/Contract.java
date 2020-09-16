@@ -76,7 +76,10 @@ public class Contract {
         this.eventEncoder = new EventEncoder(credential);
         // create eventSubscribe
         this.eventSubscribe =
-                EventSubscribe.build(client.getGroupManagerService(), client.getGroupId());
+                EventSubscribe.build(
+                        client.getGroupManagerService(),
+                        client.getEventResource(),
+                        client.getGroupId());
     }
 
     protected Contract(

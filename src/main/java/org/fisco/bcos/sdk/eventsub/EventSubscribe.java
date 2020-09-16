@@ -33,8 +33,9 @@ public interface EventSubscribe {
      * @param groupId
      * @return EventSubscribe Object
      */
-    static EventSubscribe build(GroupManagerService groupManagerService, Integer groupId) {
-        return new EventSubscribeImp(groupManagerService, groupId);
+    static EventSubscribe build(
+            GroupManagerService groupManagerService, EventResource eventResource, Integer groupId) {
+        return new EventSubscribeImp(groupManagerService, eventResource, groupId);
     }
 
     static String newSeq() {
@@ -65,6 +66,13 @@ public interface EventSubscribe {
      * @return list of event log filters
      */
     List<EventLogFilter> getAllSubscribedEvent();
+
+    /**
+     * Get EventPushMsgHandler and FilterManager.
+     *
+     * @return EventResource
+     */
+    EventResource getEventResource();
 
     /** Start */
     void start();
