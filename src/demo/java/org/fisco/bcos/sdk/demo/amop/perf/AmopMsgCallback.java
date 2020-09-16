@@ -13,9 +13,9 @@ public class AmopMsgCallback extends AmopCallback {
     }
 
     @Override
-    public void receiveAmopMsg(AmopMsgIn msg) {
+    public byte[] receiveAmopMsg(AmopMsgIn msg) {
         Long cost = System.currentTimeMillis() - startTime;
         collector.onSubscribedTopicMsg(msg, cost);
-        msg.sendResponse("Yes, I received!".getBytes());
+        return "Yes, I received!".getBytes();
     }
 }

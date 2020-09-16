@@ -163,8 +163,9 @@ public class TopicManagerTest {
     public class TestAmopCallback extends AmopCallback {
 
         @Override
-        public void receiveAmopMsg(AmopMsgIn msg) {
+        public byte[] receiveAmopMsg(AmopMsgIn msg) {
             // do nothing
+            return "".getBytes();
         }
     }
 }

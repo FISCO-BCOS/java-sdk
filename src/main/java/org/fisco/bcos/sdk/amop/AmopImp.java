@@ -174,7 +174,11 @@ public class AmopImp implements Amop {
         List<String> peers = this.channel.getAvailablePeer();
         logger.info("unsubscribe all topics, inform {} peers", peers.size());
         for (String peer : peers) {
-            unSubscribeToPeer(peer);
+            try {
+                unSubscribeToPeer(peer);
+            } catch (JsonProcessingException e) {
+                logger.error("Unsubscribe failed", e);
+            }
         }
     }
 
@@ -207,12 +211,13 @@ public class AmopImp implements Amop {
         logger.debug("update topics to node, node:{}, topics:{}", peer, new String(topics));
     }
 
-    private void unSubscribeToPeer(String peer) {
+    private void unSubscribeToPeer(String peer) throws JsonProcessingException {
         Message msg = new Message();
         msg.setType((short) MsgType.AMOP_CLIENT_TOPICS.getType());
         msg.setResult(0);
         msg.setSeq(newSeq());
-        msg.setData("".getBytes());
+        byte[] topics = getSubData(topicManager.getBlockNotifyByPeer(peer));
+        msg.setData(topics);
         Options opt = new Options();
         this.channel.asyncSendToPeer(msg, peer, null, opt);
         logger.info(
