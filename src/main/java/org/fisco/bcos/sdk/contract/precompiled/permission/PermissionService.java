@@ -21,6 +21,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledConstant;
+import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
@@ -28,19 +29,23 @@ import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 public class PermissionService {
     private final PermissionPrecompiled permissionPrecompiled;
+    private final String currentVersion;
 
     public PermissionService(Client client, CryptoInterface credential) {
         this.permissionPrecompiled =
                 PermissionPrecompiled.load(
                         PrecompiledAddress.PERMISSION_PRECOMPILED_ADDRESS, client, credential);
+        this.currentVersion = client.getClientNodeVersion().getNodeVersion().getSupportedVersion();
     }
 
     public RetCode grantPermission(String tableName, String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.permissionPrecompiled.insert(tableName, userAddress));
     }
 
     public RetCode revokePermission(String tableName, String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.permissionPrecompiled.remove(tableName, userAddress));
     }
@@ -56,6 +61,8 @@ public class PermissionService {
     }
 
     public List<PermissionInfo> queryPermission(String contractAddress) throws ContractException {
+        PrecompiledVersionCheck.QUERY_WRITE_PERMISSION_PRECOMPILED_VERSION.checkVersion(
+                currentVersion);
         try {
             String permissionInfo = this.permissionPrecompiled.queryPermission(contractAddress);
             return parsePermissionInfo(permissionInfo);
@@ -72,18 +79,23 @@ public class PermissionService {
     }
 
     public RetCode grantWrite(String contractAddress, String userAddress) throws ContractException {
+        PrecompiledVersionCheck.GRANT_WRITE_PERMISSION_PRECOMPILED_VERSION.checkVersion(
+                currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.permissionPrecompiled.grantWrite(contractAddress, userAddress));
     }
 
     public RetCode revokeWrite(String contractAddress, String userAddress)
             throws ContractException {
+        PrecompiledVersionCheck.REVOKE_WRITE_PERMISSION_PRECOMPILED_VERSION.checkVersion(
+                currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.permissionPrecompiled.revokeWrite(contractAddress, userAddress));
     }
 
     public List<PermissionInfo> queryPermissionByTableName(String tableName)
             throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         try {
             String permissionInfo = this.permissionPrecompiled.queryByName(tableName);
             return parsePermissionInfo(permissionInfo);
@@ -98,63 +110,78 @@ public class PermissionService {
 
     // permission interfaces for _sys_table_
     public RetCode grantDeployAndCreateManager(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return grantPermission(PrecompiledConstant.SYS_TABLE, userAddress);
     }
 
     public RetCode revokeDeployAndCreateManager(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return revokePermission(PrecompiledConstant.SYS_TABLE, userAddress);
     }
 
     public List<PermissionInfo> listDeployAndCreateManager() throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return queryPermissionByTableName(PrecompiledConstant.SYS_TABLE);
     }
     // permission interfaces for _sys_table_access_
     public RetCode grantPermissionManager(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return grantPermission(PrecompiledConstant.SYS_TABLE_ACCESS, userAddress);
     }
 
     public RetCode revokePermissionManager(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return revokePermission(PrecompiledConstant.SYS_TABLE_ACCESS, userAddress);
     }
 
     public List<PermissionInfo> listPermissionManager() throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return queryPermissionByTableName(PrecompiledConstant.SYS_TABLE_ACCESS);
     }
 
     // permission interfaces for _sys_consensus_
     public RetCode grantNodeManager(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return grantPermission(PrecompiledConstant.SYS_CONSENSUS, userAddress);
     }
 
     public RetCode revokeNodeManager(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return revokePermission(PrecompiledConstant.SYS_CONSENSUS, userAddress);
     }
 
     public List<PermissionInfo> listNodeManager() throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return queryPermissionByTableName(PrecompiledConstant.SYS_CONSENSUS);
     }
     // permission interfaces for _sys_cns_
     public RetCode grantCNSManager(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return grantPermission(PrecompiledConstant.SYS_CNS, userAddress);
     }
 
     public RetCode revokeCNSManager(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return revokePermission(PrecompiledConstant.SYS_CNS, userAddress);
     }
 
     public List<PermissionInfo> listCNSManager() throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return queryPermissionByTableName(PrecompiledConstant.SYS_CNS);
     }
     // permission interfaces for _sys_config_
     public RetCode grantSysConfigManager(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return grantPermission(PrecompiledConstant.SYS_CONFIG, userAddress);
     }
 
     public RetCode revokeSysConfigManager(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return revokePermission(PrecompiledConstant.SYS_CONFIG, userAddress);
     }
 
     public List<PermissionInfo> listSysConfigManager() throws ContractException {
+        PrecompiledVersionCheck.TABLE_PERMISSION_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return queryPermissionByTableName(PrecompiledConstant.SYS_CONFIG);
     }
 }

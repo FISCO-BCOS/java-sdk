@@ -1,6 +1,7 @@
 package org.fisco.bcos.sdk.abi.wrapper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -35,6 +36,7 @@ public class ABIDefinition {
 
     private List<NamedType> inputs;
     private List<NamedType> outputs;
+    public static List<String> CONSTANT_KEY = Arrays.asList("view");
 
     public ABIDefinition() {}
 
@@ -115,7 +117,7 @@ public class ABIDefinition {
     }
 
     public boolean isConstant() {
-        return constant;
+        return constant || CONSTANT_KEY.contains(this.getStateMutability());
     }
 
     public void setConstant(boolean constant) {
