@@ -201,6 +201,20 @@ public class AssembleTransactionManager extends TransactionManager
     }
 
     @Override
+    public TransactionResponse sendTransactionAndGetResponseByContractLoader(
+            String contractName,
+            String contractAddress,
+            String functionName,
+            List<Object> funcParams)
+            throws ABICodecException, TransactionBaseException {
+        return sendTransactionAndGetResponse(
+                contractAddress,
+                contractLoader.getABIByContractName(contractName),
+                functionName,
+                funcParams);
+    }
+
+    @Override
     public void sendTransactionAsync(String signedTransaction, TransactionCallback callback) {
         transactionPusher.pushAsync(signedTransaction, callback);
     }

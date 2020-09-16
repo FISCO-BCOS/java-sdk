@@ -91,6 +91,13 @@ public interface AssembleTransactionManagerInterface {
             TransactionCallback callback)
             throws ABICodecException, TransactionBaseException;
 
+    public TransactionResponse sendTransactionAndGetResponseByContractLoader(
+            String contractName,
+            String contractAddress,
+            String functionName,
+            List<Object> funcParams)
+            throws ABICodecException, TransactionBaseException;
+
     public CallResponse sendCallByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> params)
             throws TransactionBaseException, ABICodecException;
