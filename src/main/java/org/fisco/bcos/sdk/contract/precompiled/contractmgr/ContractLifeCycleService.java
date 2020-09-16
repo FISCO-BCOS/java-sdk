@@ -21,12 +21,14 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
+import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 
 public class ContractLifeCycleService {
     private final ContractLifeCyclePrecompiled contractLifeCyclePrecompiled;
+    private final String currentVersion;
 
     public ContractLifeCycleService(Client client, CryptoInterface credential) {
         this.contractLifeCyclePrecompiled =
@@ -34,25 +36,34 @@ public class ContractLifeCycleService {
                         PrecompiledAddress.CONTRACT_LIFECYCLE_PRECOMPILED_ADDRESS,
                         client,
                         credential);
+        this.currentVersion = client.getClientNodeVersion().getNodeVersion().getSupportedVersion();
     }
 
     public RetCode freeze(String contractAddress) throws ContractException {
+        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
+                currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.contractLifeCyclePrecompiled.freeze(contractAddress));
     }
 
     public RetCode unfreeze(String contractAddress) throws ContractException {
+        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
+                currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.contractLifeCyclePrecompiled.unfreeze(contractAddress));
     }
 
     public RetCode grantManager(String contractAddress, String userAddress)
             throws ContractException {
+        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
+                currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.contractLifeCyclePrecompiled.grantManager(contractAddress, userAddress));
     }
 
     public String getContractStatus(String contractAddress) throws ContractException {
+        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
+                currentVersion);
         try {
             Tuple2<BigInteger, String> result =
                     this.contractLifeCyclePrecompiled.getStatus(contractAddress);
@@ -73,6 +84,8 @@ public class ContractLifeCycleService {
     }
 
     public List<String> listManager(String contractAddress) throws ContractException {
+        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
+                currentVersion);
         try {
             Tuple2<BigInteger, List<String>> result =
                     this.contractLifeCyclePrecompiled.listManager(contractAddress);

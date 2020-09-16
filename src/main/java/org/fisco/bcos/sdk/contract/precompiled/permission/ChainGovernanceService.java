@@ -22,30 +22,36 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
+import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 
 public class ChainGovernanceService {
     private final ChainGovernancePrecompiled chainGovernancePrecompiled;
+    private String currentVersion;
 
     public ChainGovernanceService(Client client, CryptoInterface credential) {
         this.chainGovernancePrecompiled =
                 ChainGovernancePrecompiled.load(
                         PrecompiledAddress.CHAINGOVERNANCE_PRECOMPILED_ADDRESS, client, credential);
+        this.currentVersion = client.getClientNodeVersion().getNodeVersion().getSupportedVersion();
     }
 
     public RetCode grantCommitteeMember(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.grantCommitteeMember(userAddress));
     }
 
     public RetCode revokeCommitteeMember(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.revokeCommitteeMember(userAddress));
     }
 
     public List<PermissionInfo> listCommitteeMembers() throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         try {
             return PermissionService.parsePermissionInfo(
                     this.chainGovernancePrecompiled.listCommitteeMembers());
@@ -59,16 +65,19 @@ public class ChainGovernanceService {
 
     public RetCode updateCommitteeMemberWeight(String userAddress, BigInteger weight)
             throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.updateCommitteeMemberWeight(userAddress, weight));
     }
 
     public RetCode updateThreshold(BigInteger threshold) throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.updateThreshold(threshold));
     }
 
     public BigInteger queryThreshold() throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         try {
             return this.chainGovernancePrecompiled.queryThreshold();
         } catch (ContractException e) {
@@ -77,6 +86,7 @@ public class ChainGovernanceService {
     }
 
     public BigInteger queryCommitteeMemberWeight(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         try {
             Tuple2<Boolean, BigInteger> queryResult =
                     this.chainGovernancePrecompiled.queryCommitteeMemberWeight(userAddress);
@@ -96,16 +106,19 @@ public class ChainGovernanceService {
     }
 
     public RetCode grantOperator(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.grantOperator(userAddress));
     }
 
     public RetCode revokeOperator(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.revokeOperator(userAddress));
     }
 
     public List<PermissionInfo> listOperators() throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         try {
             return PermissionService.parsePermissionInfo(
                     this.chainGovernancePrecompiled.listOperators());
@@ -118,16 +131,19 @@ public class ChainGovernanceService {
     }
 
     public RetCode freezeAccount(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.freezeAccount(userAddress));
     }
 
     public RetCode unfreezeAccount(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.chainGovernancePrecompiled.unfreezeAccount(userAddress));
     }
 
     public String getAccountStatus(String userAddress) throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         try {
             return this.chainGovernancePrecompiled.getAccountStatus(userAddress);
         } catch (ContractException e) {

@@ -70,9 +70,10 @@ public class PerformanceCollector {
             boolean errorMessage = false;
             if (!receipt.isStatusOK()) {
                 logger.error(
-                        "error receipt, status: {}, output: {}",
+                        "error receipt, status: {}, output: {}, message: {}",
                         receipt.getStatus(),
-                        receipt.getOutput());
+                        receipt.getOutput(),
+                        receipt.getMessage());
                 errorMessage = true;
             }
             stat(errorMessage, cost);
