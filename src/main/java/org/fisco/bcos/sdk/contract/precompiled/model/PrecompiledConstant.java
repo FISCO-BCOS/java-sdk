@@ -36,4 +36,5 @@ public class PrecompiledConstant {
 
     public static final String KEY_FIELD_NAME = "key_field";
     public static final String VALUE_FIELD_NAME = "value_field";
+    public static final String TABLE_NAME_FIELD = "table_name";
 }
