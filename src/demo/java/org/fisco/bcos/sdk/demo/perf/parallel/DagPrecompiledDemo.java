@@ -87,6 +87,7 @@ public class DagPrecompiledDemo {
                                     callback.setUser(dtu);
                                     try {
                                         callback.recordStartTime();
+                                        callback.setTimeout(0);
                                         dagTransfer.userAdd(user, amount, callback);
                                         int current = sended.incrementAndGet();
                                         if (current >= area && ((current % area) == 0)) {

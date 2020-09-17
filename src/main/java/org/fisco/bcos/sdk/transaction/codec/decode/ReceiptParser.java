@@ -23,6 +23,7 @@ import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.RevertMessageParser;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceiptStatus;
+import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,8 +97,9 @@ public class ReceiptParser {
                     RevertMessageParser.tryResolveRevertMessage(
                             callResult.getStatus(), callResult.getOutput());
             if (errorOutput.getValue1()) {
-                return TransactionReceiptStatus.getStatusMessage(
-                        callResult.getStatus(), errorOutput.getValue2());
+                return new RetCode(
+                        Numeric.decodeQuantity(callResult.getStatus()).intValue(),
+                        errorOutput.getValue2());
             }
             return TransactionReceiptStatus.getStatusMessage(callResult.getStatus(), message);
         }

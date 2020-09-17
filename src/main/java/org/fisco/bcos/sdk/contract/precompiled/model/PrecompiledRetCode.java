@@ -102,7 +102,8 @@ public class PrecompiledRetCode {
                     "The committee permission control by ChainGovernancePrecompiled are recommended");
     public static final RetCode CODE_CONTRACT_NOT_EXIST =
             new RetCode(-51003, "The contract is not exist");
-    public static final RetCode CODE_TABLE_NAME_OVERFLOW = new RetCode(-51002, "");
+    public static final RetCode CODE_TABLE_NAME_OVERFLOW =
+            new RetCode(-51002, "The table name string length exceeds the maximum limit");
     public static final RetCode CODE_TABLE_AND_ADDRESS_NOT_EXIST =
             new RetCode(-51001, "The table name and address not exist");
     public static final RetCode CODE_TABLE_AND_ADDRESS_EXIST =
