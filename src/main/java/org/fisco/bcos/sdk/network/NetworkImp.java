@@ -179,7 +179,12 @@ public class NetworkImp implements Network {
             configOption.reloadConfig(CryptoInterface.SM_TYPE);
             result = checkCertExistence(true);
             if (!result.isCheckPassed()) {
-                throw new NetworkException("Certificate not exist:" + result.getErrorMessage());
+                if (tryEcdsaConnect) {
+                    throw new NetworkException("Certificate not exist:" + result.getErrorMessage());
+                } else {
+                    throw new NetworkException(
+                            "Not providing all the certificates to connect to the node! Please provide the certificates to connect with the block-chain.");
+                }
             }
             if (tryEcdsaConnect) {
                 // create a new connectionManager to connect the node with the SM sslContext
