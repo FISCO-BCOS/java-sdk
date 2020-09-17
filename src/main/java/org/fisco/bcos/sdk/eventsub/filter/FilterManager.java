@@ -100,6 +100,10 @@ public class FilterManager {
         List<EventLogFilter> filters = new ArrayList<EventLogFilter>();
         synchronized (this) {
             for (EventLogFilter filter : regId2Filter.values()) {
+                logger.trace(
+                        " filter in list, id:{}, status:{}",
+                        filter.getFilterID(),
+                        filter.getStatus());
                 if (filter.getStatus() == EventLogFilterStatus.WAITING_REQUEST) {
                     logger.info(
                             " resend filter, update event filter status: {}, registerID: {}, filter: {}",
