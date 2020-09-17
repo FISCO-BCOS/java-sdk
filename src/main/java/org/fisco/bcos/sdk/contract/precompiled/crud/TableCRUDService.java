@@ -177,17 +177,26 @@ public class TableCRUDService {
 
     private List<Map<String, String>> getTableDescLessThan230Version(
             EnumNodeVersion.Version enumNodeVersion, String tableName) throws ContractException {
+        List<Map<String, String>> tableDesc = new ArrayList<>();
         if (enumNodeVersion.getMajor() == 2 && enumNodeVersion.getMinor() < 2) {
-            return select(
-                    PrecompiledConstant.SYS_TABLE,
-                    PrecompiledConstant.USER_TABLE_PREFIX + tableName,
-                    new Condition());
+            tableDesc =
+                    select(
+                            PrecompiledConstant.SYS_TABLE,
+                            PrecompiledConstant.USER_TABLE_PREFIX + tableName,
+                            new Condition());
         } else {
-            return select(
-                    PrecompiledConstant.SYS_TABLE,
-                    PrecompiledConstant.USER_TABLE_PREFIX_2_2_0_VERSION + tableName,
-                    new Condition());
+            tableDesc =
+                    select(
+                            PrecompiledConstant.SYS_TABLE,
+                            PrecompiledConstant.USER_TABLE_PREFIX_2_2_0_VERSION + tableName,
+                            new Condition());
         }
+        for (Map<String, String> item : tableDesc) {
+            if (item.containsKey(PrecompiledConstant.TABLE_NAME_FIELD)) {
+                item.remove(PrecompiledConstant.TABLE_NAME_FIELD);
+            }
+        }
+        return tableDesc;
     }
 
     private List<Map<String, String>> getTableDesc(String tableName) throws ContractException {
