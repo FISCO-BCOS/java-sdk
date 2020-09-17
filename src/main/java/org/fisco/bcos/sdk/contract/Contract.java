@@ -37,6 +37,7 @@ import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.eventsub.EventLogParams;
 import org.fisco.bcos.sdk.eventsub.EventSubscribe;
+import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.manager.TransactionManager;
@@ -140,9 +141,10 @@ public class Contract {
 
         String contractAddress = transactionReceipt.getContractAddress();
         if (contractAddress == null) {
+            // parse the receipt
+            RetCode retCode = ReceiptParser.parseTransactionReceipt(transactionReceipt);
             throw new ContractException(
-                    "Deploy contract failed: empty contract address returned, transactionReceipt: "
-                            + transactionReceipt.toString());
+                    "Deploy contract failed, error message: " + retCode.getMessage());
         }
         contract.setContractAddress(contractAddress);
         contract.setDeployReceipt(transactionReceipt);
