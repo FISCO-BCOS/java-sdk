@@ -163,10 +163,17 @@ public class EventSubscribeImp implements EventSubscribe {
 
     private void resendWaitingFilters() {
         List<EventLogFilter> filters = filterManager.getWaitingReqFilters();
-        for (EventLogFilter filter : filters) {
-            sendFilter(filter);
+        try {
+            for (EventLogFilter filter : filters) {
+                sendFilter(filter);
+            }
+            logger.info("Resend waiting filters, size: {}", filters.size());
+        } catch (Exception e) {
+            logger.error("resendWaitingFilters exception : {}", e.getMessage());
+            for (EventLogFilter filter : filters) {
+                filter.setStatus(EventLogFilterStatus.WAITING_REQUEST);
+            }
         }
-        logger.info("Resend waiting filters, size: {}", filters.size());
     }
 
     private void sendFilter(EventLogFilter filter) {
