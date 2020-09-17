@@ -33,7 +33,9 @@ public class SM2Signature implements Signature {
 
     @Override
     public String signWithStringSignature(final String message, final CryptoKeyPair keyPair) {
-        CryptoResult signatureResult = NativeInterface.sm2Sign(keyPair.getHexPrivateKey(), message);
+        CryptoResult signatureResult =
+                NativeInterface.sm2SignWithPub(
+                        keyPair.getHexPrivateKey(), keyPair.getHexPublicKey(), message);
         if (signatureResult.wedprErrorMessage != null
                 && !signatureResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
