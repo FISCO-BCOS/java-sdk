@@ -64,7 +64,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     @Override
     public TransactionResponse decodeReceiptWithValues(
             String abi, String functionName, TransactionReceipt transactionReceipt)
-            throws IOException, ContractException, ABICodecException, TransactionException {
+            throws IOException, ABICodecException, TransactionException {
         TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
         // only successful tx has return values.
         if (transactionReceipt.getStatus().equals("0x0")) {
@@ -80,7 +80,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     @Override
     public TransactionResponse decodeReceiptWithoutValues(
             String abi, TransactionReceipt transactionReceipt)
-            throws TransactionException, IOException, ContractException, ABICodecException {
+            throws TransactionException, IOException, ABICodecException {
         TransactionResponse response = decodeReceiptStatus(transactionReceipt);
         String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogs()));
         response.setTransactionReceipt(transactionReceipt);
@@ -90,13 +90,18 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     }
 
     @Override
-    public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt)
-            throws ContractException {
-        RetCode retCode = ReceiptParser.parseTransactionReceipt(receipt);
+    public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt) {
         TransactionResponse response = new TransactionResponse();
-        response.setReturnCode(retCode.getCode());
-        response.setReceiptMessages(retCode.getMessage());
-        response.setReturnMessage(retCode.getMessage());
+        try {
+            RetCode retCode = ReceiptParser.parseTransactionReceipt(receipt);
+            response.setReturnCode(retCode.getCode());
+            response.setReceiptMessages(retCode.getMessage());
+            response.setReturnMessage(retCode.getMessage());
+        } catch (ContractException e) {
+            response.setReturnCode(e.getErrorCode());
+            response.setReceiptMessages(e.getMessage());
+            response.setReturnMessage(e.getMessage());
+        }
         return response;
     }
 
