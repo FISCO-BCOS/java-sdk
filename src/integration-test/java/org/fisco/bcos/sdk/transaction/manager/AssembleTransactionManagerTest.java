@@ -302,7 +302,7 @@ public class AssembleTransactionManagerTest {
     }
 
     @Test
-    public void test8ComplexSetBytesMapping() throws Exception {
+    public void test8ComplexSetBytesFuture() throws Exception {
         BcosSDK sdk =  BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
@@ -317,8 +317,7 @@ public class AssembleTransactionManagerTest {
             return;
         }
         String contractAddress = response.getContractAddress();
-        // set Bytes Mapping
-        List<Object> paramsSetBytes = Lists.newArrayList("set bytes2".getBytes());
+        List<Object> paramsSetBytes = Lists.newArrayList("2".getBytes());
         String data = manager.encodeFunction(abi, "setBytes", paramsSetBytes);
         String signedData = manager.createSignedTransaction(contractAddress, data);
         CompletableFuture<TransactionReceipt> future = manager.sendTransactionAsync(signedData);

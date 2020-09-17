@@ -21,7 +21,6 @@ import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
-import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.RetCode;
@@ -86,9 +85,6 @@ public class AssembleTransactionManager extends TransactionManager
         TransactionReceipt receipt = transactionPusher.push(signedData);
         try {
             return transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
-        } catch (ContractException e) {
-            log.error("deploy exception: {}", e.getMessage());
-            return new TransactionResponse(receipt, e.getErrorCode(), e.getMessage());
         } catch (TransactionException | IOException | ABICodecException e) {
             log.error("deploy exception: {}", e.getMessage());
             return new TransactionResponse(
@@ -167,7 +163,7 @@ public class AssembleTransactionManager extends TransactionManager
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
             return transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
-        } catch (TransactionException | IOException | ContractException e) {
+        } catch (TransactionException | IOException e) {
             log.error("sendTransaction exception: {}", e.getMessage());
             return new TransactionResponse(
                     receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
