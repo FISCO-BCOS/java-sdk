@@ -189,6 +189,11 @@ jacocoTestReport {
         html.enabled false
     }
 }
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 30, 'seconds'
+}
+
 jar {
     // destinationDir file('dist/apps')
     // archiveName project.name + '-' + project.version + '.jar'
