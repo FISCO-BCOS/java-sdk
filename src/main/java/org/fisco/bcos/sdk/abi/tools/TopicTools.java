@@ -10,6 +10,7 @@ import org.fisco.bcos.sdk.utils.Numeric;
 public class TopicTools {
 
     public static final int MAX_NUM_TOPIC_EVENT_LOG = 4;
+    public static final String LATEST = "latest";
 
     private CryptoInterface cryptoInterface;
 

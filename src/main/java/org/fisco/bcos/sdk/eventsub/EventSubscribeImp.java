@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.eventsub;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -64,7 +65,9 @@ public class EventSubscribeImp implements EventSubscribe {
 
     @Override
     public String subscribeEvent(EventLogParams params, EventCallback callback) {
-        if (!params.valid()) {
+        BigInteger number = groupManagerService.getLatestBlockNumberByGroup(groupId);
+        logger.info(" subscribe event at block num:" + number);
+        if (!params.checkParams(number)) {
             callback.onReceiveLog(EventSubNodeRespStatus.INVALID_PARAMS.getStatus(), null);
             return null;
         }
