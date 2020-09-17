@@ -92,7 +92,7 @@ public class ContractException extends Exception {
     public String toString() {
         return "ContractException{"
                 + "responseOutput="
-                + responseOutput.toString()
+                + (responseOutput == null ? "null" : responseOutput.toString())
                 + ", errorCode="
                 + errorCode
                 + '}';

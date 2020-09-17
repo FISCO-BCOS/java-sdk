@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.abi.ABICodecException;
-import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
@@ -34,17 +33,15 @@ public interface TransactionDecoderInterface {
 
     public String decodeReceiptMessage(String input);
 
+    public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt);
+
     public TransactionResponse decodeReceiptWithValues(
             String abi, String functionName, TransactionReceipt receipt)
-            throws JsonProcessingException, TransactionException, IOException, ContractException,
-                    ABICodecException;
+            throws JsonProcessingException, TransactionException, IOException, ABICodecException;
 
     public TransactionResponse decodeReceiptWithoutValues(
             String abi, TransactionReceipt transactionReceipt)
-            throws TransactionException, IOException, ContractException, ABICodecException;
-
-    public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt)
-            throws ContractException;
+            throws TransactionException, IOException, ABICodecException;
 
     public Map<String, List<Object>> decodeEvents(String abi, List<Logs> logs)
             throws ABICodecException;

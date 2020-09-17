@@ -174,9 +174,7 @@ public class ABICodecObject {
     }
 
     public ABIObject encodeValue(ABIObject template, Object value) {
-
         ABIObject abiObject = template.newObject();
-
         if (abiObject.getType() == ABIObject.ObjectType.LIST) {
             abiObject = encodeList(abiObject, value);
         } else if (abiObject.getType() == ABIObject.ObjectType.STRUCT) {
