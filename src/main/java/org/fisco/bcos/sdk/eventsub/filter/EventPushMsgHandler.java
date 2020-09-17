@@ -81,7 +81,7 @@ public class EventPushMsgHandler implements MsgHandler {
                 }
             }
         } catch (JsonProcessingException e) {
-            // todo handle exception
+            logger.error("EventLogResponse error : " + e.getMessage());
         }
     }
 

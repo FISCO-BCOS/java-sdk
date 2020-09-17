@@ -61,7 +61,7 @@ public class PerformanceRPC {
                             "PerformanceRPC",
                             sdk.getConfig().getThreadPoolConfig().getMaxBlockingQueueSize());
 
-            System.out.println("Start test，total：" + count);
+            System.out.println("Start test, total: " + count);
             for (Integer i = 0; i < count; ++i) {
                 threadPoolService
                         .getThreadPool()
