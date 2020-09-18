@@ -1,52 +1,46 @@
 [cryptoMaterial]
-certPath = "conf"
-# CA cert file path
-# caCert = "conf/ca.crt"
-# SSL cert file path
-# sslCert = "conf/sdk.crt"
-# SSL key file path
-# sslKey = "conf/sdk.key"
-# enSslCert = "conf/gm/gmensdk.crt"
-# enSslKey = "conf/gm/gmensdk.key"
+
+certPath = "conf"                           # The certification path  
+
+# The following configuration items take the certPath by default:
+
+# caCert = "conf/ca.crt"                    # CA cert file path    
+# sslCert = "conf/sdk.crt"                  # SSL cert file path
+# sslKey = "conf/sdk.key"                   # SSL key file path
+# enSslCert = "conf/gm/gmensdk.crt"         # GM encryption cert file path
+# enSslKey = "conf/gm/gmensdk.key"          # GM ssl cert file path
 
 [network]
-# The peer list to connect
-peers=["127.0.0.1:20200", "127.0.0.1:20201"]
+peers=["127.0.0.1:20200", "127.0.0.1:20201"]    # The peer list to connect
 
 # Configure a private topic as a topic message sender.
 # [[amop]]
 # topicName = "PrivateTopic1"
-# Public keys of the nodes that you want to send AMOP message of this topic to.
-# publicKeys = [ "conf/amop/consumer_public_key_1.pem" ]
+# publicKeys = [ "conf/amop/consumer_public_key_1.pem" ]    # Public keys of the nodes that you want to send AMOP message of this topic to.
 
 # Configure a private topic as a topic subscriber.
 # [[amop]]
 # topicName = "PrivateTopic2"
-# Your private key that used to subscriber verification.
-# privateKey = "conf/amop/consumer_private_key.p12"
+# privateKey = "conf/amop/consumer_private_key.p12"         # Your private key that used to subscriber verification.
 # password = "123456"
 
 [account]
-# The directory where the account private key file is placed in
-keyStoreDir = "account"
-# The account file path(Default load account from keyStoreDir directory when accountFilePath is not configured)
-# accountFilePath = ""
-# The storage format of the account, support pem and p12, default is pem
-accountFileFormat = "pem"
-# The address of the account used to send transactions
-# When it's empty, use a randomly generated account to send transactions,
-# and the randomly generated account information is stored in tmp sub-directory of keyStoreDir
-# accountAddress = ""
-# The password used to load the account private key file
-# password = ""
+keyStoreDir = "account"         # The account private key file path
+# accountFilePath = ""          # The account file path (When accountFilePath is not configured, default load from the path specified by the keyStoreDir configuration)
+accountFileFormat = "pem"       # The storage format of account file (Default is pem, p12 as option)
+
+### When it's empty, use a randomly generated account to send transactions,
+### the randomly generated account is stored in the path specified by the keyStoreDir configuration
+# accountAddress = ""           # The transactions sending address of the account 
+
+# password = ""                 # The password used to load the account private key file
 
 [threadPool]
-# The size of the thread pool used to process the callback of the channel
-# Default is the number of cpu cores of the physical machine
-# channelProcessorThreadSize = "16"
-# The size of the thread pool used to process the transaction receipt notification
-# Default is the number of cpu cores of the physical machine
-# receiptProcessorThreadSize = "16"
-# The max blocking queue size of the thread pool
-maxBlockingQueueSize = "102400"
+### Default is the number of cpu cores of the physical machine
+# channelProcessorThreadSize = "16"         # The size of the thread pool used to process the callback of the channel
+
+### Default is the number of cpu cores of the physical machine
+# receiptProcessorThreadSize = "16"         # The size of the thread pool used to process the transaction receipt notification
+
+maxBlockingQueueSize = "102400"             # The max blocking queue size of the thread pool
 
