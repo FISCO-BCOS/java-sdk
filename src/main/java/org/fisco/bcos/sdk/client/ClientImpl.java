@@ -751,6 +751,14 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public NodeIDList getNodeIDList(String endpoint) {
+        return this.jsonRpcService.sendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.GET_NODEIDLIST, Arrays.asList(DefaultGroupId)),
+                endpoint,
+                NodeIDList.class);
+    }
+
+    @Override
     public void getNodeIDListAsync(RespCallback<NodeIDList> callback) {
         this.jsonRpcService.asyncSendRequestToGroup(
                 new JsonRpcRequest(JsonRpcMethods.GET_NODEIDLIST, Arrays.asList()),
@@ -945,7 +953,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void asyncsendRawTransactionAndGetProof(
+    public void asyncSendRawTransactionAndGetProof(
             String signedTransactionData, TransactionCallback callback) {
         this.jsonRpcService.asyncSendTransactionToGroup(
                 new JsonRpcRequest(
@@ -959,7 +967,7 @@ public class ClientImpl implements Client {
     public TransactionReceipt sendRawTransactionAndGetReceiptWithProof(
             String signedTransactionData) {
         SynchronousTransactionCallback callback = new SynchronousTransactionCallback();
-        asyncsendRawTransactionAndGetProof(signedTransactionData, callback);
+        asyncSendRawTransactionAndGetProof(signedTransactionData, callback);
         try {
             callback.semaphore.acquire(1);
         } catch (InterruptedException e) {

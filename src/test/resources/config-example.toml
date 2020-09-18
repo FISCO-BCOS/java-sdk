@@ -2,7 +2,7 @@
 
 certPath = "conf"                           # The certification path  
 
-# The following configuration items take the certPath by default:
+# The following configurations take the certPath by default:
 
 # caCert = "conf/ca.crt"                    # CA cert file path    
 # sslCert = "conf/sdk.crt"                  # SSL cert file path
@@ -25,22 +25,22 @@ peers=["127.0.0.1:20200", "127.0.0.1:20201"]    # The peer list to connect
 # password = "123456"
 
 [account]
-keyStoreDir = "account"         # The account private key file path
-# accountFilePath = ""          # The account file path (When accountFilePath is not configured, default load from the path specified by the keyStoreDir configuration)
-accountFileFormat = "pem"       # The storage format of account file (Default is pem, p12 as option)
+keyStoreDir = "account"         # The directory to load/store the account file, default is "account"
+# accountFilePath = ""          # The account file path (default load from the path specified by the keyStoreDir)
+accountFileFormat = "pem"       # The storage format of account file (Default is "pem", "p12" as an option)
 
-### When it's empty, use a randomly generated account to send transactions,
-### the randomly generated account is stored in the path specified by the keyStoreDir configuration
-# accountAddress = ""           # The transactions sending address of the account 
+# accountAddress = ""           # The transactions sending account address
+                                # Default is a randomly generated account
+                                # The randomly generated account is stored in the path specified by the keyStoreDir
 
-# password = ""                 # The password used to load the account private key file
+# password = ""                 # The password used to load the account file
 
 [threadPool]
-### Default is the number of cpu cores of the physical machine
-# channelProcessorThreadSize = "16"         # The size of the thread pool used to process the callback of the channel
+# channelProcessorThreadSize = "16"         # The size of the thread pool to process channel callback
+                                            # Default is the number of cpu cores
 
-### Default is the number of cpu cores of the physical machine
-# receiptProcessorThreadSize = "16"         # The size of the thread pool used to process the transaction receipt notification
+# receiptProcessorThreadSize = "16"         # The size of the thread pool to process transaction receipt notification
+                                            # Default is the number of cpu cores
 
 maxBlockingQueueSize = "102400"             # The max blocking queue size of the thread pool
 
