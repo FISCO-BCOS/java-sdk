@@ -14,7 +14,7 @@ import java.util.concurrent.Semaphore;
 
 public class PrivateTopicVerifyTest {
     private static Logger logger = LoggerFactory.getLogger(PrivateTopicVerifyTest.class);
-    private static final String senderConfig = PrivateTopicVerifyTest.class.getClassLoader().getResource("amop/config-sender-for-test.toml").getPath();
+    private static final String senderConfig = PrivateTopicVerifyTest.class.getClassLoader().getResource("amop/config-publisher-for-test.toml").getPath();
     private static final String subscriberConfig = PrivateTopicVerifyTest.class.getClassLoader().getResource("amop/config-subscriber-for-test.toml").getPath();
     private Amop sender;
     private Amop subscriber;
@@ -121,12 +121,12 @@ public class PrivateTopicVerifyTest {
         }
 
         @Override
-        public void receiveAmopMsg(AmopMsgIn msg) {
+        public byte[] receiveAmopMsg(AmopMsgIn msg) {
             //Assert.assertEquals(topic,msg.getTopic());
             //Assert.assertEquals(content,new String(msg.getContent()));
             System.out.println("on subscribed topic msg");
 
-            msg.sendResponse("Yes, I received.".getBytes());
+            return "Yes, I received.".getBytes();
         }
     }
 }

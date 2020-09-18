@@ -4,9 +4,12 @@ import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.amop.AmopCallback;
 
-public class AmopSubscribe {
+public class AmopSubscriber {
     private static String subscriberConfigFile =
-            AmopSubscribe.class.getClassLoader().getResource("config-subscriber.toml").getPath();
+            AmopSubscriber.class
+                    .getClassLoader()
+                    .getResource("amop/config-subscriber-for-test.toml")
+                    .getPath();
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {

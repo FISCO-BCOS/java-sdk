@@ -13,7 +13,7 @@ public class ConfigTest {
     private static final String senderConfig =
             ConfigTest.class
                     .getClassLoader()
-                    .getResource("amop/config-sender-for-test.toml")
+                    .getResource("amop/config-publisher-for-test.toml")
                     .getPath();
     private static final String subscriberConfig =
             ConfigTest.class

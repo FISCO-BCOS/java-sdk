@@ -18,5 +18,11 @@ package org.fisco.bcos.sdk.amop;
 import org.fisco.bcos.sdk.amop.topic.AmopMsgIn;
 
 public abstract class AmopCallback {
-    public abstract void receiveAmopMsg(AmopMsgIn msg);
+    /**
+     * receiveAmopMsg is called when get a subscribed topic amop msg.
+     *
+     * @param msg
+     * @return response content
+     */
+    public abstract byte[] receiveAmopMsg(AmopMsgIn msg);
 }
