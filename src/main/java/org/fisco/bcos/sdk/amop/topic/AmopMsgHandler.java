@@ -291,7 +291,22 @@ public class AmopMsgHandler implements MsgHandler {
         msgIn.setResult(amopMsg.getResult());
         msgIn.setCtx(ctx);
         msgIn.setType(amopMsg.getType());
-        callback.receiveAmopMsg(msgIn);
+        byte[] content = callback.receiveAmopMsg(msgIn);
+
+        // Response the amop msg
+        if (amopMsg.getType() == (short) MsgType.AMOP_MULBROADCAST.getType()) {
+            // If received a broadcast msg, do not response.
+            return;
+        }
+        amopMsg.setResult(0);
+        amopMsg.setType((short) MsgType.AMOP_RESPONSE.getType());
+        amopMsg.setData(content);
+        logger.trace(
+                "Send response, seq:{} topic:{} content:{}",
+                amopMsg.getSeq(),
+                amopMsg.getTopic(),
+                new String(content));
+        ctx.writeAndFlush(amopMsg.getMessage());
     }
 
     public void onAmopResponse(ChannelHandlerContext ctx, Message msg) {

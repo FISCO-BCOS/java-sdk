@@ -114,6 +114,16 @@ public class TopicManager {
         return peerSub;
     }
 
+    public Set<String> getBlockNotifyByPeer(String peerIpPort) {
+        Set<String> notify = peer2BlockNotify.get(peerIpPort);
+        Set<String> peerSub = new HashSet<>();
+        if (notify != null) {
+            peerSub.addAll(notify);
+        }
+        logger.trace("get sub by peer, peer:{}, sub:{}", peerIpPort, peerSub.size());
+        return peerSub;
+    }
+
     public Set<String> getTopicNames() {
         return topicName2FullName.keySet();
     }

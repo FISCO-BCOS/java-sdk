@@ -212,11 +212,12 @@ public class AmopMsgHandlerTest {
         }
 
         @Override
-        public void receiveAmopMsg(AmopMsgIn msg) {
+        public byte[] receiveAmopMsg(AmopMsgIn msg) {
             this.msg = msg;
             Assert.assertTrue(msg.getTopic().equals(topic));
             Assert.assertEquals(msg.getContent().length, content.length);
             Assert.assertTrue(new String(msg.getContent()).equals(new String(content)));
+            return "I received".getBytes();
         }
 
         public AmopMsgIn getMsg() {
