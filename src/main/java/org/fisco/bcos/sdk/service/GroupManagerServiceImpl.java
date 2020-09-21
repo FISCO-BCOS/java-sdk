@@ -45,7 +45,7 @@ import org.fisco.bcos.sdk.client.handler.TransactionNotifyHandler;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.NodeVersion;
@@ -121,9 +121,9 @@ public class GroupManagerServiceImpl implements GroupManagerService {
         }
         NodeVersion nodeVersion = nodeToNodeVersion.get(peerInfo);
         if (nodeVersion.getNodeVersion().getVersion().contains(SM_CRYPTO_STR)) {
-            return CryptoInterface.SM_TYPE;
+            return CryptoType.SM_TYPE;
         }
-        return CryptoInterface.ECDSA_TYPE;
+        return CryptoType.ECDSA_TYPE;
     }
 
     @Override

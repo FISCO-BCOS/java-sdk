@@ -18,11 +18,12 @@ package org.fisco.bcos.sdk.test.abi;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.CryptoType;
 
 public class Utils {
 
     public static CryptoInterface getCryptoInterface() {
-        return new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+        return new CryptoInterface(CryptoType.ECDSA_TYPE);
     }
 
     public static ContractABIDefinition getContractABIDefinition(String abiDesc) {

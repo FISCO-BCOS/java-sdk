@@ -34,6 +34,7 @@ import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
 import org.fisco.bcos.sdk.model.AmopMsg;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -219,7 +220,7 @@ public class AmopMsgHandler implements MsgHandler {
         Iterator<KeyManager> pks = pubKeys.iterator();
         while (pks.hasNext()) {
             KeyManager km = pks.next();
-            CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+            CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
             if (cryptoInterface.verify(
                     km,
                     Hex.toHexString(cryptoInterface.hash(randomValue)),
@@ -255,7 +256,7 @@ public class AmopMsgHandler implements MsgHandler {
             logger.error("topic:{} not subscribed, reject message", getSimpleTopic(topic));
             return;
         } else {
-            CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+            CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
             try {
                 signature =
                         cryptoInterface.sign(km, Hex.toHexString(cryptoInterface.hash(randValue)));

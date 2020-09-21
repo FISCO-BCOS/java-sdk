@@ -34,6 +34,7 @@ import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.ConstantConfig;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class SignatureTest {
 
     @Test
     public void testCryptoInterfaceForECDSA() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
         // generate keyPair
         CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
         // test signature
@@ -70,7 +71,7 @@ public class SignatureTest {
 
     @Test
     public void testCryptoInterfaceForSM2() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.SM_TYPE);
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.SM_TYPE);
         // generate keyPair
         CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
         // test signature
@@ -106,7 +107,7 @@ public class SignatureTest {
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2);
 
         // create keyPair with cryptoInterface
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
         keyPair = cryptoInterface.createKeyPair();
         testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2);
@@ -128,7 +129,7 @@ public class SignatureTest {
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2);
 
         // create keyPair with cryptoInterface
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.SM_TYPE);
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.SM_TYPE);
         keyPair = cryptoInterface.createKeyPair();
         testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2);
@@ -194,14 +195,14 @@ public class SignatureTest {
 
     @Test(expected = KeyPairException.class)
     public void testInvalidCaseForECDSACryptoInterface() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
         CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
         testInvalidPublicKey(keyPair);
     }
 
     @Test(expected = KeyPairException.class)
     public void testInvalidCaseForSM2CryptoInterface() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.SM_TYPE);
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.SM_TYPE);
         CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
         testInvalidPublicKey(keyPair);
     }
@@ -304,7 +305,7 @@ public class SignatureTest {
         KeyManager signKeyManager =
                 new P12Manager(
                         getClass().getClassLoader().getResource(keyPairPem).getPath(), "123456");
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
         // sign and verify message with keyManager
         for (int i = 0; i < 10; i++) {
             String message = cryptoInterface.hash("abcd----" + Integer.toString(i));
@@ -327,26 +328,26 @@ public class SignatureTest {
 
     @Test
     public void testSMLoadAndStoreKeyPairWithPEM() throws ConfigException {
-        testLoadAndStoreKeyPairWithPEM(CryptoInterface.SM_TYPE);
+        testLoadAndStoreKeyPairWithPEM(CryptoType.SM_TYPE);
     }
 
     @Test
     public void testECDSALoadAndStoreKeyPairWithPEM() throws ConfigException {
-        testLoadAndStoreKeyPairWithPEM(CryptoInterface.ECDSA_TYPE);
+        testLoadAndStoreKeyPairWithPEM(CryptoType.ECDSA_TYPE);
     }
 
     @Test
     public void testSMLoadAndStoreKeyPairWithP12() throws ConfigException {
-        testLoadAndStoreKeyPairWithP12(CryptoInterface.SM_TYPE);
+        testLoadAndStoreKeyPairWithP12(CryptoType.SM_TYPE);
     }
 
     @Test
     public void testECDSALoadAndStoreKeyPairWithP12() throws ConfigException {
-        testLoadAndStoreKeyPairWithP12(CryptoInterface.ECDSA_TYPE);
+        testLoadAndStoreKeyPairWithP12(CryptoType.ECDSA_TYPE);
     }
 
     public void testLoadAndStoreKeyPairWithPEM(int cryptoType) throws ConfigException {
-        ConfigOption configOption = Config.load(configFile, CryptoInterface.ECDSA_TYPE);
+        ConfigOption configOption = Config.load(configFile, CryptoType.ECDSA_TYPE);
         CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
         cryptoInterface.getCryptoKeyPair().setConfig(configOption);
         cryptoInterface.getCryptoKeyPair().storeKeyPairWithPemFormat();
@@ -374,7 +375,7 @@ public class SignatureTest {
     }
 
     public void testLoadAndStoreKeyPairWithP12(int cryptoType) throws ConfigException {
-        ConfigOption configOption = Config.load(configFile, CryptoInterface.ECDSA_TYPE);
+        ConfigOption configOption = Config.load(configFile, CryptoType.ECDSA_TYPE);
         CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
         cryptoInterface.getCryptoKeyPair().setConfig(configOption);
         String password = "123";
