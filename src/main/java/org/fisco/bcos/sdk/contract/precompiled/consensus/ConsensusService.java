@@ -16,12 +16,12 @@ package org.fisco.bcos.sdk.contract.precompiled.consensus;
 
 import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
-import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
+import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 
 public class ConsensusService {
     private final ConsensusPrecompiled consensusPrecompiled;

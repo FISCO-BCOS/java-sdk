@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectReader;
 import java.io.IOException;
 import java.util.Optional;
+import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 

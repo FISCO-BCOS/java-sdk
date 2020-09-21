@@ -12,7 +12,7 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.contract.precompiled.model;
+package org.fisco.bcos.sdk.model;
 
 public class PrecompiledConstant {
     // constant value

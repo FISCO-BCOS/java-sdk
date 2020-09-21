@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.client.protocol.response;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
+import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader> {

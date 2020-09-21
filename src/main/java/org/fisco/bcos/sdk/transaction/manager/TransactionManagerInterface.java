@@ -16,7 +16,7 @@ package org.fisco.bcos.sdk.transaction.manager;
 
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 
 /**

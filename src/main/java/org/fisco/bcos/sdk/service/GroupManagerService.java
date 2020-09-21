@@ -24,9 +24,9 @@ import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.Response;
+import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.network.ConnectionInfo;
 import org.fisco.bcos.sdk.service.callback.BlockNumberNotifyCallback;
-import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
 public interface GroupManagerService {
     public static final BigInteger BLOCK_LIMIT = BigInteger.valueOf(500);
