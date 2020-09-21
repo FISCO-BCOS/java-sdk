@@ -18,7 +18,7 @@ package org.fisco.bcos.sdk.config.model;
 import java.io.File;
 import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,11 +80,11 @@ public class CryptoMaterialConfig {
         CryptoMaterialConfig cryptoMaterialConfig = new CryptoMaterialConfig();
         cryptoMaterialConfig.setCertPath(certPath);
         String smDir = "gm";
-        if (cryptoType == CryptoInterface.ECDSA_TYPE) {
+        if (cryptoType == CryptoType.ECDSA_TYPE) {
             cryptoMaterialConfig.setCaCertPath(certPath + File.separator + "ca.crt");
             cryptoMaterialConfig.setSdkCertPath(certPath + File.separator + "sdk.crt");
             cryptoMaterialConfig.setSdkPrivateKeyPath(certPath + File.separator + "sdk.key");
-        } else if (cryptoType == CryptoInterface.SM_TYPE) {
+        } else if (cryptoType == CryptoType.SM_TYPE) {
             cryptoMaterialConfig.setCaCertPath(
                     certPath + File.separator + smDir + File.separator + "gmca.crt");
             cryptoMaterialConfig.setSdkCertPath(

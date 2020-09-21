@@ -31,6 +31,7 @@ import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
 import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +39,6 @@ public class CryptoInterface {
 
     private static Logger logger = LoggerFactory.getLogger(CryptoInterface.class);
 
-    public static final int ECDSA_TYPE = 0;
-    public static final int SM_TYPE = 1;
     public final int cryptoTypeConfig;
 
     public final Signature signatureImpl;
@@ -66,19 +65,23 @@ public class CryptoInterface {
      */
     public CryptoInterface(int cryptoTypeConfig) {
         this.cryptoTypeConfig = cryptoTypeConfig;
-        if (this.cryptoTypeConfig == ECDSA_TYPE) {
+        if (this.cryptoTypeConfig == CryptoType.ECDSA_TYPE) {
             this.signatureImpl = new ECDSASignature();
             this.hashImpl = new Keccak256();
             this.keyPairFactory = new ECDSAKeyPair();
 
-        } else if (this.cryptoTypeConfig == SM_TYPE) {
+        } else if (this.cryptoTypeConfig == CryptoType.SM_TYPE) {
             this.signatureImpl = new SM2Signature();
             this.hashImpl = new SM3Hash();
             this.keyPairFactory = new SM2KeyPair();
 
         } else {
             throw new UnsupportedCryptoTypeException(
-                    "only support " + ECDSA_TYPE + "/" + SM_TYPE + " crypto type");
+                    "only support "
+                            + CryptoType.ECDSA_TYPE
+                            + "/"
+                            + CryptoType.SM_TYPE
+                            + " crypto type");
         }
         // create keyPair randomly
         createKeyPair();

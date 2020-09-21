@@ -18,6 +18,7 @@ import org.fisco.bcos.sdk.crypto.exceptions.UnsupportedCryptoTypeException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
 import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +26,7 @@ import org.junit.Test;
 public class HashTest {
     @Test
     public void testCryptoInterfaceForSMHash() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.SM_TYPE);
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.SM_TYPE);
         // check sm3 hash for "abcde"
         checkHashWithCryptoInterface(
                 cryptoInterface,
@@ -47,7 +48,7 @@ public class HashTest {
 
     @Test
     public void testCryptoInterfaceForKeccak256Hash() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
         // check keccak256 for "abcde"
         checkHashWithCryptoInterface(
                 cryptoInterface,

@@ -58,6 +58,7 @@ import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.utils.Collection;
@@ -117,7 +118,8 @@ public class SolidityContractWrapper {
         List<ABIDefinition> abiDefinitions = CodeGenUtils.loadContractAbiDefinition(abi);
         TypeSpec.Builder classBuilder = createClassBuilder(className, bin, smBin, abi);
 
-        classBuilder.addMethod(buildGetBinaryMethod(CryptoInterface.class, CREDENTIAL));
+        classBuilder.addMethod(
+                buildGetBinaryMethod(CryptoInterface.class, CryptoType.class, CREDENTIAL));
         classBuilder.addMethod(buildConstructor(CryptoInterface.class, CREDENTIAL));
 
         classBuilder.addFields(buildFuncNameConstants(abiDefinitions));
@@ -315,7 +317,8 @@ public class SolidityContractWrapper {
         return fields;
     }
 
-    private static MethodSpec buildGetBinaryMethod(Class authType, String authName) {
+    private static MethodSpec buildGetBinaryMethod(
+            Class authType, Class cryptoType, String authName) {
         MethodSpec.Builder toReturn =
                 MethodSpec.methodBuilder(GET_BINARY_FUNC)
                         .addParameter(authType, authName)
@@ -325,7 +328,7 @@ public class SolidityContractWrapper {
         toReturn.addStatement(
                 "return ($N.getCryptoTypeConfig() == $T.ECDSA_TYPE ? $N : $N)",
                 authName,
-                authType,
+                cryptoType,
                 BINARY_NAME,
                 SM_BINARY_NAME);
         return toReturn.build();
