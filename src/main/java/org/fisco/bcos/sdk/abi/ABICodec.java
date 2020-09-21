@@ -199,107 +199,6 @@ public class ABICodec {
         return encodeMethodByIdFromString(ABI, methodId, params);
     }
 
-    public String encodeEvent(String ABI, String eventName, List<Object> params)
-            throws ABICodecException {
-        ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
-        List<ABIDefinition> events = contractABIDefinition.getEvents().get(eventName);
-        for (ABIDefinition abiDefinition : events) {
-            if (abiDefinition.getInputs().size() == params.size()) {
-                ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-                ABICodecObject abiCodecObject = new ABICodecObject();
-                try {
-                    return abiCodecObject.encodeValue(inputABIObject, params).encode();
-                } catch (Exception e) {
-                    logger.error(" exception in encodeEventFromObject : {}", e.getMessage());
-                }
-            }
-        }
-
-        String errorMsg = " cannot encode in encodeEventFromObject with appropriate interface ABI";
-        logger.error(errorMsg);
-        throw new ABICodecException(errorMsg);
-    }
-
-    public String encodeEventByTopic(String ABI, String eventTopic, List<Object> params)
-            throws ABICodecException {
-        ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
-        ABIDefinition abiDefinition =
-                contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
-        ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-        ABICodecObject abiCodecObject = new ABICodecObject();
-        try {
-            return abiCodecObject.encodeValue(inputABIObject, params).encode();
-        } catch (Exception e) {
-            logger.error(" exception in encodeEventByTopicFromObject : {}", e.getMessage());
-        }
-
-        String errorMsg =
-                " cannot encode in encodeEventByTopicFromObject with appropriate interface ABI";
-        logger.error(errorMsg);
-        throw new ABICodecException(errorMsg);
-    }
-
-    public String encodeEventByInterface(String eventSignature, List<Object> params)
-            throws ABICodecException {
-        return null;
-    }
-
-    public String encodeEventFromString(String ABI, String eventName, List<String> params)
-            throws ABICodecException {
-        ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
-        List<ABIDefinition> methods = contractABIDefinition.getEvents().get(eventName);
-        if (methods == null) {
-            logger.debug(
-                    "Invalid eventName: {}, current supported events are: {}",
-                    eventName,
-                    contractABIDefinition.getEvents().keySet());
-            throw new ABICodecException(
-                    "Invalid event "
-                            + eventName
-                            + ", supported events are: "
-                            + contractABIDefinition.getEvents().keySet());
-        }
-        for (ABIDefinition abiDefinition : methods) {
-            if (abiDefinition.getInputs().size() == params.size()) {
-                ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-                ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
-                try {
-                    return abiCodecJsonWrapper.encode(inputABIObject, params).encode();
-                } catch (Exception e) {
-                    logger.error(" exception in encodeEventFromString : {}", e.getMessage());
-                }
-            }
-        }
-
-        String errorMsg = " cannot encode in encodeEventFromString with appropriate interface ABI";
-        logger.error(errorMsg);
-        throw new ABICodecException(errorMsg);
-    }
-
-    public String encodeEventByTopicFromString(String ABI, String eventTopic, List<String> params)
-            throws ABICodecException {
-        ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
-        ABIDefinition abiDefinition =
-                contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
-        ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
-        try {
-            return abiCodecJsonWrapper.encode(inputABIObject, params).encode();
-        } catch (Exception e) {
-            logger.error(" exception in encodeEventByTopicFromString : {}", e.getMessage());
-        }
-
-        String errorMsg =
-                " cannot encode in encodeEventByTopicFromString with appropriate interface ABI";
-        logger.error(errorMsg);
-        throw new ABICodecException(errorMsg);
-    }
-
-    public String encodeEventByInterfaceFromString(String eventSignature, List<String> params)
-            throws ABICodecException {
-        return null;
-    }
-
     public List<Object> decodeMethod(ABIDefinition abiDefinition, String output)
             throws ABICodecException {
         ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
@@ -463,9 +362,11 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public List<Object> decodeEventByInterface(String eventSignature, String output)
+    public List<Object> decodeEventByInterface(String ABI, String eventSignature, String output)
             throws ABICodecException {
-        return null;
+        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoInterface);
+        String methodId = functionEncoder.buildMethodId(eventSignature);
+        return decodeEventByTopic(ABI, methodId, output);
     }
 
     public List<String> decodeEventToString(String ABI, String eventName, String output)
@@ -513,8 +414,10 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public List<String> decodeEventByInterfaceToString(String eventSignature, String output)
-            throws ABICodecException {
-        return null;
+    public List<String> decodeEventByInterfaceToString(
+            String ABI, String eventSignature, String output) throws ABICodecException {
+        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoInterface);
+        String methodId = functionEncoder.buildMethodId(eventSignature);
+        return decodeEventByTopicToString(ABI, methodId, output);
     }
 }
