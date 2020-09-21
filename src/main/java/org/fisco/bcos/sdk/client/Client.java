@@ -676,6 +676,8 @@ public interface Client {
      */
     NodeIDList getNodeIDList();
 
+    NodeIDList getNodeIDList(String endpoint);
+
     /**
      * Peer operation: async get node ids
      *
@@ -828,7 +830,7 @@ public interface Client {
      * @param signedTransactionData the transaction sent to the node
      * @param callback the TransactionCallback called after get the transaction receipt
      */
-    void asyncsendRawTransactionAndGetProof(
+    void asyncSendRawTransactionAndGetProof(
             String signedTransactionData, TransactionCallback callback);
 
     /**
