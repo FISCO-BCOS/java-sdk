@@ -4,7 +4,7 @@ import java.util.Set;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class ConfigTest {
     @Test
     public void testConfigSenderAmop() throws ConfigException {
         System.out.println(senderConfig);
-        ConfigOption configOption = Config.load(senderConfig, CryptoInterface.ECDSA_TYPE);
+        ConfigOption configOption = Config.load(senderConfig, CryptoType.ECDSA_TYPE);
         AmopImp amopImp = new AmopImp(new MockChannel(), configOption);
 
         Set<String> topics = amopImp.getAllTopics();
@@ -41,7 +41,7 @@ public class ConfigTest {
     @Ignore
     @Test
     public void testConfigSubscriberAmop() throws ConfigException {
-        ConfigOption configOption = Config.load(subscriberConfig, CryptoInterface.ECDSA_TYPE);
+        ConfigOption configOption = Config.load(subscriberConfig, CryptoType.ECDSA_TYPE);
         AmopImp amopImp = new AmopImp(new MockChannel(), configOption);
 
         Set<String> topics = amopImp.getAllTopics();

@@ -18,8 +18,8 @@ package org.fisco.bcos.sdk.config;
 import static org.junit.Assert.fail;
 
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.ConstantConfig;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ public class ConfigTest {
             ConfigOption configOption =
                     Config.load(
                             "src/test/resources/" + ConstantConfig.CONFIG_FILE_NAME,
-                            CryptoInterface.ECDSA_TYPE);
+                            CryptoType.ECDSA_TYPE);
             Assert.assertTrue(configOption.getAccountConfig() != null);
             System.out.println(
                     "configOption.getAccountConfig: "
