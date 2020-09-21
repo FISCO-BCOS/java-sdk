@@ -20,6 +20,7 @@ import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
 import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
 import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class KeyManagerTest {
         CryptoKeyPair cryptoKeyPair =
                 testLoadPEMFile(
                         keyStoreFile,
-                        CryptoInterface.ECDSA_TYPE,
+                        CryptoType.ECDSA_TYPE,
                         "0x0fc3c4bb89bd90299db4c62be0174c4966286c00");
         // check the public key and the privateKey
         // Note  the 04 prefix
@@ -48,7 +49,7 @@ public class KeyManagerTest {
         CryptoKeyPair cryptoKeyPair =
                 testLoadPEMFile(
                         keyStoreFile,
-                        CryptoInterface.SM_TYPE,
+                        CryptoType.SM_TYPE,
                         "0x40b3558746e8f9a47a474774e8c4a9e67d4e3174");
         Assert.assertEquals(
                 "043b72cd28244c856d3d89b67d1c5ff22e1f26835bafcd63e9a4ad3424a2a57f2b759149f46c696df08b9d9473686675fc6dade744d0c82bdc5598d759e015fd96",
@@ -62,18 +63,14 @@ public class KeyManagerTest {
     public void testECDSALoadInvalidPEMFile() {
         String keyStoreFile = "keystore/ecdsa/invalid.pem";
         testLoadPEMFile(
-                keyStoreFile,
-                CryptoInterface.ECDSA_TYPE,
-                "0x0fc3c4bb89bd90299db4c62be0174c4966286c00");
+                keyStoreFile, CryptoType.ECDSA_TYPE, "0x0fc3c4bb89bd90299db4c62be0174c4966286c00");
     }
 
     @Test(expected = LoadKeyStoreException.class)
     public void testSMLoadInvalidPEMFile() {
         String keyStoreFile = "keystore/gm/invalid.pem";
         testLoadPEMFile(
-                keyStoreFile,
-                CryptoInterface.SM_TYPE,
-                "0x40b3558746e8f9a47a474774e8c4a9e67d4e3174");
+                keyStoreFile, CryptoType.SM_TYPE, "0x40b3558746e8f9a47a474774e8c4a9e67d4e3174");
     }
 
     @Test
@@ -82,7 +79,7 @@ public class KeyManagerTest {
         CryptoKeyPair cryptoKeyPair =
                 testLoadP12File(
                         keyStoreFile,
-                        CryptoInterface.ECDSA_TYPE,
+                        CryptoType.ECDSA_TYPE,
                         "123456",
                         "0x45e14c53197adbcb719d915fb93342c25600faaf");
         Assert.assertEquals(
@@ -99,7 +96,7 @@ public class KeyManagerTest {
         CryptoKeyPair cryptoKeyPair =
                 testLoadP12File(
                         keyStoreFile,
-                        CryptoInterface.SM_TYPE,
+                        CryptoType.SM_TYPE,
                         "abcd123",
                         "0x6f68461309925093236df82b51df630a55d32377");
         Assert.assertEquals(
@@ -116,7 +113,7 @@ public class KeyManagerTest {
         String keyStoreFile = "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.p12";
         testLoadP12File(
                 keyStoreFile,
-                CryptoInterface.ECDSA_TYPE,
+                CryptoType.ECDSA_TYPE,
                 "13456",
                 "0x45e14c53197adbcb719d915fb93342c25600faaf");
     }
@@ -126,7 +123,7 @@ public class KeyManagerTest {
         String keyStoreFile = "keystore/gm/0x6f68461309925093236df82b51df630a55d32377.p12";
         testLoadP12File(
                 keyStoreFile,
-                CryptoInterface.SM_TYPE,
+                CryptoType.SM_TYPE,
                 "abcd12e",
                 "0x6f68461309925093236df82b51df630a55d32377");
     }
@@ -136,7 +133,7 @@ public class KeyManagerTest {
         String keyStoreFile = "keystore/ecdsa/invalid.p12";
         testLoadP12File(
                 keyStoreFile,
-                CryptoInterface.ECDSA_TYPE,
+                CryptoType.ECDSA_TYPE,
                 "abcd123",
                 "0x6f68461309925093236df82b51df630a55d32377");
     }
@@ -146,7 +143,7 @@ public class KeyManagerTest {
         String keyStoreFile = "keystore/gm/invalid.p12";
         testLoadP12File(
                 keyStoreFile,
-                CryptoInterface.SM_TYPE,
+                CryptoType.SM_TYPE,
                 "123456",
                 "0x45e14c53197adbcb719d915fb93342c25600faaf");
     }

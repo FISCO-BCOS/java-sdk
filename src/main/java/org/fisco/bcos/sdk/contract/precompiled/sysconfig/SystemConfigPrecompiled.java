@@ -16,6 +16,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.contract.exceptions.ContractException;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.callback.TransactionCallback;
 
@@ -43,9 +44,7 @@ public class SystemConfigPrecompiled extends Contract {
     }
 
     public static String getBinary(CryptoInterface credential) {
-        return (credential.getCryptoTypeConfig() == CryptoInterface.ECDSA_TYPE
-                ? BINARY
-                : SM_BINARY);
+        return (credential.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE ? BINARY : SM_BINARY);
     }
 
     public TransactionReceipt setValueByKey(String key, String value) {

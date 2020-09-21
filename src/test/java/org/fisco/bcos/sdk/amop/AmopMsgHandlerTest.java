@@ -13,6 +13,7 @@ import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
 import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
 import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
 import org.fisco.bcos.sdk.model.AmopMsg;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -92,7 +93,7 @@ public class AmopMsgHandlerTest {
         AmopMsg amopMsg = new AmopMsg(signedRandom);
 
         amopMsg.decodeAmopBody(signedRandom.getData());
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoInterface.ECDSA_TYPE);
+        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
         Assert.assertTrue(amopMsg.getType() == (short) MsgType.AMOP_RESPONSE.getType());
         Assert.assertEquals(
                 "#!$VerifyChannel_#!$TopicNeedVerify_priv1_5e14c53197adbcb719d915fb93342c25",

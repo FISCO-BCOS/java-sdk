@@ -54,7 +54,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
@@ -289,7 +289,7 @@ public class ConnectionManager {
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeoutConfig.connectTimeout);
         int sslCryptoType = configOption.getCryptoMaterialConfig().getSslCryptoType();
         SslContext sslContext =
-                (sslCryptoType == CryptoInterface.ECDSA_TYPE
+                (sslCryptoType == CryptoType.ECDSA_TYPE
                         ? initSslContext(configOption)
                         : initSMSslContext(configOption));
         SslContext finalSslContext = sslContext;

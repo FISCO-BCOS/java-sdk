@@ -23,7 +23,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,7 +164,7 @@ public class NetworkImp implements Network {
                 }
             } catch (NetworkException e) {
                 tryEcdsaConnect = true;
-                configOption.reloadConfig(CryptoInterface.SM_TYPE);
+                configOption.reloadConfig(CryptoType.SM_TYPE);
                 result = checkCertExistence(true);
                 if (e.getErrorCode() == NetworkException.CONNECT_FAILED
                         || !result.isCheckPassed()) {
@@ -176,7 +176,7 @@ public class NetworkImp implements Network {
                         e.getMessage());
             }
             logger.debug("start connManager with SM sslContext");
-            configOption.reloadConfig(CryptoInterface.SM_TYPE);
+            configOption.reloadConfig(CryptoType.SM_TYPE);
             result = checkCertExistence(true);
             if (!result.isCheckPassed()) {
                 if (tryEcdsaConnect) {

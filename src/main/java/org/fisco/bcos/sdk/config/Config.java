@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.config.model.ConfigProperty;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.model.CryptoType;
 
 /**
  * Config is to load config file and verify.
@@ -30,7 +30,7 @@ import org.fisco.bcos.sdk.crypto.CryptoInterface;
 public class Config {
     public static ConfigOption load(String tomlConfigFile) throws ConfigException {
         // default load ECDSA config
-        return load(tomlConfigFile, CryptoInterface.ECDSA_TYPE);
+        return load(tomlConfigFile, CryptoType.ECDSA_TYPE);
     }
     /**
      * @param tomlConfigFile
