@@ -1,0 +1,9 @@
+// Apply the java-library plugin to add support for Java Library
+plugins {
+    id 'java'
+}
+dependencies {
+    compile project(':sdk-core')
+    compile project(':sdk-crypto')
+    compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+}

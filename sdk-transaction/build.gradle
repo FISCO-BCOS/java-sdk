@@ -1,0 +1,10 @@
+// Apply the java-library plugin to add support for Java Library
+plugins {
+    id 'java'
+}
+dependencies {
+    compile project(':sdk-service')
+    compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
+	compile ("commons-io:commons-io:${commonsIOVersion}")
+    compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+}

@@ -16,10 +16,13 @@
 package org.fisco.bcos.sdk.eventsub;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Semaphore;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.abi.tools.TopicTools;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
@@ -33,13 +36,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Semaphore;
 
 public class SubscribeTest {
-    private static final String configFile = SubscribeTest.class.getClassLoader().getResource(ConstantConfig.CONFIG_FILE_NAME).getPath();
+    private static final String configFile =
+            SubscribeTest.class
+                    .getClassLoader()
+                    .getResource(ConstantConfig.CONFIG_FILE_NAME)
+                    .getPath();
     private static final Logger logger = LoggerFactory.getLogger(SubscribeTest.class);
     private static final String abiFile = "src/integration-test/resources/abi/";
     private static final String binFile = "src/integration-test/resources/bin/";
@@ -49,14 +52,15 @@ public class SubscribeTest {
     @Test
     public void testEventSubModule() {
         // Init event subscribe module.
-        BcosSDK sdk =  BcosSDK.build(configFile);
+        BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         EventSubscribe eventSubscribe = sdk.getEventSubscribe(client.getGroupId());
         eventSubscribe.start();
         String contractAddress = "";
         try {
-            AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
-                    client.getCryptoInterface(), abiFile, binFile);
+            AssembleTransactionManager manager =
+                    TransactionManagerFactory.createAssembleTransactionManager(
+                            client, client.getCryptoInterface(), abiFile, binFile);
             // deploy
             List<Object> params = Lists.newArrayList();
             params.add(1);
@@ -69,12 +73,13 @@ public class SubscribeTest {
 
             // call function with event
             List<Object> paramsSetValues = Lists.newArrayList(20);
-            String[] o = { "0x1", "0x2", "0x3" };
+            String[] o = {"0x1", "0x2", "0x3"};
             List<String> a = Arrays.asList(o);
             paramsSetValues.add(a);
             paramsSetValues.add("set values 字符串");
             TransactionResponse transactionResponse =
-                    manager.sendTransactionAndGetResponse(contractAddress, abi, "setValues", paramsSetValues);
+                    manager.sendTransactionAndGetResponse(
+                            contractAddress, abi, "setValues", paramsSetValues);
             logger.info("transaction response : " + JsonUtils.toJson(transactionResponse));
         } catch (Exception e) {
             logger.error("exception:", e);
@@ -85,7 +90,8 @@ public class SubscribeTest {
         eventLogParams1.setToBlock("latest");
         eventLogParams1.setAddresses(new ArrayList<>());
         ArrayList<Object> topics = new ArrayList<>();
-        CryptoInterface invalidCryptoInterface = new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
+        CryptoInterface invalidCryptoInterface =
+                new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
         TopicTools topicTools = new TopicTools(invalidCryptoInterface);
         topics.add(topicTools.stringToTopic("LogSetValues(int256,address[],string)"));
         eventLogParams1.setTopics(topics);
@@ -110,11 +116,17 @@ public class SubscribeTest {
                 semaphore.release();
                 if (logs != null) {
                     for (EventLog log : logs) {
-                        logger.debug(" blockNumber:" + log.getBlockNumber() + ",txIndex:" + log.getTransactionIndex() + " data:"
-                                + log.getData());
+                        logger.debug(
+                                " blockNumber:"
+                                        + log.getBlockNumber()
+                                        + ",txIndex:"
+                                        + log.getTransactionIndex()
+                                        + " data:"
+                                        + log.getData());
                         ABICodec abiCodec = new ABICodec(client.getCryptoInterface());
                         try {
-                            List<Object> list = abiCodec.decodeEvent(abi, "LogSetValues", log.getData());
+                            List<Object> list =
+                                    abiCodec.decodeEvent(abi, "LogSetValues", log.getData());
                             logger.debug("decode event log content, " + list);
                             Assert.assertEquals("20", list.get(0).toString());
                             Assert.assertEquals("set values 字符串", list.get(2).toString());
@@ -128,7 +140,8 @@ public class SubscribeTest {
 
         logger.info(" start to subscribe event");
         SubscribeCallback subscribeEventCallback1 = new SubscribeCallback();
-        String registerId1 = eventSubscribe.subscribeEvent(eventLogParams1, subscribeEventCallback1);
+        String registerId1 =
+                eventSubscribe.subscribeEvent(eventLogParams1, subscribeEventCallback1);
         try {
             subscribeEventCallback1.semaphore.acquire(1);
             subscribeEventCallback1.semaphore.release();
@@ -139,7 +152,7 @@ public class SubscribeTest {
         }
 
         // FISCO BCOS node v2.7.0
-        try{
+        try {
             Thread.sleep(3000);
         } catch (Exception e) {
             logger.error("exception:", e);
