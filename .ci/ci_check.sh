@@ -57,6 +57,8 @@ prepare_environment()
   rm -rf src/integration-test/resources/bin
   cp -r src/test/resources/ecdsa/abi src/integration-test/resources/abi
   cp -r src/test/resources/ecdsa/bin src/integration-test/resources/bin
+  mkdir -p sdk-amop/src/test/resources
+  cp -r src/test/resources/ sdk-amop/src/test/resources
 
   sed_cmd=$(get_sed_cmd)
 

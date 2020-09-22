@@ -14,11 +14,11 @@
  */
 package org.fisco.bcos.sdk.transaction.decoder;
 
+import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.model.ConstantConfig;
@@ -33,18 +33,15 @@ import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
 /**
- * TransactionDecoderServiceTest
+ * TransactionDecoderServiceTest @Description: TransactionDecoderServiceTest
  *
- * @Description: TransactionDecoderServiceTest
  * @author maojiayu
  * @data Sep 17, 2020 10:36:56 AM
- *
  */
 public class TransactionDecoderServiceTest {
-    private static final String configFile = "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
+    private static final String configFile =
+            "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
     private static final String abiFile = "src/integration-test/resources/abi/";
     private static final String binFile = "src/integration-test/resources/bin/";
     private static final String contractName = "ComplexSol";
@@ -53,11 +50,13 @@ public class TransactionDecoderServiceTest {
     public void testDecode() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
-        TransactionDecoderInterface decoder = new TransactionDecoderService(client.getCryptoInterface());
+        TransactionDecoderInterface decoder =
+                new TransactionDecoderService(client.getCryptoInterface());
         ContractLoader contractLoader = new ContractLoader(abiFile, binFile);
         String abi = contractLoader.getABIByContractName(contractName);
-        AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
-                client.getCryptoInterface(), abiFile, binFile);
+        AssembleTransactionManager manager =
+                TransactionManagerFactory.createAssembleTransactionManager(
+                        client, client.getCryptoInterface(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -69,8 +68,12 @@ public class TransactionDecoderServiceTest {
         String contractAddress = response.getContractAddress();
 
         // increment
-        TransactionReceipt transactionReceipt = manager.sendTransactionAndGetReceiptByContractLoader(contractName,
-                contractAddress, "incrementUint256", Lists.newArrayList(BigInteger.valueOf(1)));
+        TransactionReceipt transactionReceipt =
+                manager.sendTransactionAndGetReceiptByContractLoader(
+                        contractName,
+                        contractAddress,
+                        "incrementUint256",
+                        Lists.newArrayList(BigInteger.valueOf(1)));
         TransactionResponse transactionResponseWithoutValues =
                 decoder.decodeReceiptWithoutValues(abi, transactionReceipt);
         System.out.println(JsonUtils.toJson(transactionResponseWithoutValues));
@@ -83,8 +86,9 @@ public class TransactionDecoderServiceTest {
         List<Object> s = Lists.newArrayList("2".getBytes());
         List<Object> paramsSetBytes = new ArrayList<Object>();
         paramsSetBytes.add(s);
-        TransactionReceipt transactionReceipt2 = manager.sendTransactionAndGetReceiptByContractLoader(contractName,
-                contractAddress, "setBytesMapping", paramsSetBytes);
+        TransactionReceipt transactionReceipt2 =
+                manager.sendTransactionAndGetReceiptByContractLoader(
+                        contractName, contractAddress, "setBytesMapping", paramsSetBytes);
         // decode receipt
         TransactionResponse transactionResponse2 = decoder.decodeReceiptStatus(transactionReceipt2);
         Assert.assertEquals(22, transactionResponse2.getReturnCode());

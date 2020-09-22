@@ -1,48 +1,137 @@
 // Apply the java-library plugin to add support for Java Library
 plugins {
     id 'com.github.sherter.google-java-format' version '0.8'
-    id 'maven'
     id 'maven-publish'
-    id 'signing'
-    id 'idea'
-    id 'eclipse'
-    id 'java'
-    id 'jacoco'
+}
+println("Notice: current gradle version is " + gradle.gradleVersion)
+// Additional attribute definition
+ext {
+    if (!project.hasProperty("ossrhUsername")) {
+        ossrhUsername="xxx"
+    }
+
+    if (!project.hasProperty("ossrhPassword")) {
+        ossrhPassword="xxx"
+    }
+    // jackson version
+    jacksonVersion = "2.11.0"
+    commonsIOVersion = "2.4"
+    commonsLang3Version = "3.1"
+    javapoetVersion = "1.7.0"
+    picocliVersion = "3.6.0"
+    nettyVersion = "4.1.50.Final"
+    nettySMSSLContextVersion = "1.1.0"
+    toml4jVersion = "0.7.2"
+    bcprovJDK15onVersion = "1.60"
+    keyMiniToolkit = "1.0-SNAPSHOT"
 }
 
-// In this section you declare where to find the dependencies of your project
-repositories {
-    maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-    mavenCentral()
-}
+// check.dependsOn integrationTest
+// integrationTest.mustRunAfter test
+allprojects {
+    group = 'org.fisco-bcos'
+    version = '0.1.0-SNAPSHOT'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
 
-sourceCompatibility = '1.8'
-version = '3.0.0'
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 30, 'seconds'
+    }
 
-googleJavaFormat {
-    options style: 'AOSP'
-    source = sourceSets*.allJava
-    include '**/*.java'
-}
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            html.enabled false
+        }
+    }
+    sourceCompatibility = '1.8'
 
-verifyGoogleJavaFormat {
-    source = sourceSets*.allJava
-    include '**/*.java'
-}
+    // In this section you declare where to find the dependencies of your project
+    repositories {
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        mavenCentral()
+    }
 
+    dependencies {
+        compile 'org.slf4j:slf4j-api:1.7.30'
+	    testCompile 'junit:junit:4.12'
+    }
 
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        html.enabled false
+    clean.doLast {
+        file("dist/apps/").deleteDir()
+        file("dist/conf/").deleteDir()
+        file("dist/lib/").deleteDir()
     }
 }
+
+subprojects {
+    sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
+            }
+
+            resources {
+                srcDir 'src/main/resources'
+            }
+        }
+    }
+    jar {
+        destinationDir file("dist/apps")
+        archiveName project.name + "-" + version + ".jar"
+
+        exclude "**/*.xml"
+        exclude "**/*.properties"
+
+        doLast {
+            copy {
+                from file("src/test/resources/")
+                into "dist/conf"
+            }
+            copy {
+                from configurations.runtime
+                into "dist/lib"
+            }
+            copy {
+                from file("build/libs/")
+                into "dist/apps"
+            }
+        }
+    }
+
+    // for upload to maven
+    task sourcesJar(type: Jar) {
+        classifier = "sources"
+        from sourceSets.main.allSource
+    }
+
+    /*task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = "javadoc"
+        from javadoc.destinationDir
+    }*/
+    artifacts {
+        archives jar
+        archives sourcesJar
+        //archives javadocJar
+    }
+}
+
 sourceSets {
     main {
         java {
-            srcDir 'src/main/java'
-            srcDir 'src/demo/java'
+            srcDir "sdk-core/src/main/java"
+            srcDir "sdk-crypto/src/main/java"
+            srcDir "sdk-abi/src/main/java"
+            srcDir "sdk-amop/src/main/java"
+            srcDir "sdk-service/src/main/java"
+            srcDir "sdk-transaction/src/main/java"
+            srcDir "sdk-codegen/src/main/java"
         }
 
         resources {
@@ -54,11 +143,11 @@ sourceSets {
             compileClasspath += main.output + test.output
             runtimeClasspath += main.output + test.output
             srcDir file('src/integration-test/java')
+            srcDir file('sdk-demo/src/main')
         }
         resources.srcDir file('src/integration-test/resources')
     }
 }
-
 configurations {
     integrationTestCompile.extendsFrom testCompile
     integrationTestRuntime.extendsFrom testRuntime
@@ -70,7 +159,7 @@ task integrationTest(type: Test) {
 }
 
 dependencies {
-    compile 'org.bouncycastle:bcprov-jdk15on:1.60'
+	compile 'org.bouncycastle:bcprov-jdk15on:1.60'
     compile 'org.apache.commons:commons-lang3:3.1'
     compile 'io.netty:netty-all:4.1.50.Final'
     compile 'org.fisco-bcos:netty-sm-ssl-context:1.0.0'
@@ -90,25 +179,15 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.23.0'
 }
+googleJavaFormat {
+    options style: 'AOSP'
+     source = sourceSets*.allJava
+    include '**/*.java'
+}
 
-// check.dependsOn integrationTest
-// integrationTest.mustRunAfter test
-
-archivesBaseName = 'java-sdk'
-group = 'org.fisco-bcos'
-version = '1.0.0-SNAPSHOT'
-
-
-// Additional attribute definition
-
-ext {
-    if (!project.hasProperty("ossrhUsername")) {
-        ossrhUsername="xxx"
-    }
-
-    if (!project.hasProperty("ossrhPassword")) {
-        ossrhPassword="xxx"
-    }
+verifyGoogleJavaFormat {
+    source = sourceSets*.allJava
+    include '**/*.java'
 }
 
 javadoc {
@@ -138,7 +217,6 @@ publishing {
             from components.java
             artifact sourcesJar
             artifact javadocJar
-
             pom {
                 name = 'fisco-bcos'
                 description = 'fisco-bcos java-sdk'
@@ -180,18 +258,6 @@ publishing {
     signing {
         sign publishing.publications.mavenJava
     }
-}
-
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        html.enabled false
-    }
-}
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 30, 'seconds'
 }
 
 jar {
