@@ -13,7 +13,7 @@
  *
  */
 
-package org.fisco.bcos.sdk.transaction.model.callback;
+package org.fisco.bcos.sdk.model.callback;
 
 import io.netty.util.Timeout;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
