@@ -138,13 +138,13 @@ public class SubscribeTest {
             Thread.currentThread().interrupt();
         }
 
-        // FISCO BCOS node v2.7.0
         try{
             Thread.sleep(3000);
         } catch (Exception e) {
             logger.error("exception:", e);
         }
 
+        // FISCO BCOS node v2.7.0
         /*logger.info(" start to unregister event");
         SubscribeCallback subscribeEventCallback2 = new SubscribeCallback();
         eventSubscribe.unsubscribeEvent(registerId1, subscribeEventCallback2);
