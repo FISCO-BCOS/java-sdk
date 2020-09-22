@@ -1,6 +1,5 @@
 name: Java-SDK GitHub Actions
 on:
-  push:
   pull_request:
   release:
     types: [published, created, edited]

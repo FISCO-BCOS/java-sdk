@@ -51,16 +51,34 @@ public class BlockNumberNotifyHandler implements MsgHandler {
             return;
         }
         // get version
-        ChannelProtocol protocol =
-                (ChannelProtocol)
-                        (ctx.channel()
+        ChannelProtocol protocol = null;
+        if (ctx.channel()
                                 .attr(
                                         AttributeKey.valueOf(
                                                 EnumSocketChannelAttributeKey.CHANNEL_PROTOCOL_KEY
                                                         .getKey()))
-                                .get());
-
-        EnumChannelProtocolVersion channelProtocolVersion = protocol.getEnumProtocol();
+                        != null
+                && ctx.channel()
+                                .attr(
+                                        AttributeKey.valueOf(
+                                                EnumSocketChannelAttributeKey.CHANNEL_PROTOCOL_KEY
+                                                        .getKey()))
+                                .get()
+                        != null) {
+            protocol =
+                    (ChannelProtocol)
+                            (ctx.channel()
+                                    .attr(
+                                            AttributeKey.valueOf(
+                                                    EnumSocketChannelAttributeKey
+                                                            .CHANNEL_PROTOCOL_KEY.getKey()))
+                                    .get());
+        }
+        // default use version 1
+        EnumChannelProtocolVersion channelProtocolVersion = EnumChannelProtocolVersion.VERSION_1;
+        if (protocol != null) {
+            channelProtocolVersion = protocol.getEnumProtocol();
+        }
         // get host
         String peerIpAndPort = ChannelVersionNegotiation.getPeerHost(ctx);
         // get block notification data
