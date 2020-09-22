@@ -15,6 +15,8 @@
 
 package org.fisco.bcos.sdk.network;
 
+import static org.junit.Assert.fail;
+
 import io.netty.channel.ChannelHandlerContext;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
@@ -23,35 +25,31 @@ import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.Message;
 import org.junit.Test;
 
-import static org.junit.Assert.fail;
-
 public class ConnectTest {
     @Test
     public void testConnect() throws ConfigException {
-        class TestMsgHandler implements MsgHandler{
+        class TestMsgHandler implements MsgHandler {
 
             @Override
             public void onConnect(ChannelHandlerContext ctx) {
-                System.out.println("OnConnect called: "+ctx.channel().remoteAddress());
+                System.out.println("OnConnect called: " + ctx.channel().remoteAddress());
             }
 
             @Override
-            public void onMessage(ChannelHandlerContext ctx, Message msg) {
-            }
+            public void onMessage(ChannelHandlerContext ctx, Message msg) {}
 
             @Override
-            public void onDisconnect(ChannelHandlerContext ctx) {
-            }
+            public void onDisconnect(ChannelHandlerContext ctx) {}
         }
-        ConfigOption configOption = Config.load("src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME);
-        Network network = Network.build(configOption,new TestMsgHandler());
-        try{
+        ConfigOption configOption =
+                Config.load("src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME);
+        Network network = Network.build(configOption, new TestMsgHandler());
+        try {
             network.start();
             Thread.sleep(3000);
         } catch (Exception e) {
             System.out.println("testConnect failed, error message:" + e.getMessage());
             fail("Exception is not expected");
         }
-
     }
 }

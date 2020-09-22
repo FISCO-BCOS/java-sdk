@@ -1,5 +1,6 @@
 package org.fisco.bcos.sdk.amop;
 
+import java.util.concurrent.Semaphore;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.amop.topic.AmopMsgIn;
 import org.fisco.bcos.sdk.amop.topic.TopicType;
@@ -10,12 +11,18 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Semaphore;
-
 public class PrivateTopicVerifyTest {
     private static Logger logger = LoggerFactory.getLogger(PrivateTopicVerifyTest.class);
-    private static final String senderConfig = PrivateTopicVerifyTest.class.getClassLoader().getResource("amop/config-publisher-for-test.toml").getPath();
-    private static final String subscriberConfig = PrivateTopicVerifyTest.class.getClassLoader().getResource("amop/config-subscriber-for-test.toml").getPath();
+    private static final String senderConfig =
+            PrivateTopicVerifyTest.class
+                    .getClassLoader()
+                    .getResource("amop/config-publisher-for-test.toml")
+                    .getPath();
+    private static final String subscriberConfig =
+            PrivateTopicVerifyTest.class
+                    .getClassLoader()
+                    .getResource("amop/config-subscriber-for-test.toml")
+                    .getPath();
     private Amop sender;
     private Amop subscriber;
 
@@ -79,10 +86,14 @@ public class PrivateTopicVerifyTest {
 
             @Override
             public void onResponse(Response response) {
-                logger.trace("Receive response, seq:{} error:{} error msg: {} content:{}", response.getMessageID(), response.getErrorCode(), response.getErrorMessage(), response.getContent());
+                logger.trace(
+                        "Receive response, seq:{} error:{} error msg: {} content:{}",
+                        response.getMessageID(),
+                        response.getErrorCode(),
+                        response.getErrorMessage(),
+                        response.getContent());
                 content[0] = response.getContent();
                 semaphore.release();
-
             }
         }
         TestResponseCb cb = new TestResponseCb();
@@ -98,15 +109,16 @@ public class PrivateTopicVerifyTest {
     }
 
     private void prepareEnv() throws InterruptedException {
-        BcosSDK sdk2 =  BcosSDK.build(subscriberConfig);
+        BcosSDK sdk2 = BcosSDK.build(subscriberConfig);
         Assert.assertTrue(sdk2.getChannel().getAvailablePeer().size() >= 1);
 
-        BcosSDK sdk1 =  BcosSDK.build(senderConfig);
+        BcosSDK sdk1 = BcosSDK.build(senderConfig);
         Assert.assertTrue(sdk1.getChannel().getAvailablePeer().size() >= 1);
         Thread.sleep(2000);
         sender = sdk1.getAmop();
         subscriber = sdk2.getAmop();
-        TestAmopCallback defaultCb = new TestAmopCallback("#!$TopicNeedVerify_privTopic", "send private msg");
+        TestAmopCallback defaultCb =
+                new TestAmopCallback("#!$TopicNeedVerify_privTopic", "send private msg");
         subscriber.setCallback(defaultCb);
         subscriber.subscribeTopic("test", new TestAmopCallback("test", "Tell you th."));
     }
@@ -122,8 +134,8 @@ public class PrivateTopicVerifyTest {
 
         @Override
         public byte[] receiveAmopMsg(AmopMsgIn msg) {
-            //Assert.assertEquals(topic,msg.getTopic());
-            //Assert.assertEquals(content,new String(msg.getContent()));
+            // Assert.assertEquals(topic,msg.getTopic());
+            // Assert.assertEquals(content,new String(msg.getContent()));
             System.out.println("on subscribed topic msg");
 
             return "Yes, I received.".getBytes();
