@@ -246,6 +246,9 @@ public class ChannelMsgHandler implements MsgHandler {
                         if (disconnect) {
                             ctx.disconnect();
                             ctx.close();
+                        } else {
+                            String host = ChannelVersionNegotiation.getPeerHost(ctx);
+                            addAvailablePeer(host, ctx);
                         }
                     }
                 };
@@ -324,9 +327,6 @@ public class ChannelMsgHandler implements MsgHandler {
                         if (disconnect) {
                             ctx.disconnect();
                             ctx.close();
-                        } else {
-                            String host = ChannelVersionNegotiation.getPeerHost(ctx);
-                            addAvailablePeer(host, ctx);
                         }
                     }
                 };
