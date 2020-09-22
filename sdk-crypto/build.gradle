@@ -1,0 +1,9 @@
+// Apply the java-library plugin to add support for Java Library
+plugins {
+    id 'java'
+}
+dependencies {
+    compile project(':sdk-core')
+    compile ("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
+    compile ("com.webank:key-mini-toolkit:${keyMiniToolkit}")
+}

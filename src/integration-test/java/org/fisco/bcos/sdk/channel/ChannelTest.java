@@ -15,8 +15,11 @@
 
 package org.fisco.bcos.sdk.channel;
 
+import static org.junit.Assert.fail;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.channel.ChannelHandlerContext;
+import java.util.List;
 import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
 import org.fisco.bcos.sdk.channel.model.HeartBeatParser;
 import org.fisco.bcos.sdk.channel.model.NodeHeartbeat;
@@ -35,37 +38,36 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-import static org.junit.Assert.fail;
-
 public class ChannelTest {
     private Logger logger = LoggerFactory.getLogger(ChannelImp.class);
     private Channel channel;
 
     @Test
     public void testConnect() throws ConfigException {
-        ConfigOption configOption = Config.load("src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME);
+        ConfigOption configOption =
+                Config.load("src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME);
         channel = Channel.build(configOption);
         class TestMsgHandler implements MsgHandler {
             @Override
             public void onConnect(ChannelHandlerContext ctx) {
-                logger.info("OnConnect in ChannelTest called: "+ctx.channel().remoteAddress());
+                logger.info("OnConnect in ChannelTest called: " + ctx.channel().remoteAddress());
             }
+
             @Override
             public void onMessage(ChannelHandlerContext ctx, Message msg) {
-                logger.info("onMessage in ChannelTest called: "+ctx.channel().remoteAddress());
+                logger.info("onMessage in ChannelTest called: " + ctx.channel().remoteAddress());
             }
+
             @Override
             public void onDisconnect(ChannelHandlerContext ctx) {
-                logger.info("onDisconnect in ChannelTest called: "+ctx.channel().remoteAddress());
+                logger.info("onDisconnect in ChannelTest called: " + ctx.channel().remoteAddress());
             }
         }
         TestMsgHandler testMsgHandler = new TestMsgHandler();
         channel.addConnectHandler(testMsgHandler);
         channel.addMessageHandler(MsgType.CHANNEL_RPC_REQUEST, testMsgHandler);
         channel.addDisconnectHandler(testMsgHandler);
-        try{
+        try {
             channel.start();
             sendMessage();
             Thread.sleep(10000);
@@ -78,7 +80,7 @@ public class ChannelTest {
 
     // use heart beat for case to send
     private void sendMessage() {
-        List<String> peers =  channel.getAvailablePeer();
+        List<String> peers = channel.getAvailablePeer();
         if (peers.size() == 0) {
             fail("Empty available peer");
         }
@@ -88,7 +90,8 @@ public class ChannelTest {
             message.setSeq(ChannelUtils.newSeq());
             message.setResult(0);
             message.setType(Short.valueOf((short) MsgType.CLIENT_HEARTBEAT.getType()));
-            HeartBeatParser heartBeatParser = new HeartBeatParser(EnumChannelProtocolVersion.VERSION_1);
+            HeartBeatParser heartBeatParser =
+                    new HeartBeatParser(EnumChannelProtocolVersion.VERSION_1);
             message.setData(heartBeatParser.encode("0"));
             logger.trace(
                     "encodeHeartbeatToMessage, seq: {}, content: {}, messageType: {}",
@@ -111,12 +114,16 @@ public class ChannelTest {
                                     ObjectMapperFactory.getObjectMapper()
                                             .readValue(response.getContent(), NodeHeartbeat.class);
                             int heartBeat = nodeHeartbeat.getHeartBeat();
-                            logger.trace(" heartbeat packet in ChannelTest, heartbeat is {} ", heartBeat);
+                            logger.trace(
+                                    " heartbeat packet in ChannelTest, heartbeat is {} ",
+                                    heartBeat);
                             if (heartBeat != 1) {
                                 fail("heartbeat packet in ChannelTest fail");
                             }
                         } catch (Exception e) {
-                            fail(" channel protocol heartbeat failed, exception: " + e.getMessage());
+                            fail(
+                                    " channel protocol heartbeat failed, exception: "
+                                            + e.getMessage());
                         }
                     }
                 };

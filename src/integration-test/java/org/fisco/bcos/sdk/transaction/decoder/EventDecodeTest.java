@@ -14,9 +14,9 @@
  */
 package org.fisco.bcos.sdk.transaction.decoder;
 
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
-
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.client.Client;
@@ -27,19 +27,16 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
 /**
- * EventDecodeTest
+ * EventDecodeTest @Description: EventDecodeTest
  *
- * @Description: EventDecodeTest
  * @author maojiayu
  * @data Aug 28, 2020 10:50:53 PM
- *
  */
 public class EventDecodeTest {
 
-    private static final String configFile = "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
+    private static final String configFile =
+            "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
     private static final String abiFile = "src/integration-test/resources/abi/";
     private static final String binFile = "src/integration-test/resources/bin/";
     private final String abi =
@@ -47,23 +44,27 @@ public class EventDecodeTest {
 
     @Test
     public void testDecode() throws Exception {
-        BcosSDK sdk =  BcosSDK.build(configFile);
+        BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
-        AssembleTransactionManager manager = TransactionManagerFactory.createAssembleTransactionManager(client,
-                client.getCryptoInterface(), abiFile, binFile);
+        AssembleTransactionManager manager =
+                TransactionManagerFactory.createAssembleTransactionManager(
+                        client, client.getCryptoInterface(), abiFile, binFile);
         ABICodec abiCodec = new ABICodec(client.getCryptoInterface());
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
         params.add("test2");
         TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
-        if(!response.getTransactionReceipt().getStatus().equals("0x0")) {
+        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             System.out.println(response.getReturnMessage());
             return;
         }
         List<Object> list =
-                abiCodec.decodeEvent(abi, "LogInit", response.getTransactionReceipt().getLogs().get(0).getData());
+                abiCodec.decodeEvent(
+                        abi,
+                        "LogInit",
+                        response.getTransactionReceipt().getLogs().get(0).getData());
         Assert.assertEquals("test2", list.get(1));
         Map<String, List<Object>> map = response.getEventResultMap();
         Assert.assertEquals("test2", map.get("LogInit").get(1));
