@@ -13,7 +13,7 @@
  */
 package org.fisco.bcos.sdk.test.precompiled;
 
-import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledRetCode;
+import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.junit.Assert;
 import org.junit.Test;

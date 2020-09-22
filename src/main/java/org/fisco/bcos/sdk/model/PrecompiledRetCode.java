@@ -12,12 +12,11 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.contract.precompiled.model;
+package org.fisco.bcos.sdk.model;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import org.fisco.bcos.sdk.model.RetCode;
 
 public class PrecompiledRetCode {
     // ChainGovernancePrecompiled -52099 ~ -52000
