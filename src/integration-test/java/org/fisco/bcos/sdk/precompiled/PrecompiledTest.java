@@ -40,6 +40,7 @@ import org.fisco.bcos.sdk.contract.precompiled.permission.PermissionInfo;
 import org.fisco.bcos.sdk.contract.precompiled.permission.PermissionService;
 import org.fisco.bcos.sdk.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.demo.contract.HelloWorld;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
@@ -66,8 +67,8 @@ public class PrecompiledTest {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            ConsensusService consensusService =
-                    new ConsensusService(client, client.getCryptoInterface());
+            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+            ConsensusService consensusService = new ConsensusService(client, cryptoKeyPair);
             // get the current sealerList
             List<String> sealerList = client.getSealerList().getResult();
 
@@ -133,11 +134,12 @@ public class PrecompiledTest {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            HelloWorld helloWorld = HelloWorld.deploy(client, client.getCryptoInterface());
+            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
             String contractAddress = helloWorld.getContractAddress();
             String contractName = "HelloWorld";
             String contractVersion = "1.0";
-            CnsService cnsService = new CnsService(client, client.getCryptoInterface());
+            CnsService cnsService = new CnsService(client, cryptoKeyPair);
             RetCode retCode =
                     cnsService.registerCNS(contractName, contractVersion, contractAddress, "");
             // query the cns information
@@ -175,7 +177,7 @@ public class PrecompiledTest {
                                 .equals(contractAddress));
             }
             // insert anther cns for other contract
-            HelloWorld helloWorld2 = HelloWorld.deploy(client, client.getCryptoInterface());
+            HelloWorld helloWorld2 = HelloWorld.deploy(client, cryptoKeyPair);
             String contractAddress2 = helloWorld2.getContractAddress();
             String contractName2 = "hello";
             retCode = cnsService.registerCNS(contractName2, contractVersion, contractAddress2, "");
@@ -200,8 +202,9 @@ public class PrecompiledTest {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
+            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
             SystemConfigService systemConfigService =
-                    new SystemConfigService(client, client.getCryptoInterface());
+                    new SystemConfigService(client, cryptoKeyPair);
             testSystemConfigService(client, systemConfigService, "tx_count_limit");
             testSystemConfigService(client, systemConfigService, "tx_gas_limit");
         } catch (ClientException | ContractException e) {
@@ -230,8 +233,8 @@ public class PrecompiledTest {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            TableCRUDService tableCRUDService =
-                    new TableCRUDService(client, client.getCryptoInterface());
+            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+            TableCRUDService tableCRUDService = new TableCRUDService(client, cryptoKeyPair);
             // create a user table
             String tableName = "test";
             String key = "key";
@@ -285,8 +288,8 @@ public class PrecompiledTest {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            CryptoInterface cryptoInterface = client.getCryptoInterface();
-            TableCRUDService crudService = new TableCRUDService(client, cryptoInterface);
+            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+            TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
             String tableName = "test_sync";
             List<String> valueFiled = new ArrayList<>();
             valueFiled.add("field");
@@ -363,8 +366,8 @@ public class PrecompiledTest {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            CryptoInterface cryptoInterface = client.getCryptoInterface();
-            TableCRUDService crudService = new TableCRUDService(client, cryptoInterface);
+            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+            TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
             // create table
             String tableName = "send_async";
             List<String> valueFiled = new ArrayList<>();
@@ -442,18 +445,17 @@ public class PrecompiledTest {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            CryptoInterface cryptoInterface = client.getCryptoInterface();
-            PermissionService permissionService = new PermissionService(client, cryptoInterface);
+            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+            PermissionService permissionService = new PermissionService(client, cryptoKeyPair);
 
             String tableName = "test";
-            permissionService.grantPermission(
-                    tableName, cryptoInterface.getCryptoKeyPair().getAddress());
+            permissionService.grantPermission(tableName, cryptoKeyPair.getAddress());
 
             // insert data to the table with the account without permission
             CryptoInterface invalidCryptoInterface =
                     new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
             TableCRUDService tableCRUDService =
-                    new TableCRUDService(client, invalidCryptoInterface);
+                    new TableCRUDService(client, invalidCryptoInterface.createKeyPair());
             String key = "key2";
             Map<String, String> value = new HashMap<>(5);
             for (int i = 0; i < 5; i++) {
@@ -465,13 +467,12 @@ public class PrecompiledTest {
                     retCode.getMessage() == PrecompiledRetCode.CODE_NO_AUTHORIZED.getMessage());
 
             // insert data to the table with the account with permission
-            TableCRUDService tableCRUDService2 = new TableCRUDService(client, cryptoInterface);
+            TableCRUDService tableCRUDService2 = new TableCRUDService(client, cryptoKeyPair);
             retCode = tableCRUDService2.insert(tableName, key, new Entry(value));
             Assert.assertTrue(retCode.getCode() == 1);
 
             // revoke permission
-            permissionService.revokePermission(
-                    tableName, cryptoInterface.getCryptoKeyPair().getAddress());
+            permissionService.revokePermission(tableName, cryptoKeyPair.getAddress());
             retCode = tableCRUDService.insert(tableName, key, new Entry(value));
             Assert.assertTrue(retCode.getCode() == 1);
         } catch (ContractException e) {
@@ -485,11 +486,11 @@ public class PrecompiledTest {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            CryptoInterface cryptoInterface = client.getCryptoInterface();
+            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
             ContractLifeCycleService contractLifeCycleService =
-                    new ContractLifeCycleService(client, cryptoInterface);
+                    new ContractLifeCycleService(client, cryptoKeyPair);
             // deploy a helloWorld
-            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoInterface);
+            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
             String orgValue = helloWorld.get();
             contractLifeCycleService.freeze(helloWorld.getContractAddress());
             // call the contract
@@ -512,15 +513,15 @@ public class PrecompiledTest {
             // grant Manager
             CryptoInterface cryptoInterface1 =
                     new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
+            CryptoKeyPair cryptoKeyPair1 = cryptoInterface1.createKeyPair();
             ContractLifeCycleService contractLifeCycleService1 =
-                    new ContractLifeCycleService(client, cryptoInterface1);
+                    new ContractLifeCycleService(client, cryptoKeyPair1);
             // freeze contract without grant manager
             RetCode retCode = contractLifeCycleService1.freeze(helloWorld.getContractAddress());
             Assert.assertTrue(retCode.equals(PrecompiledRetCode.CODE_INVALID_NO_AUTHORIZED));
             // grant manager
             contractLifeCycleService.grantManager(
-                    helloWorld.getContractAddress(),
-                    cryptoInterface1.getCryptoKeyPair().getAddress());
+                    helloWorld.getContractAddress(), cryptoKeyPair1.getAddress());
             // freeze the contract
             retCode = contractLifeCycleService1.freeze(helloWorld.getContractAddress());
             receipt = helloWorld.set("Hello, fisco2");
@@ -542,26 +543,22 @@ public class PrecompiledTest {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
-            CryptoInterface cryptoInterface = client.getCryptoInterface();
+            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
             ChainGovernanceService chainGovernanceService =
-                    new ChainGovernanceService(client, cryptoInterface);
+                    new ChainGovernanceService(client, cryptoKeyPair);
 
             List<PermissionInfo> orgPermissionInfos = chainGovernanceService.listCommitteeMembers();
-            chainGovernanceService.grantCommitteeMember(
-                    cryptoInterface.getCryptoKeyPair().getAddress());
+            chainGovernanceService.grantCommitteeMember(cryptoKeyPair.getAddress());
             List<PermissionInfo> permissionInfos = chainGovernanceService.listCommitteeMembers();
             // Assert.assertTrue(permissionInfos.size() == orgPermissionInfos.size() + 1);
             System.out.println("permissionInfos size: " + permissionInfos.size());
 
             Assert.assertTrue(
                     chainGovernanceService
-                            .queryCommitteeMemberWeight(
-                                    cryptoInterface.getCryptoKeyPair().getAddress())
+                            .queryCommitteeMemberWeight(cryptoKeyPair.getAddress())
                             .equals(BigInteger.valueOf(1)));
 
-            RetCode retCode =
-                    chainGovernanceService.grantOperator(
-                            cryptoInterface.getCryptoKeyPair().getAddress());
+            RetCode retCode = chainGovernanceService.grantOperator(cryptoKeyPair.getAddress());
             Assert.assertTrue(
                     retCode.equals(PrecompiledRetCode.CODE_COMMITTEE_MEMBER_CANNOT_BE_OPERATOR));
 
@@ -569,7 +566,8 @@ public class PrecompiledTest {
             int orgOperatorSize = chainGovernanceService.listOperators().size();
             CryptoInterface cryptoInterface1 =
                     new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
-            chainGovernanceService.grantOperator(cryptoInterface1.getCryptoKeyPair().getAddress());
+            CryptoKeyPair cryptoKeyPair1 = cryptoInterface1.createKeyPair();
+            chainGovernanceService.grantOperator(cryptoKeyPair.getAddress());
             // Assert.assertTrue(chainGovernanceService.listOperators().size() == orgOperatorSize +
             // 1);
             System.out.println(
@@ -579,37 +577,34 @@ public class PrecompiledTest {
                             + orgOperatorSize);
 
             // only the committeeMember can freeze account
-            CryptoInterface cryptoInterface2 =
-                    new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
-            chainGovernanceService.grantOperator(cryptoInterface2.getCryptoKeyPair().getAddress());
+            CryptoKeyPair cryptoKeyPair2 =
+                    new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig())
+                            .createKeyPair();
+            chainGovernanceService.grantOperator(cryptoKeyPair2.getAddress());
             // create the account
-            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoInterface2);
+            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair2);
             TransactionReceipt receipt = helloWorld.set("test");
             Assert.assertTrue(receipt.getStatus().equals("0x0"));
             // the operator freeze account failed
             ChainGovernanceService chainGovernanceService1 =
-                    new ChainGovernanceService(client, cryptoInterface1);
-            retCode =
-                    chainGovernanceService1.freezeAccount(
-                            cryptoInterface2.getCryptoKeyPair().getAddress());
+                    new ChainGovernanceService(client, cryptoKeyPair1);
+            retCode = chainGovernanceService1.freezeAccount(cryptoKeyPair2.getAddress());
             Assert.assertTrue(retCode.equals(PrecompiledRetCode.CODE_NO_AUTHORIZED));
 
             // the committeeMember freeze account succ
-            chainGovernanceService.freezeAccount(cryptoInterface2.getCryptoKeyPair().getAddress());
+            chainGovernanceService.freezeAccount(cryptoKeyPair2.getAddress());
             receipt = helloWorld.set("test_freeze");
             // account frozen: status is 31
             Assert.assertTrue(receipt.getStatus().equals("0x1f"));
 
             // unfreeze the account
-            chainGovernanceService.unfreezeAccount(
-                    cryptoInterface2.getCryptoKeyPair().getAddress());
+            chainGovernanceService.unfreezeAccount(cryptoKeyPair2.getAddress());
             receipt = helloWorld.set("test_unfreeze");
             Assert.assertTrue(receipt.getStatus().equals("0x0"));
             // Assert.assertTrue("test_unfreeze".equals(helloWorld.get()));
 
             // revoke the committeeMember
-            chainGovernanceService.revokeCommitteeMember(
-                    cryptoInterface.getCryptoKeyPair().getAddress());
+            chainGovernanceService.revokeCommitteeMember(cryptoKeyPair.getAddress());
             Assert.assertTrue(chainGovernanceService.listCommitteeMembers().size() == 0);
         } catch (ContractException e) {
             System.out.println("test8GovernanceService failed, error info:" + e.getMessage());

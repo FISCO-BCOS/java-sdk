@@ -52,7 +52,7 @@ public class SendOk {
 
             // deploy the HelloWorld
             System.out.println("====== Deploy Ok ====== ");
-            Ok ok = Ok.deploy(client, client.getCryptoInterface());
+            Ok ok = Ok.deploy(client, client.getCryptoInterface().getCryptoKeyPair());
             System.out.println(
                     "====== Deploy Ok successfully, address: "
                             + ok.getContractAddress()

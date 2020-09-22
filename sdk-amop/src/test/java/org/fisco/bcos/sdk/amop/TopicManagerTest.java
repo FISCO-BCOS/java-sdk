@@ -21,7 +21,7 @@ import java.util.Set;
 import org.fisco.bcos.sdk.amop.topic.AmopMsgIn;
 import org.fisco.bcos.sdk.amop.topic.TopicManager;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
+import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class TopicManagerTest {
                         .getResource(
                                 "keystore/ecdsa/0x0fc3c4bb89bd90299db4c62be0174c4966286c00.pem")
                         .getPath();
-        KeyManager km = new PEMManager(keyFile);
+        KeyManager km = new PEMKeyStore(keyFile);
         topicManager.addPrivateTopicSubscribe("priv", km, null);
         Assert.assertEquals(
                 "#!$TopicNeedVerify_priv",
@@ -151,7 +151,7 @@ public class TopicManagerTest {
                         .getResource(
                                 "keystore/ecdsa/0x0fc3c4bb89bd90299db4c62be0174c4966286c00.pem")
                         .getPath();
-        KeyManager km = new PEMManager(keyFile);
+        KeyManager km = new PEMKeyStore(keyFile);
         topicManager.addPrivateTopicSubscribe("priv", km, null);
         List<KeyManager> list = new ArrayList<>();
         list.add(km);

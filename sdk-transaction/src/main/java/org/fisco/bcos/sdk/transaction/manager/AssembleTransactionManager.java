@@ -21,7 +21,7 @@ import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -58,11 +58,11 @@ public class AssembleTransactionManager extends TransactionManager
 
     public AssembleTransactionManager(
             Client client,
-            CryptoInterface cryptoInterface,
+            CryptoKeyPair cryptoKeyPair,
             Integer groupId,
             String chainId,
             ContractLoader contractLoader) {
-        super(client, cryptoInterface, groupId, chainId);
+        super(client, cryptoKeyPair, groupId, chainId);
         this.transactionDecoder = new TransactionDecoderService(cryptoInterface);
         this.transactionPusher = new TransactionPusherService(client);
         this.abiCodec = new ABICodec(cryptoInterface);
@@ -76,7 +76,7 @@ public class AssembleTransactionManager extends TransactionManager
 
     @Override
     public TransactionReceipt deployAndGetReceipt(String data) {
-        String signedData = createSignedTransaction(null, data);
+        String signedData = createSignedTransaction(null, data, this.cryptoKeyPair);
         return transactionPusher.push(signedData);
     }
 
@@ -104,7 +104,9 @@ public class AssembleTransactionManager extends TransactionManager
         return deployAndGetResponse(
                 abi,
                 createSignedTransaction(
-                        null, abiCodec.encodeConstructorFromString(abi, bin, params)));
+                        null,
+                        abiCodec.encodeConstructorFromString(abi, bin, params),
+                        this.cryptoKeyPair));
     }
 
     @Override
@@ -159,7 +161,7 @@ public class AssembleTransactionManager extends TransactionManager
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, String data)
             throws TransactionBaseException, ABICodecException {
-        String signedData = createSignedTransaction(to, data);
+        String signedData = createSignedTransaction(to, data, this.cryptoKeyPair);
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
             return transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
@@ -193,7 +195,7 @@ public class AssembleTransactionManager extends TransactionManager
         String data =
                 abiCodec.encodeMethod(
                         contractLoader.getABIByContractName(contractName), functionName, args);
-        return sendTransactionAndGetReceipt(contractAddress, data);
+        return sendTransactionAndGetReceipt(contractAddress, data, cryptoKeyPair);
     }
 
     @Override
@@ -224,7 +226,7 @@ public class AssembleTransactionManager extends TransactionManager
             TransactionCallback callback)
             throws TransactionBaseException, ABICodecException {
         String data = encodeFunction(abi, functionName, params);
-        sendTransactionAsync(to, data, callback);
+        sendTransactionAsync(to, data, this.cryptoKeyPair, callback);
     }
 
     @Override
@@ -243,7 +245,7 @@ public class AssembleTransactionManager extends TransactionManager
         String data =
                 abiCodec.encodeMethod(
                         contractLoader.getABIByContractName(contractName), functionName, args);
-        sendTransactionAsync(contractAddress, data, callback);
+        sendTransactionAsync(contractAddress, data, this.cryptoKeyPair, callback);
     }
 
     @Override
@@ -251,7 +253,7 @@ public class AssembleTransactionManager extends TransactionManager
             String contractName, String contractAddress, String functionName, List<Object> args)
             throws TransactionBaseException, ABICodecException {
         return sendCall(
-                getCurrentExternalAccountAddress(),
+                this.cryptoKeyPair.getAddress(),
                 contractAddress,
                 contractLoader.getABIByContractName(contractName),
                 functionName,
@@ -299,7 +301,8 @@ public class AssembleTransactionManager extends TransactionManager
     @Override
     public String createSignedConstructor(String abi, String bin, List<Object> params)
             throws ABICodecException {
-        return createSignedTransaction(null, abiCodec.encodeConstructor(abi, bin, params));
+        return createSignedTransaction(
+                null, abiCodec.encodeConstructor(abi, bin, params), this.cryptoKeyPair);
     }
 
     @Override

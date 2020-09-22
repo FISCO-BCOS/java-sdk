@@ -30,7 +30,7 @@ import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.contract.precompiled.crud.table.TableFactory;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
@@ -44,15 +44,13 @@ import org.fisco.bcos.sdk.utils.StringUtils;
 
 public class TableCRUDService {
     private final Client client;
-    private final CryptoInterface credential;
     private final CRUD crudService;
     private final TableFactory tableFactory;
     private static final String ValueFieldsDelimiter = ",";
     private final String currentVersion;
 
-    public TableCRUDService(Client client, CryptoInterface credential) {
+    public TableCRUDService(Client client, CryptoKeyPair credential) {
         this.client = client;
-        this.credential = credential;
         this.crudService =
                 CRUD.load(PrecompiledAddress.CRUD_PRECOMPILED_ADDRESS, client, credential);
         this.tableFactory =
