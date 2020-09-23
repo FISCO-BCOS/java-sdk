@@ -42,13 +42,13 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 /**
- * TransactionManagerTest @Description: TransactionManagerTest
+ * TransactionProcessorTest @Description: TransactionProcessorTest
  *
  * @author maojiayu
  * @data Aug 13, 2020 8:00:11 PM
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssembleTransactionManagerTest {
+public class AssembleTransactionProcessorTest {
     private static final String configFile =
             "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
     private static final String abiFile = "src/integration-test/resources/abi/";
@@ -62,12 +62,12 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
-        AssembleTransactionManager manager =
-                TransactionManagerFactory.createAssembleTransactionManager(
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
         TransactionResponse response =
-                manager.deployByContractLoader("HelloWorld", new ArrayList<>());
+                transactionProcessor.deployByContractLoader("HelloWorld", new ArrayList<>());
         // System.out.println(JsonUtils.toJson(response));
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             return;
@@ -82,7 +82,7 @@ public class AssembleTransactionManagerTest {
                                 "0x0000000000000000000000000000000000000000000000000000000000000000"));
         // call
         CallResponse callResponse1 =
-                manager.sendCallByContractLoader(
+                transactionProcessor.sendCallByContractLoader(
                         "HelloWorld", helloWorldAddrss, "name", new ArrayList<>());
         // System.out.println(JsonUtils.toJson(callResponse1));
         List<Object> l = JsonUtils.fromJsonList(callResponse1.getValues(), Object.class);
@@ -92,19 +92,19 @@ public class AssembleTransactionManagerTest {
         List<Object> params = new ArrayList<>();
         params.add("test");
         TransactionReceipt tr =
-                manager.sendTransactionAndGetReceiptByContractLoader(
+                transactionProcessor.sendTransactionAndGetReceiptByContractLoader(
                         "HelloWorld", helloWorldAddrss, "set", params);
         Assert.assertEquals("0x0", tr.getStatus());
         // System.out.println(JsonUtils.toJson(tr));
         TransactionResponse res =
-                manager.sendTransactionAndGetResponseByContractLoader(
+                transactionProcessor.sendTransactionAndGetResponseByContractLoader(
                         "HelloWorld", helloWorldAddrss, "set", params);
         Assert.assertEquals("0x0", res.getTransactionReceipt().getStatus());
         // System.out.println(JsonUtils.toJson(res));
 
         // call
         CallResponse callResponse2 =
-                manager.sendCallByContractLoader(
+                transactionProcessor.sendCallByContractLoader(
                         "HelloWorld", helloWorldAddrss, "name", new ArrayList<>());
         // System.out.println(JsonUtils.toJson(callResponse2));
         l = JsonUtils.fromJsonList(callResponse2.getValues(), Object.class);
@@ -118,14 +118,15 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
-        AssembleTransactionManager manager =
-                TransactionManagerFactory.createAssembleTransactionManager(
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
         params.add("test2");
-        TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
+        TransactionResponse response =
+                transactionProcessor.deployByContractLoader("ComplexSol", params);
         // System.out.println(JsonUtils.toJson(response));
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             System.out.println(response.getReturnMessage());
@@ -151,21 +152,22 @@ public class AssembleTransactionManagerTest {
             Client client = sdk.getClient(Integer.valueOf(1));
             // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
             CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
-            AssembleTransactionManager manager =
-                    TransactionManagerFactory.createAssembleTransactionManager(
+            AssembleTransactionProcessor transactionProcessor =
+                    TransactionProcessorFactory.createAssembleTransactionProcessor(
                             client, cryptoKeyPair, abiFile, binFile);
             // deploy
             List<Object> params = Lists.newArrayList();
             params.add(1);
             params.add("test2");
-            TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
+            TransactionResponse response =
+                    transactionProcessor.deployByContractLoader("ComplexSol", params);
             if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
                 return;
             }
             String contractAddress = response.getContractAddress();
             // query i and s
             CallResponse callResponse1 =
-                    manager.sendCallByContractLoader(
+                    transactionProcessor.sendCallByContractLoader(
                             "ComplexSol", contractAddress, "_intV", new ArrayList<>());
             // System.out.println(JsonUtils.toJson(callResponse1));
             // System.out.println("callResponse1 : " + callResponse1.getReturnMessage());
@@ -176,7 +178,7 @@ public class AssembleTransactionManagerTest {
                 Assert.assertEquals(entities.get(0), 1);
             }
             CallResponse callResponse2 =
-                    manager.sendCallByContractLoader(
+                    transactionProcessor.sendCallByContractLoader(
                             "ComplexSol", contractAddress, "_s", new ArrayList<>());
             // System.out.println("callResponse2 : " + callResponse2.getReturnMessage());
             if (callResponse2.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
@@ -197,21 +199,22 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
-        AssembleTransactionManager manager =
-                TransactionManagerFactory.createAssembleTransactionManager(
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
         params.add("test2");
-        TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
+        TransactionResponse response =
+                transactionProcessor.deployByContractLoader("ComplexSol", params);
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             return;
         }
         String contractAddress = response.getContractAddress();
         // send empty tx
         TransactionReceipt tr =
-                manager.sendTransactionAndGetReceiptByContractLoader(
+                transactionProcessor.sendTransactionAndGetReceiptByContractLoader(
                         "ComplexSol", contractAddress, "emptyArgs", ListUtils.emptyIfNull(null));
         Assert.assertEquals("0x0", tr.getStatus());
     }
@@ -222,20 +225,21 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
-        AssembleTransactionManager manager =
-                TransactionManagerFactory.createAssembleTransactionManager(
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
         params.add("test2");
-        TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
+        TransactionResponse response =
+                transactionProcessor.deployByContractLoader("ComplexSol", params);
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             return;
         }
         String contractAddress = response.getContractAddress();
         // increment v
-        manager.sendTransactionAsync(
+        transactionProcessor.sendTransactionAsync(
                 contractAddress,
                 abi,
                 "incrementUint256",
@@ -248,7 +252,7 @@ public class AssembleTransactionManagerTest {
                         CallResponse callResponse3;
                         try {
                             callResponse3 =
-                                    manager.sendCall(
+                                    transactionProcessor.sendCall(
                                             cryptoKeyPair.getAddress(),
                                             contractAddress,
                                             abi,
@@ -269,14 +273,15 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
-        AssembleTransactionManager manager =
-                TransactionManagerFactory.createAssembleTransactionManager(
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
         params.add("test2");
-        TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
+        TransactionResponse response =
+                transactionProcessor.deployByContractLoader("ComplexSol", params);
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             return;
         }
@@ -288,7 +293,7 @@ public class AssembleTransactionManagerTest {
         paramsSetValues.add(a);
         paramsSetValues.add("set values 字符串");
         TransactionResponse transactionResponse =
-                manager.sendTransactionAndGetResponse(
+                transactionProcessor.sendTransactionAndGetResponse(
                         contractAddress, abi, "setValues", paramsSetValues);
         // System.out.println(JsonUtils.toJson(transactionResponse));
         Map<String, List<Object>> eventsMap = transactionResponse.getEventResultMap();
@@ -302,14 +307,15 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
-        AssembleTransactionManager manager =
-                TransactionManagerFactory.createAssembleTransactionManager(
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
         params.add("test2");
-        TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
+        TransactionResponse response =
+                transactionProcessor.deployByContractLoader("ComplexSol", params);
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             return;
         }
@@ -318,7 +324,7 @@ public class AssembleTransactionManagerTest {
         List<String> paramsSetBytes =
                 Lists.newArrayList(Base64.toBase64String("set bytes test".getBytes()));
         TransactionResponse transactionResponse3 =
-                manager.sendTransactionWithStringParamsAndGetResponse(
+                transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                         contractAddress, abi, "setBytes", paramsSetBytes);
         // System.out.println(JsonUtils.toJson(transactionResponse3));
         Assert.assertEquals(transactionResponse3.getValuesList().size(), 1);
@@ -331,7 +337,7 @@ public class AssembleTransactionManagerTest {
 
         // getBytes
         CallResponse callResponse4 =
-                manager.sendCall(
+                transactionProcessor.sendCall(
                         cryptoKeyPair.getAddress(),
                         contractAddress,
                         abi,
@@ -349,22 +355,25 @@ public class AssembleTransactionManagerTest {
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
-        AssembleTransactionManager manager =
-                TransactionManagerFactory.createAssembleTransactionManager(
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
         params.add("test2");
-        TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
+        TransactionResponse response =
+                transactionProcessor.deployByContractLoader("ComplexSol", params);
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             return;
         }
         String contractAddress = response.getContractAddress();
         List<Object> paramsSetBytes = Lists.newArrayList("2".getBytes());
-        String data = manager.encodeFunction(abi, "setBytes", paramsSetBytes);
-        String signedData = manager.createSignedTransaction(contractAddress, data, cryptoKeyPair);
-        CompletableFuture<TransactionReceipt> future = manager.sendTransactionAsync(signedData);
+        String data = transactionProcessor.encodeFunction(abi, "setBytes", paramsSetBytes);
+        String signedData =
+                transactionProcessor.createSignedTransaction(contractAddress, data, cryptoKeyPair);
+        CompletableFuture<TransactionReceipt> future =
+                transactionProcessor.sendTransactionAsync(signedData);
         future.thenAccept(
                 r -> {
                     Assert.assertEquals("0x0", response.getTransactionReceipt().getStatus());
