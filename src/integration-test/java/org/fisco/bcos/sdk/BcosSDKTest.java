@@ -230,7 +230,7 @@ public class BcosSDKTest {
             BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
             // deploy the HelloWorld contract
             HelloWorld helloWorld =
-                    HelloWorld.deploy(client, client.getCryptoInterface().getCryptoKeyPair());
+                    HelloWorld.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
             checkReceipt(
                     helloWorld,
                     client,
@@ -274,7 +274,7 @@ public class BcosSDKTest {
                     HelloWorld.load(
                             helloWorld.getContractAddress(),
                             client,
-                            client.getCryptoInterface().getCryptoKeyPair());
+                            client.getCryptoSuite().getCryptoKeyPair());
             Assert.assertTrue(
                     helloWorld2.getContractAddress().equals(helloWorld.getContractAddress()));
             settedString = "Hello, Fisco2";

@@ -29,7 +29,7 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
@@ -44,16 +44,16 @@ import org.slf4j.LoggerFactory;
 public class TransactionDecoderService implements TransactionDecoderInterface {
     protected static Logger logger = LoggerFactory.getLogger(TransactionDecoderService.class);
 
-    private CryptoInterface cryptoInterface;
+    private CryptoSuite cryptoSuite;
     private final ABICodec abiCodec;
     private EventEncoder eventEncoder;
 
-    /** @param cryptoInterface */
-    public TransactionDecoderService(CryptoInterface cryptoInterface) {
+    /** @param cryptoSuite */
+    public TransactionDecoderService(CryptoSuite cryptoSuite) {
         super();
-        this.cryptoInterface = cryptoInterface;
-        this.abiCodec = new ABICodec(cryptoInterface);
-        this.eventEncoder = new EventEncoder(cryptoInterface);
+        this.cryptoSuite = cryptoSuite;
+        this.abiCodec = new ABICodec(cryptoSuite);
+        this.eventEncoder = new EventEncoder(cryptoSuite);
     }
 
     @Override
@@ -109,7 +109,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     @Override
     public Map<String, List<Object>> decodeEvents(String abi, List<Logs> logs)
             throws ABICodecException {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
+        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(abi);
         Map<String, List<ABIDefinition>> eventsMap = contractABIDefinition.getEvents();
         Map<String, List<Object>> result = new HashMap<>();
@@ -158,13 +158,13 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         return methodSign.toString();
     }
 
-    /** @return the cryptoInterface */
-    public CryptoInterface getCryptoInterface() {
-        return cryptoInterface;
+    /** @return the cryptoSuite */
+    public CryptoSuite getCryptoSuite() {
+        return cryptoSuite;
     }
 
-    /** @param cryptoInterface the cryptoInterface to set */
-    public void setCryptoInterface(CryptoInterface cryptoInterface) {
-        this.cryptoInterface = cryptoInterface;
+    /** @param cryptoSuite the cryptoSuite to set */
+    public void setCryptoSuite(CryptoSuite cryptoSuite) {
+        this.cryptoSuite = cryptoSuite;
     }
 }

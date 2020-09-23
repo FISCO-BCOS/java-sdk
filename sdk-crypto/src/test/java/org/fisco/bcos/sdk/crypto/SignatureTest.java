@@ -45,12 +45,12 @@ public class SignatureTest {
                     .getPath();
 
     @Test
-    public void testCryptoInterfaceForECDSA() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
+    public void testCryptoSuiteForECDSA() {
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         // generate keyPair
-        CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
+        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
         // test signature
-        testSignature(cryptoInterface, keyPair);
+        testSignature(cryptoSuite, keyPair);
 
         // load KeyPair from the given privateKey
         String privateKeyStr =
@@ -59,21 +59,21 @@ public class SignatureTest {
                 "2179819159336280954262570523402774481036769289289277534998346117714415641803934346338726829054711133487295949018624582253372411779380507548447040213240521";
         String hexedPublicKey = new BigInteger(publicKeyStr).toString(16);
         BigInteger privateKey = new BigInteger(privateKeyStr);
-        keyPair = cryptoInterface.getKeyPairFactory().createKeyPair(privateKey);
+        keyPair = cryptoSuite.getKeyPairFactory().createKeyPair(privateKey);
         // check publicKey
         System.out.println("hexedPublicKey: " + hexedPublicKey);
         System.out.println("keyPair.getHexPublicKey(): " + keyPair.getHexPublicKey());
         Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey().substring(2));
-        testSignature(cryptoInterface, keyPair);
+        testSignature(cryptoSuite, keyPair);
     }
 
     @Test
-    public void testCryptoInterfaceForSM2() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.SM_TYPE);
+    public void testCryptoSuiteForSM2() {
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
         // generate keyPair
-        CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
+        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
         // test signature
-        testSignature(cryptoInterface, keyPair);
+        testSignature(cryptoSuite, keyPair);
     }
 
     @Test
@@ -104,9 +104,9 @@ public class SignatureTest {
         testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2);
 
-        // create keyPair with cryptoInterface
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
-        keyPair = cryptoInterface.createKeyPair();
+        // create keyPair with cryptoSuite
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+        keyPair = cryptoSuite.createKeyPair();
         testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2);
 
@@ -126,9 +126,9 @@ public class SignatureTest {
         testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2);
 
-        // create keyPair with cryptoInterface
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.SM_TYPE);
-        keyPair = cryptoInterface.createKeyPair();
+        // create keyPair with cryptoSuite
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
+        keyPair = cryptoSuite.createKeyPair();
         testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2);
 
@@ -192,16 +192,16 @@ public class SignatureTest {
     }
 
     @Test(expected = KeyPairException.class)
-    public void testInvalidCaseForECDSACryptoInterface() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
-        CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
+    public void testInvalidCaseForECDSACryptoSuite() {
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
         testInvalidPublicKey(keyPair);
     }
 
     @Test(expected = KeyPairException.class)
-    public void testInvalidCaseForSM2CryptoInterface() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.SM_TYPE);
-        CryptoKeyPair keyPair = cryptoInterface.createKeyPair();
+    public void testInvalidCaseForSM2CryptoSuite() {
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
+        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
         testInvalidPublicKey(keyPair);
     }
 
@@ -251,7 +251,7 @@ public class SignatureTest {
         }
     }
 
-    public void testSignature(CryptoInterface signature, CryptoKeyPair keyPair) {
+    public void testSignature(CryptoSuite signature, CryptoKeyPair keyPair) {
         String message = "abcde";
         // check valid case
         for (int i = 0; i < 10; i++) {
@@ -303,24 +303,24 @@ public class SignatureTest {
         KeyTool signKeyTool =
                 new P12KeyStore(
                         getClass().getClassLoader().getResource(keyPairPem).getPath(), "123456");
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         // sign and verify message with keyManager
         for (int i = 0; i < 10; i++) {
-            String message = cryptoInterface.hash("abcd----" + Integer.toString(i));
-            String signature = cryptoInterface.sign(signKeyTool, message);
-            Assert.assertTrue(cryptoInterface.verify(verifykeyTool, message, signature));
-            String invalidMessage = cryptoInterface.hash("abcde----" + Integer.toString(i));
-            Assert.assertTrue(!cryptoInterface.verify(verifykeyTool, invalidMessage, signature));
+            String message = cryptoSuite.hash("abcd----" + Integer.toString(i));
+            String signature = cryptoSuite.sign(signKeyTool, message);
+            Assert.assertTrue(cryptoSuite.verify(verifykeyTool, message, signature));
+            String invalidMessage = cryptoSuite.hash("abcde----" + Integer.toString(i));
+            Assert.assertTrue(!cryptoSuite.verify(verifykeyTool, invalidMessage, signature));
         }
     }
 
     public String getKeyStoreFilePath(
-            CryptoInterface cryptoInterface, ConfigOption configOption, String postFix) {
+            CryptoSuite cryptoSuite, ConfigOption configOption, String postFix) {
         return configOption.getAccountConfig().getKeyStoreDir()
                 + File.separator
-                + cryptoInterface.getCryptoKeyPair().getKeyStoreSubDir()
+                + cryptoSuite.getCryptoKeyPair().getKeyStoreSubDir()
                 + File.separator
-                + cryptoInterface.getCryptoKeyPair().getAddress()
+                + cryptoSuite.getCryptoKeyPair().getAddress()
                 + postFix;
     }
 
@@ -346,17 +346,17 @@ public class SignatureTest {
 
     public void testLoadAndStoreKeyPairWithPEM(int cryptoType) throws ConfigException {
         ConfigOption configOption = Config.load(configFile, CryptoType.ECDSA_TYPE);
-        CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
-        cryptoInterface.getCryptoKeyPair().setConfig(configOption);
-        cryptoInterface.getCryptoKeyPair().storeKeyPairWithPemFormat();
-        CryptoKeyPair orgKeyPair = cryptoInterface.getCryptoKeyPair();
+        CryptoSuite cryptoSuite = new CryptoSuite(cryptoType);
+        cryptoSuite.getCryptoKeyPair().setConfig(configOption);
+        cryptoSuite.getCryptoKeyPair().storeKeyPairWithPemFormat();
+        CryptoKeyPair orgKeyPair = cryptoSuite.getCryptoKeyPair();
 
         // get pem file path
         String pemFilePath =
-                getKeyStoreFilePath(cryptoInterface, configOption, CryptoKeyPair.PEM_FILE_POSTFIX);
+                getKeyStoreFilePath(cryptoSuite, configOption, CryptoKeyPair.PEM_FILE_POSTFIX);
         // load pem file
         KeyTool pemManager = new PEMKeyStore(pemFilePath);
-        CryptoKeyPair decodedCryptoKeyPair = cryptoInterface.createKeyPair(pemManager.getKeyPair());
+        CryptoKeyPair decodedCryptoKeyPair = cryptoSuite.createKeyPair(pemManager.getKeyPair());
 
         System.out.println("PEM   orgKeyPair   pub: " + orgKeyPair.getHexPublicKey());
         System.out.println("PEM decodedKeyPair pub: " + decodedCryptoKeyPair.getHexPublicKey());
@@ -369,23 +369,23 @@ public class SignatureTest {
         KeyTool verifyKeyTool = new PEMKeyStore(publicPemPath);
 
         checkSignAndVerifyWithKeyManager(
-                pemManager, decodedCryptoKeyPair, verifyKeyTool, cryptoInterface);
+                pemManager, decodedCryptoKeyPair, verifyKeyTool, cryptoSuite);
     }
 
     public void testLoadAndStoreKeyPairWithP12(int cryptoType) throws ConfigException {
         ConfigOption configOption = Config.load(configFile, CryptoType.ECDSA_TYPE);
-        CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
-        cryptoInterface.getCryptoKeyPair().setConfig(configOption);
+        CryptoSuite cryptoSuite = new CryptoSuite(cryptoType);
+        cryptoSuite.getCryptoKeyPair().setConfig(configOption);
         String password = "123";
-        cryptoInterface.getCryptoKeyPair().storeKeyPairWithP12Format(password);
-        CryptoKeyPair orgKeyPair = cryptoInterface.getCryptoKeyPair();
+        cryptoSuite.getCryptoKeyPair().storeKeyPairWithP12Format(password);
+        CryptoKeyPair orgKeyPair = cryptoSuite.getCryptoKeyPair();
 
         // get p12 file path
         String p12FilePath =
-                getKeyStoreFilePath(cryptoInterface, configOption, CryptoKeyPair.P12_FILE_POSTFIX);
+                getKeyStoreFilePath(cryptoSuite, configOption, CryptoKeyPair.P12_FILE_POSTFIX);
         // load p12 file
         KeyTool p12Manager = new P12KeyStore(p12FilePath, password);
-        CryptoKeyPair decodedCryptoKeyPair = cryptoInterface.createKeyPair(p12Manager.getKeyPair());
+        CryptoKeyPair decodedCryptoKeyPair = cryptoSuite.createKeyPair(p12Manager.getKeyPair());
         // check the keyPair
         System.out.println("P12   orgKeyPair   pub: " + orgKeyPair.getHexPublicKey());
         System.out.println("P12 decodedKeyPair pub: " + decodedCryptoKeyPair.getHexPublicKey());
@@ -402,44 +402,44 @@ public class SignatureTest {
         String publicP12Path = p12FilePath + ".pub";
         KeyTool verifyKeyTool = new PEMKeyStore(publicP12Path);
         checkSignAndVerifyWithKeyManager(
-                p12Manager, decodedCryptoKeyPair, verifyKeyTool, cryptoInterface);
+                p12Manager, decodedCryptoKeyPair, verifyKeyTool, cryptoSuite);
     }
 
     private void checkSignAndVerifyWithKeyManager(
             KeyTool pemManager,
             CryptoKeyPair cryptoKeyPair,
             KeyTool verifyKeyTool,
-            CryptoInterface cryptoInterface) {
+            CryptoSuite cryptoSuite) {
         // sign and verify message with cryptoKeyPair
         for (int i = 0; i < 10; i++) {
-            String message = cryptoInterface.hash("abcd----" + Integer.toString(i));
-            SignatureResult signature = cryptoInterface.sign(message, cryptoKeyPair);
+            String message = cryptoSuite.hash("abcd----" + Integer.toString(i));
+            SignatureResult signature = cryptoSuite.sign(message, cryptoKeyPair);
             Assert.assertTrue(
-                    cryptoInterface.verify(
+                    cryptoSuite.verify(
                             cryptoKeyPair.getHexPublicKey(), message, signature.convertToString()));
 
             Assert.assertTrue(
-                    cryptoInterface.verify(
+                    cryptoSuite.verify(
                             cryptoKeyPair.getHexPublicKey(),
                             Hex.decode(message),
                             Hex.decode(signature.convertToString())));
 
-            String invalidMessage = cryptoInterface.hash("abcde----" + Integer.toString(i));
+            String invalidMessage = cryptoSuite.hash("abcde----" + Integer.toString(i));
             Assert.assertTrue(
-                    !cryptoInterface.verify(
+                    !cryptoSuite.verify(
                             cryptoKeyPair.getHexPublicKey(),
                             invalidMessage,
                             signature.convertToString()));
         }
         for (int i = 0; i < 10; i++) {
-            String message = cryptoInterface.hash("abcd----" + Integer.toString(i));
-            String signature = cryptoInterface.sign(pemManager, message);
-            Assert.assertTrue(cryptoInterface.verify(verifyKeyTool, message, signature));
+            String message = cryptoSuite.hash("abcd----" + Integer.toString(i));
+            String signature = cryptoSuite.sign(pemManager, message);
+            Assert.assertTrue(cryptoSuite.verify(verifyKeyTool, message, signature));
             Assert.assertTrue(
-                    cryptoInterface.verify(
+                    cryptoSuite.verify(
                             verifyKeyTool, Hex.decode(message), Hex.decode(signature)));
-            String invalidMessage = cryptoInterface.hash("abcde----" + Integer.toString(i));
-            Assert.assertTrue(!cryptoInterface.verify(verifyKeyTool, invalidMessage, signature));
+            String invalidMessage = cryptoSuite.hash("abcde----" + Integer.toString(i));
+            Assert.assertTrue(!cryptoSuite.verify(verifyKeyTool, invalidMessage, signature));
         }
     }
 }

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 /**
@@ -13,10 +13,10 @@ import org.fisco.bcos.sdk.utils.Numeric;
  */
 public class EventEncoder {
 
-    private CryptoInterface cryptoInterface;
+    private CryptoSuite cryptoSuite;
 
-    public EventEncoder(CryptoInterface cryptoInterface) {
-        this.cryptoInterface = cryptoInterface;
+    public EventEncoder(CryptoSuite cryptoSuite) {
+        this.cryptoSuite = cryptoSuite;
     }
 
     public String encode(Event event) {
@@ -41,17 +41,17 @@ public class EventEncoder {
 
     public String buildEventSignature(String methodSignature) {
         byte[] input = methodSignature.getBytes();
-        byte[] hash = cryptoInterface.hash(input);
+        byte[] hash = cryptoSuite.hash(input);
         return Numeric.toHexString(hash);
     }
 
-    /** @return the cryptoInterface */
-    public CryptoInterface getCryptoInterface() {
-        return cryptoInterface;
+    /** @return the cryptoSuite */
+    public CryptoSuite getCryptoSuite() {
+        return cryptoSuite;
     }
 
-    /** @param cryptoInterface the cryptoInterface to set */
-    public void setCryptoInterface(CryptoInterface cryptoInterface) {
-        this.cryptoInterface = cryptoInterface;
+    /** @param cryptoSuite the cryptoSuite to set */
+    public void setCryptoSuite(CryptoSuite cryptoSuite) {
+        this.cryptoSuite = cryptoSuite;
     }
 }

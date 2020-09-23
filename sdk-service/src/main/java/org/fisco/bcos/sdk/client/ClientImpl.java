@@ -52,7 +52,7 @@ import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.eventsub.EventResource;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -64,7 +64,7 @@ public class ClientImpl implements Client {
     private final JsonRpcService jsonRpcService;
     private final Integer groupId;
     private final Integer DefaultGroupId = Integer.valueOf(1);
-    private final CryptoInterface cryptoInterface;
+    private final CryptoSuite cryptoSuite;
     private final NodeVersion nodeVersion;
     private final GroupManagerService groupManagerService;
     private EventResource eventResource;
@@ -73,12 +73,12 @@ public class ClientImpl implements Client {
             GroupManagerService groupManagerService,
             Channel channel,
             Integer groupId,
-            CryptoInterface cryptoInterface,
+            CryptoSuite cryptoSuite,
             NodeVersion nodeVersion,
             EventResource eventResource) {
         this.jsonRpcService = new JsonRpcService(groupManagerService, channel, groupId);
         this.groupId = groupId;
-        this.cryptoInterface = cryptoInterface;
+        this.cryptoSuite = cryptoSuite;
         this.nodeVersion = nodeVersion;
         this.groupManagerService = groupManagerService;
         this.eventResource = eventResource;
@@ -89,7 +89,7 @@ public class ClientImpl implements Client {
     protected ClientImpl(Channel channel) {
         this.jsonRpcService = new JsonRpcService(null, channel, null);
         this.groupId = null;
-        this.cryptoInterface = null;
+        this.cryptoSuite = null;
         this.nodeVersion = null;
         this.groupManagerService = null;
     }
@@ -100,8 +100,8 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public CryptoInterface getCryptoInterface() {
-        return this.cryptoInterface;
+    public CryptoSuite getCryptoSuite() {
+        return this.cryptoSuite;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ClientImpl implements Client {
 
     @Override
     public Integer getCryptoType() {
-        return this.cryptoInterface.getCryptoTypeConfig();
+        return this.cryptoSuite.getCryptoTypeConfig();
     }
 
     @Override

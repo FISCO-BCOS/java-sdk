@@ -50,7 +50,7 @@ import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.eventsub.EventResource;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -103,11 +103,10 @@ public interface Client {
                     groupId);
             return null;
         }
-        CryptoInterface cryptoInterface =
-                new CryptoInterface(cryptoType, groupManagerService.getConfig());
+        CryptoSuite cryptoSuite = new CryptoSuite(cryptoType, groupManagerService.getConfig());
         logger.info("build client success for group {}", groupId);
         return new ClientImpl(
-                groupManagerService, channel, groupId, cryptoInterface, nodeVersion, eventResource);
+                groupManagerService, channel, groupId, cryptoSuite, nodeVersion, eventResource);
     }
 
     static Client build(Channel channel) {
@@ -116,7 +115,7 @@ public interface Client {
 
     GroupManagerService getGroupManagerService();
 
-    CryptoInterface getCryptoInterface();
+    CryptoSuite getCryptoSuite();
 
     NodeVersion getClientNodeVersion();
 

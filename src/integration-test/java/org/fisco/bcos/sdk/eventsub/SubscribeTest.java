@@ -25,7 +25,7 @@ import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.abi.tools.TopicTools;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionProcessor;
@@ -60,7 +60,7 @@ public class SubscribeTest {
         try {
             AssembleTransactionProcessor manager =
                     TransactionProcessorFactory.createAssembleTransactionProcessor(
-                            client, client.getCryptoInterface().createKeyPair(), abiFile, binFile);
+                            client, client.getCryptoSuite().createKeyPair(), abiFile, binFile);
             // deploy
             List<Object> params = Lists.newArrayList();
             params.add(1);
@@ -90,9 +90,9 @@ public class SubscribeTest {
         eventLogParams1.setToBlock("latest");
         eventLogParams1.setAddresses(new ArrayList<>());
         ArrayList<Object> topics = new ArrayList<>();
-        CryptoInterface invalidCryptoInterface =
-                new CryptoInterface(client.getCryptoInterface().getCryptoTypeConfig());
-        TopicTools topicTools = new TopicTools(invalidCryptoInterface);
+        CryptoSuite invalidCryptoSuite =
+                new CryptoSuite(client.getCryptoSuite().getCryptoTypeConfig());
+        TopicTools topicTools = new TopicTools(invalidCryptoSuite);
         topics.add(topicTools.stringToTopic("LogSetValues(int256,address[],string)"));
         eventLogParams1.setTopics(topics);
 
@@ -123,7 +123,7 @@ public class SubscribeTest {
                                         + log.getTransactionIndex()
                                         + " data:"
                                         + log.getData());
-                        ABICodec abiCodec = new ABICodec(client.getCryptoInterface());
+                        ABICodec abiCodec = new ABICodec(client.getCryptoSuite());
                         try {
                             List<Object> list =
                                     abiCodec.decodeEvent(abi, "LogSetValues", log.getData());
