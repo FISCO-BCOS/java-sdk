@@ -23,7 +23,7 @@ import java.util.Arrays;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
-import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.utils.Hex;
@@ -77,8 +77,8 @@ public abstract class CryptoKeyPair {
     public CryptoKeyPair(KeyPair keyPair) {
         this.keyPair = keyPair;
         // init privateKey/publicKey from the keyPair
-        this.hexPrivateKey = KeyManager.getHexedPrivateKey(keyPair.getPrivate());
-        this.hexPublicKey = KeyManager.getHexedPublicKey(keyPair.getPublic());
+        this.hexPrivateKey = KeyTool.getHexedPrivateKey(keyPair.getPrivate());
+        this.hexPublicKey = KeyTool.getHexedPublicKey(keyPair.getPublic());
     }
     /**
      * get CryptoKeyPair information from CryptoResult
@@ -116,16 +116,15 @@ public abstract class CryptoKeyPair {
     public abstract CryptoKeyPair createKeyPair(KeyPair keyPair);
 
     public CryptoKeyPair createKeyPair(BigInteger privateKeyValue) {
-        PrivateKey privateKey =
-                KeyManager.convertHexedStringToPrivateKey(privateKeyValue, curveName);
-        PublicKey publicKey = KeyManager.getPublicKeyFromPrivateKey(privateKey);
+        PrivateKey privateKey = KeyTool.convertHexedStringToPrivateKey(privateKeyValue, curveName);
+        PublicKey publicKey = KeyTool.getPublicKeyFromPrivateKey(privateKey);
         KeyPair keyPair = new KeyPair(publicKey, privateKey);
         return createKeyPair(keyPair);
     }
 
     public CryptoKeyPair createKeyPair(String hexPrivateKey) {
-        PrivateKey privateKey = KeyManager.convertHexedStringToPrivateKey(hexPrivateKey, curveName);
-        PublicKey publicKey = KeyManager.getPublicKeyFromPrivateKey(privateKey);
+        PrivateKey privateKey = KeyTool.convertHexedStringToPrivateKey(hexPrivateKey, curveName);
+        PublicKey publicKey = KeyTool.getPublicKeyFromPrivateKey(privateKey);
         KeyPair keyPair = new KeyPair(publicKey, privateKey);
         return createKeyPair(keyPair);
     }

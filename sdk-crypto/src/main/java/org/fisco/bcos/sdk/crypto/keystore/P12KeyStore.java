@@ -37,7 +37,7 @@ import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
 import org.fisco.bcos.sdk.crypto.exceptions.SaveKeyStoreException;
 
-public class P12KeyStore extends KeyManager {
+public class P12KeyStore extends KeyTool {
     private static final String NAME = "key";
     private KeyStore keyStore;
 

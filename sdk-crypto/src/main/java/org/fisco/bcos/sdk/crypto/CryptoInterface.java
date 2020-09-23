@@ -24,7 +24,7 @@ import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.SM2KeyPair;
-import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
@@ -88,11 +88,11 @@ public class CryptoInterface {
     }
 
     public void loadAccount(String accountFileFormat, String accountFilePath, String password) {
-        KeyManager keyManager = null;
+        KeyTool keyTool = null;
         if (accountFileFormat.compareToIgnoreCase("p12") == 0) {
-            keyManager = new P12KeyStore(accountFilePath, password);
+            keyTool = new P12KeyStore(accountFilePath, password);
         } else if (accountFileFormat.compareToIgnoreCase("pem") == 0) {
-            keyManager = new PEMKeyStore(accountFilePath);
+            keyTool = new PEMKeyStore(accountFilePath);
         } else {
             throw new LoadKeyStoreException(
                     "unsupported account file format : "
@@ -100,7 +100,7 @@ public class CryptoInterface {
                             + ", current supported are p12 and pem");
         }
         logger.debug("Load account from {}", accountFilePath);
-        createKeyPair(keyManager.getKeyPair());
+        createKeyPair(keyTool.getKeyPair());
     }
 
     private void loadAccount(ConfigOption configOption) {
@@ -155,18 +155,18 @@ public class CryptoInterface {
     }
 
     // for AMOP topic verify, generate signature
-    public String sign(KeyManager keyManager, String message) {
-        CryptoKeyPair cryptoKeyPair = this.keyPairFactory.createKeyPair(keyManager.getKeyPair());
+    public String sign(KeyTool keyTool, String message) {
+        CryptoKeyPair cryptoKeyPair = this.keyPairFactory.createKeyPair(keyTool.getKeyPair());
         return signatureImpl.signWithStringSignature(message, cryptoKeyPair);
     }
 
     // for AMOP topic verify, verify the signature
-    public boolean verify(KeyManager keyManager, String message, String signature) {
-        return verify(keyManager.getHexedPublicKey(), message, signature);
+    public boolean verify(KeyTool keyTool, String message, String signature) {
+        return verify(keyTool.getHexedPublicKey(), message, signature);
     }
 
-    public boolean verify(KeyManager keyManager, byte[] message, byte[] signature) {
-        return verify(keyManager.getHexedPublicKey(), message, signature);
+    public boolean verify(KeyTool keyTool, byte[] message, byte[] signature) {
+        return verify(keyTool.getHexedPublicKey(), message, signature);
     }
 
     public boolean verify(final String publicKey, final String message, final String signature) {
