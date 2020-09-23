@@ -25,7 +25,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 
-public interface AssembleTransactionManagerInterface {
+public interface AssembleTransactionProcessorInterface {
 
     public TransactionReceipt deployAndGetReceipt(String data);
 

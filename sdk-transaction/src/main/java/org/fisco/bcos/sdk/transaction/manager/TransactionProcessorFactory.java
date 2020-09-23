@@ -23,8 +23,8 @@ import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TransactionManagerFactory {
-    private static final Logger logger = LoggerFactory.getLogger(TransactionManagerFactory.class);
+public class TransactionProcessorFactory {
+    private static final Logger logger = LoggerFactory.getLogger(TransactionProcessorFactory.class);
 
     @SuppressWarnings("unlikely-arg-type")
     public static Pair<String, Integer> getChainIdAndGroupId(Client client) {
@@ -53,25 +53,25 @@ public class TransactionManagerFactory {
         }
     }
 
-    public static TransactionManager createTransactionManager(
+    public static TransactionProcessor createTransactionManager(
             Client client, CryptoKeyPair cryptoKeyPair) {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
-        return new TransactionManager(client, cryptoKeyPair, pair.getRight(), pair.getLeft());
+        return new TransactionProcessor(client, cryptoKeyPair, pair.getRight(), pair.getLeft());
     }
 
-    public static AssembleTransactionManager createAssembleTransactionManager(
+    public static AssembleTransactionProcessor createAssembleTransactionProcessor(
             Client client, CryptoKeyPair cryptoKeyPair) throws Exception {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
-        return new AssembleTransactionManager(
+        return new AssembleTransactionProcessor(
                 client, cryptoKeyPair, pair.getRight(), pair.getLeft(), null);
     }
 
-    public static AssembleTransactionManager createAssembleTransactionManager(
+    public static AssembleTransactionProcessor createAssembleTransactionProcessor(
             Client client, CryptoKeyPair cryptoKeyPair, String abiFilePath, String binFilePath)
             throws Exception {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
         ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
-        return new AssembleTransactionManager(
+        return new AssembleTransactionProcessor(
                 client, cryptoKeyPair, pair.getRight(), pair.getLeft(), contractLoader);
     }
 }

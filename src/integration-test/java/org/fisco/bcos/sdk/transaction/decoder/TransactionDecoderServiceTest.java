@@ -25,8 +25,8 @@ import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
-import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionManager;
-import org.fisco.bcos.sdk.transaction.manager.TransactionManagerFactory;
+import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionProcessor;
+import org.fisco.bcos.sdk.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
@@ -54,8 +54,8 @@ public class TransactionDecoderServiceTest {
                 new TransactionDecoderService(client.getCryptoInterface());
         ContractLoader contractLoader = new ContractLoader(abiFile, binFile);
         String abi = contractLoader.getABIByContractName(contractName);
-        AssembleTransactionManager manager =
-                TransactionManagerFactory.createAssembleTransactionManager(
+        AssembleTransactionProcessor manager =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, client.getCryptoInterface().createKeyPair(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
