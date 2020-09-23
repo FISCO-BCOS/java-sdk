@@ -25,7 +25,11 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
     private SecureRandom secureRandom = new SecureRandom();
     private Client client;
 
-    /** @param client */
+    /**
+     * create TransactionBuilderService
+     *
+     * @param client the client object
+     */
     public TransactionBuilderService(Client client) {
         super();
         this.client = client;

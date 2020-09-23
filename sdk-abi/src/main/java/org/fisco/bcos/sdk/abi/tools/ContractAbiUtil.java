@@ -33,7 +33,7 @@ public class ContractAbiUtil {
     public static final String TYPE_EVENT = "event";
 
     /**
-     * @param contractAbi
+     * @param contractAbi the contract abi
      * @return the abi definition
      */
     public static List<ABIDefinition> getFuncABIDefinition(String contractAbi) {

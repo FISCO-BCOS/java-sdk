@@ -34,10 +34,10 @@ public class CallRequest {
     }
 
     /**
-     * @param from
-     * @param to
-     * @param encodedFunction
-     * @param abi
+     * @param from the transaction sender
+     * @param to the contract address
+     * @param encodedFunction the encoded methods and params
+     * @param abi the abi definition of the function
      */
     public CallRequest(String from, String to, String encodedFunction, ABIDefinition abi) {
         this(from, to, encodedFunction);

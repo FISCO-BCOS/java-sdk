@@ -43,15 +43,15 @@ public interface Network {
     /**
      * Broadcast message
      *
-     * @param out
+     * @param out the message to broadcast
      */
     void broadcast(Message out);
 
     /**
      * Send to peer
      *
-     * @param out
-     * @param peerIpPort
+     * @param out the sent message
+     * @param peerIpPort the node to receive the message
      */
     void sendToPeer(Message out, String peerIpPort) throws NetworkException;
 
@@ -65,28 +65,28 @@ public interface Network {
     /**
      * Start connect peers
      *
-     * @throws NetworkException
+     * @throws NetworkException start the network exceptioned
      */
     void start() throws NetworkException;
 
     /**
      * Get available connection context
      *
-     * @return Map<String, ChannelHandlerContext> String for the IP:Port of a peer
+     * @return the map between the peer endpoint and the channelHandlerContext
      */
     Map<String, ChannelHandlerContext> getAvailableConnections();
 
     /**
      * Remove the connection if version negotiation failed
      *
-     * @param peerIpPort
+     * @param peerIpPort the peer connection to be removed
      */
     void removeConnection(String peerIpPort);
 
     /**
      * Set thread pool
      *
-     * @param threadPool
+     * @param threadPool the threadpool to handle the network message
      */
     void setMsgHandleThreadPool(ExecutorService threadPool);
 

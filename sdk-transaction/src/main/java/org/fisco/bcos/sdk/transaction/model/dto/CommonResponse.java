@@ -28,8 +28,8 @@ public class CommonResponse {
     }
 
     /**
-     * @param returnCode
-     * @param returnMessage
+     * @param returnCode the return code of the response
+     * @param returnMessage the return message of the response
      */
     public CommonResponse(int returnCode, String returnMessage) {
         super();

@@ -435,6 +435,7 @@ public class ABIObject {
     /**
      * decode this object
      *
+     * @param input the string to be decoded into ABIObject
      * @return the decoded ABIObject
      */
     public ABIObject decode(String input) {

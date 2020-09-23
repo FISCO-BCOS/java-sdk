@@ -25,7 +25,11 @@ public class TransactionPusherService implements TransactionPusherInterface {
 
     private Client client;
 
-    /** @param client */
+    /**
+     * create the TransactionPusherService
+     *
+     * @param client the client object responsible for send transaction
+     */
     public TransactionPusherService(Client client) {
         super();
         this.client = client;

@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.config;
 
 import com.moandjiezana.toml.Toml;
 import java.io.File;
-import java.io.IOException;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.config.model.ConfigProperty;
 import org.fisco.bcos.sdk.model.CryptoType;
@@ -33,9 +32,9 @@ public class Config {
         return load(tomlConfigFile, CryptoType.ECDSA_TYPE);
     }
     /**
-     * @param tomlConfigFile
-     * @return ConfigOption
-     * @throws IOException
+     * @param tomlConfigFile the toml configuration file path
+     * @return ConfigOption the configuration object
+     * @throws ConfigException the configuration exception
      */
     public static ConfigOption load(String tomlConfigFile, int cryptoType) throws ConfigException {
         // Load a toml config file to an java object

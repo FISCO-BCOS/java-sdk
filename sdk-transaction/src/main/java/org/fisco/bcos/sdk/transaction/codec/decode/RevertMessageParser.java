@@ -69,8 +69,8 @@ public class RevertMessageParser {
     }
 
     /**
-     * @param status
-     * @param output
+     * @param status the status of the receipt
+     * @param output the output of the receipt
      * @return true/false
      */
     public static boolean hasRevertMessage(String status, String output) {
@@ -86,8 +86,8 @@ public class RevertMessageParser {
     }
 
     /**
-     * @param status
-     * @param output
+     * @param status the transaction receipt status
+     * @param output the output of the transaction receipt
      * @return the resolved revert message information
      */
     public static Tuple2<Boolean, String> tryResolveRevertMessage(String status, String output) {
@@ -117,7 +117,7 @@ public class RevertMessageParser {
     }
 
     /**
-     * @param receipt
+     * @param receipt the receipt need to be parsed
      * @return the resolved revert message information
      */
     public static Tuple2<Boolean, String> tryResolveRevertMessage(TransactionReceipt receipt) {

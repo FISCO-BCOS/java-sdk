@@ -33,12 +33,12 @@ import org.fisco.bcos.sdk.network.Network;
  * @author Maggie
  */
 public interface Channel {
-
     /**
      * Init channel module
      *
      * @param configOption config file path.
      * @return a channel instance
+     * @throws ConfigException the configuration exception
      */
     static Channel build(ConfigOption configOption) throws ConfigException {
         return new ChannelImp(configOption);

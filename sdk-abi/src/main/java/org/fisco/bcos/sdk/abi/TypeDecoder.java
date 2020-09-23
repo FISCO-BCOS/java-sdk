@@ -168,7 +168,16 @@ public class TypeDecoder {
         return new Utf8String(new String(bytes, StandardCharsets.UTF_8));
     }
 
-    /** Static array length cannot be passed as a type. */
+    /**
+     * Decode the staticArray Static array length cannot be passed as a type
+     *
+     * @param input the staticArray need to be decoded
+     * @param offset the size of the staticArray need to be decoded
+     * @param type the type of the result
+     * @param length
+     * @param <T>
+     * @return the decoded result
+     */
     @SuppressWarnings("unchecked")
     public static <T extends Type> T decodeStaticArray(
             String input, int offset, java.lang.reflect.Type type, int length) {

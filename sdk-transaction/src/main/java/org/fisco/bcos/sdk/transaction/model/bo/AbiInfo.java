@@ -11,8 +11,10 @@ public class AbiInfo {
     private Map<String, ABIDefinition> contractConstructAbi;
 
     /**
-     * @param contractFuncAbis
-     * @param contractConstructAbi
+     * create the AbiInfo object
+     *
+     * @param contractFuncAbis maps between the contract name and the contract abi
+     * @param contractConstructAbi maps between the contract name and the constructor abi
      */
     public AbiInfo(
             Map<String, List<ABIDefinition>> contractFuncAbis,
