@@ -17,6 +17,7 @@ package org.fisco.bcos.sdk.transaction.codec.encode;
 import java.util.ArrayList;
 import java.util.List;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.rlp.RlpEncoder;
@@ -41,19 +42,20 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
         super();
         this.cryptoInterface = cryptoInterface;
         this.signature = cryptoInterface.getSignatureImpl();
-        this.transactionSignerService = new TransactionSignerServcie(signature, cryptoInterface);
+        this.transactionSignerService = new TransactionSignerServcie(signature);
     }
 
     @Override
-    public String encodeAndSign(RawTransaction rawTransaction) {
-        return Numeric.toHexString(encodeAndSignBytes(rawTransaction));
+    public String encodeAndSign(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair) {
+        return Numeric.toHexString(encodeAndSignBytes(rawTransaction, cryptoKeyPair));
     }
 
     @Override
-    public byte[] encodeAndSignBytes(RawTransaction rawTransaction) {
+    public byte[] encodeAndSignBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair) {
         byte[] encodedTransaction = encode(rawTransaction, null);
         byte[] hash = cryptoInterface.hash(encodedTransaction);
-        SignatureResult result = transactionSignerService.sign(Hex.toHexString(hash));
+        SignatureResult result =
+                transactionSignerService.sign(Hex.toHexString(hash), cryptoKeyPair);
         return encode(rawTransaction, result);
     }
 

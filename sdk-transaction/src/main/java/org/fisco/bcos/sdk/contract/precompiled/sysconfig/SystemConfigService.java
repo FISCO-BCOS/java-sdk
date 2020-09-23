@@ -16,7 +16,7 @@ package org.fisco.bcos.sdk.contract.precompiled.sysconfig;
 
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
@@ -24,7 +24,7 @@ import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 public class SystemConfigService {
     private final SystemConfigPrecompiled systemConfigPrecompiled;
 
-    public SystemConfigService(Client client, CryptoInterface credential) {
+    public SystemConfigService(Client client, CryptoKeyPair credential) {
         this.systemConfigPrecompiled =
                 SystemConfigPrecompiled.load(
                         PrecompiledAddress.SYSCONFIG_PRECOMPILED_ADDRESS, client, credential);

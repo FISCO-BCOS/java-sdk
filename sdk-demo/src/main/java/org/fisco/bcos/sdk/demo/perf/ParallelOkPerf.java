@@ -109,7 +109,8 @@ public class ParallelOkPerf {
         switch (command) {
             case "add":
                 // deploy ParallelOk
-                parallelOk = ParallelOk.deploy(client, client.getCryptoInterface());
+                parallelOk =
+                        ParallelOk.deploy(client, client.getCryptoInterface().getCryptoKeyPair());
                 // enable parallel
                 parallelOk.enableParallel();
                 System.out.println(
@@ -122,7 +123,9 @@ public class ParallelOkPerf {
                 dagUserInfo.loadDagTransferUser();
                 parallelOk =
                         ParallelOk.load(
-                                dagUserInfo.getContractAddr(), client, client.getCryptoInterface());
+                                dagUserInfo.getContractAddr(),
+                                client,
+                                client.getCryptoInterface().getCryptoKeyPair());
                 System.out.println(
                         "====== ParallelOk trans, load success, address: "
                                 + parallelOk.getContractAddress());

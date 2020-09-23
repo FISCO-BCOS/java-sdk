@@ -19,6 +19,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderInterface;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 public class TransactionManager implements TransactionManagerInterface {
     protected static Logger log = LoggerFactory.getLogger(TransactionManager.class);
     protected final CryptoInterface cryptoInterface;
+    protected final CryptoKeyPair cryptoKeyPair;
     protected final Client client;
     protected final Integer groupId;
     protected final String chainId;
@@ -41,24 +43,27 @@ public class TransactionManager implements TransactionManagerInterface {
     protected final TransactionEncoderInterface transactionEncoder;
 
     public TransactionManager(
-            Client client, CryptoInterface cryptoInterface, Integer groupId, String chainId) {
-        this.cryptoInterface = cryptoInterface;
+            Client client, CryptoKeyPair cryptoKeyPair, Integer groupId, String chainId) {
+        this.cryptoInterface = client.getCryptoInterface();
+        this.cryptoKeyPair = cryptoKeyPair;
         this.client = client;
         this.groupId = groupId;
         this.chainId = chainId;
         this.transactionBuilder = new TransactionBuilderService(client);
-        this.transactionEncoder = new TransactionEncoderService(cryptoInterface);
+        this.transactionEncoder = new TransactionEncoderService(client.getCryptoInterface());
     }
 
     @Override
-    public TransactionReceipt sendTransactionAndGetReceipt(String to, String data) {
-        String signedData = createSignedTransaction(to, data);
+    public TransactionReceipt sendTransactionAndGetReceipt(
+            String to, String data, CryptoKeyPair cryptoKeyPair) {
+        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
         return this.client.sendRawTransactionAndGetReceipt(signedData);
     }
 
     @Override
-    public void sendTransactionAsync(String to, String data, TransactionCallback callback) {
-        String signedData = createSignedTransaction(to, data);
+    public void sendTransactionAsync(
+            String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
+        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
         client.asyncSendRawTransaction(signedData, callback);
     }
 
@@ -74,12 +79,7 @@ public class TransactionManager implements TransactionManagerInterface {
     }
 
     @Override
-    public String getCurrentExternalAccountAddress() {
-        return cryptoInterface.getCryptoKeyPair().getAddress();
-    }
-
-    @Override
-    public String createSignedTransaction(String to, String data) {
+    public String createSignedTransaction(String to, String data, CryptoKeyPair cryptoKeyPair) {
         RawTransaction rawTransaction =
                 transactionBuilder.createTransaction(
                         DefaultGasProvider.GAS_PRICE,
@@ -90,6 +90,6 @@ public class TransactionManager implements TransactionManagerInterface {
                         new BigInteger(this.chainId),
                         BigInteger.valueOf(this.groupId),
                         "");
-        return transactionEncoder.encodeAndSign(rawTransaction);
+        return transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
     }
 }

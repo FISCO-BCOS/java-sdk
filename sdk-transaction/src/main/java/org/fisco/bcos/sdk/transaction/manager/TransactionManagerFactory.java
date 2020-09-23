@@ -17,7 +17,7 @@ package org.fisco.bcos.sdk.transaction.manager;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.channel.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.slf4j.Logger;
@@ -54,24 +54,24 @@ public class TransactionManagerFactory {
     }
 
     public static TransactionManager createTransactionManager(
-            Client client, CryptoInterface cryptoInterface) {
+            Client client, CryptoKeyPair cryptoKeyPair) {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
-        return new TransactionManager(client, cryptoInterface, pair.getRight(), pair.getLeft());
+        return new TransactionManager(client, cryptoKeyPair, pair.getRight(), pair.getLeft());
     }
 
     public static AssembleTransactionManager createAssembleTransactionManager(
-            Client client, CryptoInterface cryptoInterface) throws Exception {
+            Client client, CryptoKeyPair cryptoKeyPair) throws Exception {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
         return new AssembleTransactionManager(
-                client, cryptoInterface, pair.getRight(), pair.getLeft(), null);
+                client, cryptoKeyPair, pair.getRight(), pair.getLeft(), null);
     }
 
     public static AssembleTransactionManager createAssembleTransactionManager(
-            Client client, CryptoInterface cryptoInterface, String abiFilePath, String binFilePath)
+            Client client, CryptoKeyPair cryptoKeyPair, String abiFilePath, String binFilePath)
             throws Exception {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
         ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
         return new AssembleTransactionManager(
-                client, cryptoInterface, pair.getRight(), pair.getLeft(), contractLoader);
+                client, cryptoKeyPair, pair.getRight(), pair.getLeft(), contractLoader);
     }
 }

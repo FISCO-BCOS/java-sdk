@@ -4,10 +4,8 @@ plugins {
 }
 dependencies {
     compile project(':sdk-codegen')
-    compile 'org.fisco-bcos:solcJ:0.4.25.1'
-    //compile 'org.fisco-bcos:solcJ:0.6.10.0'
-    //compile 'org.fisco-bcos:solcJ:0.5.2.0'
-	compile 'com.google.guava:guava:29.0-jre'
-    compile 'org.apache.commons:commons-collections4:4.4'
+    compile ("org.fisco-bcos:solcJ:${solcJVersion}")
+	compile ("com.google.guava:guava:${guavaVersion}")
+    compile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
 }
 

@@ -29,8 +29,8 @@ import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.AmopTopic;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
-import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
+import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
+import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
@@ -247,15 +247,15 @@ public class AmopImp implements Amop {
                 KeyManager km;
 
                 if (privKeyFile.endsWith("p12")) {
-                    km = new P12Manager(privKeyFile, topic.getPassword());
+                    km = new P12KeyStore(privKeyFile, topic.getPassword());
                 } else {
-                    km = new PEMManager(privKeyFile);
+                    km = new PEMKeyStore(privKeyFile);
                 }
                 topicManager.addPrivateTopicSubscribe(topic.getTopicName(), km, null);
             } else if (null != topic.getPublicKeys()) {
                 List<KeyManager> pubList = new ArrayList<>();
                 for (String pubKey : topic.getPublicKeys()) {
-                    KeyManager km = new PEMManager(pubKey);
+                    KeyManager km = new PEMKeyStore(pubKey);
                     pubList.add(km);
                 }
                 topicManager.addPrivateTopicSend(topic.getTopicName(), pubList);

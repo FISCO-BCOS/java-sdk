@@ -24,8 +24,8 @@ import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
-import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
+import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
+import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.fisco.bcos.sdk.utils.StringUtils;
@@ -184,7 +184,7 @@ public abstract class CryptoKeyPair {
     }
 
     public void storeKeyPairWithPem(String keyStoreFilePath) {
-        PEMManager.storeKeyPairWithPemFormat(this.hexPrivateKey, keyStoreFilePath, curveName);
+        PEMKeyStore.storeKeyPairWithPemFormat(this.hexPrivateKey, keyStoreFilePath, curveName);
     }
 
     public void storeKeyPairWithPemFormat() {
@@ -202,7 +202,7 @@ public abstract class CryptoKeyPair {
     }
 
     public void storeKeyPairWithP12(String p12FilePath, String password) {
-        P12Manager.storeKeyPairWithP12Format(
+        P12KeyStore.storeKeyPairWithP12Format(
                 this.hexPrivateKey, password, p12FilePath, curveName, signatureAlgorithm);
     }
 

@@ -32,11 +32,11 @@ import org.bouncycastle.util.io.pem.PemWriter;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
 import org.fisco.bcos.sdk.crypto.exceptions.SaveKeyStoreException;
 
-public class PEMManager extends KeyManager {
+public class PEMKeyStore extends KeyManager {
     public static final String PRIVATE_KEY = "PRIVATE KEY";
     private PemObject pem;
 
-    public PEMManager(final String keyStoreFile) {
+    public PEMKeyStore(final String keyStoreFile) {
         super(keyStoreFile);
     }
 

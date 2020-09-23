@@ -10,8 +10,8 @@ import org.fisco.bcos.sdk.amop.topic.TopicManager;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
-import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
+import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
+import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.Message;
@@ -104,7 +104,7 @@ public class AmopMsgHandlerTest {
                         .getResource(
                                 "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.public.pem")
                         .getPath();
-        KeyManager km = new PEMManager(keyFile);
+        KeyManager km = new PEMKeyStore(keyFile);
         Assert.assertTrue(
                 cryptoInterface.verify(
                         km,
@@ -177,7 +177,7 @@ public class AmopMsgHandlerTest {
                         .getResource(
                                 "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.public.pem")
                         .getPath();
-        list.add(new PEMManager(keyFile));
+        list.add(new PEMKeyStore(keyFile));
         topicManagerSender.addPrivateTopicSend("priv1", list);
 
         TopicManager topicManagerSub;
@@ -189,7 +189,7 @@ public class AmopMsgHandlerTest {
                         .getResource(
                                 "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.p12")
                         .getPath();
-        topicManagerSub.addPrivateTopicSubscribe("priv1", new P12Manager(privKey, "123456"), null);
+        topicManagerSub.addPrivateTopicSubscribe("priv1", new P12KeyStore(privKey, "123456"), null);
     }
 
     private AmopMsg getAmopMsg(String topic, byte[] content) {
