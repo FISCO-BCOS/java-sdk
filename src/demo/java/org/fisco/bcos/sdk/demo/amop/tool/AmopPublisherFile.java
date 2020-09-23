@@ -21,7 +21,7 @@ public class AmopPublisherFile {
                     .getPath();
 
     /**
-     * @param args topicName, isBroadcast: true/false, fileName, count
+     * @param args topicName, isBroadcast: true/false, fileName, count, timeout
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
@@ -35,7 +35,10 @@ public class AmopPublisherFile {
         Integer count = Integer.parseInt(args[3]);
         BcosSDK sdk = BcosSDK.build(publisherFile);
         Amop amop = sdk.getAmop();
-
+        Integer timeout = 6000;
+        if (args.length > 4) {
+            timeout = Integer.parseInt(args[4]);
+        }
         System.out.println("3s ...");
         Thread.sleep(1000);
         System.out.println("2s ...");
@@ -59,23 +62,27 @@ public class AmopPublisherFile {
             AmopMsgOut out = new AmopMsgOut();
             out.setType(TopicType.NORMAL_TOPIC);
             out.setContent(content);
-            out.setTimeout(6000);
+            out.setTimeout(timeout);
             out.setTopic(topicName);
             ResponseCallback cb =
                     new ResponseCallback() {
                         @Override
                         public void onResponse(Response response) {
-
-                            System.out.println(
-                                    "Step 3:Get response, { errorCode:"
-                                            + response.getErrorCode()
-                                            + " error:"
-                                            + response.getErrorMessage()
-                                            + " seq:"
-                                            + response.getMessageID()
-                                            + " content:"
-                                            + new String(response.getContentBytes())
-                                            + " }");
+                            if (response.getErrorCode() == 102) {
+                                System.out.println(
+                                        "Step 3: Timeout, maybe your file is too large or your gave a short timeout. Add a timeout arg, topicName, isBroadcast: true/false, fileName, count, timeout");
+                            } else {
+                                System.out.println(
+                                        "Step 3:Get response, { errorCode:"
+                                                + response.getErrorCode()
+                                                + " error:"
+                                                + response.getErrorMessage()
+                                                + " seq:"
+                                                + response.getMessageID()
+                                                + " content:"
+                                                + new String(response.getContentBytes())
+                                                + " }");
+                            }
                         }
                     };
             if (isBroadcast) {

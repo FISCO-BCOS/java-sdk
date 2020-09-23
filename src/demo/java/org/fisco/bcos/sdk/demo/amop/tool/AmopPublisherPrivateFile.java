@@ -25,8 +25,8 @@ public class AmopPublisherPrivateFile {
                     .getPath();
 
     /**
-     * @param args topicName, pubKey1, pubKey2, isBroadcast: true/false, fileName, count. if only
-     *     one public key please fill pubKey2 with null
+     * @param args topicName, pubKey1, pubKey2, isBroadcast: true/false, fileName, count, timeout.
+     *     if only one public key please fill pubKey2 with null
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
@@ -40,6 +40,10 @@ public class AmopPublisherPrivateFile {
         Boolean isBroadcast = Boolean.valueOf(args[3]);
         String fileName = args[4];
         Integer count = Integer.parseInt(args[5]);
+        Integer timeout = 6000;
+        if (args.length > 6) {
+            timeout = Integer.parseInt(args[6]);
+        }
         BcosSDK sdk = BcosSDK.build(publisherFile);
         Amop amop = sdk.getAmop();
         // todo setup topic
@@ -83,23 +87,27 @@ public class AmopPublisherPrivateFile {
             AmopMsgOut out = new AmopMsgOut();
             out.setType(TopicType.PRIVATE_TOPIC);
             out.setContent(content);
-            out.setTimeout(6000);
+            out.setTimeout(timeout);
             out.setTopic(topicName);
             ResponseCallback cb =
                     new ResponseCallback() {
                         @Override
                         public void onResponse(Response response) {
-
-                            System.out.println(
-                                    "Step 3:Get response, { errorCode:"
-                                            + response.getErrorCode()
-                                            + " error:"
-                                            + response.getErrorMessage()
-                                            + " seq:"
-                                            + response.getMessageID()
-                                            + " content:"
-                                            + new String(response.getContentBytes())
-                                            + " }");
+                            if (response.getErrorCode() == 102) {
+                                System.out.println(
+                                        "Step 3: Timeout, maybe your file is too large or your gave a short timeout. Add a timeout arg, topicName, isBroadcast: true/false, fileName, count, timeout");
+                            } else {
+                                System.out.println(
+                                        "Step 3:Get response, { errorCode:"
+                                                + response.getErrorCode()
+                                                + " error:"
+                                                + response.getErrorMessage()
+                                                + " seq:"
+                                                + response.getMessageID()
+                                                + " content:"
+                                                + new String(response.getContentBytes())
+                                                + " }");
+                            }
                         }
                     };
             if (isBroadcast) {
