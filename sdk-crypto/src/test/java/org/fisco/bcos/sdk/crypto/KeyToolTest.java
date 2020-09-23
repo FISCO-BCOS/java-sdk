@@ -14,17 +14,17 @@
 package org.fisco.bcos.sdk.crypto;
 
 import java.security.KeyPair;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class KeyManagerTest {
+public class KeyToolTest {
     @Test
     public void testECDSALoadPEMFile() {
         String keyStoreFile = "keystore/ecdsa/0x0fc3c4bb89bd90299db4c62be0174c4966286c00.pem";
@@ -155,14 +155,14 @@ public class KeyManagerTest {
     private CryptoKeyPair testLoadPEMFile(
             String pemFileName, int cryptoType, String expectedAccount) {
         // get KeyPair from the pem
-        KeyManager pem = new PEMKeyStore(getFilePath(pemFileName));
+        KeyTool pem = new PEMKeyStore(getFilePath(pemFileName));
         KeyPair keyPair = pem.getKeyPair();
         return testSignature(keyPair, cryptoType, expectedAccount);
     }
 
     private CryptoKeyPair testLoadP12File(
             String p12FileName, int cryptoType, String password, String expectedAccount) {
-        KeyManager p12 = new P12KeyStore(getFilePath(p12FileName), password);
+        KeyTool p12 = new P12KeyStore(getFilePath(p12FileName), password);
         KeyPair keyPair = p12.getKeyPair();
         return testSignature(keyPair, cryptoType, expectedAccount);
     }

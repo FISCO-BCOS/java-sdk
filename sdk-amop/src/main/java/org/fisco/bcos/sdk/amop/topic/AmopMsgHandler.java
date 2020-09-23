@@ -32,7 +32,7 @@ import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
-import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.Message;
@@ -216,13 +216,13 @@ public class AmopMsgHandler implements MsgHandler {
     }
 
     public int checkSignature(String topic, byte[] randomValue, byte[] signature) {
-        List<KeyManager> pubKeys = topicManager.getPublicKeysByTopic(topic);
-        Iterator<KeyManager> pks = pubKeys.iterator();
+        List<KeyTool> pubKeys = topicManager.getPublicKeysByTopic(topic);
+        Iterator<KeyTool> pks = pubKeys.iterator();
         while (pks.hasNext()) {
-            KeyManager km = pks.next();
+            KeyTool keyTool = pks.next();
             CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
             if (cryptoInterface.verify(
-                    km,
+                    keyTool,
                     Hex.toHexString(cryptoInterface.hash(randomValue)),
                     Hex.toHexString(signature))) {
                 return 0;
@@ -250,16 +250,17 @@ public class AmopMsgHandler implements MsgHandler {
                 new String(msg.getData()));
         byte[] randValue = msg.getData();
         String topic = msg.getTopic();
-        KeyManager km = topicManager.getPrivateKeyByTopic(getSimpleTopic(topic));
+        KeyTool keyTool = topicManager.getPrivateKeyByTopic(getSimpleTopic(topic));
         String signature = "";
-        if (null == km) {
+        if (null == keyTool) {
             logger.error("topic:{} not subscribed, reject message", getSimpleTopic(topic));
             return;
         } else {
             CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
             try {
                 signature =
-                        cryptoInterface.sign(km, Hex.toHexString(cryptoInterface.hash(randValue)));
+                        cryptoInterface.sign(
+                                keyTool, Hex.toHexString(cryptoInterface.hash(randValue)));
             } catch (Exception e) {
                 logger.error(
                         "please check the public key of topic {} is correct configured, error {}",
