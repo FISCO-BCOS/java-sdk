@@ -1,16 +1,53 @@
 // Apply the java-library plugin to add support for Java Library
 plugins {
-    id 'maven'
-    id 'maven-publish'
-    id 'signing'
-    id 'idea'
-    id 'eclipse'
     id 'java'
-    id 'jacoco'
 }
 dependencies {
     compile project(':sdk-transaction')
     compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     compile ("com.squareup:javapoet:${javapoetVersion}")
     compile ("info.picocli:picocli:${picocliVersion}")
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name project.name
+                packaging 'jar'
+                description = 'fisco-bcos java-sdk'
+                url = 'http://www.fisco-bcos.org'
+
+                scm {
+                    connection = 'https://github.com/FISCO-BCOS/java-sdk.git'
+                    url = 'https://github.com/FISCO-BCOS/java-sdk.git'
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'zhangsan'
+                        name = 'zhangsan'
+                        email = 'zhangsan@example.com'
+                    }
+                }
+            }
+        }
+    }
 }

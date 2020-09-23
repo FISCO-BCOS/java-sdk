@@ -356,13 +356,17 @@ public class ChannelImp implements Channel {
     }
 
     private void broadcastHeartbeat() {
-        msgHandler
-                .getAvailablePeer()
-                .forEach(
-                        (peer, ctx) -> {
-                            sendHeartbeatMessage(ctx);
-                            logger.trace("broadcastHeartbeat to {} success ", peer);
-                        });
+        try {
+            msgHandler
+                    .getAvailablePeer()
+                    .forEach(
+                            (peer, ctx) -> {
+                                sendHeartbeatMessage(ctx);
+                                logger.trace("broadcastHeartbeat to {} success ", peer);
+                            });
+        } catch (Exception e) {
+            logger.error("broadcastHeartbeat failed, error info: {}", e.getMessage());
+        }
     }
 
     public void sendHeartbeatMessage(ChannelHandlerContext ctx) {
