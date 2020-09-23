@@ -24,14 +24,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.amop.AmopCallback;
 import org.fisco.bcos.sdk.amop.AmopMsgOut;
-import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TopicManager {
     private static Logger logger = LoggerFactory.getLogger(TopicManager.class);
-    private Map<String, KeyManager> topic2PrivateKey = new ConcurrentHashMap<>();
-    private Map<String, List<KeyManager>> topic2PublicKeys = new ConcurrentHashMap<>();
+    private Map<String, KeyTool> topic2PrivateKey = new ConcurrentHashMap<>();
+    private Map<String, List<KeyTool>> topic2PublicKeys = new ConcurrentHashMap<>();
     private Map<String, String> topicName2FullName = new ConcurrentHashMap<>();
     private Map<String, AmopCallback> topic2Callback = new ConcurrentHashMap<>();
     private Set<String> topics = Collections.synchronizedSet(new HashSet<>());
@@ -51,7 +51,7 @@ public class TopicManager {
     }
 
     public void addPrivateTopicSubscribe(
-            String topicName, KeyManager privateKeyStore, AmopCallback callback) {
+            String topicName, KeyTool privateKeyStore, AmopCallback callback) {
         String fullNameToSendToNode = makeVerifyChannelPrefixTopic(topicName);
         logger.trace(
                 "add private topic subscribe, topic:{} full name:{}",
@@ -66,14 +66,14 @@ public class TopicManager {
         }
     }
 
-    public void addPrivateTopicSend(String topicName, List<KeyManager> publicKeyManagers) {
+    public void addPrivateTopicSend(String topicName, List<KeyTool> publicKeyTools) {
         String fullNameToSendToNode = makePushChannelPrefixTopic(topicName);
         logger.trace(
                 "add private topic to send, topic:{} full name:{}",
                 topicName,
                 fullNameToSendToNode);
         topics.add(fullNameToSendToNode);
-        topic2PublicKeys.put(addNeedVerifyTopicPrefix(topicName), publicKeyManagers);
+        topic2PublicKeys.put(addNeedVerifyTopicPrefix(topicName), publicKeyTools);
         topicName2FullName.put(topicName, fullNameToSendToNode);
     }
 
@@ -156,11 +156,11 @@ public class TopicManager {
         this.callback = cb;
     }
 
-    public List<KeyManager> getPublicKeysByTopic(String topic) {
+    public List<KeyTool> getPublicKeysByTopic(String topic) {
         return topic2PublicKeys.get(topic);
     }
 
-    public KeyManager getPrivateKeyByTopic(String topic) {
+    public KeyTool getPrivateKeyByTopic(String topic) {
         return topic2PrivateKey.get(topic);
     }
 

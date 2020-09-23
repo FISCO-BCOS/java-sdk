@@ -3,7 +3,7 @@ package org.fisco.bcos.sdk.demo.amop.tool;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.amop.AmopCallback;
-import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 
@@ -32,7 +32,7 @@ public class AmopSubscriberPrivate {
         System.out.println("Start test");
         amop.setCallback(cb);
 
-        KeyManager km;
+        KeyTool km;
         if (privateKeyFile.endsWith("p12")) {
             String password = args[2];
             km = new P12KeyStore(privateKeyFile, password);

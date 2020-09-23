@@ -7,7 +7,7 @@ import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.amop.AmopMsgOut;
 import org.fisco.bcos.sdk.amop.topic.TopicType;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
-import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.model.Response;
 
@@ -49,14 +49,14 @@ public class AmopPublisherPrivate {
         System.out.println("start test");
         System.out.println("===================================================================");
         System.out.println("set up private topic");
-        List<KeyManager> kml = new ArrayList<>();
-        KeyManager km1 = new PEMKeyStore(pubkey1);
-        kml.add(km1);
+        List<KeyTool> keyToolList = new ArrayList<>();
+        KeyTool keyTool = new PEMKeyStore(pubkey1);
+        keyToolList.add(keyTool);
         if (!pubkey2.equals("null")) {
-            KeyManager km2 = new PEMKeyStore(pubkey2);
-            kml.add(km2);
+            KeyTool keyTool1 = new PEMKeyStore(pubkey2);
+            keyToolList.add(keyTool1);
         }
-        amop.publishPrivateTopic(topicName, kml);
+        amop.publishPrivateTopic(topicName, keyToolList);
         System.out.println("wait until finish private topic verify");
         System.out.println("3s ...");
         Thread.sleep(1000);

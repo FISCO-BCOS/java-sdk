@@ -49,8 +49,8 @@ import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class KeyManager {
-    protected static Logger logger = LoggerFactory.getLogger(KeyManager.class);
+public abstract class KeyTool {
+    protected static Logger logger = LoggerFactory.getLogger(KeyTool.class);
 
     protected final String keyStoreFile;
     protected final String password;
@@ -63,7 +63,7 @@ public abstract class KeyManager {
      * @param keyStoreFile the path of the keystore file
      * @param password password to read the keystore file
      */
-    public KeyManager(final String keyStoreFile, final String password) {
+    public KeyTool(final String keyStoreFile, final String password) {
         this.keyStoreFile = keyStoreFile;
         this.password = password;
         initSecurity();
@@ -75,7 +75,7 @@ public abstract class KeyManager {
      *
      * @param keyStoreFile the path of the keystore file
      */
-    public KeyManager(final String keyStoreFile) {
+    public KeyTool(final String keyStoreFile) {
         this(keyStoreFile, null);
     }
 
