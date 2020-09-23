@@ -25,8 +25,8 @@ import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.SM2KeyPair;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
-import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
+import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
+import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
 import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
@@ -90,9 +90,9 @@ public class CryptoInterface {
     public void loadAccount(String accountFileFormat, String accountFilePath, String password) {
         KeyManager keyManager = null;
         if (accountFileFormat.compareToIgnoreCase("p12") == 0) {
-            keyManager = new P12Manager(accountFilePath, password);
+            keyManager = new P12KeyStore(accountFilePath, password);
         } else if (accountFileFormat.compareToIgnoreCase("pem") == 0) {
-            keyManager = new PEMManager(accountFilePath);
+            keyManager = new PEMKeyStore(accountFilePath);
         } else {
             throw new LoadKeyStoreException(
                     "unsupported account file format : "

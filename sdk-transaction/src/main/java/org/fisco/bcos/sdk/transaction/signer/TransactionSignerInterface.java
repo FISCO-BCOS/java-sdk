@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.signer;
 
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 
 /**
@@ -22,5 +23,5 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
  * @author maojiayu
  */
 public interface TransactionSignerInterface {
-    public SignatureResult sign(String hash);
+    public SignatureResult sign(String hash, CryptoKeyPair cryptoKeyPair);
 }

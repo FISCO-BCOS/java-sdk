@@ -20,7 +20,7 @@ import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
@@ -32,7 +32,7 @@ public class CnsService {
     private final CNSPrecompiled cnsPrecompiled;
     private String currentVersion;
 
-    public CnsService(Client client, CryptoInterface credential) {
+    public CnsService(Client client, CryptoKeyPair credential) {
         this.cnsPrecompiled =
                 CNSPrecompiled.load(PrecompiledAddress.CNS_PRECOMPILED_ADDRESS, client, credential);
         this.currentVersion = client.getClientNodeVersion().getNodeVersion().getSupportedVersion();

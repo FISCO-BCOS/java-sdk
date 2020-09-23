@@ -33,6 +33,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.eventsub.EventLogParams;
 import org.fisco.bcos.sdk.eventsub.EventSubscribe;
@@ -57,7 +58,8 @@ public class Contract {
     protected final Client client;
     public static final String FUNC_DEPLOY = "deploy";
     protected final FunctionEncoder functionEncoder;
-    protected final CryptoInterface credential;
+    protected final CryptoKeyPair credential;
+    protected final CryptoInterface cryptoInterface;
     protected final EventEncoder eventEncoder;
     private final EventSubscribe eventSubscribe;
     protected static String LATEST_BLOCK = "latest";
@@ -66,15 +68,16 @@ public class Contract {
             String contractBinary,
             String contractAddress,
             Client client,
-            CryptoInterface credential,
+            CryptoKeyPair credential,
             TransactionManager transactionManager) {
         this.contractBinary = contractBinary;
         this.contractAddress = contractAddress;
         this.client = client;
         this.transactionManager = transactionManager;
         this.credential = credential;
-        this.functionEncoder = new FunctionEncoder(credential);
-        this.eventEncoder = new EventEncoder(credential);
+        this.cryptoInterface = client.getCryptoInterface();
+        this.functionEncoder = new FunctionEncoder(client.getCryptoInterface());
+        this.eventEncoder = new EventEncoder(client.getCryptoInterface());
         // create eventSubscribe
         this.eventSubscribe =
                 EventSubscribe.build(
@@ -87,7 +90,7 @@ public class Contract {
             String contractBinary,
             String contractAddress,
             Client client,
-            CryptoInterface credential) {
+            CryptoKeyPair credential) {
         this(
                 contractBinary,
                 contractAddress,
@@ -99,14 +102,14 @@ public class Contract {
     protected static <T extends Contract> T deploy(
             Class<T> type,
             Client client,
-            CryptoInterface credential,
+            CryptoKeyPair credential,
             TransactionManager transactionManager,
             String binary,
             String encodedConstructor)
             throws ContractException {
         try {
             Constructor<T> constructor =
-                    type.getDeclaredConstructor(String.class, Client.class, CryptoInterface.class);
+                    type.getDeclaredConstructor(String.class, Client.class, CryptoKeyPair.class);
             constructor.setAccessible(true);
             T contract = constructor.newInstance(null, client, credential);
             return create(contract, binary, encodedConstructor);
@@ -121,7 +124,7 @@ public class Contract {
     protected static <T extends Contract> T deploy(
             Class<T> type,
             Client client,
-            CryptoInterface credential,
+            CryptoKeyPair credential,
             String binary,
             String encodedConstructor)
             throws ContractException {
@@ -171,10 +174,7 @@ public class Contract {
 
         String encodedFunctionData = functionEncoder.encode(function);
         CallRequest callRequest =
-                new CallRequest(
-                        transactionManager.getCurrentExternalAccountAddress(),
-                        contractAddress,
-                        encodedFunctionData);
+                new CallRequest(credential.getAddress(), contractAddress, encodedFunctionData);
         Call response = transactionManager.executeCall(callRequest);
         // get value from the response
         String callResult = response.getCallResult().getOutput();
@@ -241,7 +241,7 @@ public class Contract {
 
     protected void asyncExecuteTransaction(
             String data, String funName, TransactionCallback callback) {
-        transactionManager.sendTransactionAsync(contractAddress, data, callback);
+        transactionManager.sendTransactionAsync(contractAddress, data, credential, callback);
     }
 
     protected void asyncExecuteTransaction(Function function, TransactionCallback callback) {
@@ -253,7 +253,7 @@ public class Contract {
     }
 
     protected TransactionReceipt executeTransaction(String data, String functionName) {
-        return transactionManager.sendTransactionAndGetReceipt(contractAddress, data);
+        return transactionManager.sendTransactionAndGetReceipt(contractAddress, data, credential);
     }
 
     /** Adds a log field to {@link EventValues}. */
@@ -284,7 +284,7 @@ public class Contract {
     }
 
     protected String createSignedTransaction(String to, String data) {
-        return transactionManager.createSignedTransaction(to, data);
+        return transactionManager.createSignedTransaction(to, data, credential);
     }
 
     public void subscribeEvent(EventLogParams params, EventCallback callback) {
@@ -395,5 +395,9 @@ public class Contract {
 
     public TransactionManager getTransactionManager() {
         return this.transactionManager;
+    }
+
+    public String getCurrentExternalAccountAddress() {
+        return this.credential.getAddress();
     }
 }

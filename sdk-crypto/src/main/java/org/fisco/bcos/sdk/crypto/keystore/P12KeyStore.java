@@ -37,11 +37,11 @@ import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
 import org.fisco.bcos.sdk.crypto.exceptions.SaveKeyStoreException;
 
-public class P12Manager extends KeyManager {
+public class P12KeyStore extends KeyManager {
     private static final String NAME = "key";
     private KeyStore keyStore;
 
-    public P12Manager(final String keyStoreFile, final String password) {
+    public P12KeyStore(final String keyStoreFile, final String password) {
         super(keyStoreFile, password);
     }
 

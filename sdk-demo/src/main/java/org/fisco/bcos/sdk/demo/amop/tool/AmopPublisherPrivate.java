@@ -8,7 +8,7 @@ import org.fisco.bcos.sdk.amop.AmopMsgOut;
 import org.fisco.bcos.sdk.amop.topic.TopicType;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
+import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.model.Response;
 
 public class AmopPublisherPrivate {
@@ -50,10 +50,10 @@ public class AmopPublisherPrivate {
         System.out.println("===================================================================");
         System.out.println("set up private topic");
         List<KeyManager> kml = new ArrayList<>();
-        KeyManager km1 = new PEMManager(pubkey1);
+        KeyManager km1 = new PEMKeyStore(pubkey1);
         kml.add(km1);
         if (!pubkey2.equals("null")) {
-            KeyManager km2 = new PEMManager(pubkey2);
+            KeyManager km2 = new PEMKeyStore(pubkey2);
             kml.add(km2);
         }
         amop.publishPrivateTopic(topicName, kml);

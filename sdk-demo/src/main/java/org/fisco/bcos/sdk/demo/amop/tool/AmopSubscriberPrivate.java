@@ -4,8 +4,8 @@ import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.amop.AmopCallback;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
-import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
+import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
+import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 
 public class AmopSubscriberPrivate {
     private static String subscriberConfigFile =
@@ -35,9 +35,9 @@ public class AmopSubscriberPrivate {
         KeyManager km;
         if (privateKeyFile.endsWith("p12")) {
             String password = args[2];
-            km = new P12Manager(privateKeyFile, password);
+            km = new P12KeyStore(privateKeyFile, password);
         } else {
-            km = new PEMManager(privateKeyFile);
+            km = new PEMKeyStore(privateKeyFile);
         }
         amop.subscribePrivateTopics(topic, km, cb);
         amop.subscribeTopic(topic, cb);

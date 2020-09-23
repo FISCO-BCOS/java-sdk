@@ -56,6 +56,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codegen.exceptions.CodeGenException;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -84,6 +85,7 @@ public class SolidityContractWrapper {
     private static final String GET_BINARY_FUNC = "getBinary";
     private static final String CLIENT = "client";
     private static final String CREDENTIAL = "credential";
+    private static final String CRYPTOINTERFACE = "cryptoInterface";
     private static final String CONTRACT_ADDRESS = "contractAddress";
     private static final String FROM_BLOCK = "fromBlock";
     private static final String TO_BLOCK = "toBlock";
@@ -119,12 +121,12 @@ public class SolidityContractWrapper {
         TypeSpec.Builder classBuilder = createClassBuilder(className, bin, smBin, abi);
 
         classBuilder.addMethod(
-                buildGetBinaryMethod(CryptoInterface.class, CryptoType.class, CREDENTIAL));
-        classBuilder.addMethod(buildConstructor(CryptoInterface.class, CREDENTIAL));
+                buildGetBinaryMethod(CryptoInterface.class, CryptoType.class, CRYPTOINTERFACE));
+        classBuilder.addMethod(buildConstructor(CryptoKeyPair.class, CREDENTIAL));
 
         classBuilder.addFields(buildFuncNameConstants(abiDefinitions));
         classBuilder.addMethods(buildFunctionDefinitions(classBuilder, abiDefinitions));
-        classBuilder.addMethod(buildLoad(className, CryptoInterface.class, CREDENTIAL));
+        classBuilder.addMethod(buildLoad(className, CryptoKeyPair.class, CREDENTIAL));
         classBuilder.addMethods(buildDeployMethods(className, abiDefinitions));
 
         write(basePackageName, classBuilder.build(), destinationDir);
@@ -278,13 +280,13 @@ public class SolidityContractWrapper {
                 constructor = true;
                 methodSpecs.add(
                         buildDeploy(
-                                className, functionDefinition, CryptoInterface.class, CREDENTIAL));
+                                className, functionDefinition, CryptoKeyPair.class, CREDENTIAL));
             }
         }
         // constructor will not be specified in ABI file if its empty
         if (!constructor) {
             MethodSpec.Builder credentialsMethodBuilder =
-                    getDeployMethodSpec(className, CryptoInterface.class, CREDENTIAL);
+                    getDeployMethodSpec(className, CryptoKeyPair.class, CREDENTIAL);
             methodSpecs.add(buildDeployNoParams(credentialsMethodBuilder, className, CREDENTIAL));
         }
         return methodSpecs;
@@ -343,7 +345,7 @@ public class SolidityContractWrapper {
                         .addParameter(authType, authName)
                         .addStatement(
                                 "super($N, $N, $N, $N)",
-                                getBinaryFuncDefinition(authName),
+                                getBinaryFuncDefinition(),
                                 CONTRACT_ADDRESS,
                                 CLIENT,
                                 authName);
@@ -381,7 +383,7 @@ public class SolidityContractWrapper {
                         className,
                         CLIENT,
                         authName,
-                        getBinaryFuncDefinition(authName));
+                        getBinaryFuncDefinition());
         return methodBuilder.build();
     }
 
@@ -392,7 +394,7 @@ public class SolidityContractWrapper {
                 className,
                 CLIENT,
                 authName,
-                getBinaryFuncDefinition(authName));
+                getBinaryFuncDefinition());
         return methodBuilder.build();
     }
 
@@ -1415,7 +1417,7 @@ public class SolidityContractWrapper {
         }
     }
 
-    private static String getBinaryFuncDefinition(String authName) {
-        return GET_BINARY_FUNC + "(" + authName + ")";
+    private static String getBinaryFuncDefinition() {
+        return GET_BINARY_FUNC + "(client.getCryptoInterface())";
     }
 }

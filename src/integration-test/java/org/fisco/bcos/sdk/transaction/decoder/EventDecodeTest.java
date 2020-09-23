@@ -49,7 +49,7 @@ public class EventDecodeTest {
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionManager manager =
                 TransactionManagerFactory.createAssembleTransactionManager(
-                        client, client.getCryptoInterface(), abiFile, binFile);
+                        client, client.getCryptoInterface().createKeyPair(), abiFile, binFile);
         ABICodec abiCodec = new ABICodec(client.getCryptoInterface());
         // deploy
         List<Object> params = Lists.newArrayList();
