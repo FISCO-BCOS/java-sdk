@@ -32,7 +32,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Function;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.eventsub.EventLogParams;
@@ -59,7 +59,7 @@ public class Contract {
     public static final String FUNC_DEPLOY = "deploy";
     protected final FunctionEncoder functionEncoder;
     protected final CryptoKeyPair credential;
-    protected final CryptoInterface cryptoInterface;
+    protected final CryptoSuite cryptoSuite;
     protected final EventEncoder eventEncoder;
     private final EventSubscribe eventSubscribe;
     protected static String LATEST_BLOCK = "latest";
@@ -75,9 +75,9 @@ public class Contract {
         this.client = client;
         this.transactionProcessor = transactionProcessor;
         this.credential = credential;
-        this.cryptoInterface = client.getCryptoInterface();
-        this.functionEncoder = new FunctionEncoder(client.getCryptoInterface());
-        this.eventEncoder = new EventEncoder(client.getCryptoInterface());
+        this.cryptoSuite = client.getCryptoSuite();
+        this.functionEncoder = new FunctionEncoder(client.getCryptoSuite());
+        this.eventEncoder = new EventEncoder(client.getCryptoSuite());
         // create eventSubscribe
         this.eventSubscribe =
                 EventSubscribe.build(

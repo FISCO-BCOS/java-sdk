@@ -31,7 +31,7 @@ import org.fisco.bcos.sdk.amop.AmopCallback;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.Options;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.model.CryptoType;
@@ -220,10 +220,10 @@ public class AmopMsgHandler implements MsgHandler {
         Iterator<KeyTool> pks = pubKeys.iterator();
         while (pks.hasNext()) {
             KeyTool keyTool = pks.next();
-            CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
-            if (cryptoInterface.verify(
+            CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+            if (cryptoSuite.verify(
                     keyTool,
-                    Hex.toHexString(cryptoInterface.hash(randomValue)),
+                    Hex.toHexString(cryptoSuite.hash(randomValue)),
                     Hex.toHexString(signature))) {
                 return 0;
             }
@@ -256,11 +256,9 @@ public class AmopMsgHandler implements MsgHandler {
             logger.error("topic:{} not subscribed, reject message", getSimpleTopic(topic));
             return;
         } else {
-            CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
+            CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
             try {
-                signature =
-                        cryptoInterface.sign(
-                                keyTool, Hex.toHexString(cryptoInterface.hash(randValue)));
+                signature = cryptoSuite.sign(keyTool, Hex.toHexString(cryptoSuite.hash(randValue)));
             } catch (Exception e) {
                 logger.error(
                         "please check the public key of topic {} is correct configured, error {}",

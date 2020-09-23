@@ -72,7 +72,7 @@ public class PerformanceOk {
 
             // deploy the HelloWorld
             System.out.println("====== Deploy Ok ====== ");
-            Ok ok = Ok.deploy(client, client.getCryptoInterface().getCryptoKeyPair());
+            Ok ok = Ok.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
             System.out.println(
                     "====== Deploy Ok succ, address: " + ok.getContractAddress() + " ====== ");
 

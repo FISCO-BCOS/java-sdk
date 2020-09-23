@@ -61,7 +61,7 @@ public class AssembleTransactionProcessorTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
-        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
@@ -117,7 +117,7 @@ public class AssembleTransactionProcessorTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
-        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
@@ -151,7 +151,7 @@ public class AssembleTransactionProcessorTest {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
-            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             AssembleTransactionProcessor transactionProcessor =
                     TransactionProcessorFactory.createAssembleTransactionProcessor(
                             client, cryptoKeyPair, abiFile, binFile);
@@ -198,7 +198,7 @@ public class AssembleTransactionProcessorTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
-        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
@@ -224,7 +224,7 @@ public class AssembleTransactionProcessorTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
-        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
@@ -272,7 +272,7 @@ public class AssembleTransactionProcessorTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
-        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
@@ -306,7 +306,7 @@ public class AssembleTransactionProcessorTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
-        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
@@ -354,7 +354,7 @@ public class AssembleTransactionProcessorTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
-        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);

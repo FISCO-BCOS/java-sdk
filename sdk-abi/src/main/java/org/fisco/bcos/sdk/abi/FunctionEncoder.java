@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.abi.datatypes.Function;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.datatypes.Uint;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 /**
@@ -15,10 +15,10 @@ import org.fisco.bcos.sdk.utils.Numeric;
  */
 public class FunctionEncoder {
 
-    private CryptoInterface cryptoInterface;
+    private CryptoSuite cryptoSuite;
 
-    public FunctionEncoder(CryptoInterface cryptoInterface) {
-        this.cryptoInterface = cryptoInterface;
+    public FunctionEncoder(CryptoSuite cryptoSuite) {
+        this.cryptoSuite = cryptoSuite;
     }
 
     public String encode(Function function) {
@@ -72,17 +72,17 @@ public class FunctionEncoder {
 
     public String buildMethodId(String methodSignature) {
         byte[] input = methodSignature.getBytes();
-        byte[] hash = cryptoInterface.hash(input);
+        byte[] hash = cryptoSuite.hash(input);
         return Numeric.toHexString(hash).substring(0, 10);
     }
 
-    /** @return the cryptoInterface */
-    public CryptoInterface getCryptoInterface() {
-        return cryptoInterface;
+    /** @return the cryptoSuite */
+    public CryptoSuite getCryptoSuite() {
+        return cryptoSuite;
     }
 
-    /** @param cryptoInterface the cryptoInterface to set */
-    public void setCryptoInterface(CryptoInterface cryptoInterface) {
-        this.cryptoInterface = cryptoInterface;
+    /** @param cryptoSuite the cryptoSuite to set */
+    public void setCryptoSuite(CryptoSuite cryptoSuite) {
+        this.cryptoSuite = cryptoSuite;
     }
 }

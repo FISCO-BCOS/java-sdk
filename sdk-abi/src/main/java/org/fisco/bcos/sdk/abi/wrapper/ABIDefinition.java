@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.abi.FunctionEncoder;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 
 /**
  * ABIDefinition wrapper
@@ -111,8 +111,8 @@ public class ABIDefinition {
      *
      * @return the method id
      */
-    public String getMethodId(CryptoInterface cryptoInterface) {
-        FunctionEncoder encoder = new FunctionEncoder(cryptoInterface);
+    public String getMethodId(CryptoSuite cryptoSuite) {
+        FunctionEncoder encoder = new FunctionEncoder(cryptoSuite);
         return encoder.buildMethodId(getMethodSignatureAsString());
     }
 

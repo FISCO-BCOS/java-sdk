@@ -63,9 +63,9 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String chainId,
             ContractLoader contractLoader) {
         super(client, cryptoKeyPair, groupId, chainId);
-        this.transactionDecoder = new TransactionDecoderService(cryptoInterface);
+        this.transactionDecoder = new TransactionDecoderService(cryptoSuite);
         this.transactionPusher = new TransactionPusherService(client);
-        this.abiCodec = new ABICodec(cryptoInterface);
+        this.abiCodec = new ABICodec(cryptoSuite);
         this.contractLoader = contractLoader;
     }
 

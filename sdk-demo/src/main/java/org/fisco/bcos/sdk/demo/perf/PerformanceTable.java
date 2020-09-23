@@ -86,7 +86,7 @@ public class PerformanceTable {
             // deploy the HelloWorld
             System.out.println("====== Deploy TableTest ====== ");
             TableTest tableTest =
-                    TableTest.deploy(client, client.getCryptoInterface().getCryptoKeyPair());
+                    TableTest.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
             // create table
             tableTest.create();
             System.out.println(

@@ -51,12 +51,12 @@ public class TransactionDecoderServiceTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         TransactionDecoderInterface decoder =
-                new TransactionDecoderService(client.getCryptoInterface());
+                new TransactionDecoderService(client.getCryptoSuite());
         ContractLoader contractLoader = new ContractLoader(abiFile, binFile);
         String abi = contractLoader.getABIByContractName(contractName);
         AssembleTransactionProcessor manager =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        client, client.getCryptoInterface().createKeyPair(), abiFile, binFile);
+                        client, client.getCryptoSuite().createKeyPair(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
