@@ -32,8 +32,8 @@ import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TransactionManager implements TransactionManagerInterface {
-    protected static Logger log = LoggerFactory.getLogger(TransactionManager.class);
+public class TransactionProcessor implements TransactionProcessorInterface {
+    protected static Logger log = LoggerFactory.getLogger(TransactionProcessor.class);
     protected final CryptoInterface cryptoInterface;
     protected final CryptoKeyPair cryptoKeyPair;
     protected final Client client;
@@ -42,7 +42,7 @@ public class TransactionManager implements TransactionManagerInterface {
     protected final TransactionBuilderInterface transactionBuilder;
     protected final TransactionEncoderInterface transactionEncoder;
 
-    public TransactionManager(
+    public TransactionProcessor(
             Client client, CryptoKeyPair cryptoKeyPair, Integer groupId, String chainId) {
         this.cryptoInterface = client.getCryptoInterface();
         this.cryptoKeyPair = cryptoKeyPair;
