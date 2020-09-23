@@ -14,7 +14,7 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple1;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.Contract;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -41,13 +41,11 @@ public class SystemConfigPrecompiled extends Contract {
 
     protected SystemConfigPrecompiled(
             String contractAddress, Client client, CryptoKeyPair credential) {
-        super(getBinary(client.getCryptoInterface()), contractAddress, client, credential);
+        super(getBinary(client.getCryptoSuite()), contractAddress, client, credential);
     }
 
-    public static String getBinary(CryptoInterface cryptoInterface) {
-        return (cryptoInterface.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE
-                ? BINARY
-                : SM_BINARY);
+    public static String getBinary(CryptoSuite cryptoSuite) {
+        return (cryptoSuite.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE ? BINARY : SM_BINARY);
     }
 
     public TransactionReceipt setValueByKey(String key, String value) {
@@ -119,7 +117,7 @@ public class SystemConfigPrecompiled extends Contract {
                 SystemConfigPrecompiled.class,
                 client,
                 credential,
-                getBinary(client.getCryptoInterface()),
+                getBinary(client.getCryptoSuite()),
                 "");
     }
 }

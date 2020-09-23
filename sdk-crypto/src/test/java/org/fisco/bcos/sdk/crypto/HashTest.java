@@ -13,7 +13,6 @@
  */
 package org.fisco.bcos.sdk.crypto;
 
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.crypto.exceptions.UnsupportedCryptoTypeException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
@@ -25,52 +24,52 @@ import org.junit.Test;
 
 public class HashTest {
     @Test
-    public void testCryptoInterfaceForSMHash() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.SM_TYPE);
+    public void testCryptoSuiteForSMHash() {
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
         // check sm3 hash for "abcde"
-        checkHashWithCryptoInterface(
-                cryptoInterface,
+        checkHashWithCryptoSuite(
+                cryptoSuite,
                 "abcde",
                 "afe4ccac5ab7d52bcae36373676215368baf52d3905e1fecbe369cc120e97628");
 
         // check sm3 hash for "hello"
-        checkHashWithCryptoInterface(
-                cryptoInterface,
+        checkHashWithCryptoSuite(
+                cryptoSuite,
                 "hello",
                 "becbbfaae6548b8bf0cfcad5a27183cd1be6093b1cceccc303d9c61d0a645268");
 
         // check sm3 hash for empty string
-        checkHashWithCryptoInterface(
-                cryptoInterface,
+        checkHashWithCryptoSuite(
+                cryptoSuite,
                 "",
                 "1ab21d8355cfa17f8e61194831e81a8f22bec8c728fefb747ed035eb5082aa2b");
     }
 
     @Test
-    public void testCryptoInterfaceForKeccak256Hash() {
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
+    public void testCryptoSuiteForKeccak256Hash() {
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         // check keccak256 for "abcde"
-        checkHashWithCryptoInterface(
-                cryptoInterface,
+        checkHashWithCryptoSuite(
+                cryptoSuite,
                 "abcde",
                 "6377c7e66081cb65e473c1b95db5195a27d04a7108b468890224bedbe1a8a6eb");
 
         // check keccak256 for "hello"
-        checkHashWithCryptoInterface(
-                cryptoInterface,
+        checkHashWithCryptoSuite(
+                cryptoSuite,
                 "hello",
                 "1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8");
 
         // check keccak256 for empty string
-        checkHashWithCryptoInterface(
-                cryptoInterface,
+        checkHashWithCryptoSuite(
+                cryptoSuite,
                 "",
                 "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470");
     }
 
     @Test(expected = UnsupportedCryptoTypeException.class)
     public void testUnsupportedCryptoType() {
-        CryptoInterface cryptoInterface = new CryptoInterface(3);
+        new CryptoSuite(3);
     }
 
     @Test
@@ -127,11 +126,11 @@ public class HashTest {
         Assert.assertEquals(true, Hex.toHexString(calculatedHashBytes).equals(expectedHash));
     }
 
-    private void checkHashWithCryptoInterface(
-            CryptoInterface cryptoInterface, String message, String expectedHash) {
-        String calculatedHash = cryptoInterface.hash(message);
+    private void checkHashWithCryptoSuite(
+            CryptoSuite cryptoSuite, String message, String expectedHash) {
+        String calculatedHash = cryptoSuite.hash(message);
         Assert.assertEquals(true, calculatedHash.equals(expectedHash));
-        byte[] calculatedHashBytes = cryptoInterface.hash(message.getBytes());
+        byte[] calculatedHashBytes = cryptoSuite.hash(message.getBytes());
         Assert.assertEquals(true, Hex.toHexString(calculatedHashBytes).equals(expectedHash));
     }
 }

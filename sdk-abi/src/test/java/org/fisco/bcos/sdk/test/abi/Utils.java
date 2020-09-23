@@ -17,18 +17,18 @@ package org.fisco.bcos.sdk.test.abi;
 
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.CryptoType;
 
 public class Utils {
 
-    public static CryptoInterface getCryptoInterface() {
-        return new CryptoInterface(CryptoType.ECDSA_TYPE);
+    public static CryptoSuite getCryptoSuite() {
+        return new CryptoSuite(CryptoType.ECDSA_TYPE);
     }
 
     public static ContractABIDefinition getContractABIDefinition(String abiDesc) {
-        CryptoInterface cryptoInterface = getCryptoInterface();
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
+        CryptoSuite cryptoSuite = getCryptoSuite();
+        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
         return abiDefinitionFactory.loadABI(abiDesc);
     }
 }

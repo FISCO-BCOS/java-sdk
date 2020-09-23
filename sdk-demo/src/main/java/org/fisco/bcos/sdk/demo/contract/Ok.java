@@ -14,7 +14,7 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple1;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.Contract;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.model.CryptoType;
@@ -52,13 +52,11 @@ public class Ok extends Contract {
                     Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}));;
 
     protected Ok(String contractAddress, Client client, CryptoKeyPair credential) {
-        super(getBinary(client.getCryptoInterface()), contractAddress, client, credential);
+        super(getBinary(client.getCryptoSuite()), contractAddress, client, credential);
     }
 
-    public static String getBinary(CryptoInterface cryptoInterface) {
-        return (cryptoInterface.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE
-                ? BINARY
-                : SM_BINARY);
+    public static String getBinary(CryptoSuite cryptoSuite) {
+        return (cryptoSuite.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE ? BINARY : SM_BINARY);
     }
 
     public TransactionReceipt trans(BigInteger num) {
@@ -142,7 +140,7 @@ public class Ok extends Contract {
     }
 
     public static Ok deploy(Client client, CryptoKeyPair credential) throws ContractException {
-        return deploy(Ok.class, client, credential, getBinary(client.getCryptoInterface()), "");
+        return deploy(Ok.class, client, credential, getBinary(client.getCryptoSuite()), "");
     }
 
     public static class TransEventEventResponse {

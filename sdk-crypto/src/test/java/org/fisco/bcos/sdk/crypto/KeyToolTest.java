@@ -168,13 +168,13 @@ public class KeyToolTest {
     }
 
     private CryptoKeyPair testSignature(KeyPair keyPair, int cryptoType, String expectedAccount) {
-        CryptoInterface cryptoInterface = new CryptoInterface(cryptoType);
-        CryptoKeyPair cryptoKeyPair = cryptoInterface.createKeyPair(keyPair);
+        CryptoSuite cryptoSuite = new CryptoSuite(cryptoType);
+        CryptoKeyPair cryptoKeyPair = cryptoSuite.createKeyPair(keyPair);
         // check account
         Assert.assertEquals(expectedAccount, cryptoKeyPair.getAddress());
         // test signature
         SignatureTest signatureTest = new SignatureTest();
-        signatureTest.testSignature(cryptoInterface, cryptoKeyPair);
+        signatureTest.testSignature(cryptoSuite, cryptoKeyPair);
         return cryptoKeyPair;
     }
 }

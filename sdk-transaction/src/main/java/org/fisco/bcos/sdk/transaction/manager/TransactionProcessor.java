@@ -18,7 +18,7 @@ import java.math.BigInteger;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public class TransactionProcessor implements TransactionProcessorInterface {
     protected static Logger log = LoggerFactory.getLogger(TransactionProcessor.class);
-    protected final CryptoInterface cryptoInterface;
+    protected final CryptoSuite cryptoSuite;
     protected final CryptoKeyPair cryptoKeyPair;
     protected final Client client;
     protected final Integer groupId;
@@ -44,13 +44,13 @@ public class TransactionProcessor implements TransactionProcessorInterface {
 
     public TransactionProcessor(
             Client client, CryptoKeyPair cryptoKeyPair, Integer groupId, String chainId) {
-        this.cryptoInterface = client.getCryptoInterface();
+        this.cryptoSuite = client.getCryptoSuite();
         this.cryptoKeyPair = cryptoKeyPair;
         this.client = client;
         this.groupId = groupId;
         this.chainId = chainId;
         this.transactionBuilder = new TransactionBuilderService(client);
-        this.transactionEncoder = new TransactionEncoderService(client.getCryptoInterface());
+        this.transactionEncoder = new TransactionEncoderService(client.getCryptoSuite());
     }
 
     @Override

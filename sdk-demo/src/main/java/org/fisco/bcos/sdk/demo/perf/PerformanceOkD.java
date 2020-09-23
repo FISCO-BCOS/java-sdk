@@ -72,7 +72,7 @@ public class PerformanceOkD {
 
             // deploy the HelloWorld
             System.out.println("====== Deploy OkD ====== ");
-            OkD okd = OkD.deploy(client, client.getCryptoInterface().getCryptoKeyPair());
+            OkD okd = OkD.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
             System.out.println(
                     "====== Deploy OkD success, address: " + okd.getContractAddress() + " ====== ");
 

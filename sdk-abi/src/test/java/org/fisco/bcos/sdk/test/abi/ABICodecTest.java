@@ -314,7 +314,7 @@ public class ABICodecTest {
         argsObjects.add(listParams);
         argsObjects.add("Hello world!");
 
-        ABICodec abiCodec = new ABICodec(Utils.getCryptoInterface());
+        ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
         try {
             // Method
             // encode
@@ -336,11 +336,11 @@ public class ABICodecTest {
             Assert.assertEquals(
                     encodedWithMethodId,
                     abiCodec.encodeMethodByIdFromString(
-                            abiDesc, test.getMethodId(Utils.getCryptoInterface()), args));
+                            abiDesc, test.getMethodId(Utils.getCryptoSuite()), args));
             Assert.assertEquals(
                     encodedWithMethodId,
                     abiCodec.encodeMethodById(
-                            abiDesc, test.getMethodId(Utils.getCryptoInterface()), abiObjects));
+                            abiDesc, test.getMethodId(Utils.getCryptoSuite()), abiObjects));
             // MethodByInterface String & JavaObject
             Assert.assertEquals(
                     encodedWithMethodId,
