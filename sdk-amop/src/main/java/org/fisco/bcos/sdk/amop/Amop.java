@@ -33,8 +33,8 @@ public interface Amop {
     /**
      * Create a Amop object.
      *
-     * @param channel
-     * @param config
+     * @param channel the channel to send/receive message
+     * @param config the config object
      * @return Amop instance
      */
     static Amop build(Channel channel, ConfigOption config) {
@@ -44,7 +44,7 @@ public interface Amop {
     /**
      * Subscribe a normal topic.
      *
-     * @param topicName
+     * @param topicName the topic name
      * @param callback callback is called when receive a msg relate to this topic
      */
     void subscribeTopic(String topicName, AmopCallback callback);
@@ -52,7 +52,7 @@ public interface Amop {
     /**
      * Subscribe a private topic which need verify.
      *
-     * @param topicName
+     * @param topicName the topic name
      * @param privateKeyTool the private key you used to prove your identity.
      * @param callback callback is called when receive a msg relate to this topic
      */
@@ -62,7 +62,7 @@ public interface Amop {
      * Config a topic which is need verification, after that user can send message to verified
      * subscriber.
      *
-     * @param topicName
+     * @param topicName the topic name
      * @param publicKeyTools the public keys of the target organizations that you want to
      *     communicate with
      */
@@ -71,22 +71,22 @@ public interface Amop {
     /**
      * Unsubscribe a topic.
      *
-     * @param topicName
+     * @param topicName the topic name
      */
     void unsubscribeTopic(String topicName);
 
     /**
      * Send amop msg
      *
-     * @param content
-     * @param callback
+     * @param content the sent message
+     * @param callback the callback that will be called when receive the AMOP response
      */
     void sendAmopMsg(AmopMsgOut content, ResponseCallback callback);
 
     /**
      * Send amop msg
      *
-     * @param content
+     * @param content the broadcasted AMOP message
      */
     void broadcastAmopMsg(AmopMsgOut content);
 

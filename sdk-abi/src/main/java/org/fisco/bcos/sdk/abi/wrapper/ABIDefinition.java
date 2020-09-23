@@ -107,8 +107,9 @@ public class ABIDefinition {
     }
 
     /**
-     * method id
+     * calculate the method id
      *
+     * @param cryptoSuite the crypto suite used for hash calculation
      * @return the method id
      */
     public String getMethodId(CryptoSuite cryptoSuite) {

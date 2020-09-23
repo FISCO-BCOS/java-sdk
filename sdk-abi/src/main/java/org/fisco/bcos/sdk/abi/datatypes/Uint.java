@@ -25,7 +25,7 @@ public class Uint extends IntType {
     /**
      * check if value between 0 ~ MAX_UINT256
      *
-     * @param value
+     * @param value the value need to be checked
      * @return true/false
      */
     public boolean validUint(BigInteger value) {

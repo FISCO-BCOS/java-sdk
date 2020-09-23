@@ -82,7 +82,11 @@ public class TopicManager {
         topic2Callback.put(addNeedVerifyTopicPrefix(topicName), callback);
     }
 
-    /** Make sure do not use same name of a normal and a private topic */
+    /**
+     * Make sure do not use same name of a normal and a private topic remove the topic
+     *
+     * @param topicName the topic name
+     */
     public void removeTopic(String topicName) {
         logger.trace("remove topic, topic:{}", topicName);
         String fullName = topicName2FullName.get(topicName);

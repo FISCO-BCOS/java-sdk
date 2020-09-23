@@ -48,7 +48,11 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     private final ABICodec abiCodec;
     private EventEncoder eventEncoder;
 
-    /** @param cryptoSuite */
+    /**
+     * create TransactionDecoderService
+     *
+     * @param cryptoSuite the cryptoSuite used to calculate hash and signatures
+     */
     public TransactionDecoderService(CryptoSuite cryptoSuite) {
         super();
         this.cryptoSuite = cryptoSuite;

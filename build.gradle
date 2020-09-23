@@ -38,7 +38,7 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos'
-    version = '0.1.0-SNAPSHOT'
+    version = '1.0.0-SNAPSHOT'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
@@ -119,14 +119,14 @@ subprojects {
         from sourceSets.main.allSource
     }
 
-    /*task javadocJar(type: Jar, dependsOn: javadoc) {
+    task javadocJar(type: Jar, dependsOn: javadoc) {
         classifier = "javadoc"
         from javadoc.destinationDir
-    }*/
+    }
     artifacts {
         archives jar
         archives sourcesJar
-        //archives javadocJar
+        archives javadocJar
     }
 }
 

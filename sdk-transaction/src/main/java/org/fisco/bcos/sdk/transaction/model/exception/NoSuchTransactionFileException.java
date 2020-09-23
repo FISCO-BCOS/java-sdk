@@ -20,7 +20,6 @@ import org.fisco.bcos.sdk.model.RetCode;
  * NoSuchTransactionFileException @Description: NoSuchTransactionFileException
  *
  * @author maojiayu
- * @data Sep 15, 2020 9:11:01 PM
  */
 public class NoSuchTransactionFileException extends TransactionBaseException {
     private static final long serialVersionUID = -3082997842343754327L;

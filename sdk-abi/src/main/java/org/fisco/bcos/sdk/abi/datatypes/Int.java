@@ -17,7 +17,7 @@ public class Int extends IntType {
     /**
      * check if value between MIN_INT256 ~ MIN_INT256
      *
-     * @param value
+     * @param value the value need to be checked
      * @return true/false
      */
     public boolean validInt(BigInteger value) {

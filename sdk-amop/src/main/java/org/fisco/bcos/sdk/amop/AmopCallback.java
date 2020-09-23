@@ -21,7 +21,7 @@ public abstract class AmopCallback {
     /**
      * receiveAmopMsg is called when get a subscribed topic amop msg.
      *
-     * @param msg
+     * @param msg the received AMOP message
      * @return response content
      */
     public abstract byte[] receiveAmopMsg(AmopMsgIn msg);

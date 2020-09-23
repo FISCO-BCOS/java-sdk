@@ -41,7 +41,7 @@ public class ABIObjectFactory {
     /**
      * build ABIObject by raw type name
      *
-     * @param rawType
+     * @param rawType the rawType of the object
      * @return the built ABIObject
      */
     public static ABIObject buildRawTypeObject(String rawType) {
