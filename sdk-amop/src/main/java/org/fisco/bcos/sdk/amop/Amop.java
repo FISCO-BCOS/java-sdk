@@ -22,7 +22,7 @@ import org.fisco.bcos.sdk.amop.topic.TopicManager;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 
 /**
  * AMOP module interface.
@@ -53,21 +53,20 @@ public interface Amop {
      * Subscribe a private topic which need verify.
      *
      * @param topicName
-     * @param privateKeyManager the private key you used to prove your identity.
+     * @param privateKeyTool the private key you used to prove your identity.
      * @param callback callback is called when receive a msg relate to this topic
      */
-    void subscribePrivateTopics(
-            String topicName, KeyManager privateKeyManager, AmopCallback callback);
+    void subscribePrivateTopics(String topicName, KeyTool privateKeyTool, AmopCallback callback);
 
     /**
      * Config a topic which is need verification, after that user can send message to verified
      * subscriber.
      *
      * @param topicName
-     * @param publicKeyManagers the public keys of the target organizations that you want to
+     * @param publicKeyTools the public keys of the target organizations that you want to
      *     communicate with
      */
-    void publishPrivateTopic(String topicName, List<KeyManager> publicKeyManagers);
+    void publishPrivateTopic(String topicName, List<KeyTool> publicKeyTools);
 
     /**
      * Unsubscribe a topic.
