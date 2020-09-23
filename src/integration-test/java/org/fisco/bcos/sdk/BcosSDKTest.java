@@ -211,12 +211,10 @@ public class BcosSDKTest {
         Assert.assertEquals(null, receipt.getTxProof());
         System.out.println(
                 "getCurrentExternalAccountAddress: "
-                        + helloWorld.getTransactionManager().getCurrentExternalAccountAddress()
+                        + helloWorld.getCurrentExternalAccountAddress()
                         + ", receipt.getFrom()"
                         + receipt.getFrom());
-        Assert.assertEquals(
-                helloWorld.getTransactionManager().getCurrentExternalAccountAddress(),
-                receipt.getFrom());
+        Assert.assertEquals(helloWorld.getCurrentExternalAccountAddress(), receipt.getFrom());
         if (checkTo) {
             Assert.assertEquals(helloWorld.getContractAddress(), receipt.getTo());
         }
@@ -231,7 +229,8 @@ public class BcosSDKTest {
             BigInteger blockLimit = sdk.getGroupManagerService().getBlockLimitByGroup(groupId);
             BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
             // deploy the HelloWorld contract
-            HelloWorld helloWorld = HelloWorld.deploy(client, client.getCryptoInterface());
+            HelloWorld helloWorld =
+                    HelloWorld.deploy(client, client.getCryptoInterface().getCryptoKeyPair());
             checkReceipt(
                     helloWorld,
                     client,
@@ -273,7 +272,9 @@ public class BcosSDKTest {
             // load contract from the contract address
             HelloWorld helloWorld2 =
                     HelloWorld.load(
-                            helloWorld.getContractAddress(), client, client.getCryptoInterface());
+                            helloWorld.getContractAddress(),
+                            client,
+                            client.getCryptoInterface().getCryptoKeyPair());
             Assert.assertTrue(
                     helloWorld2.getContractAddress().equals(helloWorld.getContractAddress()));
             settedString = "Hello, Fisco2";

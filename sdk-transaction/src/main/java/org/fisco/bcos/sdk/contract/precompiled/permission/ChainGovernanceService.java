@@ -21,7 +21,7 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
@@ -31,7 +31,7 @@ public class ChainGovernanceService {
     private final ChainGovernancePrecompiled chainGovernancePrecompiled;
     private String currentVersion;
 
-    public ChainGovernanceService(Client client, CryptoInterface credential) {
+    public ChainGovernanceService(Client client, CryptoKeyPair credential) {
         this.chainGovernancePrecompiled =
                 ChainGovernancePrecompiled.load(
                         PrecompiledAddress.CHAINGOVERNANCE_PRECOMPILED_ADDRESS, client, credential);

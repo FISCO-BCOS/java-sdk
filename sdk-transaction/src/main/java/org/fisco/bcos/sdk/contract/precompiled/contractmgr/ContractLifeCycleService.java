@@ -20,7 +20,7 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
@@ -30,7 +30,7 @@ public class ContractLifeCycleService {
     private final ContractLifeCyclePrecompiled contractLifeCyclePrecompiled;
     private final String currentVersion;
 
-    public ContractLifeCycleService(Client client, CryptoInterface credential) {
+    public ContractLifeCycleService(Client client, CryptoKeyPair credential) {
         this.contractLifeCyclePrecompiled =
                 ContractLifeCyclePrecompiled.load(
                         PrecompiledAddress.CONTRACT_LIFECYCLE_PRECOMPILED_ADDRESS,

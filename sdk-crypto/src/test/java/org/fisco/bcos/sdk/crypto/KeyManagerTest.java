@@ -11,15 +11,15 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.test.crypto;
+package org.fisco.bcos.sdk.crypto;
 
 import java.security.KeyPair;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
-import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
+import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
+import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -155,14 +155,14 @@ public class KeyManagerTest {
     private CryptoKeyPair testLoadPEMFile(
             String pemFileName, int cryptoType, String expectedAccount) {
         // get KeyPair from the pem
-        KeyManager pem = new PEMManager(getFilePath(pemFileName));
+        KeyManager pem = new PEMKeyStore(getFilePath(pemFileName));
         KeyPair keyPair = pem.getKeyPair();
         return testSignature(keyPair, cryptoType, expectedAccount);
     }
 
     private CryptoKeyPair testLoadP12File(
             String p12FileName, int cryptoType, String password, String expectedAccount) {
-        KeyManager p12 = new P12Manager(getFilePath(p12FileName), password);
+        KeyManager p12 = new P12KeyStore(getFilePath(p12FileName), password);
         KeyPair keyPair = p12.getKeyPair();
         return testSignature(keyPair, cryptoType, expectedAccount);
     }

@@ -60,7 +60,7 @@ public class SubscribeTest {
         try {
             AssembleTransactionManager manager =
                     TransactionManagerFactory.createAssembleTransactionManager(
-                            client, client.getCryptoInterface(), abiFile, binFile);
+                            client, client.getCryptoInterface().createKeyPair(), abiFile, binFile);
             // deploy
             List<Object> params = Lists.newArrayList();
             params.add(1);
