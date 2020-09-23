@@ -28,7 +28,7 @@ import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.AmopTopic;
-import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.model.AmopMsg;
@@ -74,17 +74,17 @@ public class AmopImp implements Amop {
 
     @Override
     public void subscribePrivateTopics(
-            String topicName, KeyManager privateKeyManager, AmopCallback callback) {
+            String topicName, KeyTool privateKeyTool, AmopCallback callback) {
         logger.info("subscribe private topic, topic:{}", topicName);
-        topicManager.addPrivateTopicSubscribe(topicName, privateKeyManager, callback);
+        topicManager.addPrivateTopicSubscribe(topicName, privateKeyTool, callback);
         sendSubscribe();
     }
 
     @Override
-    public void publishPrivateTopic(String topicName, List<KeyManager> publicKeyManagers) {
+    public void publishPrivateTopic(String topicName, List<KeyTool> publicKeyTools) {
         logger.info(
-                "setup private topic, topic:{} pubKey len:{}", topicName, publicKeyManagers.size());
-        topicManager.addPrivateTopicSend(topicName, publicKeyManagers);
+                "setup private topic, topic:{} pubKey len:{}", topicName, publicKeyTools.size());
+        topicManager.addPrivateTopicSend(topicName, publicKeyTools);
         sendSubscribe();
     }
 
@@ -244,19 +244,19 @@ public class AmopImp implements Amop {
         for (AmopTopic topic : topics) {
             if (null != topic.getPrivateKey()) {
                 String privKeyFile = topic.getPrivateKey();
-                KeyManager km;
+                KeyTool keyTool;
 
                 if (privKeyFile.endsWith("p12")) {
-                    km = new P12KeyStore(privKeyFile, topic.getPassword());
+                    keyTool = new P12KeyStore(privKeyFile, topic.getPassword());
                 } else {
-                    km = new PEMKeyStore(privKeyFile);
+                    keyTool = new PEMKeyStore(privKeyFile);
                 }
-                topicManager.addPrivateTopicSubscribe(topic.getTopicName(), km, null);
+                topicManager.addPrivateTopicSubscribe(topic.getTopicName(), keyTool, null);
             } else if (null != topic.getPublicKeys()) {
-                List<KeyManager> pubList = new ArrayList<>();
+                List<KeyTool> pubList = new ArrayList<>();
                 for (String pubKey : topic.getPublicKeys()) {
-                    KeyManager km = new PEMKeyStore(pubKey);
-                    pubList.add(km);
+                    KeyTool keyTool = new PEMKeyStore(pubKey);
+                    pubList.add(keyTool);
                 }
                 topicManager.addPrivateTopicSend(topic.getTopicName(), pubList);
             } else {

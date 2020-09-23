@@ -9,7 +9,7 @@ import org.fisco.bcos.sdk.amop.topic.RequestVerifyData;
 import org.fisco.bcos.sdk.amop.topic.TopicManager;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
-import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.model.AmopMsg;
@@ -104,7 +104,7 @@ public class AmopMsgHandlerTest {
                         .getResource(
                                 "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.public.pem")
                         .getPath();
-        KeyManager km = new PEMKeyStore(keyFile);
+        KeyTool km = new PEMKeyStore(keyFile);
         Assert.assertTrue(
                 cryptoInterface.verify(
                         km,
@@ -170,7 +170,7 @@ public class AmopMsgHandlerTest {
     private void initEnv() {
         topicManagerSender = new TopicManager();
         msgHandlerSender = new AmopMsgHandler(chSender, topicManagerSender);
-        List<KeyManager> list = new ArrayList<>();
+        List<KeyTool> list = new ArrayList<>();
         String keyFile =
                 AmopMsgHandlerTest.class
                         .getClassLoader()
