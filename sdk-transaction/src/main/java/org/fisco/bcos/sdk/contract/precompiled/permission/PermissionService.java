@@ -20,7 +20,7 @@ import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
@@ -31,7 +31,7 @@ public class PermissionService {
     private final PermissionPrecompiled permissionPrecompiled;
     private final String currentVersion;
 
-    public PermissionService(Client client, CryptoInterface credential) {
+    public PermissionService(Client client, CryptoKeyPair credential) {
         this.permissionPrecompiled =
                 PermissionPrecompiled.load(
                         PrecompiledAddress.PERMISSION_PRECOMPILED_ADDRESS, client, credential);

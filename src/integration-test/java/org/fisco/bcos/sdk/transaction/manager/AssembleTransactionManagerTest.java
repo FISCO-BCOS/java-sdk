@@ -27,6 +27,7 @@ import org.bouncycastle.util.encoders.Base64;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -60,9 +61,10 @@ public class AssembleTransactionManagerTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
+        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
         AssembleTransactionManager manager =
                 TransactionManagerFactory.createAssembleTransactionManager(
-                        client, client.getCryptoInterface(), abiFile, binFile);
+                        client, cryptoKeyPair, abiFile, binFile);
         // deploy
         TransactionResponse response =
                 manager.deployByContractLoader("HelloWorld", new ArrayList<>());
@@ -115,9 +117,10 @@ public class AssembleTransactionManagerTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
+        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
         AssembleTransactionManager manager =
                 TransactionManagerFactory.createAssembleTransactionManager(
-                        client, client.getCryptoInterface(), abiFile, binFile);
+                        client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -147,9 +150,10 @@ public class AssembleTransactionManagerTest {
             BcosSDK sdk = BcosSDK.build(configFile);
             Client client = sdk.getClient(Integer.valueOf(1));
             // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
+            CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
             AssembleTransactionManager manager =
                     TransactionManagerFactory.createAssembleTransactionManager(
-                            client, client.getCryptoInterface(), abiFile, binFile);
+                            client, cryptoKeyPair, abiFile, binFile);
             // deploy
             List<Object> params = Lists.newArrayList();
             params.add(1);
@@ -192,9 +196,10 @@ public class AssembleTransactionManagerTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
+        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
         AssembleTransactionManager manager =
                 TransactionManagerFactory.createAssembleTransactionManager(
-                        client, client.getCryptoInterface(), abiFile, binFile);
+                        client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -216,9 +221,10 @@ public class AssembleTransactionManagerTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
+        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
         AssembleTransactionManager manager =
                 TransactionManagerFactory.createAssembleTransactionManager(
-                        client, client.getCryptoInterface(), abiFile, binFile);
+                        client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -243,9 +249,7 @@ public class AssembleTransactionManagerTest {
                         try {
                             callResponse3 =
                                     manager.sendCall(
-                                            client.getCryptoInterface()
-                                                    .getCryptoKeyPair()
-                                                    .getAddress(),
+                                            cryptoKeyPair.getAddress(),
                                             contractAddress,
                                             abi,
                                             "getUint256",
@@ -264,9 +268,10 @@ public class AssembleTransactionManagerTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
+        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
         AssembleTransactionManager manager =
                 TransactionManagerFactory.createAssembleTransactionManager(
-                        client, client.getCryptoInterface(), abiFile, binFile);
+                        client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -296,9 +301,10 @@ public class AssembleTransactionManagerTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
+        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
         AssembleTransactionManager manager =
                 TransactionManagerFactory.createAssembleTransactionManager(
-                        client, client.getCryptoInterface(), abiFile, binFile);
+                        client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -326,7 +332,7 @@ public class AssembleTransactionManagerTest {
         // getBytes
         CallResponse callResponse4 =
                 manager.sendCall(
-                        client.getCryptoInterface().getCryptoKeyPair().getAddress(),
+                        cryptoKeyPair.getAddress(),
                         contractAddress,
                         abi,
                         "_bytesV",
@@ -342,9 +348,10 @@ public class AssembleTransactionManagerTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient(Integer.valueOf(1));
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
+        CryptoKeyPair cryptoKeyPair = client.getCryptoInterface().createKeyPair();
         AssembleTransactionManager manager =
                 TransactionManagerFactory.createAssembleTransactionManager(
-                        client, client.getCryptoInterface(), abiFile, binFile);
+                        client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -356,7 +363,7 @@ public class AssembleTransactionManagerTest {
         String contractAddress = response.getContractAddress();
         List<Object> paramsSetBytes = Lists.newArrayList("2".getBytes());
         String data = manager.encodeFunction(abi, "setBytes", paramsSetBytes);
-        String signedData = manager.createSignedTransaction(contractAddress, data);
+        String signedData = manager.createSignedTransaction(contractAddress, data, cryptoKeyPair);
         CompletableFuture<TransactionReceipt> future = manager.sendTransactionAsync(signedData);
         future.thenAccept(
                 r -> {

@@ -17,6 +17,7 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
@@ -65,12 +66,14 @@ public class ChainGovernancePrecompiled extends Contract {
     public static final String FUNC_GETACCOUNTSTATUS = "getAccountStatus";
 
     protected ChainGovernancePrecompiled(
-            String contractAddress, Client client, CryptoInterface credential) {
-        super(getBinary(credential), contractAddress, client, credential);
+            String contractAddress, Client client, CryptoKeyPair credential) {
+        super(getBinary(client.getCryptoInterface()), contractAddress, client, credential);
     }
 
-    public static String getBinary(CryptoInterface credential) {
-        return (credential.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE ? BINARY : SM_BINARY);
+    public static String getBinary(CryptoInterface cryptoInterface) {
+        return (cryptoInterface.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE
+                ? BINARY
+                : SM_BINARY);
     }
 
     public String listOperators() throws ContractException {
@@ -531,13 +534,17 @@ public class ChainGovernancePrecompiled extends Contract {
     }
 
     public static ChainGovernancePrecompiled load(
-            String contractAddress, Client client, CryptoInterface credential) {
+            String contractAddress, Client client, CryptoKeyPair credential) {
         return new ChainGovernancePrecompiled(contractAddress, client, credential);
     }
 
-    public static ChainGovernancePrecompiled deploy(Client client, CryptoInterface credential)
+    public static ChainGovernancePrecompiled deploy(Client client, CryptoKeyPair credential)
             throws ContractException {
         return deploy(
-                ChainGovernancePrecompiled.class, client, credential, getBinary(credential), "");
+                ChainGovernancePrecompiled.class,
+                client,
+                credential,
+                getBinary(client.getCryptoInterface()),
+                "");
     }
 }

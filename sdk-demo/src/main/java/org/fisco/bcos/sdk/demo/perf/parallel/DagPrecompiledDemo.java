@@ -45,7 +45,9 @@ public class DagPrecompiledDemo {
     public DagPrecompiledDemo(
             Client client, DagUserInfo dagUserInfo, ThreadPoolService threadPoolService) {
         this.threadPoolService = threadPoolService;
-        this.dagTransfer = DagTransfer.load(DAG_TRANSFER_ADDR, client, client.getCryptoInterface());
+        this.dagTransfer =
+                DagTransfer.load(
+                        DAG_TRANSFER_ADDR, client, client.getCryptoInterface().getCryptoKeyPair());
         this.dagUserInfo = dagUserInfo;
         this.collector = new PerformanceCollector();
     }

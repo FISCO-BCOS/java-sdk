@@ -11,7 +11,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.test.crypto;
+package org.fisco.bcos.sdk.crypto;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -27,8 +27,8 @@ import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.SM2KeyPair;
 import org.fisco.bcos.sdk.crypto.keystore.KeyManager;
-import org.fisco.bcos.sdk.crypto.keystore.P12Manager;
-import org.fisco.bcos.sdk.crypto.keystore.PEMManager;
+import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
+import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
 import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
@@ -299,11 +299,11 @@ public class SignatureTest {
         String publicKeyPem =
                 "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.public.pem";
         KeyManager verifykeyManager =
-                new PEMManager(getClass().getClassLoader().getResource(publicKeyPem).getPath());
+                new PEMKeyStore(getClass().getClassLoader().getResource(publicKeyPem).getPath());
 
         String keyPairPem = "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.p12";
         KeyManager signKeyManager =
-                new P12Manager(
+                new P12KeyStore(
                         getClass().getClassLoader().getResource(keyPairPem).getPath(), "123456");
         CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
         // sign and verify message with keyManager
@@ -357,7 +357,7 @@ public class SignatureTest {
         String pemFilePath =
                 getKeyStoreFilePath(cryptoInterface, configOption, CryptoKeyPair.PEM_FILE_POSTFIX);
         // load pem file
-        KeyManager pemManager = new PEMManager(pemFilePath);
+        KeyManager pemManager = new PEMKeyStore(pemFilePath);
         CryptoKeyPair decodedCryptoKeyPair = cryptoInterface.createKeyPair(pemManager.getKeyPair());
 
         System.out.println("PEM   orgKeyPair   pub: " + orgKeyPair.getHexPublicKey());
@@ -368,7 +368,7 @@ public class SignatureTest {
 
         // test sign and verify message with
         String publicPemPath = pemFilePath + ".pub";
-        KeyManager verifyKeyManager = new PEMManager(publicPemPath);
+        KeyManager verifyKeyManager = new PEMKeyStore(publicPemPath);
 
         checkSignAndVerifyWithKeyManager(
                 pemManager, decodedCryptoKeyPair, verifyKeyManager, cryptoInterface);
@@ -386,7 +386,7 @@ public class SignatureTest {
         String p12FilePath =
                 getKeyStoreFilePath(cryptoInterface, configOption, CryptoKeyPair.P12_FILE_POSTFIX);
         // load p12 file
-        KeyManager p12Manager = new P12Manager(p12FilePath, password);
+        KeyManager p12Manager = new P12KeyStore(p12FilePath, password);
         CryptoKeyPair decodedCryptoKeyPair = cryptoInterface.createKeyPair(p12Manager.getKeyPair());
         // check the keyPair
         System.out.println("P12   orgKeyPair   pub: " + orgKeyPair.getHexPublicKey());
@@ -402,7 +402,7 @@ public class SignatureTest {
 
         // test sign and verify message with
         String publicP12Path = p12FilePath + ".pub";
-        KeyManager verifyKeyManager = new PEMManager(publicP12Path);
+        KeyManager verifyKeyManager = new PEMKeyStore(publicP12Path);
         checkSignAndVerifyWithKeyManager(
                 p12Manager, decodedCryptoKeyPair, verifyKeyManager, cryptoInterface);
     }
