@@ -18,7 +18,7 @@ public class AmopPublisher {
     /**
      * @param args topicName, isBroadcast, Content(Content you want to send out), Count(how many msg
      *     you want to send out)
-     * @throws Exception
+     * @throws Exception AMOP publish exceptioned
      */
     public static void main(String[] args) throws Exception {
         if (args.length < parameterNum) {

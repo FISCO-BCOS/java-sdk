@@ -123,14 +123,14 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     /**
-     * Deploy by bin & abi files. Should init with contractLoader.
+     * Deploy by bin and abi files. Should init with contractLoader.
      *
-     * @param contractName
-     * @param args
+     * @param contractName the contract name
+     * @param args the params when deploy a contract
      * @return the transaction response
-     * @throws TransactionBaseException
-     * @throws ABICodecException
-     * @throws NoSuchTransactionFileException
+     * @throws TransactionBaseException send transaction exceptioned
+     * @throws ABICodecException abi encode exceptioned
+     * @throws NoSuchTransactionFileException Files related to abi codec were not found
      */
     @Override
     public TransactionResponse deployByContractLoader(String contractName, List<Object> args)

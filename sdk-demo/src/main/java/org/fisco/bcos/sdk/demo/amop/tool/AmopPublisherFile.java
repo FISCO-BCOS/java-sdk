@@ -21,8 +21,8 @@ public class AmopPublisherFile {
                     .getPath();
 
     /**
-     * @param args topicName, isBroadcast: true/false, fileName, count, timeout
-     * @throws Exception
+     * @param args topicName, isBroadcast: true/false, fileName, count
+     * @throws Exception AMOP publish exceptioned
      */
     public static void main(String[] args) throws Exception {
         if (args.length < parameterNum) {

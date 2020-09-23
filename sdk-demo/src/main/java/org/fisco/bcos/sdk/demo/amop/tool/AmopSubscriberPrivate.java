@@ -16,7 +16,7 @@ public class AmopSubscriberPrivate {
 
     /**
      * @param args topic, privateKeyFile, password(Option)
-     * @throws Exception
+     * @throws Exception AMOP exceptioned
      */
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {

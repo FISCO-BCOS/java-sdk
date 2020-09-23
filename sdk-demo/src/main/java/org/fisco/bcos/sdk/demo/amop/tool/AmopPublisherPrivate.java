@@ -22,7 +22,7 @@ public class AmopPublisherPrivate {
     /**
      * @param args topicName, pubKey1, pubKey2, isBroadcast: true/false, content, count. if only one
      *     public key please fill pubKey2 with null
-     * @throws Exception
+     * @throws Exception AMOP exceptioned
      */
     public static void main(String[] args) throws Exception {
         if (args.length < parameterNum) {

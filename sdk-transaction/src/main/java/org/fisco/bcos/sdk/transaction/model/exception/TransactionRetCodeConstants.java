@@ -20,7 +20,6 @@ import org.fisco.bcos.sdk.model.RetCode;
  * TransactionRetCode @Description: TransactionRetCode
  *
  * @author maojiayu
- * @data Sep 15, 2020 9:22:21 PM
  */
 public class TransactionRetCodeConstants {
 

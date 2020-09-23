@@ -38,8 +38,8 @@ public class TransactionResponse extends CommonResponse {
     }
 
     /**
-     * @param returnCode
-     * @param returnMessage
+     * @param returnCode the return code of the receipt
+     * @param returnMessage the return message of the receipt
      */
     public TransactionResponse(int returnCode, String returnMessage) {
         super(returnCode, returnMessage);
