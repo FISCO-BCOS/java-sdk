@@ -25,7 +25,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
  *
  * @author maojiayu
  */
-public interface TransactionManagerInterface {
+public interface TransactionProcessorInterface {
 
     public TransactionReceipt sendTransactionAndGetReceipt(
             String to, String data, CryptoKeyPair cryptoKeyPair);

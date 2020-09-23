@@ -48,15 +48,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author maojiayu
  */
-public class AssembleTransactionManager extends TransactionManager
-        implements AssembleTransactionManagerInterface {
-    protected static Logger log = LoggerFactory.getLogger(AssembleTransactionManager.class);
+public class AssembleTransactionProcessor extends TransactionProcessor
+        implements AssembleTransactionProcessorInterface {
+    protected static Logger log = LoggerFactory.getLogger(AssembleTransactionProcessor.class);
     protected final TransactionDecoderInterface transactionDecoder;
     protected final TransactionPusherInterface transactionPusher;
     protected final ABICodec abiCodec;
     private ContractLoader contractLoader;
 
-    public AssembleTransactionManager(
+    public AssembleTransactionProcessor(
             Client client,
             CryptoKeyPair cryptoKeyPair,
             Integer groupId,

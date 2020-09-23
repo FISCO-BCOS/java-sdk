@@ -28,8 +28,8 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.CryptoInterface;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.EventLog;
-import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionManager;
-import org.fisco.bcos.sdk.transaction.manager.TransactionManagerFactory;
+import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionProcessor;
+import org.fisco.bcos.sdk.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.junit.Assert;
@@ -58,8 +58,8 @@ public class SubscribeTest {
         eventSubscribe.start();
         String contractAddress = "";
         try {
-            AssembleTransactionManager manager =
-                    TransactionManagerFactory.createAssembleTransactionManager(
+            AssembleTransactionProcessor manager =
+                    TransactionProcessorFactory.createAssembleTransactionProcessor(
                             client, client.getCryptoInterface().createKeyPair(), abiFile, binFile);
             // deploy
             List<Object> params = Lists.newArrayList();
