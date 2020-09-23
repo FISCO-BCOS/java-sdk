@@ -3,7 +3,7 @@ package org.fisco.bcos.sdk.abi.tools;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.abi.TypeEncoder;
 import org.fisco.bcos.sdk.abi.datatypes.Bytes;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.utils.AddressUtils;
 import org.fisco.bcos.sdk.utils.Numeric;
 
@@ -12,10 +12,10 @@ public class TopicTools {
     public static final int MAX_NUM_TOPIC_EVENT_LOG = 4;
     public static final String LATEST = "latest";
 
-    private CryptoInterface cryptoInterface;
+    private CryptoSuite cryptoSuite;
 
-    public TopicTools(CryptoInterface cryptoInterface) {
-        this.cryptoInterface = cryptoInterface;
+    public TopicTools(CryptoSuite cryptoSuite) {
+        this.cryptoSuite = cryptoSuite;
     }
 
     public String integerToTopic(BigInteger i) {
@@ -39,12 +39,12 @@ public class TopicTools {
     }
 
     public String stringToTopic(String s) {
-        byte[] hash = cryptoInterface.hash(s.getBytes());
+        byte[] hash = cryptoSuite.hash(s.getBytes());
         return Numeric.toHexString(hash);
     }
 
     public String bytesToTopic(byte[] b) {
-        byte[] hash = cryptoInterface.hash(b);
+        byte[] hash = cryptoSuite.hash(b);
         return Numeric.toHexString(hash);
     }
 

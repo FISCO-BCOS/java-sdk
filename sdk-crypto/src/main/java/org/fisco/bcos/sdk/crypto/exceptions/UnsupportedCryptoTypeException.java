@@ -13,7 +13,7 @@
  */
 package org.fisco.bcos.sdk.crypto.exceptions;
 
-/** Exceptioned when calling CryptoInterface. */
+/** Exceptioned when calling CryptoSuite. */
 public class UnsupportedCryptoTypeException extends RuntimeException {
     public UnsupportedCryptoTypeException(String message) {
         super(message);

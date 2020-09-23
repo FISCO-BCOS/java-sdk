@@ -16,7 +16,7 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple4;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple5;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.Contract;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -50,13 +50,11 @@ public class CRUD extends Contract {
     public static final String FUNC_REMOVE = "remove";
 
     protected CRUD(String contractAddress, Client client, CryptoKeyPair credential) {
-        super(getBinary(client.getCryptoInterface()), contractAddress, client, credential);
+        super(getBinary(client.getCryptoSuite()), contractAddress, client, credential);
     }
 
-    public static String getBinary(CryptoInterface cryptoInterface) {
-        return (cryptoInterface.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE
-                ? BINARY
-                : SM_BINARY);
+    public static String getBinary(CryptoSuite cryptoSuite) {
+        return (cryptoSuite.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE ? BINARY : SM_BINARY);
     }
 
     public TransactionReceipt update(
@@ -328,6 +326,6 @@ public class CRUD extends Contract {
     }
 
     public static CRUD deploy(Client client, CryptoKeyPair credential) throws ContractException {
-        return deploy(CRUD.class, client, credential, getBinary(client.getCryptoInterface()), "");
+        return deploy(CRUD.class, client, credential, getBinary(client.getCryptoSuite()), "");
     }
 }

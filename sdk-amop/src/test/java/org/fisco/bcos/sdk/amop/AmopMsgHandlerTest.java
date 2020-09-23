@@ -8,7 +8,7 @@ import org.fisco.bcos.sdk.amop.topic.AmopMsgIn;
 import org.fisco.bcos.sdk.amop.topic.RequestVerifyData;
 import org.fisco.bcos.sdk.amop.topic.TopicManager;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
@@ -93,7 +93,7 @@ public class AmopMsgHandlerTest {
         AmopMsg amopMsg = new AmopMsg(signedRandom);
 
         amopMsg.decodeAmopBody(signedRandom.getData());
-        CryptoInterface cryptoInterface = new CryptoInterface(CryptoType.ECDSA_TYPE);
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         Assert.assertTrue(amopMsg.getType() == (short) MsgType.AMOP_RESPONSE.getType());
         Assert.assertEquals(
                 "#!$VerifyChannel_#!$TopicNeedVerify_priv1_5e14c53197adbcb719d915fb93342c25",
@@ -106,9 +106,9 @@ public class AmopMsgHandlerTest {
                         .getPath();
         KeyTool km = new PEMKeyStore(keyFile);
         Assert.assertTrue(
-                cryptoInterface.verify(
+                cryptoSuite.verify(
                         km,
-                        Hex.toHexString(cryptoInterface.hash(randomValue)),
+                        Hex.toHexString(cryptoSuite.hash(randomValue)),
                         Hex.toHexString(amopMsg.getData())));
     }
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +20,10 @@ public class ContractABIDefinition {
     private Map<String, ABIDefinition> methodIDToFunctions = new HashMap<>();
     // event topic => topic
     private Map<String, ABIDefinition> eventTopicToEvents = new HashMap<>();
-    private CryptoInterface cryptoInterface;
+    private CryptoSuite cryptoSuite;
 
-    public ContractABIDefinition(CryptoInterface cryptoInterface) {
-        this.cryptoInterface = cryptoInterface;
+    public ContractABIDefinition(CryptoSuite cryptoSuite) {
+        this.cryptoSuite = cryptoSuite;
     }
 
     public ABIDefinition getConstructor() {
@@ -78,7 +78,7 @@ public class ContractABIDefinition {
         abiDefinitions.add(abiDefinition);
 
         // calculate method id and add abiDefinition to methodIdToFunctions
-        String methodId = abiDefinition.getMethodId(cryptoInterface);
+        String methodId = abiDefinition.getMethodId(cryptoSuite);
         methodIDToFunctions.put(methodId, abiDefinition);
 
         logger.info(

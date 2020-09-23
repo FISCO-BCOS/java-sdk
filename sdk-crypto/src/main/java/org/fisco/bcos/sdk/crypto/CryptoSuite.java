@@ -35,9 +35,9 @@ import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CryptoInterface {
+public class CryptoSuite {
 
-    private static Logger logger = LoggerFactory.getLogger(CryptoInterface.class);
+    private static Logger logger = LoggerFactory.getLogger(CryptoSuite.class);
 
     public final int cryptoTypeConfig;
 
@@ -47,9 +47,9 @@ public class CryptoInterface {
     private CryptoKeyPair cryptoKeyPair;
     private ConfigOption config;
 
-    public CryptoInterface(int cryptoTypeConfig, ConfigOption configOption) {
+    public CryptoSuite(int cryptoTypeConfig, ConfigOption configOption) {
         this(cryptoTypeConfig);
-        logger.info("init CryptoInterface, cryptoType: {}", cryptoTypeConfig);
+        logger.info("init CryptoSuite, cryptoType: {}", cryptoTypeConfig);
         setConfig(configOption);
         // doesn't set the account name, generate the keyPair randomly
         if (!configOption.getAccountConfig().isAccountConfigured()) {
@@ -59,11 +59,11 @@ public class CryptoInterface {
         loadAccount(configOption);
     }
     /**
-     * init the common crypto implementation accordign to the crypto type
+     * init the common crypto implementation according to the crypto type
      *
      * @param cryptoTypeConfig
      */
-    public CryptoInterface(int cryptoTypeConfig) {
+    public CryptoSuite(int cryptoTypeConfig) {
         this.cryptoTypeConfig = cryptoTypeConfig;
         if (this.cryptoTypeConfig == CryptoType.ECDSA_TYPE) {
             this.signatureImpl = new ECDSASignature();

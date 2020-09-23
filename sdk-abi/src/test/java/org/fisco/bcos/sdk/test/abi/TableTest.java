@@ -155,10 +155,10 @@ public class TableTest {
         ABIDefinition remove = contractABIDefinition.getFunctions().get("remove").get(0);
         ABIDefinition select = contractABIDefinition.getFunctions().get("select").get(0);
 
-        Assert.assertEquals(insert.getMethodId(Utils.getCryptoInterface()), "0xebf3b24f");
-        Assert.assertEquals(remove.getMethodId(Utils.getCryptoInterface()), "0xc4f41ab3");
-        Assert.assertEquals(update.getMethodId(Utils.getCryptoInterface()), "0x487a5a10");
-        Assert.assertEquals(select.getMethodId(Utils.getCryptoInterface()), "0xfcd7e3c1");
+        Assert.assertEquals(insert.getMethodId(Utils.getCryptoSuite()), "0xebf3b24f");
+        Assert.assertEquals(remove.getMethodId(Utils.getCryptoSuite()), "0xc4f41ab3");
+        Assert.assertEquals(update.getMethodId(Utils.getCryptoSuite()), "0x487a5a10");
+        Assert.assertEquals(select.getMethodId(Utils.getCryptoSuite()), "0xfcd7e3c1");
 
         Assert.assertEquals(insert.getMethodSignatureAsString(), "insert(string,int256,string)");
         Assert.assertEquals(remove.getMethodSignatureAsString(), "remove(string,int256)");

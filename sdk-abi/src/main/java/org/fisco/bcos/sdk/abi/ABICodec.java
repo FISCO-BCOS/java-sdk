@@ -24,7 +24,7 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,20 +32,20 @@ public class ABICodec {
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodec.class);
 
-    private final CryptoInterface cryptoInterface;
+    private final CryptoSuite cryptoSuite;
     public static final String TYPE_CONSTRUCTOR = "constructor";
     private ABIDefinitionFactory abiDefinitionFactory;
     private final ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
     private final ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
 
-    public ABICodec(CryptoInterface cryptoInterface) {
+    public ABICodec(CryptoSuite cryptoSuite) {
         super();
-        this.cryptoInterface = cryptoInterface;
-        abiDefinitionFactory = new ABIDefinitionFactory(cryptoInterface);
+        this.cryptoSuite = cryptoSuite;
+        abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
     }
 
-    public CryptoInterface getCryptoInterface() {
-        return cryptoInterface;
+    public CryptoSuite getCryptoSuite() {
+        return cryptoSuite;
     }
 
     public String encodeConstructor(String ABI, String BIN, List<Object> params)
@@ -93,7 +93,7 @@ public class ABICodec {
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
                 ABICodecObject abiCodecObject = new ABICodecObject();
                 try {
-                    String methodId = abiDefinition.getMethodId(cryptoInterface);
+                    String methodId = abiDefinition.getMethodId(cryptoSuite);
                     return methodId + abiCodecObject.encodeValue(inputABIObject, params).encode();
                 } catch (Exception e) {
                     logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
@@ -131,7 +131,7 @@ public class ABICodec {
 
     public String encodeMethodByInterface(String ABI, String methodInterface, List<Object> params)
             throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoInterface);
+        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
         String methodId = functionEncoder.buildMethodId(methodInterface);
         return encodeMethodById(ABI, methodId, params);
     }
@@ -156,7 +156,7 @@ public class ABICodec {
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
                 ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
                 try {
-                    String methodId = abiDefinition.getMethodId(cryptoInterface);
+                    String methodId = abiDefinition.getMethodId(cryptoSuite);
                     return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
                 } catch (IOException e) {
                     logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
@@ -194,7 +194,7 @@ public class ABICodec {
 
     public String encodeMethodByInterfaceFromString(
             String ABI, String methodInterface, List<String> params) throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoInterface);
+        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
         String methodId = functionEncoder.buildMethodId(methodInterface);
         return encodeMethodByIdFromString(ABI, methodId, params);
     }
@@ -256,7 +256,7 @@ public class ABICodec {
 
     public List<Object> decodeMethodByInterface(String ABI, String methodInterface, String output)
             throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoInterface);
+        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
         String methodId = functionEncoder.buildMethodId(methodInterface);
         return decodeMethodById(ABI, methodId, output);
     }
@@ -312,7 +312,7 @@ public class ABICodec {
 
     public List<String> decodeMethodByInterfaceToString(
             String ABI, String methodInterface, String output) throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoInterface);
+        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
         String methodId = functionEncoder.buildMethodId(methodInterface);
         return decodeMethodByIdToString(ABI, methodId, output);
     }
@@ -364,7 +364,7 @@ public class ABICodec {
 
     public List<Object> decodeEventByInterface(String ABI, String eventSignature, String output)
             throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoInterface);
+        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
         String methodId = functionEncoder.buildMethodId(eventSignature);
         return decodeEventByTopic(ABI, methodId, output);
     }
@@ -416,7 +416,7 @@ public class ABICodec {
 
     public List<String> decodeEventByInterfaceToString(
             String ABI, String eventSignature, String output) throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoInterface);
+        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
         String methodId = functionEncoder.buildMethodId(eventSignature);
         return decodeEventByTopicToString(ABI, methodId, output);
     }

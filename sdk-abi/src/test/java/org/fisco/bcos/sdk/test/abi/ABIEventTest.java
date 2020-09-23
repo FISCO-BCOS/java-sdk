@@ -14,7 +14,7 @@ public class ABIEventTest {
 
     @Test
     public void testDecode() {
-        ABICodec abiCodec = new ABICodec(Utils.getCryptoInterface());
+        ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
         try {
             List<Object> list = abiCodec.decodeEvent(abi, "LogSetValues", encoded);
             Assert.assertEquals(list.size(), 3);

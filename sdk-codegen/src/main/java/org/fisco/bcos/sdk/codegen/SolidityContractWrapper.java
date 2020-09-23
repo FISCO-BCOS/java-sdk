@@ -55,7 +55,7 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codegen.exceptions.CodeGenException;
 import org.fisco.bcos.sdk.contract.Contract;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.model.CryptoType;
@@ -85,7 +85,7 @@ public class SolidityContractWrapper {
     private static final String GET_BINARY_FUNC = "getBinary";
     private static final String CLIENT = "client";
     private static final String CREDENTIAL = "credential";
-    private static final String CRYPTOINTERFACE = "cryptoInterface";
+    private static final String CRYPTOSUITE = "cryptoSuite";
     private static final String CONTRACT_ADDRESS = "contractAddress";
     private static final String FROM_BLOCK = "fromBlock";
     private static final String TO_BLOCK = "toBlock";
@@ -121,7 +121,7 @@ public class SolidityContractWrapper {
         TypeSpec.Builder classBuilder = createClassBuilder(className, bin, smBin, abi);
 
         classBuilder.addMethod(
-                buildGetBinaryMethod(CryptoInterface.class, CryptoType.class, CRYPTOINTERFACE));
+                buildGetBinaryMethod(CryptoSuite.class, CryptoType.class, CRYPTOSUITE));
         classBuilder.addMethod(buildConstructor(CryptoKeyPair.class, CREDENTIAL));
 
         classBuilder.addFields(buildFuncNameConstants(abiDefinitions));
@@ -1418,6 +1418,6 @@ public class SolidityContractWrapper {
     }
 
     private static String getBinaryFuncDefinition() {
-        return GET_BINARY_FUNC + "(client.getCryptoInterface())";
+        return GET_BINARY_FUNC + "(client.getCryptoSuite())";
     }
 }

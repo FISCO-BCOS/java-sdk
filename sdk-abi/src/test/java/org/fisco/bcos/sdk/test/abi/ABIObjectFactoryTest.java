@@ -8,7 +8,7 @@ import org.fisco.bcos.sdk.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
-import org.fisco.bcos.sdk.crypto.CryptoInterface;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -89,8 +89,8 @@ public class ABIObjectFactoryTest {
                 "[{\"constant\":false,\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"internalType\":\"struct Test.E\",\"name\":\"e\",\"type\":\"tuple\"}],\"name\":\"a\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T\",\"name\":\"t\",\"type\":\"tuple\"}],\"name\":\"b\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T\",\"name\":\"t\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"internalType\":\"struct Test.E\",\"name\":\"e\",\"type\":\"tuple\"}],\"name\":\"c\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"d\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"},{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"name\":\"e\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"b\",\"type\":\"uint256[]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T[]\",\"name\":\"c\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T\",\"name\":\"t\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"internalType\":\"struct Test.E\",\"name\":\"e\",\"type\":\"tuple\"}],\"internalType\":\"struct Test.S\",\"name\":\"\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T\",\"name\":\"\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"internalType\":\"struct Test.E\",\"name\":\"\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"f\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"pure\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"b\",\"type\":\"uint256[]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T[]\",\"name\":\"c\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T\",\"name\":\"t\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"internalType\":\"struct Test.E\",\"name\":\"e\",\"type\":\"tuple\"}],\"internalType\":\"struct Test.S[]\",\"name\":\"\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T[]\",\"name\":\"\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"internalType\":\"struct Test.E[]\",\"name\":\"\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"name\":\"g\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"pure\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"b\",\"type\":\"uint256[]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T[]\",\"name\":\"c\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T\",\"name\":\"t\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"internalType\":\"struct Test.E\",\"name\":\"e\",\"type\":\"tuple\"}],\"internalType\":\"struct Test.S[4]\",\"name\":\"\",\"type\":\"tuple[4]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"y\",\"type\":\"uint256\"}],\"internalType\":\"struct Test.T[4]\",\"name\":\"\",\"type\":\"tuple[4]\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"internalType\":\"struct Test.E[4]\",\"name\":\"\",\"type\":\"tuple[4]\"},{\"internalType\":\"uint256[4]\",\"name\":\"\",\"type\":\"uint256[4]\"}],\"name\":\"h\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"pure\",\"type\":\"function\"}]";
 
         ContractABIDefinition contractABIDefinition = Utils.getContractABIDefinition(abi);
-        CryptoInterface cryptoInterface = Utils.getCryptoInterface();
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoInterface);
+        CryptoSuite cryptoSuite = Utils.getCryptoSuite();
+        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
         assertEquals(
                 contractABIDefinition.getFunctions().get("a").get(0).getMethodSignatureAsString(),
                 "a((string))");
@@ -179,7 +179,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("g")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0xadc86690");
 
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xadc86690")));
@@ -192,7 +192,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("h")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x7a3093eb");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xadc86690")));
     }
@@ -346,7 +346,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("test")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x00a3c75d");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x00a3c75d")));
 
@@ -363,7 +363,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("test1")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x6b59084d");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x6b59084d")));
     }
@@ -643,7 +643,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("addPath")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0xe1207bee");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xe1207bee")));
 
@@ -660,7 +660,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("commitTransaction")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x063ff7ef");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x063ff7ef")));
 
@@ -677,7 +677,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("constantCall")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0xb54138b0");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xb54138b0")));
 
@@ -694,7 +694,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("deletePathList")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0xf4fa9d03");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xf4fa9d03")));
 
@@ -711,7 +711,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("getLatestTransaction")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x6ccc29dc");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x6ccc29dc")));
 
@@ -728,7 +728,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("getLatestTransactionInfo")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x9edd3441");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x9edd3441")));
 
@@ -745,7 +745,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("getMaxStep")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0xcb797d2f");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xcb797d2f")));
 
@@ -762,7 +762,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("getPaths")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x4efcaed0");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x4efcaed0")));
 
@@ -779,7 +779,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("getTransactionInfo")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0xd55c01f7");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xd55c01f7")));
 
@@ -796,7 +796,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("getVersion")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x8bc4827c");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x8bc4827c")));
 
@@ -813,7 +813,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("rollbackAndDeleteTransaction")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x8c31f9ad");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x8c31f9ad")));
 
@@ -830,7 +830,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("sendTransaction")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x772d0b53");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x772d0b53")));
 
@@ -847,7 +847,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("rollbackTransaction")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x51cd3824");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x51cd3824")));
 
@@ -864,7 +864,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("setMaxStep")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x18a56b67");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x18a56b67")));
 
@@ -881,7 +881,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("startTransaction")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0xe25a0866");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xe25a0866")));
 
@@ -898,7 +898,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("stringToUint256")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0xac5d3723");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xac5d3723")));
     }
@@ -1198,7 +1198,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("test0")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0xf92a5e47");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xf92a5e47")));
 
@@ -1215,7 +1215,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("test2")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x10c7e4ab");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x10c7e4ab")));
 
@@ -1232,7 +1232,7 @@ public class ABIObjectFactoryTest {
                         .getFunctions()
                         .get("test1")
                         .get(0)
-                        .getMethodId(Utils.getCryptoInterface()),
+                        .getMethodId(Utils.getCryptoSuite()),
                 "0x70be28d9");
         assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x70be28d9")));
     }
