@@ -4,11 +4,19 @@ certPath = "conf"                           # The certification path
 
 # The following configurations take the certPath by default:
 
-# caCert = "conf/ca.crt"                    # CA cert file path    
+# caCert = "conf/ca.crt"                    # CA cert file path  
+                                            # When the SDK makes a GM SSL connection to the node, the default CA certificate path is ${certPath}/gm/gmca.crt
 # sslCert = "conf/sdk.crt"                  # SSL cert file path
+                                            # When the SDK makes a GM SSL connection to the node, the default SDK certificate path is ${certPath}/gm/gmsdk.crt
 # sslKey = "conf/sdk.key"                   # SSL key file path
+                                            # When the SDK makes a GM SSL connection to the node, the default SDK privateKey path is ${certPath}/gm/gmsdk.key
 # enSslCert = "conf/gm/gmensdk.crt"         # GM encryption cert file path
+                                            # This configuration item needs to be configured only when the SDK and node use GM SSL connection, 
+                                            # and the default is to load the GM SSL encryption certificate from ${certPath}/gm/gmensdk.crt
 # enSslKey = "conf/gm/gmensdk.key"          # GM ssl cert file path
+                                            # This configuration item needs to be configured only when the SDK and node use GM SSL connection,  
+                                            # and the default is to load the GM SSL encryption privateKey from ${certPath}/gm/gmensdk.key
+
 
 [network]
 peers=["127.0.0.1:20200", "127.0.0.1:20201"]    # The peer list to connect
