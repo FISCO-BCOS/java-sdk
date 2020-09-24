@@ -255,6 +255,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
      * Get the blockNumber notify message from the AMOP module, parse the package and update the
      * latest block height of each group
      *
+     * @param version the EnumChannelProtocolVersion instance
      * @param peerIpAndPort Node ip and port
      * @param blockNumberNotifyMessage the blockNumber notify message
      */

@@ -54,6 +54,11 @@ public class HexEncoder {
     /**
      * encode the input data producing a Hex output stream.
      *
+     * @param data the input byte array
+     * @param off the offset of the data to be converted
+     * @param length the length of the data to be converted
+     * @param out the output stream
+     * @throws IOException the I/O exception
      * @return the number of bytes produced.
      */
     public int encode(byte[] data, int off, int length, OutputStream out) throws IOException {
@@ -75,6 +80,11 @@ public class HexEncoder {
      * decode the Hex encoded byte data writing it to the given output stream, whitespace characters
      * will be ignored.
      *
+     * @param data the input byte array
+     * @param off the offset of the data to be converted
+     * @param length the length of the data to be converted
+     * @param out the output stream
+     * @throws IOException the I/O exception
      * @return the number of bytes produced.
      */
     public int decode(byte[] data, int off, int length, OutputStream out) throws IOException {
@@ -121,6 +131,9 @@ public class HexEncoder {
      * decode the Hex encoded String data writing it to the given output stream, whitespace
      * characters will be ignored.
      *
+     * @param data the input byte array
+     * @param out the output stream
+     * @throws IOException the I/O exception
      * @return the number of bytes produced.
      */
     public int decode(String data, OutputStream out) throws IOException {

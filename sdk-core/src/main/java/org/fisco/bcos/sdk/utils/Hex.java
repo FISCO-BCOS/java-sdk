@@ -35,6 +35,7 @@ public class Hex {
     /**
      * encode the input data producing a Hex encoded byte array.
      *
+     * @param data the input data
      * @return a byte array containing the Hex encoded data.
      */
     public static byte[] encode(byte[] data) {
@@ -44,6 +45,9 @@ public class Hex {
     /**
      * encode the input data producing a Hex encoded byte array.
      *
+     * @param data the input byte array
+     * @param off the offset of the data to be converted
+     * @param length the length of the data to be converted
      * @return a byte array containing the Hex encoded data.
      */
     public static byte[] encode(byte[] data, int off, int length) {
@@ -61,6 +65,9 @@ public class Hex {
     /**
      * Hex encode the byte data writing it to the given output stream.
      *
+     * @param data the byte array
+     * @param out the output stream
+     * @throws IOException the I/O exception
      * @return the number of bytes produced.
      */
     public static int encode(byte[] data, OutputStream out) throws IOException {
@@ -70,6 +77,11 @@ public class Hex {
     /**
      * Hex encode the byte data writing it to the given output stream.
      *
+     * @param data the byte array
+     * @param off the offset of the data to be converted
+     * @param length the length of the data to be converted
+     * @param out the output stream
+     * @throws IOException the I/O exception
      * @return the number of bytes produced.
      */
     public static int encode(byte[] data, int off, int length, OutputStream out)
@@ -80,6 +92,7 @@ public class Hex {
     /**
      * decode the Hex encoded input data. It is assumed the input data is valid.
      *
+     * @param data the input byte array
      * @return a byte array representing the decoded data.
      */
     public static byte[] decode(byte[] data) {
@@ -97,6 +110,7 @@ public class Hex {
     /**
      * decode the Hex encoded String data - whitespace will be ignored.
      *
+     * @param data the input byte array
      * @return a byte array representing the decoded data.
      */
     public static byte[] decode(String data) {
@@ -115,6 +129,9 @@ public class Hex {
      * decode the Hex encoded String data writing it to the given output stream, whitespace
      * characters will be ignored.
      *
+     * @param data the input byte array
+     * @param out the output stream
+     * @throws IOException the I/O exception
      * @return the number of bytes produced.
      */
     public static int decode(String data, OutputStream out) throws IOException {
