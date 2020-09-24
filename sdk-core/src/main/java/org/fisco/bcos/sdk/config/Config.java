@@ -33,6 +33,7 @@ public class Config {
     }
     /**
      * @param tomlConfigFile the toml configuration file path
+     * @param cryptoType the type of crypto function
      * @return ConfigOption the configuration object
      * @throws ConfigException the configuration exception
      */

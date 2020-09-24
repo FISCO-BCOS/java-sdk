@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /** Verify host and port, and extract host or port from string. */
 public class Host {
     /**
-     * @param IP
+     * @param IP the IP string of host
      * @return true if IP valid IP string otherwise false
      */
     public static boolean validIP(String IP) {
@@ -32,7 +32,7 @@ public class Host {
     }
 
     /**
-     * @param port
+     * @param port the port string
      * @return true if port valid IP port otherwise false
      */
     public static boolean validPort(String port) {
@@ -47,7 +47,7 @@ public class Host {
     /**
      * Get ip from IPAndPort string
      *
-     * @param IPAndPort
+     * @param IPAndPort the combine of IP and port string
      * @return String of IP address
      */
     public static String getIpFromString(String IPAndPort) {
@@ -59,7 +59,7 @@ public class Host {
     /**
      * Get port from IPAndPort string
      *
-     * @param IPAndPort
+     * @param IPAndPort the combine of IP and port string
      * @return String of port.
      */
     public static String getPortFromString(String IPAndPort) {

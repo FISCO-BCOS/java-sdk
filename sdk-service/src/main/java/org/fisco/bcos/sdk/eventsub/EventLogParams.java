@@ -218,7 +218,7 @@ public class EventLogParams {
 
     /**
      * @param blockNumber: block number of blockchain
-     * @return
+     * @return check 3 params
      */
     @SuppressWarnings("unchecked")
     public boolean checkParams(BigInteger blockNumber) {

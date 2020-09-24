@@ -29,8 +29,9 @@ public interface EventSubscribe {
     /**
      * Create a Event Subscraibe instance
      *
-     * @param groupManagerService
-     * @param groupId
+     * @param groupManagerService the groupManager Service instance
+     * @param groupId the id of group
+     * @param eventResource the eventResource instance
      * @return EventSubscribe Object
      */
     static EventSubscribe build(
@@ -46,8 +47,8 @@ public interface EventSubscribe {
     /**
      * Subscribe event
      *
-     * @param params
-     * @param callback
+     * @param params the EventLogParams instance
+     * @param callback the EventCallback instance
      * @return registerId of event
      */
     String subscribeEvent(EventLogParams params, EventCallback callback);
@@ -55,8 +56,8 @@ public interface EventSubscribe {
     /**
      * Unsubscribe events
      *
-     * @param registerID
-     * @param callback
+     * @param registerID the ID of register
+     * @param callback the EventCallback instance
      */
     void unsubscribeEvent(String registerID, EventCallback callback);
 

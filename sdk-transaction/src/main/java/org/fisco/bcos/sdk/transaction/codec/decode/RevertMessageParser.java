@@ -59,7 +59,7 @@ public class RevertMessageParser {
     /**
      * Does output start with the code of the Revert method, If so, the output may be error message
      *
-     * @param output
+     * @param output the string of output
      * @return true/false
      */
     public static boolean isOutputStartWithRevertMethod(String output) {

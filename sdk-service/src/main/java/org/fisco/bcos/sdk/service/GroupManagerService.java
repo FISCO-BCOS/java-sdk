@@ -44,6 +44,7 @@ public interface GroupManagerService {
      * update the block number information for the specified group
      *
      * @param groupId the specified groupId
+     * @param peerInfo the info of the peers
      * @param currentBlockNumber the current blockNumber
      */
     void updateBlockNumberInfo(Integer groupId, String peerInfo, BigInteger currentBlockNumber);

@@ -70,8 +70,10 @@ public interface Client {
     /**
      * Build a client instance GroupId is identified, all interfaces are available
      *
-     * @param channel
-     * @param groupId
+     * @param channel the Channel instance
+     * @param groupId the group id
+     * @param groupManagerService the groupManagerService instance
+     * @param eventResource the eventResource instance
      * @return a client instance
      */
     static Client build(
@@ -139,7 +141,7 @@ public interface Client {
     /**
      * Ledger operation: async send transaction
      *
-     * @param signedTransactionData
+     * @param signedTransactionData transaction string
      * @param callback the callback that will be called when receive the response
      */
     void sendRawTransactionAsync(
@@ -148,7 +150,7 @@ public interface Client {
     /**
      * Ledger operation: call contract functions without sending transaction
      *
-     * @param transaction
+     * @param transaction transaction instance
      * @return Call
      */
     Call call(Transaction transaction);
@@ -156,7 +158,7 @@ public interface Client {
     /**
      * Ledger operation: async call contract functions without sending transaction
      *
-     * @param transaction
+     * @param transaction transaction instance
      * @param callback the callback that will be called when receive the response
      */
     void callAsync(Transaction transaction, RespCallback<Call> callback);
@@ -164,7 +166,7 @@ public interface Client {
     /**
      * Ledger operation: send raw transaction and get proof
      *
-     * @param signedTransactionData
+     * @param signedTransactionData transaction string
      * @return a SendTransaction instance
      */
     SendTransaction sendRawTransactionAndGetProof(String signedTransactionData);
@@ -172,7 +174,7 @@ public interface Client {
     /**
      * Ledger operation: async send transaction and get proof
      *
-     * @param signedTransactionData
+     * @param signedTransactionData transaction string
      * @param callback the callback that will be called when receive the response
      */
     void sendRawTransactionAndGetProofAsync(
@@ -197,7 +199,7 @@ public interface Client {
     /**
      * Ledger operation: get code
      *
-     * @param address
+     * @param address the address string
      * @return a code instance
      */
     Code getCode(String address);
@@ -205,7 +207,7 @@ public interface Client {
     /**
      * Ledger operation: async get code
      *
-     * @param address
+     * @param address the address string
      * @param callback the callback that will be called when receive the response
      */
     void getCodeAsync(String address, RespCallback<Code> callback);
@@ -227,8 +229,8 @@ public interface Client {
     /**
      * Ledger operation: get block by hash
      *
-     * @param blockHash
-     * @param returnFullTransactionObjects
+     * @param blockHash the hashcode of the block
+     * @param returnFullTransactionObjects the boolean define the tx is full or not
      * @return a block
      */
     BcosBlock getBlockByHash(String blockHash, boolean returnFullTransactionObjects);
@@ -236,8 +238,8 @@ public interface Client {
     /**
      * Ledger operation: async get block by hash
      *
-     * @param blockHash
-     * @param returnFullTransactionObjects
+     * @param blockHash the hashcode of the block
+     * @param returnFullTransactionObjects the boolean define the tx is full or not
      * @param callback the callback that will be called when receive the response
      */
     void getBlockByHashAsync(
@@ -248,8 +250,8 @@ public interface Client {
     /**
      * Ledger operation: get block by block number
      *
-     * @param blockNumber
-     * @param returnFullTransactionObjects
+     * @param blockNumber the number of the block
+     * @param returnFullTransactionObjects the boolean define the tx is full or not
      * @return block
      */
     BcosBlock getBlockByNumber(BigInteger blockNumber, boolean returnFullTransactionObjects);
@@ -257,8 +259,8 @@ public interface Client {
     /**
      * Ledger operation: async get block by block number
      *
-     * @param blockNumber
-     * @param returnFullTransactionObjects
+     * @param blockNumber the number of the block
+     * @param returnFullTransactionObjects the boolean define the tx is full or not
      * @param callback the callback that will be called when receive the response
      */
     void getBlockByNumberAsync(
@@ -269,7 +271,7 @@ public interface Client {
     /**
      * Ledger operation: get block hash by block number
      *
-     * @param blockNumber
+     * @param blockNumber the number of the block
      * @return block hash
      */
     BlockHash getBlockHashByNumber(BigInteger blockNumber);
@@ -277,7 +279,7 @@ public interface Client {
     /**
      * Ledger operation: async get block hash by block number
      *
-     * @param blockNumber
+     * @param blockNumber the number of the block
      * @param callback the callback that will be called when receive the response
      */
     void getBlockHashByNumberAsync(BigInteger blockNumber, RespCallback<BlockHash> callback);
@@ -285,8 +287,8 @@ public interface Client {
     /**
      * Ledger operation: get block header by block hash
      *
-     * @param blockHash
-     * @param returnSignatureList
+     * @param blockHash the hashcode of the block
+     * @param returnSignatureList the boolean define the signature list is returned or not
      * @return block header
      */
     BcosBlockHeader getBlockHeaderByHash(String blockHash, boolean returnSignatureList);
@@ -294,9 +296,9 @@ public interface Client {
     /**
      * Ledger operation: async get block header by block hash
      *
-     * @param blockHash
-     * @param returnSignatureList
-     * @param callback
+     * @param blockHash the hashcode of the block
+     * @param returnSignatureList the boolean define the signature list is returned or not
+     * @param callback the call back instance
      */
     void getBlockHeaderByHashAsync(
             String blockHash, boolean returnSignatureList, RespCallback<BcosBlockHeader> callback);
@@ -304,8 +306,8 @@ public interface Client {
     /**
      * get block header by number
      *
-     * @param blockNumber
-     * @param returnSignatureList
+     * @param blockNumber the number of the block
+     * @param returnSignatureList the boolean define the signature list is returned or not
      * @return the block header responsed from the blockchain node
      */
     BcosBlockHeader getBlockHeaderByNumber(BigInteger blockNumber, boolean returnSignatureList);
@@ -318,7 +320,7 @@ public interface Client {
     /**
      * Ledger operation: get trnasaction by hash
      *
-     * @param transactionHash
+     * @param transactionHash the hashcode of transaction
      * @return transaction
      */
     BcosTransaction getTransactionByHash(String transactionHash);
@@ -326,7 +328,7 @@ public interface Client {
     /**
      * Ledger operation: async get trnasaction by hash
      *
-     * @param transactionHash
+     * @param transactionHash the hashcode of transaction
      * @param callback the callback that will be called when receive the response
      */
     void getTransactionByHashAsync(String transactionHash, RespCallback<BcosTransaction> callback);
@@ -334,7 +336,7 @@ public interface Client {
     /**
      * Ledger operation: get transaction and proof by hash
      *
-     * @param transactionHash
+     * @param transactionHash the hashcode of transaction
      * @return transaction with proof
      */
     TransactionWithProof getTransactionByHashWithProof(String transactionHash);
@@ -342,7 +344,7 @@ public interface Client {
     /**
      * Ledger operation: async get transaction and proof by hash
      *
-     * @param transactionHash
+     * @param transactionHash the hashcode of transaction
      * @param callback the callback that will be called when receive the response
      */
     void getTransactionByHashWithProofAsync(
@@ -351,8 +353,8 @@ public interface Client {
     /**
      * Ledger operation: get transaction by block number and index
      *
-     * @param blockNumber
-     * @param transactionIndex
+     * @param blockNumber the number of block
+     * @param transactionIndex the index of transaction
      * @return transaction
      */
     BcosTransaction getTransactionByBlockNumberAndIndex(
@@ -361,8 +363,8 @@ public interface Client {
     /**
      * Ledger operation: async get transaction by block number and index
      *
-     * @param blockNumber
-     * @param transactionIndex
+     * @param blockNumber the number of block
+     * @param transactionIndex the index of transaction
      * @param callback the callback that will be called when receive the response
      */
     void getTransactionByBlockNumberAndIndexAsync(
@@ -379,7 +381,7 @@ public interface Client {
     /**
      * Ledger operation: get transaction receipt by transaction hash
      *
-     * @param transactionHash
+     * @param transactionHash the hashcode of transaction
      * @return transaction receipt
      */
     BcosTransactionReceipt getTransactionReceipt(String transactionHash);
@@ -387,7 +389,7 @@ public interface Client {
     /**
      * Ledger operation: async get transaction receipt by transaction hash
      *
-     * @param transactionHash
+     * @param transactionHash the hashcode of transaction
      * @param callback the callback that will be called when receive the response
      */
     void getTransactionReceiptAsync(
@@ -396,7 +398,7 @@ public interface Client {
     /**
      * Ledger operation: get transaction receipt and proof by transaction hash
      *
-     * @param transactionHash
+     * @param transactionHash the hashcode of transaction
      * @return receipt and proof
      */
     TransactionReceiptWithProof getTransactionReceiptByHashWithProof(String transactionHash);
@@ -404,7 +406,7 @@ public interface Client {
     /**
      * Ledger operation: async get transaction receipt and proof by transaction hash
      *
-     * @param transactionHash
+     * @param transactionHash the hashcode of transaction
      * @param callback the callback that will be called when receive the response
      */
     void getTransactionReceiptByHashWithProofAsync(
@@ -448,10 +450,10 @@ public interface Client {
     /**
      * Group operation: generate a new group
      *
-     * @param groupId
-     * @param timestamp
-     * @param enableFreeStorage
-     * @param nodeList
+     * @param groupId the group id
+     * @param timestamp timestamp
+     * @param enableFreeStorage enable free storage
+     * @param nodeList give the ip string list of the nodes in the group
      * @param peerIpPort send to the specific peer
      * @return generate group reply message
      */
@@ -465,10 +467,10 @@ public interface Client {
     /**
      * Group operation: async generate a new group
      *
-     * @param groupId
-     * @param timestamp
-     * @param enableFreeStorage
-     * @param nodeList
+     * @param groupId the group id
+     * @param timestamp timestamp
+     * @param enableFreeStorage enable free storage
+     * @param nodeList the list of the nodes in the group
      * @param peerIpPort send to the specific peer
      * @param callback the callback that will be called when receive the response
      */
@@ -483,8 +485,8 @@ public interface Client {
     /**
      * Group operation: start a group
      *
-     * @param groupId
-     * @param peerIpPort
+     * @param groupId the group id
+     * @param peerIpPort the node that the request sent to
      * @return start group rpc reply
      */
     StartGroup startGroup(Integer groupId, String peerIpPort);
@@ -492,8 +494,8 @@ public interface Client {
     /**
      * Group operation: async start a group
      *
-     * @param groupId
-     * @param peerIpPort
+     * @param groupId the group id
+     * @param peerIpPort the node that the request sent to
      * @param callback the callback that will be called when receive the response
      */
     void startGroupAsync(Integer groupId, String peerIpPort, RespCallback<StartGroup> callback);
@@ -501,8 +503,8 @@ public interface Client {
     /**
      * Group operation: stop a group
      *
-     * @param groupId
-     * @param peerIpPort
+     * @param groupId the group id
+     * @param peerIpPort the node that the request sent to
      * @return stop group rpc reply
      */
     StopGroup stopGroup(Integer groupId, String peerIpPort);
@@ -510,8 +512,8 @@ public interface Client {
     /**
      * Group operation: async stop a group
      *
-     * @param groupId
-     * @param peerIpPort
+     * @param groupId the group id
+     * @param peerIpPort the node that the request sent to
      * @param callback the callback that will be called when receive the response
      */
     void stopGroupAsync(Integer groupId, String peerIpPort, RespCallback<StopGroup> callback);
@@ -519,8 +521,8 @@ public interface Client {
     /**
      * Group operation: remove a group
      *
-     * @param groupId
-     * @param peerIpPort
+     * @param groupId the group id
+     * @param peerIpPort the node that the request sent to
      * @return remove group rpc reply
      */
     RemoveGroup removeGroup(Integer groupId, String peerIpPort);
@@ -528,8 +530,8 @@ public interface Client {
     /**
      * Group operation: async remove a group
      *
-     * @param groupId
-     * @param peerIpPort
+     * @param groupId the group id
+     * @param peerIpPort the node that the request sent to
      * @param callback the callback that will be called when receive the response
      */
     void removeGroupAsync(Integer groupId, String peerIpPort, RespCallback<RemoveGroup> callback);
@@ -537,8 +539,8 @@ public interface Client {
     /**
      * Group operation: recover a group
      *
-     * @param groupId
-     * @param peerIpPort
+     * @param groupId the group id
+     * @param peerIpPort the node that the request sent to
      * @return recover group rpc reply
      */
     RecoverGroup recoverGroup(Integer groupId, String peerIpPort);
@@ -546,8 +548,8 @@ public interface Client {
     /**
      * Group operation: async recover a group
      *
-     * @param groupId
-     * @param peerIpPort
+     * @param groupId the group id
+     * @param peerIpPort the node that the request sent to
      * @param callback the callback that will be called when receive the response
      */
     void recoverGroupAsync(Integer groupId, String peerIpPort, RespCallback<RecoverGroup> callback);
@@ -555,7 +557,7 @@ public interface Client {
     /**
      * Group operation: query group status
      *
-     * @param groupId
+     * @param groupId the group id
      * @return group status
      */
     QueryGroupStatus queryGroupStatus(Integer groupId);
@@ -563,8 +565,8 @@ public interface Client {
     /**
      * Group operation: query group status
      *
-     * @param groupId
-     * @param peerIpPort
+     * @param groupId the group id
+     * @param peerIpPort the node that the request sent to
      * @return group status
      */
     QueryGroupStatus queryGroupStatus(Integer groupId, String peerIpPort);
@@ -572,7 +574,7 @@ public interface Client {
     /**
      * Group operation: async query group status
      *
-     * @param groupId
+     * @param groupId the group id
      * @param callback the callback that will be called when receive the response
      */
     void queryGroupStatusAsync(Integer groupId, RespCallback<QueryGroupStatus> callback);
@@ -627,7 +629,7 @@ public interface Client {
     /**
      * Group operation: get group peers
      *
-     * @param peerIpPort
+     * @param peerIpPort the target node of the request
      * @return group peers
      */
     GroupPeers getGroupPeers(String peerIpPort);
@@ -665,7 +667,7 @@ public interface Client {
     /**
      * Peer operation: async get connected peers
      *
-     * @param callback
+     * @param callback the callback instance
      */
     void getPeersAsync(RespCallback<Peers> callback);
 
@@ -681,7 +683,7 @@ public interface Client {
     /**
      * Peer operation: async get node ids
      *
-     * @param callback
+     * @param callback the callback instance
      */
     void getNodeIDListAsync(RespCallback<NodeIDList> callback);
 
@@ -695,7 +697,7 @@ public interface Client {
     /**
      * Peer operation: async get observer node list
      *
-     * @param callback
+     * @param callback the callback instance
      */
     void getObserverList(RespCallback<ObserverList> callback);
 
@@ -709,7 +711,7 @@ public interface Client {
     /**
      * Peer operation: async get sealer node list
      *
-     * @param callback
+     * @param callback the callback instance
      */
     void getSealerListAsync(RespCallback<SealerList> callback);
 
@@ -723,7 +725,7 @@ public interface Client {
     /**
      * Peer operation: async get pbft view
      *
-     * @param callback
+     * @param callback the callback instance
      */
     void getPbftViewAsync(RespCallback<PbftView> callback);
 
@@ -739,7 +741,7 @@ public interface Client {
     /**
      * Peer operation: get node version
      *
-     * @param callback
+     * @param callback the callback instance
      */
     void getNodeVersion(RespCallback<NodeVersion> callback);
 
@@ -753,14 +755,14 @@ public interface Client {
     /**
      * Peer operation: async get consensus status
      *
-     * @param callback
+     * @param callback the callback instance
      */
     void getConsensusStates(RespCallback<ConsensusStatus> callback);
 
     /**
      * Peer operation: get system config
      *
-     * @param key
+     * @param key the string of key
      * @return system config
      */
     SystemConfig getSystemConfigByKey(String key);
@@ -768,8 +770,8 @@ public interface Client {
     /**
      * Peer operation: get system config
      *
-     * @param key
-     * @param peerIpPort
+     * @param key the string of key
+     * @param peerIpPort the node that the request sent to
      * @return system config
      */
     SystemConfig getSystemConfigByKey(String key, String peerIpPort);
@@ -777,17 +779,17 @@ public interface Client {
     /**
      * Peer operation: async get system config
      *
-     * @param key
-     * @param callback
+     * @param key the string of key
+     * @param callback the callback instance
      */
     void getSystemConfigByKeyAsync(String key, RespCallback<SystemConfig> callback);
 
     /**
      * Peer operation: async get system config
      *
-     * @param key
-     * @param peerIpPort
-     * @param callback
+     * @param key the string of key
+     * @param peerIpPort the port string of
+     * @param callback the callback instance
      */
     void getSystemConfigByKeyAsync(
             String key, String peerIpPort, RespCallback<SystemConfig> callback);
@@ -802,7 +804,7 @@ public interface Client {
     /**
      * Peer operation: async get sync status
      *
-     * @param callback
+     * @param callback the callback instance
      */
     void getSyncStatus(RespCallback<SyncStatus> callback);
 

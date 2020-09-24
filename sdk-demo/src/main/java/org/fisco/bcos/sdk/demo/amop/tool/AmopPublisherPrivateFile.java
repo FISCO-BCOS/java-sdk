@@ -27,7 +27,7 @@ public class AmopPublisherPrivateFile {
     /**
      * @param args topicName, pubKey1, pubKey2, isBroadcast: true/false, fileName, count, timeout.
      *     if only one public key please fill pubKey2 with null
-     * @throws Exception
+     * @throws Exception the exception
      */
     public static void main(String[] args) throws Exception {
         if (args.length < parameterNum) {
