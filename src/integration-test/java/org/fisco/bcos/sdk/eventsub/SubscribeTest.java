@@ -76,7 +76,7 @@ public class SubscribeTest {
             String[] o = {"0x1", "0x2", "0x3"};
             List<String> a = Arrays.asList(o);
             paramsSetValues.add(a);
-            paramsSetValues.add("set values 字符串");
+            paramsSetValues.add("test");
             TransactionResponse transactionResponse =
                     manager.sendTransactionAndGetResponse(
                             contractAddress, abi, "setValues", paramsSetValues);
@@ -125,11 +125,14 @@ public class SubscribeTest {
                                         + log.getData());
                         ABICodec abiCodec = new ABICodec(client.getCryptoSuite());
                         try {
-                            List<Object> list =
-                                    abiCodec.decodeEvent(abi, "LogSetValues", log.getData());
+                            List<Object> list = abiCodec.decodeEvent(abi, "LogSetValues", log);
                             logger.debug("decode event log content, " + list);
                             Assert.assertEquals("20", list.get(0).toString());
-                            Assert.assertEquals("set values 字符串", list.get(2).toString());
+                            Assert.assertEquals("test", list.get(2).toString());
+                            List<Object> list1 =
+                                    abiCodec.decodeEventByInterface(
+                                            abi, "LogSetValues(int256,address[],string)", log);
+                            Assert.assertEquals(3, list1.size());
                         } catch (ABICodecException e) {
                             logger.error("decode event log error, " + e.getMessage());
                         }

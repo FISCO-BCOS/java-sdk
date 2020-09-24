@@ -38,6 +38,27 @@ public class ABIObjectFactory {
         return null;
     }
 
+    public static ABIObject createEventInputObject(ABIDefinition abiDefinition) {
+        return creatEventObjectWithOutIndexed(abiDefinition.getInputs());
+    }
+
+    public static ABIObject creatEventObjectWithOutIndexed(
+            List<ABIDefinition.NamedType> namedTypes) {
+        try {
+            ABIObject abiObject = new ABIObject(ABIObject.ObjectType.STRUCT);
+
+            for (ABIDefinition.NamedType namedType : namedTypes) {
+                if (!namedType.isIndexed()) {
+                    abiObject.getStructFields().add(buildTypeObject(namedType));
+                }
+            }
+            return abiObject;
+        } catch (Exception e) {
+            logger.error("namedTypes: {},  e: ", namedTypes, e);
+        }
+        return null;
+    }
+
     /**
      * build ABIObject by raw type name
      *

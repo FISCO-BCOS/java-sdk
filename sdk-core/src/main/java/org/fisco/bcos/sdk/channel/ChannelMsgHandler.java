@@ -237,6 +237,7 @@ public class ChannelMsgHandler implements MsgHandler {
                                         ctx,
                                         EnumChannelProtocolVersion.VERSION_1,
                                         nodeVersion.getResult().getSupportedVersion());
+                                addPeerHost(ctx);
                             }
                             disconnect = false;
                         } catch (Exception e) {
@@ -246,9 +247,6 @@ public class ChannelMsgHandler implements MsgHandler {
                         if (disconnect) {
                             ctx.disconnect();
                             ctx.close();
-                        } else {
-                            String host = ChannelVersionNegotiation.getPeerHost(ctx);
-                            addAvailablePeer(host, ctx);
                         }
                     }
                 };
@@ -327,11 +325,18 @@ public class ChannelMsgHandler implements MsgHandler {
                         if (disconnect) {
                             ctx.disconnect();
                             ctx.close();
+                        } else {
+                            addPeerHost(ctx);
                         }
                     }
                 };
 
         ctx.writeAndFlush(message);
         addSeq2CallBack(seq, callback);
+    }
+
+    private void addPeerHost(ChannelHandlerContext ctx) {
+        String host = ChannelVersionNegotiation.getPeerHost(ctx);
+        addAvailablePeer(host, ctx);
     }
 }

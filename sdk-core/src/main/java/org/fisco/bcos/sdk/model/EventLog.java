@@ -56,6 +56,11 @@ public class EventLog {
         this.topics = topics;
     }
 
+    public EventLog(String data, List<String> topics) {
+        this.data = data;
+        this.topics = topics;
+    }
+
     @JsonIgnore
     public boolean isRemoved() {
         return removed;
