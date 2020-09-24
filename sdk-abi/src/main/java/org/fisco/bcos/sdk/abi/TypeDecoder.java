@@ -174,8 +174,8 @@ public class TypeDecoder {
      * @param input the staticArray need to be decoded
      * @param offset the size of the staticArray need to be decoded
      * @param type the type of the result
-     * @param length
-     * @param <T>
+     * @param length the length of array
+     * @param <T> the generic type
      * @return the decoded result
      */
     @SuppressWarnings("unchecked")

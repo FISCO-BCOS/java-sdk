@@ -23,9 +23,9 @@ public class Transaction {
     private String data;
 
     /**
-     * @param from
-     * @param to
-     * @param encodedFunction
+     * @param from from address
+     * @param to to address
+     * @param encodedFunction the string encodedFunction
      */
     public Transaction(String from, String to, String encodedFunction) {
         super();

@@ -54,8 +54,8 @@ public interface Channel {
      * Add a message handler to handle specific type messages. When one message comes the handler
      * will be notified, handler.onMessage(ChannleHandlerContext ctx, Message msg) called.
      *
-     * @param type
-     * @param handler
+     * @param type the type of message
+     * @param handler the message handler
      */
     void addMessageHandler(MsgType type, MsgHandler handler);
 
@@ -63,7 +63,7 @@ public interface Channel {
      * Add a connect handler, when one connect success, call handler.onConnect(ChannleHandlerContext
      * ctx)is called
      *
-     * @param handler
+     * @param handler the connect handler
      */
     void addConnectHandler(MsgHandler handler);
 
@@ -71,7 +71,7 @@ public interface Channel {
      * Add a establish handler, when the SDK establishes a connection with the node, call the
      * handler
      *
-     * @param handler
+     * @param handler the establish handler
      */
     void addEstablishHandler(MsgHandler handler);
 
@@ -79,7 +79,7 @@ public interface Channel {
      * Add a disconnect handler, when one connection disconnect,
      * handler.onDisconnect(ChannleHandlerContext ctx) is called
      *
-     * @param handler
+     * @param handler disconnect handler
      */
     void addDisconnectHandler(MsgHandler handler);
 

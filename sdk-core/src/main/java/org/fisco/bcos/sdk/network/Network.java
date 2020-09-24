@@ -31,6 +31,7 @@ public interface Network {
      * @param configOption the path of the yaml config file
      * @param handler message handler
      * @return a Network implementation instance
+     * @throws ConfigException the configuration exception
      */
     static Network build(ConfigOption configOption, MsgHandler handler) throws ConfigException {
         return new NetworkImp(configOption, handler);
@@ -52,6 +53,7 @@ public interface Network {
      *
      * @param out the sent message
      * @param peerIpPort the node to receive the message
+     * @throws NetworkException the network exception
      */
     void sendToPeer(Message out, String peerIpPort) throws NetworkException;
 
