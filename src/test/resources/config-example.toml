@@ -4,9 +4,12 @@ certPath = "conf"                           # The certification path
 
 # The following configurations take the certPath by default:
 
-# caCert = "conf/ca.crt"                    # CA cert file path    
+# caCert = "conf/ca.crt"                    # CA cert file path  
+                                            # For GM setting, caCert=conf/gm/gmca.crt
 # sslCert = "conf/sdk.crt"                  # SSL cert file path
+                                            # For GM setting, sslCert=conf/gm/gmsdk.crt
 # sslKey = "conf/sdk.key"                   # SSL key file path
+                                            # For GM setting, sslKey=conf/gm/gmsdk.key
 # enSslCert = "conf/gm/gmensdk.crt"         # GM encryption cert file path
 # enSslKey = "conf/gm/gmensdk.key"          # GM ssl cert file path
 
