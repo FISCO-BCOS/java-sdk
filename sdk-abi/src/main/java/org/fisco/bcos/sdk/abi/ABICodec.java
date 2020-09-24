@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.abi;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.fisco.bcos.sdk.abi.wrapper.ABICodecJsonWrapper;
 import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
@@ -25,6 +26,7 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.model.EventLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -317,7 +319,7 @@ public class ABICodec {
         return decodeMethodByIdToString(ABI, methodId, output);
     }
 
-    public List<Object> decodeEvent(String ABI, String eventName, String output)
+    public List<Object> decodeEvent(String ABI, String eventName, EventLog log)
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> events = contractABIDefinition.getEvents().get(eventName);
@@ -329,10 +331,12 @@ public class ABICodec {
                             + contractABIDefinition.getEvents().keySet());
         }
         for (ABIDefinition abiDefinition : events) {
-            ABIObject outputObject = abiObjectFactory.createInputObject(abiDefinition);
+            ABIObject inputObject = abiObjectFactory.createEventInputObject(abiDefinition);
             ABICodecObject abiCodecObject = new ABICodecObject();
             try {
-                return abiCodecObject.decodeJavaObject(outputObject, output);
+                List<Object> params = abiCodecObject.decodeJavaObject(inputObject, log.getData());
+                List<String> topics = log.getTopics();
+                return mergeEventParamsAndTopics(abiDefinition, params, topics);
             } catch (Exception e) {
                 logger.error(" exception in decodeEventToObject : {}", e.getMessage());
             }
@@ -343,15 +347,17 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public List<Object> decodeEventByTopic(String ABI, String eventTopic, String output)
+    public List<Object> decodeEventByTopic(String ABI, String eventTopic, EventLog log)
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition =
                 contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
-        ABIObject outputObject = abiObjectFactory.createOutputObject(abiDefinition);
+        ABIObject inputObject = abiObjectFactory.createEventInputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
-            return abiCodecObject.decodeJavaObject(outputObject, output);
+            List<Object> params = abiCodecObject.decodeJavaObject(inputObject, log.getData());
+            List<String> topics = log.getTopics();
+            return mergeEventParamsAndTopics(abiDefinition, params, topics);
         } catch (Exception e) {
             logger.error(" exception in decodeEventByTopicToObject : {}", e.getMessage());
         }
@@ -362,14 +368,14 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public List<Object> decodeEventByInterface(String ABI, String eventSignature, String output)
+    public List<Object> decodeEventByInterface(String ABI, String eventSignature, EventLog log)
             throws ABICodecException {
         FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
         String methodId = functionEncoder.buildMethodId(eventSignature);
-        return decodeEventByTopic(ABI, methodId, output);
+        return decodeEventByTopic(ABI, methodId, log);
     }
 
-    public List<String> decodeEventToString(String ABI, String eventName, String output)
+    public List<String> decodeEventToString(String ABI, String eventName, EventLog log)
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> events = contractABIDefinition.getEvents().get(eventName);
@@ -381,10 +387,12 @@ public class ABICodec {
                             + contractABIDefinition.getEvents().keySet());
         }
         for (ABIDefinition abiDefinition : events) {
-            ABIObject outputObject = abiObjectFactory.createOutputObject(abiDefinition);
+            ABIObject inputObject = abiObjectFactory.createEventInputObject(abiDefinition);
             ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
             try {
-                return abiCodecJsonWrapper.decode(outputObject, output);
+                List<String> params = abiCodecJsonWrapper.decode(inputObject, log.getData());
+                List<String> topics = log.getTopics();
+                return mergeEventParamsAndTopicsToString(abiDefinition, params, topics);
             } catch (Exception e) {
                 logger.error(" exception in decodeEventToString : {}", e.getMessage());
             }
@@ -395,15 +403,17 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public List<String> decodeEventByTopicToString(String ABI, String eventTopic, String output)
+    public List<String> decodeEventByTopicToString(String ABI, String eventTopic, EventLog log)
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition =
                 contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
-        ABIObject outputObject = abiObjectFactory.createOutputObject(abiDefinition);
+        ABIObject inputObject = abiObjectFactory.createEventInputObject(abiDefinition);
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         try {
-            return abiCodecJsonWrapper.decode(outputObject, output);
+            List<String> params = abiCodecJsonWrapper.decode(inputObject, log.getData());
+            List<String> topics = log.getTopics();
+            return mergeEventParamsAndTopicsToString(abiDefinition, params, topics);
         } catch (Exception e) {
             logger.error(" exception in decodeEventByTopicToString : {}", e.getMessage());
         }
@@ -415,9 +425,43 @@ public class ABICodec {
     }
 
     public List<String> decodeEventByInterfaceToString(
-            String ABI, String eventSignature, String output) throws ABICodecException {
+            String ABI, String eventSignature, EventLog log) throws ABICodecException {
         FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
         String methodId = functionEncoder.buildMethodId(eventSignature);
-        return decodeEventByTopicToString(ABI, methodId, output);
+        return decodeEventByTopicToString(ABI, methodId, log);
+    }
+
+    private List<Object> mergeEventParamsAndTopics(
+            ABIDefinition abiDefinition, List<Object> params, List<String> topics) {
+        List<Object> ret = new ArrayList<>();
+        int paramIdx = 0;
+        int topicIdx = 1;
+        for (ABIDefinition.NamedType namedType : abiDefinition.getInputs()) {
+            if (namedType.isIndexed()) {
+                ret.add(topics.get(topicIdx));
+                topicIdx++;
+            } else {
+                ret.add(params.get(paramIdx));
+                paramIdx++;
+            }
+        }
+        return ret;
+    }
+
+    private List<String> mergeEventParamsAndTopicsToString(
+            ABIDefinition abiDefinition, List<String> params, List<String> topics) {
+        List<String> ret = new ArrayList<>();
+        int paramIdx = 0;
+        int topicIdx = 1;
+        for (ABIDefinition.NamedType namedType : abiDefinition.getInputs()) {
+            if (namedType.isIndexed()) {
+                ret.add(topics.get(topicIdx));
+                topicIdx++;
+            } else {
+                ret.add(params.get(paramIdx));
+                paramIdx++;
+            }
+        }
+        return ret;
     }
 }

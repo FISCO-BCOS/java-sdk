@@ -62,7 +62,7 @@ public class ContractABIDefinition {
         return eventTopicToEvents;
     }
 
-    public void setEvectTopicToEvents(Map<String, ABIDefinition> eventTopicToEvents) {
+    public void setEventTopicToEvents(Map<String, ABIDefinition> eventTopicToEvents) {
         this.eventTopicToEvents = eventTopicToEvents;
     }
 
@@ -94,6 +94,10 @@ public class ContractABIDefinition {
         List<ABIDefinition> abiDefinitions = events.get(name);
         abiDefinitions.add(abiDefinition);
         logger.info(" name: {}, abi: {}", name, abiDefinition);
+
+        // calculate method id and add abiDefinition to eventTopicToEvents
+        String methodId = abiDefinition.getMethodId(cryptoSuite);
+        eventTopicToEvents.put(methodId, abiDefinition);
     }
 
     public ABIDefinition getABIDefinitionByMethodId(String methodId) {

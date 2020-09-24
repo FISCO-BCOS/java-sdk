@@ -1,6 +1,8 @@
 package org.fisco.bcos.sdk.test.abi;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.fisco.bcos.sdk.model.EventLog;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.junit.Assert;
@@ -16,7 +18,8 @@ public class ABIEventTest {
     public void testDecode() {
         ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
         try {
-            List<Object> list = abiCodec.decodeEvent(abi, "LogSetValues", encoded);
+            EventLog log = new EventLog(encoded, new ArrayList<>());
+            List<Object> list = abiCodec.decodeEvent(abi, "LogSetValues", log);
             Assert.assertEquals(list.size(), 3);
             Assert.assertEquals(list.get(0).toString(), "20");
             Assert.assertEquals(
