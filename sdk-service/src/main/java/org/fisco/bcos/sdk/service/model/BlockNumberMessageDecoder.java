@@ -41,7 +41,7 @@ public class BlockNumberMessageDecoder {
     }
 
     /**
-     * @param message
+     * @param message the notification message
      * @return the decoded block number information
      */
     protected BlockNumberNotification decodeByDefault(Message message) {
@@ -60,7 +60,7 @@ public class BlockNumberMessageDecoder {
     }
 
     /**
-     * @param message
+     * @param message the notification message
      * @return the decoded block number information
      */
     protected BlockNumberNotification decodeV1(Message message) {

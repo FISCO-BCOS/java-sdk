@@ -28,6 +28,7 @@ public interface GroupService {
      * remove node from the group
      *
      * @param nodeAddress the ip and port of the removed node
+     * @return if nodes in the original list that needed to be removed return True, else false.
      */
     boolean removeNode(String nodeAddress);
 
@@ -35,6 +36,7 @@ public interface GroupService {
      * add nodeInfo to the group
      *
      * @param nodeAddress the node ip and port
+     * @return if nodes in the original list that needed to be inserted return True, else false.
      */
     boolean insertNode(String nodeAddress);
 

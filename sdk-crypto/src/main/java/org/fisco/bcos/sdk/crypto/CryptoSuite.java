@@ -61,7 +61,7 @@ public class CryptoSuite {
     /**
      * init the common crypto implementation according to the crypto type
      *
-     * @param cryptoTypeConfig
+     * @param cryptoTypeConfig the crypto type config number
      */
     public CryptoSuite(int cryptoTypeConfig) {
         this.cryptoTypeConfig = cryptoTypeConfig;

@@ -152,6 +152,11 @@ public class P12KeyStore extends KeyTool {
      *
      * @param keyPair the keyPair used to generated the certificate
      * @param signatureAlgorithm the signature algorithm of the cert
+     * @throws NoSuchAlgorithmException no such algorithm exception
+     * @throws CertificateEncodingException error occurs when encoding certificate
+     * @throws NoSuchProviderException no such provider exception
+     * @throws InvalidKeyException invalid key exception
+     * @throws SignatureException generic signature exception
      * @return the generated self-signed certificate object
      */
     public static X509Certificate generateSelfSignedCertificate(

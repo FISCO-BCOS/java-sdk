@@ -72,7 +72,7 @@ public abstract class CryptoKeyPair {
     /**
      * init CryptoKeyPair from the keyPair
      *
-     * @param keyPair
+     * @param keyPair the original keyPair
      */
     public CryptoKeyPair(KeyPair keyPair) {
         this.keyPair = keyPair;

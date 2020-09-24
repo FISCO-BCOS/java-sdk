@@ -31,7 +31,7 @@ public abstract class ResponseCallback {
     /**
      * OnResponse
      *
-     * @param response
+     * @param response the response from node
      */
     public abstract void onResponse(Response response);
 

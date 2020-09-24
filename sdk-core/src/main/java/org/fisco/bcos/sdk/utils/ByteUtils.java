@@ -28,7 +28,13 @@ public class ByteUtils {
     public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
     public static final byte[] ZERO_BYTE_ARRAY = new byte[] {0};
 
-    /** Creates a copy of bytes and appends b to the end of it */
+    /**
+     * Creates a copy of bytes and appends b to the end of it
+     *
+     * @param bytes the original bytes
+     * @param b the appended byte
+     * @return a appended bytes @
+     */
     public static byte[] appendByte(byte[] bytes, byte b) {
         byte[] result = Arrays.copyOf(bytes, bytes.length + 1);
         result[result.length - 1] = b;
@@ -467,6 +473,10 @@ public class ByteUtils {
     /**
      * XORs byte arrays of different lengths by aligning length of the shortest via adding zeros at
      * beginning
+     *
+     * @param b1 the first byte array
+     * @param b2 the second byte array
+     * @return a byte array contains XORS of b1 and b2
      */
     public static byte[] xorAlignRight(byte[] b1, byte[] b2) {
         if (b1.length > b2.length) {
@@ -630,7 +640,12 @@ public class ByteUtils {
         return Hex.decode(data);
     }
 
-    /** Converts string representation of host/ip to 4-bytes byte[] IPv4 */
+    /**
+     * Converts string representation of host/ip to 4-bytes byte[] IPv4
+     *
+     * @param ip the ip string of host
+     * @return a 4-bytes byte[] IPv4
+     */
     public static byte[] hostToBytes(String ip) {
         byte[] bytesIp;
         try {
@@ -642,7 +657,12 @@ public class ByteUtils {
         return bytesIp;
     }
 
-    /** Converts 4 bytes IPv4 IP to String representation */
+    /**
+     * Converts 4 bytes IPv4 IP to String representation
+     *
+     * @param bytesIp the 4 bytes IPv4 IP
+     * @return a String representation of the IP
+     */
     public static String bytesToIp(byte[] bytesIp) {
 
         StringBuilder sb = new StringBuilder();
@@ -661,6 +681,9 @@ public class ByteUtils {
     /**
      * Returns a number of zero bits preceding the highest-order ("leftmost") one-bit interpreting
      * input array as a big-endian integer value
+     *
+     * @param bytes the byte array
+     * @return the number of leading zeros
      */
     public static int numberOfLeadingZeros(byte[] bytes) {
 
@@ -679,6 +702,11 @@ public class ByteUtils {
      * input} has not enough bytes return array will be right padded with zero bytes. I.e. if {@code
      * offset} is higher than {@code input.length} then zero byte array of length {@code len} will
      * be returned
+     *
+     * @param input the input bytes array
+     * @param offset an offset in {@code input} array to start parsing from
+     * @param len the length of zero byte array
+     * @return a fixed bytes array
      */
     public static byte[] parseBytes(byte[] input, int offset, int len) {
 
@@ -696,7 +724,9 @@ public class ByteUtils {
      * thus, result will be right-padded with zero bytes if there is not enough bytes in {@code
      * input}
      *
+     * @param input the input bytes array
      * @param idx an index of the word starting from {@code 0}
+     * @return a fixed bytes array
      */
     public static byte[] parseWord(byte[] input, int idx) {
         return parseBytes(input, 32 * idx, 32);
@@ -707,8 +737,10 @@ public class ByteUtils {
      * thus, result will be right-padded with zero bytes if there is not enough bytes in {@code
      * input}
      *
+     * @param input the input bytes array
      * @param idx an index of the word starting from {@code 0}
      * @param offset an offset in {@code input} array to start parsing from
+     * @return a fixed bytes array
      */
     public static byte[] parseWord(byte[] input, int offset, int idx) {
         return parseBytes(input, offset + 32 * idx, 32);
