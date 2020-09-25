@@ -64,7 +64,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     public void sendTransactionAsync(
             String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
         String signedData = createSignedTransaction(to, data, cryptoKeyPair);
-        client.asyncSendRawTransaction(signedData, callback);
+        client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
     }
 
     @Override
