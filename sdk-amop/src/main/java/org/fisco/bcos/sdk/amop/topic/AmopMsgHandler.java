@@ -138,7 +138,6 @@ public class AmopMsgHandler implements MsgHandler {
                 msg.getSeq(),
                 msg.getType(),
                 new String(msg.getData()));
-
         // Response to node at the first time.
         responseVerifyRequest(ctx, msg);
 
@@ -165,7 +164,6 @@ public class AmopMsgHandler implements MsgHandler {
                 msg.getSeq(),
                 topic,
                 nodeId);
-
         // Reply random value to node
         String rmdString = UUID.randomUUID().toString().replaceAll("-", "");
         AmopMsg respMsg = new AmopMsg();

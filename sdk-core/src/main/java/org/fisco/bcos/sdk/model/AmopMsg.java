@@ -54,10 +54,10 @@ public class AmopMsg extends Message {
         msg.setType(this.type);
         msg.setSeq(this.seq);
 
-        byte[] msgData = new byte[length - Message.HEADER_LENGTH + 1 + topic.length()];
+        byte[] msgData = new byte[length - Message.HEADER_LENGTH + 1 + topic.getBytes().length];
         ByteBuf out = Unpooled.buffer();
         writeExtra(out);
-        out.readBytes(msgData, 0, length - Message.HEADER_LENGTH + 1 + topic.length());
+        out.readBytes(msgData, 0, length - Message.HEADER_LENGTH + 1 + topic.getBytes().length);
         msg.setData(msgData);
         return msg;
     }
