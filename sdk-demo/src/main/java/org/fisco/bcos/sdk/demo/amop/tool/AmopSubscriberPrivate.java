@@ -40,6 +40,5 @@ public class AmopSubscriberPrivate {
             km = new PEMKeyStore(privateKeyFile);
         }
         amop.subscribePrivateTopics(topic, km, cb);
-        amop.subscribeTopic(topic, cb);
     }
 }
