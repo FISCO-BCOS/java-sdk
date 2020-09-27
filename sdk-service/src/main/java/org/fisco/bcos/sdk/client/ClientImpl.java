@@ -932,7 +932,7 @@ public class ClientImpl implements Client {
     @Override
     public TransactionReceipt sendRawTransactionAndGetReceipt(String signedTransactionData) {
         SynchronousTransactionCallback callback = new SynchronousTransactionCallback();
-        asyncSendRawTransaction(signedTransactionData, callback);
+        sendRawTransactionAndGetReceiptAsync(signedTransactionData, callback);
         try {
             callback.semaphore.acquire(1);
         } catch (InterruptedException e) {
@@ -942,7 +942,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void asyncSendRawTransaction(
+    public void sendRawTransactionAndGetReceiptAsync(
             String signedTransactionData, TransactionCallback callback) {
         this.jsonRpcService.asyncSendTransactionToGroup(
                 new JsonRpcRequest(
@@ -953,7 +953,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void asyncSendRawTransactionAndGetProof(
+    public void sendRawTransactionAndGetReceiptWithProofAsync(
             String signedTransactionData, TransactionCallback callback) {
         this.jsonRpcService.asyncSendTransactionToGroup(
                 new JsonRpcRequest(
@@ -967,7 +967,7 @@ public class ClientImpl implements Client {
     public TransactionReceipt sendRawTransactionAndGetReceiptWithProof(
             String signedTransactionData) {
         SynchronousTransactionCallback callback = new SynchronousTransactionCallback();
-        asyncSendRawTransactionAndGetProof(signedTransactionData, callback);
+        sendRawTransactionAndGetReceiptWithProofAsync(signedTransactionData, callback);
         try {
             callback.semaphore.acquire(1);
         } catch (InterruptedException e) {

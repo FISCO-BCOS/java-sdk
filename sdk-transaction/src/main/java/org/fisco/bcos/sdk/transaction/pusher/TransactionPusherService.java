@@ -37,7 +37,7 @@ public class TransactionPusherService implements TransactionPusherInterface {
 
     @Override
     public void pushOnly(String signedTransaction) {
-        client.asyncSendRawTransaction(signedTransaction, null);
+        client.sendRawTransactionAndGetReceiptAsync(signedTransaction, null);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class TransactionPusherService implements TransactionPusherInterface {
 
     @Override
     public void pushAsync(String signedTransactionData, TransactionCallback callback) {
-        client.asyncSendRawTransaction(signedTransactionData, callback);
+        client.sendRawTransactionAndGetReceiptAsync(signedTransactionData, callback);
     }
 
     @Override
