@@ -204,6 +204,10 @@ public class BcosSDK {
         // stop the client
         for (Integer groupId : groupToClient.keySet()) {
             groupToClient.get(groupId).stop();
+            EventSubscribe event = this.getEventSubscribe(groupId);
+            if (event != null) {
+                event.stop();
+            }
         }
     }
 }
