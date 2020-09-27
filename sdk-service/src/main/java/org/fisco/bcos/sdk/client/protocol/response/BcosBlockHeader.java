@@ -16,12 +16,23 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.fisco.bcos.sdk.client.exceptions.ClientException;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
+import org.fisco.bcos.sdk.rlp.RlpEncoder;
+import org.fisco.bcos.sdk.rlp.RlpList;
+import org.fisco.bcos.sdk.rlp.RlpString;
+import org.fisco.bcos.sdk.rlp.RlpType;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader> {
+    private static Logger logger = LoggerFactory.getLogger(BcosBlockHeader.class);
 
     @Override
     public void setResult(BlockHeader result) {
@@ -216,6 +227,54 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
 
         public String getTimestamp() {
             return timestamp;
+        }
+
+        private byte[] encodeBlockHeader() {
+            List<RlpType> encodedRlp = new ArrayList<>();
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(parentHash)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(stateRoot)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(transactionsRoot)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(receiptsRoot)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(dbHash)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(logsBloom)));
+            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(number)));
+            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(gasLimit)));
+            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(gasUsed)));
+            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(timestamp)));
+
+            List<RlpType> extraDataRlp = new ArrayList<>();
+            for (String data : extraData) {
+                extraDataRlp.add(RlpString.create(Numeric.hexStringToByteArray(data)));
+            }
+            encodedRlp.add(new RlpList(extraDataRlp));
+            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(sealer)));
+            List<RlpType> sealerListRlp = new ArrayList<>();
+            for (String sealerString : sealerList) {
+                sealerListRlp.add(RlpString.create(Numeric.hexStringToByteArray(sealerString)));
+            }
+            encodedRlp.add(new RlpList(sealerListRlp));
+            RlpList rlpList = new RlpList(encodedRlp);
+            return RlpEncoder.encode(rlpList);
+        }
+
+        // calculate hash for the block or the block header
+        public String calculateHash(CryptoSuite cryptoSuite) {
+            try {
+                byte[] hash = cryptoSuite.hash(encodeBlockHeader());
+                return "0x" + Hex.toHexString(hash);
+            } catch (Exception e) {
+                logger.warn(
+                        "calculateHash for the block failed, blockNumber: {}, blockHash: {}, error info: {}",
+                        hash,
+                        number,
+                        e.getMessage());
+                throw new ClientException(
+                        "calculateHash for block "
+                                + hash
+                                + " failed, error info: "
+                                + e.getMessage(),
+                        e);
+            }
         }
 
         @Override
