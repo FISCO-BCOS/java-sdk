@@ -57,7 +57,7 @@ public abstract class ResponseCallback {
         cancelTimeout();
         Response response = new Response();
         response.setErrorCode(ChannelMessageError.INTERNAL_MESSAGE_HANDLE_FAILED.getError());
-        response.setContent(errorMessage);
+        response.setErrorMessage(errorMessage);
         onResponse(response);
     }
 
