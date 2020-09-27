@@ -148,22 +148,6 @@ public interface Client {
             String signedTransactionData, RespCallback<SendTransaction> callback);
 
     /**
-     * Ledger operation: call contract functions without sending transaction
-     *
-     * @param transaction transaction instance
-     * @return Call
-     */
-    Call call(Transaction transaction);
-
-    /**
-     * Ledger operation: async call contract functions without sending transaction
-     *
-     * @param transaction transaction instance
-     * @param callback the callback that will be called when receive the response
-     */
-    void callAsync(Transaction transaction, RespCallback<Call> callback);
-
-    /**
      * Ledger operation: send raw transaction and get proof
      *
      * @param signedTransactionData transaction string
@@ -179,6 +163,58 @@ public interface Client {
      */
     void sendRawTransactionAndGetProofAsync(
             String signedTransactionData, RespCallback<SendTransaction> callback);
+
+    /**
+     * send transaction and get the receipt as the response
+     *
+     * @param signedTransactionData the transaction data sent to the node
+     * @return the transaction receipt
+     */
+    TransactionReceipt sendRawTransactionAndGetReceipt(String signedTransactionData);
+
+    /**
+     * send transaction to the node, and calls TransactionCallback when get the transaction receipt
+     * response
+     *
+     * @param signedTransactionData the transaction sent to the node
+     * @param callback the TransactionCallback called after get the transaction receipt
+     */
+    void sendRawTransactionAndGetReceiptAsync(
+            String signedTransactionData, TransactionCallback callback);
+
+    /**
+     * calls sendRawTransactionAndGetProof interface and get the transaction receipt
+     *
+     * @param signedTransactionData the transaction sent to the node
+     * @return the transaction receipt
+     */
+    TransactionReceipt sendRawTransactionAndGetReceiptWithProof(String signedTransactionData);
+
+    /**
+     * calls sendRawTransactionAndGetProof interface, calls TransactionCallback when get the
+     * transaction receipt
+     *
+     * @param signedTransactionData the transaction sent to the node
+     * @param callback the TransactionCallback called after get the transaction receipt
+     */
+    void sendRawTransactionAndGetReceiptWithProofAsync(
+            String signedTransactionData, TransactionCallback callback);
+
+    /**
+     * Ledger operation: call contract functions without sending transaction
+     *
+     * @param transaction transaction instance
+     * @return Call
+     */
+    Call call(Transaction transaction);
+
+    /**
+     * Ledger operation: async call contract functions without sending transaction
+     *
+     * @param transaction transaction instance
+     * @param callback the callback that will be called when receive the response
+     */
+    void callAsync(Transaction transaction, RespCallback<Call> callback);
 
     /**
      * Ledger operation: get block number
@@ -807,41 +843,6 @@ public interface Client {
      * @param callback the callback instance
      */
     void getSyncStatus(RespCallback<SyncStatus> callback);
-
-    /**
-     * send transaction and get the receipt as the response
-     *
-     * @param signedTransactionData the transaction data sent to the node
-     * @return the transaction receipt
-     */
-    TransactionReceipt sendRawTransactionAndGetReceipt(String signedTransactionData);
-
-    /**
-     * send transaction to the node, and calls TransactionCallback when get the transaction receipt
-     * response
-     *
-     * @param signedTransactionData the transaction sent to the node
-     * @param callback the TransactionCallback called after get the transaction receipt
-     */
-    void asyncSendRawTransaction(String signedTransactionData, TransactionCallback callback);
-
-    /**
-     * calls sendRawTransactionAndGetProof interface, calls TransactionCallback when get the
-     * transaction receipt
-     *
-     * @param signedTransactionData the transaction sent to the node
-     * @param callback the TransactionCallback called after get the transaction receipt
-     */
-    void asyncSendRawTransactionAndGetProof(
-            String signedTransactionData, TransactionCallback callback);
-
-    /**
-     * calls sendRawTransactionAndGetProof interface and get the transaction receipt
-     *
-     * @param signedTransactionData the transaction sent to the node
-     * @return the transaction receipt
-     */
-    TransactionReceipt sendRawTransactionAndGetReceiptWithProof(String signedTransactionData);
 
     /**
      * Get EventPushMsgHandler and FilterManager.

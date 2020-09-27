@@ -198,6 +198,9 @@ public class BcosSDK {
         if (this.groupManagerService != null) {
             this.groupManagerService.stop();
         }
+        if (this.amop != null) {
+            this.amop.stop();
+        }
         // stop the client
         for (Integer groupId : groupToClient.keySet()) {
             groupToClient.get(groupId).stop();
