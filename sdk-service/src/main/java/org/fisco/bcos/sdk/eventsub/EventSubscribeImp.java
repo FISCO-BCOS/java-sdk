@@ -142,10 +142,13 @@ public class EventSubscribeImp implements EventSubscribe {
 
     @Override
     public void stop() {
+        if (!running) {
+            return;
+        }
         running = false;
         resendSchedule.shutdown();
-        // unsubscribe events
-        List<EventLogFilter> filterList = getAllSubscribedEvent();
+        // unsubscribe events, fisco bcos 2.7.0
+        /*List<EventLogFilter> filterList = getAllSubscribedEvent();
         for (EventLogFilter filter : filterList) {
             EventCallback callback =
                     new EventCallback() {
@@ -158,7 +161,7 @@ public class EventSubscribeImp implements EventSubscribe {
                         }
                     };
             unsubscribeEvent(filter.getRegisterID(), callback);
-        }
+        }*/
     }
 
     private void resendWaitingFilters() {
