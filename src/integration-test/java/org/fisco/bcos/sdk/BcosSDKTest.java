@@ -16,11 +16,11 @@
 package org.fisco.bcos.sdk;
 
 import java.math.BigInteger;
-import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.ConsensusStatus;
@@ -53,13 +53,6 @@ public class BcosSDKTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         // check groupList
         Assert.assertTrue(sdk.getChannel().getAvailablePeer().size() >= 1);
-        for (String endPoint : sdk.getChannel().getAvailablePeer()) {
-            List<String> groupInfo = sdk.getGroupManagerService().getGroupInfoByNodeInfo(endPoint);
-            if (groupInfo.size() > 0) {
-                Assert.assertEquals(1, groupInfo.size());
-                Assert.assertEquals("1", groupInfo.get(0));
-            }
-        }
         // get the client
         Client client = sdk.getClient(Integer.valueOf(1));
 
@@ -164,9 +157,7 @@ public class BcosSDKTest {
 
         // test getGroupList
         GroupList groupList = client.getGroupList();
-        Assert.assertEquals(1, groupList.getGroupList().size());
-        Assert.assertEquals("1", groupList.getGroupList().get(0));
-
+        Assert.assertTrue(groupList.getGroupList().size() >= 1);
         // test getConsensusStatus
         ConsensusStatus consensusStatus = client.getConsensusStatus();
         Assert.assertTrue(consensusStatus.getConsensusStatus().getViewInfos().size() > 0);
@@ -191,6 +182,43 @@ public class BcosSDKTest {
         Assert.assertEquals(
                 latestHash.getBlockHashByNumber(),
                 consensusStatus.getConsensusStatus().getBaseConsensusInfo().getHighestblockHash());
+
+        try {
+            // test calculateHash interface for the transaction response
+            BcosTransaction transaction =
+                    client.getTransactionByBlockNumberAndIndex(
+                            blockNumber.getBlockNumber(), BigInteger.ZERO);
+            if (transaction.getTransaction().get() != null) {
+                System.out.println(
+                        "### transactionHash:" + transaction.getTransaction().get().getHash());
+                System.out.println(
+                        "### calculated transactionHash:"
+                                + transaction
+                                        .getTransaction()
+                                        .get()
+                                        .calculateHash(client.getCryptoSuite()));
+                Assert.assertEquals(
+                        transaction.getTransaction().get().calculateHash(client.getCryptoSuite()),
+                        transaction.getTransaction().get().getHash());
+            }
+
+            // test calculateHash interface for the getBlockHeader response
+            BcosBlockHeader blockHeader =
+                    client.getBlockHeaderByNumber(blockNumber.getBlockNumber(), true);
+            String calculatedHash =
+                    blockHeader.getBlockHeader().calculateHash(client.getCryptoSuite());
+            System.out.println("### blockHeader calculatedHash : " + calculatedHash);
+            System.out.println(
+                    "### blockHeader expectedHash: " + blockHeader.getBlockHeader().getHash());
+            Assert.assertEquals(blockHeader.getBlockHeader().getHash(), calculatedHash);
+
+            // test calculateHash interface for the block response
+            block = client.getBlockByNumber(blockNumber.getBlockNumber(), false);
+            calculatedHash = block.getBlock().calculateHash(client.getCryptoSuite());
+            Assert.assertEquals(block.getBlock().getHash(), calculatedHash);
+        } catch (ClientException e) {
+            System.out.println("testClient exception, error info: " + e.getMessage());
+        }
     }
 
     private void checkReceipt(
