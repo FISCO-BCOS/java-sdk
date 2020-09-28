@@ -63,17 +63,16 @@ public class GroupServiceImpl implements GroupService {
         if (shouldResetLatestBlockNumber) {
             resetLatestBlockNumber();
         }
+        logger.debug(
+                "g:{}, removeNode={}, blockNumberInfoSize={}, latestBlockNumber:{}",
+                groupId,
+                nodeAddress,
+                this.groupNodeToBlockNumber.size(),
+                latestBlockNumber);
         if (groupNodeSet.contains(nodeAddress)) {
             groupNodeSet.remove(nodeAddress);
             return true;
         }
-        logger.debug(
-                "g:{}, removeNode={}, nodeSize={}, blockNumberInfoSize={}, latestBlockNumber:{}",
-                groupId,
-                nodeAddress,
-                this.groupNodeSet.size(),
-                this.groupNodeToBlockNumber.size(),
-                latestBlockNumber);
         return false;
     }
 
@@ -133,6 +132,10 @@ public class GroupServiceImpl implements GroupService {
 
     private void resetLatestBlockNumber() {
         BigInteger maxBlockNumber = null;
+        if (groupNodeToBlockNumber.size() == 0) {
+            latestBlockNumber.getAndSet(BigInteger.ZERO.longValue());
+            return;
+        }
         for (String groupNode : groupNodeToBlockNumber.keySet()) {
             BigInteger blockNumber = groupNodeToBlockNumber.get(groupNode);
             if (blockNumber == null) {
@@ -142,6 +145,7 @@ public class GroupServiceImpl implements GroupService {
                 maxBlockNumber = blockNumber;
             }
         }
+
         if (maxBlockNumber == null) {
             return;
         }
