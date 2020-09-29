@@ -189,8 +189,15 @@ public class CryptoSuite {
         return this.cryptoKeyPair;
     }
 
+    public CryptoKeyPair createKeyPair(String hexedPrivateKey) {
+        this.cryptoKeyPair = this.keyPairFactory.createKeyPair(hexedPrivateKey);
+        this.cryptoKeyPair.setConfig(config);
+        return this.cryptoKeyPair;
+    }
+
     public void setCryptoKeyPair(CryptoKeyPair cryptoKeyPair) {
         this.cryptoKeyPair = cryptoKeyPair;
+        this.cryptoKeyPair.setConfig(config);
     }
 
     public CryptoKeyPair getCryptoKeyPair() {
