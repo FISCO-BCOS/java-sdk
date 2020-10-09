@@ -17,7 +17,6 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -176,19 +175,29 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     }
 
     private void onDisconnect(String peerIpAndPort) {
-        nodeToNodeVersion.remove(peerIpAndPort);
-        if (!nodeToGroupIDList.containsKey(peerIpAndPort)) {
-            return;
-        }
-        List<String> groupList = nodeToGroupIDList.get(peerIpAndPort);
-        for (String group : groupList) {
-            GroupService groupService = groupIdToService.get(Integer.valueOf(group));
-            if (groupService == null) {
-                continue;
+        try {
+            nodeToNodeVersion.remove(peerIpAndPort);
+            if (!nodeToGroupIDList.containsKey(peerIpAndPort)) {
+                return;
             }
-            if (groupService.removeNode(peerIpAndPort)) {
-                updateBlockNotify(peerIpAndPort, this.nodeToGroupIDList.get(peerIpAndPort));
+            List<String> groupList = nodeToGroupIDList.get(peerIpAndPort);
+            for (String group : groupList) {
+                Integer groupId = Integer.valueOf(group);
+                GroupService groupService = groupIdToService.get(groupId);
+                if (groupService == null) {
+                    continue;
+                }
+                if (groupService.removeNode(peerIpAndPort)) {
+                    updateBlockNotify(peerIpAndPort, this.nodeToGroupIDList.get(peerIpAndPort));
+                }
+                if (groupService.getGroupNodesInfo().size() == 0) {
+                    groupIdToService.remove(groupId);
+                }
             }
+            nodeToGroupIDList.remove(peerIpAndPort);
+        } catch (Exception e) {
+            logger.warn(
+                    "onDisconnect to {} failed, error message: {}", peerIpAndPort, e.getMessage());
         }
     }
 
@@ -324,29 +333,34 @@ public class GroupManagerServiceImpl implements GroupManagerService {
      */
     protected void onReceiveTransactionNotify(Message message) {
         String seq = message.getSeq();
-        // get the transaction callback
-        TransactionCallback callback = seq2TransactionCallback.get(seq);
-        // remove the callback
-        seq2TransactionCallback.remove(seq);
-        if (callback == null) {
-            logger.error("transaction callback is null, seq: {}", seq);
+        if (seq == null) {
             return;
         }
-        callback.cancelTimeout();
-        // decode the message into receipt
-        TransactionReceipt receipt = null;
+        // get the transaction callback
+        TransactionCallback callback = seq2TransactionCallback.get(seq);
         try {
+            // remove the callback
+            seq2TransactionCallback.remove(seq);
+            if (callback == null) {
+                logger.error("transaction callback is null, seq: {}", seq);
+                return;
+            }
+            callback.cancelTimeout();
+            // decode the message into receipt
+            TransactionReceipt receipt = null;
+
             receipt =
                     ObjectMapperFactory.getObjectMapper()
                             .readValue(message.getData(), TransactionReceipt.class);
-        } catch (IOException e) {
+            callback.onResponse(receipt);
+        } catch (Exception e) {
             // fake the receipt
-            receipt = new TransactionReceipt();
+            TransactionReceipt receipt = new TransactionReceipt();
             receipt.setStatus(String.valueOf(ChannelMessageError.MESSAGE_DECODE_ERROR.getError()));
             receipt.setMessage(
                     "Decode receipt error, seq: " + seq + ", reason: " + e.getLocalizedMessage());
+            callback.onResponse(receipt);
         }
-        callback.onResponse(receipt);
     }
 
     @Override
@@ -444,7 +458,7 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             }
             // update the group information
             if (groupIdToService.get(groupId).insertNode(peerIpAndPort)) {
-                getAndUpdateBlockNumberForAllPeers(groupId);
+                fetchAndUpdateBlockNumberInfo(groupId, peerIpAndPort);
                 updateBlockNotify(peerIpAndPort, this.nodeToGroupIDList.get(peerIpAndPort));
             }
         }
@@ -482,7 +496,10 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                 && groupIdToService.get(groupId).getLatestBlockNumber().equals(BigInteger.ZERO)) {
             getAndUpdateBlockNumberForAllPeers(groupId);
         }
-        return groupIdToService.get(groupId).getLatestBlockNumber();
+        if (groupIdToService.containsKey(groupId)) {
+            return groupIdToService.get(groupId).getLatestBlockNumber();
+        }
+        return BigInteger.ZERO;
     }
 
     private void getAndUpdateBlockNumberForAllPeers(Integer groupId) {
@@ -492,22 +509,23 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                 groupId,
                 availablePeers.toString());
         for (String peer : availablePeers) {
-            try {
-                BlockNumber blockNumber = this.groupInfoGetter.getBlockNumber(groupId, peer);
-                // update the block number information
-                updateBlockNumberInfo(groupId, peer, blockNumber.getBlockNumber());
-                logger.debug(
-                        "update the blockNumber information, groupId: {}, peer:{}, blockNumber: {}",
-                        groupId,
-                        peer,
-                        blockNumber.getBlockNumber());
-            } catch (ClientException e) {
-                logger.error(
-                        "GetBlockNumber from {} failed, error information:{}",
-                        peer,
-                        e.getMessage());
-                continue;
-            }
+            fetchAndUpdateBlockNumberInfo(groupId, peer);
+        }
+    }
+
+    private void fetchAndUpdateBlockNumberInfo(Integer groupId, String peer) {
+        try {
+            BlockNumber blockNumber = this.groupInfoGetter.getBlockNumber(groupId, peer);
+            // update the block number information
+            updateBlockNumberInfo(groupId, peer, blockNumber.getBlockNumber());
+            logger.debug(
+                    "fetch and update the blockNumber information, groupId: {}, peer:{}, blockNumber: {}",
+                    groupId,
+                    peer,
+                    blockNumber.getBlockNumber());
+        } catch (ClientException e) {
+            logger.error(
+                    "GetBlockNumber from {} failed, error information:{}", peer, e.getMessage());
         }
     }
 
@@ -564,6 +582,12 @@ public class GroupManagerServiceImpl implements GroupManagerService {
     public void asyncSendMessageToGroup(
             Integer groupId, Message message, ResponseCallback callback) {
         if (!checkGroupStatus(groupId)) {
+            if (callback != null) {
+                callback.onError(
+                        "asyncSendMessageToGroup to group "
+                                + groupId
+                                + " failed, please check the connections.");
+            }
             return;
         }
         // get the node with the latest block number
