@@ -40,6 +40,10 @@ public class PEMKeyStore extends KeyTool {
         super(keyStoreFile);
     }
 
+    public PEMKeyStore(InputStream keyStoreFileInputStream) {
+        super(keyStoreFileInputStream);
+    }
+
     @Override
     protected PublicKey getPublicKey() {
         try {
