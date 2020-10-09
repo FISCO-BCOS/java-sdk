@@ -354,4 +354,32 @@ public class ABICodecTest {
             Assert.fail(e.getMessage());
         }
     }
+
+    @Test
+    public void testEncodeByInterface() {
+    {
+        ABICodec abiCodec = new ABICodec(invalidCryptoSuite);
+        List<Object> argsObjects = new ArrayList<Object>();
+        List<BigInteger> b1 = new ArrayList<BigInteger>();
+        b1.add(new BigInteger("100"));
+        b1.add(new BigInteger("200"));
+        argsObjects.add(b1);
+        List<BigInteger> b2 = new ArrayList<BigInteger>();
+        b2.add(new BigInteger("100"));
+        b2.add(new BigInteger("200"));
+        b2.add(new BigInteger("300"));
+        argsObjects.add(b2);
+        byte[] b = "1234".getBytes();
+        argsObjects.add(b);
+        String a = "0x5678";
+        argsObjects.add(a);
+        try {
+            String s1 = abiCodec.encodeMethodByInterface("call(uint256[2],uint256[],bytes,address)", argsObjects);
+            String abi = "[{\"constant\":false,\"inputs\":[{\"name\":\"u1\",\"type\":\"uint256[2]\"},{\"name\":\"u2\",\"type\":\"uint256[]\"},{\"name\":\"b\",\"type\":\"bytes\"},{\"name\":\"a\",\"type\":\"address\"}],\"name\":\"call\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"name\":\"u\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"a\",\"type\":\"uint256\"},{\"name\":\"s\",\"type\":\"string\"}],\"name\":\"add\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd1\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd2\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"a\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogAdd3\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd4\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd5\",\"type\":\"event\"}]";
+            String s2 = abiCodec.encodeMethod(abi, "call", argsObjects);
+            Assert.assertEquals(s1, s2);
+        } catch (ABICodecException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 }

@@ -131,11 +131,45 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public String encodeMethodByInterface(String ABI, String methodInterface, List<Object> params)
+    private ABIDefinition getABIDefinition(String methodInterface) throws ABICodecException {
+        int start = methodInterface.indexOf("(");
+        int end = methodInterface.lastIndexOf(")");
+        String name = methodInterface.substring(0, start);
+        String type = methodInterface.substring(start + 1, end);
+        if (type.indexOf("tuple") != -1) {
+            String errorMsg = " cannot support tuple type";
+            logger.error(errorMsg);
+            throw new ABICodecException(errorMsg);
+        }
+        String[] types = type.split(",");
+        List<ABIDefinition.NamedType> inputs = new ArrayList<ABIDefinition.NamedType>();
+        for (String s : types) {
+            ABIDefinition.NamedType input = new ABIDefinition.NamedType("name", s);
+            inputs.add(input);
+        }
+
+        return new ABIDefinition(false, inputs, name, null, "function", false, "nonpayable");
+    }
+
+    public String encodeMethodByInterface(String methodInterface, List<Object> params)
             throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
-        String methodId = functionEncoder.buildMethodId(methodInterface);
-        return encodeMethodById(ABI, methodId, params);
+        ABIDefinition abiDefinition = getABIDefinition(methodInterface);
+        if (abiDefinition.getInputs().size() == params.size()) {
+            @SuppressWarnings("static-access")
+            ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
+            ABICodecObject abiCodecObject = new ABICodecObject();
+            try {
+                String methodId = abiDefinition.getMethodId(cryptoSuite);
+                return methodId + abiCodecObject.encodeValue(inputABIObject, params).encode();
+            } catch (Exception e) {
+                logger.error(
+                        " exception in encodeMethodByInterfaceFromObject : {}", e.getMessage());
+            }
+        }
+
+        String errorMsg = " cannot encode in encodeMethodByInterfaceFromObject";
+        logger.error(errorMsg);
+        throw new ABICodecException(errorMsg);
     }
 
     public String encodeMethodFromString(String ABI, String methodName, List<String> params)
@@ -194,11 +228,25 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public String encodeMethodByInterfaceFromString(
-            String ABI, String methodInterface, List<String> params) throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
-        String methodId = functionEncoder.buildMethodId(methodInterface);
-        return encodeMethodByIdFromString(ABI, methodId, params);
+    public String encodeMethodByInterfaceFromString(String methodInterface, List<String> params)
+            throws ABICodecException {
+        ABIDefinition abiDefinition = getABIDefinition(methodInterface);
+        if (abiDefinition.getInputs().size() == params.size()) {
+            @SuppressWarnings("static-access")
+            ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
+            ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+            try {
+                String methodId = abiDefinition.getMethodId(cryptoSuite);
+                return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
+            } catch (IOException e) {
+                logger.error(
+                        " exception in encodeMethodByInterfaceFromString : {}", e.getMessage());
+            }
+        }
+
+        String errorMsg = " cannot encode in encodeMethodByInterfaceFromString";
+        logger.error(errorMsg);
+        throw new ABICodecException(errorMsg);
     }
 
     public List<Object> decodeMethod(ABIDefinition abiDefinition, String output)
@@ -334,7 +382,10 @@ public class ABICodec {
             ABIObject inputObject = abiObjectFactory.createEventInputObject(abiDefinition);
             ABICodecObject abiCodecObject = new ABICodecObject();
             try {
-                List<Object> params = abiCodecObject.decodeJavaObject(inputObject, log.getData());
+                List<Object> params = new ArrayList<>();
+                if (!log.getData().equals("0x")) {
+                    params = abiCodecObject.decodeJavaObject(inputObject, log.getData());
+                }
                 List<String> topics = log.getTopics();
                 return mergeEventParamsAndTopics(abiDefinition, params, topics);
             } catch (Exception e) {
@@ -355,7 +406,10 @@ public class ABICodec {
         ABIObject inputObject = abiObjectFactory.createEventInputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
-            List<Object> params = abiCodecObject.decodeJavaObject(inputObject, log.getData());
+            List<Object> params = new ArrayList<>();
+            if (!log.getData().equals("0x")) {
+                params = abiCodecObject.decodeJavaObject(inputObject, log.getData());
+            }
             List<String> topics = log.getTopics();
             return mergeEventParamsAndTopics(abiDefinition, params, topics);
         } catch (Exception e) {

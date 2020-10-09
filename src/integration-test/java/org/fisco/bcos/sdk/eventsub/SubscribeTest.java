@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.eventsub;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import org.fisco.bcos.sdk.BcosSDK;
@@ -47,7 +46,7 @@ public class SubscribeTest {
     private static final String abiFile = "src/integration-test/resources/abi/";
     private static final String binFile = "src/integration-test/resources/bin/";
     private static final String abi =
-            "[{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_addrDArray\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_addr\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"getUint256\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"v\",\"type\":\"uint256\"}],\"name\":\"incrementUint256\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_bytesV\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_s\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"getSArray\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256[2]\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"bytesArray\",\"type\":\"bytes1[]\"}],\"name\":\"setBytesMapping\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"setBytes\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"i\",\"type\":\"int256\"},{\"name\":\"a\",\"type\":\"address[]\"},{\"name\":\"s\",\"type\":\"string\"}],\"name\":\"setValues\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"b\",\"type\":\"bytes1\"}],\"name\":\"getByBytes\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes1[]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_intV\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"emptyArgs\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"i\",\"type\":\"int256\"},{\"name\":\"s\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogIncrement\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogInit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"i\",\"type\":\"int256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"address[]\"},{\"indexed\":false,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogSetValues\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"o\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"LogSetBytes\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"o\",\"type\":\"uint256[2]\"},{\"indexed\":false,\"name\":\"n\",\"type\":\"uint256[2]\"}],\"name\":\"LogSetSArray\",\"type\":\"event\"}]";
+            "[{\"constant\":false,\"inputs\":[{\"name\":\"u1\",\"type\":\"uint256[2]\"},{\"name\":\"u2\",\"type\":\"uint256[]\"},{\"name\":\"b\",\"type\":\"bytes\"},{\"name\":\"a\",\"type\":\"address\"}],\"name\":\"call\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"name\":\"u\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"a\",\"type\":\"uint256\"},{\"name\":\"s\",\"type\":\"string\"}],\"name\":\"add\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd1\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd2\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"a\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogAdd3\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd4\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd5\",\"type\":\"event\"}]";
 
     @Test
     public void testEventSubModule() {
@@ -62,10 +61,8 @@ public class SubscribeTest {
                     TransactionProcessorFactory.createAssembleTransactionProcessor(
                             client, client.getCryptoSuite().createKeyPair(), abiFile, binFile);
             // deploy
-            List<Object> params = Lists.newArrayList();
-            params.add(1);
-            params.add("test");
-            TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
+            TransactionResponse response =
+                    manager.deployByContractLoader("Add", Lists.newArrayList());
             if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
                 return;
             }
@@ -73,13 +70,10 @@ public class SubscribeTest {
 
             // call function with event
             List<Object> paramsSetValues = Lists.newArrayList(20);
-            String[] o = {"0x1", "0x2", "0x3"};
-            List<String> a = Arrays.asList(o);
-            paramsSetValues.add(a);
-            paramsSetValues.add("test");
+            paramsSetValues.add("AAA");
             TransactionResponse transactionResponse =
                     manager.sendTransactionAndGetResponse(
-                            contractAddress, abi, "setValues", paramsSetValues);
+                            contractAddress, abi, "add", paramsSetValues);
             logger.info("transaction response : " + JsonUtils.toJson(transactionResponse));
         } catch (Exception e) {
             logger.error("exception:", e);
@@ -88,12 +82,16 @@ public class SubscribeTest {
         EventLogParams eventLogParams1 = new EventLogParams();
         eventLogParams1.setFromBlock("latest");
         eventLogParams1.setToBlock("latest");
-        eventLogParams1.setAddresses(new ArrayList<>());
+        ArrayList<String> addresses = new ArrayList<>();
+        addresses.add(contractAddress);
+        eventLogParams1.setAddresses(addresses);
         ArrayList<Object> topics = new ArrayList<>();
         CryptoSuite invalidCryptoSuite =
                 new CryptoSuite(client.getCryptoSuite().getCryptoTypeConfig());
         TopicTools topicTools = new TopicTools(invalidCryptoSuite);
-        topics.add(topicTools.stringToTopic("LogSetValues(int256,address[],string)"));
+        ArrayList<Object> topicsAt0 = new ArrayList<>();
+        topicsAt0.add(topicTools.stringToTopic("LogAdd3(uint256,uint256,string)"));
+        topics.add(topicsAt0);
         eventLogParams1.setTopics(topics);
 
         class SubscribeCallback implements EventCallback {
@@ -125,14 +123,9 @@ public class SubscribeTest {
                                         + log.getData());
                         ABICodec abiCodec = new ABICodec(client.getCryptoSuite());
                         try {
-                            List<Object> list = abiCodec.decodeEvent(abi, "LogSetValues", log);
+                            List<Object> list = abiCodec.decodeEvent(abi, "LogAdd3", log);
                             logger.debug("decode event log content, " + list);
-                            Assert.assertEquals("20", list.get(0).toString());
-                            Assert.assertEquals("test", list.get(2).toString());
-                            List<Object> list1 =
-                                    abiCodec.decodeEventByInterface(
-                                            abi, "LogSetValues(int256,address[],string)", log);
-                            Assert.assertEquals(3, list1.size());
+                            Assert.assertEquals(3, list.size());
                         } catch (ABICodecException e) {
                             logger.error("decode event log error, " + e.getMessage());
                         }
@@ -154,7 +147,6 @@ public class SubscribeTest {
             Thread.currentThread().interrupt();
         }
 
-        // FISCO BCOS node v2.7.0
         try {
             Thread.sleep(3000);
         } catch (Exception e) {
