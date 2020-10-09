@@ -96,6 +96,7 @@ public class ConnectionManager {
         /** try connection */
         List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
         for (ConnectionInfo connect : connectionInfoList) {
+            logger.debug("startConnect to {}", connect.getEndPoint());
             ChannelFuture channelFuture = bootstrap.connect(connect.getIp(), connect.getPort());
             connChannelFuture.add(channelFuture);
         }
@@ -175,7 +176,7 @@ public class ConnectionManager {
                     bootstrap.connect(connectionInfo.getIp(), connectionInfo.getPort());
             List<RetCode> errorMessageList = new ArrayList<>();
             if (checkConnectionResult(connectionInfo, connectFuture, errorMessageList)) {
-                logger.trace(
+                logger.info(
                         " reconnect to {}:{} success",
                         connectionInfo.getIp(),
                         connectionInfo.getPort());
@@ -404,6 +405,7 @@ public class ConnectionManager {
     protected ChannelHandlerContext addConnectionContext(
             String ip, int port, ChannelHandlerContext ctx) {
         String endpoint = ip + ":" + port;
+        logger.debug("addConnectionContext, endpoint: {}, ctx:{}", endpoint, ctx);
         return availableConnections.put(endpoint, ctx);
     }
 
