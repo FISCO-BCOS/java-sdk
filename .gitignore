@@ -22,3 +22,5 @@ conf/
 gmcert.cnf
 gmsm2.param
 integrationTestEnv.sh
+gradle.properties
+gpg.gpg
