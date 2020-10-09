@@ -31,6 +31,12 @@
 * 添加群组管理模块，帮助应用管理多个群组中节点连接。
 * 使用模块化设计，便于组装再造。
 
+## 文档
+* [英文版用户手册](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [中文版用户手册](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html)
+* [WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
+
 ## 贡献代码
 欢迎参与FISCO BCOS的社区建设：
 - 点亮我们的小星星(点击项目左上方Star按钮)。
@@ -40,10 +46,6 @@
 ## 加入我们的社区
 
 FISCO BCOS开源社区是国内活跃的开源社区，社区长期为机构和个人开发者提供各类支持与帮助。已有来自各行业的数千名技术爱好者在研究和使用FISCO BCOS。如您对FISCO BCOS开源技术及应用感兴趣，欢迎加入社区获得更多支持与帮助。
-
-
-![](https://media.githubusercontent.com/media/FISCO-BCOS/LargeFiles/master/images/QR_image.png)
-
 
 ## License
 
