@@ -32,20 +32,16 @@ This java sdk is a code refactoring version base on web3sdk (not recommend to us
 * Use modular design, each module can use independently. For example, you can create crypto.jar file if only crypto module is needed.
 
 ## Documentation
-* [English User Handbook](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
-* [Chinese User Handbook](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [English User Manual](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [Chinese User Manual](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html)
 * [Chinese WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
 
 ## Quick Start
-* [English](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/quick_start.html)
 * [Chinese](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/quick_start.html)
 
 ## Join Our Community
 
 The FISCO BCOS community is one of the most active open-source blockchain communities in China. It provides long-term technical support for both institutional and individual developers and users of FISCO BCOS. Thousands of technical enthusiasts from numerous industry sectors have joined this community, studying and using FISCO BCOS platform. If you are also interested, you are most welcome to join us for more support and fun.
-
-![](https://media.githubusercontent.com/media/FISCO-BCOS/LargeFiles/master/images/QR_image_en.png)
- 
 
 ## License
 ![license](http://img.shields.io/badge/license-Apache%20v2-blue.svg)
