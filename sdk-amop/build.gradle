@@ -1,0 +1,51 @@
+// Apply the java-library plugin to add support for Java Library
+plugins {
+    id 'java'
+}
+dependencies {
+    compile project(':sdk-core')
+    compile project(':sdk-crypto')
+    compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+}
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+			    authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name project.name
+                packaging 'jar'
+                description = 'fisco-bcos java-sdk'
+                url = 'http://www.fisco-bcos.org'
+
+                scm {
+                    connection = 'https://github.com/FISCO-BCOS/java-sdk.git'
+                    url = 'https://github.com/FISCO-BCOS/java-sdk.git'
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'zhangsan'
+                        name = 'zhangsan'
+                        email = 'zhangsan@example.com'
+                    }
+                }
+            }
+        }
+    }
+}

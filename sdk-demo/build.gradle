@@ -1,0 +1,11 @@
+// Apply the java-library plugin to add support for Java Library
+plugins {
+    id 'java'
+}
+dependencies {
+    compile project(':sdk-codegen')
+    compile ("org.fisco-bcos:solcJ:${solcJVersion}")
+	compile ("com.google.guava:guava:${guavaVersion}")
+    compile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
+}
+

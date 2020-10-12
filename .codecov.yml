@@ -1,0 +1,19 @@
+codecov:
+  branch: *
+coverage:
+  ignore:
+    - "src/integration-test/**/*"
+  status:
+    project:
+      default:
+        target: 30%
+        threshold: null
+        if_not_found: success
+    patch:
+      default:
+        enabled: no
+        if_not_found: success
+    changes:
+      default:
+        enabled: no
+        if_not_found: success

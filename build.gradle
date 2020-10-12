@@ -1,0 +1,319 @@
+// Apply the java-library plugin to add support for Java Library
+plugins {
+    id 'com.github.sherter.google-java-format' version '0.8'
+    id 'maven-publish'
+}
+println("Notice: current gradle version is " + gradle.gradleVersion)
+// Additional attribute definition
+ext {
+    if (!project.hasProperty("ossrhUsername")) {
+        ossrhUsername="xxx"
+    }
+
+    if (!project.hasProperty("ossrhPassword")) {
+        ossrhPassword="xxx"
+    }
+    // jackson version
+    jacksonVersion = "2.11.0"
+    commonsIOVersion = "2.4"
+    commonsLang3Version = "3.1"
+    javapoetVersion = "1.7.0"
+    picocliVersion = "3.6.0"
+    nettyVersion = "4.1.50.Final"
+    nettySMSSLContextVersion = "1.1.0"
+    toml4jVersion = "0.7.2"
+    bcprovJDK15onVersion = "1.60"
+    keyMiniToolkit = "1.0.0"
+
+    solcJVersion = "0.4.25.1"
+    //solcJVersion = "0.5.2.0"
+    //solcJVersion = "0.6.10.0"
+    slf4jVersion = "1.7.30"
+    junitVersion = "4.12"
+    commonsCollections4Version = "4.4"
+    guavaVersion = "29.0-jre"
+}
+
+// check.dependsOn integrationTest
+// integrationTest.mustRunAfter test
+allprojects {
+    group = 'org.fisco-bcos.java-sdk'
+    version = '2.6.1-rc1'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    apply plugin: 'signing'
+
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 30, 'seconds'
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            html.enabled false
+        }
+    }
+    sourceCompatibility = '1.8'
+
+    // In this section you declare where to find the dependencies of your project
+    repositories {
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        mavenCentral()
+    }
+
+    dependencies {
+        compile ("org.slf4j:slf4j-api:${slf4jVersion}")
+	    testCompile ("junit:junit:${junitVersion}")
+    }
+
+    clean.doLast {
+        file("dist/apps/").deleteDir()
+        file("dist/conf/").deleteDir()
+        file("dist/lib/").deleteDir()
+    }
+}
+
+subprojects {
+    sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
+            }
+
+            resources {
+                srcDir 'src/main/resources'
+            }
+        }
+    }
+    jar {
+        destinationDir file("dist/apps")
+        archiveName project.name + "-" + version + ".jar"
+
+        exclude "**/*.xml"
+        exclude "**/*.properties"
+
+        doLast {
+            copy {
+                from file("src/test/resources/")
+                into "dist/conf"
+            }
+            copy {
+                from configurations.runtime
+                into "dist/lib"
+            }
+            copy {
+                from file("build/libs/")
+                into "dist/apps"
+            }
+        }
+    }
+
+    // for upload to maven
+    task sourcesJar(type: Jar) {
+        classifier = "sources"
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = "javadoc"
+        from javadoc.destinationDir
+    }
+    artifacts {
+        archives jar
+        archives sourcesJar
+        archives javadocJar
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "sdk-core/src/main/java"
+            srcDir "sdk-crypto/src/main/java"
+            srcDir "sdk-abi/src/main/java"
+            srcDir "sdk-amop/src/main/java"
+            srcDir "sdk-service/src/main/java"
+            srcDir "sdk-transaction/src/main/java"
+            srcDir "sdk-codegen/src/main/java"
+        }
+
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-test/java')
+            srcDir file('sdk-demo/src/main')
+        }
+        resources.srcDir file('src/integration-test/resources')
+    }
+}
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
+task integrationTest(type: Test) {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+dependencies {
+	compile ("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
+    compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    compile ("io.netty:netty-all:${nettyVersion}")
+    compile ("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}")
+    compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    compile ("commons-io:commons-io:${commonsIOVersion}")
+    compile ("com.squareup:javapoet:${javapoetVersion}")
+    compile ("info.picocli:picocli:${picocliVersion}")
+    compile ("com.webank:key-mini-toolkit:${keyMiniToolkit}")
+    compile ("com.moandjiezana.toml:toml4j:${toml4jVersion}")
+
+    testCompile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
+    testCompile ("org.fisco-bcos:solcJ:${solcJVersion}")
+    testCompile ("com.google.guava:guava:${guavaVersion}")
+}
+googleJavaFormat {
+    options style: 'AOSP'
+     source = sourceSets*.allJava
+    include '**/*.java'
+}
+
+verifyGoogleJavaFormat {
+    source = sourceSets*.allJava
+    include '**/*.java'
+}
+
+javadoc {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+
+            artifactId project.name
+            groupId project.group
+            version project.version
+
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'fisco-bcos'
+                description = 'fisco-bcos java-sdk'
+                url = 'http://www.fisco-bcos.org'
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'zhangsan'
+                        name = 'zhangsan'
+                        email = 'zhangsan@example.com'
+                    }
+                }
+                scm {
+                    connection = 'https://github.com/FISCO-BCOS/java-sdk.git'
+                    url = 'https://github.com/FISCO-BCOS/java-sdk.git'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoURL = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            def snapshotsRepoURL = "https://oss.sonatype.org/content/repositories/snapshots"
+            url = !version.endsWith("SNAPSHOT") ? releasesRepoURL : snapshotsRepoURL
+
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+
+    signing {
+        sign publishing.publications.mavenJava
+    }
+}
+
+jar {
+    // destinationDir file('dist/apps')
+    // archiveName project.name + '-' + project.version + '.jar'
+    exclude '**/*.xml'
+    exclude '**/*.properties'
+
+    manifest {
+        try {
+            def repo = grgit.open()
+            if (repo != null) {
+                def user = System.getProperty("user.name")
+                def date = new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                def branch = repo.branch.getCurrent().getName()
+                def commit = repo.head().getAbbreviatedId(40)
+
+                attributes(["Built-By"                : user,
+                            "Implementation-Timestamp": date,
+                            "Git-Branch"              : branch,
+                            "Git-Commit"              : commit
+                ])
+
+                logger.info("  Commit : ")
+                logger.info("  => user: {}", user)
+                logger.info("  => date: {}", date)
+                logger.info("  => branch: {}", branch)
+                logger.info("  => commit: {}", commit)
+            }
+        } catch (Exception e) {
+            // logger.warn(' .git not exist, cannot found commit info')
+        }
+    } from sourceSets.main.output
+
+    doLast {
+        copy {
+            from destinationDir
+            into 'dist/apps'
+        }
+        copy {
+            from configurations.runtime
+            into 'dist/lib'
+        }
+        copy {
+            from file('src/test/resources/config-example.toml')
+            from file('src/test/resources/applicationContext-sample.xml')
+            from file('src/test/resources/log4j.properties')
+            into 'dist/conf'
+        }
+        copy {
+            from file('src/test/resources/amop/')
+            into 'conf/amop'
+        }
+    }
+}
+check.dependsOn jacocoTestReport

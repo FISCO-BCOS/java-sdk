@@ -1,0 +1,26 @@
+.gradle/
+.idea/
+log/
+build
+java-sdk.iml
+
+## eclipse ##
+.classpath
+.project
+.settings/
+bin/
+out/
+dist/
+conf/
+
+## integration test files
+nodes/
+src/integration-test/resources/
+build_chain.sh
+account/
+conf/
+gmcert.cnf
+gmsm2.param
+integrationTestEnv.sh
+gradle.properties
+gpg.gpg
