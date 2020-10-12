@@ -165,8 +165,15 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                                                 new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        fetchGroupList(peerIpAndPort);
-                                                        updateNodeVersion(peerIpAndPort);
+                                                        try {
+                                                            fetchGroupList(peerIpAndPort);
+                                                            updateNodeVersion(peerIpAndPort);
+                                                        } catch (Exception e) {
+                                                            logger.warn(
+                                                                    "GetNodeVersionHandler exception, error message: {}",
+                                                                    e.getMessage(),
+                                                                    e);
+                                                        }
                                                     }
                                                 });
                             }
@@ -210,10 +217,17 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                                         new Runnable() {
                                             @Override
                                             public void run() {
-                                                onReceiveBlockNotifyImpl(
-                                                        version,
-                                                        peerIpAndPort,
-                                                        blockNumberNotifyMessage);
+                                                try {
+                                                    onReceiveBlockNotifyImpl(
+                                                            version,
+                                                            peerIpAndPort,
+                                                            blockNumberNotifyMessage);
+                                                } catch (Exception e) {
+                                                    logger.warn(
+                                                            "registerBlockNumberNotifyHandler exception, e: {}",
+                                                            e.getMessage(),
+                                                            e);
+                                                }
                                             }
                                         });
         BlockNumberNotifyHandler handler =
@@ -228,7 +242,14 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                                                 new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        onDisconnect(disconnectedEndpoint);
+                                                        try {
+                                                            onDisconnect(disconnectedEndpoint);
+                                                        } catch (Exception e) {
+                                                            logger.warn(
+                                                                    "BlockNumberNotifyHandler exception, e: {}",
+                                                                    e.getMessage(),
+                                                                    e);
+                                                        }
                                                     }
                                                 });
                             }
