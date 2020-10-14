@@ -147,6 +147,10 @@ sourceSets {
         }
     }
     integrationTest {
+        copy {
+            from file('src/test/resources/amop/')
+            into 'conf/amop'
+        }
         java {
             compileClasspath += main.output + test.output
             runtimeClasspath += main.output + test.output
@@ -309,10 +313,6 @@ jar {
             from file('src/test/resources/applicationContext-sample.xml')
             from file('src/test/resources/log4j.properties')
             into 'dist/conf'
-        }
-        copy {
-            from file('src/test/resources/amop/')
-            into 'conf/amop'
         }
     }
 }
