@@ -62,5 +62,10 @@ public class JsonRpcMethods {
     public static final String RECOVER_GROUP = "recoverGroup";
     public static final String QUERY_GROUP_STATUS = "queryGroupStatus";
 
+    public static final String GET_BATCH_RECEIPT_BY_BLOCK_NUMBER_AND_RANGE =
+            "getBatchReceiptsByBlockNumberAndRange";
+    public static final String GET_BATCH_RECEIPT_BY_BLOCK_HASH_AND_RANGE =
+            "getBatchReceiptsByBlockHashAndRange";
+
     private JsonRpcMethods() {}
 }

@@ -13,6 +13,7 @@
  */
 package org.fisco.bcos.sdk.test.client;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -27,6 +28,8 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceiptsDecoder;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceiptsInfo;
 import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
@@ -54,6 +57,7 @@ import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.NodeVersion;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -1584,5 +1588,69 @@ public class ResponseTest {
         Assert.assertEquals(
                 bcosBlockHeader.getBlockHeader().calculateHash(cryptoSuite),
                 "0xed79502afaf87734f5bc75c2b50d340adc83128afed9dc626a4f5a3cfed837a7");
+    }
+
+    @Test
+    public void testCompressedBatchReceipts() throws IOException {
+        String receiptListStr = "{\n" +
+                "  \"id\": 1,\n" +
+                "  \"jsonrpc\": \"2.0\",\n" +
+                "  \"result\": {\n" +
+                "    \"blockInfo\": {\n" +
+                "      \"blockHash\": \"0x9a3c01559f63f17739db7159ebe945da0105f15144c97cc0a18e5389f07a9fdb\",\n" +
+                "      \"blockNumber\": \"0x1\",\n" +
+                "      \"receiptRoot\": \"0x1e9ee115d0a0ed6a248f5a711e5e8a2f93c82b8d70922254efcec2b4bbd9d174\",\n" +
+                "      \"receiptsCount\": \"0x1\"\n" +
+                "    },\n" +
+                "    \"transactionReceipts\": [\n" +
+                "      {\n" +
+                "        \"contractAddress\": \"0x7c6dc94e4e146cb13eb03dc98d2b96ac79ef5e67\",\n" +
+                "        \"from\": \"0x6fad87071f790c3234108f41b76bb99874a6d813\",\n" +
+                "        \"gasUsed\": \"0x44ab3\",\n" +
+                "        \"logs\": [],\n" +
+                "        \"output\": \"0x\",\n" +
+                "        \"status\": \"0x0\",\n" +
+                "        \"to\": \"0x0000000000000000000000000000000000000000\",\n" +
+                "        \"transactionHash\": \"0x066dce3c06b9d74881e0996172717cfcba4330206243a9f964eb3097f3696e27\",\n" +
+                "        \"transactionIndex\": \"0x0\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+
+        BcosTransactionReceiptsInfo bcosTransactionReceiptsInfo = objectMapper.readValue(receiptListStr.getBytes(), BcosTransactionReceiptsInfo.class);
+        checkReceipts(bcosTransactionReceiptsInfo.getTransactionReceiptsInfo());
+
+        String compressedReceiptStr = "{\n" +
+                "  \"id\": 1,\n" +
+                "  \"jsonrpc\": \"2.0\",\n" +
+                "  \"result\": \"eJyNUT1PZDEM7O9npN4iTpw43u5EA80VSFedKOLE4RDwgt6HhLTa/35h3wpEd67iiWc81pyMvPTyfDe1bo6nvbnNy19zNPadsy8WQuAWfQMiz1UIAqsoY6jZgg0NAiAWplJshqTBJ26WMrcq5rAL/tpeReeLJAxs1qJPb+t97+uOKasChGqz1Rqzw9RCJgANmrJr7EtykipZds4F1Fa0OEGRyhUIvySXm75NV1FzPph1ztOSy/rUp/vrhDn+OZnSp/FV1p+1zrosFwKVWAujogLGIuBVrB9Iqk445kKsLWiksa3N/fXCiS3XRJagEdvinUewqSEIRRHmRJhjTeAH5zEvvxetFxpilg/spT9++Hk4mL6tb9tufODLmtdtd2VHu/b9+Z9lvt39GaaN4z4dgUbhSpgSqGWOQI6ASiuS0XvrbHToR3ocUcVbpuYjR3X0XfZuqvp+dXh+OP/4B2fCqOE=\"\n" +
+                "}";
+        BcosTransactionReceiptsDecoder bcosTransactionReceiptsDecoder= objectMapper.readValue(compressedReceiptStr.getBytes(), BcosTransactionReceiptsDecoder.class);
+        checkReceipts(bcosTransactionReceiptsDecoder.decodeTransactionReceiptsInfo());
+    }
+
+    private void checkReceipts(BcosTransactionReceiptsInfo.TransactionReceiptsInfo receiptsInfo)
+    {
+        BcosTransactionReceiptsInfo.BlockInfo blockInfo = receiptsInfo.getBlockInfo();
+        // check block info
+        Assert.assertEquals("0x9a3c01559f63f17739db7159ebe945da0105f15144c97cc0a18e5389f07a9fdb", blockInfo.getBlockHash()
+        );
+        Assert.assertEquals("0x1", blockInfo.getBlockNumber());
+        Assert.assertEquals("0x1e9ee115d0a0ed6a248f5a711e5e8a2f93c82b8d70922254efcec2b4bbd9d174", blockInfo.getReceiptRoot());
+        Assert.assertEquals("0x1", blockInfo.getReceiptsCount());
+
+        // check receipts
+        List<TransactionReceipt> receipts = receiptsInfo.getTransactionReceipts();
+        Assert.assertTrue(receipts.size() == 1);
+        Assert.assertEquals("0x7c6dc94e4e146cb13eb03dc98d2b96ac79ef5e67", receipts.get(0).getContractAddress());
+        Assert.assertEquals("0x6fad87071f790c3234108f41b76bb99874a6d813", receipts.get(0).getFrom());
+        Assert.assertEquals("0x44ab3", receipts.get(0).getGasUsed());
+        Assert.assertEquals("0x", receipts.get(0).getOutput());
+        Assert.assertEquals("0x0", receipts.get(0).getStatus());
+        Assert.assertEquals("0x0000000000000000000000000000000000000000", receipts.get(0).getTo());
+        Assert.assertEquals("0x066dce3c06b9d74881e0996172717cfcba4330206243a9f964eb3097f3696e27", receipts.get(0).getTransactionHash());
+        Assert.assertEquals("0x0", receipts.get(0).getTransactionIndex());
+        Assert.assertTrue( receipts.get(0).getLogs().size() == 0);
     }
 }

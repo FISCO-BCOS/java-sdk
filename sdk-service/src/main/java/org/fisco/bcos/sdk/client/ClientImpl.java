@@ -26,6 +26,7 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceiptsDecoder;
 import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
@@ -974,6 +975,27 @@ public class ClientImpl implements Client {
             Thread.currentThread().interrupt();
         }
         return callback.receipt;
+    }
+
+    @Override
+    public BcosTransactionReceiptsDecoder getBatchReceiptsByBlockNumberAndRange(
+            BigInteger blockNumber, String from, String count) {
+        return this.jsonRpcService.sendRequestToGroup(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_BATCH_RECEIPT_BY_BLOCK_NUMBER_AND_RANGE,
+                        Arrays.asList(
+                                this.groupId, String.valueOf(blockNumber), from, count, true)),
+                BcosTransactionReceiptsDecoder.class);
+    }
+
+    @Override
+    public BcosTransactionReceiptsDecoder getBatchReceiptsByBlockHashAndRange(
+            String blockHash, String from, String count) {
+        return this.jsonRpcService.sendRequestToGroup(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_BATCH_RECEIPT_BY_BLOCK_HASH_AND_RANGE,
+                        Arrays.asList(this.groupId, blockHash, from, count, true)),
+                BcosTransactionReceiptsDecoder.class);
     }
 
     @Override

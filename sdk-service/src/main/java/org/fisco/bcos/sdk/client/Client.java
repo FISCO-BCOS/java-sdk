@@ -24,6 +24,7 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceiptsDecoder;
 import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
@@ -780,6 +781,28 @@ public interface Client {
      * @param callback the callback instance
      */
     void getNodeVersion(RespCallback<NodeVersion> callback);
+
+    /**
+     * get receipt list according to the block number and the given range
+     *
+     * @param blockNumber the block number of the receipts
+     * @param from the start index of the receipt list required
+     * @param count the end index of the receipt list required
+     * @return the receipt list
+     */
+    BcosTransactionReceiptsDecoder getBatchReceiptsByBlockNumberAndRange(
+            BigInteger blockNumber, String from, String count);
+
+    /**
+     * get receipt list according to the block hash and the given range
+     *
+     * @param blockHash the block hash of the receipts
+     * @param from the start index of the receipt list required
+     * @param count the end index of the receipt list required
+     * @return the receipt list
+     */
+    BcosTransactionReceiptsDecoder getBatchReceiptsByBlockHashAndRange(
+            String blockHash, String from, String count);
 
     /**
      * Peer operation: get consensus status
