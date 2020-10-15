@@ -150,4 +150,24 @@ public class ChainGovernanceService {
             throw ReceiptParser.parseExceptionCall(e);
         }
     }
+
+    public String queryVotesOfMember(String account) throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_QUERY_VERSION.checkVersion(
+                currentVersion);
+        try {
+            return this.chainGovernancePrecompiled.queryVotesOfMember(account);
+        } catch (ContractException e) {
+            throw ReceiptParser.parseExceptionCall(e);
+        }
+    }
+
+    public String queryVotesOfThreshold() throws ContractException {
+        PrecompiledVersionCheck.CHAIN_GOVERNANCE_PRECOMPILED_QUERY_VERSION.checkVersion(
+                currentVersion);
+        try {
+            return this.chainGovernancePrecompiled.queryVotesOfThreshold();
+        } catch (ContractException e) {
+            throw ReceiptParser.parseExceptionCall(e);
+        }
+    }
 }

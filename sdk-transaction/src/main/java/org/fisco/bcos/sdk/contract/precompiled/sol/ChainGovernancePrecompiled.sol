@@ -34,4 +34,6 @@ contract ChainGovernancePrecompiled {
     function unfreezeAccount(address account) public returns (int256);
 
     function getAccountStatus(address account) public view returns (string);
+    function queryVotesOfMember(address account) public view returns (string);
+    function queryVotesOfThreshold() public view returns (string);
 }
