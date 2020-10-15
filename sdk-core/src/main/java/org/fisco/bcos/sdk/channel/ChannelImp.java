@@ -310,11 +310,13 @@ public class ChannelImp implements Channel {
             logger.warn("send message with seq {} to {} failed ", out.getSeq(), peerIpPort);
             Response response = new Response();
             response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
-            response.setErrorMessage(
+            String errorContent =
                     "Send message "
                             + peerIpPort
                             + " failed for connect failed, current available peers: "
-                            + getAvailablePeer().toString());
+                            + getAvailablePeer().toString();
+            response.setErrorMessage(errorContent);
+            response.setContent(errorContent);
             response.setMessageID(out.getSeq());
             if (callback != null) {
                 callback.onResponse(response);

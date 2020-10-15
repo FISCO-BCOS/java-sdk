@@ -14,6 +14,7 @@
 package org.fisco.bcos.sdk.service;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,17 +64,16 @@ public class GroupServiceImpl implements GroupService {
         if (shouldResetLatestBlockNumber) {
             resetLatestBlockNumber();
         }
+        logger.debug(
+                "g:{}, removeNode={}, blockNumberInfoSize={}, latestBlockNumber:{}",
+                groupId,
+                nodeAddress,
+                this.groupNodeToBlockNumber.size(),
+                latestBlockNumber);
         if (groupNodeSet.contains(nodeAddress)) {
             groupNodeSet.remove(nodeAddress);
             return true;
         }
-        logger.debug(
-                "g:{}, removeNode={}, nodeSize={}, blockNumberInfoSize={}, latestBlockNumber:{}",
-                groupId,
-                nodeAddress,
-                this.groupNodeSet.size(),
-                this.groupNodeToBlockNumber.size(),
-                latestBlockNumber);
         return false;
     }
 
@@ -133,6 +133,10 @@ public class GroupServiceImpl implements GroupService {
 
     private void resetLatestBlockNumber() {
         BigInteger maxBlockNumber = null;
+        if (groupNodeToBlockNumber.size() == 0) {
+            latestBlockNumber.getAndSet(BigInteger.ZERO.longValue());
+            return;
+        }
         for (String groupNode : groupNodeToBlockNumber.keySet()) {
             BigInteger blockNumber = groupNodeToBlockNumber.get(groupNode);
             if (blockNumber == null) {
@@ -142,6 +146,7 @@ public class GroupServiceImpl implements GroupService {
                 maxBlockNumber = blockNumber;
             }
         }
+
         if (maxBlockNumber == null) {
             return;
         }
@@ -169,20 +174,23 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public String getNodeWithTheLatestBlockNumber() {
         try {
+            // in case of nodeWithLatestBlockNumber modified
+            final List<String> tmpNodeWithLatestBlockNumber =
+                    new ArrayList<>(nodeWithLatestBlockNumber);
             // the case that the sdk is allowed to access all the connected node, select the first
             // connected node to send the request
-            if (nodeWithLatestBlockNumber.size() > 0) {
+            if (tmpNodeWithLatestBlockNumber.size() > 0) {
                 // Note: when the nodeWithLatestBlockNumber modified, and the random value
                 // calculated after the modification, and the  nodeWithLatestBlockNumber.get is
                 // called after the modification, this function will throw
                 // ArrayIndexOutOfBoundsException
-                int random = (int) (Math.random() * (nodeWithLatestBlockNumber.size()));
-                return nodeWithLatestBlockNumber.get(random);
+                int random = (int) (Math.random() * (tmpNodeWithLatestBlockNumber.size()));
+                return tmpNodeWithLatestBlockNumber.get(random);
             }
         } catch (Exception e) {
-            logger.error(
-                    "getNodeWithTheLatestBlockNumber for {}, select the node to send message randomly",
-                    e.getMessage());
+            logger.warn(
+                    "getNodeWithTheLatestBlockNumber failed for {}, select the node to send message randomly",
+                    e);
         }
         // select the first element
         if (!groupNodeSet.isEmpty()) {

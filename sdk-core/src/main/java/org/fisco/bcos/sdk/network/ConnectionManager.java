@@ -96,6 +96,7 @@ public class ConnectionManager {
         /** try connection */
         List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
         for (ConnectionInfo connect : connectionInfoList) {
+            logger.debug("startConnect to {}", connect.getEndPoint());
             ChannelFuture channelFuture = bootstrap.connect(connect.getIp(), connect.getPort());
             connChannelFuture.add(channelFuture);
         }
@@ -175,7 +176,7 @@ public class ConnectionManager {
                     bootstrap.connect(connectionInfo.getIp(), connectionInfo.getPort());
             List<RetCode> errorMessageList = new ArrayList<>();
             if (checkConnectionResult(connectionInfo, connectFuture, errorMessageList)) {
-                logger.trace(
+                logger.info(
                         " reconnect to {}:{} success",
                         connectionInfo.getIp(),
                         connectionInfo.getPort());
@@ -231,11 +232,19 @@ public class ConnectionManager {
                             .build();
             return sslCtx;
         } catch (FileNotFoundException | SSLException e) {
+            logger.error(
+                    "initSslContext failed, caCert: {}, sslCert: {}, sslKey: {}, error: {}, e: {}",
+                    configOption.getCryptoMaterialConfig().getCaCertPath(),
+                    configOption.getCryptoMaterialConfig().getSdkCertPath(),
+                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath(),
+                    e.getMessage(),
+                    e);
             throw new NetworkException(
                     "SSL context init failed, please make sure your cert and key files are properly configured. error info: "
                             + e.getMessage(),
                     NetworkException.INIT_CONTEXT_FAILED);
         } catch (IllegalArgumentException e) {
+            logger.error("initSslContext failed, error: {}, e: {}", e.getMessage(), e);
             throw new NetworkException(
                     "SSL context init failed, error info: " + e.getMessage(),
                     NetworkException.INIT_CONTEXT_FAILED);
@@ -273,6 +282,15 @@ public class ConnectionManager {
                 | NoSuchAlgorithmException
                 | InvalidKeySpecException
                 | NoSuchProviderException e) {
+            logger.error(
+                    "initSMSslContext failed, caCert:{}, sslCert: {}, sslKey: {}, enCert: {}, enKey: {}, error: {}, e: {}",
+                    configOption.getCryptoMaterialConfig().getCaCertPath(),
+                    configOption.getCryptoMaterialConfig().getSdkCertPath(),
+                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath(),
+                    configOption.getCryptoMaterialConfig().getEnSSLCertPath(),
+                    configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath(),
+                    e.getMessage(),
+                    e);
             throw new NetworkException(
                     "SSL context init failed, please make sure your cert and key files are properly configured. error info: "
                             + e.getMessage(),
@@ -356,7 +374,7 @@ public class ConnectionManager {
                                 + ":"
                                 + connInfo.getPort()
                                 + checkerMessage;
-                logger.debug(sslHandshakeFailedMessage);
+                logger.error(sslHandshakeFailedMessage);
                 errorMessageList.add(
                         new RetCode(
                                 NetworkException.SSL_HANDSHAKE_FAILED, sslHandshakeFailedMessage));
@@ -375,7 +393,7 @@ public class ConnectionManager {
                                 + ":"
                                 + connInfo.getPort()
                                 + checkerMessage;
-                logger.debug(sslHandshakeFailedMessage);
+                logger.error(sslHandshakeFailedMessage);
                 errorMessageList.add(
                         new RetCode(
                                 NetworkException.SSL_HANDSHAKE_FAILED, sslHandshakeFailedMessage));
@@ -387,6 +405,7 @@ public class ConnectionManager {
     protected ChannelHandlerContext addConnectionContext(
             String ip, int port, ChannelHandlerContext ctx) {
         String endpoint = ip + ":" + port;
+        logger.debug("addConnectionContext, endpoint: {}, ctx:{}", endpoint, ctx);
         return availableConnections.put(endpoint, ctx);
     }
 

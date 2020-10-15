@@ -18,6 +18,8 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -77,6 +79,28 @@ public abstract class KeyTool {
      */
     public KeyTool(final String keyStoreFile) {
         this(keyStoreFile, null);
+    }
+
+    /**
+     * constructor for the P12: with password and key file input stream
+     *
+     * @param keyStoreFileInputStream the input stream of the keystore file
+     * @param password password to read the keystore file
+     */
+    public KeyTool(InputStream keyStoreFileInputStream, final String password) {
+        this.keyStoreFile = null;
+        this.password = password;
+        initSecurity();
+        this.load(keyStoreFileInputStream);
+    }
+
+    /**
+     * constructor for PEM with key file input stream
+     *
+     * @param keyStoreFileInputStream the input stream of the keystore file
+     */
+    public KeyTool(InputStream keyStoreFileInputStream) {
+        this(keyStoreFileInputStream, null);
     }
 
     protected abstract PrivateKey getPrivateKey();
@@ -185,17 +209,68 @@ public abstract class KeyTool {
         }
     }
 
+    private static Method getMethod(
+            Class<EC5Util> ec5UtilClass, String methodName, Class<?>... parameterTypes) {
+        try {
+            return ec5UtilClass.getDeclaredMethod(methodName, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            logger.warn("get method for EC5Util failed, method name: {}", methodName);
+            return null;
+        }
+    }
+
+    private static org.bouncycastle.jce.spec.ECParameterSpec convertToECParamSpec(
+            ECParameterSpec _ecParams) throws LoadKeyStoreException {
+        try {
+            Class<EC5Util> ec5UtilClass = EC5Util.class;
+            String methodName = "convertSpec";
+            Object ecParamSpec = null;
+            Object ec5utilObject = ec5UtilClass.newInstance();
+            Method methodDeclare = getMethod(ec5UtilClass, methodName, ECParameterSpec.class);
+            if (methodDeclare != null) {
+                ecParamSpec = methodDeclare.invoke(ec5utilObject, _ecParams);
+
+            } else {
+                methodDeclare =
+                        getMethod(ec5UtilClass, methodName, ECParameterSpec.class, boolean.class);
+                if (methodDeclare != null) {
+                    ecParamSpec = methodDeclare.invoke(ec5utilObject, _ecParams, false);
+                }
+            }
+            if (ecParamSpec != null) {
+                return (org.bouncycastle.jce.spec.ECParameterSpec) ecParamSpec;
+            }
+            logger.error(
+                    "convertToECParamSpec exception for {} not found, supported methodList: {}",
+                    methodName,
+                    (ec5UtilClass.getMethods() != null
+                            ? ec5UtilClass.getMethods().toString()
+                            : " none"));
+            throw new LoadKeyStoreException(
+                    "convertToECParamSpec exception for "
+                            + methodName
+                            + " not found! Please check the version of bcprov-jdk15on!");
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            logger.error(
+                    "convertToECParamSpec exception, error: {}, e: {}",
+                    e.getMessage(),
+                    e.getStackTrace().toString());
+            throw new LoadKeyStoreException("convertToECParamSpec exception for " + e.getMessage());
+        }
+    }
+
     protected PublicKey getPublicKeyFromPrivateKey() {
         return getPublicKeyFromPrivateKey(getPrivateKey());
     }
 
-    public static PublicKey getPublicKeyFromPrivateKey(PrivateKey privateKey) {
+    public static PublicKey getPublicKeyFromPrivateKey(PrivateKey privateKey)
+            throws LoadKeyStoreException {
         try {
             initSecurity();
             ECPrivateKey ecPrivateKey = (ECPrivateKey) privateKey;
             ECParameterSpec params = ecPrivateKey.getParams();
 
-            org.bouncycastle.jce.spec.ECParameterSpec bcSpec = EC5Util.convertSpec(params, false);
+            org.bouncycastle.jce.spec.ECParameterSpec bcSpec = convertToECParamSpec(params);
             org.bouncycastle.math.ec.ECPoint q = bcSpec.getG().multiply(ecPrivateKey.getS());
             org.bouncycastle.math.ec.ECPoint bcW =
                     bcSpec.getCurve().decodePoint(q.getEncoded(false));
@@ -217,8 +292,9 @@ public abstract class KeyTool {
     }
 
     @SuppressWarnings("unchecked")
-    private static ECParameterSpec tryFindNamedCurveSpec(ECParameterSpec params) {
-        org.bouncycastle.jce.spec.ECParameterSpec bcSpec = EC5Util.convertSpec(params, false);
+    private static ECParameterSpec tryFindNamedCurveSpec(ECParameterSpec params)
+            throws LoadKeyStoreException {
+        org.bouncycastle.jce.spec.ECParameterSpec bcSpec = convertToECParamSpec(params);
         for (Object name : Collections.list(ECNamedCurveTable.getNames())) {
             ECNamedCurveParameterSpec bcNamedSpec =
                     ECNamedCurveTable.getParameterSpec((String) name);

@@ -65,6 +65,10 @@ public class SignatureTest {
         System.out.println("keyPair.getHexPublicKey(): " + keyPair.getHexPublicKey());
         Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey().substring(2));
         testSignature(cryptoSuite, keyPair);
+
+        String hexedPrivateKeyStr = "bcec428d5205abe0f0cc8a734083908d9eb8563e31f943d760786edf42ad67dd";
+        keyPair = cryptoSuite.getKeyPairFactory().createKeyPair(hexedPrivateKeyStr);
+        testSignature(cryptoSuite, keyPair);
     }
 
     @Test

@@ -344,7 +344,7 @@ public interface Client {
      *
      * @param blockNumber the number of the block
      * @param returnSignatureList the boolean define the signature list is returned or not
-     * @return the block header responsed from the blockchain node
+     * @return the block header response from the blockchain node
      */
     BcosBlockHeader getBlockHeaderByNumber(BigInteger blockNumber, boolean returnSignatureList);
 
@@ -695,7 +695,7 @@ public interface Client {
     /**
      * Peer operation: get connected peers
      *
-     * @param endpoint: the target node that receive the request
+     * @param endpoint the target node that receive the request
      * @return peers
      */
     Peers getPeers(String endpoint);
