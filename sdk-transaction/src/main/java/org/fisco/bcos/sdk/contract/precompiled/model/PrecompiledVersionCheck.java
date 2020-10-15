@@ -19,9 +19,13 @@ public class PrecompiledVersionCheck {
             new Version("getContractAddress", "2.3.0");
     public static final Version CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION =
             new Version("ContractLifeCycle", "2.3.0");
+    public static final Version CONTRACT_LIFE_CYCLE_REVOKE_MANAGER_VERSION =
+            new Version("ContractLifeCyclePrecompiled.revokeManager", "2.7.0");
     public static final Version TABLE_CRUD_PRECOMPILED_VERSION = new Version("CRUD", "2.0.0-rc3");
     public static final Version CHAIN_GOVERNANCE_PRECOMPILED_VERSION =
             new Version("ChainGovernance", "2.5.0");
+    public static final Version CHAIN_GOVERNANCE_PRECOMPILED_QUERY_VERSION =
+            new Version("queryVotesOfMember and queryVotesOfThreshold ", "2.7.0");
     public static final Version TABLE_PERMISSION_PRECOMPILED_VERSION =
             new Version("Permission", "2.0.0-rc3");
     public static final Version GRANT_WRITE_PERMISSION_PRECOMPILED_VERSION =

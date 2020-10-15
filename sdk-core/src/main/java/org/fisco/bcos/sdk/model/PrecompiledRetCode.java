@@ -46,6 +46,11 @@ public class PrecompiledRetCode {
             new RetCode(-52000, "The committee member already exist");
 
     // ContractLifeCyclePrecompiled -51999 ~ -51900
+    public static final RetCode CODE_INVALID_REVOKE_LAST_AUTHORIZATION =
+            new RetCode(
+                    -51907, "The permission of the last contract status manager can't be revoked");
+    public static final RetCode CODE_INVALID_NON_EXIST_AUTHORIZATION =
+            new RetCode(-51906, "The contract status manager doesn't exist");
     public static final RetCode CODE_INVALID_NO_AUTHORIZED =
             new RetCode(-51905, "Have no permission to access the contract table");
     public static final RetCode CODE_INVALID_TABLE_NOT_EXIST =
@@ -100,7 +105,7 @@ public class PrecompiledRetCode {
                     -51004,
                     "The committee permission control by ChainGovernancePrecompiled are recommended");
     public static final RetCode CODE_CONTRACT_NOT_EXIST =
-            new RetCode(-51003, "The contract is not exist");
+            new RetCode(-51003, "The contract doesn't exist");
     public static final RetCode CODE_TABLE_NAME_OVERFLOW =
             new RetCode(-51002, "The table name string length exceeds the maximum limit");
     public static final RetCode CODE_TABLE_AND_ADDRESS_NOT_EXIST =
