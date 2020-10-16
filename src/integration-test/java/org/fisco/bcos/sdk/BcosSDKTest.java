@@ -1,14 +1,16 @@
 /*
  * Copyright 2014-2020  [fisco-dev]
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
  *
  */
@@ -21,6 +23,7 @@ import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceiptsDecoder;
 import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.ConsensusStatus;
@@ -311,6 +314,29 @@ public class BcosSDKTest {
                     helloWorld2, client, blockNumber.add(BigInteger.valueOf(3)), receipt2, true);
             Assert.assertTrue(helloWorld.get().equals(settedString));
             Assert.assertTrue(helloWorld2.get().equals(settedString));
+
+            // test getBatchReceiptsByBlockHashAndRange(added after v2.7.0)
+            BcosTransactionReceiptsDecoder bcosTransactionReceiptsDecoder =
+                    client.getBatchReceiptsByBlockHashAndRange(
+                            client.getBlockHashByNumber(client.getBlockNumber().getBlockNumber())
+                                    .getBlockHashByNumber(),
+                            "0",
+                            "-1");
+            System.out.println(
+                    "### bcosTransactionReceiptsDecoder1: "
+                            + bcosTransactionReceiptsDecoder
+                                    .decodeTransactionReceiptsInfo()
+                                    .toString());
+            // test getBatchReceiptsByBlockNumberAndRange
+            bcosTransactionReceiptsDecoder =
+                    client.getBatchReceiptsByBlockNumberAndRange(
+                            client.getBlockNumber().getBlockNumber(), "0", "-1");
+            System.out.println(
+                    "### bcosTransactionReceiptsDecoder2: "
+                            + bcosTransactionReceiptsDecoder
+                                    .decodeTransactionReceiptsInfo()
+                                    .toString());
+
         } catch (ContractException | ClientException | InterruptedException e) {
             System.out.println("testSendTransactions exceptioned, error info:" + e.getMessage());
         }
