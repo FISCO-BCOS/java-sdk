@@ -88,7 +88,7 @@ public class PerformanceTable {
             TableTest tableTest =
                     TableTest.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
             // create table
-            tableTest.create();
+            // tableTest.create();
             System.out.println(
                     "====== Deploy TableTest success, address: "
                             + tableTest.getContractAddress()

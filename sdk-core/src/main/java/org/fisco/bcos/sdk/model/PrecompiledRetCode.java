@@ -77,6 +77,8 @@ public class PrecompiledRetCode {
             new RetCode(-51600, "Execute PaillierAdd failed");
 
     // CRUDPrecompiled -51599 ~ -51500
+    public static final RetCode CODE_INVALID_UPDATE_TABLE_KEY =
+            new RetCode(-51503, "Don't update the table key");
     public static final RetCode CODE_CONDITION_OPERATION_UNDEFINED =
             new RetCode(-51502, "Undefined function of Condition Precompiled");
     public static final RetCode CODE_PARSE_CONDITION_ERROR =
