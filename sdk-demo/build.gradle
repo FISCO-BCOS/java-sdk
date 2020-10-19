@@ -8,4 +8,3 @@ dependencies {
 	compile ("com.google.guava:guava:${guavaVersion}")
     compile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
 }
-
