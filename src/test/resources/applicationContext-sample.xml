@@ -48,7 +48,7 @@
 				<entry key="keyStoreDir" value="account" />
 				<entry key="accountAddress" value="" />
 				<entry key="accountFileFormat" value="pem" />
-				<entry key="accountPassword" value="" />
+				<entry key="password" value="" />
 				<entry key="accountFilePath" value="" />
 			</map>
 		</property>
