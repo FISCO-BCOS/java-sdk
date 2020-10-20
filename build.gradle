@@ -64,7 +64,7 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
-		maven { url "https://oss.sonatype.org/service/local/staging/deploy/maven2"}
+        maven { url "https://oss.sonatype.org/service/local/staging/deploy/maven2"}
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     }
 
