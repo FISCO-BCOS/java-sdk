@@ -15,14 +15,13 @@
 package org.fisco.bcos.sdk.transaction.builder;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.transaction.model.gas.DefaultGasProvider;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 
 public class TransactionBuilderService implements TransactionBuilderInterface {
-
-    private SecureRandom secureRandom = new SecureRandom();
     private Client client;
 
     /**
@@ -45,7 +44,8 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
             BigInteger chainId,
             BigInteger groupId,
             String extraData) {
-        BigInteger randomId = new BigInteger(250, secureRandom);
+        Random r = ThreadLocalRandom.current();
+        BigInteger randomId = new BigInteger(250, r);
         BigInteger blockLimit = client.getBlockLimit();
         return RawTransaction.createTransaction(
                 randomId,
