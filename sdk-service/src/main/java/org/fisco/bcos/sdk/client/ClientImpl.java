@@ -50,6 +50,7 @@ import org.fisco.bcos.sdk.client.protocol.response.StartGroup;
 import org.fisco.bcos.sdk.client.protocol.response.StopGroup;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
+import org.fisco.bcos.sdk.client.protocol.response.TopicSubscribers;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
@@ -832,6 +833,24 @@ public class ClientImpl implements Client {
         this.jsonRpcService.asyncSendRequestToGroup(
                 new JsonRpcRequest(JsonRpcMethods.GET_NODE_VERSION, Arrays.asList()),
                 NodeVersion.class,
+                callback);
+    }
+
+    @Override
+    public TopicSubscribers getAmopTopicSubscribers(String topicName, String peerIpPort) {
+        return this.jsonRpcService.sendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.GET_TOPIC_SUBSCRIBERS, Arrays.asList(topicName)),
+                peerIpPort,
+                TopicSubscribers.class);
+    }
+
+    @Override
+    public void getAmopTopicSubscribers(
+            String topicName, String peerIpPort, RespCallback<TopicSubscribers> callback) {
+        this.jsonRpcService.asyncSendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.GET_TOPIC_SUBSCRIBERS, Arrays.asList(topicName)),
+                peerIpPort,
+                TopicSubscribers.class,
                 callback);
     }
 
