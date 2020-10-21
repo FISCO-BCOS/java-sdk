@@ -52,6 +52,10 @@ public class ContractLoader {
     }
 
     public BinInfo binInfo(String binaryFilePath) throws IOException {
+        if (StringUtils.isEmpty(binaryFilePath)) {
+            log.warn("Empty bin directory, cannot deploy any contract");
+            return new BinInfo(Collections.emptyMap());
+        }
         String[] s = {"bin"};
         Collection<File> fileCollection = FileUtils.listFiles(new File(binaryFilePath), s, true);
         if (fileCollection.isEmpty()) {
