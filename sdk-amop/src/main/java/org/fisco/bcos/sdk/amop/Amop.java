@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.UUID;
 import org.fisco.bcos.sdk.amop.topic.TopicManager;
 import org.fisco.bcos.sdk.channel.Channel;
-import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 
@@ -81,7 +80,7 @@ public interface Amop {
      * @param content the sent message
      * @param callback the callback that will be called when receive the AMOP response
      */
-    void sendAmopMsg(AmopMsgOut content, ResponseCallback callback);
+    void sendAmopMsg(AmopMsgOut content, AmopResponseCallback callback);
 
     /**
      * Send amop msg
@@ -98,14 +97,6 @@ public interface Amop {
     Set<String> getSubTopics();
 
     /**
-     * Get list of subscribers to a topic
-     *
-     * @param topicName the topic you want to query
-     * @return List of subscribers
-     */
-    List<String> getTopicSubscribers(String topicName);
-
-    /**
      * set amop default callback
      *
      * @param cb the amop callback
@@ -117,9 +108,6 @@ public interface Amop {
 
     /** Stop. */
     void stop();
-
-    /** If configured private topic, wait until finish verify */
-    void waitFinishPrivateTopicVerify();
 
     /**
      * generate message sequence string
