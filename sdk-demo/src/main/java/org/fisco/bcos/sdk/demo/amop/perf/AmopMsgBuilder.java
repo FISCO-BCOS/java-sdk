@@ -3,9 +3,9 @@ package org.fisco.bcos.sdk.demo.amop.perf;
 import java.util.Random;
 import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.amop.AmopMsgOut;
+import org.fisco.bcos.sdk.amop.AmopResponse;
+import org.fisco.bcos.sdk.amop.AmopResponseCallback;
 import org.fisco.bcos.sdk.amop.topic.TopicType;
-import org.fisco.bcos.sdk.channel.ResponseCallback;
-import org.fisco.bcos.sdk.model.Response;
 
 public class AmopMsgBuilder {
 
@@ -17,10 +17,10 @@ public class AmopMsgBuilder {
         out.setTimeout(5000);
         out.setContent(getRandomBytes(contentLen));
 
-        ResponseCallback callback =
-                new ResponseCallback() {
+        AmopResponseCallback callback =
+                new AmopResponseCallback() {
                     @Override
-                    public void onResponse(Response response) {
+                    public void onResponse(AmopResponse response) {
                         collector.addResponse();
                         if (response.getErrorCode() != 0) {
                             System.out.println(
