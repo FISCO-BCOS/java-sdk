@@ -67,7 +67,7 @@ public class EventDecodeTest {
         EventLog eventLog = new EventLog(log.getData(), log.getTopics());
         List<Object> list = abiCodec.decodeEvent(abi, "LogInit", eventLog);
         Assert.assertEquals("test2", list.get(1));
-        Map<String, List<Object>> map = response.getEventResultMap();
-        Assert.assertEquals("test2", map.get("LogInit").get(1));
+        Map<String, List<List<Object>>> map = response.getEventResultMap();
+        Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
     }
 }

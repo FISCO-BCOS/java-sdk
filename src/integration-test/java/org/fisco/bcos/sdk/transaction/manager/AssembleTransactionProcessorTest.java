@@ -141,8 +141,8 @@ public class AssembleTransactionProcessorTest {
                                 contractAddress,
                                 "0x0000000000000000000000000000000000000000000000000000000000000000"));
         // System.out.println(JsonUtils.toJson(response));
-        Map<String, List<Object>> map = response.getEventResultMap();
-        Assert.assertEquals("test2", map.get("LogInit").get(1));
+        Map<String, List<List<Object>>> map = response.getEventResultMap();
+        Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
     }
 
     @Test
@@ -296,9 +296,9 @@ public class AssembleTransactionProcessorTest {
                 transactionProcessor.sendTransactionAndGetResponse(
                         contractAddress, abi, "setValues", paramsSetValues);
         // System.out.println(JsonUtils.toJson(transactionResponse));
-        Map<String, List<Object>> eventsMap = transactionResponse.getEventResultMap();
+        Map<String, List<List<Object>>> eventsMap = transactionResponse.getEventResultMap();
         Assert.assertEquals(1, eventsMap.size());
-        Assert.assertEquals("set values 字符串", eventsMap.get("LogSetValues").get(2));
+        Assert.assertEquals("set values 字符串", eventsMap.get("LogSetValues").get(0).get(2));
     }
 
     @Test
@@ -330,10 +330,10 @@ public class AssembleTransactionProcessorTest {
         Assert.assertEquals(transactionResponse3.getValuesList().size(), 1);
         Assert.assertEquals(transactionResponse3.getValuesList().get(0), "set bytes test");
 
-        Map<String, List<Object>> eventsMap3 = transactionResponse3.getEventResultMap();
-        // System.out.println(JsonUtils.toJson(eventsMap3));
+        Map<String, List<List<Object>>> eventsMap3 = transactionResponse3.getEventResultMap();
+        System.out.println(JsonUtils.toJson(eventsMap3));
         Assert.assertEquals(1, eventsMap3.size());
-        Assert.assertEquals("set bytes test", eventsMap3.get("LogSetBytes").get(1));
+        Assert.assertEquals("set bytes test", eventsMap3.get("LogSetBytes").get(0).get(1));
 
         // getBytes
         CallResponse callResponse4 =
