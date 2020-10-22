@@ -43,6 +43,6 @@ public interface TransactionDecoderInterface {
             String abi, TransactionReceipt transactionReceipt)
             throws TransactionException, IOException, ABICodecException;
 
-    public Map<String, List<Object>> decodeEvents(String abi, List<Logs> logs)
+    public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
             throws ABICodecException;
 }

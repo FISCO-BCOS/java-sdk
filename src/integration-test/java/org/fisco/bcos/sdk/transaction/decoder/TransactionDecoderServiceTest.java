@@ -29,7 +29,6 @@ import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionProcessor;
 import org.fisco.bcos.sdk.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
-import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -76,11 +75,14 @@ public class TransactionDecoderServiceTest {
                         Lists.newArrayList(BigInteger.valueOf(1)));
         TransactionResponse transactionResponseWithoutValues =
                 decoder.decodeReceiptWithoutValues(abi, transactionReceipt);
-        System.out.println(JsonUtils.toJson(transactionResponseWithoutValues));
+        // System.out.println(JsonUtils.toJson(transactionResponseWithoutValues));
         TransactionResponse transactionResponseWithValues =
                 decoder.decodeReceiptWithValues(abi, "incrementUint256", transactionReceipt);
+        // System.out.println(JsonUtils.toJson(transactionResponseWithValues));
         Assert.assertEquals("Success", transactionResponseWithValues.getReceiptMessages());
-        Map<String, List<Object>> events = decoder.decodeEvents(abi, transactionReceipt.getLogs());
+        Map<String, List<List<Object>>> events =
+                decoder.decodeEvents(abi, transactionReceipt.getLogs());
+        // System.out.println(JsonUtils.toJson(events));
         Assert.assertEquals(1, events.size());
         // setBytes
         List<Object> s = Lists.newArrayList("2".getBytes());
