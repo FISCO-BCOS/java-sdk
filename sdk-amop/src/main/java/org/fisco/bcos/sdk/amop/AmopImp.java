@@ -142,11 +142,6 @@ public class AmopImp implements Amop {
     }
 
     @Override
-    public List<String> getTopicSubscribers(String topicName) {
-        return null;
-    }
-
-    @Override
     public void setCallback(AmopCallback cb) {
         topicManager.setCallback(cb);
     }

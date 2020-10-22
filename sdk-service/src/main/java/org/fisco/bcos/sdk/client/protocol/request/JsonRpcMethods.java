@@ -19,6 +19,7 @@ public class JsonRpcMethods {
     public static final String GET_BLOCK_NUMBER = "getBlockNumber";
 
     public static final String GET_NODE_VERSION = "getClientVersion";
+    public static final String GET_TOPIC_SUBSCRIBERS = "getAmopTopicSubscribers";
     public static final String GET_PBFT_VIEW = "getPbftView";
     public static final String GET_SEALER_LIST = "getSealerList";
     public static final String GET_SYSTEM_CONFIG_BY_KEY = "getSystemConfigByKey";

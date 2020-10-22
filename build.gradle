@@ -1,6 +1,6 @@
 // Apply the java-library plugin to add support for Java Library
 plugins {
-    id 'com.github.sherter.google-java-format' version '0.8'
+//    id 'com.github.sherter.google-java-format' version '0.8'
     id 'maven-publish'
 }
 println("Notice: current gradle version is " + gradle.gradleVersion)
@@ -186,16 +186,16 @@ dependencies {
     testCompile ("org.fisco-bcos:solcJ:${solcJVersion}")
     testCompile ("com.google.guava:guava:${guavaVersion}")
 }
-googleJavaFormat {
-    options style: 'AOSP'
-     source = sourceSets*.allJava
-    include '**/*.java'
-}
+//googleJavaFormat {
+//    options style: 'AOSP'
+//     source = sourceSets*.allJava
+//    include '**/*.java'
+//}
 
-verifyGoogleJavaFormat {
-    source = sourceSets*.allJava
-    include '**/*.java'
-}
+//verifyGoogleJavaFormat {
+//    source = sourceSets*.allJava
+//    include '**/*.java'
+//}
 
 javadoc {
     options.addStringOption('Xdoclint:none', '-quiet')

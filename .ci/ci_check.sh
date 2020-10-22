@@ -8,7 +8,7 @@ LOG_INFO() {
 check_basic()
 {
 # check code format
-bash gradlew verifyGoogleJavaFormat
+# bash gradlew verifyGoogleJavaFormat
 # build
 bash gradlew build --info
 }

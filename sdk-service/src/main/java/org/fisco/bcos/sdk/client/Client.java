@@ -48,6 +48,7 @@ import org.fisco.bcos.sdk.client.protocol.response.StartGroup;
 import org.fisco.bcos.sdk.client.protocol.response.StopGroup;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
+import org.fisco.bcos.sdk.client.protocol.response.TopicSubscribers;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
 import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
@@ -781,6 +782,25 @@ public interface Client {
      * @param callback the callback instance
      */
     void getNodeVersion(RespCallback<NodeVersion> callback);
+
+    /**
+     * Get list of subscribers to a topic
+     *
+     * @param topicName the topic you want to query
+     * @param peerIpPort the node you want to send to
+     * @return List of subscribers
+     */
+    TopicSubscribers getAmopTopicSubscribers(String topicName, String peerIpPort);
+
+    /**
+     * Get list of subscribers to a topic
+     *
+     * @param topicName the topic you want to query
+     * @param peerIpPort the node you want to send to
+     * @param callback the topic you want to query
+     */
+    void getAmopTopicSubscribers(
+            String topicName, String peerIpPort, RespCallback<TopicSubscribers> callback);
 
     /**
      * get receipt list according to the block number and the given range

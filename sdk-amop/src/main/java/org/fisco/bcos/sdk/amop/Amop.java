@@ -98,14 +98,6 @@ public interface Amop {
     Set<String> getSubTopics();
 
     /**
-     * Get list of subscribers to a topic
-     *
-     * @param topicName the topic you want to query
-     * @return List of subscribers
-     */
-    List<String> getTopicSubscribers(String topicName);
-
-    /**
      * set amop default callback
      *
      * @param cb the amop callback
