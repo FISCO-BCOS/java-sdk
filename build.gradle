@@ -1,5 +1,7 @@
 // Apply the java-library plugin to add support for Java Library
 plugins {
+    id 'java'
+    id 'java-library'
     id 'com.github.sherter.google-java-format' version '0.8'
     id 'maven-publish'
 }
@@ -57,11 +59,14 @@ allprojects {
             html.enabled false
         }
     }
-    sourceCompatibility = '1.8'
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     // In this section you declare where to find the dependencies of your project
     repositories {
+        jcenter()
         maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+		maven { url "https://oss.sonatype.org/service/local/staging/deploy/maven2"}
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
         mavenCentral()
     }
@@ -186,6 +191,7 @@ dependencies {
     testCompile ("org.fisco-bcos:solcJ:${solcJVersion}")
     testCompile ("com.google.guava:guava:${guavaVersion}")
 }
+
 googleJavaFormat {
     options style: 'AOSP'
      source = sourceSets*.allJava
