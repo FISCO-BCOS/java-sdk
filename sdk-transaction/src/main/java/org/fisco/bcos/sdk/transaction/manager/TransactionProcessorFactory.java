@@ -53,7 +53,7 @@ public class TransactionProcessorFactory {
         }
     }
 
-    public static TransactionProcessor createTransactionManager(
+    public static TransactionProcessor createTransactionProcessor(
             Client client, CryptoKeyPair cryptoKeyPair) {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
         return new TransactionProcessor(client, cryptoKeyPair, pair.getRight(), pair.getLeft());

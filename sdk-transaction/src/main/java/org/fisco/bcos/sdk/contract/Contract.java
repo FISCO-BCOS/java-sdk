@@ -96,7 +96,7 @@ public class Contract {
                 contractAddress,
                 client,
                 credential,
-                TransactionProcessorFactory.createTransactionManager(client, credential));
+                TransactionProcessorFactory.createTransactionProcessor(client, credential));
     }
 
     protected static <T extends Contract> T deploy(
@@ -132,7 +132,7 @@ public class Contract {
                 type,
                 client,
                 credential,
-                TransactionProcessorFactory.createTransactionManager(client, credential),
+                TransactionProcessorFactory.createTransactionProcessor(client, credential),
                 binary,
                 encodedConstructor);
     }

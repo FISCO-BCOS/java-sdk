@@ -9,8 +9,6 @@ import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.amop.AmopMsgOut;
 import org.fisco.bcos.sdk.amop.topic.TopicType;
-import org.fisco.bcos.sdk.channel.ResponseCallback;
-import org.fisco.bcos.sdk.model.Response;
 
 public class AmopPublisherFile {
     private static final int parameterNum = 4;
@@ -64,27 +62,7 @@ public class AmopPublisherFile {
             out.setContent(content);
             out.setTimeout(timeout);
             out.setTopic(topicName);
-            ResponseCallback cb =
-                    new ResponseCallback() {
-                        @Override
-                        public void onResponse(Response response) {
-                            if (response.getErrorCode() == 102) {
-                                System.out.println(
-                                        "Step 3: Timeout, maybe your file is too large or your gave a short timeout. Add a timeout arg, topicName, isBroadcast: true/false, fileName, count, timeout");
-                            } else {
-                                System.out.println(
-                                        "Step 3:Get response, { errorCode:"
-                                                + response.getErrorCode()
-                                                + " error:"
-                                                + response.getErrorMessage()
-                                                + " seq:"
-                                                + response.getMessageID()
-                                                + " content:"
-                                                + new String(response.getContentBytes())
-                                                + " }");
-                            }
-                        }
-                    };
+            DemoAmopResponseCallback cb = new DemoAmopResponseCallback();
             if (isBroadcast) {
                 amop.broadcastAmopMsg(out);
             } else {

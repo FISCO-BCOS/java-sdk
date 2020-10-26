@@ -34,6 +34,7 @@ import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
+import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,7 @@ public class AmopImp implements Amop {
     }
 
     @Override
-    public void sendAmopMsg(AmopMsgOut content, ResponseCallback callback) {
+    public void sendAmopMsg(AmopMsgOut content, AmopResponseCallback callback) {
         if (!topicManager.canSendTopicMsg(content)) {
             logger.error(
                     "can not send this amop private msg out, you have not configured the public keys. topic:{}",
@@ -110,7 +111,15 @@ public class AmopImp implements Amop {
         msg.setData(content.getContent());
         Options ops = new Options();
         ops.setTimeout(content.getTimeout());
-        this.channel.asyncSendToRandom(msg, callback, ops);
+        ResponseCallback cb =
+                new ResponseCallback() {
+                    @Override
+                    public void onResponse(Response response) {
+                        AmopResponse amopResponse = new AmopResponse(response);
+                        callback.onResponse(amopResponse);
+                    }
+                };
+        this.channel.asyncSendToRandom(msg, cb, ops);
         logger.info(
                 "send amop msg to a random peer, seq{} topic{}", msg.getSeq(), content.getTopic());
     }
@@ -158,11 +167,6 @@ public class AmopImp implements Amop {
         logger.info("amop module stopped");
         amopMsgHandler.setIsRunning(false);
         unSubscribeAll();
-    }
-
-    @Override
-    public void waitFinishPrivateTopicVerify() {
-        // todo add wait function
     }
 
     private void unSubscribeAll() {

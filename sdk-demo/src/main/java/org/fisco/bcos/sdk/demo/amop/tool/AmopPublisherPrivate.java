@@ -6,10 +6,8 @@ import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.amop.AmopMsgOut;
 import org.fisco.bcos.sdk.amop.topic.TopicType;
-import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
-import org.fisco.bcos.sdk.model.Response;
 
 public class AmopPublisherPrivate {
     private static final int parameterNum = 6;
@@ -72,23 +70,7 @@ public class AmopPublisherPrivate {
             out.setContent(content.getBytes());
             out.setTimeout(6000);
             out.setTopic(topicName);
-            ResponseCallback cb =
-                    new ResponseCallback() {
-                        @Override
-                        public void onResponse(Response response) {
-
-                            System.out.println(
-                                    "Step 3:Get response, { errorCode:"
-                                            + response.getErrorCode()
-                                            + " error:"
-                                            + response.getErrorMessage()
-                                            + " seq:"
-                                            + response.getMessageID()
-                                            + " content:"
-                                            + new String(response.getContentBytes())
-                                            + " }");
-                        }
-                    };
+            DemoAmopResponseCallback cb = new DemoAmopResponseCallback();
             if (isBroadcast) {
                 amop.broadcastAmopMsg(out);
                 System.out.println(

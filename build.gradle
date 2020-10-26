@@ -1,6 +1,6 @@
 // Apply the java-library plugin to add support for Java Library
 plugins {
-//    id 'com.github.sherter.google-java-format' version '0.8'
+    id 'com.github.sherter.google-java-format' version '0.8'
     id 'maven-publish'
 }
 println("Notice: current gradle version is " + gradle.gradleVersion)
@@ -20,10 +20,10 @@ ext {
     javapoetVersion = "1.7.0"
     picocliVersion = "3.6.0"
     nettyVersion = "4.1.50.Final"
-    nettySMSSLContextVersion = "1.1.0"
+    nettySMSSLContextVersion = "1.2.0"
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
-    keyMiniToolkit = "1.0.0"
+    keyMiniToolkit = "1.0.2-SNAPSHOT"
 
     solcJVersion = "0.4.25.1"
     //solcJVersion = "0.5.2.0"
@@ -186,16 +186,16 @@ dependencies {
     testCompile ("org.fisco-bcos:solcJ:${solcJVersion}")
     testCompile ("com.google.guava:guava:${guavaVersion}")
 }
-//googleJavaFormat {
-//    options style: 'AOSP'
-//     source = sourceSets*.allJava
-//    include '**/*.java'
-//}
+googleJavaFormat {
+    options style: 'AOSP'
+     source = sourceSets*.allJava
+    include '**/*.java'
+}
 
-//verifyGoogleJavaFormat {
-//    source = sourceSets*.allJava
-//    include '**/*.java'
-//}
+verifyGoogleJavaFormat {
+    source = sourceSets*.allJava
+    include '**/*.java'
+}
 
 javadoc {
     options.addStringOption('Xdoclint:none', '-quiet')
