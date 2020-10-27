@@ -11,16 +11,17 @@ public class PerformanceAmop {
     private static final String senderConfig =
             PerformanceAmop.class
                     .getClassLoader()
-                    .getResource("config-sender-for-test.toml")
+                    .getResource("amop/config-publisher-for-test.toml")
                     .getPath();
     private static final String subscriberConfig =
             PerformanceAmop.class
                     .getClassLoader()
-                    .getResource("config-subscriber-for-test.toml")
+                    .getResource("amop/config-subscriber-for-test.toml")
                     .getPath();
     private static AtomicInteger sendedMsg = new AtomicInteger(0);
     private static AmopMsgBuilder msgBuilder = new AmopMsgBuilder();
 
+    /** @param args count, qps, msgSize */
     public static void main(String[] args) {
         try {
             Integer count = Integer.valueOf(args[0]);
