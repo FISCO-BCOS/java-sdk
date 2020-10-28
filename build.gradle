@@ -61,9 +61,9 @@ allprojects {
 
     // In this section you declare where to find the dependencies of your project
     repositories {
+        jcenter()
         maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-        mavenCentral()
     }
 
     dependencies {
