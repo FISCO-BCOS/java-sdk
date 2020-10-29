@@ -233,7 +233,7 @@ public class JsonRpcService {
 
         } catch (JsonProcessingException e) {
             logger.error(
-                    "parseResponseIntoJsonRpcResponse failed for decode the message exceptioned, errorMessge: {}, groupId: {}",
+                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}, groupId: {}",
                     e.getMessage(),
                     this.groupId);
             throw new ClientException(

@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
@@ -92,11 +93,12 @@ public class TransactionResponse extends CommonResponse {
         return events;
     }
 
-    public Map<String, List<Object>> getEventResultMap() {
+    @JsonIgnore
+    public Map<String, List<List<Object>>> getEventResultMap() {
         if (StringUtils.isEmpty(events)) {
             return null;
         }
-        return JsonUtils.fromJson(events, new TypeReference<Map<String, List<Object>>>() {});
+        return JsonUtils.fromJson(events, new TypeReference<Map<String, List<List<Object>>>>() {});
     }
 
     /** @param events the events to set */

@@ -15,6 +15,7 @@
 
 package org.fisco.bcos.sdk.amop.topic;
 
+import static org.fisco.bcos.sdk.amop.topic.TopicManager.topicNeedVerifyPrefix;
 import static org.fisco.bcos.sdk.amop.topic.TopicManager.verifyChannelPrefix;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -235,6 +236,19 @@ public class AmopMsgHandler implements MsgHandler {
                         amopMsg.getTopic().substring(0, verifyChannelPrefix.length()));
     }
 
+    public static boolean isPrivateTopic(String topic) {
+        return topic.length() > topicNeedVerifyPrefix.length()
+                && topicNeedVerifyPrefix.equals(topic.substring(0, topicNeedVerifyPrefix.length()));
+    }
+
+    public static String removePrivateTopicPrefix(String topic) {
+        if (isPrivateTopic(topic)) {
+            return topic.substring(topicNeedVerifyPrefix.length());
+        } else {
+            return topic;
+        }
+    }
+
     private String getSimpleTopic(String fullTopic) {
         return fullTopic.substring(verifyChannelPrefix.length(), fullTopic.length() - 33);
     }
@@ -284,6 +298,10 @@ public class AmopMsgHandler implements MsgHandler {
         }
         AmopMsgIn msgIn = new AmopMsgIn();
         msgIn.setTopic(amopMsg.getTopic());
+        if (isPrivateTopic(amopMsg.getTopic())) {
+            msgIn.setTopic(removePrivateTopicPrefix(amopMsg.getTopic()));
+            msgIn.setTopicType(TopicType.PRIVATE_TOPIC);
+        }
         msgIn.setMessageID(amopMsg.getSeq());
         msgIn.setContent(amopMsg.getData());
         msgIn.setResult(amopMsg.getResult());

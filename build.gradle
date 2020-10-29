@@ -19,11 +19,11 @@ ext {
     commonsLang3Version = "3.1"
     javapoetVersion = "1.7.0"
     picocliVersion = "3.6.0"
-    nettyVersion = "4.1.50.Final"
-    nettySMSSLContextVersion = "1.1.0"
+    nettyVersion = "4.1.53.Final"
+    nettySMSSLContextVersion = "1.2.0"
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
-    keyMiniToolkit = "1.0.0"
+    keyMiniToolkit = "1.0.2"
 
     solcJVersion = "0.4.25.1"
     //solcJVersion = "0.5.2.0"
@@ -38,7 +38,7 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '2.6.1-rc1'
+    version = '2.6.1-SNAPSHOT'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
@@ -61,7 +61,7 @@ allprojects {
 
     // In this section you declare where to find the dependencies of your project
     repositories {
-        jcenter()
+        mavenCentral()
         maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     }
@@ -147,6 +147,10 @@ sourceSets {
         }
     }
     integrationTest {
+        copy {
+            from file('src/test/resources/amop/')
+            into 'conf/amop'
+        }
         java {
             compileClasspath += main.output + test.output
             runtimeClasspath += main.output + test.output
@@ -156,6 +160,13 @@ sourceSets {
         resources.srcDir file('src/integration-test/resources')
     }
 }
+
+googleJavaFormat {
+    options style: 'AOSP'
+    source = sourceSets*.allJava
+    include '**/*.java'
+}
+
 configurations {
     integrationTestCompile.extendsFrom testCompile
     integrationTestRuntime.extendsFrom testRuntime
@@ -181,16 +192,6 @@ dependencies {
     testCompile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
     testCompile ("org.fisco-bcos:solcJ:${solcJVersion}")
     testCompile ("com.google.guava:guava:${guavaVersion}")
-}
-googleJavaFormat {
-    options style: 'AOSP'
-     source = sourceSets*.allJava
-    include '**/*.java'
-}
-
-verifyGoogleJavaFormat {
-    source = sourceSets*.allJava
-    include '**/*.java'
 }
 
 javadoc {
@@ -309,10 +310,6 @@ jar {
             from file('src/test/resources/applicationContext-sample.xml')
             from file('src/test/resources/log4j.properties')
             into 'dist/conf'
-        }
-        copy {
-            from file('src/test/resources/amop/')
-            into 'conf/amop'
         }
     }
 }

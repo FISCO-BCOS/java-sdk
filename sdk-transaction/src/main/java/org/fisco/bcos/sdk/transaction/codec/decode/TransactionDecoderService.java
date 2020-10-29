@@ -15,6 +15,7 @@
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,17 +112,18 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
 
     @SuppressWarnings("static-access")
     @Override
-    public Map<String, List<Object>> decodeEvents(String abi, List<Logs> logs)
+    public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
             throws ABICodecException {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(abi);
         Map<String, List<ABIDefinition>> eventsMap = contractABIDefinition.getEvents();
-        Map<String, List<Object>> result = new HashMap<>();
+        Map<String, List<List<Object>>> result = new HashMap<>();
         eventsMap.forEach(
                 (name, events) -> {
                     for (ABIDefinition abiDefinition : events) {
                         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
-                        ABIObject outputObject = abiObjectFactory.createInputObject(abiDefinition);
+                        ABIObject outputObject =
+                                abiObjectFactory.createEventInputObject(abiDefinition);
                         ABICodecObject abiCodecObject = new ABICodecObject();
                         for (Logs log : logs) {
                             String eventSignature =
@@ -136,9 +138,11 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                                         abiCodecObject.decodeJavaObject(
                                                 outputObject, log.getData());
                                 if (result.containsKey(name)) {
-                                    result.get("name").addAll(list);
+                                    result.get(name).add(list);
                                 } else {
-                                    result.put(name, list);
+                                    List<List<Object>> l = new ArrayList<>();
+                                    l.add(list);
+                                    result.put(name, l);
                                 }
                             } catch (Exception e) {
                                 logger.error(

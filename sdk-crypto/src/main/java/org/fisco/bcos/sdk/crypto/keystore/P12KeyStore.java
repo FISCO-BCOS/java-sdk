@@ -45,6 +45,10 @@ public class P12KeyStore extends KeyTool {
         super(keyStoreFile, password);
     }
 
+    public P12KeyStore(InputStream keyStoreFileInputStream, final String password) {
+        super(keyStoreFileInputStream, password);
+    }
+
     @Override
     public PublicKey getPublicKey() {
         try {

@@ -11,6 +11,7 @@ public class AmopMsgIn {
     private String topic;
     private Integer result;
     protected Short type = 0;
+    private TopicType topicType = TopicType.NORMAL_TOPIC;
     private ChannelHandlerContext ctx;
 
     public String getMessageID() {
@@ -59,5 +60,13 @@ public class AmopMsgIn {
 
     public void setType(Short type) {
         this.type = type;
+    }
+
+    public TopicType getTopicType() {
+        return topicType;
+    }
+
+    public void setTopicType(TopicType topicType) {
+        this.topicType = topicType;
     }
 }

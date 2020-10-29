@@ -4,8 +4,6 @@ import java.util.concurrent.Semaphore;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.amop.topic.AmopMsgIn;
 import org.fisco.bcos.sdk.amop.topic.TopicType;
-import org.fisco.bcos.sdk.channel.ResponseCallback;
-import org.fisco.bcos.sdk.model.Response;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -35,7 +33,7 @@ public class PrivateTopicVerifyTest {
         out.setTopic("test");
         out.setType(TopicType.NORMAL_TOPIC);
         out.setContent("Tell you th.".getBytes());
-        class TestResponseCb extends ResponseCallback {
+        class TestResponseCb extends AmopResponseCallback {
             public transient Semaphore semaphore = new Semaphore(1, true);
 
             public TestResponseCb() {
@@ -47,9 +45,12 @@ public class PrivateTopicVerifyTest {
             }
 
             @Override
-            public void onResponse(Response response) {
+            public void onResponse(AmopResponse response) {
                 semaphore.release();
-                Assert.assertEquals("Yes, I received.", response.getContent().substring(5));
+                if (response.getAmopMsgIn() != null) {
+                    Assert.assertEquals(
+                            "Yes, I received.", new String(response.getAmopMsgIn().getContent()));
+                }
             }
         }
         TestResponseCb cb = new TestResponseCb();
@@ -73,7 +74,7 @@ public class PrivateTopicVerifyTest {
         out.setTopic("privTopic");
         final String[] content = new String[1];
 
-        class TestResponseCb extends ResponseCallback {
+        class TestResponseCb extends AmopResponseCallback {
             public transient Semaphore semaphore = new Semaphore(1, true);
 
             public TestResponseCb() {
@@ -85,14 +86,15 @@ public class PrivateTopicVerifyTest {
             }
 
             @Override
-            public void onResponse(Response response) {
+            public void onResponse(AmopResponse response) {
                 logger.trace(
                         "Receive response, seq:{} error:{} error msg: {} content:{}",
                         response.getMessageID(),
                         response.getErrorCode(),
-                        response.getErrorMessage(),
-                        response.getContent());
-                content[0] = response.getContent();
+                        response.getErrorMessage());
+                if (response.getAmopMsgIn() != null) {
+                    content[0] = new String(response.getAmopMsgIn().getContent());
+                }
                 semaphore.release();
             }
         }

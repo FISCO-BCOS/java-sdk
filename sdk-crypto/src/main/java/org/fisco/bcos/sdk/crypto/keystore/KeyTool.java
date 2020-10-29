@@ -81,6 +81,28 @@ public abstract class KeyTool {
         this(keyStoreFile, null);
     }
 
+    /**
+     * constructor for the P12: with password and key file input stream
+     *
+     * @param keyStoreFileInputStream the input stream of the keystore file
+     * @param password password to read the keystore file
+     */
+    public KeyTool(InputStream keyStoreFileInputStream, final String password) {
+        this.keyStoreFile = null;
+        this.password = password;
+        initSecurity();
+        this.load(keyStoreFileInputStream);
+    }
+
+    /**
+     * constructor for PEM with key file input stream
+     *
+     * @param keyStoreFileInputStream the input stream of the keystore file
+     */
+    public KeyTool(InputStream keyStoreFileInputStream) {
+        this(keyStoreFileInputStream, null);
+    }
+
     protected abstract PrivateKey getPrivateKey();
 
     private static void initSecurity() {
