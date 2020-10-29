@@ -196,17 +196,6 @@ dependencies {
     testCompile ("com.google.guava:guava:${guavaVersion}")
 }
 
-googleJavaFormat {
-    options style: 'AOSP'
-     source = sourceSets*.allJava
-    include '**/*.java'
-}
-
-verifyGoogleJavaFormat {
-    source = sourceSets*.allJava
-    include '**/*.java'
-}
-
 javadoc {
     options.addStringOption('Xdoclint:none', '-quiet')
     options.addStringOption('encoding', 'UTF-8')
