@@ -40,6 +40,7 @@ import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface;
 import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherService;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
+import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -315,7 +316,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws TransactionBaseException {
         CallResponse callResponse = new CallResponse();
         RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
-        callResponse.setReturnCode(retCode.getCode());
+        callResponse.setReturnCode(Numeric.decodeQuantity(callOutput.getStatus()).intValue());
         callResponse.setReturnMessage(retCode.getMessage());
         if (!retCode.getMessage().equals(PrecompiledRetCode.CODE_SUCCESS.getMessage())) {
             throw new TransactionBaseException(retCode);
