@@ -34,6 +34,7 @@ import org.fisco.bcos.sdk.client.protocol.response.GenerateGroup;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.client.protocol.response.GroupPeers;
 import org.fisco.bcos.sdk.client.protocol.response.NodeIDList;
+import org.fisco.bcos.sdk.client.protocol.response.NodeInfo;
 import org.fisco.bcos.sdk.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.client.protocol.response.Peers;
@@ -708,6 +709,22 @@ public interface Client {
      * @param callback the callback instance
      */
     void getPeersAsync(RespCallback<Peers> callback);
+
+    /**
+     * Peer operation: get node information
+     *
+     * @param endpoint the target node that receive the request
+     * @return node information
+     */
+    NodeInfo getNodeInfo(String endpoint);
+
+    /**
+     * Peer operation: get node information
+     *
+     * @param endpoint the target node that receive the request
+     * @param callback callback the call back instance
+     */
+    void getNodeInfoAsync(String endpoint, RespCallback<NodeInfo> callback);
 
     /**
      * Peer operation: get node ids
