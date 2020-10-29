@@ -25,7 +25,7 @@ ext {
     nettySMSSLContextVersion = "1.2.0"
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
-    keyMiniToolkit = "1.0.2-SNAPSHOT"
+    keyMiniToolkit = "1.0.2"
 
     solcJVersion = "0.4.25.1"
     //solcJVersion = "0.5.2.0"
@@ -276,34 +276,9 @@ publishing {
 jar {
     // destinationDir file('dist/apps')
     // archiveName project.name + '-' + project.version + '.jar'
+
     exclude '**/*.xml'
     exclude '**/*.properties'
-
-    manifest {
-        try {
-            def repo = grgit.open()
-            if (repo != null) {
-                def user = System.getProperty("user.name")
-                def date = new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-                def branch = repo.branch.getCurrent().getName()
-                def commit = repo.head().getAbbreviatedId(40)
-
-                attributes(["Built-By"                : user,
-                            "Implementation-Timestamp": date,
-                            "Git-Branch"              : branch,
-                            "Git-Commit"              : commit
-                ])
-
-                logger.info("  Commit : ")
-                logger.info("  => user: {}", user)
-                logger.info("  => date: {}", date)
-                logger.info("  => branch: {}", branch)
-                logger.info("  => commit: {}", commit)
-            }
-        } catch (Exception e) {
-            // logger.warn(' .git not exist, cannot found commit info')
-        }
-    } from sourceSets.main.output
 
     doLast {
         copy {
