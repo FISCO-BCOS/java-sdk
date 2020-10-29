@@ -42,8 +42,7 @@ public class CommonResponse {
         return returnCode;
     }
 
-    /**
-     * @param returnCode the returnCode to set  */
+    /** @param returnCode the returnCode to set */
     public void setReturnCode(int returnCode) {
         this.returnCode = returnCode;
     }

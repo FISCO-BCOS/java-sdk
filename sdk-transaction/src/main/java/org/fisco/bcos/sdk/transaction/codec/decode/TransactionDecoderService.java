@@ -122,7 +122,8 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                 (name, events) -> {
                     for (ABIDefinition abiDefinition : events) {
                         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
-                        ABIObject outputObject = abiObjectFactory.createEventInputObject(abiDefinition);
+                        ABIObject outputObject =
+                                abiObjectFactory.createEventInputObject(abiDefinition);
                         ABICodecObject abiCodecObject = new ABICodecObject();
                         for (Logs log : logs) {
                             String eventSignature =

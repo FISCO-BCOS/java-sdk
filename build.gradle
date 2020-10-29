@@ -19,7 +19,7 @@ ext {
     commonsLang3Version = "3.1"
     javapoetVersion = "1.7.0"
     picocliVersion = "3.6.0"
-    nettyVersion = "4.1.50.Final"
+    nettyVersion = "4.1.53.Final"
     nettySMSSLContextVersion = "1.2.0"
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
