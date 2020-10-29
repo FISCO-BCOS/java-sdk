@@ -22,14 +22,15 @@ public class DemoAmopResponseCallback extends AmopResponseCallback {
                                 + " content:"
                                 + new String(response.getAmopMsgIn().getContent())
                                 + " }");
+            } else {
+                System.out.println(
+                        "Step 3:Get response, { errorCode:"
+                                + response.getErrorCode()
+                                + " error:"
+                                + response.getErrorMessage()
+                                + " seq:"
+                                + response.getMessageID());
             }
-            System.out.println(
-                    "Step 3:Get response, { errorCode:"
-                            + response.getErrorCode()
-                            + " error:"
-                            + response.getErrorMessage()
-                            + " seq:"
-                            + response.getMessageID());
         }
     }
 }
