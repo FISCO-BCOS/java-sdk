@@ -2,6 +2,7 @@
 plugins {
     id 'com.github.sherter.google-java-format' version '0.8'
     id 'maven-publish'
+    id 'org.ajoberstar.grgit' version '4.1.0'
 }
 println("Notice: current gradle version is " + gradle.gradleVersion)
 // Additional attribute definition
@@ -272,9 +273,8 @@ jar {
 
     manifest {
         try {
-            def repo = grgit.open()
+            def repo = grgit.open(currentDir: project.rootDir)
             if (repo != null) {
-                def user = System.getProperty("user.name")
                 def date = new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
                 def branch = repo.branch.getCurrent().getName()
                 def commit = repo.head().getAbbreviatedId(40)
@@ -292,7 +292,7 @@ jar {
                 logger.info("  => commit: {}", commit)
             }
         } catch (Exception e) {
-            // logger.warn(' .git not exist, cannot found commit info')
+            logger.warn(' .git not exist, cannot found commit info, e: {}', e)
         }
     } from sourceSets.main.output
 
