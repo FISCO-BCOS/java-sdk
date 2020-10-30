@@ -279,14 +279,12 @@ jar {
                 def branch = repo.branch.getCurrent().getName()
                 def commit = repo.head().getAbbreviatedId(40)
 
-                attributes(["Built-By"                : user,
-                            "Implementation-Timestamp": date,
+                attributes(["Implementation-Timestamp": date,
                             "Git-Branch"              : branch,
                             "Git-Commit"              : commit
                 ])
 
                 logger.info("  Commit : ")
-                logger.info("  => user: {}", user)
                 logger.info("  => date: {}", date)
                 logger.info("  => branch: {}", branch)
                 logger.info("  => commit: {}", commit)
