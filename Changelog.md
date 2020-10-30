@@ -1,12 +1,10 @@
-## 2.6.1
+## v2.6.1
 (2020-10-29)
 Please read documentation of Java SDK.
 
 * [English User Handbook](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
 * [Chinese User Handbook](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
 * [Chinese WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
-
-Java SDK v2.6.1 include the following new features:
 
 Changed：
 * Hidden the amop private topic suffix in the callback function.
@@ -44,11 +42,11 @@ Compatibility
  * 解决控制台删除数据后重启会出现block limit不合法异常的问题。
  * 解决同一个交易中如果有多个Event，只能解析一个无法解析多个的问题。
  * 解决AMOP消息数据被截断的问题。
-
+ 
 适配性：
 * 适配FISCO BCOS v2.0+。
 * 不适配Web3SDK。意思是，如果两个用户想使用AMOP功能进行通信，他们必须要么同时使用Java SDK，要么同时使用Web3SDK。
-
+ 
 ## v2.6.1-rc1
 (2020-09-30)
 Please read documentation of Java SDK.
