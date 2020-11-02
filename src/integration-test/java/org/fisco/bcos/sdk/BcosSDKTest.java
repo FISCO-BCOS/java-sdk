@@ -34,7 +34,7 @@ import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.demo.contract.HelloWorld;
+import org.fisco.bcos.sdk.contract.HelloWorld;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
