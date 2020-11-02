@@ -81,14 +81,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
 
         @Override
         public String toString() {
-            return "Signature{"
-                    + "index='"
-                    + index
-                    + '\''
-                    + ", signature='"
-                    + signature
-                    + '\''
-                    + '}';
+            return "{" + "index='" + index + '\'' + ", signature='" + signature + '\'' + '}';
         }
     }
 

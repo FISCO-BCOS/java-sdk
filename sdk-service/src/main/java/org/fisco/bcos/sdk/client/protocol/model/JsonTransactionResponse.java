@@ -54,11 +54,15 @@ public class JsonTransactionResponse {
     private String extraData;
     private SignatureResponse signature;
 
-    public class SignatureResponse {
+    public JsonTransactionResponse() {}
+
+    public static class SignatureResponse {
         private String r;
         private String s;
         private String v;
         private String signature;
+
+        public SignatureResponse() {}
 
         public String getR() {
             return r;
@@ -94,7 +98,7 @@ public class JsonTransactionResponse {
 
         @Override
         public String toString() {
-            return "SignatureResponse{"
+            return "{"
                     + "r='"
                     + r
                     + '\''
@@ -374,7 +378,7 @@ public class JsonTransactionResponse {
 
     @Override
     public String toString() {
-        return "JsonTransactionResponse{"
+        return "{"
                 + "blockHash='"
                 + blockHash
                 + '\''
