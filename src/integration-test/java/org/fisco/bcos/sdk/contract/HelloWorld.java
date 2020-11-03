@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.demo.contract;
+package org.fisco.bcos.sdk.contract;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,7 +10,6 @@ import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple1;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.CryptoType;

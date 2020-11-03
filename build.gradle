@@ -26,9 +26,6 @@ ext {
     bcprovJDK15onVersion = "1.60"
     keyMiniToolkit = "1.0.2"
 
-    solcJVersion = "0.4.25.1"
-    //solcJVersion = "0.5.2.0"
-    //solcJVersion = "0.6.10.0"
     slf4jVersion = "1.7.30"
     junitVersion = "4.12"
     commonsCollections4Version = "4.4"
@@ -158,7 +155,6 @@ sourceSets {
             compileClasspath += main.output + test.output
             runtimeClasspath += main.output + test.output
             srcDir file('src/integration-test/java')
-            srcDir file('sdk-demo/src/main')
         }
         resources.srcDir file('src/integration-test/resources')
     }
@@ -193,7 +189,6 @@ dependencies {
     compile ("com.moandjiezana.toml:toml4j:${toml4jVersion}")
 
     testCompile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
-    testCompile ("org.fisco-bcos:solcJ:${solcJVersion}")
     testCompile ("com.google.guava:guava:${guavaVersion}")
 }
 
