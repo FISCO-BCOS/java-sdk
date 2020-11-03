@@ -36,6 +36,7 @@ import org.fisco.bcos.sdk.client.protocol.response.GenerateGroup;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.client.protocol.response.GroupPeers;
 import org.fisco.bcos.sdk.client.protocol.response.NodeIDList;
+import org.fisco.bcos.sdk.client.protocol.response.NodeInfo;
 import org.fisco.bcos.sdk.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.client.protocol.response.Peers;
@@ -742,6 +743,23 @@ public class ClientImpl implements Client {
         this.jsonRpcService.asyncSendRequestToGroup(
                 new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(this.groupId)),
                 Peers.class,
+                callback);
+    }
+
+    @Override
+    public NodeInfo getNodeInfo(String endpoint) {
+        return this.jsonRpcService.sendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.GET_NODE_INFO, Arrays.asList()),
+                endpoint,
+                NodeInfo.class);
+    }
+
+    @Override
+    public void getNodeInfoAsync(String endpoint, RespCallback<NodeInfo> callback) {
+        this.jsonRpcService.asyncSendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.GET_NODE_INFO, Arrays.asList()),
+                endpoint,
+                NodeInfo.class,
                 callback);
     }
 
