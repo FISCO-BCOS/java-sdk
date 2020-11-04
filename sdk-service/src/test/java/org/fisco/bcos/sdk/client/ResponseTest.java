@@ -59,7 +59,6 @@ import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
-import org.fisco.bcos.sdk.client.protocol.response.TopicSubscribers;
 import org.junit.Assert;
 import org.junit.Test;
 
