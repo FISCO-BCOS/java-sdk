@@ -129,10 +129,10 @@ public class ChannelMsgHandler implements MsgHandler {
         if (callback != null) {
             callback.cancelTimeout();
             logger.trace(
-                    " receive response, seq: {}, result: {}, content: {}",
+                    " call registered callback, seq: {}, type: {} ,result: {}",
                     msg.getSeq(),
-                    msg.getResult(),
-                    new String(msg.getData()));
+                    msg.getType(),
+                    msg.getResult());
 
             Response response = new Response();
             if (msg.getResult() != 0) {
@@ -145,10 +145,10 @@ public class ChannelMsgHandler implements MsgHandler {
             callback.onResponse(response);
         } else {
             logger.trace(
-                    " receive response with invalid seq, type: {}, result: {}, content: {}",
+                    " receive message, no callback, try call handler, seq:{} , type: {}, result: {}",
+                    msg.getSeq(),
                     (int) msg.getType(),
-                    msg.getResult(),
-                    new String(msg.getData()));
+                    msg.getResult());
             MsgHandler msgHandler = msgHandlers.get(msg.getType().intValue());
             if (msgHandler != null) {
                 msgHandler.onMessage(ctx, msg);
