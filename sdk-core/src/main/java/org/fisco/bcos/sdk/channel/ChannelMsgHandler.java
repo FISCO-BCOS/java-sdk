@@ -120,7 +120,7 @@ public class ChannelMsgHandler implements MsgHandler {
 
     @Override
     public void onMessage(ChannelHandlerContext ctx, Message msg) {
-        logger.trace(
+        logger.debug(
                 "onMessage in ChannelMsgHandler called, host : {}, seq : {}, msgType : {}",
                 ChannelVersionNegotiation.getPeerHost(ctx),
                 msg.getSeq(),
@@ -144,15 +144,16 @@ public class ChannelMsgHandler implements MsgHandler {
             response.setCtx(ctx);
             callback.onResponse(response);
         } else {
-            logger.trace(
-                    " receive message, no callback, try call handler, seq:{} , type: {}, result: {}",
-                    msg.getSeq(),
-                    (int) msg.getType(),
-                    msg.getResult());
             MsgHandler msgHandler = msgHandlers.get(msg.getType().intValue());
             if (msgHandler != null) {
+                logger.trace(
+                        " receive message, no callback, call handler, seq:{} , type: {}, result: {}",
+                        msg.getSeq(),
+                        (int) msg.getType(),
+                        msg.getResult());
                 msgHandler.onMessage(ctx, msg);
             }
+            logger.debug(" call ");
         }
     }
 
