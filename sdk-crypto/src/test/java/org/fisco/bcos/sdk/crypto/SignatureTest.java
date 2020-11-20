@@ -15,6 +15,8 @@ package org.fisco.bcos.sdk.crypto;
 
 import java.io.File;
 import java.math.BigInteger;
+
+import org.bouncycastle.util.encoders.Hex;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
@@ -33,7 +35,6 @@ import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.CryptoType;
-import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -216,17 +217,20 @@ public class SignatureTest {
 
     public void testSignature(Hash hasher, Signature signature, CryptoKeyPair keyPair) {
         String message = "abcde";
-
+        byte[] messageBytes = message.getBytes();
         // check valid case
         for (int i = 0; i < 10; i++) {
-            message = hasher.hash("abcd----" + Integer.toString(i));
+            String plainText = "abcd----" + Integer.toString(i);
+            message = hasher.hash(plainText);
+            messageBytes = hasher.hash(plainText.getBytes());
+            Assert.assertTrue(message.equals(Hex.toHexString(messageBytes)));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify
             Assert.assertTrue(
                     signature.verify(
                             keyPair.getHexPublicKey(), message, signResult.convertToString()));
-            signResult = signature.sign(message.getBytes(), keyPair);
+            signResult = signature.sign(messageBytes, keyPair);
             Assert.assertTrue(
                     signature.verify(
                             keyPair.getHexPublicKey(), message, signResult.convertToString()));
@@ -235,7 +239,10 @@ public class SignatureTest {
         // check invalid case
         for (int i = 0; i < 10; i++) {
             message = hasher.hash("abcd----" + Integer.toString(i));
-            String invaidMessage = hasher.hash("abcd---" + Integer.toString(i + 1));
+            String plainText = "abcd---" + Integer.toString(i + 1);
+            String invalidMessage = hasher.hash(plainText);
+            byte[] invalidBytes = hasher.hash(plainText.getBytes());
+            Assert.assertTrue(invalidMessage.equals(Hex.toHexString(invalidBytes)));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify
@@ -243,31 +250,35 @@ public class SignatureTest {
                     false,
                     signature.verify(
                             keyPair.getHexPublicKey(),
-                            invaidMessage,
+                            invalidMessage,
                             signResult.convertToString()));
-            signResult = signature.sign(message.getBytes(), keyPair);
+            signResult = signature.sign(messageBytes, keyPair);
             Assert.assertEquals(
                     false,
                     signature.verify(
                             keyPair.getHexPublicKey(),
-                            invaidMessage,
+                            invalidMessage,
                             signResult.convertToString()));
         }
     }
 
     public void testSignature(CryptoSuite signature, CryptoKeyPair keyPair) {
         String message = "abcde";
+        byte[] messageBytes = message.getBytes();
         // check valid case
         for (int i = 0; i < 10; i++) {
             // Note: the message must be hash
-            message = signature.hash("abcd----" + Integer.toString(i));
+            String plainText = "abcd----" + Integer.toString(i);
+            message = signature.hash(plainText);
+            messageBytes = signature.hash(plainText.getBytes());
+            Assert.assertTrue(message.equals(Hex.toHexString(messageBytes)));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify
             Assert.assertTrue(
                     signature.verify(
                             keyPair.getHexPublicKey(), message, signResult.convertToString()));
-            signResult = signature.sign(message.getBytes(), keyPair);
+            signResult = signature.sign(messageBytes, keyPair);
             Assert.assertTrue(
                     signature.verify(
                             keyPair.getHexPublicKey(), message, signResult.convertToString()));
@@ -276,7 +287,10 @@ public class SignatureTest {
         // check invalid case
         for (int i = 0; i < 10; i++) {
             message = signature.hash("abcd----" + Integer.toString(i));
-            String invaidMessage = signature.hash("abcd---" + Integer.toString(i + 1));
+            String plainText = "abcd---" + Integer.toString(i + 1);
+            String invalidMessage = signature.hash(plainText);
+            byte[] invalidMessageBytes = signature.hash(plainText.getBytes());
+            Assert.assertTrue(invalidMessage.equals(Hex.toHexString(invalidMessageBytes)));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify
@@ -284,14 +298,14 @@ public class SignatureTest {
                     false,
                     signature.verify(
                             keyPair.getHexPublicKey(),
-                            invaidMessage,
+                            invalidMessage,
                             signResult.convertToString()));
-            signResult = signature.sign(message.getBytes(), keyPair);
+            signResult = signature.sign(messageBytes, keyPair);
             Assert.assertEquals(
                     false,
                     signature.verify(
                             keyPair.getHexPublicKey(),
-                            invaidMessage,
+                            invalidMessage,
                             signResult.convertToString()));
         }
     }

@@ -87,10 +87,14 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
             String abi, TransactionReceipt transactionReceipt)
             throws TransactionException, IOException, ABICodecException {
         TransactionResponse response = decodeReceiptStatus(transactionReceipt);
-        String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogs()));
         response.setTransactionReceipt(transactionReceipt);
-        response.setEvents(events);
         response.setContractAddress(transactionReceipt.getContractAddress());
+        // the exception transaction
+        if (!transactionReceipt.getStatus().equals("0x0")) {
+            return response;
+        }
+        String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogs()));
+        response.setEvents(events);
         return response;
     }
 
