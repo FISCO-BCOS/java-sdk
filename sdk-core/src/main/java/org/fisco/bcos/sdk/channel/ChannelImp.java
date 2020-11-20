@@ -330,6 +330,7 @@ public class ChannelImp implements Channel {
         if (peerList.size() == 0) {
             logger.warn(
                     "no available peer to send to, seq: {}, type: {}", out.getSeq(), out.getType());
+            return;
         }
         int random = (int) (Math.random() * (peerList.size()));
         String peerIpPort = peerList.get(random);
