@@ -20,7 +20,7 @@ import org.fisco.bcos.sdk.rlp.RlpType;
 import org.fisco.bcos.sdk.utils.Hex;
 
 public class SM2SignatureResult extends SignatureResult {
-    protected final byte[] pub;
+    protected byte[] pub;
 
     public SM2SignatureResult(final String hexPublicKey, final String signatureString) {
         super(signatureString);
@@ -51,5 +51,13 @@ public class SM2SignatureResult extends SignatureResult {
         encodeResult.add(RlpString.create(this.pub));
         super.encodeCommonField(encodeResult);
         return encodeResult;
+    }
+
+    public byte[] getPub() {
+        return pub;
+    }
+
+    public void setPub(byte[] pub) {
+        this.pub = pub;
     }
 }

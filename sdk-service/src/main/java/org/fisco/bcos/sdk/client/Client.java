@@ -24,6 +24,7 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceiptsDecoder;
 import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
@@ -33,6 +34,7 @@ import org.fisco.bcos.sdk.client.protocol.response.GenerateGroup;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.client.protocol.response.GroupPeers;
 import org.fisco.bcos.sdk.client.protocol.response.NodeIDList;
+import org.fisco.bcos.sdk.client.protocol.response.NodeInfo;
 import org.fisco.bcos.sdk.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.client.protocol.response.Peers;
@@ -708,6 +710,22 @@ public interface Client {
     void getPeersAsync(RespCallback<Peers> callback);
 
     /**
+     * Peer operation: get node information
+     *
+     * @param endpoint the target node that receive the request
+     * @return node information
+     */
+    NodeInfo getNodeInfo(String endpoint);
+
+    /**
+     * Peer operation: get node information
+     *
+     * @param endpoint the target node that receive the request
+     * @param callback callback the call back instance
+     */
+    void getNodeInfoAsync(String endpoint, RespCallback<NodeInfo> callback);
+
+    /**
      * Peer operation: get node ids
      *
      * @return node id list
@@ -780,6 +798,28 @@ public interface Client {
      * @param callback the callback instance
      */
     void getNodeVersion(RespCallback<NodeVersion> callback);
+
+    /**
+     * get receipt list according to the block number and the given range
+     *
+     * @param blockNumber the block number of the receipts
+     * @param from the start index of the receipt list required
+     * @param count the end index of the receipt list required
+     * @return the receipt list
+     */
+    BcosTransactionReceiptsDecoder getBatchReceiptsByBlockNumberAndRange(
+            BigInteger blockNumber, String from, String count);
+
+    /**
+     * get receipt list according to the block hash and the given range
+     *
+     * @param blockHash the block hash of the receipts
+     * @param from the start index of the receipt list required
+     * @param count the end index of the receipt list required
+     * @return the receipt list
+     */
+    BcosTransactionReceiptsDecoder getBatchReceiptsByBlockHashAndRange(
+            String blockHash, String from, String count);
 
     /**
      * Peer operation: get consensus status

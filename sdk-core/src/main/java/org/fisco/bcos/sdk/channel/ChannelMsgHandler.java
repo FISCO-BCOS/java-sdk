@@ -120,7 +120,7 @@ public class ChannelMsgHandler implements MsgHandler {
 
     @Override
     public void onMessage(ChannelHandlerContext ctx, Message msg) {
-        logger.trace(
+        logger.debug(
                 "onMessage in ChannelMsgHandler called, host : {}, seq : {}, msgType : {}",
                 ChannelVersionNegotiation.getPeerHost(ctx),
                 msg.getSeq(),
@@ -129,10 +129,10 @@ public class ChannelMsgHandler implements MsgHandler {
         if (callback != null) {
             callback.cancelTimeout();
             logger.trace(
-                    " receive response, seq: {}, result: {}, content: {}",
+                    " call registered callback, seq: {}, type: {} ,result: {}",
                     msg.getSeq(),
-                    msg.getResult(),
-                    new String(msg.getData()));
+                    msg.getType(),
+                    msg.getResult());
 
             Response response = new Response();
             if (msg.getResult() != 0) {
@@ -144,15 +144,16 @@ public class ChannelMsgHandler implements MsgHandler {
             response.setCtx(ctx);
             callback.onResponse(response);
         } else {
-            logger.trace(
-                    " receive response with invalid seq, type: {}, result: {}, content: {}",
-                    (int) msg.getType(),
-                    msg.getResult(),
-                    new String(msg.getData()));
             MsgHandler msgHandler = msgHandlers.get(msg.getType().intValue());
             if (msgHandler != null) {
+                logger.trace(
+                        " receive message, no callback, call handler, seq:{} , type: {}, result: {}",
+                        msg.getSeq(),
+                        (int) msg.getType(),
+                        msg.getResult());
                 msgHandler.onMessage(ctx, msg);
             }
+            logger.debug(" call ");
         }
     }
 

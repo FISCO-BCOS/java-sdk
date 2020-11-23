@@ -115,13 +115,18 @@ public class AmopImp implements Amop {
                 new ResponseCallback() {
                     @Override
                     public void onResponse(Response response) {
+                        logger.trace(
+                                "receive response from subscriber, seq:{}",
+                                response.getMessageID());
                         AmopResponse amopResponse = new AmopResponse(response);
                         callback.onResponse(amopResponse);
                     }
                 };
         this.channel.asyncSendToRandom(msg, cb, ops);
         logger.info(
-                "send amop msg to a random peer, seq{} topic{}", msg.getSeq(), content.getTopic());
+                "send amop msg to a random peer, seq: {} topic: {}",
+                msg.getSeq(),
+                content.getTopic());
     }
 
     @Override

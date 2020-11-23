@@ -1,3 +1,50 @@
+## v2.7.0
+(2020-11-20)
+Please read documentation of Java SDK.
+
+* [English User Handbook](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [Chinese WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
+Added:
+ * Added `getBatchReceiptsByBlockNumberAndRange` and `getBatchReceiptsByBlockHashAndRange` interfaces to support batch pull block transaction receipts
+ * Added the `getNodeInfo` interface to obtain subscribed topics information
+ * Added `revokeManager` interface to revoke contract life cycle management authority
+ * `ChainGovernanceService` adds `queryVotesOfMember` and `queryVotesOfThreshold` interfaces to support query voting status
+
+Changed：
+ * Separate `sdk-demo` as a `java-sdk-demo` project
+
+Fixed:
+ * Fix the exception of contract receipt parsing null pointer exception when deploying constructor with event
+
+Compatibility
+
+* FISCO BCOS v2.0+
+* AMOP Not compatible with Web3SDK
+
+----
+请参考文档：
+* [英文版用户手册](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [中文版用户手册](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [中文版WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
+添加:
+ * 添加`getBatchReceiptsByBlockNumberAndRange`和`getBatchReceiptsByBlockHashAndRange`接口，支持批量拉取区块交易回执
+ * 添加`getNodeInfo`接口，获取订阅的topics信息
+ * 添加`revokeManager`接口，撤销合约生命周期管理权限
+ * `ChainGovernanceService`添加`queryVotesOfMember`和`queryVotesOfThreshold`接口，支持查询投票情况
+
+修改：
+ * 将`sdk-demo`独立为`java-sdk-demo`项目
+
+修复:
+ * 修复部署构造函数带有event的合约异常时，合约回执解析空指针异常
+ 
+适配性：
+* 适配FISCO BCOS v2.0+
+* AMOP功能不兼容Web3SDK
+
 ## v2.6.1
 (2020-10-29)
 Please read documentation of Java SDK.
@@ -21,8 +68,8 @@ Fixed:
 
 Compatibility
 
-* FISCO BCOS v2.0+.
-* Not compatible with Web3SDK. When two users want to use AMOP functions to talk with each other, they should either both use Java SDK, or both use Web3SDK. 
+* FISCO BCOS v2.0+
+* AMOP Not compatible with Web3SDK
 
 ----
 请参考文档：

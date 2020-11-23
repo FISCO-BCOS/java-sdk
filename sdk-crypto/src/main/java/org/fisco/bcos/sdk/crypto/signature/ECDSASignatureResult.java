@@ -63,4 +63,12 @@ public class ECDSASignatureResult extends SignatureResult {
         super.encodeCommonField(encodeResult);
         return encodeResult;
     }
+
+    public byte getV() {
+        return v;
+    }
+
+    public void setV(byte v) {
+        this.v = v;
+    }
 }
