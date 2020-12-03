@@ -26,6 +26,7 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceiptsDecoder;
 import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
@@ -35,6 +36,7 @@ import org.fisco.bcos.sdk.client.protocol.response.GenerateGroup;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.client.protocol.response.GroupPeers;
 import org.fisco.bcos.sdk.client.protocol.response.NodeIDList;
+import org.fisco.bcos.sdk.client.protocol.response.NodeInfo;
 import org.fisco.bcos.sdk.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.client.protocol.response.Peers;
@@ -744,6 +746,23 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public NodeInfo getNodeInfo(String endpoint) {
+        return this.jsonRpcService.sendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.GET_NODE_INFO, Arrays.asList()),
+                endpoint,
+                NodeInfo.class);
+    }
+
+    @Override
+    public void getNodeInfoAsync(String endpoint, RespCallback<NodeInfo> callback) {
+        this.jsonRpcService.asyncSendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.GET_NODE_INFO, Arrays.asList()),
+                endpoint,
+                NodeInfo.class,
+                callback);
+    }
+
+    @Override
     public NodeIDList getNodeIDList() {
         return this.jsonRpcService.sendRequestToGroup(
                 new JsonRpcRequest(JsonRpcMethods.GET_NODEIDLIST, Arrays.asList(DefaultGroupId)),
@@ -974,6 +993,27 @@ public class ClientImpl implements Client {
             Thread.currentThread().interrupt();
         }
         return callback.receipt;
+    }
+
+    @Override
+    public BcosTransactionReceiptsDecoder getBatchReceiptsByBlockNumberAndRange(
+            BigInteger blockNumber, String from, String count) {
+        return this.jsonRpcService.sendRequestToGroup(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_BATCH_RECEIPT_BY_BLOCK_NUMBER_AND_RANGE,
+                        Arrays.asList(
+                                this.groupId, String.valueOf(blockNumber), from, count, true)),
+                BcosTransactionReceiptsDecoder.class);
+    }
+
+    @Override
+    public BcosTransactionReceiptsDecoder getBatchReceiptsByBlockHashAndRange(
+            String blockHash, String from, String count) {
+        return this.jsonRpcService.sendRequestToGroup(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_BATCH_RECEIPT_BY_BLOCK_HASH_AND_RANGE,
+                        Arrays.asList(this.groupId, blockHash, from, count, true)),
+                BcosTransactionReceiptsDecoder.class);
     }
 
     @Override

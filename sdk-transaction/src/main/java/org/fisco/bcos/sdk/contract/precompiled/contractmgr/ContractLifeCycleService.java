@@ -61,6 +61,15 @@ public class ContractLifeCycleService {
                 this.contractLifeCyclePrecompiled.grantManager(contractAddress, userAddress));
     }
 
+    public RetCode revokeManager(String contractAddress, String userAddress)
+            throws ContractException {
+        // only supported after v2.7.0
+        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_REVOKE_MANAGER_VERSION.checkVersion(
+                currentVersion);
+        return ReceiptParser.parseTransactionReceipt(
+                this.contractLifeCyclePrecompiled.revokeManager(contractAddress, userAddress));
+    }
+
     public String getContractStatus(String contractAddress) throws ContractException {
         PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
                 currentVersion);

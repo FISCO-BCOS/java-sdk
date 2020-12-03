@@ -30,6 +30,8 @@ public class TransactionReceipt {
     private List<Logs> logs;
     private String logsBloom;
     private String status;
+    // the node returned status message corresponding to the status
+    private String statusMsg;
     private String input;
     private String output;
     private List<MerkleProofUnit> txProof;
@@ -268,6 +270,14 @@ public class TransactionReceipt {
                 && Objects.equals(receiptProof, that.receiptProof);
     }
 
+    public String getStatusMsg() {
+        return statusMsg;
+    }
+
+    public void setStatusMsg(String statusMsg) {
+        this.statusMsg = statusMsg;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(
@@ -326,6 +336,9 @@ public class TransactionReceipt {
                 + '\''
                 + ", status='"
                 + status
+                + '\''
+                + ", statusMsg='"
+                + statusMsg
                 + '\''
                 + ", input='"
                 + input

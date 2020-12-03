@@ -327,6 +327,11 @@ public class ChannelImp implements Channel {
     @Override
     public void asyncSendToRandom(Message out, ResponseCallback callback, Options options) {
         List<String> peerList = getAvailablePeer();
+        if (peerList.size() == 0) {
+            logger.warn(
+                    "no available peer to send to, seq: {}, type: {}", out.getSeq(), out.getType());
+            return;
+        }
         int random = (int) (Math.random() * (peerList.size()));
         String peerIpPort = peerList.get(random);
         logger.trace("send message to random peer {} ", peerIpPort);

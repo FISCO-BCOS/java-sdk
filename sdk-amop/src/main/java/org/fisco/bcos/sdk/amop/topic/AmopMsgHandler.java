@@ -90,8 +90,7 @@ public class AmopMsgHandler implements MsgHandler {
 
     @Override
     public void onMessage(ChannelHandlerContext ctx, Message msg) {
-        logger.trace(
-                "receive msg, msg type:{}, content:{}", msg.getType(), new String(msg.getData()));
+        logger.trace("receive msg, msg type:{}, seq:{}", msg.getType(), msg.getSeq());
         if (!isRunning) {
             logger.warn("Amop on msg, amop is not running, exit.");
         }

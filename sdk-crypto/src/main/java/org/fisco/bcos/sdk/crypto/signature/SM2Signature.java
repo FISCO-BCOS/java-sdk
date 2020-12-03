@@ -28,7 +28,7 @@ public class SM2Signature implements Signature {
 
     @Override
     public SignatureResult sign(final byte[] message, final CryptoKeyPair keyPair) {
-        return sign(new String(message), keyPair);
+        return sign(Hex.toHexString(message), keyPair);
     }
 
     @Override
