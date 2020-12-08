@@ -1,14 +1,16 @@
 /*
  * Copyright 2014-2020  [fisco-dev]
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
  *
  */
@@ -16,11 +18,12 @@
 package org.fisco.bcos.sdk;
 
 import java.math.BigInteger;
-import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
+import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceiptsDecoder;
 import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.ConsensusStatus;
@@ -31,7 +34,7 @@ import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.demo.contract.HelloWorld;
+import org.fisco.bcos.sdk.contract.HelloWorld;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -53,13 +56,6 @@ public class BcosSDKTest {
         BcosSDK sdk = BcosSDK.build(configFile);
         // check groupList
         Assert.assertTrue(sdk.getChannel().getAvailablePeer().size() >= 1);
-        for (String endPoint : sdk.getChannel().getAvailablePeer()) {
-            List<String> groupInfo = sdk.getGroupManagerService().getGroupInfoByNodeInfo(endPoint);
-            if (groupInfo.size() > 0) {
-                Assert.assertEquals(1, groupInfo.size());
-                Assert.assertEquals("1", groupInfo.get(0));
-            }
-        }
         // get the client
         Client client = sdk.getClient(Integer.valueOf(1));
 
@@ -164,9 +160,7 @@ public class BcosSDKTest {
 
         // test getGroupList
         GroupList groupList = client.getGroupList();
-        Assert.assertEquals(1, groupList.getGroupList().size());
-        Assert.assertEquals("1", groupList.getGroupList().get(0));
-
+        Assert.assertTrue(groupList.getGroupList().size() >= 1);
         // test getConsensusStatus
         ConsensusStatus consensusStatus = client.getConsensusStatus();
         Assert.assertTrue(consensusStatus.getConsensusStatus().getViewInfos().size() > 0);
@@ -191,6 +185,43 @@ public class BcosSDKTest {
         Assert.assertEquals(
                 latestHash.getBlockHashByNumber(),
                 consensusStatus.getConsensusStatus().getBaseConsensusInfo().getHighestblockHash());
+
+        try {
+            // test calculateHash interface for the transaction response
+            BcosTransaction transaction =
+                    client.getTransactionByBlockNumberAndIndex(
+                            blockNumber.getBlockNumber(), BigInteger.ZERO);
+            if (transaction.getTransaction().get() != null) {
+                System.out.println(
+                        "### transactionHash:" + transaction.getTransaction().get().getHash());
+                System.out.println(
+                        "### calculated transactionHash:"
+                                + transaction
+                                        .getTransaction()
+                                        .get()
+                                        .calculateHash(client.getCryptoSuite()));
+                Assert.assertEquals(
+                        transaction.getTransaction().get().calculateHash(client.getCryptoSuite()),
+                        transaction.getTransaction().get().getHash());
+            }
+
+            // test calculateHash interface for the getBlockHeader response
+            BcosBlockHeader blockHeader =
+                    client.getBlockHeaderByNumber(blockNumber.getBlockNumber(), true);
+            String calculatedHash =
+                    blockHeader.getBlockHeader().calculateHash(client.getCryptoSuite());
+            System.out.println("### blockHeader calculatedHash : " + calculatedHash);
+            System.out.println(
+                    "### blockHeader expectedHash: " + blockHeader.getBlockHeader().getHash());
+            Assert.assertEquals(blockHeader.getBlockHeader().getHash(), calculatedHash);
+
+            // test calculateHash interface for the block response
+            block = client.getBlockByNumber(blockNumber.getBlockNumber(), false);
+            calculatedHash = block.getBlock().calculateHash(client.getCryptoSuite());
+            Assert.assertEquals(block.getBlock().getHash(), calculatedHash);
+        } catch (ClientException e) {
+            System.out.println("testClient exception, error info: " + e.getMessage());
+        }
     }
 
     private void checkReceipt(
@@ -283,6 +314,29 @@ public class BcosSDKTest {
                     helloWorld2, client, blockNumber.add(BigInteger.valueOf(3)), receipt2, true);
             Assert.assertTrue(helloWorld.get().equals(settedString));
             Assert.assertTrue(helloWorld2.get().equals(settedString));
+
+            // test getBatchReceiptsByBlockHashAndRange(added after v2.7.0)
+            BcosTransactionReceiptsDecoder bcosTransactionReceiptsDecoder =
+                    client.getBatchReceiptsByBlockHashAndRange(
+                            client.getBlockHashByNumber(client.getBlockNumber().getBlockNumber())
+                                    .getBlockHashByNumber(),
+                            "0",
+                            "-1");
+            System.out.println(
+                    "### bcosTransactionReceiptsDecoder1: "
+                            + bcosTransactionReceiptsDecoder
+                                    .decodeTransactionReceiptsInfo()
+                                    .toString());
+            // test getBatchReceiptsByBlockNumberAndRange
+            bcosTransactionReceiptsDecoder =
+                    client.getBatchReceiptsByBlockNumberAndRange(
+                            client.getBlockNumber().getBlockNumber(), "0", "-1");
+            System.out.println(
+                    "### bcosTransactionReceiptsDecoder2: "
+                            + bcosTransactionReceiptsDecoder
+                                    .decodeTransactionReceiptsInfo()
+                                    .toString());
+
         } catch (ContractException | ClientException | InterruptedException e) {
             System.out.println("testSendTransactions exceptioned, error info:" + e.getMessage());
         }

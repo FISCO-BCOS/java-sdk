@@ -118,7 +118,7 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
 
         @Override
         public String toString() {
-            return "Block{"
+            return "{"
                     + "transactions="
                     + transactions
                     + ", number='"

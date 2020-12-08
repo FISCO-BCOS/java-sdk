@@ -21,16 +21,21 @@ import org.fisco.bcos.sdk.utils.Hex;
 public class SM3Hash implements Hash {
     @Override
     public String hash(final String inputData) {
-        return calcualteHash(inputData.getBytes());
+        return calculateHash(inputData.getBytes());
+    }
+
+    @Override
+    public String hashBytes(byte[] inputBytes) {
+        return calculateHash(inputBytes);
     }
 
     @Override
     public byte[] hash(final byte[] inputBytes) {
         // Considering inefficient string conversion, this interface is not recommended
-        return Hex.decode(calcualteHash(inputBytes));
+        return Hex.decode(calculateHash(inputBytes));
     }
 
-    private String calcualteHash(final byte[] inputBytes) {
+    private String calculateHash(final byte[] inputBytes) {
         CryptoResult hashResult = NativeInterface.sm3(Hex.toHexString(inputBytes));
         // call sm3 failed
         if (hashResult.wedprErrorMessage != null && !hashResult.wedprErrorMessage.isEmpty()) {

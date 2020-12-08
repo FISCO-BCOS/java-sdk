@@ -21,8 +21,8 @@ import org.fisco.bcos.sdk.utils.ByteUtils;
 import org.fisco.bcos.sdk.utils.Hex;
 
 public abstract class SignatureResult {
-    protected final byte[] r;
-    protected final byte[] s;
+    protected byte[] r;
+    protected byte[] s;
     protected byte[] signatureBytes;
 
     SignatureResult(final byte[] r, final byte[] s) {
@@ -62,6 +62,22 @@ public abstract class SignatureResult {
 
     public byte[] getS() {
         return s;
+    }
+
+    public byte[] getSignatureBytes() {
+        return signatureBytes;
+    }
+
+    public void setR(byte[] r) {
+        this.r = r;
+    }
+
+    public void setS(byte[] s) {
+        this.s = s;
+    }
+
+    public void setSignatureBytes(byte[] signatureBytes) {
+        this.signatureBytes = signatureBytes;
     }
 
     protected void encodeCommonField(List<RlpType> encodeResult) {

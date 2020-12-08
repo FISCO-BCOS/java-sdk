@@ -30,6 +30,11 @@ public class Keccak256 implements Hash {
         return Hex.decode(calculateHash(inputBytes));
     }
 
+    @Override
+    public String hashBytes(byte[] inputBytes) {
+        return calculateHash(inputBytes);
+    }
+
     private String calculateHash(final byte[] inputBytes) {
         // Note: the exceptions should be handled by the caller
         CryptoResult hashResult = NativeInterface.keccak256(Hex.toHexString(inputBytes));

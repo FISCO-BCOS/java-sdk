@@ -17,8 +17,10 @@ package org.fisco.bcos.sdk.transaction.manager;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
+import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -275,8 +277,11 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         Call call = executeCall(callRequest);
         CallResponse callResponse = parseCallResponseStatus(call.getCallResult());
         String callOutput = call.getCallResult().getOutput();
-        List<Object> results = abiCodec.decodeMethod(callRequest.getAbi(), callOutput);
-        callResponse.setValues(JsonUtils.toJson(results));
+        Pair<List<Object>, List<ABIObject>> results =
+                abiCodec.decodeMethodAndGetOutputObject(callRequest.getAbi(), callOutput);
+        callResponse.setValues(JsonUtils.toJson(results.getLeft()));
+        callResponse.setReturnObject(results.getLeft());
+        callResponse.setReturnABIObject(results.getRight());
         return callResponse;
     }
 
@@ -293,9 +298,12 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws ABICodecException, TransactionBaseException {
         Call call = executeCall(from, to, data);
         CallResponse callResponse = parseCallResponseStatus(call.getCallResult());
-        List<Object> results =
-                abiCodec.decodeMethod(abi, functionName, call.getCallResult().getOutput());
-        callResponse.setValues(JsonUtils.toJson(results));
+        Pair<List<Object>, List<ABIObject>> results =
+                abiCodec.decodeMethodAndGetOutputObject(
+                        abi, functionName, call.getCallResult().getOutput());
+        callResponse.setValues(JsonUtils.toJson(results.getLeft()));
+        callResponse.setReturnObject(results.getLeft());
+        callResponse.setReturnABIObject(results.getRight());
         return callResponse;
     }
 

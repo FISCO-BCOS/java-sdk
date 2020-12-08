@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.abi.EventEncoder;
@@ -73,10 +74,12 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
         // only successful tx has return values.
         if (transactionReceipt.getStatus().equals("0x0")) {
-            String values =
-                    JsonUtils.toJson(
-                            abiCodec.decodeMethod(
-                                    abi, functionName, transactionReceipt.getOutput()));
+            Pair<List<Object>, List<ABIObject>> returnObject =
+                    abiCodec.decodeMethodAndGetOutputObject(
+                            abi, functionName, transactionReceipt.getOutput());
+            String values = JsonUtils.toJson(returnObject.getLeft());
+            response.setReturnObject(returnObject.getLeft());
+            response.setReturnABIObject(returnObject.getRight());
             response.setValues(values);
         }
         return response;
@@ -87,10 +90,14 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
             String abi, TransactionReceipt transactionReceipt)
             throws TransactionException, IOException, ABICodecException {
         TransactionResponse response = decodeReceiptStatus(transactionReceipt);
-        String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogs()));
         response.setTransactionReceipt(transactionReceipt);
-        response.setEvents(events);
         response.setContractAddress(transactionReceipt.getContractAddress());
+        // the exception transaction
+        if (!transactionReceipt.getStatus().equals("0x0")) {
+            return response;
+        }
+        String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogs()));
+        response.setEvents(events);
         return response;
     }
 

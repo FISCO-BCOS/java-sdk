@@ -34,12 +34,14 @@ public class ContractLifeCyclePrecompiled extends Contract {
     public static final String SM_BINARY = String.join("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
-        "[{\"constant\":true,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getStatus\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"},{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"unfreeze\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"freeze\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"contractAddr\",\"type\":\"address\"},{\"name\":\"userAddr\",\"type\":\"address\"}],\"name\":\"grantManager\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"listManager\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"},{\"name\":\"\",\"type\":\"address[]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
+        "[{\"constant\":true,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getStatus\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"},{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"contractAddr\",\"type\":\"address\"},{\"name\":\"userAddr\",\"type\":\"address\"}],\"name\":\"revokeManager\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"unfreeze\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"freeze\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"contractAddr\",\"type\":\"address\"},{\"name\":\"userAddr\",\"type\":\"address\"}],\"name\":\"grantManager\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"listManager\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"},{\"name\":\"\",\"type\":\"address[]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = String.join("", ABI_ARRAY);
 
     public static final String FUNC_GETSTATUS = "getStatus";
+
+    public static final String FUNC_REVOKEMANAGER = "revokeManager";
 
     public static final String FUNC_UNFREEZE = "unfreeze";
 
@@ -69,6 +71,63 @@ public class ContractLifeCyclePrecompiled extends Contract {
         List<Type> results = executeCallWithMultipleValueReturn(function);
         return new Tuple2<BigInteger, String>(
                 (BigInteger) results.get(0).getValue(), (String) results.get(1).getValue());
+    }
+
+    public TransactionReceipt revokeManager(String contractAddr, String userAddr) {
+        final Function function =
+                new Function(
+                        FUNC_REVOKEMANAGER,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.abi.datatypes.Address(contractAddr),
+                                new org.fisco.bcos.sdk.abi.datatypes.Address(userAddr)),
+                        Collections.<TypeReference<?>>emptyList());
+        return executeTransaction(function);
+    }
+
+    public void revokeManager(String contractAddr, String userAddr, TransactionCallback callback) {
+        final Function function =
+                new Function(
+                        FUNC_REVOKEMANAGER,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.abi.datatypes.Address(contractAddr),
+                                new org.fisco.bcos.sdk.abi.datatypes.Address(userAddr)),
+                        Collections.<TypeReference<?>>emptyList());
+        asyncExecuteTransaction(function, callback);
+    }
+
+    public String getSignedTransactionForRevokeManager(String contractAddr, String userAddr) {
+        final Function function =
+                new Function(
+                        FUNC_REVOKEMANAGER,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.abi.datatypes.Address(contractAddr),
+                                new org.fisco.bcos.sdk.abi.datatypes.Address(userAddr)),
+                        Collections.<TypeReference<?>>emptyList());
+        return createSignedTransaction(function);
+    }
+
+    public Tuple2<String, String> getRevokeManagerInput(TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getInput().substring(10);
+        final Function function =
+                new Function(
+                        FUNC_REVOKEMANAGER,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(
+                                new TypeReference<Address>() {}, new TypeReference<Address>() {}));
+        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple2<String, String>(
+                (String) results.get(0).getValue(), (String) results.get(1).getValue());
+    }
+
+    public Tuple1<BigInteger> getRevokeManagerOutput(TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getOutput();
+        final Function function =
+                new Function(
+                        FUNC_REVOKEMANAGER,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
     public TransactionReceipt unfreeze(String addr) {

@@ -50,6 +50,7 @@ public class JsonRpcMethods {
 
     // the interface related to the node
     public static final String GET_CLIENT_VERSION = "getClientVersion";
+    public static final String GET_NODE_INFO = "getNodeInfo";
     public static final String GET_PEERS = "getPeers";
     public static final String GET_GROUP_LIST = "getGroupList";
     public static final String GET_NODEIDLIST = "getNodeIDList";
@@ -61,6 +62,11 @@ public class JsonRpcMethods {
     public static final String REMOVE_GROUP = "removeGroup";
     public static final String RECOVER_GROUP = "recoverGroup";
     public static final String QUERY_GROUP_STATUS = "queryGroupStatus";
+
+    public static final String GET_BATCH_RECEIPT_BY_BLOCK_NUMBER_AND_RANGE =
+            "getBatchReceiptsByBlockNumberAndRange";
+    public static final String GET_BATCH_RECEIPT_BY_BLOCK_HASH_AND_RANGE =
+            "getBatchReceiptsByBlockHashAndRange";
 
     private JsonRpcMethods() {}
 }
