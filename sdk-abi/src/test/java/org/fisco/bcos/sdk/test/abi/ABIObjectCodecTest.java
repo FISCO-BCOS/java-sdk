@@ -565,12 +565,11 @@ public class ABIObjectCodecTest {
         String bytesValue = "0x123456789874321";
         byte[] encode = Base64.getEncoder().encode(bytesValue.getBytes());
 
-        args.add(new String(encode));
+        args.add(ABICodecJsonWrapper.Base64EncodedDataPrefix + new String(encode));
 
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         ABIObject encodedObj = abiCodecJsonWrapper.encode(inputABIObject, args);
         String buffer = encodedObj.encode();
-
         List<String> decodeArgs = abiCodecJsonWrapper.decode(inputABIObject, buffer);
         Assert.assertArrayEquals(args.toArray(), decodeArgs.toArray());
 
@@ -593,7 +592,7 @@ public class ABIObjectCodecTest {
             Assert.assertEquals(args.get(i), decodeArgs.get(i));
         }
 
-        byte[] decode = Base64.getDecoder().decode(decodeArgs.get(args.size() - 1));
+        byte[] decode = Base64.getDecoder().decode(decodeArgs.get(args.size() - 1).substring(ABICodecJsonWrapper.Base64EncodedDataPrefix.length()));
 
         Assert.assertEquals(new String(decode), bytesValue);
     }

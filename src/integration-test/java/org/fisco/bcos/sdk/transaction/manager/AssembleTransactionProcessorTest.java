@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.util.encoders.Base64;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
@@ -321,8 +320,7 @@ public class AssembleTransactionProcessorTest {
         }
         String contractAddress = response.getContractAddress();
         // setBytes
-        List<String> paramsSetBytes =
-                Lists.newArrayList(Base64.toBase64String("set bytes test".getBytes()));
+        List<String> paramsSetBytes = Lists.newArrayList(new String("set bytes test".getBytes()));
         TransactionResponse transactionResponse3 =
                 transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                         contractAddress, abi, "setBytes", paramsSetBytes);
