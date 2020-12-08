@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.abi;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.wrapper.ABICodecJsonWrapper;
 import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
@@ -254,12 +255,12 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public List<Object> decodeMethod(ABIDefinition abiDefinition, String output)
-            throws ABICodecException {
+    public Pair<List<Object>, List<ABIObject>> decodeMethodAndGetOutputObject(
+            ABIDefinition abiDefinition, String output) throws ABICodecException {
         ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
-            return abiCodecObject.decodeJavaObject(outputABIObject, output);
+            return abiCodecObject.decodeJavaObjectAndOutputObject(outputABIObject, output);
         } catch (Exception e) {
             logger.error(" exception in decodeMethodToObject : {}", e.getMessage());
         }
@@ -268,15 +269,15 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public List<Object> decodeMethod(String ABI, String methodName, String output)
-            throws ABICodecException {
+    public Pair<List<Object>, List<ABIObject>> decodeMethodAndGetOutputObject(
+            String ABI, String methodName, String output) throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
         for (ABIDefinition abiDefinition : methods) {
             ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
             ABICodecObject abiCodecObject = new ABICodecObject();
             try {
-                return abiCodecObject.decodeJavaObject(outputABIObject, output);
+                return abiCodecObject.decodeJavaObjectAndOutputObject(outputABIObject, output);
             } catch (Exception e) {
                 logger.error(" exception in decodeMethodToObject : {}", e.getMessage());
             }
@@ -285,6 +286,16 @@ public class ABICodec {
         String errorMsg = " cannot decode in decodeMethodToObject with appropriate interface ABI";
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
+    }
+
+    public List<Object> decodeMethod(ABIDefinition abiDefinition, String output)
+            throws ABICodecException {
+        return decodeMethodAndGetOutputObject(abiDefinition, output).getLeft();
+    }
+
+    public List<Object> decodeMethod(String ABI, String methodName, String output)
+            throws ABICodecException {
+        return decodeMethodAndGetOutputObject(ABI, methodName, output).getLeft();
     }
 
     public List<Object> decodeMethodById(String ABI, String methodId, String output)
