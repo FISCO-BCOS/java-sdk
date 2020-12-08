@@ -25,8 +25,11 @@ import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ContractLifeCycleService {
+    private static Logger logger = LoggerFactory.getLogger(ContractLifeCycleService.class);
     private final ContractLifeCyclePrecompiled contractLifeCyclePrecompiled;
     private final String currentVersion;
 
@@ -95,29 +98,19 @@ public class ContractLifeCycleService {
     public List<String> listManager(String contractAddress) throws ContractException {
         PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
                 currentVersion);
-        try {
-            Tuple2<BigInteger, List<String>> result =
-                    this.contractLifeCyclePrecompiled.listManager(contractAddress);
-            if (result.getValue1().intValue() != PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                String errorMessage =
-                        PrecompiledRetCode.getPrecompiledResponse(
-                                        result.getValue1().intValue(),
-                                        result.getValue2().toString())
-                                .getMessage();
-                throw new ContractException(
-                        "contractLifCycleService: listManager for "
-                                + contractAddress
-                                + " failed, reason:"
-                                + errorMessage);
-            }
-            return result.getValue2();
-        } catch (ContractException e) {
-            throw new ContractException(
-                    "ContractLifCycleService: listManager for "
-                            + contractAddress
-                            + " failed, error info: "
-                            + e.getMessage(),
-                    e);
+        Tuple2<BigInteger, List<String>> result =
+                this.contractLifeCyclePrecompiled.listManager(contractAddress);
+        if (result.getValue1().intValue() != PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            String errorMessage =
+                    PrecompiledRetCode.getPrecompiledResponse(
+                                    result.getValue1().intValue(), result.getValue2().toString())
+                            .getMessage();
+            logger.warn(
+                    "contractLifCycleService: listManager for {} failed, reason: {}",
+                    contractAddress,
+                    errorMessage);
+            throw new ContractException(errorMessage, result.getValue1().intValue());
         }
+        return result.getValue2();
     }
 }
