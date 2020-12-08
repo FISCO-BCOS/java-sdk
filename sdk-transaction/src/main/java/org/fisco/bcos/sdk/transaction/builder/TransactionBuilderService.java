@@ -15,9 +15,14 @@
 package org.fisco.bcos.sdk.transaction.builder;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import org.fisco.bcos.sdk.abi.ABICodec;
+import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.gas.DefaultGasProvider;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 
@@ -32,6 +37,36 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
     public TransactionBuilderService(Client client) {
         super();
         this.client = client;
+    }
+
+    public static String createSignedTransaction(
+            CryptoSuite cryptoSuite,
+            int groupId,
+            int chainId,
+            BigInteger blockLimit,
+            String abi,
+            String to,
+            String functionName,
+            List<Object> params)
+            throws ABICodecException {
+        ABICodec abiCodec = new ABICodec(cryptoSuite);
+        String data = abiCodec.encodeMethod(abi, functionName, params);
+        Random r = ThreadLocalRandom.current();
+        BigInteger randomId = new BigInteger(250, r);
+        RawTransaction rawTransaction =
+                RawTransaction.createTransaction(
+                        randomId,
+                        DefaultGasProvider.GAS_PRICE,
+                        DefaultGasProvider.GAS_LIMIT,
+                        blockLimit,
+                        to,
+                        BigInteger.ZERO,
+                        data,
+                        BigInteger.valueOf(chainId),
+                        BigInteger.valueOf(groupId),
+                        "");
+        TransactionEncoderService transactionEncoder = new TransactionEncoderService(cryptoSuite);
+        return transactionEncoder.encodeAndSign(rawTransaction, cryptoSuite.getCryptoKeyPair());
     }
 
     @Override
