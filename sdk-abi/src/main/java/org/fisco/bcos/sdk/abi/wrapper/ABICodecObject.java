@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.Bool;
 import org.fisco.bcos.sdk.abi.datatypes.Bytes;
@@ -286,8 +288,8 @@ public class ABICodecObject {
         return abiObject;
     }
 
-    public List<Object> decodeJavaObject(ABIObject template, String input) {
-
+    public Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndOutputObject(
+            ABIObject template, String input) {
         if (logger.isTraceEnabled()) {
             logger.trace(" ABIObject: {}, abi: {}", template.toString(), input);
         }
@@ -297,12 +299,19 @@ public class ABICodecObject {
         ABIObject abiObject = template.decode(input);
 
         // ABIObject -> java List<Object>
-        List<Object> result = decodeJavaObject(abiObject);
+        return decodeJavaObjectAndGetOutputObject(abiObject);
+    }
 
-        return result;
+    public List<Object> decodeJavaObject(ABIObject template, String input) {
+        return decodeJavaObjectAndOutputObject(template, input).getLeft();
     }
 
     private List<Object> decodeJavaObject(ABIObject template) throws UnsupportedOperationException {
+        return decodeJavaObjectAndGetOutputObject(template).getLeft();
+    }
+
+    private Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndGetOutputObject(
+            ABIObject template) throws UnsupportedOperationException {
         List<Object> result = new ArrayList<Object>();
         List<ABIObject> argObjects;
         if (template.getType() == ABIObject.ObjectType.STRUCT) {
@@ -371,7 +380,6 @@ public class ABICodecObject {
                     }
             }
         }
-
-        return result;
+        return new ImmutablePair<>(result, argObjects);
     }
 }
