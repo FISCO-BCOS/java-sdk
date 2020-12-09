@@ -17,8 +17,6 @@ import com.webank.wedpr.crypto.CryptoResult;
 import java.io.File;
 import java.math.BigInteger;
 import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.Arrays;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
@@ -116,16 +114,12 @@ public abstract class CryptoKeyPair {
     public abstract CryptoKeyPair createKeyPair(KeyPair keyPair);
 
     public CryptoKeyPair createKeyPair(BigInteger privateKeyValue) {
-        PrivateKey privateKey = KeyTool.convertHexedStringToPrivateKey(privateKeyValue, curveName);
-        PublicKey publicKey = KeyTool.getPublicKeyFromPrivateKey(privateKey);
-        KeyPair keyPair = new KeyPair(publicKey, privateKey);
+        KeyPair keyPair = KeyTool.convertPrivateKeyToKeyPair(privateKeyValue, curveName);
         return createKeyPair(keyPair);
     }
 
     public CryptoKeyPair createKeyPair(String hexPrivateKey) {
-        PrivateKey privateKey = KeyTool.convertHexedStringToPrivateKey(hexPrivateKey, curveName);
-        PublicKey publicKey = KeyTool.getPublicKeyFromPrivateKey(privateKey);
-        KeyPair keyPair = new KeyPair(publicKey, privateKey);
+        KeyPair keyPair = KeyTool.convertHexedStringToKeyPair(hexPrivateKey, curveName);
         return createKeyPair(keyPair);
     }
 
