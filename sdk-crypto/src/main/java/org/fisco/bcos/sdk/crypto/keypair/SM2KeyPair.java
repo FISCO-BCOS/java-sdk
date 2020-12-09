@@ -15,10 +15,16 @@ package org.fisco.bcos.sdk.crypto.keypair;
 
 import com.webank.wedpr.crypto.CryptoResult;
 import com.webank.wedpr.crypto.NativeInterface;
+import java.math.BigInteger;
 import java.security.KeyPair;
+import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
+import org.fisco.bcos.sdk.utils.Hex;
+import org.fisco.bcos.sdk.utils.Numeric;
 
 public class SM2KeyPair extends CryptoKeyPair {
+    public static Hash DefaultHashAlgorithm = new SM3Hash();
+
     public SM2KeyPair() {
         initSM2KeyPairObject();
     }
@@ -53,5 +59,19 @@ public class SM2KeyPair extends CryptoKeyPair {
     @Override
     public CryptoKeyPair createKeyPair(KeyPair javaKeyPair) {
         return new SM2KeyPair(javaKeyPair);
+    }
+
+    public static String getAddressByPublicKey(String publicKey) {
+        return getAddress(publicKey, SM2KeyPair.DefaultHashAlgorithm);
+    }
+
+    public static byte[] getAddressByPublicKey(byte[] publicKey) {
+        return Hex.decode(
+                Numeric.cleanHexPrefix(getAddressByPublicKey(Hex.toHexString(publicKey))));
+    }
+
+    public static byte[] getAddressByPublicKey(BigInteger publicKey) {
+        byte[] publicKeyBytes = Numeric.toBytesPadded(publicKey, PUBLIC_KEY_SIZE);
+        return getAddressByPublicKey(publicKeyBytes);
     }
 }
