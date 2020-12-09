@@ -18,6 +18,9 @@
 package org.fisco.bcos.sdk;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
+import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
+import org.fisco.bcos.sdk.channel.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
@@ -34,8 +37,15 @@ import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.contract.EvidenceVerify;
 import org.fisco.bcos.sdk.contract.HelloWorld;
+import org.fisco.bcos.sdk.contract.SM2EvidenceVerify;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.crypto.signature.ECDSASignatureResult;
+import org.fisco.bcos.sdk.crypto.signature.SM2SignatureResult;
 import org.fisco.bcos.sdk.model.ConstantConfig;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.service.GroupManagerService;
@@ -336,9 +346,166 @@ public class BcosSDKTest {
                             + bcosTransactionReceiptsDecoder
                                     .decodeTransactionReceiptsInfo()
                                     .toString());
-
-        } catch (ContractException | ClientException | InterruptedException e) {
+            testECRecover();
+            testSM2Recover();
+        } catch (ContractException
+                | ClientException
+                | InterruptedException
+                | ChannelPrococolExceiption e) {
             System.out.println("testSendTransactions exceptioned, error info:" + e.getMessage());
         }
+    }
+
+    public void testECRecover() throws ContractException {
+        System.out.println("### testECRecover");
+        BcosSDK sdk = BcosSDK.build(configFile);
+        Integer groupId = Integer.valueOf(1);
+        Client client = sdk.getClient(groupId);
+        // test EvidenceVerify(ecRecover)
+        EvidenceVerify evidenceVerify =
+                EvidenceVerify.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
+        System.out.println("### address of evidenceVerify:" + evidenceVerify.getContractAddress());
+        CryptoSuite ecdsaCryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+        String evi = "test";
+        String evInfo = "test_info";
+        int random = new SecureRandom().nextInt(50000);
+        String eviId = String.valueOf(random);
+        // sign to evi
+        byte[] message = ecdsaCryptoSuite.hash(evi.getBytes());
+        CryptoKeyPair cryptoKeyPair = ecdsaCryptoSuite.createKeyPair();
+        // sign with secp256k1
+        ECDSASignatureResult signatureResult =
+                (ECDSASignatureResult) ecdsaCryptoSuite.sign(message, cryptoKeyPair);
+        String signAddr = cryptoKeyPair.getAddress();
+        TransactionReceipt insertReceipt =
+                evidenceVerify.insertEvidence(
+                        evi,
+                        evInfo,
+                        eviId,
+                        signAddr,
+                        message,
+                        BigInteger.valueOf(signatureResult.getV() + 27),
+                        signatureResult.getR(),
+                        signatureResult.getS());
+        Assert.assertEquals(insertReceipt.getStatus(), "0x0");
+        // case wrong signature
+        insertReceipt =
+                evidenceVerify.insertEvidence(
+                        evi,
+                        evInfo,
+                        eviId,
+                        signAddr,
+                        message,
+                        BigInteger.valueOf(signatureResult.getV()),
+                        signatureResult.getR(),
+                        signatureResult.getS());
+        Assert.assertEquals(insertReceipt.getStatus(), "0x16");
+        // case wrong message
+        byte[] fakedMessage = ecdsaCryptoSuite.hash(evInfo.getBytes());
+        insertReceipt =
+                evidenceVerify.insertEvidence(
+                        evi,
+                        evInfo,
+                        eviId,
+                        signAddr,
+                        fakedMessage,
+                        BigInteger.valueOf(signatureResult.getV() + 27),
+                        signatureResult.getR(),
+                        signatureResult.getS());
+        Assert.assertEquals(insertReceipt.getStatus(), "0x16");
+        // case wrong sender
+        signAddr = ecdsaCryptoSuite.createKeyPair().getAddress();
+        insertReceipt =
+                evidenceVerify.insertEvidence(
+                        evi,
+                        evInfo,
+                        eviId,
+                        signAddr,
+                        message,
+                        BigInteger.valueOf(signatureResult.getV() + 27),
+                        signatureResult.getR(),
+                        signatureResult.getS());
+
+        Assert.assertEquals(insertReceipt.getStatus(), "0x16");
+    }
+
+    public void testSM2Recover() throws ContractException, ChannelPrococolExceiption {
+        System.out.println("### testSM2Recover");
+        BcosSDK sdk = BcosSDK.build(configFile);
+        Integer groupId = Integer.valueOf(1);
+        Client client = sdk.getClient(groupId);
+        // test SM2EvidenceVerify(sm2Verify)
+        SM2EvidenceVerify sm2EvidenceVerify =
+                SM2EvidenceVerify.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
+        System.out.println(
+                "### address of sm2EvidenceVerify:" + sm2EvidenceVerify.getContractAddress());
+        CryptoSuite smCryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
+        String evi = "test";
+        String evInfo = "test_info";
+        int random = new SecureRandom().nextInt(50000);
+        String eviId = String.valueOf(random);
+        // sign to evi
+        byte[] message = smCryptoSuite.hash(evi.getBytes());
+        CryptoKeyPair cryptoKeyPair = smCryptoSuite.createKeyPair();
+        // sign
+        SM2SignatureResult signatureResult =
+                (SM2SignatureResult) smCryptoSuite.sign(message, cryptoKeyPair);
+        String signAddr = cryptoKeyPair.getAddress();
+        TransactionReceipt insertReceipt =
+                sm2EvidenceVerify.insertEvidence(
+                        evi,
+                        evInfo,
+                        eviId,
+                        signAddr,
+                        message,
+                        signatureResult.getPub(),
+                        signatureResult.getR(),
+                        signatureResult.getS());
+        String currentVersion = client.getNodeVersion().getNodeVersion().getSupportedVersion();
+        EnumNodeVersion.Version supportedVersion = EnumNodeVersion.getClassVersion(currentVersion);
+        // support sm2Verify after v2.8.0
+        if (supportedVersion.getMinor() < 8) {
+            Assert.assertEquals(insertReceipt.getStatus(), "0x16");
+            return;
+        }
+        Assert.assertEquals(insertReceipt.getStatus(), "0x0");
+        // case wrong signature
+        insertReceipt =
+                sm2EvidenceVerify.insertEvidence(
+                        evi,
+                        evInfo,
+                        eviId,
+                        signAddr,
+                        message,
+                        message,
+                        signatureResult.getR(),
+                        signatureResult.getS());
+        Assert.assertEquals(insertReceipt.getStatus(), "0x16");
+        // case wrong message
+        byte[] fakedMessage = smCryptoSuite.hash(evInfo.getBytes());
+        insertReceipt =
+                sm2EvidenceVerify.insertEvidence(
+                        evi,
+                        evInfo,
+                        eviId,
+                        signAddr,
+                        fakedMessage,
+                        signatureResult.getPub(),
+                        signatureResult.getR(),
+                        signatureResult.getS());
+        Assert.assertEquals(insertReceipt.getStatus(), "0x16");
+        // case wrong sender
+        signAddr = smCryptoSuite.createKeyPair().getAddress();
+        insertReceipt =
+                sm2EvidenceVerify.insertEvidence(
+                        evi,
+                        evInfo,
+                        eviId,
+                        signAddr,
+                        message,
+                        signatureResult.getPub(),
+                        signatureResult.getR(),
+                        signatureResult.getS());
+        Assert.assertEquals(insertReceipt.getStatus(), "0x16");
     }
 }
