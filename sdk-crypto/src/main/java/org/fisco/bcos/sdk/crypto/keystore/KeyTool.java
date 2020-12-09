@@ -176,8 +176,7 @@ public abstract class KeyTool {
     public static KeyPair convertPrivateKeyToKeyPair(BigInteger privateKey, String curveName)
             throws LoadKeyStoreException {
         try {
-            Security.setProperty("crypto.policy", "unlimited");
-            Security.addProvider(new BouncyCastleProvider());
+            initSecurity();
             org.bouncycastle.jce.spec.ECParameterSpec ecParameterSpec =
                     ECNamedCurveTable.getParameterSpec(curveName);
             ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(privateKey, ecParameterSpec);
@@ -193,7 +192,7 @@ public abstract class KeyTool {
                             new ECDomainParameters(
                                     ecParameterSpec.getCurve(),
                                     ecParameterSpec.getG(),
-                                    ecParameterSpec.getH()));
+                                    ecParameterSpec.getN()));
             BCECPrivateKey bcecPrivateKey =
                     new BCECPrivateKey(
                             privateKeyObject.getAlgorithm(),

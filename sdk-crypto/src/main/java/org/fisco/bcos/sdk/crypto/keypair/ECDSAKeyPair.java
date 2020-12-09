@@ -15,10 +15,16 @@ package org.fisco.bcos.sdk.crypto.keypair;
 
 import com.webank.wedpr.crypto.CryptoResult;
 import com.webank.wedpr.crypto.NativeInterface;
+import java.math.BigInteger;
 import java.security.KeyPair;
+import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
+import org.fisco.bcos.sdk.utils.Hex;
+import org.fisco.bcos.sdk.utils.Numeric;
 
 public class ECDSAKeyPair extends CryptoKeyPair {
+    public static Hash DefaultHashAlgorithm = new Keccak256();
+
     public ECDSAKeyPair() {
         initECDSAKeyPair();
     }
@@ -53,5 +59,19 @@ public class ECDSAKeyPair extends CryptoKeyPair {
     @Override
     public CryptoKeyPair createKeyPair(KeyPair javaKeyPair) {
         return new ECDSAKeyPair(javaKeyPair);
+    }
+
+    public static String getAddressByPublicKey(String publicKey) {
+        return getAddress(publicKey, ECDSAKeyPair.DefaultHashAlgorithm);
+    }
+
+    public static byte[] getAddressByPublicKey(byte[] publicKey) {
+        return Hex.decode(
+                Numeric.cleanHexPrefix(getAddressByPublicKey(Hex.toHexString(publicKey))));
+    }
+
+    public static byte[] getAddressByPublicKey(BigInteger publicKey) {
+        byte[] publicKeyBytes = Numeric.toBytesPadded(publicKey, PUBLIC_KEY_SIZE);
+        return getAddressByPublicKey(publicKeyBytes);
     }
 }
