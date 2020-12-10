@@ -27,6 +27,9 @@ public class SM2KeyPair extends CryptoKeyPair {
 
     public SM2KeyPair() {
         initSM2KeyPairObject();
+        CryptoKeyPair keyPair = this.generateKeyPair();
+        this.hexPrivateKey = keyPair.getHexPrivateKey();
+        this.hexPublicKey = keyPair.getHexPublicKey();
     }
 
     public SM2KeyPair(KeyPair javaKeyPair) {
