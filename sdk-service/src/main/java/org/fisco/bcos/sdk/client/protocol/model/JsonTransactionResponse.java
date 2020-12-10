@@ -279,7 +279,12 @@ public class JsonTransactionResponse {
         // blockLimit
         result.add(RlpString.create(Numeric.decodeQuantity(blockLimit)));
         // to
-        result.add(RlpString.create(Numeric.hexStringToByteArray(to)));
+        BigInteger receiveAddressValue = Numeric.decodeQuantity(to);
+        if (receiveAddressValue.equals(BigInteger.ZERO)) {
+            result.add(RlpString.create(""));
+        } else {
+            result.add(RlpString.create(Numeric.hexStringToByteArray(to)));
+        }
         // value
         result.add(RlpString.create(Numeric.decodeQuantity(value)));
         // input
