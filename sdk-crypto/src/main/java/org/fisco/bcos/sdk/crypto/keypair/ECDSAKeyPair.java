@@ -27,6 +27,9 @@ public class ECDSAKeyPair extends CryptoKeyPair {
 
     public ECDSAKeyPair() {
         initECDSAKeyPair();
+        CryptoKeyPair keyPair = this.generateKeyPair();
+        this.hexPrivateKey = keyPair.getHexPrivateKey();
+        this.hexPublicKey = keyPair.getHexPublicKey();
     }
 
     public ECDSAKeyPair(KeyPair javaKeyPair) {

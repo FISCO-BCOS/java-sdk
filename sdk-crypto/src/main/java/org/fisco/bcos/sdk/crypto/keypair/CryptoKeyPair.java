@@ -38,6 +38,9 @@ public abstract class CryptoKeyPair {
     public static final int PUBLIC_KEY_SIZE = 64;
     public static final int PUBLIC_KEY_LENGTH_IN_HEX = PUBLIC_KEY_SIZE << 1;
 
+    public static final int PRIVATE_KEY_SIZE = 32;
+    public static final int PRIVATE_KEY_SIZE_IN_HEX = PRIVATE_KEY_SIZE << 1;
+
     public static final String ECDSA_CURVE_NAME = "secp256k1";
     public static final String SM2_CURVE_NAME = "sm2p256v1";
     public static final String PEM_FILE_POSTFIX = ".pem";
@@ -163,7 +166,9 @@ public abstract class CryptoKeyPair {
      */
     protected static String getAddress(String publicKey, Hash hashInterface) {
         try {
-            String publicKeyNoPrefix = getPublicKeyNoPrefix(publicKey);
+            String publicKeyNoPrefix =
+                    Numeric.getKeyNoPrefix(
+                            UNCOMPRESSED_PUBLICKEY_FLAG_STR, publicKey, PUBLIC_KEY_LENGTH_IN_HEX);
             // calculate hash for the public key
             String publicKeyHash =
                     Hex.toHexString(hashInterface.hash(Hex.decode(publicKeyNoPrefix)));
