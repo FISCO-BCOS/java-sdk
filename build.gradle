@@ -92,7 +92,7 @@ subprojects {
     }
     jar {
         destinationDir file("dist/apps")
-        archiveName project.name + "-" + version + ".jar"
+        archiveName "fisco-bcos-" + project.name + "-" + version + ".jar"
 
         exclude "**/*.xml"
         exclude "**/*.properties"
@@ -212,7 +212,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
 
-            artifactId project.name
+            artifactId "fisco-bcos-" + project.name
             groupId project.group
             version project.version
 
@@ -264,7 +264,7 @@ publishing {
 
 jar {
     // destinationDir file('dist/apps')
-    // archiveName project.name + '-' + project.version + '.jar'
+    archiveName "fisco-bcos-" + project.name + '-' + project.version + '.jar'
     exclude '**/*.xml'
     exclude '**/*.properties'
 
