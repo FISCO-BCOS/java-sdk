@@ -72,6 +72,21 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         this.contractLoader = contractLoader;
     }
 
+    public AssembleTransactionProcessor(
+            Client client,
+            CryptoKeyPair cryptoKeyPair,
+            Integer groupId,
+            String chainId,
+            String contractName,
+            String abi,
+            String bin) {
+        super(client, cryptoKeyPair, groupId, chainId);
+        this.transactionDecoder = new TransactionDecoderService(cryptoSuite);
+        this.transactionPusher = new TransactionPusherService(client);
+        this.abiCodec = new ABICodec(cryptoSuite);
+        this.contractLoader = new ContractLoader(contractName, abi, bin);
+    }
+
     @Override
     public void deployOnly(String abi, String bin, List<Object> params) throws ABICodecException {
         transactionPusher.pushOnly(createSignedConstructor(abi, bin, params));
@@ -330,5 +345,9 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throw new TransactionBaseException(retCode);
         }
         return callResponse;
+    }
+
+    public ContractLoader getContractLoader() {
+        return contractLoader;
     }
 }

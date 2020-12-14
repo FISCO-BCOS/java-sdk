@@ -109,6 +109,19 @@ public class AssembleTransactionProcessorTest {
         l = JsonUtils.fromJsonList(callResponse2.getValues(), Object.class);
         Assert.assertEquals(l.size(), 1);
         Assert.assertEquals(l.get(0), "test");
+
+        String abi = transactionProcessor.getContractLoader().getABIByContractName("HelloWorld");
+        String bin = transactionProcessor.getContractLoader().getBinaryByContractName("HelloWorld");
+        AssembleTransactionProcessor transactionProcessor2 =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
+                        client, cryptoKeyPair, "HelloWorld", abi, bin);
+        response = transactionProcessor.deployByContractLoader("HelloWorld", new ArrayList<>());
+        // System.out.println(JsonUtils.toJson(response));
+        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
+            return;
+        }
+        Assert.assertTrue(response.getReturnCode() == 0);
+        System.out.println("### AssembleTransactionProcessorTest test1HelloWorld passed");
     }
 
     @Test

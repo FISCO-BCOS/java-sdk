@@ -74,4 +74,15 @@ public class TransactionProcessorFactory {
         return new AssembleTransactionProcessor(
                 client, cryptoKeyPair, pair.getRight(), pair.getLeft(), contractLoader);
     }
+
+    public static AssembleTransactionProcessor createAssembleTransactionProcessor(
+            Client client,
+            CryptoKeyPair cryptoKeyPair,
+            String contractName,
+            String abi,
+            String bin) {
+        Pair<String, Integer> pair = getChainIdAndGroupId(client);
+        return new AssembleTransactionProcessor(
+                client, cryptoKeyPair, pair.getRight(), pair.getLeft(), contractName, abi, bin);
+    }
 }
