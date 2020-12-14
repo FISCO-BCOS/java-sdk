@@ -16,7 +16,6 @@
 package org.fisco.bcos.sdk.config.model;
 
 import java.io.File;
-import java.net.URL;
 import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.CryptoType;
@@ -40,36 +39,36 @@ public class CryptoMaterialConfig {
         this.sslCryptoType = cryptoType;
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
         this.certPath =
-                getCertFilePath(
+                ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(cryptoMaterialProperty, "certPath", this.certPath));
         CryptoMaterialConfig defaultCryptoMaterialConfig =
                 getDefaultCaCertPath(cryptoType, this.certPath);
         this.caCertPath =
-                getCertFilePath(
+                ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(
                                 cryptoMaterialProperty,
                                 "caCert",
                                 defaultCryptoMaterialConfig.getCaCertPath()));
         this.sdkCertPath =
-                getCertFilePath(
+                ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(
                                 cryptoMaterialProperty,
                                 "sslCert",
                                 defaultCryptoMaterialConfig.getSdkCertPath()));
         this.sdkPrivateKeyPath =
-                getCertFilePath(
+                ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(
                                 cryptoMaterialProperty,
                                 "sslKey",
                                 defaultCryptoMaterialConfig.getSdkPrivateKeyPath()));
         this.enSSLCertPath =
-                getCertFilePath(
+                ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(
                                 cryptoMaterialProperty,
                                 "enSslCert",
                                 defaultCryptoMaterialConfig.getEnSSLCertPath()));
         this.enSSLPrivateKeyPath =
-                getCertFilePath(
+                ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(
                                 cryptoMaterialProperty,
                                 "enSslKey",
@@ -81,26 +80,6 @@ public class CryptoMaterialConfig {
                 this.getSdkPrivateKeyPath(),
                 this.getEnSSLCertPath(),
                 this.getEnSSLPrivateKeyPath());
-    }
-
-    private String getCertFilePath(String configCertFilePath) {
-        if (configCertFilePath == null) {
-            return null;
-        }
-        File file = new File(configCertFilePath);
-        if (file.exists()) {
-            return configCertFilePath;
-        }
-        // try to load from the resource path
-        URL url = Thread.currentThread().getContextClassLoader().getResource(configCertFilePath);
-        if (url == null) {
-            return configCertFilePath;
-        }
-        String resourceCertPath = url.getPath();
-        if (new File(resourceCertPath).exists()) {
-            return resourceCertPath;
-        }
-        return configCertFilePath;
     }
 
     public CryptoMaterialConfig getDefaultCaCertPath(int cryptoType, String certPath)
