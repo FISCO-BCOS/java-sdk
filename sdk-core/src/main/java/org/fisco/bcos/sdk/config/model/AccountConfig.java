@@ -27,7 +27,9 @@ public class AccountConfig {
 
     public AccountConfig(ConfigProperty configProperty) throws ConfigException {
         this.keyStoreDir =
-                ConfigProperty.getValue(configProperty.getAccount(), "keyStoreDir", "account");
+                ConfigProperty.getConfigFilePath(
+                        ConfigProperty.getValue(
+                                configProperty.getAccount(), "keyStoreDir", "account"));
         this.accountAddress =
                 ConfigProperty.getValue(configProperty.getAccount(), "accountAddress", "");
         this.accountFileFormat =
@@ -35,6 +37,9 @@ public class AccountConfig {
         this.accountPassword = ConfigProperty.getValue(configProperty.getAccount(), "password", "");
         this.accountFilePath =
                 ConfigProperty.getValue(configProperty.getAccount(), "accountFilePath", "");
+        if (!this.accountFilePath.equals("")) {
+            this.accountFilePath = ConfigProperty.getConfigFilePath(this.accountFilePath);
+        }
         checkAccountConfig();
     }
 

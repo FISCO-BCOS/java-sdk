@@ -16,6 +16,8 @@
 package org.fisco.bcos.sdk.config.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -78,5 +80,25 @@ public class ConfigProperty {
             return defaultValue;
         }
         return (String) config.get(key);
+    }
+
+    public static String getConfigFilePath(String configFilePath) {
+        if (configFilePath == null) {
+            return null;
+        }
+        File file = new File(configFilePath);
+        if (file.exists()) {
+            return configFilePath;
+        }
+        // try to load from the resource path
+        URL url = Thread.currentThread().getContextClassLoader().getResource(configFilePath);
+        if (url == null) {
+            return configFilePath;
+        }
+        String resourceCertPath = url.getPath();
+        if (new File(resourceCertPath).exists()) {
+            return resourceCertPath;
+        }
+        return configFilePath;
     }
 }
