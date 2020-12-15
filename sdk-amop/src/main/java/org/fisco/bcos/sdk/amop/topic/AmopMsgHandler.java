@@ -224,6 +224,12 @@ public class AmopMsgHandler implements MsgHandler {
                     Hex.toHexString(cryptoSuite.hash(randomValue)),
                     Hex.toHexString(signature))) {
                 return 0;
+            } else {
+                logger.warn(
+                        "verify topic {} failed, randomValue: {}, publicKey: {}",
+                        topic,
+                        Hex.toHexString(randomValue),
+                        publicKey);
             }
         }
         return 1;

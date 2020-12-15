@@ -18,6 +18,7 @@ import com.webank.wedpr.crypto.NativeInterface;
 import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.utils.Hex;
+import org.fisco.bcos.sdk.utils.Numeric;
 
 public class ECDSASignature implements Signature {
     @Override
@@ -47,7 +48,13 @@ public class ECDSASignature implements Signature {
 
     @Override
     public boolean verify(final String publicKey, final String message, final String signature) {
-        CryptoResult verifyResult = NativeInterface.secp256k1verify(publicKey, message, signature);
+        String hexPubKeyWithPrefix =
+                Numeric.getHexKeyWithPrefix(
+                        publicKey,
+                        CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
+                        CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX);
+        CryptoResult verifyResult =
+                NativeInterface.secp256k1verify(hexPubKeyWithPrefix, message, signature);
         // call secp256k1verify failed
         if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
