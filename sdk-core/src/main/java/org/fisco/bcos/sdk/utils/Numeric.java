@@ -236,4 +236,18 @@ public final class Numeric {
         }
         return keyNoPrefix;
     }
+
+    public static String getHexKeyWithPrefix(
+            String hexPublicKey, String requiredPrefix, int requiredKeyLengthInHex) {
+        String keyWithPrefix = Numeric.cleanHexPrefix(hexPublicKey);
+        if (keyWithPrefix.length() < requiredKeyLengthInHex) {
+            keyWithPrefix =
+                    StringUtils.zeros(requiredKeyLengthInHex - keyWithPrefix.length())
+                            + keyWithPrefix;
+        }
+        if (!keyWithPrefix.startsWith(requiredPrefix)) {
+            keyWithPrefix = requiredPrefix + keyWithPrefix;
+        }
+        return keyWithPrefix;
+    }
 }

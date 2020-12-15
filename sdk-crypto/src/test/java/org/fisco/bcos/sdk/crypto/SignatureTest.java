@@ -66,6 +66,7 @@ public class SignatureTest {
         // check publicKey
         System.out.println("hexedPublicKey: " + hexedPublicKey);
         System.out.println("keyPair.getHexPublicKey(): " + keyPair.getHexPublicKey());
+        System.out.println("keyPair.getHexPrivate(): " + keyPair.getHexPrivateKey());
         Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey().substring(2));
         testSignature(cryptoSuite, keyPair);
 
@@ -273,6 +274,10 @@ public class SignatureTest {
             Assert.assertTrue(
                     signature.verify(
                             keyPair.getHexPublicKey(), message, signResult.convertToString()));
+            String hexPublicKeyWithoutPrefix = keyPair.getHexPublicKey().substring(2);
+            Assert.assertTrue(
+                    signature.verify(
+                            hexPublicKeyWithoutPrefix, message, signResult.convertToString()));
             signResult = signature.sign(messageBytes, keyPair);
             Assert.assertTrue(
                     signature.verify(
