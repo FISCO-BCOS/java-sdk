@@ -24,7 +24,7 @@ ext {
     nettySMSSLContextVersion = "1.2.0"
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
-    keyMiniToolkit = "1.0.3-SNAPSHOT"
+    keyMiniToolkit = "1.0.2"
 
     slf4jVersion = "1.7.30"
     junitVersion = "4.12"
