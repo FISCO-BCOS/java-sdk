@@ -96,6 +96,28 @@ subprojects {
 
         exclude "**/*.xml"
         exclude "**/*.properties"
+        manifest {
+            try {
+                def repo = grgit.open(currentDir: project.rootDir)
+                if (repo != null) {
+                    def date = new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                    def branch = repo.branch.getCurrent().getName()
+                    def commit = repo.head().getAbbreviatedId(40)
+
+                    attributes(["Implementation-Timestamp": date,
+                                "Git-Branch"              : branch,
+                                "Git-Commit"              : commit
+                    ])
+
+                    logger.info("  Commit : ")
+                    logger.info("  => date: {}", date)
+                    logger.info("  => branch: {}", branch)
+                    logger.info("  => commit: {}", commit)
+                }
+            } catch (Exception e) {
+                logger.warn(' .git not exist, cannot found commit info, e: {}', e)
+            }
+        } from sourceSets.main.output
 
         doLast {
             copy {
@@ -111,22 +133,6 @@ subprojects {
                 into "dist/apps"
             }
         }
-    }
-
-    // for upload to maven
-    task sourcesJar(type: Jar) {
-        classifier = "sources"
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = "javadoc"
-        from javadoc.destinationDir
-    }
-    artifacts {
-        archives jar
-        archives sourcesJar
-        archives javadocJar
     }
 }
 
