@@ -274,6 +274,13 @@ public class SignatureTest {
             Assert.assertTrue(
                     signature.verify(
                             keyPair.getHexPublicKey(), message, signResult.convertToString()));
+            String hexMessageWithPrefix = "0x" + message;
+            // sign
+            signResult = signature.sign(hexMessageWithPrefix, keyPair);
+            Assert.assertTrue(
+                    signature.verify(
+                            keyPair.getHexPublicKey(), hexMessageWithPrefix, signResult.convertToString()));
+            //verify
             String hexPublicKeyWithoutPrefix = keyPair.getHexPublicKey().substring(2);
             Assert.assertTrue(
                     signature.verify(

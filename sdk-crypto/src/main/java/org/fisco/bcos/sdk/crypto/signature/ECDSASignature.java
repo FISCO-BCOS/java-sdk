@@ -35,7 +35,8 @@ public class ECDSASignature implements Signature {
     @Override
     public String signWithStringSignature(final String message, final CryptoKeyPair keyPair) {
         CryptoResult signatureResult =
-                NativeInterface.secp256k1Sign(keyPair.getHexPrivateKey(), message);
+                NativeInterface.secp256k1Sign(
+                        keyPair.getHexPrivateKey(), Numeric.cleanHexPrefix(message));
         // call secp256k1Sign failed
         if (signatureResult.wedprErrorMessage != null
                 && !signatureResult.wedprErrorMessage.isEmpty()) {
@@ -54,7 +55,8 @@ public class ECDSASignature implements Signature {
                         CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
                         CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX);
         CryptoResult verifyResult =
-                NativeInterface.secp256k1verify(hexPubKeyWithPrefix, message, signature);
+                NativeInterface.secp256k1verify(
+                        hexPubKeyWithPrefix, Numeric.cleanHexPrefix(message), signature);
         // call secp256k1verify failed
         if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
