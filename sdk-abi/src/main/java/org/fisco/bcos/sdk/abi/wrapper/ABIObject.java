@@ -52,6 +52,7 @@ public class ABIObject {
 
     private NumericType numericValue;
     private Bytes bytesValue;
+    private int bytesLength;
     private Address addressValue;
     private Bool boolValue;
     private DynamicBytes dynamicBytesValue;
@@ -88,6 +89,11 @@ public class ABIObject {
     public ABIObject(ValueType valueType) {
         this.type = ObjectType.VALUE;
         this.valueType = valueType;
+    }
+
+    public ABIObject(ValueType bytesValueType, int bytesLength) {
+        this(bytesValueType);
+        this.bytesLength = bytesLength;
     }
 
     public ABIObject(ListType listType) {
@@ -131,6 +137,11 @@ public class ABIObject {
         this.bytesValue = bytesValue;
     }
 
+    public ABIObject(Bytes bytesValue, int bytesLength) {
+        this(bytesValue);
+        this.bytesLength = bytesLength;
+    }
+
     public ABIObject newObjectWithoutValue() {
         ABIObject abiObject = new ABIObject(this.type);
         // value
@@ -165,6 +176,7 @@ public class ABIObject {
     public ABIObject newObject() {
 
         ABIObject abiObject = new ABIObject(this.type);
+        abiObject.setBytesLength(this.bytesLength);
 
         // value
         abiObject.setValueType(this.getValueType());
@@ -705,6 +717,14 @@ public class ABIObject {
 
     public void setListLength(int listLength) {
         this.listLength = listLength;
+    }
+
+    public int getBytesLength() {
+        return bytesLength;
+    }
+
+    public void setBytesLength(int bytesLength) {
+        this.bytesLength = bytesLength;
     }
 
     @Override

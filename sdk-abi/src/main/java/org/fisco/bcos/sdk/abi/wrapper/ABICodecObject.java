@@ -319,11 +319,13 @@ public class ABICodecObject {
         } else {
             argObjects = template.getListValues();
         }
+        List<ABIObject> resultABIObject = new ArrayList<>();
         for (int i = 0; i < argObjects.size(); ++i) {
             ABIObject argObject = argObjects.get(i);
             switch (argObject.getType()) {
                 case VALUE:
                     {
+                        resultABIObject.add(argObject);
                         switch (argObject.getValueType()) {
                             case BOOL:
                                 {
@@ -343,7 +345,21 @@ public class ABICodecObject {
                                 }
                             case BYTES:
                                 {
-                                    result.add(new String(argObject.getBytesValue().getValue()));
+                                    if (argObject.getBytesLength() > 0
+                                            && argObject.getBytesValue().getValue().length
+                                                    > argObject.getBytesLength()) {
+                                        byte[] value = new byte[argObject.getBytesLength()];
+                                        System.arraycopy(
+                                                argObject.getBytesValue().getValue(),
+                                                0,
+                                                value,
+                                                0,
+                                                argObject.getBytesLength());
+                                        result.add(new String(value));
+                                    } else {
+                                        result.add(
+                                                new String(argObject.getBytesValue().getValue()));
+                                    }
                                     break;
                                 }
                             case DBYTES:
@@ -369,8 +385,10 @@ public class ABICodecObject {
                 case LIST:
                 case STRUCT:
                     {
-                        List<Object> node = decodeJavaObject(argObject);
-                        result.add(node);
+                        Pair<List<Object>, List<ABIObject>> nodeAndAbiObject =
+                                decodeJavaObjectAndGetOutputObject(argObject);
+                        result.add(nodeAndAbiObject.getLeft());
+                        resultABIObject.addAll(nodeAndAbiObject.getRight());
                         break;
                     }
                 default:
@@ -380,6 +398,6 @@ public class ABICodecObject {
                     }
             }
         }
-        return new ImmutablePair<>(result, argObjects);
+        return new ImmutablePair<>(result, resultABIObject);
     }
 }

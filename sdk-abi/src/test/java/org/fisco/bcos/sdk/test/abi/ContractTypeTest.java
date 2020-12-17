@@ -242,16 +242,20 @@ public class ContractTypeTest {
                 ABIObjectFactory.createOutputObject(
                         contractABIDefinition.getFunctions().get("getFixedValue").get(0));
 
-        String bytes1 = Base64.getEncoder().encodeToString("HelloWorld 11111".getBytes());
-        String bytes2 = Base64.getEncoder().encodeToString("HelloWorld 22222".getBytes());
-        String bytes3 = Base64.getEncoder().encodeToString("HelloWorld 33333".getBytes());
-
+        String bytes1 = "HelloWorld 11111";
+        String bytes1Base64 = Base64.getEncoder().encodeToString(bytes1.getBytes());
+        String bytes2 = "base64://" + Base64.getEncoder().encodeToString("HelloWorld 22222".getBytes());
+        String bytes3 = "base64://" + Base64.getEncoder().encodeToString("HelloWorld 33333".getBytes());
+        String bytes32ValueHex = "hex://0x6162636465666768736466336577657277657272657772657765727765726565";
+        String bytes32ValuePlain = "abcdefghsdf3ewerwerrewrewerweree";
+        String bytes32Base64 = "base64://YWJjZGVmZ2hzZGYzZXdlcndlcnJld3Jld2Vyd2VyZWU=";
+        String bytes32PrettyString = "YWJjZGVmZ2hzZGYzZXdlcndlcnJld3Jld2Vyd2VyZWU=";
         List<String> params =
                 Arrays.asList(
                         "[1,2,3]",
                         "[true,false,true]",
                         "[\"0xa\",\"0xb\",\"0xc\"]",
-                        "[\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"]",
+                        "[\"" + bytes32ValuePlain + "\",\"" + bytes32Base64 + "\",\"" + bytes32ValueHex + "\"]",
                         "[\"a\",\"b\",\"c\"]",
                         "[\"" + bytes1 + "\",\"" + bytes2 + "\",\"" + bytes3 + "\"]");
 
@@ -267,12 +271,12 @@ public class ContractTypeTest {
                 "[ \"0x000000000000000000000000000000000000000a\", \"0x000000000000000000000000000000000000000b\", \"0x000000000000000000000000000000000000000c\" ]");
         Assert.assertEquals(
                 decodeResult.get(3),
-                "[ \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\", \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\", \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\" ]");
+                "[ \"" + bytes32PrettyString + "\", \"" + bytes32PrettyString + "\", \"" + bytes32PrettyString + "\" ]");
 
         Assert.assertEquals(decodeResult.get(4), "[ \"a\", \"b\", \"c\" ]");
         Assert.assertEquals(
                 decodeResult.get(5),
-                "[ \"" + bytes1 + "\", \"" + bytes2 + "\", \"" + bytes3 + "\" ]");
+                "[ \"" + bytes1Base64 + "\", \"" + bytes2.substring("base64://".length()) + "\", \"" + bytes3.substring("base64://".length()) + "\" ]");
     }
 
     @Test
@@ -285,16 +289,21 @@ public class ContractTypeTest {
                 ABIObjectFactory.createOutputObject(
                         contractABIDefinition.getFunctions().get("getDynamicValue").get(0));
 
-        String bytes1 = Base64.getEncoder().encodeToString("HelloWorld 11111".getBytes());
-        String bytes2 = Base64.getEncoder().encodeToString("HelloWorld 22222".getBytes());
-        String bytes3 = Base64.getEncoder().encodeToString("HelloWorld 33333".getBytes());
+        String bytes1 = "HelloWorld 11111";
+        String bytes1Base64 = Base64.getEncoder().encodeToString(bytes1.getBytes());
+        String bytes2 = "base64://" + Base64.getEncoder().encodeToString("HelloWorld 22222".getBytes());
+        String bytes3 = "base64://" + Base64.getEncoder().encodeToString("HelloWorld 33333".getBytes());
 
+        String bytes32ValueHex = "hex://0x6162636465666768736466336577657277657272657772657765727765726565";
+        String bytes32ValuePlain = "abcdefghsdf3ewerwerrewrewerweree";
+        String bytes32Base64 = "base64://YWJjZGVmZ2hzZGYzZXdlcndlcnJld3Jld2Vyd2VyZWU=";
+        String bytes32PrettyString = "YWJjZGVmZ2hzZGYzZXdlcndlcnJld3Jld2Vyd2VyZWU=";
         List<String> params =
                 Arrays.asList(
                         "[1,2,3]",
                         "[true,false,true]",
                         "[\"0xa\",\"0xb\",\"0xc\"]",
-                        "[\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"]",
+                        "[\"" + bytes32ValueHex + "\",\"" + bytes32ValuePlain + "\",\"" + bytes32Base64 + "\"]",
                         "[\"a\",\"b\",\"c\"]",
                         "[\"" + bytes1 + "\",\"" + bytes2 + "\",\"" + bytes3 + "\"]");
 
@@ -310,12 +319,12 @@ public class ContractTypeTest {
                 "[ \"0x000000000000000000000000000000000000000a\", \"0x000000000000000000000000000000000000000b\", \"0x000000000000000000000000000000000000000c\" ]");
         Assert.assertEquals(
                 decodeResult.get(3),
-                "[ \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\", \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\", \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\" ]");
+                "[ \"" + bytes32PrettyString + "\", \"" + bytes32PrettyString + "\", \"" + bytes32PrettyString + "\" ]");
 
         Assert.assertEquals(decodeResult.get(4), "[ \"a\", \"b\", \"c\" ]");
         Assert.assertEquals(
                 decodeResult.get(5),
-                "[ \"" + bytes1 + "\", \"" + bytes2 + "\", \"" + bytes3 + "\" ]");
+                "[ \"" + bytes1Base64 + "\", \"" + bytes2.substring("base64://".length()) + "\", \"" + bytes3.substring("base64://".length()) + "\" ]");
     }
 
     @Test
