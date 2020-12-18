@@ -49,6 +49,10 @@ public class SM2KeyPair extends CryptoKeyPair {
         this.signatureAlgorithm = SM_SIGNATURE_ALGORITHM;
     }
 
+    public static CryptoKeyPair createKeyPair() {
+        return new SM2KeyPair(NativeInterface.sm2keyPair());
+    }
+
     /**
      * generate keyPair randomly
      *

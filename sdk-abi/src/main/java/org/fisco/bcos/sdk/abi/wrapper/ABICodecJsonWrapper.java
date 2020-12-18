@@ -518,8 +518,9 @@ public class ABICodecJsonWrapper {
                             case BYTES:
                                 {
                                     byte[] base64Bytes;
-                                    if (argObject.getBytesLength()
-                                            < argObject.getBytesValue().getValue().length) {
+                                    if (argObject.getBytesLength() > 0
+                                            && argObject.getBytesLength()
+                                                    < argObject.getBytesValue().getValue().length) {
                                         byte[] value = new byte[argObject.getBytesLength()];
                                         System.arraycopy(
                                                 argObject.getBytesValue().getValue(),
