@@ -517,26 +517,8 @@ public class ABICodecJsonWrapper {
                                 }
                             case BYTES:
                                 {
-                                    byte[] base64Bytes;
-                                    if (argObject.getBytesLength() > 0
-                                            && argObject.getBytesLength()
-                                                    < argObject.getBytesValue().getValue().length) {
-                                        byte[] value = new byte[argObject.getBytesLength()];
-                                        System.arraycopy(
-                                                argObject.getBytesValue().getValue(),
-                                                0,
-                                                value,
-                                                0,
-                                                argObject.getBytesLength());
-                                        base64Bytes = Base64.getEncoder().encode(value);
-                                    } else {
-                                        base64Bytes =
-                                                Base64.getEncoder()
-                                                        .encode(
-                                                                argObject
-                                                                        .getBytesValue()
-                                                                        .getValue());
-                                    }
+                                    byte[] value = ABICodecObject.formatBytesN(argObject);
+                                    byte[] base64Bytes = Base64.getEncoder().encode(value);
                                     result.add(Base64EncodedDataPrefix + new String(base64Bytes));
                                     break;
                                 }
