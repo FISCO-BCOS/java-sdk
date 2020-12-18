@@ -90,6 +90,9 @@ public class SignatureTest {
         CryptoKeyPair keyPair = (new ECDSAKeyPair()).generateKeyPair();
         Hash hasher = new Keccak256();
         testSignature(hasher, ecdsaSignature, keyPair);
+
+        keyPair = ECDSAKeyPair.createKeyPair();
+        testSignature(hasher, ecdsaSignature, keyPair);
     }
 
     @Test
@@ -97,6 +100,9 @@ public class SignatureTest {
         Signature sm2Signature = new SM2Signature();
         CryptoKeyPair keyPair = (new SM2KeyPair()).generateKeyPair();
         Hash hasher = new SM3Hash();
+        testSignature(hasher, sm2Signature, keyPair);
+
+        keyPair = SM2KeyPair.createKeyPair();
         testSignature(hasher, sm2Signature, keyPair);
     }
 

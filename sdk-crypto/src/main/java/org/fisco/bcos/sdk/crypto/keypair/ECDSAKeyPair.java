@@ -49,6 +49,10 @@ public class ECDSAKeyPair extends CryptoKeyPair {
         this.signatureAlgorithm = ECDSA_SIGNATURE_ALGORITHM;
     }
 
+    public static CryptoKeyPair createKeyPair() {
+        return new ECDSAKeyPair(NativeInterface.secp256k1keyPair());
+    }
+
     /**
      * generate keyPair randomly
      *
