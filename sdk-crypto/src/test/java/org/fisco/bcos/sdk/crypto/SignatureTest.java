@@ -21,6 +21,7 @@ import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
+import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
 import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
@@ -320,6 +321,27 @@ public class SignatureTest {
                             keyPair.getHexPublicKey(),
                             invalidMessage,
                             signResult.convertToString()));
+        }
+
+        // invalid input
+        try {
+            String invalidMessage = "0xb3b9ce5a0725c1457b8c7872d05accb3887ecc09a50dc7619b53837e4d9f";
+            SignatureResult signResult = signature.sign(invalidMessage, keyPair);
+        }catch(SignatureException e)
+        {
+            System.out.println("Sign failed for " + e.getMessage());
+        }
+
+        try {
+            String invalidMessage = "";
+            for(int i = 0; i < 64; i++)
+            {
+                invalidMessage += "r";
+            }
+            SignatureResult signResult = signature.sign(invalidMessage, keyPair);
+        }catch(SignatureException e)
+        {
+            System.out.println("Sign failed for " + e.getMessage());
         }
     }
 

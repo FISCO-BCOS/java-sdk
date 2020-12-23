@@ -21,6 +21,8 @@ import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 public class ECDSASignature implements Signature {
+    private static int INPUT_MESSAGE_SIZE_IN_HEX = 64;
+
     @Override
     public SignatureResult sign(final String message, final CryptoKeyPair keyPair) {
         // convert signature string to SignatureResult struct
@@ -32,11 +34,19 @@ public class ECDSASignature implements Signature {
         return sign(Hex.toHexString(message), keyPair);
     }
 
+    private void checkInputMessage(final String message) {
+        if (message.length() != INPUT_MESSAGE_SIZE_IN_HEX) {
+            throw new SignatureException(
+                    "Invalid input message " + message + ", must be a hex string of length 64");
+        }
+    }
+
     @Override
     public String signWithStringSignature(final String message, final CryptoKeyPair keyPair) {
+        String inputMessage = Numeric.cleanHexPrefix(message);
+        checkInputMessage(inputMessage);
         CryptoResult signatureResult =
-                NativeInterface.secp256k1Sign(
-                        keyPair.getHexPrivateKey(), Numeric.cleanHexPrefix(message));
+                NativeInterface.secp256k1Sign(keyPair.getHexPrivateKey(), inputMessage);
         // call secp256k1Sign failed
         if (signatureResult.wedprErrorMessage != null
                 && !signatureResult.wedprErrorMessage.isEmpty()) {
@@ -49,14 +59,15 @@ public class ECDSASignature implements Signature {
 
     @Override
     public boolean verify(final String publicKey, final String message, final String signature) {
+        String inputMessage = Numeric.cleanHexPrefix(message);
+        checkInputMessage(inputMessage);
         String hexPubKeyWithPrefix =
                 Numeric.getHexKeyWithPrefix(
                         publicKey,
                         CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
                         CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX);
         CryptoResult verifyResult =
-                NativeInterface.secp256k1verify(
-                        hexPubKeyWithPrefix, Numeric.cleanHexPrefix(message), signature);
+                NativeInterface.secp256k1verify(hexPubKeyWithPrefix, inputMessage, signature);
         // call secp256k1verify failed
         if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
