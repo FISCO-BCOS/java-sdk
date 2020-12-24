@@ -41,14 +41,58 @@ import org.slf4j.LoggerFactory;
  */
 public class ContractLoader {
     private static final Logger log = LoggerFactory.getLogger(ContractLoader.class);
-    private Map<String, List<ABIDefinition>> contractFuncAbis;
-    private Map<String, ABIDefinition> contractConstructorAbi;
-    private Map<String, String> contractBinMap;
-    private Map<String, String> contractAbiMap;
+    private Map<String, List<ABIDefinition>> contractFuncAbis = new HashMap<>();
+    private Map<String, ABIDefinition> contractConstructorAbi = new HashMap<>();
+    private Map<String, String> contractBinMap = new HashMap<>();
+    private Map<String, String> contractAbiMap = new HashMap<>();
 
     public ContractLoader(String abiFilePath, String binaryFilePath) throws Exception {
         this.binInfo(binaryFilePath);
         this.abiInfo(abiFilePath);
+    }
+
+    public ContractLoader(String contractName, String abi, String bin) {
+        loadBinary(contractName, bin);
+        loadABI(contractName, abi);
+    }
+
+    public boolean appendContractAbi(String contractName, String abi) {
+        return loadABI(contractName, abi);
+    }
+
+    public boolean appendContractBinary(String contractName, String bin) {
+        return loadBinary(contractName, bin);
+    }
+
+    protected boolean loadBinary(String contractName, String bin) {
+        if (this.contractAbiMap.get(contractName) != null) {
+            log.warn(
+                    "loadBinary failed for the binary information of {} already exists",
+                    contractName);
+            return false;
+        }
+        // parse bin information
+        if (bin == null || StringUtils.isEmpty(bin)) {
+            log.warn("ContractLoader: Empty bin directory, cannot deploy any contract");
+            return false;
+        } else {
+            this.contractBinMap.put(contractName, bin);
+        }
+        return true;
+    }
+
+    protected boolean loadABI(String contractName, String abi) {
+        if (contractAbiMap.get(contractName) != null) {
+            log.warn("loadABI failed for the abi information of {} already exists", contractName);
+            return false;
+        }
+        // parse abi information
+        List<ABIDefinition> abiDefinitionList = ContractAbiUtil.getFuncABIDefinition(abi);
+        contractFuncAbis.put(contractName, abiDefinitionList);
+        ABIDefinition constructorAbi = selectConstructor(abiDefinitionList);
+        contractConstructorAbi.put(contractName, constructorAbi);
+        contractAbiMap.put(contractName, abi);
+        return true;
     }
 
     public BinInfo binInfo(String binaryFilePath) throws IOException {
@@ -66,7 +110,7 @@ public class ContractLoader {
         for (File file : fileCollection) {
             String contract = parseContractName(file);
             String bin = FileUtils.readFileToString(file);
-            contractBinMap.put(contract, bin);
+            loadBinary(contract, bin);
         }
         return new BinInfo(contractBinMap);
     }
@@ -74,16 +118,10 @@ public class ContractLoader {
     public AbiInfo abiInfo(String abiFilePath) throws Exception {
         String[] s = {"abi"};
         Collection<File> fileCollection = FileUtils.listFiles(new File(abiFilePath), s, true);
-        this.contractFuncAbis = new HashMap<>();
-        this.contractConstructorAbi = new HashMap<>();
-        this.contractAbiMap = new HashMap<>();
         for (File file : fileCollection) {
             String contract = parseContractName(file);
-            List<ABIDefinition> abiList = parseAbiBody(file);
-            ABIDefinition constructorAbi = selectConstructor(abiList);
-            contractFuncAbis.put(contract, abiList);
-            contractConstructorAbi.put(contract, constructorAbi);
-            contractAbiMap.put(contract, FileUtils.readFileToString(file));
+            String abi = FileUtils.readFileToString(file);
+            loadABI(contract, abi);
         }
         return new AbiInfo(contractFuncAbis, contractConstructorAbi);
     }

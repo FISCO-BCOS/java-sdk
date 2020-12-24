@@ -38,34 +38,41 @@ public class CryptoMaterialConfig {
             throws ConfigException {
         this.sslCryptoType = cryptoType;
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
-        this.certPath = ConfigProperty.getValue(cryptoMaterialProperty, "certPath", this.certPath);
+        this.certPath =
+                ConfigProperty.getConfigFilePath(
+                        ConfigProperty.getValue(cryptoMaterialProperty, "certPath", this.certPath));
         CryptoMaterialConfig defaultCryptoMaterialConfig =
                 getDefaultCaCertPath(cryptoType, this.certPath);
         this.caCertPath =
-                ConfigProperty.getValue(
-                        cryptoMaterialProperty,
-                        "caCert",
-                        defaultCryptoMaterialConfig.getCaCertPath());
+                ConfigProperty.getConfigFilePath(
+                        ConfigProperty.getValue(
+                                cryptoMaterialProperty,
+                                "caCert",
+                                defaultCryptoMaterialConfig.getCaCertPath()));
         this.sdkCertPath =
-                ConfigProperty.getValue(
-                        cryptoMaterialProperty,
-                        "sslCert",
-                        defaultCryptoMaterialConfig.getSdkCertPath());
+                ConfigProperty.getConfigFilePath(
+                        ConfigProperty.getValue(
+                                cryptoMaterialProperty,
+                                "sslCert",
+                                defaultCryptoMaterialConfig.getSdkCertPath()));
         this.sdkPrivateKeyPath =
-                ConfigProperty.getValue(
-                        cryptoMaterialProperty,
-                        "sslKey",
-                        defaultCryptoMaterialConfig.getSdkPrivateKeyPath());
+                ConfigProperty.getConfigFilePath(
+                        ConfigProperty.getValue(
+                                cryptoMaterialProperty,
+                                "sslKey",
+                                defaultCryptoMaterialConfig.getSdkPrivateKeyPath()));
         this.enSSLCertPath =
-                ConfigProperty.getValue(
-                        cryptoMaterialProperty,
-                        "enSslCert",
-                        defaultCryptoMaterialConfig.getEnSSLCertPath());
+                ConfigProperty.getConfigFilePath(
+                        ConfigProperty.getValue(
+                                cryptoMaterialProperty,
+                                "enSslCert",
+                                defaultCryptoMaterialConfig.getEnSSLCertPath()));
         this.enSSLPrivateKeyPath =
-                ConfigProperty.getValue(
-                        cryptoMaterialProperty,
-                        "enSslKey",
-                        defaultCryptoMaterialConfig.getEnSSLPrivateKeyPath());
+                ConfigProperty.getConfigFilePath(
+                        ConfigProperty.getValue(
+                                cryptoMaterialProperty,
+                                "enSslKey",
+                                defaultCryptoMaterialConfig.getEnSSLPrivateKeyPath()));
         logger.debug(
                 "Load cryptoMaterial, caCertPath: {}, sdkCertPath: {}, sdkPrivateKeyPath:{}, enSSLCertPath: {}, enSSLPrivateKeyPath:{}",
                 this.getCaCertPath(),
@@ -157,5 +164,31 @@ public class CryptoMaterialConfig {
 
     public void setSslCryptoType(int sslCryptoType) {
         this.sslCryptoType = sslCryptoType;
+    }
+
+    @Override
+    public String toString() {
+        return "CryptoMaterialConfig{"
+                + "certPath='"
+                + certPath
+                + '\''
+                + ", caCertPath='"
+                + caCertPath
+                + '\''
+                + ", sdkCertPath='"
+                + sdkCertPath
+                + '\''
+                + ", sdkPrivateKeyPath='"
+                + sdkPrivateKeyPath
+                + '\''
+                + ", enSSLCertPath='"
+                + enSSLCertPath
+                + '\''
+                + ", enSSLPrivateKeyPath='"
+                + enSSLPrivateKeyPath
+                + '\''
+                + ", sslCryptoType="
+                + sslCryptoType
+                + '}';
     }
 }

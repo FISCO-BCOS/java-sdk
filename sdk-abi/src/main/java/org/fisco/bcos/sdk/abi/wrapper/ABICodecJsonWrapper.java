@@ -18,12 +18,15 @@ import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject.ListType;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ABICodecJsonWrapper {
+    public static final String Base64EncodedDataPrefix = "base64://";
+    public static final String HexEncodedDataPrefix = "hex://";
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodecJsonWrapper.class);
 
@@ -33,6 +36,26 @@ public class ABICodecJsonWrapper {
             throws InvalidParameterException {
         String errorMessage =
                 "Arguments mismatch: " + path + ", expected: " + expected + ", actual: " + actual;
+        logger.error(errorMessage);
+        throw new InvalidParameterException(errorMessage);
+    }
+
+    private void errorReport(String errorMessage) {
+        logger.error(errorMessage);
+        throw new InvalidParameterException(errorMessage);
+    }
+
+    private void errorReport(String path, String expected, String actual, String exceptionReason)
+            throws InvalidParameterException {
+        String errorMessage =
+                "Arguments mismatch: "
+                        + path
+                        + ", expected: "
+                        + expected
+                        + ", actual: "
+                        + actual
+                        + ", exception reason:"
+                        + exceptionReason;
         logger.error(errorMessage);
         throw new InvalidParameterException(errorMessage);
     }
@@ -124,9 +147,19 @@ public class ABICodecJsonWrapper {
                                             template.getValueType().toString(),
                                             node.getNodeType().toString());
                                 }
-
-                                // Binary data requires base64 encoding
-                                byte[] bytesValue = Base64.getDecoder().decode(node.asText());
+                                String value = node.asText();
+                                byte[] bytesValue = tryDecodeInputData(value);
+                                if (bytesValue == null) {
+                                    bytesValue = value.getBytes();
+                                }
+                                if (abiObject.getBytesLength() > 0
+                                        && bytesValue.length != abiObject.getBytesLength()) {
+                                    errorReport(
+                                            "Invalid input bytes, required length: "
+                                                    + abiObject.getBytesLength()
+                                                    + ", input data length:"
+                                                    + bytesValue.length);
+                                }
                                 abiObject.setBytesValue(new Bytes(bytesValue.length, bytesValue));
                                 break;
                             }
@@ -138,8 +171,11 @@ public class ABICodecJsonWrapper {
                                             template.getValueType().toString(),
                                             node.getNodeType().toString());
                                 }
-
-                                byte[] bytesValue = Base64.getDecoder().decode(node.asText());
+                                String value = node.asText();
+                                byte[] bytesValue = tryDecodeInputData(value);
+                                if (bytesValue == null) {
+                                    bytesValue = value.getBytes();
+                                }
                                 abiObject.setDynamicBytesValue(new DynamicBytes(bytesValue));
                                 break;
                             }
@@ -247,6 +283,21 @@ public class ABICodecJsonWrapper {
         return abiObject;
     }
 
+    public static byte[] tryDecodeInputData(String inputData) {
+        if (inputData.startsWith(Base64EncodedDataPrefix)) {
+            return Base64.getDecoder()
+                    .decode(inputData.substring(Base64EncodedDataPrefix.length()));
+        } else if (inputData.startsWith(HexEncodedDataPrefix)) {
+            String hexString = inputData.substring(HexEncodedDataPrefix.length());
+            if (hexString.startsWith("0x")) {
+                return Hex.decode(hexString.substring(2));
+            } else {
+                return Hex.decode(hexString);
+            }
+        }
+        return null;
+    }
+
     public ABIObject encode(ABIObject template, List<String> inputs) throws IOException {
 
         ABIObject abiObject = template.newObject();
@@ -294,9 +345,19 @@ public class ABICodecJsonWrapper {
                                 case BYTES:
                                     {
                                         // Binary data requires base64 encoding
-                                        byte[] bytesValue =
-                                                Base64.getDecoder()
-                                                        .decode(Numeric.cleanHexPrefix(value));
+                                        byte[] bytesValue = tryDecodeInputData(value);
+                                        if (bytesValue == null) {
+                                            bytesValue = value.getBytes();
+                                        }
+                                        if (argObject.getBytesLength() > 0
+                                                && bytesValue.length
+                                                        != argObject.getBytesLength()) {
+                                            errorReport(
+                                                    "Invalid input bytes, required length: "
+                                                            + argObject.getBytesLength()
+                                                            + ", input data length:"
+                                                            + bytesValue.length);
+                                        }
                                         argObject.setBytesValue(
                                                 new Bytes(bytesValue.length, bytesValue));
                                         break;
@@ -304,9 +365,10 @@ public class ABICodecJsonWrapper {
                                 case DBYTES:
                                     {
                                         // Binary data requires base64 encoding
-                                        byte[] bytesValue =
-                                                Base64.getDecoder()
-                                                        .decode(Numeric.cleanHexPrefix(value));
+                                        byte[] bytesValue = tryDecodeInputData(value);
+                                        if (bytesValue == null) {
+                                            bytesValue = value.getBytes();
+                                        }
                                         argObject.setDynamicBytesValue(
                                                 new DynamicBytes(bytesValue));
                                         break;
@@ -324,8 +386,13 @@ public class ABICodecJsonWrapper {
                                     }
                             }
                         } catch (Exception e) {
-                            logger.error(" e: {}", e.getMessage());
-                            errorReport("ROOT", argObject.getValueType().toString(), value);
+                            logger.error(
+                                    " e: {}, argsObject: {}", e.getMessage(), argObject.toString());
+                            errorReport(
+                                    "ROOT",
+                                    argObject.getValueType().toString(),
+                                    value,
+                                    e.getMessage());
                         }
 
                         break;
@@ -427,7 +494,6 @@ public class ABICodecJsonWrapper {
         for (int i = 0; i < abiObject.getStructFields().size(); ++i) {
             ABIObject argObject = abiObject.getStructFields().get(i);
             JsonNode argNode = jsonNode.get(i);
-
             switch (argObject.getType()) {
                 case VALUE:
                     {
@@ -451,10 +517,9 @@ public class ABICodecJsonWrapper {
                                 }
                             case BYTES:
                                 {
-                                    byte[] base64Bytes =
-                                            Base64.getEncoder()
-                                                    .encode(argObject.getBytesValue().getValue());
-                                    result.add(new String(base64Bytes));
+                                    byte[] value = ABICodecObject.formatBytesN(argObject);
+                                    byte[] base64Bytes = Base64.getEncoder().encode(value);
+                                    result.add(Base64EncodedDataPrefix + new String(base64Bytes));
                                     break;
                                 }
                             case DBYTES:
@@ -465,7 +530,7 @@ public class ABICodecJsonWrapper {
                                                             argObject
                                                                     .getDynamicBytesValue()
                                                                     .getValue());
-                                    result.add(new String(base64Bytes));
+                                    result.add(Base64EncodedDataPrefix + new String(base64Bytes));
                                     break;
                                 }
                             case STRING:
@@ -485,6 +550,9 @@ public class ABICodecJsonWrapper {
                 case LIST:
                 case STRUCT:
                     {
+                        // Note: when the argNode is text data, toPrettyString output the text data
+                        //       if the argNode is binary data, toPrettyString output the
+                        // base64-encoded data
                         result.add(argNode.toPrettyString());
                         break;
                     }

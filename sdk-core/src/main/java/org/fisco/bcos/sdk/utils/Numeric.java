@@ -223,4 +223,31 @@ public final class Numeric {
     public static boolean isIntegerValue(BigDecimal value) {
         return value.signum() == 0 || value.scale() <= 0 || value.stripTrailingZeros().scale() <= 0;
     }
+
+    public static String getKeyNoPrefix(String prefix, String keyStr, int keyLengthInHex) {
+        String keyNoPrefix = Numeric.cleanHexPrefix(keyStr);
+        if (keyNoPrefix.startsWith(prefix)
+                && keyNoPrefix.length() == keyLengthInHex + prefix.length()) {
+            keyNoPrefix = keyNoPrefix.substring(prefix.length());
+        }
+        // Hexadecimal public key length is less than 128, add 0 in front
+        if (keyNoPrefix.length() < keyLengthInHex) {
+            keyNoPrefix = StringUtils.zeros(keyLengthInHex - keyNoPrefix.length()) + keyNoPrefix;
+        }
+        return keyNoPrefix;
+    }
+
+    public static String getHexKeyWithPrefix(
+            String hexPublicKey, String requiredPrefix, int requiredKeyLengthInHex) {
+        String keyWithPrefix = Numeric.cleanHexPrefix(hexPublicKey);
+        if (keyWithPrefix.length() < requiredKeyLengthInHex) {
+            keyWithPrefix =
+                    StringUtils.zeros(requiredKeyLengthInHex - keyWithPrefix.length())
+                            + keyWithPrefix;
+        }
+        if (!keyWithPrefix.startsWith(requiredPrefix)) {
+            keyWithPrefix = requiredPrefix + keyWithPrefix;
+        }
+        return keyWithPrefix;
+    }
 }

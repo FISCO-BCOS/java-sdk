@@ -40,7 +40,7 @@ public class TopicManagerTest {
                 TopicManagerTest.class
                         .getClassLoader()
                         .getResource(
-                                "keystore/ecdsa/0x0fc3c4bb89bd90299db4c62be0174c4966286c00.pem")
+                                "keystore/ecdsa/0xf4378f0b3accf017863997c087f316d6fcc60aca.pem")
                         .getPath();
         KeyTool keyTool = new PEMKeyStore(keyFile);
         topicManager.addPrivateTopicSubscribe("priv", keyTool, null);
@@ -48,8 +48,14 @@ public class TopicManagerTest {
                 "#!$TopicNeedVerify_priv",
                 topicManager.getFullTopicString("priv").substring(17, 40));
 
+        String publicKeyFile =
+                TopicManagerTest.class
+                        .getClassLoader()
+                        .getResource(
+                                "keystore/ecdsa/0xf4378f0b3accf017863997c087f316d6fcc60aca.pem.pub")
+                        .getPath();
         List<KeyTool> list = new ArrayList<>();
-        list.add(keyTool);
+        list.add(new PEMKeyStore(publicKeyFile));
         topicManager.addPrivateTopicSend("priv2", list);
         Assert.assertEquals(
                 "#!$PushChannel_#!$TopicNeedVerify_priv2",
@@ -149,12 +155,19 @@ public class TopicManagerTest {
                 TopicManagerTest.class
                         .getClassLoader()
                         .getResource(
-                                "keystore/ecdsa/0x0fc3c4bb89bd90299db4c62be0174c4966286c00.pem")
+                                "keystore/ecdsa/0xf4378f0b3accf017863997c087f316d6fcc60aca.pem")
                         .getPath();
         KeyTool keyTool = new PEMKeyStore(keyFile);
         topicManager.addPrivateTopicSubscribe("priv", keyTool, null);
+
+        String publicKeyFile =
+                TopicManagerTest.class
+                        .getClassLoader()
+                        .getResource(
+                                "keystore/ecdsa/0xf4378f0b3accf017863997c087f316d6fcc60aca.pem.pub")
+                        .getPath();
         List<KeyTool> list = new ArrayList<>();
-        list.add(keyTool);
+        list.add(new PEMKeyStore(publicKeyFile));
         topicManager.addPrivateTopicSend("priv2", list);
         topicManager.addPrivateTopicCallback("priv2", cb3);
         return topicManager;

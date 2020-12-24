@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.Bool;
 import org.fisco.bcos.sdk.abi.datatypes.Bytes;
@@ -286,8 +288,8 @@ public class ABICodecObject {
         return abiObject;
     }
 
-    public List<Object> decodeJavaObject(ABIObject template, String input) {
-
+    public Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndOutputObject(
+            ABIObject template, String input) {
         if (logger.isTraceEnabled()) {
             logger.trace(" ABIObject: {}, abi: {}", template.toString(), input);
         }
@@ -297,12 +299,31 @@ public class ABICodecObject {
         ABIObject abiObject = template.decode(input);
 
         // ABIObject -> java List<Object>
-        List<Object> result = decodeJavaObject(abiObject);
+        return decodeJavaObjectAndGetOutputObject(abiObject);
+    }
 
-        return result;
+    public List<Object> decodeJavaObject(ABIObject template, String input) {
+        return decodeJavaObjectAndOutputObject(template, input).getLeft();
     }
 
     private List<Object> decodeJavaObject(ABIObject template) throws UnsupportedOperationException {
+        return decodeJavaObjectAndGetOutputObject(template).getLeft();
+    }
+
+    public static byte[] formatBytesN(ABIObject abiObject) {
+        if (abiObject.getBytesLength() > 0
+                && abiObject.getBytesValue().getValue().length > abiObject.getBytesLength()) {
+            byte[] value = new byte[abiObject.getBytesLength()];
+            System.arraycopy(
+                    abiObject.getBytesValue().getValue(), 0, value, 0, abiObject.getBytesLength());
+            return value;
+        } else {
+            return abiObject.getBytesValue().getValue();
+        }
+    }
+
+    private Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndGetOutputObject(
+            ABIObject template) throws UnsupportedOperationException {
         List<Object> result = new ArrayList<Object>();
         List<ABIObject> argObjects;
         if (template.getType() == ABIObject.ObjectType.STRUCT) {
@@ -310,11 +331,13 @@ public class ABICodecObject {
         } else {
             argObjects = template.getListValues();
         }
+        List<ABIObject> resultABIObject = new ArrayList<>();
         for (int i = 0; i < argObjects.size(); ++i) {
             ABIObject argObject = argObjects.get(i);
             switch (argObject.getType()) {
                 case VALUE:
                     {
+                        resultABIObject.add(argObject);
                         switch (argObject.getValueType()) {
                             case BOOL:
                                 {
@@ -334,7 +357,7 @@ public class ABICodecObject {
                                 }
                             case BYTES:
                                 {
-                                    result.add(new String(argObject.getBytesValue().getValue()));
+                                    result.add(new String(formatBytesN(argObject)));
                                     break;
                                 }
                             case DBYTES:
@@ -360,8 +383,12 @@ public class ABICodecObject {
                 case LIST:
                 case STRUCT:
                     {
-                        List<Object> node = decodeJavaObject(argObject);
-                        result.add(node);
+                        Pair<List<Object>, List<ABIObject>> nodeAndAbiObject =
+                                decodeJavaObjectAndGetOutputObject(argObject);
+                        result.add(nodeAndAbiObject.getLeft());
+                        ABIObject listABIObject = new ABIObject(argObject.getValueType());
+                        listABIObject.setListValues(nodeAndAbiObject.getRight());
+                        resultABIObject.add(listABIObject);
                         break;
                     }
                 default:
@@ -371,7 +398,6 @@ public class ABICodecObject {
                     }
             }
         }
-
-        return result;
+        return new ImmutablePair<>(result, resultABIObject);
     }
 }

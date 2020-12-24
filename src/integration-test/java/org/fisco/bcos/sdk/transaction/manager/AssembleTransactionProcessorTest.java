@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.util.encoders.Base64;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
@@ -110,6 +109,19 @@ public class AssembleTransactionProcessorTest {
         l = JsonUtils.fromJsonList(callResponse2.getValues(), Object.class);
         Assert.assertEquals(l.size(), 1);
         Assert.assertEquals(l.get(0), "test");
+
+        String abi = transactionProcessor.getContractLoader().getABIByContractName("HelloWorld");
+        String bin = transactionProcessor.getContractLoader().getBinaryByContractName("HelloWorld");
+        AssembleTransactionProcessor transactionProcessor2 =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
+                        client, cryptoKeyPair, "HelloWorld", abi, bin);
+        response = transactionProcessor.deployByContractLoader("HelloWorld", new ArrayList<>());
+        // System.out.println(JsonUtils.toJson(response));
+        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
+            return;
+        }
+        Assert.assertTrue(response.getReturnCode() == 0);
+        System.out.println("### AssembleTransactionProcessorTest test1HelloWorld passed");
     }
 
     @Test
@@ -321,8 +333,7 @@ public class AssembleTransactionProcessorTest {
         }
         String contractAddress = response.getContractAddress();
         // setBytes
-        List<String> paramsSetBytes =
-                Lists.newArrayList(Base64.toBase64String("set bytes test".getBytes()));
+        List<String> paramsSetBytes = Lists.newArrayList(new String("set bytes test".getBytes()));
         TransactionResponse transactionResponse3 =
                 transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                         contractAddress, abi, "setBytes", paramsSetBytes);

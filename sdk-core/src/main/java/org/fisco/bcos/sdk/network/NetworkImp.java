@@ -161,6 +161,12 @@ public class NetworkImp implements Network {
                     connManager.startReconnectSchedule();
                     tryEcdsaConnect = true;
                     return;
+                } else {
+                    logger.warn(
+                            "Try to connect node with ECDSA sslContext failed, expected certPath: "
+                                    + configOption.getCryptoMaterialConfig().toString()
+                                    + ", currentPath: "
+                                    + new File("").getAbsolutePath());
                 }
             } catch (NetworkException e) {
                 tryEcdsaConnect = true;
@@ -183,7 +189,9 @@ public class NetworkImp implements Network {
                     throw new NetworkException("Certificate not exist:" + result.getErrorMessage());
                 } else {
                     throw new NetworkException(
-                            "Not providing all the certificates to connect to the node! Please provide the certificates to connect with the block-chain.");
+                            "Not providing all the certificates to connect to the node! Please provide the certificates to connect with the block-chain, expected certPath: ["
+                                    + configOption.getCryptoMaterialConfig().toString()
+                                    + "]");
                 }
             }
             if (tryEcdsaConnect) {

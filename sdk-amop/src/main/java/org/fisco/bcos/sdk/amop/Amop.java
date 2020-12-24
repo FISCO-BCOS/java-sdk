@@ -57,15 +57,18 @@ public interface Amop {
      */
     void subscribePrivateTopics(String topicName, KeyTool privateKeyTool, AmopCallback callback);
 
+    void subscribePrivateTopics(String topicName, String hexPrivateKey, AmopCallback callback);
+
     /**
      * Config a topic which is need verification, after that user can send message to verified
      * subscriber.
      *
      * @param topicName the topic name
      * @param publicKeyTools the public keys of the target organizations that you want to
-     *     communicate with
      */
     void publishPrivateTopic(String topicName, List<KeyTool> publicKeyTools);
+
+    void publishPrivateTopicWithHexPublicKeyList(String topicName, List<String> publicKeyList);
 
     /**
      * Unsubscribe a topic.

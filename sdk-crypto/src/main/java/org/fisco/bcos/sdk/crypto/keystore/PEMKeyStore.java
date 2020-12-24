@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.KeyFactory;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
@@ -25,6 +26,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -65,13 +67,15 @@ public class PEMKeyStore extends KeyTool {
             String hexedPrivateKey, String privateKeyFilePath, String curveName)
             throws SaveKeyStoreException {
         try {
-            PrivateKey privateKey = convertHexedStringToPrivateKey(hexedPrivateKey, curveName);
+            KeyPair keyPair = convertHexedStringToKeyPair(hexedPrivateKey, curveName);
             // save the private key
             PemWriter writer = new PemWriter(new FileWriter(privateKeyFilePath));
-            writer.writeObject(new PemObject(PRIVATE_KEY, privateKey.getEncoded()));
+            BCECPrivateKey bcecPrivateKey = (BCECPrivateKey) (keyPair.getPrivate());
+            writer.writeObject(new PemObject(PRIVATE_KEY, bcecPrivateKey.getEncoded()));
             writer.flush();
             writer.close();
-            storePublicKeyWithPem(privateKey, privateKeyFilePath);
+            // write the public key
+            storePublicKeyWithPem(keyPair.getPublic(), privateKeyFilePath);
         } catch (IOException | LoadKeyStoreException e) {
             throw new SaveKeyStoreException(
                     "save keys into "

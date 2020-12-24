@@ -36,6 +36,8 @@ import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Collections;
+import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
@@ -160,18 +162,45 @@ public abstract class KeyTool {
         return convertHexedStringToPrivateKey(privateKeyValue, curveName);
     }
 
-    public static PrivateKey convertHexedStringToPrivateKey(BigInteger privateKey, String curveName)
+    public static PrivateKey convertHexedStringToPrivateKey(
+            BigInteger privateKey, String curveName) {
+        return convertPrivateKeyToKeyPair(privateKey, curveName).getPrivate();
+    }
+
+    public static KeyPair convertHexedStringToKeyPair(String hexedPrivateKey, String curveName)
+            throws LoadKeyStoreException {
+        BigInteger privateKeyValue = new BigInteger(hexedPrivateKey, 16);
+        return convertPrivateKeyToKeyPair(privateKeyValue, curveName);
+    }
+
+    public static KeyPair convertPrivateKeyToKeyPair(BigInteger privateKey, String curveName)
             throws LoadKeyStoreException {
         try {
-            Security.setProperty("crypto.policy", "unlimited");
-            Security.addProvider(new BouncyCastleProvider());
+            initSecurity();
             org.bouncycastle.jce.spec.ECParameterSpec ecParameterSpec =
                     ECNamedCurveTable.getParameterSpec(curveName);
             ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(privateKey, ecParameterSpec);
             KeyFactory keyFactory =
                     KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
             // get private key
-            return keyFactory.generatePrivate(privateKeySpec);
+            BCECPrivateKey privateKeyObject =
+                    (BCECPrivateKey) keyFactory.generatePrivate(privateKeySpec);
+            PublicKey publicKey = getPublicKeyFromPrivateKey(privateKeyObject);
+            ECPrivateKeyParameters ecPrivateKeyParameters =
+                    new ECPrivateKeyParameters(
+                            privateKeyObject.getD(),
+                            new ECDomainParameters(
+                                    ecParameterSpec.getCurve(),
+                                    ecParameterSpec.getG(),
+                                    ecParameterSpec.getN()));
+            BCECPrivateKey bcecPrivateKey =
+                    new BCECPrivateKey(
+                            privateKeyObject.getAlgorithm(),
+                            ecPrivateKeyParameters,
+                            (BCECPublicKey) publicKey,
+                            ecParameterSpec,
+                            BouncyCastleProvider.CONFIGURATION);
+            return new KeyPair(publicKey, bcecPrivateKey);
         } catch (NoSuchProviderException | InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new LoadKeyStoreException(
                     "covert private key into PrivateKey type failed, "
@@ -183,9 +212,14 @@ public abstract class KeyTool {
 
     public static void storePublicKeyWithPem(PrivateKey privateKey, String privateKeyFilePath)
             throws IOException {
+        PublicKey publicKey = getPublicKeyFromPrivateKey(privateKey);
+        storePublicKeyWithPem(publicKey, privateKeyFilePath);
+    }
+
+    public static void storePublicKeyWithPem(PublicKey publicKey, String privateKeyFilePath)
+            throws IOException {
         String publicKeyPath = privateKeyFilePath + ".pub";
         PemWriter writer = new PemWriter(new FileWriter(publicKeyPath));
-        PublicKey publicKey = getPublicKeyFromPrivateKey(privateKey);
         writer.writeObject(new PemObject("PUBLIC KEY", publicKey.getEncoded()));
         writer.flush();
         writer.close();

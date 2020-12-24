@@ -33,7 +33,7 @@ import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.AmopMsg;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.Message;
@@ -52,6 +52,7 @@ public class AmopMsgHandler implements MsgHandler {
     private long defaultTimeout = 5000;
     private Map<String, ResponseCallback> seq2Callback = new ConcurrentHashMap<>();
     private boolean isRunning = false;
+    private CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
 
     public AmopMsgHandler(Channel channel, TopicManager topicManager) {
         this.topicManager = topicManager;
@@ -214,16 +215,21 @@ public class AmopMsgHandler implements MsgHandler {
     }
 
     public int checkSignature(String topic, byte[] randomValue, byte[] signature) {
-        List<KeyTool> pubKeys = topicManager.getPublicKeysByTopic(topic);
-        Iterator<KeyTool> pks = pubKeys.iterator();
+        List<String> pubKeys = topicManager.getPublicKeysByTopic(topic);
+        Iterator<String> pks = pubKeys.iterator();
         while (pks.hasNext()) {
-            KeyTool keyTool = pks.next();
-            CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+            String publicKey = pks.next();
             if (cryptoSuite.verify(
-                    keyTool,
+                    publicKey,
                     Hex.toHexString(cryptoSuite.hash(randomValue)),
                     Hex.toHexString(signature))) {
                 return 0;
+            } else {
+                logger.warn(
+                        "verify topic {} failed, randomValue: {}, publicKey: {}",
+                        topic,
+                        Hex.toHexString(randomValue),
+                        publicKey);
             }
         }
         return 1;
@@ -261,15 +267,20 @@ public class AmopMsgHandler implements MsgHandler {
                 new String(msg.getData()));
         byte[] randValue = msg.getData();
         String topic = msg.getTopic();
-        KeyTool keyTool = topicManager.getPrivateKeyByTopic(getSimpleTopic(topic));
+        CryptoKeyPair cryptoKeyPair = topicManager.getPrivateKeyByTopic(getSimpleTopic(topic));
         String signature = "";
-        if (null == keyTool) {
+        if (null == cryptoKeyPair) {
             logger.error("topic:{} not subscribed, reject message", getSimpleTopic(topic));
             return;
         } else {
-            CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+
             try {
-                signature = cryptoSuite.sign(keyTool, Hex.toHexString(cryptoSuite.hash(randValue)));
+                signature =
+                        cryptoSuite
+                                .getSignatureImpl()
+                                .signWithStringSignature(
+                                        Hex.toHexString(cryptoSuite.hash(randValue)),
+                                        cryptoKeyPair);
             } catch (Exception e) {
                 logger.error(
                         "please check the public key of topic {} is correct configured, error {}",

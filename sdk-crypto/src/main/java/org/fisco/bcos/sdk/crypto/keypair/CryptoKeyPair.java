@@ -17,9 +17,6 @@ import com.webank.wedpr.crypto.CryptoResult;
 import java.io.File;
 import java.math.BigInteger;
 import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.Arrays;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
@@ -41,12 +38,16 @@ public abstract class CryptoKeyPair {
     public static final int PUBLIC_KEY_SIZE = 64;
     public static final int PUBLIC_KEY_LENGTH_IN_HEX = PUBLIC_KEY_SIZE << 1;
 
+    public static final int PRIVATE_KEY_SIZE = 32;
+    public static final int PRIVATE_KEY_SIZE_IN_HEX = PRIVATE_KEY_SIZE << 1;
+
     public static final String ECDSA_CURVE_NAME = "secp256k1";
     public static final String SM2_CURVE_NAME = "sm2p256v1";
     public static final String PEM_FILE_POSTFIX = ".pem";
     public static final String P12_FILE_POSTFIX = ".p12";
     public static final String GM_ACCOUNT_SUBDIR = "gm";
     public static final String ECDSA_ACCOUNT_SUBDIR = "ecdsa";
+    public static final String UNCOMPRESSED_PUBLICKEY_FLAG_STR = "04";
 
     protected static final String ECDSA_SIGNATURE_ALGORITHM = "SHA256WITHECDSA";
     protected static final String SM_SIGNATURE_ALGORITHM = "1.2.156.10197.1.501";
@@ -116,21 +117,23 @@ public abstract class CryptoKeyPair {
     public abstract CryptoKeyPair createKeyPair(KeyPair keyPair);
 
     public CryptoKeyPair createKeyPair(BigInteger privateKeyValue) {
-        PrivateKey privateKey = KeyTool.convertHexedStringToPrivateKey(privateKeyValue, curveName);
-        PublicKey publicKey = KeyTool.getPublicKeyFromPrivateKey(privateKey);
-        KeyPair keyPair = new KeyPair(publicKey, privateKey);
+        KeyPair keyPair = KeyTool.convertPrivateKeyToKeyPair(privateKeyValue, curveName);
         return createKeyPair(keyPair);
     }
 
     public CryptoKeyPair createKeyPair(String hexPrivateKey) {
-        PrivateKey privateKey = KeyTool.convertHexedStringToPrivateKey(hexPrivateKey, curveName);
-        PublicKey publicKey = KeyTool.getPublicKeyFromPrivateKey(privateKey);
-        KeyPair keyPair = new KeyPair(publicKey, privateKey);
+        KeyPair keyPair = KeyTool.convertHexedStringToKeyPair(hexPrivateKey, curveName);
         return createKeyPair(keyPair);
     }
 
-    protected String getPublicKeyNoPrefix(String publicKeyStr) {
+    protected static String getPublicKeyNoPrefix(String publicKeyStr) {
         String publicKeyNoPrefix = Numeric.cleanHexPrefix(publicKeyStr);
+        if (publicKeyNoPrefix.startsWith(UNCOMPRESSED_PUBLICKEY_FLAG_STR)
+                && publicKeyNoPrefix.length()
+                        == PUBLIC_KEY_LENGTH_IN_HEX + UNCOMPRESSED_PUBLICKEY_FLAG_STR.length()) {
+            publicKeyNoPrefix =
+                    publicKeyNoPrefix.substring(UNCOMPRESSED_PUBLICKEY_FLAG_STR.length());
+        }
         // Hexadecimal public key length is less than 128, add 0 in front
         if (publicKeyNoPrefix.length() < PUBLIC_KEY_LENGTH_IN_HEX) {
             publicKeyNoPrefix =
@@ -149,17 +152,26 @@ public abstract class CryptoKeyPair {
         // remove 04
         return getAddress(this.getHexPublicKey().substring(2));
     }
+
+    public String getAddress(String publicKey) {
+        return getAddress(publicKey, hashImpl);
+    }
+
     /**
      * calculate the address according to the given public key
      *
      * @param publicKey the Hexed publicKey that need to calculate address
+     * @param hashInterface the hash implement, support SM3Hash and Keccak256 now
      * @return the account address
      */
-    public String getAddress(String publicKey) {
+    protected static String getAddress(String publicKey, Hash hashInterface) {
         try {
-            String publicKeyNoPrefix = getPublicKeyNoPrefix(publicKey);
+            String publicKeyNoPrefix =
+                    Numeric.getKeyNoPrefix(
+                            UNCOMPRESSED_PUBLICKEY_FLAG_STR, publicKey, PUBLIC_KEY_LENGTH_IN_HEX);
             // calculate hash for the public key
-            String publicKeyHash = Hex.toHexString(hashImpl.hash(Hex.decode(publicKeyNoPrefix)));
+            String publicKeyHash =
+                    Hex.toHexString(hashInterface.hash(Hex.decode(publicKeyNoPrefix)));
             // right most 160 bits
             return "0x" + publicKeyHash.substring(publicKeyHash.length() - ADDRESS_LENGTH_IN_HEX);
         } catch (DecoderException e) {
@@ -173,8 +185,7 @@ public abstract class CryptoKeyPair {
     }
 
     public byte[] getAddress(byte[] publicKey) {
-        byte[] hash = hashImpl.hash(publicKey);
-        return Arrays.copyOfRange(hash, hash.length - 20, hash.length); // right most 160 bits
+        return Hex.decode(Numeric.cleanHexPrefix(getAddress(Hex.toHexString(publicKey))));
     }
 
     public byte[] getAddress(BigInteger publicKey) {

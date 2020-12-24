@@ -18,6 +18,7 @@ import com.webank.wedpr.crypto.NativeInterface;
 import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.utils.Hex;
+import org.fisco.bcos.sdk.utils.Numeric;
 
 public class SM2Signature implements Signature {
     @Override
@@ -35,7 +36,9 @@ public class SM2Signature implements Signature {
     public String signWithStringSignature(final String message, final CryptoKeyPair keyPair) {
         CryptoResult signatureResult =
                 NativeInterface.sm2SignWithPub(
-                        keyPair.getHexPrivateKey(), keyPair.getHexPublicKey(), message);
+                        keyPair.getHexPrivateKey(),
+                        keyPair.getHexPublicKey(),
+                        Numeric.cleanHexPrefix(message));
         if (signatureResult.wedprErrorMessage != null
                 && !signatureResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
@@ -46,7 +49,14 @@ public class SM2Signature implements Signature {
 
     @Override
     public boolean verify(final String publicKey, final String message, final String signature) {
-        CryptoResult verifyResult = NativeInterface.sm2verify(publicKey, message, signature);
+        String hexPubKeyWithPrefix =
+                Numeric.getHexKeyWithPrefix(
+                        publicKey,
+                        CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
+                        CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX);
+        CryptoResult verifyResult =
+                NativeInterface.sm2verify(
+                        hexPubKeyWithPrefix, Numeric.cleanHexPrefix(message), signature);
         if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
                     "Verify with sm2 failed:" + verifyResult.wedprErrorMessage);

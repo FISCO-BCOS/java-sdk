@@ -15,6 +15,7 @@
 
 package org.fisco.bcos.sdk.amop.topic;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -24,14 +25,18 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.amop.AmopCallback;
 import org.fisco.bcos.sdk.amop.AmopMsgOut;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TopicManager {
     private static Logger logger = LoggerFactory.getLogger(TopicManager.class);
-    private Map<String, KeyTool> topic2PrivateKey = new ConcurrentHashMap<>();
-    private Map<String, List<KeyTool>> topic2PublicKeys = new ConcurrentHashMap<>();
+    private CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+    private Map<String, CryptoKeyPair> topic2PrivateKey = new ConcurrentHashMap<>();
+    private Map<String, List<String>> topic2PublicKeys = new ConcurrentHashMap<>();
     private Map<String, String> topicName2FullName = new ConcurrentHashMap<>();
     private Map<String, AmopCallback> topic2Callback = new ConcurrentHashMap<>();
     private Set<String> topics = Collections.synchronizedSet(new HashSet<>());
@@ -50,8 +55,14 @@ public class TopicManager {
         }
     }
 
+    public void addPrivateTopicSubscribe(String topicName, KeyTool keyTool, AmopCallback callback) {
+        CryptoKeyPair cryptoKeyPair =
+                cryptoSuite.getKeyPairFactory().createKeyPair(keyTool.getKeyPair());
+        addPrivateTopicSubscribe(topicName, cryptoKeyPair, callback);
+    }
+
     public void addPrivateTopicSubscribe(
-            String topicName, KeyTool privateKeyStore, AmopCallback callback) {
+            String topicName, CryptoKeyPair cryptoKeyPair, AmopCallback callback) {
         String fullNameToSendToNode = makeVerifyChannelPrefixTopic(topicName);
         logger.trace(
                 "add private topic subscribe, topic:{} full name:{}",
@@ -59,21 +70,29 @@ public class TopicManager {
                 fullNameToSendToNode);
         topics.add(fullNameToSendToNode);
         topics.add(addNeedVerifyTopicPrefix(topicName));
-        topic2PrivateKey.put(addNeedVerifyTopicPrefix(topicName), privateKeyStore);
+        topic2PrivateKey.put(addNeedVerifyTopicPrefix(topicName), cryptoKeyPair);
         topicName2FullName.put(topicName, fullNameToSendToNode);
         if (callback != null) {
             topic2Callback.put(addNeedVerifyTopicPrefix(topicName), callback);
         }
     }
 
-    public void addPrivateTopicSend(String topicName, List<KeyTool> publicKeyTools) {
+    public void addPrivateTopicSend(String topicName, List<KeyTool> publicKeyToolList) {
+        List<String> publicKeyList = new ArrayList<>();
+        for (KeyTool publicKey : publicKeyToolList) {
+            publicKeyList.add(publicKey.getHexedPublicKey());
+        }
+        addPrivateTopicSendWithHexPublicKey(topicName, publicKeyList);
+    }
+
+    public void addPrivateTopicSendWithHexPublicKey(String topicName, List<String> publicKeyList) {
         String fullNameToSendToNode = makePushChannelPrefixTopic(topicName);
         logger.trace(
                 "add private topic to send, topic:{} full name:{}",
                 topicName,
                 fullNameToSendToNode);
         topics.add(fullNameToSendToNode);
-        topic2PublicKeys.put(addNeedVerifyTopicPrefix(topicName), publicKeyTools);
+        topic2PublicKeys.put(addNeedVerifyTopicPrefix(topicName), publicKeyList);
         topicName2FullName.put(topicName, fullNameToSendToNode);
     }
 
@@ -163,11 +182,11 @@ public class TopicManager {
         this.callback = cb;
     }
 
-    public List<KeyTool> getPublicKeysByTopic(String topic) {
+    public List<String> getPublicKeysByTopic(String topic) {
         return topic2PublicKeys.get(topic);
     }
 
-    public KeyTool getPrivateKeyByTopic(String topic) {
+    public CryptoKeyPair getPrivateKeyByTopic(String topic) {
         return topic2PrivateKey.get(topic);
     }
 

@@ -28,10 +28,13 @@ import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.AmopTopic;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.model.AmopMsg;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -49,6 +52,7 @@ public class AmopImp implements Amop {
     private Channel channel;
     private TopicManager topicManager;
     private AmopMsgHandler amopMsgHandler;
+    private CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
 
     public AmopImp(Channel channel, ConfigOption config) {
         this.channel = channel;
@@ -77,7 +81,18 @@ public class AmopImp implements Amop {
     public void subscribePrivateTopics(
             String topicName, KeyTool privateKeyTool, AmopCallback callback) {
         logger.info("subscribe private topic, topic:{}", topicName);
-        topicManager.addPrivateTopicSubscribe(topicName, privateKeyTool, callback);
+        CryptoKeyPair cryptoKeyPair =
+                cryptoSuite.getKeyPairFactory().createKeyPair(privateKeyTool.getKeyPair());
+        topicManager.addPrivateTopicSubscribe(topicName, cryptoKeyPair, callback);
+        sendSubscribe();
+    }
+
+    @Override
+    public void subscribePrivateTopics(
+            String topicName, String hexPrivateKey, AmopCallback callback) {
+        logger.info("subscribe private topic, topic:{}", topicName);
+        CryptoKeyPair cryptoKeyPair = cryptoSuite.getKeyPairFactory().createKeyPair(hexPrivateKey);
+        topicManager.addPrivateTopicSubscribe(topicName, cryptoKeyPair, callback);
         sendSubscribe();
     }
 
@@ -86,6 +101,14 @@ public class AmopImp implements Amop {
         logger.info(
                 "setup private topic, topic:{} pubKey len:{}", topicName, publicKeyTools.size());
         topicManager.addPrivateTopicSend(topicName, publicKeyTools);
+        sendSubscribe();
+    }
+
+    @Override
+    public void publishPrivateTopicWithHexPublicKeyList(
+            String topicName, List<String> publicKeyList) {
+        logger.info("setup private topic, topic:{} pubKey len:{}", topicName, publicKeyList.size());
+        topicManager.addPrivateTopicSendWithHexPublicKey(topicName, publicKeyList);
         sendSubscribe();
     }
 

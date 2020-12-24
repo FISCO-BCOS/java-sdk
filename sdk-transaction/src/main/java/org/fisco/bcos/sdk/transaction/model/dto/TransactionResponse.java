@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 
@@ -33,6 +34,8 @@ public class TransactionResponse extends CommonResponse {
     private String values;
     private String events;
     private String receiptMessages;
+    private List<Object> returnObject;
+    private List<ABIObject> returnABIObject;
 
     public TransactionResponse() {
         super();
@@ -114,5 +117,21 @@ public class TransactionResponse extends CommonResponse {
     /** @param receiptMessages the receiptMessages to set */
     public void setReceiptMessages(String receiptMessages) {
         this.receiptMessages = receiptMessages;
+    }
+
+    public List<Object> getReturnObject() {
+        return returnObject;
+    }
+
+    public void setReturnObject(List<Object> returnObject) {
+        this.returnObject = returnObject;
+    }
+
+    public List<ABIObject> getReturnABIObject() {
+        return returnABIObject;
+    }
+
+    public void setReturnABIObject(List<ABIObject> returnABIObject) {
+        this.returnABIObject = returnABIObject;
     }
 }
