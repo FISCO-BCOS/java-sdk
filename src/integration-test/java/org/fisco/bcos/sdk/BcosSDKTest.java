@@ -19,6 +19,7 @@ package org.fisco.bcos.sdk;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
 import org.fisco.bcos.sdk.channel.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.client.Client;
@@ -37,6 +38,7 @@ import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.contract.Curve25519VRFVerifyTest;
 import org.fisco.bcos.sdk.contract.EvidenceVerify;
 import org.fisco.bcos.sdk.contract.HelloWorld;
 import org.fisco.bcos.sdk.contract.SM2EvidenceVerify;
@@ -44,6 +46,9 @@ import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.ECDSASignatureResult;
 import org.fisco.bcos.sdk.crypto.signature.SM2SignatureResult;
+import org.fisco.bcos.sdk.crypto.vrf.Curve25519VRF;
+import org.fisco.bcos.sdk.crypto.vrf.VRFInterface;
+import org.fisco.bcos.sdk.crypto.vrf.VRFKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.NodeVersion;
@@ -210,6 +215,8 @@ public class BcosSDKTest {
                                         .getTransaction()
                                         .get()
                                         .calculateHash(client.getCryptoSuite()));
+                System.out.println(
+                        "### transaction" + transaction.getTransaction().get().toString());
                 Assert.assertEquals(
                         transaction.getTransaction().get().calculateHash(client.getCryptoSuite()),
                         transaction.getTransaction().get().getHash());
@@ -264,6 +271,7 @@ public class BcosSDKTest {
 
     public void testSendTransactions() throws ConfigException, ContractException {
         try {
+            System.out.println("#### testSendTransactions");
             BcosSDK sdk = BcosSDK.build(configFile);
             Integer groupId = Integer.valueOf(1);
             Client client = sdk.getClient(groupId);
@@ -348,6 +356,7 @@ public class BcosSDKTest {
                                     .toString());
             testECRecover();
             testSM2Recover();
+            testCurve25519VRFVerify();
         } catch (ContractException
                 | ClientException
                 | InterruptedException
@@ -507,5 +516,72 @@ public class BcosSDKTest {
                         signatureResult.getR(),
                         signatureResult.getS());
         Assert.assertEquals(insertReceipt.getStatus(), "0x16");
+    }
+
+    public void testCurve25519VRFVerify() throws ContractException, ChannelPrococolExceiption {
+        System.out.println("### testCurve25519VRFVerify");
+        BcosSDK sdk = BcosSDK.build(configFile);
+        Integer groupId = Integer.valueOf(1);
+        Client client = sdk.getClient(groupId);
+        // test curve25519VRFVerifyTest(Curve25519Verify)
+        Curve25519VRFVerifyTest curve25519VRFVerifyTest =
+                Curve25519VRFVerifyTest.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
+        System.out.println(
+                "### address of curve25519VRFVerifyTest:"
+                        + curve25519VRFVerifyTest.getContractAddress());
+        // check the version
+        String currentVersion = client.getNodeVersion().getNodeVersion().getSupportedVersion();
+        EnumNodeVersion.Version supportedVersion = EnumNodeVersion.getClassVersion(currentVersion);
+        // support sm2Verify after v2.8.0
+        if (supportedVersion.getMinor() < 8) {
+            return;
+        }
+
+        // case1: valid vrfProof
+        System.out.println("#### case1: valid vrfProof");
+        String input = "abcdefg";
+        VRFInterface vrfInterface = new Curve25519VRF();
+        VRFKeyPair vrfKeyPair = vrfInterface.createKeyPair();
+        String vrfProof = vrfInterface.generateVRFProof(vrfKeyPair.getVrfPrivateKey(), input);
+        BigInteger randomValue = BigInteger.ZERO;
+        // check certainty
+        for (int i = 0; i < 20; i++) {
+            Tuple2<Boolean, BigInteger> result =
+                    curve25519VRFVerifyTest.curve25519VRFVerify(
+                            input, vrfKeyPair.getVrfPublicKey(), vrfProof);
+            Assert.assertTrue(result.getValue1());
+            if (i > 1) {
+                Assert.assertTrue(result.getValue2().equals(randomValue));
+            }
+            randomValue = result.getValue2();
+        }
+
+        // case2: faked message
+        System.out.println("#### case2: faked input");
+        String fakedInput = "abc";
+        Tuple2<Boolean, BigInteger> result =
+                curve25519VRFVerifyTest.curve25519VRFVerify(
+                        fakedInput, vrfKeyPair.getVrfPublicKey(), vrfProof);
+        Assert.assertTrue(result.getValue1() == false);
+
+        // case3: faked vrfProof
+        System.out.println("#### case3: faked vrfProof");
+        String fakeVRFProof = "fakeVRFProof";
+        result =
+                curve25519VRFVerifyTest.curve25519VRFVerify(
+                        fakedInput, vrfKeyPair.getVrfPublicKey(), vrfProof);
+        Assert.assertTrue(result.getValue1() == false);
+
+        // case4: invalid faked public key
+        System.out.println("#### case4: invalid faked public key");
+        String fakedPublicKey = "fakePublicKey";
+        result = curve25519VRFVerifyTest.curve25519VRFVerify(input, fakedPublicKey, vrfProof);
+        Assert.assertTrue(result.getValue1() == false);
+
+        // case5: valid faked public key
+        System.out.println("#### case5: valid faked public key");
+        fakedPublicKey = vrfInterface.createKeyPair().getVrfPublicKey();
+        result = curve25519VRFVerifyTest.curve25519VRFVerify(input, fakedPublicKey, vrfProof);
+        Assert.assertTrue(result.getValue1() == false);
     }
 }
