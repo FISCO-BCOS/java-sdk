@@ -21,8 +21,6 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.model.PrecompiledConstant;
-import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
@@ -41,10 +39,6 @@ public class CnsService {
     public RetCode registerCNS(
             String contractName, String contractVersion, String contractAddress, String abiData)
             throws ContractException {
-        // check the length of the contractVersion
-        if (contractVersion.length() > PrecompiledConstant.CNS_MAX_VERSION_LENGTH) {
-            throw new ContractException(PrecompiledRetCode.OVER_CONTRACT_VERSION_LEN_LIMIT);
-        }
         return ReceiptParser.parseTransactionReceipt(
                 cnsPrecompiled.insert(contractName, contractVersion, contractAddress, abiData));
     }

@@ -24,7 +24,7 @@ ext {
     nettySMSSLContextVersion = "1.2.0"
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
-    keyMiniToolkit = "1.0.3-SNAPSHOT"
+    keyMiniToolkit = "1.0.2"
 
     slf4jVersion = "1.7.30"
     junitVersion = "4.12"
@@ -36,7 +36,7 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '2.7.1-SNAPSHOT'
+    version = '2.7.1'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
@@ -48,7 +48,9 @@ allprojects {
     configurations.all {
         resolutionStrategy.cacheChangingModulesFor 30, 'seconds'
     }
-
+    jacoco {
+        toolVersion = "0.8.6"
+    }
     jacocoTestReport {
         reports {
             xml.enabled true
@@ -96,6 +98,28 @@ subprojects {
 
         exclude "**/*.xml"
         exclude "**/*.properties"
+        manifest {
+            try {
+                def repo = grgit.open(currentDir: project.rootDir)
+                if (repo != null) {
+                    def date = new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                    def branch = repo.branch.getCurrent().getName()
+                    def commit = repo.head().getAbbreviatedId(40)
+
+                    attributes(["Implementation-Timestamp": date,
+                                "Git-Branch"              : branch,
+                                "Git-Commit"              : commit
+                    ])
+
+                    logger.info("  Commit : ")
+                    logger.info("  => date: {}", date)
+                    logger.info("  => branch: {}", branch)
+                    logger.info("  => commit: {}", commit)
+                }
+            } catch (Exception e) {
+                logger.warn(' .git not exist, cannot found commit info, e: {}', e)
+            }
+        } from sourceSets.main.output
 
         doLast {
             copy {
@@ -111,22 +135,6 @@ subprojects {
                 into "dist/apps"
             }
         }
-    }
-
-    // for upload to maven
-    task sourcesJar(type: Jar) {
-        classifier = "sources"
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = "javadoc"
-        from javadoc.destinationDir
-    }
-    artifacts {
-        archives jar
-        archives sourcesJar
-        archives javadocJar
     }
 }
 

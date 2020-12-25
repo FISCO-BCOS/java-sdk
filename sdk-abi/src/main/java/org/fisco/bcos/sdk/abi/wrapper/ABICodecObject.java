@@ -310,6 +310,18 @@ public class ABICodecObject {
         return decodeJavaObjectAndGetOutputObject(template).getLeft();
     }
 
+    public static byte[] formatBytesN(ABIObject abiObject) {
+        if (abiObject.getBytesLength() > 0
+                && abiObject.getBytesValue().getValue().length > abiObject.getBytesLength()) {
+            byte[] value = new byte[abiObject.getBytesLength()];
+            System.arraycopy(
+                    abiObject.getBytesValue().getValue(), 0, value, 0, abiObject.getBytesLength());
+            return value;
+        } else {
+            return abiObject.getBytesValue().getValue();
+        }
+    }
+
     private Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndGetOutputObject(
             ABIObject template) throws UnsupportedOperationException {
         List<Object> result = new ArrayList<Object>();
@@ -319,11 +331,13 @@ public class ABICodecObject {
         } else {
             argObjects = template.getListValues();
         }
+        List<ABIObject> resultABIObject = new ArrayList<>();
         for (int i = 0; i < argObjects.size(); ++i) {
             ABIObject argObject = argObjects.get(i);
             switch (argObject.getType()) {
                 case VALUE:
                     {
+                        resultABIObject.add(argObject);
                         switch (argObject.getValueType()) {
                             case BOOL:
                                 {
@@ -343,7 +357,7 @@ public class ABICodecObject {
                                 }
                             case BYTES:
                                 {
-                                    result.add(new String(argObject.getBytesValue().getValue()));
+                                    result.add(new String(formatBytesN(argObject)));
                                     break;
                                 }
                             case DBYTES:
@@ -369,8 +383,12 @@ public class ABICodecObject {
                 case LIST:
                 case STRUCT:
                     {
-                        List<Object> node = decodeJavaObject(argObject);
-                        result.add(node);
+                        Pair<List<Object>, List<ABIObject>> nodeAndAbiObject =
+                                decodeJavaObjectAndGetOutputObject(argObject);
+                        result.add(nodeAndAbiObject.getLeft());
+                        ABIObject listABIObject = new ABIObject(argObject.getValueType());
+                        listABIObject.setListValues(nodeAndAbiObject.getRight());
+                        resultABIObject.add(listABIObject);
                         break;
                     }
                 default:
@@ -380,6 +398,6 @@ public class ABICodecObject {
                     }
             }
         }
-        return new ImmutablePair<>(result, argObjects);
+        return new ImmutablePair<>(result, resultABIObject);
     }
 }

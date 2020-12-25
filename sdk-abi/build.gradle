@@ -7,29 +7,31 @@ dependencies {
     compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+/*
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
+            artifactId "fisco-bcos-" + project.name
+            groupId project.group
+            version project.version
 
-            pom.project {
-                name project.name
-                packaging 'jar'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'fisco-bcos'
                 description = 'fisco-bcos java-sdk'
                 url = 'http://www.fisco-bcos.org'
-
-                scm {
-                    connection = 'https://github.com/FISCO-BCOS/java-sdk.git'
-                    url = 'https://github.com/FISCO-BCOS/java-sdk.git'
-                }
 
                 licenses {
                     license {
@@ -37,7 +39,6 @@ uploadArchives {
                         url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
-
                 developers {
                     developer {
                         id = 'zhangsan'
@@ -45,7 +46,27 @@ uploadArchives {
                         email = 'zhangsan@example.com'
                     }
                 }
+                scm {
+                    connection = 'https://github.com/FISCO-BCOS/java-sdk.git'
+                    url = 'https://github.com/FISCO-BCOS/java-sdk.git'
+                }
             }
         }
     }
-}
+    repositories {
+        maven {
+            def releasesRepoURL = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            def snapshotsRepoURL = "https://oss.sonatype.org/content/repositories/snapshots"
+            url = !version.endsWith("SNAPSHOT") ? releasesRepoURL : snapshotsRepoURL
+
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+
+    signing {
+        sign publishing.publications.mavenJava
+    }
+}*/

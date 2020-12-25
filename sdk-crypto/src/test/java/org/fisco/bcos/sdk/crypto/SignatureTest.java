@@ -21,6 +21,7 @@ import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
+import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
 import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
@@ -66,6 +67,7 @@ public class SignatureTest {
         // check publicKey
         System.out.println("hexedPublicKey: " + hexedPublicKey);
         System.out.println("keyPair.getHexPublicKey(): " + keyPair.getHexPublicKey());
+        System.out.println("keyPair.getHexPrivate(): " + keyPair.getHexPrivateKey());
         Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey().substring(2));
         testSignature(cryptoSuite, keyPair);
 
@@ -89,6 +91,9 @@ public class SignatureTest {
         CryptoKeyPair keyPair = (new ECDSAKeyPair()).generateKeyPair();
         Hash hasher = new Keccak256();
         testSignature(hasher, ecdsaSignature, keyPair);
+
+        keyPair = ECDSAKeyPair.createKeyPair();
+        testSignature(hasher, ecdsaSignature, keyPair);
     }
 
     @Test
@@ -96,6 +101,9 @@ public class SignatureTest {
         Signature sm2Signature = new SM2Signature();
         CryptoKeyPair keyPair = (new SM2KeyPair()).generateKeyPair();
         Hash hasher = new SM3Hash();
+        testSignature(hasher, sm2Signature, keyPair);
+
+        keyPair = SM2KeyPair.createKeyPair();
         testSignature(hasher, sm2Signature, keyPair);
     }
 
@@ -273,6 +281,17 @@ public class SignatureTest {
             Assert.assertTrue(
                     signature.verify(
                             keyPair.getHexPublicKey(), message, signResult.convertToString()));
+            String hexMessageWithPrefix = "0x" + message;
+            // sign
+            signResult = signature.sign(hexMessageWithPrefix, keyPair);
+            Assert.assertTrue(
+                    signature.verify(
+                            keyPair.getHexPublicKey(), hexMessageWithPrefix, signResult.convertToString()));
+            //verify
+            String hexPublicKeyWithoutPrefix = keyPair.getHexPublicKey().substring(2);
+            Assert.assertTrue(
+                    signature.verify(
+                            hexPublicKeyWithoutPrefix, message, signResult.convertToString()));
             signResult = signature.sign(messageBytes, keyPair);
             Assert.assertTrue(
                     signature.verify(
@@ -302,6 +321,27 @@ public class SignatureTest {
                             keyPair.getHexPublicKey(),
                             invalidMessage,
                             signResult.convertToString()));
+        }
+
+        // invalid input
+        try {
+            String invalidMessage = "0xb3b9ce5a0725c1457b8c7872d05accb3887ecc09a50dc7619b53837e4d9f";
+            SignatureResult signResult = signature.sign(invalidMessage, keyPair);
+        }catch(SignatureException e)
+        {
+            System.out.println("Sign failed for " + e.getMessage());
+        }
+
+        try {
+            String invalidMessage = "";
+            for(int i = 0; i < 64; i++)
+            {
+                invalidMessage += "r";
+            }
+            SignatureResult signResult = signature.sign(invalidMessage, keyPair);
+        }catch(SignatureException e)
+        {
+            System.out.println("Sign failed for " + e.getMessage());
         }
     }
 

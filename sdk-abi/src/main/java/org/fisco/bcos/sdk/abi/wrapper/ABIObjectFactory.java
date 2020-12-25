@@ -1,6 +1,8 @@
 package org.fisco.bcos.sdk.abi.wrapper;
 
+import java.math.BigInteger;
 import java.util.List;
+import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +82,13 @@ public class ABIObjectFactory {
         } else if (rawType.equals("bytes")) {
             abiObject = new ABIObject(ABIObject.ValueType.DBYTES);
         } else if (rawType.startsWith("bytes")) {
-            abiObject = new ABIObject(ABIObject.ValueType.BYTES);
+            try {
+                BigInteger bytesLength =
+                        Numeric.decodeQuantity(rawType.substring("bytes".length()));
+                abiObject = new ABIObject(ABIObject.ValueType.BYTES, bytesLength.intValue());
+            } catch (Exception e) {
+                abiObject = new ABIObject(ABIObject.ValueType.BYTES);
+            }
         } else if (rawType.startsWith("address")) {
             abiObject = new ABIObject(ABIObject.ValueType.ADDRESS);
         } else if (rawType.startsWith("fixed") || rawType.startsWith("ufixed")) {

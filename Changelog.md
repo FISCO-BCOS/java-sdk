@@ -1,3 +1,48 @@
+## v2.7.1
+(2020-12-24)
+Please read documentation of Java SDK.
+
+* [English User Handbook](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [Chinese WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
+Added:
+* Support JDK 15
+* AMOP module supports hexadecimal public key and private key as parameters
+* Support constructing `AssembleTransactionProcessor` through the contents of `bin` and `abi`
+* `AssembleTransactionProcessor` supports the construction of signed transactions
+
+Changed：
+* Rename the jar package of Java SDK to `fisco-bcos-java-sdk`
+* Support loading certificates and account private keys from the `resources` path
+* `ABICodecJsonWrapper` supports the representation of `bytes` type parameters in Base64 and hexadecimal encoding, and distinguishes encoding types with prefixes of `base64://` and `hex://`
+
+Compatibility
+
+* FISCO BCOS v2.0+
+* AMOP Not compatible with Web3SDK
+----
+请参考文档：
+* [英文版用户手册](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [中文版用户手册](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [中文版WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
+添加:
+* 支持JDK 15
+* AMOP模块支持传入十六进制的公钥和私钥
+* 支持通过`bin`和`abi`的内容构造`AssembleTransactionProcessor`
+* `AssembleTransactionProcessor`支持构造带有签名的交易
+
+
+修改：
+ * Java SDK的jar包重命名为`fisco-bcos-java-sdk`
+ * 支持从`resources`路径加载证书和账户私钥
+ * `ABICodecJsonWrapper`支持以Base64、十六进制编码形式表示`bytes`类型参数，并以`base64://`、`hex://`前缀区分编码类型
+ 
+适配性：
+* 适配FISCO BCOS v2.0+
+* AMOP功能不兼容Web3SDK
+
 ## v2.7.0
 (2020-11-20)
 Please read documentation of Java SDK.
