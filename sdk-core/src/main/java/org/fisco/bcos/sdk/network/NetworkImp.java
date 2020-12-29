@@ -223,6 +223,11 @@ public class NetworkImp implements Network {
     }
 
     @Override
+    public ConnectionManager getConnManager() {
+        return connManager;
+    }
+
+    @Override
     public void stop() {
         logger.debug("stop Network...");
         connManager.stopReconnectSchedule();

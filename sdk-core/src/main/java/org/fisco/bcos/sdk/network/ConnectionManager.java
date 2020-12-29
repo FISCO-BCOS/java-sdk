@@ -426,7 +426,7 @@ public class ConnectionManager {
         }
     }
 
-    protected void removeConnection(String peerIpPort) {
+    public void removeConnection(String peerIpPort) {
         for (ConnectionInfo conn : connectionInfoList) {
             String ipPort = conn.getIp() + ":" + conn.getPort();
             if (ipPort.equals(peerIpPort)) {
