@@ -54,6 +54,9 @@ public class TransactionReceiptStatus {
     public static final RetCode TransactionRefused = new RetCode(29, "Transaction refused");
     public static final RetCode ContractFrozen = new RetCode(30, "The contract has been frozen");
     public static final RetCode AccountFrozen = new RetCode(31, "The account has been frozen");
+    public static final RetCode NotEnoughRemainGas =
+            new RetCode(32, "The remain gas of the account is less than the required gas");
+
     public static final RetCode AlreadyKnown = new RetCode(10000, "Transaction already known");
     public static final RetCode AlreadyInChain = new RetCode(10001, "Transaction already in chain");
     public static final RetCode InvalidChainId = new RetCode(10002, "Invalid chain id");
