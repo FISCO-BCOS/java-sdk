@@ -43,7 +43,8 @@ public class GasChargeManageService {
             TransactionResponse transactionResponse =
                     transactionDecoder.decodeReceiptWithValues(
                             gasChargeManagePrecompiled.ABI, functionName, receipt);
-            if (transactionResponse.getReturnObject().isEmpty()) {
+            if (transactionResponse.getReturnObject() == null
+                    || transactionResponse.getReturnObject().isEmpty()) {
                 return transactionResponse;
             }
             List<Object> returnObject = transactionResponse.getReturnObject();
