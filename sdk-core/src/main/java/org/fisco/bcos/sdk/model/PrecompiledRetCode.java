@@ -21,10 +21,6 @@ import java.util.Map;
 public class PrecompiledRetCode {
 
     // GasChargerManagePrecompiled -53099 ~ -53000
-    public static final RetCode CODE_GCM_QUERY_PERMISSION_DENIED =
-            new RetCode(
-                    -53009,
-                    "The account has no permission to query gas, only the charger or the account-self has the permission");
     public static final RetCode CODE_GCM_UNDEFINED_FUNCTION =
             new RetCode(-53008, "Undefined function call to GasChargeManagePrecompiled");
     public static final RetCode CODE_GCM_CHARGER_NOT_EXISTS =
