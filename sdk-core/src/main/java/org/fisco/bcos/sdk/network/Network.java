@@ -92,6 +92,9 @@ public interface Network {
      */
     void setMsgHandleThreadPool(ExecutorService threadPool);
 
+    /** Get connection manager */
+    ConnectionManager getConnManager();
+
     /** Exit gracefully */
     void stop();
 }

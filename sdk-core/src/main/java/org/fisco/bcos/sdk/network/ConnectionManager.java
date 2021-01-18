@@ -76,11 +76,20 @@ public class ConnectionManager {
     private ScheduledExecutorService reconnSchedule = new ScheduledThreadPoolExecutor(1);
 
     public ConnectionManager(ConfigOption configOption, MsgHandler msgHandler) {
-        for (String peerIpPort : configOption.getNetworkConfig().getPeers()) {
-            connectionInfoList.add(new ConnectionInfo(peerIpPort));
+        this(configOption.getNetworkConfig().getPeers(), msgHandler);
+    }
+
+    public ConnectionManager(List<String> ipList, MsgHandler msgHandler) {
+        if (ipList != null) {
+            for (String peerIpPort : ipList) {
+                connectionInfoList.add(new ConnectionInfo(peerIpPort));
+            }
         }
         channelHandler = new ChannelHandler(this, msgHandler);
-        logger.info(" all connections: {}", connectionInfoList);
+        logger.info(
+                " all connections, size: {}, list: {}",
+                connectionInfoList.size(),
+                connectionInfoList);
     }
 
     public void startConnect(ConfigOption configOption) throws NetworkException {
@@ -426,7 +435,7 @@ public class ConnectionManager {
         }
     }
 
-    protected void removeConnection(String peerIpPort) {
+    public void removeConnection(String peerIpPort) {
         for (ConnectionInfo conn : connectionInfoList) {
             String ipPort = conn.getIp() + ":" + conn.getPort();
             if (ipPort.equals(peerIpPort)) {
