@@ -96,7 +96,7 @@ public class EventLogFilter {
         params.setAddresses(getParams().getAddresses());
         params.setTopics(getParams().getTopics());
         if (lastBlockNumber == null) {
-            params.setFromBlock(params.getFromBlock());
+            params.setFromBlock(getParams().getFromBlock());
         } else {
             params.setFromBlock(lastBlockNumber.toString());
         }
