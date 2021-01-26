@@ -17,9 +17,12 @@ package org.fisco.bcos.sdk.config.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 
 /**
  * ConfigOption is the java object of the config file.
@@ -82,23 +85,27 @@ public class ConfigProperty {
         return (String) config.get(key);
     }
 
-    public static String getConfigFilePath(String configFilePath) {
-        if (configFilePath == null) {
-            return null;
-        }
-        File file = new File(configFilePath);
-        if (file.exists()) {
+    public static String getConfigFilePath(String configFilePath) throws ConfigException {
+        try {
+            if (configFilePath == null) {
+                return null;
+            }
+            File file = new File(configFilePath);
+            if (file.exists()) {
+                return configFilePath;
+            }
+            // try to load from the resource path
+            URL url = Thread.currentThread().getContextClassLoader().getResource(configFilePath);
+            if (url == null) {
+                return configFilePath;
+            }
+            String resourceCertPath = URLDecoder.decode(url.getPath(), "utf-8");
+            if (new File(resourceCertPath).exists()) {
+                return resourceCertPath;
+            }
             return configFilePath;
+        } catch (UnsupportedEncodingException e) {
+            throw new ConfigException(e);
         }
-        // try to load from the resource path
-        URL url = Thread.currentThread().getContextClassLoader().getResource(configFilePath);
-        if (url == null) {
-            return configFilePath;
-        }
-        String resourceCertPath = url.getPath();
-        if (new File(resourceCertPath).exists()) {
-            return resourceCertPath;
-        }
-        return configFilePath;
     }
 }
