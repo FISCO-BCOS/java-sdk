@@ -101,7 +101,7 @@ public class ContractLoader {
             return new BinInfo(Collections.emptyMap());
         }
         String[] s = {"bin"};
-        Collection<File> fileCollection = FileUtils.listFiles(new File(binaryFilePath), s, true);
+        Collection<File> fileCollection = FileUtils.listFiles(new File(binaryFilePath), s, false);
         if (fileCollection.isEmpty()) {
             log.warn("No bin found, cannot deploy any contract");
             return new BinInfo(Collections.emptyMap());
@@ -117,7 +117,7 @@ public class ContractLoader {
 
     public AbiInfo abiInfo(String abiFilePath) throws Exception {
         String[] s = {"abi"};
-        Collection<File> fileCollection = FileUtils.listFiles(new File(abiFilePath), s, true);
+        Collection<File> fileCollection = FileUtils.listFiles(new File(abiFilePath), s, false);
         for (File file : fileCollection) {
             String contract = parseContractName(file);
             String abi = FileUtils.readFileToString(file);
