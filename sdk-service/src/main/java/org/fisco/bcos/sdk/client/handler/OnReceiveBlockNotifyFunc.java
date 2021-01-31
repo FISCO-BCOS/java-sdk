@@ -18,6 +18,13 @@ import org.fisco.bcos.sdk.model.Message;
 
 @FunctionalInterface
 public interface OnReceiveBlockNotifyFunc {
+    /**
+     * OnReceiveBlockNotify called when get a block notification
+     *
+     * @param version
+     * @param peerIpAndPort
+     * @param message
+     */
     void OnReceiveBlockNotify(
             EnumChannelProtocolVersion version, String peerIpAndPort, Message message);
 }

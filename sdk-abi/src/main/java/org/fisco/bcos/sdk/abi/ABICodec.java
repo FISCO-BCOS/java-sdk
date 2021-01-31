@@ -31,6 +31,7 @@ import org.fisco.bcos.sdk.model.EventLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** ABI encode and decode tool */
 public class ABICodec {
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodec.class);
