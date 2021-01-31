@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.List;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 
+/** The configuration object of AMOP function */
 public class AmopConfig {
     // AMOP topic related config
     private List<AmopTopic> amopTopicConfig;

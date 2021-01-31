@@ -44,10 +44,17 @@ public interface Channel {
         return new ChannelImp(configOption);
     }
 
+    /**
+     * Get network instance
+     *
+     * @return a network instance
+     */
     Network getNetwork();
 
+    /** Start channel module */
     void start();
 
+    /** Stop channel module */
     void stop();
 
     /**

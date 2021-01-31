@@ -117,12 +117,32 @@ public interface Client {
         return new ClientImpl(channel);
     }
 
+    /**
+     * Get group manager serveice
+     *
+     * @return the instance of GroupManagerService
+     */
     GroupManagerService getGroupManagerService();
 
+    /**
+     * Get CryptoSuite
+     *
+     * @return the CryptoSuite
+     */
     CryptoSuite getCryptoSuite();
 
+    /**
+     * Get connected ClientNodeVersion
+     *
+     * @return the NodeVersion of the connected node
+     */
     NodeVersion getClientNodeVersion();
 
+    /**
+     * Get crypto type
+     *
+     * @return the CryptoType, e.g. ECDSA_TYPE
+     */
     Integer getCryptoType();
 
     /**

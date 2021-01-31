@@ -48,6 +48,11 @@ import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Contract help manage all operations including deploy, send transaction, call contract, and
+ * subscribe event of one specific contract. It is inherited by precompiled contracts and contract
+ * java wrappers.
+ */
 public class Contract {
     protected static Logger logger = LoggerFactory.getLogger(Contract.class);
     protected final String contractBinary;
@@ -64,6 +69,15 @@ public class Contract {
     private final EventSubscribe eventSubscribe;
     protected static String LATEST_BLOCK = "latest";
 
+    /**
+     * Constructor
+     *
+     * @param contractBinary the contract binary code hex string
+     * @param contractAddress the contract address
+     * @param client a Client object
+     * @param credential key pair to use when sign transaction
+     * @param transactionProcessor TransactionProcessor object
+     */
     protected Contract(
             String contractBinary,
             String contractAddress,
@@ -86,6 +100,14 @@ public class Contract {
                         client.getGroupId());
     }
 
+    /**
+     * Constructor, auto create a TransactionProcessor object
+     *
+     * @param contractBinary the contract binary code hex string
+     * @param contractAddress the contract address
+     * @param client a Client object to send requests
+     * @param credential key pair to use when sign transaction
+     */
     protected Contract(
             String contractBinary,
             String contractAddress,
@@ -99,6 +121,19 @@ public class Contract {
                 TransactionProcessorFactory.createTransactionProcessor(client, credential));
     }
 
+    /**
+     * Deploy contract
+     *
+     * @param type
+     * @param client a Client object to send requests
+     * @param credential key pair to use when sign transaction
+     * @param transactionManager TransactionProcessor
+     * @param binary the contract binary code hex string
+     * @param encodedConstructor
+     * @param <T> a smart contract object extends Contract
+     * @return <T> type smart contract
+     * @throws ContractException
+     */
     protected static <T extends Contract> T deploy(
             Class<T> type,
             Client client,
