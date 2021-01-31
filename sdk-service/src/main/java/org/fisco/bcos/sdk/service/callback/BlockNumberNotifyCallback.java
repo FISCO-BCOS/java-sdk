@@ -16,6 +16,13 @@ package org.fisco.bcos.sdk.service.callback;
 import org.fisco.bcos.sdk.service.model.BlockNumberNotification;
 
 public interface BlockNumberNotifyCallback {
+
+    /**
+     * Called when get a block number notification
+     *
+     * @param peerIpAndPort
+     * @param blockNumberNotification
+     */
     void onReceiveBlockNumberInfo(
             String peerIpAndPort, BlockNumberNotification blockNumberNotification);
 }
