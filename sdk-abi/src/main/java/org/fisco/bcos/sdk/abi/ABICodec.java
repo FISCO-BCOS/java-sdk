@@ -63,7 +63,7 @@ public class ABICodec {
         try {
             return BIN + abiCodecObject.encodeValue(inputABIObject, params).encode();
         } catch (Exception e) {
-            logger.error(" exception in encodeMethodFromObject : {}",e.getMessage());
+            logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
         }
         String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
         logger.error(errorMsg);
@@ -213,7 +213,7 @@ public class ABICodec {
         String errorMsg = " cannot encode in encodeMethodFromString with appropriate interface ABI, cause:"+cause.getMessage();
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
-    }
+    }e
 
     public String encodeMethodByIdFromString(String ABI, String methodId, List<String> params)
             throws ABICodecException {
