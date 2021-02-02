@@ -213,7 +213,7 @@ public class ABICodec {
         String errorMsg = " cannot encode in encodeMethodFromString with appropriate interface ABI, cause:"+cause.getMessage();
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
-    }e
+    }
 
     public String encodeMethodByIdFromString(String ABI, String methodId, List<String> params)
             throws ABICodecException {
