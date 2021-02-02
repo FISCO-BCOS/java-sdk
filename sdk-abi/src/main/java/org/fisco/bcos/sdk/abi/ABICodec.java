@@ -63,7 +63,7 @@ public class ABICodec {
         try {
             return BIN + abiCodecObject.encodeValue(inputABIObject, params).encode();
         } catch (Exception e) {
-            logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
+            logger.error(" exception in encodeMethodFromObject : {}",e.getMessage());
         }
         String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
         logger.error(errorMsg);
@@ -76,13 +76,14 @@ public class ABICodec {
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
         @SuppressWarnings("static-access")
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-
+        Throwable cause = null;
         try {
             return BIN + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
         } catch (Exception e) {
+            cause = e;
             logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
         }
-        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
+        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"+cause.getMessage();
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
@@ -194,6 +195,7 @@ public class ABICodec {
                             + " , supported functions are: "
                             + contractABIDefinition.getFunctions().keySet());
         }
+        Throwable cause = null;
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
@@ -201,13 +203,14 @@ public class ABICodec {
                 try {
                     String methodId = abiDefinition.getMethodId(cryptoSuite);
                     return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
-                } catch (IOException e) {
+                } catch (Exception e) {
+                    cause = e;
                     logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
                 }
             }
         }
 
-        String errorMsg = " cannot encode in encodeMethodFromString with appropriate interface ABI";
+        String errorMsg = " cannot encode in encodeMethodFromString with appropriate interface ABI, cause:"+cause.getMessage();
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
