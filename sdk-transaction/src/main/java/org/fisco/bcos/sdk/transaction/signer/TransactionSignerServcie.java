@@ -35,6 +35,11 @@ public class TransactionSignerServcie implements TransactionSignerInterface {
         return signature.sign(hash, cryptoKeyPair);
     }
 
+    @Override
+    public SignatureResult sign(byte[] hash, CryptoKeyPair cryptoKeyPair) {
+        return signature.sign(hash, cryptoKeyPair);
+    }
+
     /** @return the signature */
     public Signature getSignature() {
         return signature;

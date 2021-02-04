@@ -31,6 +31,12 @@ public class ReceiptParser {
 
     private ReceiptParser() {}
 
+    /**
+     * parse transaction receipt and get return code.
+     *
+     * @param receipt @See TransactionReceipt
+     * @return return code @see RetCode
+     */
     public static RetCode parseTransactionReceipt(TransactionReceipt receipt)
             throws ContractException {
         RetCode retCode = new RetCode();
@@ -81,6 +87,12 @@ public class ReceiptParser {
         }
     }
 
+    /**
+     * parse call which throws ContractException.
+     *
+     * @param exception call exception
+     * @return ContractException
+     */
     public static ContractException parseExceptionCall(ContractException exception) {
         Call.CallOutput callResult = exception.getResponseOutput();
         if (callResult == null) {
@@ -90,6 +102,13 @@ public class ReceiptParser {
         return new ContractException(retCode.getMessage(), retCode.getCode());
     }
 
+    /**
+     * parse output of call.
+     *
+     * @param callResult rpc response of call
+     * @param message revert message if exists
+     * @return return code @see RetCode
+     */
     public static RetCode parseCallOutput(Call.CallOutput callResult, String message) {
         if (!callResult.getStatus().equals("0x0")) {
             Tuple2<Boolean, String> errorOutput =

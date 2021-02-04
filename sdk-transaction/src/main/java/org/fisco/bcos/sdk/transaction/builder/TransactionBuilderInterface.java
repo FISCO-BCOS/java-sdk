@@ -24,6 +24,19 @@ import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
  */
 public interface TransactionBuilderInterface {
 
+    /**
+     * Create fisco bcos transaction
+     *
+     * @param gasPrice, @see DefaultGasProvider
+     * @param gasLimit, @see DefaultGasProvider
+     * @param to target address
+     * @param data encoded data
+     * @param value default 0
+     * @param chainId default 1
+     * @param groupId the group that need create transaction
+     * @param extraData default null
+     * @return RawTransaction the created transaction
+     */
     public RawTransaction createTransaction(
             BigInteger gasPrice,
             BigInteger gasLimit,
