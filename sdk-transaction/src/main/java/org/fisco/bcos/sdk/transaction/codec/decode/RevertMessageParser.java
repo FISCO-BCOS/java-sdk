@@ -117,6 +117,8 @@ public class RevertMessageParser {
     }
 
     /**
+     * parse revert message from receipt
+     *
      * @param receipt the receipt need to be parsed
      * @return the resolved revert message information
      */
