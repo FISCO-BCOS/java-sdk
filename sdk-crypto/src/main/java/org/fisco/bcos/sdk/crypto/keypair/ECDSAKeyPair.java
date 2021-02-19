@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 
@@ -30,6 +31,7 @@ public class ECDSAKeyPair extends CryptoKeyPair {
         CryptoKeyPair keyPair = this.generateKeyPair();
         this.hexPrivateKey = keyPair.getHexPrivateKey();
         this.hexPublicKey = keyPair.getHexPublicKey();
+        this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
     }
 
     public ECDSAKeyPair(KeyPair javaKeyPair) {
@@ -40,6 +42,7 @@ public class ECDSAKeyPair extends CryptoKeyPair {
     protected ECDSAKeyPair(final CryptoResult ecKeyPairInfo) {
         super(ecKeyPairInfo);
         initECDSAKeyPair();
+        this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
     }
 
     private void initECDSAKeyPair() {
