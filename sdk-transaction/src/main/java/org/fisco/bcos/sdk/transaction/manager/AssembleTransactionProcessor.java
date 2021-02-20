@@ -177,8 +177,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
-            String to, String abi, String functionName, String data)
-            throws TransactionBaseException, ABICodecException {
+            String to, String abi, String functionName, String data) throws ABICodecException {
         String signedData = createSignedTransaction(to, data, this.cryptoKeyPair);
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
@@ -193,7 +192,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
-            throws ABICodecException, TransactionBaseException {
+            throws ABICodecException {
         String data = encodeFunction(abi, functionName, params);
         return sendTransactionAndGetResponse(to, abi, functionName, data);
     }

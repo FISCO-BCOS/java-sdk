@@ -19,6 +19,7 @@ import org.fisco.bcos.sdk.channel.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.NodeVersion;
+import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,5 +85,25 @@ public class TransactionProcessorFactory {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
         return new AssembleTransactionProcessor(
                 client, cryptoKeyPair, pair.getRight(), pair.getLeft(), contractName, abi, bin);
+    }
+
+    public static AssembleTransactionWithRemoteSignProcessor
+            createAssembleTransactionWithRemoteSignProcessor(
+                    Client client,
+                    CryptoKeyPair cryptoKeyPair,
+                    String contractName,
+                    String abi,
+                    String bin,
+                    RemoteSignProviderInterface transactionSignProvider) {
+        Pair<String, Integer> pair = getChainIdAndGroupId(client);
+        return new AssembleTransactionWithRemoteSignProcessor(
+                client,
+                cryptoKeyPair,
+                pair.getRight(),
+                pair.getLeft(),
+                contractName,
+                abi,
+                bin,
+                transactionSignProvider);
     }
 }

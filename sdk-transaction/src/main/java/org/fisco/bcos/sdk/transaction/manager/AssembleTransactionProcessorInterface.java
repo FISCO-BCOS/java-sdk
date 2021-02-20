@@ -59,6 +59,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
+     * @return transaction response @See TransactionResponse
      */
     public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
             throws ABICodecException;
