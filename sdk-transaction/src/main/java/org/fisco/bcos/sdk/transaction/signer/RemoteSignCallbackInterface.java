@@ -7,5 +7,5 @@ public interface RemoteSignCallbackInterface {
      * @param signature
      * @return result code
      */
-    public int handleSignedTransaction(byte[] signature);
+    public int handleSignedTransaction(String signature);
 }

@@ -24,6 +24,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 
 public interface AssembleTransactionProcessorInterface {
 
@@ -315,5 +316,12 @@ public interface AssembleTransactionProcessorInterface {
      * @return encoded function string
      */
     public String encodeFunction(String abi, String functionName, List<Object> params)
+            throws ABICodecException;
+
+    RawTransaction getDeployedRawTransaction(String abi, String bin, List<Object> params)
+            throws ABICodecException;
+
+    RawTransaction getRawTransaction(
+            String to, String abi, String functionName, List<Object> params)
             throws ABICodecException;
 }

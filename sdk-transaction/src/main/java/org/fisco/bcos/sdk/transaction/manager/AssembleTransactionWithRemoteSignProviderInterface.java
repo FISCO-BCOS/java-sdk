@@ -4,9 +4,22 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
+import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignCallbackInterface;
 
 public interface AssembleTransactionWithRemoteSignProviderInterface {
+
+    /**
+     * deploy contract to fisco bcos node asynchronously.
+     *
+     * @param rawTransaction raw transaction
+     * @param remoteSignCallbackInterface after signed, callback function hook
+     */
+    void deployAsync(
+            RawTransaction rawTransaction, RemoteSignCallbackInterface remoteSignCallbackInterface)
+            throws ABICodecException;
 
     /**
      * deploy contract to fisco bcos node asynchronously.
@@ -24,8 +37,40 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
             throws ABICodecException;
 
     /**
-     * send transaction to fisco bcos node by contract name asynchronously. The contract loader will
+     * deploy contract to fisco bcos node by contract name asynchronously. The contract loader will
      * load the transaction abi information.
+     *
+     * @param contractName contract function name.
+     * @param params contract function parameters
+     * @param remoteSignCallbackInterface after signed, callback function hook
+     * @return
+     */
+    void deployByContractLoaderAsync(
+            String contractName,
+            List<Object> params,
+            RemoteSignCallbackInterface remoteSignCallbackInterface)
+            throws ABICodecException, NoSuchTransactionFileException;
+
+    /**
+     * deploy contract to fisco bcos node by contract name asynchronously.
+     *
+     * @param contractName target contract name.
+     * @param contractAddress target contract address.
+     * @param functionName contract function name.
+     * @param params contract function parameters
+     * @param remoteSignCallbackInterface after signed, callback function hook
+     * @return
+     */
+    void sendTransactionAndGetReceiptByContractLoaderAsync(
+            String contractName,
+            String contractAddress,
+            String functionName,
+            List<Object> params,
+            RemoteSignCallbackInterface remoteSignCallbackInterface)
+            throws ABICodecException, TransactionBaseException;
+
+    /**
+     * send transaction to fisco bcos node by contract name asynchronously.
      *
      * @param to the target contract address.
      * @param abi contract abi, which could be obtained by compiling solidity contract.
@@ -55,4 +100,13 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             String to, String abi, String functionName, List<Object> params)
             throws ABICodecException;
+
+    /**
+     * sign based on raw transaction and send to fisco bcos node.
+     *
+     * @param rawTransaction raw transaction
+     * @param signatureStr signature string.
+     * @return TransactionReceipt
+     */
+    TransactionReceipt signAndPush(RawTransaction rawTransaction, String signatureStr);
 }

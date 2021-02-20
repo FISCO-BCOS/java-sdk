@@ -92,8 +92,6 @@ public class TransactionProcessorFactory {
                     Client client,
                     CryptoKeyPair cryptoKeyPair,
                     String contractName,
-                    String abi,
-                    String bin,
                     RemoteSignProviderInterface transactionSignProvider) {
         Pair<String, Integer> pair = getChainIdAndGroupId(client);
         return new AssembleTransactionWithRemoteSignProcessor(
@@ -102,8 +100,25 @@ public class TransactionProcessorFactory {
                 pair.getRight(),
                 pair.getLeft(),
                 contractName,
-                abi,
-                bin,
+                transactionSignProvider);
+    }
+
+    public static AssembleTransactionWithRemoteSignProcessor
+            createAssembleTransactionWithRemoteSignProcessor(
+                    Client client,
+                    CryptoKeyPair cryptoKeyPair,
+                    String abiFilePath,
+                    String binFilePath,
+                    RemoteSignProviderInterface transactionSignProvider)
+                    throws Exception {
+        Pair<String, Integer> pair = getChainIdAndGroupId(client);
+        ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
+        return new AssembleTransactionWithRemoteSignProcessor(
+                client,
+                cryptoKeyPair,
+                pair.getRight(),
+                pair.getLeft(),
+                contractLoader,
                 transactionSignProvider);
     }
 }

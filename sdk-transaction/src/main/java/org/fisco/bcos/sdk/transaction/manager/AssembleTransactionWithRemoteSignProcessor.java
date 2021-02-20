@@ -1,6 +1,5 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.bouncycastle.util.encoders.Hex;
@@ -11,11 +10,13 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
-import org.fisco.bcos.sdk.transaction.model.gas.DefaultGasProvider;
+import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
+import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignCallbackInterface;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerServcie;
+import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 
 public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransactionProcessor
         implements AssembleTransactionWithRemoteSignProviderInterface {
@@ -27,25 +28,39 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             Integer groupId,
             String chainId,
             String contractName,
-            String abi,
-            String bin,
             RemoteSignProviderInterface transactionSignProvider) {
-        super(client, cryptoKeyPair, groupId, chainId, contractName, abi, bin);
+        super(client, cryptoKeyPair, groupId, chainId, contractName, "", "");
+        this.transactionSignProvider = transactionSignProvider;
+        super.transactionEncoder =
+                new TransactionEncoderService(cryptoSuite, transactionSignProvider);
+    }
+
+    public AssembleTransactionWithRemoteSignProcessor(
+            Client client,
+            CryptoKeyPair cryptoKeyPair,
+            Integer groupId,
+            String chainId,
+            ContractLoader contractLoader,
+            RemoteSignProviderInterface transactionSignProvider) {
+        super(client, cryptoKeyPair, groupId, chainId, contractLoader);
         this.transactionSignProvider = transactionSignProvider;
         super.transactionEncoder =
                 new TransactionEncoderService(cryptoSuite, transactionSignProvider);
     }
 
     @Override
-    public TransactionReceipt deployAndGetReceipt(String data) {
-        String signedData = createSignedTransaction(null, data, this.cryptoKeyPair);
-        return transactionPusher.push(signedData);
+    public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
+            throws ABICodecException {
+        return deployAndGetResponse(abi, createSignedConstructor(abi, bin, params));
     }
 
     @Override
-    public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
+    public void deployAsync(
+            RawTransaction rawTransaction, RemoteSignCallbackInterface remoteSignCallbackInterface)
             throws ABICodecException {
-        return deployAndGetResponse(createSignedConstructor(abi, bin, params), abi);
+        byte[] rawTxHash = transactionEncoder.encodeAndHashBytes(rawTransaction, cryptoKeyPair);
+        transactionSignProvider.requestForSignAsync(
+                rawTxHash, cryptoSuite.getCryptoTypeConfig(), remoteSignCallbackInterface);
     }
 
     @Override
@@ -55,16 +70,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
             throws ABICodecException {
-        RawTransaction rawTransaction =
-                transactionBuilder.createTransaction(
-                        DefaultGasProvider.GAS_PRICE,
-                        DefaultGasProvider.GAS_LIMIT,
-                        null,
-                        abiCodec.encodeConstructor(abi, bin, params),
-                        BigInteger.ZERO,
-                        new BigInteger(this.chainId),
-                        BigInteger.valueOf(this.groupId),
-                        "");
+        RawTransaction rawTransaction = getDeployedRawTransaction(abi, bin, params);
         byte[] rawTxHash = transactionEncoder.encodeAndHashBytes(rawTransaction, cryptoKeyPair);
         transactionSignProvider.requestForSignAsync(
                 rawTxHash, cryptoSuite.getCryptoTypeConfig(), remoteSignCallbackInterface);
@@ -73,18 +79,38 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params) throws ABICodecException {
-        RawTransaction rawTransaction =
-                transactionBuilder.createTransaction(
-                        DefaultGasProvider.GAS_PRICE,
-                        DefaultGasProvider.GAS_LIMIT,
-                        null,
-                        abiCodec.encodeConstructor(abi, bin, params),
-                        BigInteger.ZERO,
-                        new BigInteger(this.chainId),
-                        BigInteger.valueOf(this.groupId),
-                        "");
+        RawTransaction rawTransaction = getDeployedRawTransaction(abi, bin, params);
         byte[] rawTxHash = transactionEncoder.encodeAndHashBytes(rawTransaction, cryptoKeyPair);
         return signAndPush(rawTransaction, rawTxHash);
+    }
+
+    @Override
+    public void deployByContractLoaderAsync(
+            String contractName,
+            List<Object> args,
+            RemoteSignCallbackInterface remoteSignCallbackInterface)
+            throws ABICodecException, NoSuchTransactionFileException {
+        deployAsync(
+                super.contractLoader.getABIByContractName(contractName),
+                super.contractLoader.getBinaryByContractName(contractName),
+                args,
+                remoteSignCallbackInterface);
+    }
+
+    @Override
+    public void sendTransactionAndGetReceiptByContractLoaderAsync(
+            String contractName,
+            String contractAddress,
+            String functionName,
+            List<Object> params,
+            RemoteSignCallbackInterface remoteSignCallbackInterface)
+            throws ABICodecException, TransactionBaseException {
+        sendTransactionAsync(
+                contractAddress,
+                super.contractLoader.getABIByContractName(contractName),
+                functionName,
+                params,
+                remoteSignCallbackInterface);
     }
 
     @Override
@@ -95,16 +121,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
             throws ABICodecException {
-        RawTransaction rawTransaction =
-                transactionBuilder.createTransaction(
-                        DefaultGasProvider.GAS_PRICE,
-                        DefaultGasProvider.GAS_LIMIT,
-                        to,
-                        abiCodec.encodeMethod(abi, functionName, params),
-                        BigInteger.ZERO,
-                        new BigInteger(this.chainId),
-                        BigInteger.valueOf(this.groupId),
-                        "");
+        RawTransaction rawTransaction = getRawTransaction(to, abi, functionName, params);
         byte[] rawTxHash = transactionEncoder.encodeAndHashBytes(rawTransaction, cryptoKeyPair);
         transactionSignProvider.requestForSignAsync(
                 rawTxHash, cryptoSuite.getCryptoTypeConfig(), remoteSignCallbackInterface);
@@ -115,20 +132,12 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             String to, String abi, String functionName, List<Object> params)
             throws ABICodecException {
-        RawTransaction rawTransaction =
-                transactionBuilder.createTransaction(
-                        DefaultGasProvider.GAS_PRICE,
-                        DefaultGasProvider.GAS_LIMIT,
-                        to,
-                        abiCodec.encodeMethod(abi, functionName, params),
-                        BigInteger.ZERO,
-                        new BigInteger(this.chainId),
-                        BigInteger.valueOf(this.groupId),
-                        "");
+        RawTransaction rawTransaction = getRawTransaction(to, abi, functionName, params);
         byte[] rawTxHash = transactionEncoder.encodeAndHashBytes(rawTransaction, cryptoKeyPair);
         return null;
     }
 
+    @Override
     public TransactionReceipt signAndPush(RawTransaction rawTransaction, String signatureStr) {
         SignatureResult signatureResult =
                 TransactionSignerServcie.decodeSignatureString(
