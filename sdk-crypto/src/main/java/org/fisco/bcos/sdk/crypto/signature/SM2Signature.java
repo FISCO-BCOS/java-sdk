@@ -34,6 +34,10 @@ public class SM2Signature implements Signature {
 
     @Override
     public String signWithStringSignature(final String message, final CryptoKeyPair keyPair) {
+        return signMessage(message, keyPair);
+    }
+
+    public String signMessage(String message, CryptoKeyPair keyPair) {
         CryptoResult signatureResult =
                 NativeInterface.sm2SignWithPub(
                         keyPair.getHexPrivateKey(),
@@ -49,6 +53,15 @@ public class SM2Signature implements Signature {
 
     @Override
     public boolean verify(final String publicKey, final String message, final String signature) {
+        return verifyMessage(publicKey, message, signature);
+    }
+
+    @Override
+    public boolean verify(final String publicKey, final byte[] message, final byte[] signature) {
+        return verify(publicKey, Hex.toHexString(message), Hex.toHexString(signature));
+    }
+
+    public static boolean verifyMessage(String publicKey, String message, String signature) {
         String hexPubKeyWithPrefix =
                 Numeric.getHexKeyWithPrefix(
                         publicKey,
@@ -62,10 +75,5 @@ public class SM2Signature implements Signature {
                     "Verify with sm2 failed:" + verifyResult.wedprErrorMessage);
         }
         return verifyResult.result;
-    }
-
-    @Override
-    public boolean verify(final String publicKey, final byte[] message, final byte[] signature) {
-        return verify(publicKey, Hex.toHexString(message), Hex.toHexString(signature));
     }
 }
