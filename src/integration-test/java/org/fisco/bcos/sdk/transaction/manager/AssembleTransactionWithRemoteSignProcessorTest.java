@@ -14,7 +14,9 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
@@ -22,9 +24,9 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderService;
 import org.fisco.bcos.sdk.transaction.mock.RemoteSignCallbackMock;
 import org.fisco.bcos.sdk.transaction.mock.RemoteSignProviderMock;
+import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
@@ -38,7 +40,7 @@ import org.junit.runners.MethodSorters;
  * TransactionProcessorTest @Description: TransactionProcessorTest
  *
  * @author maojiayu
- * @data Aug 13, 2020 8:00:11 PM
+ * @data Feb 20, 2021 8:00:11 PM
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AssembleTransactionWithRemoteSignProcessorTest {
@@ -91,7 +93,6 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                                 "0x0000000000000000000000000000000000000000000000000000000000000000"));
 
         // deploy async with callback
-        TransactionBuilderService transactionBuilder = new TransactionBuilderService(client);
         RawTransaction rawTransaction =
                 assembleTransactionWithRemoteSignProcessor.getDeployedRawTransaction(
                         abi, bin, new ArrayList<>());
@@ -116,14 +117,52 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                     System.out.println("deploy failed:" + e.getMessage());
                     return null;
                 });
-
         System.out.println("--- finish deploy with CompletableFuture ---");
 
-        // call
-        //        CallResponse callResponse1 =
-        //                assembleTransactionWithRemoteSignProcessor.sendCallByContractLoader(
-        //                        "HelloWorld", helloWorldAddrss, "name", new ArrayList<>());
-        // System.out.println(JsonUtils.toJson(callResponse1));
+        // send transaction sync
+        List<Object> params = Lists.newArrayList("test");
+        TransactionResponse transactionResponse2 =
+                assembleTransactionWithRemoteSignProcessor.sendTransactionAndGetResponse(
+                        helloWorldAddrss, abi, "set", params);
+        Assert.assertEquals("0x0", transactionResponse2.getTransactionReceipt().getStatus());
+
+        // send transaction async with callback
+        RawTransaction sendTxRawTransaction =
+                assembleTransactionWithRemoteSignProcessor.getRawTransaction(
+                        helloWorldAddrss, abi, "set", params);
+        RemoteSignCallbackMock callbackMock2 =
+                new RemoteSignCallbackMock(
+                        assembleTransactionWithRemoteSignProcessor, sendTxRawTransaction);
+        System.out.println(System.currentTimeMillis() + " begin to send tx with callback: ");
+        assembleTransactionWithRemoteSignProcessor.sendTransactionAsync(
+                helloWorldAddrss, abi, "set", params, callbackMock2);
+        System.out.println("--- finish send tx with callback async ---");
+
+        // deploy async with CompletableFuture
+        CompletableFuture<TransactionReceipt> future2 =
+                assembleTransactionWithRemoteSignProcessor.sendTransactionAsync(
+                        helloWorldAddrss, abi, "set", params);
+        future2.thenAccept(
+                tr -> {
+                    System.out.println(
+                            "send tx async with CompletableFuture succeed time "
+                                    + System.currentTimeMillis());
+                    System.out.println(JsonUtils.toJson(tr));
+                    Assert.assertEquals("0x0", tr.getStatus());
+                });
+        future2.exceptionally(
+                e -> {
+                    System.out.println("send tx failed:" + e.getMessage());
+                    return null;
+                });
+        System.out.println("--- finish transaction with CompletableFuture ---");
+
+        // test call
+        CallResponse callResponse1 =
+                assembleTransactionWithRemoteSignProcessor.sendCallByContractLoader(
+                        "HelloWorld", helloWorldAddrss, "name", new ArrayList<>());
+        Assert.assertEquals("test", callResponse1.getReturnObject().get(0));
+        System.out.println("Call response: " + JsonUtils.toJson(callResponse1));
 
         Thread.sleep(2000);
     }

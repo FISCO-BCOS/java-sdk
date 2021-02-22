@@ -134,7 +134,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             throws ABICodecException {
         RawTransaction rawTransaction = getRawTransaction(to, abi, functionName, params);
         byte[] rawTxHash = transactionEncoder.encodeAndHashBytes(rawTransaction, cryptoKeyPair);
-        return null;
+        return signAndPush(rawTransaction, rawTxHash);
     }
 
     @Override
