@@ -100,13 +100,13 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     @Override
     public void sendTransactionAndGetReceiptByContractLoaderAsync(
             String contractName,
-            String contractAddress,
+            String to,
             String functionName,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
             throws ABICodecException, TransactionBaseException {
         sendTransactionAsync(
-                contractAddress,
+                to,
                 super.contractLoader.getABIByContractName(contractName),
                 functionName,
                 params,
@@ -148,6 +148,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
         return transactionPusher.push(Hex.toHexString(signedTransaction));
     }
 
+    @Override
     public CompletableFuture<TransactionReceipt> signAndPush(
             RawTransaction rawTransaction, byte[] rawTxHash) {
         CompletableFuture<String> future =

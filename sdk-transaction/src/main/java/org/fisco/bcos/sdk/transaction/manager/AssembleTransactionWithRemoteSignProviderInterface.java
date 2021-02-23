@@ -55,7 +55,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * deploy contract to fisco bcos node by contract name asynchronously.
      *
      * @param contractName target contract name.
-     * @param contractAddress target contract address.
+     * @param to target contract address.
      * @param functionName contract function name.
      * @param params contract function parameters
      * @param remoteSignCallbackInterface after signed, callback function hook
@@ -63,7 +63,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      */
     void sendTransactionAndGetReceiptByContractLoaderAsync(
             String contractName,
-            String contractAddress,
+            String to,
             String functionName,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
@@ -109,4 +109,14 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @return TransactionReceipt
      */
     TransactionReceipt signAndPush(RawTransaction rawTransaction, String signatureStr);
+
+    /**
+     * sign based on raw transaction and send to fisco bcos node.
+     *
+     * @param rawTransaction raw transaction
+     * @param rawTxHash signature byte array.
+     * @return TransactionReceipt
+     */
+    CompletableFuture<TransactionReceipt> signAndPush(
+            RawTransaction rawTransaction, byte[] rawTxHash);
 }
