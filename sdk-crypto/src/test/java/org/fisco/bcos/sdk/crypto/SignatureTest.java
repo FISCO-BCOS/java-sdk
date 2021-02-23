@@ -53,6 +53,14 @@ public class SignatureTest {
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         // generate keyPair
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        CryptoSuite cryptoSuite2 = new CryptoSuite(CryptoType.ECDSA_TYPE, keyPair);
+        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
+        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
+
+        cryptoSuite2 = new CryptoSuite(CryptoType.ECDSA_TYPE, cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
+        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
+        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
+
         // test signature
         testSignature(cryptoSuite, keyPair);
 
@@ -81,6 +89,14 @@ public class SignatureTest {
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
         // generate keyPair
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+
+        CryptoSuite cryptoSuite2 = new CryptoSuite(CryptoType.SM_TYPE, keyPair);
+        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
+        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
+
+        cryptoSuite2 = new CryptoSuite(CryptoType.SM_TYPE, cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
+        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
+        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
         // test signature
         testSignature(cryptoSuite, keyPair);
     }
