@@ -47,6 +47,15 @@ public class CryptoSuite {
     private CryptoKeyPair cryptoKeyPair;
     private ConfigOption config;
 
+    public CryptoSuite(int cryptoTypeConfig, CryptoKeyPair cryptoKeyPair) {
+        this(cryptoTypeConfig);
+        this.cryptoKeyPair = cryptoKeyPair;
+    }
+
+    public CryptoSuite(int cryptoTypeConfig, String hexedPrivateKey) {
+        this(cryptoTypeConfig);
+        this.cryptoKeyPair = this.keyPairFactory.createKeyPair(hexedPrivateKey);
+    }
     /**
      * init CryptoSuite
      *
