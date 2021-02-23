@@ -35,9 +35,7 @@ public class TransactionSignerWithRemoteSignService
 
     @Override
     public SignatureResult sign(byte[] rawTxHash, CryptoKeyPair cryptoKeyPair) {
-        String signatureStr = transactionSignProvider.requestForSign(rawTxHash, encryptType);
-        return TransactionSignerServcie.decodeSignatureString(
-                signatureStr, encryptType, cryptoKeyPair.getHexPublicKey());
+        return transactionSignProvider.requestForSign(rawTxHash, encryptType);
     }
 
     @Override

@@ -70,7 +70,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
             throws ABICodecException {
-        RawTransaction rawTransaction = getDeployedRawTransaction(abi, bin, params);
+        RawTransaction rawTransaction = getRawTransactionForConstructor(abi, bin, params);
         byte[] rawTxHash = transactionEncoder.encodeAndHashBytes(rawTransaction, cryptoKeyPair);
         transactionSignProvider.requestForSignAsync(
                 rawTxHash, cryptoSuite.getCryptoTypeConfig(), remoteSignCallbackInterface);
@@ -79,7 +79,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params) throws ABICodecException {
-        RawTransaction rawTransaction = getDeployedRawTransaction(abi, bin, params);
+        RawTransaction rawTransaction = getRawTransactionForConstructor(abi, bin, params);
         byte[] rawTxHash = transactionEncoder.encodeAndHashBytes(rawTransaction, cryptoKeyPair);
         return signAndPush(rawTransaction, rawTxHash);
     }
@@ -151,7 +151,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     @Override
     public CompletableFuture<TransactionReceipt> signAndPush(
             RawTransaction rawTransaction, byte[] rawTxHash) {
-        CompletableFuture<String> future =
+        CompletableFuture<SignatureResult> future =
                 CompletableFuture.supplyAsync(
                         () -> {
                             return transactionSignProvider.requestForSign(
@@ -169,7 +169,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
                                 log.error("Request remote signature is null");
                                 return null;
                             }
-                            return signAndPush(rawTransaction, s);
+                            return signAndPush(rawTransaction, s.convertToString());
                         });
         log.info("Sign and push over, wait for callback...");
         return cr;

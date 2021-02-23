@@ -23,7 +23,7 @@ public class RemoteSignProviderMock implements RemoteSignProviderInterface {
     }
 
     @Override
-    public String requestForSign(byte[] rawTxHash, int cryptoType) {
+    public SignatureResult requestForSign(byte[] rawTxHash, int cryptoType) {
         System.out.println("request for sign sync, and crypto type is " + cryptoType);
         try {
             // sleep for test
@@ -39,7 +39,7 @@ public class RemoteSignProviderMock implements RemoteSignProviderInterface {
                         + cryptoType
                         + ",signData -> signature:"
                         + signatureResult.convertToString());
-        return signatureResult.convertToString();
+        return signatureResult;
     }
 
     /*模拟异步调用，demo代码比较简单，就本地直接同步回调了，可以改成启动一个签名线程*/
@@ -54,9 +54,9 @@ public class RemoteSignProviderMock implements RemoteSignProviderInterface {
             e.printStackTrace();
         }
         // 模拟同时异步调用两个签名服务，此处以同步调用服务为例
-        CompletableFuture<String> f1 =
+        CompletableFuture<SignatureResult> f1 =
                 CompletableFuture.supplyAsync(() -> requestForSign(dataToSign, cryptoType));
-        CompletableFuture<String> f2 =
+        CompletableFuture<SignatureResult> f2 =
                 CompletableFuture.supplyAsync(() -> requestForSign(dataToSign, cryptoType));
         CompletableFuture<Object> f = CompletableFuture.anyOf(f1, f2);
         f.thenApplyAsync(
@@ -68,7 +68,7 @@ public class RemoteSignProviderMock implements RemoteSignProviderInterface {
                                     + ",async either signData -> signature:"
                                     + s);
                     if (callback != null) {
-                        callback.handleSignedTransaction((String) s);
+                        callback.handleSignedTransaction((SignatureResult) s);
                     }
                     return s;
                 });

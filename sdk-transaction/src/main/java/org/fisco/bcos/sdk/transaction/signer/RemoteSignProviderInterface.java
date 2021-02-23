@@ -1,5 +1,7 @@
 package org.fisco.bcos.sdk.transaction.signer;
 
+import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+
 public interface RemoteSignProviderInterface {
     /**
      * request for signature provider service, and return the signature.
@@ -8,7 +10,7 @@ public interface RemoteSignProviderInterface {
      * @param cryptoType: ECDSA=0,SM=1, or self defined
      * @return signature result
      */
-    public String requestForSign(byte[] dataToSign, int cryptoType);
+    public SignatureResult requestForSign(byte[] dataToSign, int cryptoType);
 
     /**
      * request for signature provider service asynchronously
