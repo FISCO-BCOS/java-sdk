@@ -15,6 +15,7 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.tuple.Pair;
@@ -38,6 +39,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
+import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface;
 import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherService;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
@@ -57,7 +59,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     protected final TransactionDecoderInterface transactionDecoder;
     protected final TransactionPusherInterface transactionPusher;
     protected final ABICodec abiCodec;
-    private ContractLoader contractLoader;
+    protected ContractLoader contractLoader;
 
     public AssembleTransactionProcessor(
             Client client,
@@ -333,6 +335,51 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public String encodeFunction(String abi, String functionName, List<Object> params)
             throws ABICodecException {
         return abiCodec.encodeMethod(abi, functionName, params);
+    }
+
+    @Override
+    public RawTransaction getRawTransactionForConstructor(
+            String abi, String bin, List<Object> params) throws ABICodecException {
+        return transactionBuilder.createTransaction(
+                null,
+                abiCodec.encodeConstructor(abi, bin, params),
+                new BigInteger(this.chainId),
+                BigInteger.valueOf(this.groupId));
+    }
+
+    @Override
+    public RawTransaction getRawTransactionForConstructor(
+            BigInteger blockLimit, String abi, String bin, List<Object> params)
+            throws ABICodecException {
+        return transactionBuilder.createTransaction(
+                blockLimit,
+                null,
+                abiCodec.encodeConstructor(abi, bin, params),
+                new BigInteger(this.chainId),
+                BigInteger.valueOf(this.groupId));
+    }
+
+    @Override
+    public RawTransaction getRawTransaction(
+            String to, String abi, String functionName, List<Object> params)
+            throws ABICodecException {
+        return transactionBuilder.createTransaction(
+                to,
+                abiCodec.encodeMethod(abi, functionName, params),
+                new BigInteger(this.chainId),
+                BigInteger.valueOf(this.groupId));
+    }
+
+    @Override
+    public RawTransaction getRawTransaction(
+            BigInteger blockLimit, String to, String abi, String functionName, List<Object> params)
+            throws ABICodecException {
+        return transactionBuilder.createTransaction(
+                blockLimit,
+                to,
+                abiCodec.encodeMethod(abi, functionName, params),
+                new BigInteger(this.chainId),
+                BigInteger.valueOf(this.groupId));
     }
 
     private CallResponse parseCallResponseStatus(Call.CallOutput callOutput)

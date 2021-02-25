@@ -40,7 +40,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     protected final Integer groupId;
     protected final String chainId;
     protected final TransactionBuilderInterface transactionBuilder;
-    protected final TransactionEncoderInterface transactionEncoder;
+    protected TransactionEncoderInterface transactionEncoder;
 
     public TransactionProcessor(
             Client client, CryptoKeyPair cryptoKeyPair, Integer groupId, String chainId) {

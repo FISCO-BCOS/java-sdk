@@ -15,8 +15,11 @@
 package org.fisco.bcos.sdk.transaction.signer;
 
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.crypto.signature.ECDSASignatureResult;
+import org.fisco.bcos.sdk.crypto.signature.SM2SignatureResult;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+import org.fisco.bcos.sdk.model.CryptoType;
 
 public class TransactionSignerServcie implements TransactionSignerInterface {
     private Signature signature;
@@ -48,5 +51,24 @@ public class TransactionSignerServcie implements TransactionSignerInterface {
     /** @param signature the signature to set */
     public void setSignature(Signature signature) {
         this.signature = signature;
+    }
+
+    /**
+     * decode signature to SignatureResult
+     *
+     * @param signatureStr the signature string
+     * @param cryptoType 0-ECC, 1-GM
+     * @param publicKey public key string of signer
+     * @return SignatureResult
+     */
+    public static SignatureResult decodeSignatureString(
+            String signatureStr, int cryptoType, String publicKey) {
+        SignatureResult signature;
+        if (cryptoType == CryptoType.ECDSA_TYPE) {
+            signature = new ECDSASignatureResult(signatureStr);
+        } else {
+            signature = new SM2SignatureResult(publicKey, signatureStr);
+        }
+        return signature;
     }
 }
