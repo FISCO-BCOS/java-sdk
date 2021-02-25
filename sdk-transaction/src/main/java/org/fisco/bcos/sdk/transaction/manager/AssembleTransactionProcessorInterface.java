@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.abi.ABICodecException;
@@ -24,6 +25,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 
 public interface AssembleTransactionProcessorInterface {
 
@@ -59,6 +61,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
+     * @return transaction response @See TransactionResponse
      */
     public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
             throws ABICodecException;
@@ -314,5 +317,56 @@ public interface AssembleTransactionProcessorInterface {
      * @return encoded function string
      */
     public String encodeFunction(String abi, String functionName, List<Object> params)
+            throws ABICodecException;
+
+    /**
+     * get constructor raw transaction.
+     *
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary
+     * @param params contract function parameters
+     * @return raw transaction
+     */
+    RawTransaction getRawTransactionForConstructor(String abi, String bin, List<Object> params)
+            throws ABICodecException;
+
+    /**
+     * get constructor raw transaction.
+     *
+     * @param blockLimit block limit
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary
+     * @param params contract function parameters
+     * @return raw transaction
+     */
+    RawTransaction getRawTransactionForConstructor(
+            BigInteger blockLimit, String abi, String bin, List<Object> params)
+            throws ABICodecException;
+
+    /**
+     * get raw transaction exclude constructor.
+     *
+     * @param to target address
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param functionName function name
+     * @param params contract function parameters
+     * @return raw transaction
+     */
+    RawTransaction getRawTransaction(
+            String to, String abi, String functionName, List<Object> params)
+            throws ABICodecException;
+
+    /**
+     * get raw transaction exclude constructor.
+     *
+     * @param blockLimit block limit
+     * @param to target address
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param functionName function name
+     * @param params contract function parameters
+     * @return raw transaction
+     */
+    RawTransaction getRawTransaction(
+            BigInteger blockLimit, String to, String abi, String functionName, List<Object> params)
             throws ABICodecException;
 }

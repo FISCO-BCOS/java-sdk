@@ -51,4 +51,13 @@ public interface TransactionEncoderInterface {
      * @return encoded & signed transaction hexed String
      */
     String encodeAndSign(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair);
+
+    /**
+     * Rlp encode and hash based on RawTransaction
+     *
+     * @param rawTransaction data to be encoded
+     * @param cryptoKeyPair keypair
+     * @return encoded & hashed transaction byte array
+     */
+    byte[] encodeAndHashBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair);
 }

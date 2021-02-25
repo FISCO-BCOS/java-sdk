@@ -14,7 +14,6 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +56,7 @@ public interface TransactionDecoderInterface {
      */
     public TransactionResponse decodeReceiptWithValues(
             String abi, String functionName, TransactionReceipt receipt)
-            throws JsonProcessingException, TransactionException, IOException, ABICodecException;
+            throws TransactionException, IOException, ABICodecException;
 
     /**
      * parse the transaction information from receipt without return values
