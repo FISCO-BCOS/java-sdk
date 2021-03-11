@@ -27,7 +27,10 @@ public class PrecompiledRetCode {
             new RetCode(-52010, "The account is already available");
     public static final RetCode CODE_INVALID_ACCOUNT_ADDRESS =
             new RetCode(-52009, "Invalid account address");
-    public static final RetCode CODE_ACCOUNT_NOT_EXIST = new RetCode(-52008, "Account not exist");
+    public static final RetCode CODE_ACCOUNT_NOT_EXIST =
+            new RetCode(
+                    -52008,
+                    "Account not exist, you can create a blockchain account by using this account to deploy contracts on the chain");
     public static final RetCode CODE_OPERATOR_NOT_EXIST =
             new RetCode(-52007, "The operator not exist");
     public static final RetCode CODE_OPERATOR_EXIST =
