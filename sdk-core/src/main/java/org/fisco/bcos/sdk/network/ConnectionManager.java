@@ -73,6 +73,7 @@ public class ConnectionManager {
     private EventLoopGroup workerGroup;
     private Boolean running = false;
     private Bootstrap bootstrap = new Bootstrap();
+    private List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
     private ScheduledExecutorService reconnSchedule = new ScheduledThreadPoolExecutor(1);
 
     public ConnectionManager(ConfigOption configOption, MsgHandler msgHandler) {
@@ -103,7 +104,6 @@ public class ConnectionManager {
         running = true;
 
         /** try connection */
-        List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
         for (ConnectionInfo connect : connectionInfoList) {
             logger.debug("startConnect to {}", connect.getEndPoint());
             ChannelFuture channelFuture = bootstrap.connect(connect.getIp(), connect.getPort());
@@ -157,11 +157,20 @@ public class ConnectionManager {
     }
 
     public void stopNetty() {
-        if (running) {
-            if (workerGroup != null) {
-                workerGroup.shutdownGracefully();
+        try {
+            if (running) {
+
+                if (workerGroup != null) {
+                    workerGroup.shutdownGracefully().sync();
+                }
+                for (ChannelFuture channelFuture : connChannelFuture) {
+                    channelFuture.channel().closeFuture().sync();
+                }
+                running = false;
+                logger.info("The netty has been stopped");
             }
-            running = false;
+        } catch (InterruptedException e) {
+            logger.warn("Stop netty failed for {}", e.getMessage());
         }
     }
 
