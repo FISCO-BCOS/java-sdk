@@ -26,6 +26,7 @@ import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.abi.tools.TopicTools;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.eventsub.filter.EventSubNodeRespStatus;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionProcessor;
@@ -110,23 +111,26 @@ public class SubscribeTest {
 
             @Override
             public void onReceiveLog(int status, List<EventLog> logs) {
-                Assert.assertEquals(status, 0);
-                String str = "status in onReceiveLog : " + status;
-                logger.debug(str);
                 semaphore.release();
+                if (status == EventSubNodeRespStatus.PUSH_COMPLETED.getStatus()) {
+                    logger.info("event push completed.");
+                }
                 if (logs != null) {
                     for (EventLog log : logs) {
-                        logger.debug(
-                                " blockNumber:"
-                                        + log.getBlockNumber()
-                                        + ",txIndex:"
-                                        + log.getTransactionIndex()
-                                        + " data:"
-                                        + log.getData());
                         ABICodec abiCodec = new ABICodec(client.getCryptoSuite());
                         try {
                             List<Object> list = abiCodec.decodeEvent(abi, "LogSetValues", log);
-                            logger.debug("decode event log content, " + list);
+                            logger.debug(
+                                    "status in onReceiveLog : "
+                                            + status
+                                            + ",blockNumber:"
+                                            + log.getBlockNumber()
+                                            + ",txIndex:"
+                                            + log.getTransactionIndex()
+                                            + ",data:"
+                                            + log.getData()
+                                            + ",decode event log content, "
+                                            + list);
                             Assert.assertEquals("20", list.get(0).toString());
                             Assert.assertEquals("test", list.get(2).toString());
                             List<Object> list1 =
@@ -162,7 +166,7 @@ public class SubscribeTest {
         }
 
         // FISCO BCOS node v2.7.0
-        /*logger.info(" start to unregister event");
+        logger.info(" start to unregister event");
         SubscribeCallback subscribeEventCallback2 = new SubscribeCallback();
         eventSubscribe.unsubscribeEvent(registerId1, subscribeEventCallback2);
         try {
@@ -172,7 +176,7 @@ public class SubscribeTest {
         } catch (InterruptedException e) {
             logger.error("system error:", e);
             Thread.currentThread().interrupt();
-        }*/
+        }
 
         eventSubscribe.stop();
         sdk.getChannel().stop();

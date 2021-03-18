@@ -314,4 +314,14 @@ public class StringUtils {
         }
         return res;
     }
+
+    public static String joinAll(String delimiter, String[] src) {
+        return src == null ? null : org.apache.commons.lang3.StringUtils.join(src, delimiter);
+    }
+
+    public static String joinAll(String delimiter, List<String> src) {
+        return src == null
+                ? null
+                : org.apache.commons.lang3.StringUtils.join(src.toArray(new String[0]), delimiter);
+    }
 }

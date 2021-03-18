@@ -79,6 +79,8 @@ public class EventPushMsgHandler implements MsgHandler {
                             logs.size(),
                             logs.get(0).getBlockNumber());
                 }
+            } else if (resp.getResult() == EventSubNodeRespStatus.PUSH_COMPLETED.getStatus()) {
+                callback.onReceiveLog(resp.getResult(), null);
             }
         } catch (JsonProcessingException e) {
             logger.error("EventLogResponse error : " + e.getMessage());
