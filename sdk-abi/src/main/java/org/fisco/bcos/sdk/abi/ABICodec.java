@@ -83,7 +83,9 @@ public class ABICodec {
             cause = e;
             logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
         }
-        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"+cause.getMessage();
+        String errorMsg =
+                " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"
+                        + cause.getMessage();
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
@@ -210,7 +212,9 @@ public class ABICodec {
             }
         }
 
-        String errorMsg = " cannot encode in encodeMethodFromString with appropriate interface ABI, cause:"+cause.getMessage();
+        String errorMsg =
+                " cannot encode in encodeMethodFromString with appropriate interface ABI, cause:"
+                        + cause.getMessage();
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
