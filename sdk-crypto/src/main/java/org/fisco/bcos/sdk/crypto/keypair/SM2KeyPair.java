@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 
@@ -30,6 +31,7 @@ public class SM2KeyPair extends CryptoKeyPair {
         CryptoKeyPair keyPair = this.generateKeyPair();
         this.hexPrivateKey = keyPair.getHexPrivateKey();
         this.hexPublicKey = keyPair.getHexPublicKey();
+        this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
     }
 
     public SM2KeyPair(KeyPair javaKeyPair) {
@@ -40,6 +42,7 @@ public class SM2KeyPair extends CryptoKeyPair {
     protected SM2KeyPair(CryptoResult sm2keyPairInfo) {
         super(sm2keyPairInfo);
         initSM2KeyPairObject();
+        this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
     }
 
     private void initSM2KeyPairObject() {

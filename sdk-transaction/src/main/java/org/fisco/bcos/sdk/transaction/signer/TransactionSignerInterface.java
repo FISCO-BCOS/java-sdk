@@ -23,5 +23,21 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
  * @author maojiayu
  */
 public interface TransactionSignerInterface {
+    /**
+     * sign raw transaction hash string and get signatrue result
+     *
+     * @param hash raw transaction hash string to be signed
+     * @param cryptoKeyPair keypair
+     * @return signatrue result
+     */
     public SignatureResult sign(String hash, CryptoKeyPair cryptoKeyPair);
+
+    /**
+     * sign raw transaction hash byte array and get signatrue result
+     *
+     * @param hash raw transaction hash byte array to be signed
+     * @param cryptoKeyPair keypair
+     * @return signatrue result
+     */
+    public SignatureResult sign(byte[] hash, CryptoKeyPair cryptoKeyPair);
 }
