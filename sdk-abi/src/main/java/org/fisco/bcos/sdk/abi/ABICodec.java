@@ -91,6 +91,9 @@ public class ABICodec {
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        if (methods == null || methods.size() == 0) {
+            throw new ABICodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
+        }
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
                 @SuppressWarnings("static-access")
@@ -104,10 +107,8 @@ public class ABICodec {
                 }
             }
         }
-
-        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
-        logger.error(errorMsg);
-        throw new ABICodecException(errorMsg);
+        logger.error(Constant.NO_APPROPRIATE_ABI_METHOD);
+        throw new ABICodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
     }
 
     public String encodeMethodById(String ABI, String methodId, List<Object> params)
