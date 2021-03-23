@@ -9,4 +9,7 @@ public class Constant {
             new BigInteger("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
     public static final BigInteger MIN_INT256 =
             new BigInteger("-7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
+
+    public static String NO_APPROPRIATE_ABI_METHOD =
+            "Cann't encode in encodeMethodFromObject with appropriate interface ABI, please check your method name or ABI file";
 }

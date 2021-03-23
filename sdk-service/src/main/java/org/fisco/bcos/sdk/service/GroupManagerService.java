@@ -134,33 +134,93 @@ public interface GroupManagerService {
      */
     void broadcastMessageToGroup(Integer groupId, Message message);
 
+    /**
+     * Send transaction in async
+     *
+     * @param groupId the group id
+     * @param transactionData message object contain transaction data
+     * @param callback the transaction callback
+     * @param responseCallback the response callback
+     */
     void asyncSendTransaction(
             Integer groupId,
             Message transactionData,
             TransactionCallback callback,
             ResponseCallback responseCallback);
 
+    /**
+     * Remove the target transaction callback of a specific seq number
+     *
+     * @param seq
+     */
     void eraseTransactionSeq(String seq);
 
+    /**
+     * Get node version of a specific peer
+     *
+     * @param peerInfo ip and port
+     * @return NodeVersion
+     */
     NodeVersion getNodeVersion(String peerInfo);
 
+    /**
+     * Get the crypto type
+     *
+     * @param peerInfo ip and port
+     * @return ECDSA_TYPE or SM_TYPE
+     */
     Integer getCryptoType(String peerInfo);
 
+    /**
+     * Get configuration
+     *
+     * @return ConfigOption
+     */
     ConfigOption getConfig();
 
+    /** Update node version */
     void updateNodeVersion();
 
+    /** Fetch group list from node connected */
     void fetchGroupList();
 
+    /** Stop the group manage service module */
     void stop();
 
+    /**
+     * Get the latest block number of a specific group
+     *
+     * @param groupId
+     * @return BlockNumber
+     */
     BigInteger getLatestBlockNumberByGroup(Integer groupId);
 
+    /**
+     * Register block notify callback
+     *
+     * @param callback the BlockNumberNotifyCallback type callback objct
+     * @return register id
+     */
     String registerBlockNotifyCallback(BlockNumberNotifyCallback callback);
 
+    /**
+     * Remove block notify callback
+     *
+     * @param registerId the specific register id
+     */
     void eraseBlockNotifyCallback(String registerId);
 
+    /**
+     * Get the group list of the nodes connected
+     *
+     * @return the set of group ids
+     */
     Set<Integer> getGroupList();
 
+    /**
+     * Set the amop module which used to register notification
+     *
+     * @param amop Amop instance
+     */
     void setAmop(Amop amop);
 }

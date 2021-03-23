@@ -73,14 +73,24 @@ public class ConnectionManager {
     private EventLoopGroup workerGroup;
     private Boolean running = false;
     private Bootstrap bootstrap = new Bootstrap();
+    private List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
     private ScheduledExecutorService reconnSchedule = new ScheduledThreadPoolExecutor(1);
 
     public ConnectionManager(ConfigOption configOption, MsgHandler msgHandler) {
-        for (String peerIpPort : configOption.getNetworkConfig().getPeers()) {
-            connectionInfoList.add(new ConnectionInfo(peerIpPort));
+        this(configOption.getNetworkConfig().getPeers(), msgHandler);
+    }
+
+    public ConnectionManager(List<String> ipList, MsgHandler msgHandler) {
+        if (ipList != null) {
+            for (String peerIpPort : ipList) {
+                connectionInfoList.add(new ConnectionInfo(peerIpPort));
+            }
         }
         channelHandler = new ChannelHandler(this, msgHandler);
-        logger.info(" all connections: {}", connectionInfoList);
+        logger.info(
+                " all connections, size: {}, list: {}",
+                connectionInfoList.size(),
+                connectionInfoList);
     }
 
     public void startConnect(ConfigOption configOption) throws NetworkException {
@@ -94,7 +104,6 @@ public class ConnectionManager {
         running = true;
 
         /** try connection */
-        List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
         for (ConnectionInfo connect : connectionInfoList) {
             logger.debug("startConnect to {}", connect.getEndPoint());
             ChannelFuture channelFuture = bootstrap.connect(connect.getIp(), connect.getPort());
@@ -148,11 +157,20 @@ public class ConnectionManager {
     }
 
     public void stopNetty() {
-        if (running) {
-            if (workerGroup != null) {
-                workerGroup.shutdownGracefully();
+        try {
+            if (running) {
+
+                if (workerGroup != null) {
+                    workerGroup.shutdownGracefully().sync();
+                }
+                for (ChannelFuture channelFuture : connChannelFuture) {
+                    channelFuture.channel().closeFuture().sync();
+                }
+                running = false;
+                logger.info("The netty has been stopped");
             }
-            running = false;
+        } catch (InterruptedException e) {
+            logger.warn("Stop netty failed for {}", e.getMessage());
         }
     }
 
@@ -426,7 +444,7 @@ public class ConnectionManager {
         }
     }
 
-    protected void removeConnection(String peerIpPort) {
+    public void removeConnection(String peerIpPort) {
         for (ConnectionInfo conn : connectionInfoList) {
             String ipPort = conn.getIp() + ":" + conn.getPort();
             if (ipPort.equals(peerIpPort)) {

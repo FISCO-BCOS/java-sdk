@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Crypto material configuration, include certs and keys */
 public class CryptoMaterialConfig {
     private static Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
     private String certPath = "conf";

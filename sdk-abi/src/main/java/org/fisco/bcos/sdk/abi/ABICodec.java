@@ -31,6 +31,7 @@ import org.fisco.bcos.sdk.model.EventLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** ABI encode and decode tool */
 public class ABICodec {
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodec.class);
@@ -75,13 +76,16 @@ public class ABICodec {
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
         @SuppressWarnings("static-access")
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-
+        Throwable cause = null;
         try {
             return BIN + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
         } catch (Exception e) {
+            cause = e;
             logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
         }
-        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
+        String errorMsg =
+                " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"
+                        + cause.getMessage();
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
@@ -90,6 +94,9 @@ public class ABICodec {
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        if (methods == null || methods.size() == 0) {
+            throw new ABICodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
+        }
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
                 @SuppressWarnings("static-access")
@@ -103,10 +110,8 @@ public class ABICodec {
                 }
             }
         }
-
-        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
-        logger.error(errorMsg);
-        throw new ABICodecException(errorMsg);
+        logger.error(Constant.NO_APPROPRIATE_ABI_METHOD);
+        throw new ABICodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
     }
 
     public String encodeMethodById(String ABI, String methodId, List<Object> params)
@@ -193,6 +198,7 @@ public class ABICodec {
                             + " , supported functions are: "
                             + contractABIDefinition.getFunctions().keySet());
         }
+        Throwable cause = null;
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
@@ -200,13 +206,16 @@ public class ABICodec {
                 try {
                     String methodId = abiDefinition.getMethodId(cryptoSuite);
                     return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
-                } catch (IOException e) {
+                } catch (Exception e) {
+                    cause = e;
                     logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
                 }
             }
         }
 
-        String errorMsg = " cannot encode in encodeMethodFromString with appropriate interface ABI";
+        String errorMsg =
+                " cannot encode in encodeMethodFromString with appropriate interface ABI, cause:"
+                        + cause.getMessage();
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }

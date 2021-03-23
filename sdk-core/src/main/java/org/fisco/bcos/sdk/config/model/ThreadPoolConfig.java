@@ -19,6 +19,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Tread pool configuration */
 public class ThreadPoolConfig {
     private static final Logger logger = LoggerFactory.getLogger(ThreadPoolConfig.class);
     public static String DEFAULT_MAX_BLOCKING_QUEUE_SIZE = "102400";

@@ -25,9 +25,9 @@ import org.fisco.bcos.sdk.rlp.RlpList;
 import org.fisco.bcos.sdk.rlp.RlpString;
 import org.fisco.bcos.sdk.rlp.RlpType;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
+import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
+import org.fisco.bcos.sdk.transaction.signer.TransactionSignerFactory;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
-import org.fisco.bcos.sdk.transaction.signer.TransactionSignerServcie;
-import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,17 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
         super();
         this.cryptoSuite = cryptoSuite;
         this.signature = cryptoSuite.getSignatureImpl();
-        this.transactionSignerService = new TransactionSignerServcie(signature);
+        this.transactionSignerService = TransactionSignerFactory.createTransactionSigner(signature);
+    }
+
+    public TransactionEncoderService(
+            CryptoSuite cryptoSuite, RemoteSignProviderInterface transactionSignProvider) {
+        super();
+        this.cryptoSuite = cryptoSuite;
+        this.signature = cryptoSuite.getSignatureImpl();
+        this.transactionSignerService =
+                TransactionSignerFactory.createTransactionSigner(
+                        transactionSignProvider, cryptoSuite.getCryptoTypeConfig());
     }
 
     @Override
@@ -51,21 +61,31 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     }
 
     @Override
+    public byte[] encodeAndHashBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair) {
+        return cryptoSuite.hash(encode(rawTransaction, null));
+    }
+
+    @Override
     public byte[] encodeAndSignBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair) {
-        byte[] encodedTransaction = encode(rawTransaction, null);
-        byte[] hash = cryptoSuite.hash(encodedTransaction);
-        SignatureResult result =
-                transactionSignerService.sign(Hex.toHexString(hash), cryptoKeyPair);
+        byte[] hash = encodeAndHashBytes(rawTransaction, cryptoKeyPair);
+        SignatureResult result = transactionSignerService.sign(hash, cryptoKeyPair);
         return encode(rawTransaction, result);
     }
 
     @Override
-    public byte[] encode(RawTransaction transaction, SignatureResult signature) {
-        List<RlpType> values = asRlpValues(transaction, signature);
+    public byte[] encode(RawTransaction rawTransaction, SignatureResult signature) {
+        List<RlpType> values = asRlpValues(rawTransaction, signature);
         RlpList rlpList = new RlpList(values);
         return RlpEncoder.encode(rlpList);
     }
 
+    /**
+     * Rlp encode and sign based on RawTransaction
+     *
+     * @param rawTransaction data to be encoded
+     * @param signatureResult signature result
+     * @return encoded & signed transaction RLP values
+     */
     public static List<RlpType> asRlpValues(
             RawTransaction rawTransaction, SignatureResult signatureResult) {
         List<RlpType> result = new ArrayList<>();

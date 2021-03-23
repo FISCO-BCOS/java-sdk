@@ -29,6 +29,12 @@ import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
  */
 public class ReceiptStatusUtil {
 
+    /**
+     * parse transaction receipt output and get return message.
+     *
+     * @param output @See transaction receipt output
+     * @return receipt message
+     */
     public static String decodeReceiptMessage(String output) {
         if (output.length() <= 10) {
             return null;

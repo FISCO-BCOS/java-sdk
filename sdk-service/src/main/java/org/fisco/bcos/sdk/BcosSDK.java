@@ -45,6 +45,13 @@ public class BcosSDK {
     private EventResource eventResource;
     private ThreadPoolService threadPoolService;
 
+    /**
+     * Build BcosSDK instance
+     *
+     * @param tomlConfigFilePath the Toml type config file
+     * @return BcosSDK instance
+     * @throws BcosSDKException
+     */
     public static BcosSDK build(String tomlConfigFilePath) throws BcosSDKException {
         try {
             ConfigOption configOption = Config.load(tomlConfigFilePath);
@@ -55,6 +62,12 @@ public class BcosSDK {
         }
     }
 
+    /**
+     * Constructor, init by ConfigOption
+     *
+     * @param configOption the ConfigOption
+     * @throws BcosSDKException
+     */
     public BcosSDK(ConfigOption configOption) throws BcosSDKException {
         try {
             // create channel and load configuration file
@@ -96,6 +109,11 @@ public class BcosSDK {
         }
     }
 
+    /**
+     * Wait for establish connection
+     *
+     * @return true when at least one connection established, false if all connection failed
+     */
     private boolean waitForEstablishConnection() {
         long startTime = System.currentTimeMillis();
         try {
@@ -109,6 +127,11 @@ public class BcosSDK {
         return (this.channel.getAvailablePeer().size() > 0);
     }
 
+    /**
+     * Check whether have at least one node in the specific group
+     *
+     * @param groupId the target group id
+     */
     public void checkGroupId(Integer groupId) {
         if (groupId < ConstantConfig.MIN_GROUPID || groupId > ConstantConfig.MAX_GROUPID) {
             throw new BcosSDKException(
@@ -121,6 +144,12 @@ public class BcosSDK {
         }
     }
 
+    /**
+     * Get a Client instance of a specific group
+     *
+     * @param groupId the group id
+     * @return Client
+     */
     public Client getClient(Integer groupId) {
         checkGroupId(groupId);
         if (!waitForEstablishConnection()) {
@@ -160,34 +189,71 @@ public class BcosSDK {
         return groupToClient.get(groupId);
     }
 
+    /**
+     * Get ssl crypto type
+     *
+     * @return crypto type, e.g. ECDSA_TYPE, SM_TYPE
+     */
     public int getSSLCryptoType() {
         return this.channel.getNetwork().getSslCryptoType();
     }
 
+    /**
+     * Get group manager service instance
+     *
+     * @return GroupManagerService
+     */
     public GroupManagerService getGroupManagerService() {
         return this.groupManagerService;
     }
 
+    /**
+     * Get configuration
+     *
+     * @return ConfigOption
+     */
     public ConfigOption getConfig() {
         return this.config;
     }
 
+    /**
+     * Get AMOP instance
+     *
+     * @return AMOP
+     */
     public Amop getAmop() {
         return amop;
     }
 
+    /**
+     * Get event resource
+     *
+     * @return EventResource
+     */
     public EventResource getEventResource() {
         return eventResource;
     }
 
+    /**
+     * Get event subscribe instance
+     *
+     * @param groupId
+     * @return EventSubscribe
+     */
     public EventSubscribe getEventSubscribe(Integer groupId) {
         return EventSubscribe.build(this.groupManagerService, this.eventResource, groupId);
     }
 
+    /**
+     * Get channel
+     *
+     * @return Channel
+     */
     public Channel getChannel() {
         return channel;
     }
 
+    /** Stop all module of BcosSDK */
     public void stopAll() {
         if (this.channel != null) {
             this.channel.stop();

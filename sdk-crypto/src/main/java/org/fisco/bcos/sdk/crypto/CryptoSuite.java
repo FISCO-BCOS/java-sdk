@@ -47,6 +47,21 @@ public class CryptoSuite {
     private CryptoKeyPair cryptoKeyPair;
     private ConfigOption config;
 
+    public CryptoSuite(int cryptoTypeConfig, CryptoKeyPair cryptoKeyPair) {
+        this(cryptoTypeConfig);
+        this.cryptoKeyPair = cryptoKeyPair;
+    }
+
+    public CryptoSuite(int cryptoTypeConfig, String hexedPrivateKey) {
+        this(cryptoTypeConfig);
+        this.cryptoKeyPair = this.keyPairFactory.createKeyPair(hexedPrivateKey);
+    }
+    /**
+     * init CryptoSuite
+     *
+     * @param cryptoTypeConfig the crypto type, e.g. ECDSA_TYPE or SM_TYPE
+     * @param configOption the configuration of account.
+     */
     public CryptoSuite(int cryptoTypeConfig, ConfigOption configOption) {
         this(cryptoTypeConfig);
         logger.info("init CryptoSuite, cryptoType: {}", cryptoTypeConfig);
@@ -58,8 +73,9 @@ public class CryptoSuite {
         }
         loadAccount(configOption);
     }
+
     /**
-     * init the common crypto implementation according to the crypto type
+     * Init the common crypto implementation according to the crypto type
      *
      * @param cryptoTypeConfig the crypto type config number
      */
@@ -87,6 +103,13 @@ public class CryptoSuite {
         createKeyPair();
     }
 
+    /**
+     * Load account from file
+     *
+     * @param accountFileFormat file format, e.g. p21, pem
+     * @param accountFilePath file path
+     * @param password password of the key file
+     */
     public void loadAccount(String accountFileFormat, String accountFilePath, String password) {
         KeyTool keyTool = null;
         if (accountFileFormat.compareToIgnoreCase("p12") == 0) {
@@ -103,6 +126,11 @@ public class CryptoSuite {
         createKeyPair(keyTool.getKeyPair());
     }
 
+    /**
+     * Load account from ConfigOption object
+     *
+     * @param configOption config loaded from config file
+     */
     private void loadAccount(ConfigOption configOption) {
         AccountConfig accountConfig = configOption.getAccountConfig();
         String accountFilePath = accountConfig.getAccountFilePath();
@@ -121,6 +149,11 @@ public class CryptoSuite {
                 accountConfig.getAccountPassword());
     }
 
+    /**
+     * Set config
+     *
+     * @param config ConfigOption type configuration
+     */
     public void setConfig(ConfigOption config) {
         this.config = config;
         this.keyPairFactory.setConfig(config);
@@ -134,80 +167,187 @@ public class CryptoSuite {
         return signatureImpl;
     }
 
+    /**
+     * Get hash function, which is relate to the configured CryptoType
+     *
+     * @return the hash function
+     */
     public Hash getHashImpl() {
         return hashImpl;
     }
 
+    /**
+     * Call hash function
+     *
+     * @param inputData string type input data
+     * @return the hash digest of input data
+     */
     public String hash(final String inputData) {
         return hashImpl.hash(inputData);
     }
 
+    /**
+     * Call hash function
+     *
+     * @param inputBytes byte array type input data
+     * @return the hashed string
+     */
     public byte[] hash(final byte[] inputBytes) {
         return hashImpl.hash(inputBytes);
     }
 
+    /**
+     * Do signature
+     *
+     * @param message byte array type input string, must be a digest
+     * @param keyPair key pair used to do signature
+     * @return the signature result
+     */
     public SignatureResult sign(final byte[] message, final CryptoKeyPair keyPair) {
         return signatureImpl.sign(message, keyPair);
     }
 
+    /**
+     * Do signature
+     *
+     * @param message string type input message, must be a digest
+     * @param keyPair key pair used to do signature
+     * @return the signature result
+     */
     public SignatureResult sign(final String message, final CryptoKeyPair keyPair) {
         return signatureImpl.sign(message, keyPair);
     }
 
     // for AMOP topic verify, generate signature
+
+    /**
+     * Do signature, used in AMOP private topic verification procedure
+     *
+     * @param keyTool the key
+     * @param message the string type input message, must be a digest
+     * @return the string type signature
+     */
     public String sign(KeyTool keyTool, String message) {
         CryptoKeyPair cryptoKeyPair = this.keyPairFactory.createKeyPair(keyTool.getKeyPair());
         return signatureImpl.signWithStringSignature(message, cryptoKeyPair);
     }
 
-    // for AMOP topic verify, verify the signature
+    /**
+     * Verify signature, used in AMOP private topic verification procedure
+     *
+     * @param keyTool the key
+     * @param message the string type input message, must be a digest
+     * @param signature the string type signature
+     * @return the verify result
+     */
     public boolean verify(KeyTool keyTool, String message, String signature) {
         return verify(keyTool.getHexedPublicKey(), message, signature);
     }
 
+    /**
+     * Verify signature, used in AMOP private topic verification procedure
+     *
+     * @param keyTool the key
+     * @param message the byte array type input message, must be a digest
+     * @param signature the byte array type signature
+     * @return the verify result
+     */
     public boolean verify(KeyTool keyTool, byte[] message, byte[] signature) {
         return verify(keyTool.getHexedPublicKey(), message, signature);
     }
 
+    /**
+     * Verify signature
+     *
+     * @param publicKey the string type public key
+     * @param message the string type input message, must be a digest
+     * @param signature the string type signature
+     * @return the verify result
+     */
     public boolean verify(final String publicKey, final String message, final String signature) {
         return signatureImpl.verify(publicKey, message, signature);
     }
 
+    /**
+     * Verify signature
+     *
+     * @param publicKey the string type public key
+     * @param message the byte array type input message, must be a digest
+     * @param signature the byte array type signature
+     * @return the verify result
+     */
     public boolean verify(final String publicKey, final byte[] message, final byte[] signature) {
         return signatureImpl.verify(publicKey, message, signature);
     }
 
+    /**
+     * Create key pair
+     *
+     * @return a generated key pair
+     */
     public CryptoKeyPair createKeyPair() {
         this.cryptoKeyPair = this.keyPairFactory.generateKeyPair();
         this.cryptoKeyPair.setConfig(config);
         return this.cryptoKeyPair;
     }
 
+    /**
+     * Create CryptoKeyPair type key pair from KeyPair type key pair
+     *
+     * @param keyPair key pair
+     * @return CryptoKeyPair type key pair
+     */
     public CryptoKeyPair createKeyPair(KeyPair keyPair) {
         this.cryptoKeyPair = this.keyPairFactory.createKeyPair(keyPair);
         this.cryptoKeyPair.setConfig(config);
         return this.cryptoKeyPair;
     }
 
+    /**
+     * Create key pair from a private key string
+     *
+     * @param hexedPrivateKey a hex string of private key
+     * @return CryptoKeyPair type key pair
+     */
     public CryptoKeyPair createKeyPair(String hexedPrivateKey) {
         this.cryptoKeyPair = this.keyPairFactory.createKeyPair(hexedPrivateKey);
         this.cryptoKeyPair.setConfig(config);
         return this.cryptoKeyPair;
     }
 
+    /**
+     * Set the key pair in CryptoSuite
+     *
+     * @param cryptoKeyPair set the CryptoKeyPair object
+     */
     public void setCryptoKeyPair(CryptoKeyPair cryptoKeyPair) {
         this.cryptoKeyPair = cryptoKeyPair;
         this.cryptoKeyPair.setConfig(config);
     }
 
+    /**
+     * Get the key pair of the CryptoSuite
+     *
+     * @return CrytoKeyPair type key pair
+     */
     public CryptoKeyPair getCryptoKeyPair() {
         return this.cryptoKeyPair;
     }
 
+    /**
+     * Get configuration
+     *
+     * @return ConfigOption
+     */
     public ConfigOption getConfig() {
         return this.config;
     }
 
+    /**
+     * Get key pair factory
+     *
+     * @return CryptoKeyPair
+     */
     public CryptoKeyPair getKeyPairFactory() {
         return this.keyPairFactory;
     }

@@ -633,7 +633,11 @@ public class ABIObject {
 
     public void setNumericValue(NumericType numericValue) {
         this.type = ObjectType.VALUE;
-        this.valueType = ValueType.UINT;
+        if (numericValue.getTypeAsString().startsWith("int") || numericValue instanceof Int256) {
+            this.valueType = ValueType.INT;
+        } else {
+            this.valueType = ValueType.UINT;
+        }
         this.numericValue = numericValue;
     }
 
