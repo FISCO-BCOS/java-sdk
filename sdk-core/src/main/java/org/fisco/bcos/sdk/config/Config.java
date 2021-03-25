@@ -46,7 +46,7 @@ public class Config {
             return configOption;
         } catch (Exception e) {
             throw new ConfigException(
-                    "parse Config " + tomlConfigFile + " failed, error info: " + e.getMessage(), e);
+                    "parse Config " + tomlConfigFile + " failed, error info: ", e);
         }
     }
 }
