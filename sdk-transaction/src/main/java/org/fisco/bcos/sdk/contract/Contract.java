@@ -274,13 +274,15 @@ public class Contract {
         return executeCall(function);
     }
 
-    protected void asyncExecuteTransaction(
+    protected byte[] asyncExecuteTransaction(
             String data, String funName, TransactionCallback callback) {
-        transactionProcessor.sendTransactionAsync(contractAddress, data, credential, callback);
+        return transactionProcessor.sendTransactionAsyncAndGetHash(
+                contractAddress, data, credential, callback);
     }
 
-    protected void asyncExecuteTransaction(Function function, TransactionCallback callback) {
-        asyncExecuteTransaction(functionEncoder.encode(function), function.getName(), callback);
+    protected byte[] asyncExecuteTransaction(Function function, TransactionCallback callback) {
+        return asyncExecuteTransaction(
+                functionEncoder.encode(function), function.getName(), callback);
     }
 
     protected TransactionReceipt executeTransaction(Function function) {
