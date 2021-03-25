@@ -359,6 +359,16 @@ public class ABICodecTest {
     }
 
     @Test
+    public void testEncodeConsctructor() {
+        List<String> args = new ArrayList<String>();
+        ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
+        try {
+            abiCodec.encodeConstructorFromString(abiDesc, "BIN", args);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+    @Test
     public void testEncodeConsctructorWithInvalidParams() {
         List<String> args = new ArrayList<String>();
         args.add("invalid");
@@ -371,16 +381,6 @@ public class ABICodecTest {
         }
     }
 
-    @Test
-    public void testEncodeConsctructor() {
-        List<String> args = new ArrayList<String>();
-        ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
-        try {
-            abiCodec.encodeConstructorFromString(abiDesc, "BIN", args);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-    }
 
     @Test
     public void testEncodeByInterface() {
