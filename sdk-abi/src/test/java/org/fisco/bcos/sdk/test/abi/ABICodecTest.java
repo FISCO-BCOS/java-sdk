@@ -347,6 +347,18 @@ public class ABICodecTest {
     }
 
     @Test
+    public void testEncodeFromString2() {
+        List<String> args = new ArrayList<String>();
+        ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
+        try {
+            abiCodec.encodeMethodFromString(abiDesc, "test", args);
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof ABICodecException);
+        }
+    }
+
+    @Test
     public void testEncodeByInterface() {
         ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
         List<Object> argsObjects = new ArrayList<Object>();
