@@ -926,7 +926,8 @@ public class SolidityContractWrapper {
             throws ClassNotFoundException {
         String functionName = functionDefinition.getName();
 
-        methodBuilder.returns(TypeName.VOID);
+        TypeName returnType = TypeName.get(byte[].class);
+        methodBuilder.returns(returnType);
 
         methodBuilder.addStatement(
                 "final $T function = new $T(\n$N, \n$T.<$T>asList($L), \n$T"
@@ -939,7 +940,7 @@ public class SolidityContractWrapper {
                 inputParams,
                 Collections.class,
                 TypeReference.class);
-        methodBuilder.addStatement("asyncExecuteTransaction(function, callback)");
+        methodBuilder.addStatement("return asyncExecuteTransaction(function, callback)");
     }
 
     private void buildTransactionFunctionSeq(
