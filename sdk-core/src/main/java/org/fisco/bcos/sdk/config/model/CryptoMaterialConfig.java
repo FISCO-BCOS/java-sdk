@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.config.model;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.CryptoType;
@@ -31,6 +32,13 @@ public class CryptoMaterialConfig {
     private String sdkPrivateKeyPath;
     private String enSSLCertPath;
     private String enSSLPrivateKeyPath;
+
+    private InputStream caInputStream;
+    private InputStream sdkCertInputStream;
+    private InputStream sdkPrivateKeyInputStream;
+    private InputStream enSSLCertInputStream;
+    private InputStream enSSLPrivateKeyInputStream;
+
     private int sslCryptoType;
 
     protected CryptoMaterialConfig() {}
@@ -70,6 +78,37 @@ public class CryptoMaterialConfig {
                                 defaultCryptoMaterialConfig.getEnSSLCertPath()));
         this.enSSLPrivateKeyPath =
                 ConfigProperty.getConfigFilePath(
+                        ConfigProperty.getValue(
+                                cryptoMaterialProperty,
+                                "enSslKey",
+                                defaultCryptoMaterialConfig.getEnSSLPrivateKeyPath()));
+        // load the input stream
+        this.caInputStream =
+                ConfigProperty.getConfigInputStream(
+                        ConfigProperty.getValue(
+                                cryptoMaterialProperty,
+                                "caCert",
+                                defaultCryptoMaterialConfig.getCaCertPath()));
+        this.sdkCertInputStream =
+                ConfigProperty.getConfigInputStream(
+                        ConfigProperty.getValue(
+                                cryptoMaterialProperty,
+                                "sslCert",
+                                defaultCryptoMaterialConfig.getSdkCertPath()));
+        this.sdkPrivateKeyInputStream =
+                ConfigProperty.getConfigInputStream(
+                        ConfigProperty.getValue(
+                                cryptoMaterialProperty,
+                                "sslKey",
+                                defaultCryptoMaterialConfig.getSdkPrivateKeyPath()));
+        this.enSSLCertInputStream =
+                ConfigProperty.getConfigInputStream(
+                        ConfigProperty.getValue(
+                                cryptoMaterialProperty,
+                                "enSslCert",
+                                defaultCryptoMaterialConfig.getEnSSLCertPath()));
+        this.enSSLPrivateKeyInputStream =
+                ConfigProperty.getConfigInputStream(
                         ConfigProperty.getValue(
                                 cryptoMaterialProperty,
                                 "enSslKey",
@@ -165,6 +204,46 @@ public class CryptoMaterialConfig {
 
     public void setSslCryptoType(int sslCryptoType) {
         this.sslCryptoType = sslCryptoType;
+    }
+
+    public InputStream getCaInputStream() {
+        return caInputStream;
+    }
+
+    public void setCaInputStream(InputStream caInputStream) {
+        this.caInputStream = caInputStream;
+    }
+
+    public InputStream getSdkCertInputStream() {
+        return sdkCertInputStream;
+    }
+
+    public void setSdkCertInputStream(InputStream sdkCertInputStream) {
+        this.sdkCertInputStream = sdkCertInputStream;
+    }
+
+    public InputStream getSdkPrivateKeyInputStream() {
+        return sdkPrivateKeyInputStream;
+    }
+
+    public void setSdkPrivateKeyInputStream(InputStream sdkPrivateKeyInputStream) {
+        this.sdkPrivateKeyInputStream = sdkPrivateKeyInputStream;
+    }
+
+    public InputStream getEnSSLCertInputStream() {
+        return enSSLCertInputStream;
+    }
+
+    public void setEnSSLCertInputStream(InputStream enSSLCertInputStream) {
+        this.enSSLCertInputStream = enSSLCertInputStream;
+    }
+
+    public InputStream getEnSSLPrivateKeyInputStream() {
+        return enSSLPrivateKeyInputStream;
+    }
+
+    public void setEnSSLPrivateKeyInputStream(InputStream enSSLPrivateKeyInputStream) {
+        this.enSSLPrivateKeyInputStream = enSSLPrivateKeyInputStream;
     }
 
     @Override

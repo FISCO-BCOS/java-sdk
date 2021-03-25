@@ -109,17 +109,17 @@ public class NetworkImp implements Network {
         result.setCheckPassed(true);
         String errorMessage = "";
         errorMessage = errorMessage + "Please make sure ";
-        if (!new File(configOption.getCryptoMaterialConfig().getCaCertPath()).exists()) {
+        if (configOption.getCryptoMaterialConfig().getCaInputStream() == null) {
             result.setCheckPassed(false);
             errorMessage =
                     errorMessage + configOption.getCryptoMaterialConfig().getCaCertPath() + " ";
         }
-        if (!new File(configOption.getCryptoMaterialConfig().getSdkCertPath()).exists()) {
+        if (configOption.getCryptoMaterialConfig().getSdkCertInputStream() == null) {
             result.setCheckPassed(false);
             errorMessage =
                     errorMessage + configOption.getCryptoMaterialConfig().getSdkCertPath() + " ";
         }
-        if (!new File(configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()).exists()) {
+        if (configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream() == null) {
             result.setCheckPassed(false);
             errorMessage =
                     errorMessage
@@ -131,12 +131,12 @@ public class NetworkImp implements Network {
             result.setErrorMessage(errorMessage);
             return result;
         }
-        if (!new File(configOption.getCryptoMaterialConfig().getEnSSLCertPath()).exists()) {
+        if (configOption.getCryptoMaterialConfig().getEnSSLCertInputStream() == null) {
             errorMessage =
                     errorMessage + configOption.getCryptoMaterialConfig().getEnSSLCertPath() + " ";
             result.setCheckPassed(false);
         }
-        if (!new File(configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()).exists()) {
+        if (configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyInputStream() == null) {
             errorMessage =
                     errorMessage
                             + configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()
