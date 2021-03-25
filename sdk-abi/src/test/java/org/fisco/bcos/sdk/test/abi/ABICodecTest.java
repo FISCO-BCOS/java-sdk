@@ -347,7 +347,7 @@ public class ABICodecTest {
     }
 
     @Test
-    public void testEncodeFromString2() {
+    public void testEncodeFromStringWithInvalidParams() {
         List<String> args = new ArrayList<String>();
         ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
         try {
