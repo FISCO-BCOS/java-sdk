@@ -14,9 +14,7 @@
 package org.fisco.bcos.sdk.crypto.keypair;
 
 import com.webank.wedpr.crypto.CryptoResult;
-import java.io.File;
-import java.math.BigInteger;
-import java.security.KeyPair;
+import com.webank.wedpr.crypto.hsm.sdf.SDFCryptoResult;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
@@ -29,6 +27,10 @@ import org.fisco.bcos.sdk.utils.StringUtils;
 import org.fisco.bcos.sdk.utils.exceptions.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.math.BigInteger;
+import java.security.KeyPair;
 
 public abstract class CryptoKeyPair {
     protected static Logger logger = LoggerFactory.getLogger(CryptoKeyPair.class);
@@ -89,6 +91,16 @@ public abstract class CryptoKeyPair {
     CryptoKeyPair(final CryptoResult nativeResult) {
         this.hexPrivateKey = nativeResult.privteKey;
         this.hexPublicKey = nativeResult.publicKey;
+    }
+
+    /**
+     * Get CryptoKeyPair information from CryptoResult
+     *
+     * @param nativeResult
+     */
+    CryptoKeyPair(final SDFCryptoResult nativeResult) {
+        this.hexPrivateKey = nativeResult.getPrivateKey();
+        this.hexPublicKey = nativeResult.getPublicKey();
     }
 
     /**

@@ -7,6 +7,7 @@
 	<bean id="defaultConfigProperty" class="org.fisco.bcos.sdk.config.model.ConfigProperty">
 		<property name="cryptoMaterial">
 			<map>
+			<entry key="provider" value="sdf" />
 			<entry key="certPath" value="conf" />
 			<!-- SSL certificate configuration -->
 			<!-- entry key="caCert" value="conf/ca.crt" /-->

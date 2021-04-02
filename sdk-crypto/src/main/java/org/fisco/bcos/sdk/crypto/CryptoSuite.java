@@ -20,14 +20,17 @@ import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
 import org.fisco.bcos.sdk.crypto.exceptions.UnsupportedCryptoTypeException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
+import org.fisco.bcos.sdk.crypto.hash.SDFSM3Hash;
 import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
+import org.fisco.bcos.sdk.crypto.keypair.SDFSM2KeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.SM2KeyPair;
 import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
+import org.fisco.bcos.sdk.crypto.signature.SDFSM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
@@ -63,9 +66,35 @@ public class CryptoSuite {
      * @param configOption the configuration of account.
      */
     public CryptoSuite(int cryptoTypeConfig, ConfigOption configOption) {
-        this(cryptoTypeConfig);
+        this.cryptoTypeConfig = cryptoTypeConfig;
+        this.config = configOption;
+        if (this.cryptoTypeConfig == CryptoType.ECDSA_TYPE) {
+            this.signatureImpl = new ECDSASignature();
+            this.hashImpl = new Keccak256();
+            this.keyPairFactory = new ECDSAKeyPair();
+        } else if (this.cryptoTypeConfig == CryptoType.SM_TYPE) {
+            if (this.config != null
+                    && this.config.getCryptoMaterialConfig().getProvider().equals("sdf")) {
+                this.signatureImpl = new SDFSM2Signature();
+                this.hashImpl = new SDFSM3Hash();
+                this.keyPairFactory = new SDFSM2KeyPair();
+                return;
+            } else {
+                this.signatureImpl = new SM2Signature();
+                this.hashImpl = new SM3Hash();
+                this.keyPairFactory = new SM2KeyPair();
+            }
+        } else {
+            throw new UnsupportedCryptoTypeException(
+                    "only support "
+                            + CryptoType.ECDSA_TYPE
+                            + "/"
+                            + CryptoType.SM_TYPE
+                            + " crypto type");
+        }
         logger.info("init CryptoSuite, cryptoType: {}", cryptoTypeConfig);
-        setConfig(configOption);
+        // create keyPair randomly
+        createKeyPair();
         // doesn't set the account name, generate the keyPair randomly
         if (!configOption.getAccountConfig().isAccountConfigured()) {
             createKeyPair();
@@ -85,12 +114,10 @@ public class CryptoSuite {
             this.signatureImpl = new ECDSASignature();
             this.hashImpl = new Keccak256();
             this.keyPairFactory = new ECDSAKeyPair();
-
         } else if (this.cryptoTypeConfig == CryptoType.SM_TYPE) {
             this.signatureImpl = new SM2Signature();
             this.hashImpl = new SM3Hash();
             this.keyPairFactory = new SM2KeyPair();
-
         } else {
             throw new UnsupportedCryptoTypeException(
                     "only support "

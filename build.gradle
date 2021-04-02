@@ -24,7 +24,8 @@ ext {
     nettySMSSLContextVersion = "1.2.0"
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
-    keyMiniToolkit = "1.0.3"
+    keyMiniToolkit = "1.0.3-SNAPSHOT"
+    sdfCryptoVersion = "0.1.0-SNAPSHOT"
 
     slf4jVersion = "1.7.30"
     junitVersion = "4.12"
@@ -195,6 +196,7 @@ dependencies {
     compile ("info.picocli:picocli:${picocliVersion}")
     compile ("com.webank:key-mini-toolkit:${keyMiniToolkit}")
     compile ("com.moandjiezana.toml:toml4j:${toml4jVersion}")
+    compile ("com.webank:sdf-crypto:${sdfCryptoVersion}")
 
     testCompile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
     testCompile ("com.google.guava:guava:${guavaVersion}")
