@@ -53,7 +53,7 @@ public class SM2KeyPair extends CryptoKeyPair {
     }
 
     public static CryptoKeyPair createKeyPair() {
-        return new SM2KeyPair(NativeInterface.sm2keyPair());
+        return new SM2KeyPair(NativeInterface.sm2GenKeyPair());
     }
 
     /**
@@ -63,7 +63,7 @@ public class SM2KeyPair extends CryptoKeyPair {
      */
     @Override
     public CryptoKeyPair generateKeyPair() {
-        return new SM2KeyPair(NativeInterface.sm2keyPair());
+        return new SM2KeyPair(NativeInterface.sm2GenKeyPair());
     }
 
     @Override

@@ -1,8 +1,8 @@
 package org.fisco.bcos.sdk.crypto.hash;
 
-import com.webank.wedpr.crypto.hsm.sdf.AlgorithmType;
-import com.webank.wedpr.crypto.hsm.sdf.SDFCrypto;
-import com.webank.wedpr.crypto.hsm.sdf.SDFCryptoResult;
+import com.webank.blockchain.hsm.crypto.sdf.AlgorithmType;
+import com.webank.blockchain.hsm.crypto.sdf.SDF;
+import com.webank.blockchain.hsm.crypto.sdf.SDFCryptoResult;
 import org.fisco.bcos.sdk.crypto.exceptions.HashException;
 import org.fisco.bcos.sdk.utils.Hex;
 
@@ -23,10 +23,7 @@ public class SDFSM3Hash implements Hash {
     }
 
     public static String calculateHash(final byte[] inputBytes) {
-        SDFCrypto cryptoProvider = new SDFCrypto();
-        SDFCryptoResult hashResult =
-                cryptoProvider.Hash(
-                        null, AlgorithmType.SM3, Hex.toHexString(inputBytes), inputBytes.length);
+        SDFCryptoResult hashResult = SDF.Hash(null, AlgorithmType.SM3, Hex.toHexString(inputBytes));
         if (hashResult.getSdfErrorMessage() != null && !hashResult.getSdfErrorMessage().isEmpty()) {
             throw new HashException(
                     "calculate hash with sdf sm3 failed, error message:"

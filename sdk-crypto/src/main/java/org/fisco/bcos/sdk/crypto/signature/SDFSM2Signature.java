@@ -1,14 +1,24 @@
 package org.fisco.bcos.sdk.crypto.signature;
 
-import com.webank.wedpr.crypto.hsm.sdf.AlgorithmType;
-import com.webank.wedpr.crypto.hsm.sdf.SDFCrypto;
-import com.webank.wedpr.crypto.hsm.sdf.SDFCryptoResult;
+import static org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX;
+import static org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR;
+
+import com.webank.blockchain.hsm.crypto.sdf.AlgorithmType;
+import com.webank.blockchain.hsm.crypto.sdf.SDF;
+import com.webank.blockchain.hsm.crypto.sdf.SDFCryptoResult;
+import com.webank.wedpr.crypto.CryptoResult;
+import com.webank.wedpr.crypto.NativeInterface;
 import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.crypto.keypair.SDFSM2KeyPair;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SDFSM2Signature implements Signature {
+    private static Logger logger = LoggerFactory.getLogger(SDFSM2Signature.class);
+
     @Override
     public SignatureResult sign(final String message, final CryptoKeyPair keyPair) {
         return new SM2SignatureResult(
@@ -26,35 +36,72 @@ public class SDFSM2Signature implements Signature {
     }
 
     public String signMessage(String message, CryptoKeyPair keyPair) {
-        SDFCrypto crypto = new SDFCrypto();
-        SDFCryptoResult hashResult =
-                crypto.HashWithZ(
-                        null,
+        CryptoResult hashResult =
+                NativeInterface.sm2ComputeHashE(
+                        Numeric.cleanHexPrefix(keyPair.getHexPublicKey()),
+                        Numeric.cleanHexPrefix(message));
+        checkCryptoResult(hashResult);
+        SDFCryptoResult signatureResult;
+        if (keyPair instanceof SDFSM2KeyPair) {
+            SDFSM2KeyPair sdfKeyPair = (SDFSM2KeyPair) keyPair;
+            if (sdfKeyPair.isInternalKey()) {
+                signatureResult =
+                        SDF.SignWithInternalKey(
+                                sdfKeyPair.getKeyIndex(),
+                                sdfKeyPair.getPassword(),
+                                AlgorithmType.SM2,
+                                hashResult.hash);
+                checkSDFCryptoResult(signatureResult);
+                return signatureResult.getSignature();
+            }
+        }
+        signatureResult =
+                SDF.Sign(
+                        Numeric.cleanHexPrefix(keyPair.getHexPrivateKey()),
                         AlgorithmType.SM2,
-                        Numeric.cleanHexPrefix(message),
-                        (Numeric.cleanHexPrefix(message).length() + 1) / 2);
-        if (hashResult.getSdfErrorMessage() != null && !hashResult.getSdfErrorMessage().isEmpty()) {
-            throw new SignatureException(
-                    "Sign with sdf sm2 failed:" + hashResult.getSdfErrorMessage());
-        }
-        SDFCryptoResult signatureResult =
-                crypto.Sign(
-                        keyPair.getHexPrivateKey(), AlgorithmType.SM2, hashResult.getHash(), 32);
-        if (signatureResult.getSdfErrorMessage() != null
-                && !signatureResult.getSdfErrorMessage().isEmpty()) {
-            throw new SignatureException(
-                    "Sign with sdf sm2 failed:" + signatureResult.getSdfErrorMessage());
-        }
+                        hashResult.hash);
+
+        checkSDFCryptoResult(signatureResult);
         return signatureResult.getSignature();
+    }
+
+    public static void checkCryptoResult(CryptoResult result) {
+        if (result.wedprErrorMessage != null && !result.wedprErrorMessage.isEmpty()) {
+            throw new SignatureException("Sign with sdf sm2 failed:" + result.wedprErrorMessage);
+        }
+    }
+
+    public static void checkSDFCryptoResult(SDFCryptoResult result) {
+        if (result.getSdfErrorMessage() != null && !result.getSdfErrorMessage().isEmpty()) {
+            throw new SignatureException("Sign with sdf sm2 failed:" + result.getSdfErrorMessage());
+        }
     }
 
     @Override
     public boolean verify(String publicKey, String message, String signature) {
-        return false;
+        return verifyMessage(publicKey, message, signature);
     }
 
     @Override
     public boolean verify(String publicKey, byte[] message, byte[] signature) {
-        return false;
+        return verify(publicKey, Hex.toHexString(message), Hex.toHexString(signature));
+    }
+
+    public static boolean verifyMessage(String publicKey, String message, String signature) {
+        CryptoResult hashResult =
+                NativeInterface.sm2ComputeHashE(
+                        Numeric.cleanHexPrefix(publicKey), Numeric.cleanHexPrefix(message));
+        checkCryptoResult(hashResult);
+        SDFCryptoResult verifyResult =
+                SDF.Verify(
+                        Numeric.getKeyNoPrefix(
+                                UNCOMPRESSED_PUBLICKEY_FLAG_STR,
+                                publicKey,
+                                PUBLIC_KEY_LENGTH_IN_HEX),
+                        AlgorithmType.SM2,
+                        hashResult.hash,
+                        Numeric.cleanHexPrefix(signature));
+        checkSDFCryptoResult(verifyResult);
+        return verifyResult.getResult();
     }
 }

@@ -5,8 +5,8 @@ plugins {
 dependencies {
     compile project(':sdk-core')
     compile ("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
-    compile ("com.webank:key-mini-toolkit:${keyMiniToolkit}")
-    compile ("com.webank:sdf-crypto:${sdfCryptoVersion}")
+    compile ("com.webank:webank-blockchain-java-crypto:${webankJavaCryptoVersion}")
+    compile ("com.webank:webank-blockchain-hsm-crypto:${webankHsmCryptoVersion}")
 }
 
 task sourcesJar(type: Jar) {

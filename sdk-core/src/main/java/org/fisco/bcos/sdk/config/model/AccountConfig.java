@@ -15,6 +15,7 @@
 
 package org.fisco.bcos.sdk.config.model;
 
+import java.util.Map;
 import java.util.Objects;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 
@@ -25,6 +26,7 @@ public class AccountConfig {
     private String accountFileFormat;
     private String accountPassword;
     private String accountFilePath;
+    private String accountKeyIndex;
 
     public AccountConfig(ConfigProperty configProperty) throws ConfigException {
         this.keyStoreDir =
@@ -38,13 +40,25 @@ public class AccountConfig {
         this.accountPassword = ConfigProperty.getValue(configProperty.getAccount(), "password", "");
         this.accountFilePath =
                 ConfigProperty.getValue(configProperty.getAccount(), "accountFilePath", "");
+        this.accountKeyIndex =
+                ConfigProperty.getValue(configProperty.getAccount(), "accountKeyIndex", "");
         if (!this.accountFilePath.equals("")) {
             this.accountFilePath = ConfigProperty.getConfigFilePath(this.accountFilePath);
         }
-        checkAccountConfig();
+        checkAccountConfig(configProperty);
     }
 
-    private void checkAccountConfig() throws ConfigException {
+    private void checkAccountConfig(ConfigProperty configProperty) throws ConfigException {
+        Map<String, Object> cryptoProvider = configProperty.getCryptoProvider();
+        if (cryptoProvider != null) {
+            String cryptoType = ConfigProperty.getValue(cryptoProvider, "type", "SSM");
+            if (cryptoType != null && cryptoType.equals("hsm")) {
+                if (!this.accountKeyIndex.equals("") && this.accountPassword.equals("")) {
+                    throw new ConfigException(
+                            "cannot load hsm inner key, please config the password");
+                }
+            }
+        }
         if (this.accountAddress.equals("")) {
             return;
         }
@@ -95,6 +109,14 @@ public class AccountConfig {
 
     public void setAccountPassword(String accountPassword) {
         this.accountPassword = accountPassword;
+    }
+
+    public String getAccountKeyIndex() {
+        return accountKeyIndex;
+    }
+
+    public void setAccountKeyIndex(String accountKeyIndex) {
+        this.accountKeyIndex = accountKeyIndex;
     }
 
     @Override

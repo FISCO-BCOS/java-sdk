@@ -10,6 +10,7 @@ check_basic()
 # check code format
 # bash gradlew verifyGoogleJavaFormat
 # build
+bash gradlew --version
 bash gradlew build --info
 }
 

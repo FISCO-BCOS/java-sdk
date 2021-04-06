@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 /** Crypto material configuration, include certs and keys */
 public class CryptoMaterialConfig {
     private static Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
-    private String provider = "sw";
     private String certPath = "conf";
     private String caCertPath;
     private String sdkCertPath;
@@ -149,14 +148,6 @@ public class CryptoMaterialConfig {
                             + cryptoType);
         }
         return cryptoMaterialConfig;
-    }
-
-    public String getProvider() {
-        return provider;
-    }
-
-    public void setProvider(String provider) {
-        this.provider = provider;
     }
 
     public String getCertPath() {
