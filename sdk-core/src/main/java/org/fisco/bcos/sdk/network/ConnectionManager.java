@@ -359,7 +359,7 @@ public class ConnectionManager {
             /** connect success, check ssl handshake result. */
             SslHandler sslhandler = connectFuture.channel().pipeline().get(SslHandler.class);
             String checkerMessage =
-                    "! Please check the certificate and ensure that the SDK and the node are in the same agency!";
+                    "! Please make sure the certificate is correctly configured and copied, ensure that the SDK and the node are in the same agency!";
             if (Objects.isNull(sslhandler)) {
                 String sslHandshakeFailedMessage =
                         " ssl handshake failed:/"
