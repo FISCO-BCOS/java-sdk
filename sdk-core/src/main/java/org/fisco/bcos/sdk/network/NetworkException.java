@@ -29,12 +29,12 @@ public class NetworkException extends Exception {
     private int errorCode = 0;
 
     public NetworkException(String message, int errorCode) {
-        super(message + "\n" + SystemInformation.getSystemInformation());
+        super(message);
         this.errorCode = errorCode;
     }
 
     public NetworkException(String message) {
-        super(message + "\n" + SystemInformation.getSystemInformation());
+        super(message);
     }
 
     public NetworkException(Throwable cause) {
