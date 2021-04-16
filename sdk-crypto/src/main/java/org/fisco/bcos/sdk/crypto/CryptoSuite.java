@@ -69,18 +69,15 @@ public class CryptoSuite {
      */
     public CryptoSuite(int cryptoTypeConfig, ConfigOption configOption) {
         this.config = configOption;
+        int cryptoType = cryptoTypeConfig;
         if (cryptoTypeConfig == CryptoType.SM_TYPE) {
             if (configOption != null
                     && configOption.getCryptoProviderConfig() != null
                     && configOption.getCryptoProviderConfig().getType().equals(HSM)) {
-                this.cryptoTypeConfig = CryptoType.SM_HSM_TYPE;
-            } else {
-                this.cryptoTypeConfig = cryptoTypeConfig;
+                cryptoType = CryptoType.SM_HSM_TYPE;
             }
-        } else {
-            this.cryptoTypeConfig = cryptoTypeConfig;
         }
-        initCryptoSuite(this.cryptoTypeConfig);
+        initCryptoSuite(cryptoType);
         // doesn't set the account name, generate the keyPair randomly
         if (configOption == null || !configOption.getAccountConfig().isAccountConfigured()) {
             createKeyPair();
@@ -99,6 +96,7 @@ public class CryptoSuite {
     }
 
     protected void initCryptoSuite(int cryptoTypeConfig) {
+        this.cryptoTypeConfig = cryptoTypeConfig;
         if (cryptoTypeConfig == CryptoType.SM_TYPE) {
             this.signatureImpl = new SM2Signature();
             this.hashImpl = new SM3Hash();
@@ -128,7 +126,7 @@ public class CryptoSuite {
     /** Load sdf internal account */
     public void loadSDFInternalAccount(String accountKeyIndex, String password) {
         long index = Long.parseLong(accountKeyIndex);
-        SDFSM2KeyPair factory = new SDFSM2KeyPair();
+        SDFSM2KeyPair factory = (SDFSM2KeyPair) keyPairFactory;
         SDFSM2KeyPair keyPair = factory.createKeyPair(index, password);
         setCryptoKeyPair(keyPair);
     }
