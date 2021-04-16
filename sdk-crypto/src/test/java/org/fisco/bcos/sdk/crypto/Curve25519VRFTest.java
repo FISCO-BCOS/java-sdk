@@ -57,6 +57,7 @@ public class Curve25519VRFTest {
     public void testCurve25519VRFProve(VRFInterface vrfInterface, String privateKey, String vrfInput, String fakePrivateKey)
     {
         // valid case
+        System.out.println(privateKey);
         String publicKey = vrfInterface.getPublicKeyFromPrivateKey(privateKey);
         Assert.assertTrue(vrfInterface.isValidVRFPublicKey(publicKey));
 

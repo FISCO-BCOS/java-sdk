@@ -53,7 +53,7 @@ public class ECDSAKeyPair extends CryptoKeyPair {
     }
 
     public static CryptoKeyPair createKeyPair() {
-        return new ECDSAKeyPair(NativeInterface.secp256k1keyPair());
+        return new ECDSAKeyPair(NativeInterface.secp256k1GenKeyPair());
     }
 
     /**
@@ -63,7 +63,7 @@ public class ECDSAKeyPair extends CryptoKeyPair {
      */
     @Override
     public CryptoKeyPair generateKeyPair() {
-        return new ECDSAKeyPair(NativeInterface.secp256k1keyPair());
+        return new ECDSAKeyPair(NativeInterface.secp256k1GenKeyPair());
     }
 
     @Override
