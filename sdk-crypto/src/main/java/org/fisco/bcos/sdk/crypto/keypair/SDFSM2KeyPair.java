@@ -28,7 +28,6 @@ public class SDFSM2KeyPair extends CryptoKeyPair {
         CryptoKeyPair keyPair = this.generateKeyPair();
         this.hexPrivateKey = keyPair.getHexPrivateKey();
         this.hexPublicKey = keyPair.getHexPublicKey();
-        logger.info("*** this.hexPrivateKey " + keyPair.getHexPrivateKey());
         this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
     }
 
@@ -40,9 +39,6 @@ public class SDFSM2KeyPair extends CryptoKeyPair {
     protected SDFSM2KeyPair(CryptoResult result) {
         super(result);
         initSM2KeyPairObject();
-        logger.info(
-                "*** this.hexPrivateKey SDFSM2KeyPair(SDFCryptoResult sm2keyPairInfo) "
-                        + this.hexPrivateKey);
         this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
     }
 

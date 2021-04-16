@@ -13,6 +13,9 @@
  */
 package org.fisco.bcos.sdk.crypto;
 
+import static org.fisco.bcos.sdk.model.CryptoProviderType.HSM;
+
+import java.security.KeyPair;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.AccountConfig;
 import org.fisco.bcos.sdk.config.model.CryptoProviderConfig;
@@ -38,17 +41,14 @@ import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.KeyPair;
-
 public class CryptoSuite {
 
     private static Logger logger = LoggerFactory.getLogger(CryptoSuite.class);
 
-    public final int cryptoTypeConfig;
-
-    public final Signature signatureImpl;
-    public final Hash hashImpl;
-    private final CryptoKeyPair keyPairFactory;
+    public int cryptoTypeConfig;
+    public Signature signatureImpl;
+    public Hash hashImpl;
+    private CryptoKeyPair keyPairFactory;
     private CryptoKeyPair cryptoKeyPair;
     private ConfigOption config;
 
@@ -68,21 +68,41 @@ public class CryptoSuite {
      * @param configOption the configuration of account.
      */
     public CryptoSuite(int cryptoTypeConfig, ConfigOption configOption) {
-        int cryptoType = cryptoTypeConfig;
         this.config = configOption;
         if (cryptoTypeConfig == CryptoType.SM_TYPE) {
             if (configOption != null
                     && configOption.getCryptoProviderConfig() != null
-                    && configOption.getCryptoProviderConfig().getType().equals("hsm")) {
-                this.signatureImpl = new SDFSM2Signature();
-                this.hashImpl = new SDFSM3Hash();
-                this.keyPairFactory = new SDFSM2KeyPair();
-                cryptoType = CryptoType.SM_HSM_TYPE;
+                    && configOption.getCryptoProviderConfig().getType().equals(HSM)) {
+                this.cryptoTypeConfig = CryptoType.SM_HSM_TYPE;
             } else {
-                this.signatureImpl = new SM2Signature();
-                this.hashImpl = new SM3Hash();
-                this.keyPairFactory = new SM2KeyPair();
+                this.cryptoTypeConfig = cryptoTypeConfig;
             }
+        } else {
+            this.cryptoTypeConfig = cryptoTypeConfig;
+        }
+        initCryptoSuite(this.cryptoTypeConfig);
+        // doesn't set the account name, generate the keyPair randomly
+        if (configOption == null || !configOption.getAccountConfig().isAccountConfigured()) {
+            createKeyPair();
+            return;
+        }
+        loadAccount(configOption);
+    }
+
+    /**
+     * Init the common crypto implementation according to the crypto type
+     *
+     * @param cryptoTypeConfig the crypto type config number
+     */
+    public CryptoSuite(int cryptoTypeConfig) {
+        initCryptoSuite(cryptoTypeConfig);
+    }
+
+    protected void initCryptoSuite(int cryptoTypeConfig) {
+        if (cryptoTypeConfig == CryptoType.SM_TYPE) {
+            this.signatureImpl = new SM2Signature();
+            this.hashImpl = new SM3Hash();
+            this.keyPairFactory = new SM2KeyPair();
         } else if (cryptoTypeConfig == CryptoType.ECDSA_TYPE) {
             this.signatureImpl = new ECDSASignature();
             this.hashImpl = new Keccak256();
@@ -101,25 +121,8 @@ public class CryptoSuite {
                             + CryptoType.SM_HSM_TYPE
                             + " crypto type");
         }
-        this.cryptoTypeConfig = cryptoType;
-        logger.info("init CryptoSuite, cryptoType: {}", cryptoTypeConfig);
         // create keyPair randomly
         createKeyPair();
-        // doesn't set the account name, generate the keyPair randomly
-        if (configOption == null || !configOption.getAccountConfig().isAccountConfigured()) {
-            createKeyPair();
-            return;
-        }
-        loadAccount(configOption);
-    }
-
-    /**
-     * Init the common crypto implementation according to the crypto type
-     *
-     * @param cryptoTypeConfig the crypto type config number
-     */
-    public CryptoSuite(int cryptoTypeConfig) {
-        this(cryptoTypeConfig, (ConfigOption) null);
     }
 
     /** Load sdf internal account */
@@ -161,7 +164,7 @@ public class CryptoSuite {
         AccountConfig accountConfig = configOption.getAccountConfig();
         CryptoProviderConfig cryptoProviderConfig = config.getCryptoProviderConfig();
         String cryptoType = cryptoProviderConfig.getType();
-        if (cryptoType != null && cryptoType.equals("hsm")) {
+        if (cryptoType != null && cryptoType.equals(HSM)) {
             String accountKeyIndex = accountConfig.getAccountKeyIndex();
             if (accountKeyIndex != null && !accountKeyIndex.equals("")) {
                 loadSDFInternalAccount(accountKeyIndex, accountConfig.getAccountPassword());

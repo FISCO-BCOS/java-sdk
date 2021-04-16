@@ -1,7 +1,6 @@
 # This is a config file for amop test
 
 [cryptoMaterial]
-provider = "sdf"
 certPath = "conf"
 # CA cert file path
 # caCert = "conf/ca.crt"

@@ -107,12 +107,8 @@ public interface Client {
                     groupId);
             return null;
         }
-        logger.info("***Create crypto suite");
         CryptoSuite cryptoSuite = new CryptoSuite(cryptoType, groupManagerService.getConfig());
         logger.info("build client success for group {}", groupId);
-        logger.info(
-                "*** crypto suite get crypto key pair is "
-                        + (cryptoSuite.getCryptoKeyPair() == null));
         return new ClientImpl(
                 groupManagerService, channel, groupId, cryptoSuite, nodeVersion, eventResource);
     }

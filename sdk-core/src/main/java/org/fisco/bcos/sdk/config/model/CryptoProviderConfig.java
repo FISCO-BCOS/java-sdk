@@ -1,5 +1,7 @@
 package org.fisco.bcos.sdk.config.model;
 
+import static org.fisco.bcos.sdk.model.CryptoProviderType.SSM;
+
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +15,9 @@ public class CryptoProviderConfig {
     public CryptoProviderConfig(ConfigProperty configProperty) {
         Map<String, Object> cryptoProvider = configProperty.getCryptoProvider();
         if (cryptoProvider != null) {
-            this.type = ConfigProperty.getValue(cryptoProvider, "type", "ssm");
+            this.type = ConfigProperty.getValue(cryptoProvider, "type", SSM);
         } else {
-            type = "ssm";
+            type = SSM;
         }
     }
 

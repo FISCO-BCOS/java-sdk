@@ -15,6 +15,9 @@
 
 package org.fisco.bcos.sdk.config.model;
 
+import static org.fisco.bcos.sdk.model.CryptoProviderType.HSM;
+import static org.fisco.bcos.sdk.model.CryptoProviderType.SSM;
+
 import java.util.Map;
 import java.util.Objects;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
@@ -51,8 +54,8 @@ public class AccountConfig {
     private void checkAccountConfig(ConfigProperty configProperty) throws ConfigException {
         Map<String, Object> cryptoProvider = configProperty.getCryptoProvider();
         if (cryptoProvider != null) {
-            String cryptoType = ConfigProperty.getValue(cryptoProvider, "type", "SSM");
-            if (cryptoType != null && cryptoType.equals("hsm")) {
+            String cryptoType = ConfigProperty.getValue(cryptoProvider, "type", SSM);
+            if (cryptoType != null && cryptoType.equals(HSM)) {
                 if (!this.accountKeyIndex.equals("") && this.accountPassword.equals("")) {
                     throw new ConfigException(
                             "cannot load hsm inner key, please config the password");

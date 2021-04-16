@@ -1,5 +1,4 @@
 [cryptoMaterial]
-provider = "sw"                             # sw for software, hsm for hard secure module.
 certPath = "conf"                           # The certification path  
 
 # The following configurations take the certPath by default if commented
