@@ -306,7 +306,7 @@ public abstract class KeyTool {
         try {
             return ec5UtilClass.getDeclaredMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException e) {
-            logger.warn("get method for EC5Util failed, method name: {}", methodName);
+            logger.debug("try to get method for EC5Util failed, method name: {}", methodName);
             return null;
         }
     }
