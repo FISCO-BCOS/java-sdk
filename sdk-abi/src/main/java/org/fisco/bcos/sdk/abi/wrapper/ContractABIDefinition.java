@@ -18,6 +18,8 @@ public class ContractABIDefinition {
     private Map<String, List<ABIDefinition>> events = new HashMap<>();
     // method id => function
     private Map<String, ABIDefinition> methodIDToFunctions = new HashMap<>();
+    private ABIDefinition fallbackFunction;
+    private ABIDefinition receiveFunction;
     // event topic => topic
     private Map<String, ABIDefinition> eventTopicToEvents = new HashMap<>();
     private CryptoSuite cryptoSuite;
@@ -106,5 +108,29 @@ public class ContractABIDefinition {
 
     public ABIDefinition getABIDefinitionByEventTopic(String topic) {
         return eventTopicToEvents.get(Numeric.prependHexPrefix(topic));
+    }
+
+    public ABIDefinition getFallbackFunction() {
+        return fallbackFunction;
+    }
+
+    public void setFallbackFunction(ABIDefinition fallbackFunction) {
+        this.fallbackFunction = fallbackFunction;
+    }
+
+    public boolean hasFallbackFunction() {
+        return this.fallbackFunction != null;
+    }
+
+    public boolean hasReceiveFunction() {
+        return this.receiveFunction != null;
+    }
+
+    public ABIDefinition getReceiveFunction() {
+        return receiveFunction;
+    }
+
+    public void setReceiveFunction(ABIDefinition receiveFunction) {
+        this.receiveFunction = receiveFunction;
     }
 }
