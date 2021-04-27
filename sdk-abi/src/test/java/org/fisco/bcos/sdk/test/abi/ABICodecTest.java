@@ -359,6 +359,21 @@ public class ABICodecTest {
     }
 
     @Test
+    public void testEncodeFromStringWithInvalidArgumentType() {
+        List<String> args = new ArrayList<String>();
+        args.add("-999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999");
+        args.add("[]");
+        args.add("1");
+        ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
+        try {
+            abiCodec.encodeMethodFromString(abiDesc, "test", args);
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(true);
+        }
+    }
+
+    @Test
     public void testEncodeConsctructor() {
         List<String> args = new ArrayList<String>();
         ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
