@@ -49,6 +49,8 @@ public interface TransactionProcessorInterface {
     public void sendTransactionAsync(
             String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback);
 
+    public byte[] sendTransactionAsyncAndGetHash(
+            String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback);
     /**
      * send call to fisco bcos node and receive call response.
      *

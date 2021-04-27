@@ -16,6 +16,13 @@
 package org.fisco.bcos.sdk.model;
 
 public class CryptoType {
+    // signature related crypto type(0-999)
     public static final int ECDSA_TYPE = 0;
     public static final int SM_TYPE = 1;
+
+    // vrf related crypto type(1000-1999)
+    public static final int ED25519_VRF_TYPE = 1000;
+
+    // hardware secure module type (2000-2999)
+    public static final int SM_HSM_TYPE = 2001;
 }

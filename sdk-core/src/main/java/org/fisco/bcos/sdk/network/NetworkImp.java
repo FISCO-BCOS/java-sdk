@@ -25,6 +25,7 @@ import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.Message;
+import org.fisco.bcos.sdk.utils.SystemInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,17 +110,17 @@ public class NetworkImp implements Network {
         result.setCheckPassed(true);
         String errorMessage = "";
         errorMessage = errorMessage + "Please make sure ";
-        if (!new File(configOption.getCryptoMaterialConfig().getCaCertPath()).exists()) {
+        if (configOption.getCryptoMaterialConfig().getCaInputStream() == null) {
             result.setCheckPassed(false);
             errorMessage =
                     errorMessage + configOption.getCryptoMaterialConfig().getCaCertPath() + " ";
         }
-        if (!new File(configOption.getCryptoMaterialConfig().getSdkCertPath()).exists()) {
+        if (configOption.getCryptoMaterialConfig().getSdkCertInputStream() == null) {
             result.setCheckPassed(false);
             errorMessage =
                     errorMessage + configOption.getCryptoMaterialConfig().getSdkCertPath() + " ";
         }
-        if (!new File(configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()).exists()) {
+        if (configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream() == null) {
             result.setCheckPassed(false);
             errorMessage =
                     errorMessage
@@ -131,12 +132,12 @@ public class NetworkImp implements Network {
             result.setErrorMessage(errorMessage);
             return result;
         }
-        if (!new File(configOption.getCryptoMaterialConfig().getEnSSLCertPath()).exists()) {
+        if (configOption.getCryptoMaterialConfig().getEnSSLCertInputStream() == null) {
             errorMessage =
                     errorMessage + configOption.getCryptoMaterialConfig().getEnSSLCertPath() + " ";
             result.setCheckPassed(false);
         }
-        if (!new File(configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()).exists()) {
+        if (configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyInputStream() == null) {
             errorMessage =
                     errorMessage
                             + configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()
@@ -152,6 +153,7 @@ public class NetworkImp implements Network {
     public void start() throws NetworkException {
         boolean tryEcdsaConnect = false;
         CheckCertExistenceResult result = null;
+        String ecdsaCryptoInfo = configOption.getCryptoMaterialConfig().toString();
         try {
             try {
                 result = checkCertExistence(false);
@@ -159,23 +161,31 @@ public class NetworkImp implements Network {
                     logger.debug("start connManager with ECDSA sslContext");
                     connManager.startConnect(configOption);
                     connManager.startReconnectSchedule();
-                    tryEcdsaConnect = true;
                     return;
                 } else {
                     logger.warn(
-                            "Try to connect node with ECDSA sslContext failed, expected certPath: "
-                                    + configOption.getCryptoMaterialConfig().toString()
+                            "Try to connect node with ECDSA sslContext failed, the tried NON-SM certPath: "
+                                    + ecdsaCryptoInfo
                                     + ", currentPath: "
                                     + new File("").getAbsolutePath());
                 }
             } catch (NetworkException e) {
-                tryEcdsaConnect = true;
                 configOption.reloadConfig(CryptoType.SM_TYPE);
-                result = checkCertExistence(true);
-                if (e.getErrorCode() == NetworkException.CONNECT_FAILED
-                        || !result.isCheckPassed()) {
-                    throw e;
+                if (e.getErrorCode() == NetworkException.CONNECT_FAILED) {
+                    String errorMessage = e.getMessage();
+                    errorMessage +=
+                            "\n* If your blockchain is NON-SM, please provide the NON-SM certificates: "
+                                    + ecdsaCryptoInfo
+                                    + ".\n";
+                    errorMessage +=
+                            "\n* If your blockchain is SM, please provide the SM certificates: "
+                                    + configOption.getCryptoMaterialConfig().toString()
+                                    + "\n";
+                    throw new NetworkException(
+                            errorMessage + "\n" + SystemInformation.getSystemInformation());
                 }
+                // means that all the ECDSA certificates exist
+                tryEcdsaConnect = true;
                 connManager.stopNetty();
                 logger.debug(
                         "start connManager with the ECDSA sslContext failed, try to use SM sslContext, error info: {}",
@@ -186,24 +196,49 @@ public class NetworkImp implements Network {
             result = checkCertExistence(true);
             if (!result.isCheckPassed()) {
                 if (tryEcdsaConnect) {
-                    throw new NetworkException("Certificate not exist:" + result.getErrorMessage());
+                    String errorMessage =
+                            "\n* Try init the sslContext failed.\n\n* If your blockchain channel config is NON-SM, please provide the NON-SM certificates: "
+                                    + ecdsaCryptoInfo
+                                    + ".\n";
+                    errorMessage +=
+                            "\n* If your blockchain channel config is SM, please provide the missing certificates: "
+                                    + result.getErrorMessage()
+                                    + "\n";
+                    throw new NetworkException(errorMessage);
                 } else {
-                    throw new NetworkException(
-                            "Not providing all the certificates to connect to the node! Please provide the certificates to connect with the block-chain, expected certPath: ["
+                    String errorMessage =
+                            "\n# Not providing all the certificates to connect to the node! Please provide the certificates to connect with the block-chain.\n";
+                    errorMessage +=
+                            "\n* If your blockchain is NON-SM, please provide the NON-SM certificates: "
+                                    + ecdsaCryptoInfo
+                                    + ". \n";
+                    errorMessage +=
+                            "\n* If your blockchain is SM, please provide the SM certificates: "
                                     + configOption.getCryptoMaterialConfig().toString()
-                                    + "]");
+                                    + "\n";
+                    throw new NetworkException(errorMessage);
                 }
             }
-            if (tryEcdsaConnect) {
+            try {
                 // create a new connectionManager to connect the node with the SM sslContext
                 connManager = new ConnectionManager(configOption, handler);
+                connManager.startConnect(configOption);
+                connManager.startReconnectSchedule();
+            } catch (NetworkException e) {
+                String errorMessage = e.getMessage();
+                errorMessage +=
+                        "\n* If your blockchain channel config is NON-SM, please provide the NON-SM certificates: "
+                                + ecdsaCryptoInfo
+                                + ".\n";
+                errorMessage +=
+                        "\n* If your blockchain channel config is SM, please provide the SM certificates: "
+                                + configOption.getCryptoMaterialConfig().toString()
+                                + "\n";
+                throw new NetworkException(
+                        errorMessage + "\n" + SystemInformation.getSystemInformation());
             }
-            connManager.startConnect(configOption);
-            connManager.startReconnectSchedule();
         } catch (ConfigException e) {
-            throw new NetworkException(
-                    "start connManager with the SM algorithm failed, error info: " + e.getMessage(),
-                    e);
+            throw new NetworkException(e);
         }
     }
 

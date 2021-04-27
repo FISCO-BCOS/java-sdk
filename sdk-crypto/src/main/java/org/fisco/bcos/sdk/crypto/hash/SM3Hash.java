@@ -36,7 +36,7 @@ public class SM3Hash implements Hash {
     }
 
     public static String calculateHash(final byte[] inputBytes) {
-        CryptoResult hashResult = NativeInterface.sm3(Hex.toHexString(inputBytes));
+        CryptoResult hashResult = NativeInterface.sm3Hash(Hex.toHexString(inputBytes));
         // call sm3 failed
         if (hashResult.wedprErrorMessage != null && !hashResult.wedprErrorMessage.isEmpty()) {
             throw new HashException(

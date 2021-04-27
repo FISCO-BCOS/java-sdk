@@ -33,9 +33,6 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -52,7 +49,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLException;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.RetCode;
@@ -229,28 +225,21 @@ public class ConnectionManager {
             Security.setProperty("jdk.disabled.namedCurves", "");
             System.setProperty("jdk.sunec.disableNative", "false");
             // Get file, file existence is already checked when check config file.
-            FileInputStream caCert =
-                    new FileInputStream(
-                            new File(configOption.getCryptoMaterialConfig().getCaCertPath()));
-            FileInputStream sslCert =
-                    new FileInputStream(
-                            new File(configOption.getCryptoMaterialConfig().getSdkCertPath()));
-            FileInputStream sslKey =
-                    new FileInputStream(
-                            new File(
-                                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
-
             // Init SslContext
             logger.info(" build ECDSA ssl context with configured certificates ");
             SslContext sslCtx =
                     SslContextBuilder.forClient()
-                            .trustManager(caCert)
-                            .keyManager(sslCert, sslKey)
+                            .trustManager(configOption.getCryptoMaterialConfig().getCaInputStream())
+                            .keyManager(
+                                    configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
+                                    configOption
+                                            .getCryptoMaterialConfig()
+                                            .getSdkPrivateKeyInputStream())
                             .sslProvider(SslProvider.OPENSSL)
                             // .sslProvider(SslProvider.JDK)
                             .build();
             return sslCtx;
-        } catch (FileNotFoundException | SSLException e) {
+        } catch (IOException e) {
             logger.error(
                     "initSslContext failed, caCert: {}, sslCert: {}, sslKey: {}, error: {}, e: {}",
                     configOption.getCryptoMaterialConfig().getCaCertPath(),
@@ -273,29 +262,14 @@ public class ConnectionManager {
     private SslContext initSMSslContext(ConfigOption configOption) throws NetworkException {
         try {
             // Get file, file existence is already checked when check config file.
-            FileInputStream caCert =
-                    new FileInputStream(
-                            new File(configOption.getCryptoMaterialConfig().getCaCertPath()));
-            FileInputStream sslCert =
-                    new FileInputStream(
-                            new File(configOption.getCryptoMaterialConfig().getSdkCertPath()));
-            FileInputStream sslKey =
-                    new FileInputStream(
-                            new File(
-                                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
-            FileInputStream enCert =
-                    new FileInputStream(
-                            new File(configOption.getCryptoMaterialConfig().getEnSSLCertPath()));
-            FileInputStream enKey =
-                    new FileInputStream(
-                            new File(
-                                    configOption
-                                            .getCryptoMaterialConfig()
-                                            .getEnSSLPrivateKeyPath()));
-
             // Init SslContext
             logger.info(" build SM ssl context with configured certificates ");
-            return SMSslClientContextFactory.build(caCert, enCert, enKey, sslCert, sslKey);
+            return SMSslClientContextFactory.build(
+                    configOption.getCryptoMaterialConfig().getCaInputStream(),
+                    configOption.getCryptoMaterialConfig().getEnSSLCertInputStream(),
+                    configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyInputStream(),
+                    configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
+                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream());
         } catch (IOException
                 | CertificateException
                 | NoSuchAlgorithmException
@@ -385,7 +359,7 @@ public class ConnectionManager {
             /** connect success, check ssl handshake result. */
             SslHandler sslhandler = connectFuture.channel().pipeline().get(SslHandler.class);
             String checkerMessage =
-                    "! Please check the certificate and ensure that the SDK and the node are in the same agency!";
+                    "! Please make sure the certificate is correctly configured and copied, ensure that the SDK and the node are in the same agency!";
             if (Objects.isNull(sslhandler)) {
                 String sslHandshakeFailedMessage =
                         " ssl handshake failed:/"
