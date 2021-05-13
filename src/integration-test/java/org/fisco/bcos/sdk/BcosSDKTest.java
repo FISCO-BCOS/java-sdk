@@ -70,7 +70,7 @@ public class BcosSDKTest {
                     .getPath();
 
     @Test
-    public void testClient() throws ConfigException {
+    public void test1Client() throws ConfigException {
         BcosSDK sdk = BcosSDK.build(configFile);
         // check groupList
         Assert.assertTrue(sdk.getChannel().getAvailablePeer().size() >= 1);
@@ -144,13 +144,6 @@ public class BcosSDKTest {
 
         // get groupPeers
         client.getGroupPeers();
-        // get PendingTxSize
-        PendingTxSize pendingTxSize = client.getPendingTxSize();
-        Assert.assertEquals(BigInteger.valueOf(0), pendingTxSize.getPendingTxSize());
-
-        // get pendingTransactions
-        PendingTransactions pendingTransactions = client.getPendingTransaction();
-        Assert.assertEquals(0, pendingTransactions.getPendingTransactions().size());
 
         // get pbftView
         client.getPbftView();
@@ -158,7 +151,6 @@ public class BcosSDKTest {
         // getSyncStatus
         BlockHash latestHash = client.getBlockHashByNumber(blockNumber.getBlockNumber());
         SyncStatus syncStatus = client.getSyncStatus();
-        Assert.assertEquals("0", syncStatus.getSyncStatus().getTxPoolSize());
         Assert.assertEquals(
                 latestHash.getBlockHashByNumber(),
                 "0x" + syncStatus.getSyncStatus().getLatestHash());
@@ -239,7 +231,7 @@ public class BcosSDKTest {
             block = client.getBlockByNumber(blockNumber.getBlockNumber(), false);
             calculatedHash = block.getBlock().calculateHash(client.getCryptoSuite());
             Assert.assertEquals(block.getBlock().getHash(), calculatedHash);
-            testSendTransactions();
+            test2SendTransactions();
         } catch (ClientException | ContractException e) {
             System.out.println("testClient exception, error info: " + e.getMessage());
         }
@@ -298,7 +290,7 @@ public class BcosSDKTest {
         }
     }
 
-    public void testSendTransactions() throws ConfigException, ContractException {
+    public void test2SendTransactions() throws ConfigException, ContractException {
         try {
             System.out.println("#### testSendTransactions");
             BcosSDK sdk = BcosSDK.build(configFile);
@@ -625,5 +617,12 @@ public class BcosSDKTest {
         fakedPublicKey = vrfInterface.createKeyPair().getVrfPublicKey();
         result = curve25519VRFVerifyTest.curve25519VRFVerify(input, fakedPublicKey, vrfProof);
         Assert.assertTrue(result.getValue1() == false);
+        // get PendingTxSize
+        PendingTxSize pendingTxSize = client.getPendingTxSize();
+        Assert.assertEquals(BigInteger.valueOf(0), pendingTxSize.getPendingTxSize());
+
+        // get pendingTransactions
+        PendingTransactions pendingTransactions = client.getPendingTransaction();
+        Assert.assertEquals(0, pendingTransactions.getPendingTransactions().size());
     }
 }
