@@ -16,7 +16,7 @@ package org.fisco.bcos.sdk.model;
 
 public class PrecompiledConstant {
     // constant value
-    public static final int CNS_MAX_VERSION_LENGTH = 40;
+    public static final int CNS_MAX_VERSION_LENGTH = 128;
     public static final int TABLE_KEY_MAX_LENGTH = 255;
     public static final int TABLE_FIELD_NAME_MAX_LENGTH = 64;
     public static final int USER_TABLE_NAME_MAX_LENGTH = 48;
