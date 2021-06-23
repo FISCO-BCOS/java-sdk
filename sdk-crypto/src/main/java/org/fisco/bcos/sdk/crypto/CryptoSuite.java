@@ -13,9 +13,6 @@
  */
 package org.fisco.bcos.sdk.crypto;
 
-import static org.fisco.bcos.sdk.model.CryptoProviderType.HSM;
-
-import java.security.KeyPair;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.AccountConfig;
 import org.fisco.bcos.sdk.config.model.CryptoProviderConfig;
@@ -40,6 +37,10 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.KeyPair;
+
+import static org.fisco.bcos.sdk.model.CryptoProviderType.HSM;
 
 public class CryptoSuite {
 
@@ -106,6 +107,7 @@ public class CryptoSuite {
             this.hashImpl = new Keccak256();
             this.keyPairFactory = new ECDSAKeyPair();
         } else if (cryptoTypeConfig == CryptoType.SM_HSM_TYPE) {
+            logger.info("Use hsm crypto");
             this.signatureImpl = new SDFSM2Signature();
             this.hashImpl = new SDFSM3Hash();
             this.keyPairFactory = new SDFSM2KeyPair();
@@ -149,7 +151,7 @@ public class CryptoSuite {
                             + accountFileFormat
                             + ", current supported are p12 and pem");
         }
-        logger.debug("Load account from {}", accountFilePath);
+        logger.info("Load account from {}", accountFilePath);
         createKeyPair(keyTool.getKeyPair());
     }
 
@@ -162,10 +164,13 @@ public class CryptoSuite {
         AccountConfig accountConfig = configOption.getAccountConfig();
         CryptoProviderConfig cryptoProviderConfig = config.getCryptoProviderConfig();
         String cryptoType = cryptoProviderConfig.getType();
+        logger.debug("cryptoType = "+ cryptoType);
         if (cryptoType != null && cryptoType.equals(HSM)) {
+            logger.debug("use hsm key");
             String accountKeyIndex = accountConfig.getAccountKeyIndex();
-            if (accountKeyIndex != null && !accountKeyIndex.equals("")) {
+            if (accountKeyIndex != null) {
                 loadSDFInternalAccount(accountKeyIndex, accountConfig.getAccountPassword());
+                logger.debug("Load sdf internal account, keyIndex = ", accountKeyIndex);
                 return;
             }
         }

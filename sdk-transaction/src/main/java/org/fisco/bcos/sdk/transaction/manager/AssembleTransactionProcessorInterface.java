@@ -14,9 +14,6 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
-import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
@@ -26,6 +23,10 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
+
+import java.math.BigInteger;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface AssembleTransactionProcessorInterface {
 
@@ -50,7 +51,7 @@ public interface AssembleTransactionProcessorInterface {
      * deploy contract to fisco bcos node and get response.
      *
      * @param abi contract abi, which could be obtained by compiling solidity contract.
-     * @param signedData signed & encoded constructor data
+     * @param signedData signed and encoded constructor data
      * @return transaction response @See TransactionResponse
      */
     public TransactionResponse deployAndGetResponse(String abi, String signedData);
@@ -101,7 +102,7 @@ public interface AssembleTransactionProcessorInterface {
 
     /**
      * deploy contract to fisco bcos node and get response by contract name. The contract loader
-     * will load the transaction abi & bin information.
+     * will load the transaction abi and bin information.
      *
      * @param contractName contract name.
      * @param params contract construct parameters
@@ -112,7 +113,7 @@ public interface AssembleTransactionProcessorInterface {
 
     /**
      * deploy contract to fisco bcos node and get response by contract name asynchronously. The
-     * contract loader will load the transaction abi & bin information.
+     * contract loader will load the transaction abi and bin information.
      *
      * @param contractName contract name.
      * @param params contract construct parameters
@@ -125,13 +126,13 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send transaction only.
      *
-     * @param signedData signed & encoded transaction data
+     * @param signedData signed and encoded transaction data
      */
     public void sendTransactionOnly(String signedData);
 
     /**
      * send transaction to fisco bcos node and get transaction receipt by contract name. The
-     * contract loader will load the transaction abi & bin information.
+     * contract loader will load the transaction abi and bin information.
      *
      * @param contractName contract name.
      * @param contractAddress contract address
@@ -185,7 +186,7 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send transaction to fisco bcos node asynchronously.
      *
-     * @param signedTransaction signed & encoded transaction data
+     * @param signedTransaction signed and encoded transaction data
      * @param callback transaction with callback function
      */
     public void sendTransactionAsync(String signedTransaction, TransactionCallback callback);
@@ -211,7 +212,7 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send transaction to fisco bcos node asynchronously.
      *
-     * @param signedData signed & encoded transaction data
+     * @param signedData signed and encoded transaction data
      * @return CompletableFuture wrapper transaction receipt
      */
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(String signedData);
