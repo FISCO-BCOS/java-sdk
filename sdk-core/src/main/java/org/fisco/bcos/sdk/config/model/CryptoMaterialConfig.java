@@ -15,6 +15,8 @@
 
 package org.fisco.bcos.sdk.config.model;
 
+import static org.fisco.bcos.sdk.model.CryptoProviderType.SSM;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
@@ -32,6 +34,9 @@ public class CryptoMaterialConfig {
     private String sdkPrivateKeyPath;
     private String enSSLCertPath;
     private String enSSLPrivateKeyPath;
+    private String cryptoProvider = "ssm";
+    private String sslKeyIndex;
+    private String enSslKeyIndex;
 
     private InputStream caInputStream;
     private InputStream sdkCertInputStream;
@@ -113,6 +118,22 @@ public class CryptoMaterialConfig {
                                 cryptoMaterialProperty,
                                 "enSslKey",
                                 defaultCryptoMaterialConfig.getEnSSLPrivateKeyPath()));
+        this.cryptoProvider =
+                ConfigProperty.getValue(
+                        cryptoMaterialProperty,
+                        "cryptoProvider",
+                        defaultCryptoMaterialConfig.getCryptoProvider());
+        this.sslKeyIndex =
+                ConfigProperty.getValue(
+                        cryptoMaterialProperty,
+                        "sslKeyIndex",
+                        defaultCryptoMaterialConfig.getSslKeyIndex());
+        this.enSslKeyIndex =
+                ConfigProperty.getValue(
+                        cryptoMaterialProperty,
+                        "enSslKeyIndex",
+                        defaultCryptoMaterialConfig.getEnSslKeyIndex());
+
         logger.debug(
                 "Load cryptoMaterial, caCertPath: {}, sdkCertPath: {}, sdkPrivateKeyPath:{}, enSSLCertPath: {}, enSSLPrivateKeyPath:{}",
                 this.getCaCertPath(),
@@ -131,6 +152,7 @@ public class CryptoMaterialConfig {
             cryptoMaterialConfig.setCaCertPath(certPath + File.separator + "ca.crt");
             cryptoMaterialConfig.setSdkCertPath(certPath + File.separator + "sdk.crt");
             cryptoMaterialConfig.setSdkPrivateKeyPath(certPath + File.separator + "sdk.key");
+            cryptoMaterialConfig.setCryptoProvider(SSM);
         } else if (cryptoType == CryptoType.SM_TYPE) {
             cryptoMaterialConfig.setCaCertPath(
                     certPath + File.separator + smDir + File.separator + "gmca.crt");
@@ -142,6 +164,7 @@ public class CryptoMaterialConfig {
                     certPath + File.separator + smDir + File.separator + "gmensdk.crt");
             cryptoMaterialConfig.setEnSSLPrivateKeyPath(
                     certPath + File.separator + smDir + File.separator + "gmensdk.key");
+            cryptoMaterialConfig.setCryptoProvider(SSM);
         } else {
             throw new ConfigException(
                     "load CryptoMaterialConfig failed, only support ecdsa and sm now, expected 0 or 1, but provided "
@@ -244,6 +267,30 @@ public class CryptoMaterialConfig {
 
     public void setEnSSLPrivateKeyInputStream(InputStream enSSLPrivateKeyInputStream) {
         this.enSSLPrivateKeyInputStream = enSSLPrivateKeyInputStream;
+    }
+
+    public String getCryptoProvider() {
+        return cryptoProvider;
+    }
+
+    public void setCryptoProvider(String cryptoProvider) {
+        this.cryptoProvider = cryptoProvider;
+    }
+
+    public String getSslKeyIndex() {
+        return sslKeyIndex;
+    }
+
+    public void setSslKeyIndex(String sslKeyIndex) {
+        this.sslKeyIndex = sslKeyIndex;
+    }
+
+    public String getEnSslKeyIndex() {
+        return enSslKeyIndex;
+    }
+
+    public void setEnSslKeyIndex(String enSslKeyIndex) {
+        this.enSslKeyIndex = enSslKeyIndex;
     }
 
     @Override

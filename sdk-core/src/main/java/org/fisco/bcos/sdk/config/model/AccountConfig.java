@@ -15,12 +15,12 @@
 
 package org.fisco.bcos.sdk.config.model;
 
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import static org.fisco.bcos.sdk.model.CryptoProviderType.HSM;
+import static org.fisco.bcos.sdk.model.CryptoProviderType.SSM;
 
 import java.util.Map;
 import java.util.Objects;
-
-import static org.fisco.bcos.sdk.model.CryptoProviderType.SSM;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 
 /** Account configuration */
 public class AccountConfig {
@@ -52,9 +52,17 @@ public class AccountConfig {
     }
 
     private void checkAccountConfig(ConfigProperty configProperty) throws ConfigException {
-        Map<String, Object> cryptoProvider = configProperty.getCryptoProvider();
-        if (cryptoProvider != null) {
-            String cryptoType = ConfigProperty.getValue(cryptoProvider, "type", SSM);
+        Map<String, Object> cryptoMaterial = configProperty.getCryptoMaterial();
+        String cryptoType = SSM;
+        if (cryptoMaterial != null) {
+            cryptoType = ConfigProperty.getValue(cryptoMaterial, "cryptoProvider", SSM);
+        }
+        if (cryptoType.equalsIgnoreCase(HSM)) {
+            if (accountKeyIndex == null) {
+                throw new ConfigException(
+                        "load account failed, you are using hardware secure moduele(HSM), please config accountKeyIndex.");
+            }
+            return;
         }
         if (this.accountAddress.equals("")) {
             return;
