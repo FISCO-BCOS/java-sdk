@@ -18,7 +18,6 @@ import static org.fisco.bcos.sdk.model.CryptoProviderType.HSM;
 import java.security.KeyPair;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.AccountConfig;
-import org.fisco.bcos.sdk.config.model.CryptoProviderConfig;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
 import org.fisco.bcos.sdk.crypto.exceptions.UnsupportedCryptoTypeException;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
@@ -72,13 +71,19 @@ public class CryptoSuite {
         int cryptoType = cryptoTypeConfig;
         if (cryptoTypeConfig == CryptoType.SM_TYPE) {
             if (configOption != null
-                    && configOption.getCryptoProviderConfig() != null
-                    && configOption.getCryptoProviderConfig().getType().equals(HSM)) {
+                    && configOption.getCryptoMaterialConfig().getCryptoProvider() != null
+                    && configOption
+                            .getCryptoMaterialConfig()
+                            .getCryptoProvider()
+                            .equalsIgnoreCase(HSM)) {
                 cryptoType = CryptoType.SM_HSM_TYPE;
             }
         }
         initCryptoSuite(cryptoType);
         // doesn't set the account name, generate the keyPair randomly
+        if (configOption.getCryptoMaterialConfig().getCryptoProvider().equalsIgnoreCase(HSM)) {
+            loadAccount(configOption);
+        }
         if (configOption == null || !configOption.getAccountConfig().isAccountConfigured()) {
             createKeyPair();
             return;
@@ -106,6 +111,7 @@ public class CryptoSuite {
             this.hashImpl = new Keccak256();
             this.keyPairFactory = new ECDSAKeyPair();
         } else if (cryptoTypeConfig == CryptoType.SM_HSM_TYPE) {
+            logger.info("Use hsm crypto");
             this.signatureImpl = new SDFSM2Signature();
             this.hashImpl = new SDFSM3Hash();
             this.keyPairFactory = new SDFSM2KeyPair();
@@ -125,6 +131,7 @@ public class CryptoSuite {
 
     /** Load sdf internal account */
     public void loadSDFInternalAccount(String accountKeyIndex, String password) {
+        logger.info("using hsm internal key, key index = " + accountKeyIndex);
         long index = Long.parseLong(accountKeyIndex);
         SDFSM2KeyPair factory = (SDFSM2KeyPair) keyPairFactory;
         SDFSM2KeyPair keyPair = factory.createKeyPair(index, password);
@@ -149,7 +156,7 @@ public class CryptoSuite {
                             + accountFileFormat
                             + ", current supported are p12 and pem");
         }
-        logger.debug("Load account from {}", accountFilePath);
+        logger.info("Load account from {}", accountFilePath);
         createKeyPair(keyTool.getKeyPair());
     }
 
@@ -160,12 +167,14 @@ public class CryptoSuite {
      */
     private void loadAccount(ConfigOption configOption) {
         AccountConfig accountConfig = configOption.getAccountConfig();
-        CryptoProviderConfig cryptoProviderConfig = config.getCryptoProviderConfig();
-        String cryptoType = cryptoProviderConfig.getType();
-        if (cryptoType != null && cryptoType.equals(HSM)) {
+        String cryptoType = configOption.getCryptoMaterialConfig().getCryptoProvider();
+        logger.debug("cryptoType = " + cryptoType);
+        if (cryptoType != null && cryptoType.equalsIgnoreCase(HSM)) {
+            logger.debug("use hsm key");
             String accountKeyIndex = accountConfig.getAccountKeyIndex();
-            if (accountKeyIndex != null && !accountKeyIndex.equals("")) {
+            if (accountKeyIndex != null) {
                 loadSDFInternalAccount(accountKeyIndex, accountConfig.getAccountPassword());
+                logger.debug("Load sdf internal account, keyIndex = ", accountKeyIndex);
                 return;
             }
         }
