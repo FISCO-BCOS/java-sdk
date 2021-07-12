@@ -293,9 +293,9 @@ public class ConnectionManager {
                         "initSMSslContext failed, caCert:{}, sslCert: {}, sslKeyIndex: {}, enCert: {}, enSslKeyIndex: {}, error: {}, e: {}",
                         configOption.getCryptoMaterialConfig().getCaCertPath(),
                         configOption.getCryptoMaterialConfig().getSdkCertPath(),
-                        configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
-                        configOption.getCryptoMaterialConfig().getEnSSLCertPath(),
                         configOption.getCryptoMaterialConfig().getSslKeyIndex(),
+                        configOption.getCryptoMaterialConfig().getEnSSLCertPath(),
+                        configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
                         e.getMessage(),
                         e);
             } else {
