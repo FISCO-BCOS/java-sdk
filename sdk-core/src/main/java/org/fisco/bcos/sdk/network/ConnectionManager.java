@@ -275,9 +275,9 @@ public class ConnectionManager {
                 return SMSslClientContextFactory.build(
                         configOption.getCryptoMaterialConfig().getCaInputStream(),
                         configOption.getCryptoMaterialConfig().getEnSSLCertInputStream(),
-                        configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
+                        "sm2_" + configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
                         configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
-                        configOption.getCryptoMaterialConfig().getSslKeyIndex());
+                        "sm2_" + configOption.getCryptoMaterialConfig().getSslKeyIndex());
             } else {
                 return SMSslClientContextFactory.build(
                         configOption.getCryptoMaterialConfig().getCaInputStream(),
