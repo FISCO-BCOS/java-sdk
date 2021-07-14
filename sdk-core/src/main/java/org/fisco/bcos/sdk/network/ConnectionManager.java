@@ -275,9 +275,9 @@ public class ConnectionManager {
                 return SMSslClientContextFactory.build(
                         configOption.getCryptoMaterialConfig().getCaInputStream(),
                         configOption.getCryptoMaterialConfig().getEnSSLCertInputStream(),
-                        configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
+                        "sm2_" + configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
                         configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
-                        configOption.getCryptoMaterialConfig().getSslKeyIndex());
+                        "sm2_" + configOption.getCryptoMaterialConfig().getSslKeyIndex());
             } else {
                 return SMSslClientContextFactory.build(
                         configOption.getCryptoMaterialConfig().getCaInputStream(),
@@ -293,9 +293,9 @@ public class ConnectionManager {
                         "initSMSslContext failed, caCert:{}, sslCert: {}, sslKeyIndex: {}, enCert: {}, enSslKeyIndex: {}, error: {}, e: {}",
                         configOption.getCryptoMaterialConfig().getCaCertPath(),
                         configOption.getCryptoMaterialConfig().getSdkCertPath(),
-                        configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
-                        configOption.getCryptoMaterialConfig().getEnSSLCertPath(),
                         configOption.getCryptoMaterialConfig().getSslKeyIndex(),
+                        configOption.getCryptoMaterialConfig().getEnSSLCertPath(),
+                        configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
                         e.getMessage(),
                         e);
             } else {

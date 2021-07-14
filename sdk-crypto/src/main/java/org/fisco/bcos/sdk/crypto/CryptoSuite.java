@@ -115,6 +115,7 @@ public class CryptoSuite {
             this.signatureImpl = new SDFSM2Signature();
             this.hashImpl = new SDFSM3Hash();
             this.keyPairFactory = new SDFSM2KeyPair();
+            this.cryptoTypeConfig = CryptoType.SM_TYPE;
         } else {
             throw new UnsupportedCryptoTypeException(
                     "only support "
