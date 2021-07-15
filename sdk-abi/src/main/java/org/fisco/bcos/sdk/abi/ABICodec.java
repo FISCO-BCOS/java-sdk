@@ -198,21 +198,29 @@ public class ABICodec {
                             + " , supported functions are: "
                             + contractABIDefinition.getFunctions().keySet());
         }
+        Exception cause = null;
         for (ABIDefinition abiDefinition : methods) {
-            if (abiDefinition.getInputs().size() == params.size()) {
-                ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-                ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
-                try {
-                    String methodId = abiDefinition.getMethodId(cryptoSuite);
-                    return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
-                } catch (Exception e) {
-                    logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
-                }
+            ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
+            ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+            try {
+                String methodId = abiDefinition.getMethodId(cryptoSuite);
+                return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
+            } catch (Exception e) {
+                logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
+                cause = e;
             }
         }
 
-        String errorMsg =
-                " cannot encode in encodeMethodFromString with appropriate interface ABI, make sure params match";
+        String errorMsg;
+        // For none overloading case, return error reason.
+        if (methods.size() == 1 && cause != null) {
+            errorMsg = cause.getMessage();
+        }
+        // For overloading case, just tell to check arguments
+        else {
+            errorMsg =
+                    " cannot encode in encodeMethodFromString with appropriate interface ABI, please check arguments match";
+        }
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
