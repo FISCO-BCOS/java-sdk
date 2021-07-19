@@ -3,9 +3,9 @@ plugins {
     id 'java'
 }
 dependencies {
-    compile project(':sdk-core')
-    compile ("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
-    compile ("com.webank:key-mini-toolkit:${keyMiniToolkit}")
+    implementation project(':sdk-core')
+    implementation ("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
+    implementation ("com.webank:key-mini-toolkit:${keyMiniToolkit}")
 }
 
 task sourcesJar(type: Jar) {

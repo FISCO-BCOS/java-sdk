@@ -1,10 +1,13 @@
 // Apply the java-library plugin to add support for Java Library
 plugins {
     id 'java'
+    id 'java-library'
 }
 dependencies {
-    compile project(':sdk-crypto')
-    compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation project(':sdk-crypto')
+    implementation project(':sdk-core')
+    implementation("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
 }
 
 task sourcesJar(type: Jar) {

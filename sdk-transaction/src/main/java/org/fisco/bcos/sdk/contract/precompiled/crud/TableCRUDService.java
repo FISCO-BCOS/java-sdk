@@ -31,7 +31,6 @@ import org.fisco.bcos.sdk.contract.precompiled.crud.table.TableFactory;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
@@ -56,7 +55,7 @@ public class TableCRUDService {
         this.tableFactory =
                 TableFactory.load(
                         PrecompiledAddress.TABLEFACTORY_PRECOMPILED_ADDRESS, client, credential);
-        this.currentVersion = client.getClientNodeVersion().getNodeVersion().getSupportedVersion();
+        this.currentVersion = client.getNodeInfo().getSupportedVersion();
     }
 
     public static String convertValueFieldsToString(List<String> valueFields) {
@@ -210,10 +209,8 @@ public class TableCRUDService {
     public List<Map<String, String>> desc(String tableName) throws ContractException {
         PrecompiledVersionCheck.TABLE_CRUD_PRECOMPILED_VERSION.checkVersion(currentVersion);
         try {
-            NodeVersion nodeVersion = client.getClientNodeVersion();
             EnumNodeVersion.Version enumNodeVersion =
-                    EnumNodeVersion.getClassVersion(
-                            nodeVersion.getNodeVersion().getSupportedVersion());
+                    EnumNodeVersion.getClassVersion(client.getNodeInfo().getSupportedVersion());
             if (enumNodeVersion.getMajor() == 2 && enumNodeVersion.getMinor() <= 3) {
                 return getTableDescLessThan230Version(enumNodeVersion, tableName);
             }

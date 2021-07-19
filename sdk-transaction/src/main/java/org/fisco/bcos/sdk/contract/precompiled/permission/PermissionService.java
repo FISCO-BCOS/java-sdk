@@ -35,7 +35,7 @@ public class PermissionService {
         this.permissionPrecompiled =
                 PermissionPrecompiled.load(
                         PrecompiledAddress.PERMISSION_PRECOMPILED_ADDRESS, client, credential);
-        this.currentVersion = client.getClientNodeVersion().getNodeVersion().getSupportedVersion();
+        this.currentVersion = client.getNodeInfo().getSupportedVersion();
     }
 
     public RetCode grantPermission(String tableName, String userAddress) throws ContractException {

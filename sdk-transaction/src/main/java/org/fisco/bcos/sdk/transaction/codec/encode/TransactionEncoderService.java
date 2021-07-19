@@ -14,17 +14,13 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.encode;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.qq.tars.protocol.tars.TarsOutputStream;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
-import org.fisco.bcos.sdk.rlp.RlpEncoder;
-import org.fisco.bcos.sdk.rlp.RlpList;
-import org.fisco.bcos.sdk.rlp.RlpString;
-import org.fisco.bcos.sdk.rlp.RlpType;
-import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
+import org.fisco.bcos.sdk.transaction.model.po.Transaction;
+import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerFactory;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
@@ -33,99 +29,58 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TransactionEncoderService implements TransactionEncoderInterface {
-    protected static Logger logger = LoggerFactory.getLogger(TransactionEncoderService.class);
-    private final Signature signature;
-    private final TransactionSignerInterface transactionSignerService;
-    private final CryptoSuite cryptoSuite;
+  protected static Logger logger = LoggerFactory.getLogger(TransactionEncoderService.class);
+  private final Signature signature;
+  private final TransactionSignerInterface transactionSignerService;
+  private final CryptoSuite cryptoSuite;
 
-    public TransactionEncoderService(CryptoSuite cryptoSuite) {
-        super();
-        this.cryptoSuite = cryptoSuite;
-        this.signature = cryptoSuite.getSignatureImpl();
-        this.transactionSignerService = TransactionSignerFactory.createTransactionSigner(signature);
-    }
+  public TransactionEncoderService(CryptoSuite cryptoSuite) {
+    super();
+    this.cryptoSuite = cryptoSuite;
+    this.signature = cryptoSuite.getSignatureImpl();
+    this.transactionSignerService = TransactionSignerFactory.createTransactionSigner(signature);
+  }
 
-    public TransactionEncoderService(
-            CryptoSuite cryptoSuite, RemoteSignProviderInterface transactionSignProvider) {
-        super();
-        this.cryptoSuite = cryptoSuite;
-        this.signature = cryptoSuite.getSignatureImpl();
-        this.transactionSignerService =
-                TransactionSignerFactory.createTransactionSigner(
-                        transactionSignProvider, cryptoSuite.getCryptoTypeConfig());
-    }
+  public TransactionEncoderService(
+      CryptoSuite cryptoSuite, RemoteSignProviderInterface transactionSignProvider) {
+    super();
+    this.cryptoSuite = cryptoSuite;
+    this.signature = cryptoSuite.getSignatureImpl();
+    this.transactionSignerService =
+        TransactionSignerFactory.createTransactionSigner(
+            transactionSignProvider, cryptoSuite.getCryptoTypeConfig());
+  }
 
-    @Override
-    public String encodeAndSign(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair) {
-        return Numeric.toHexString(encodeAndSignBytes(rawTransaction, cryptoKeyPair));
-    }
+  @Override
+  public String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
+    return Numeric.toHexString(encodeAndSignBytes(rawTransaction, cryptoKeyPair));
+  }
 
-    @Override
-    public byte[] encodeAndHashBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair) {
-        return cryptoSuite.hash(encode(rawTransaction, null));
-    }
+  @Override
+  public byte[] encodeAndHashBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
+    TarsOutputStream tarsOutputStream = new TarsOutputStream();
+    rawTransaction.writeTo(tarsOutputStream);
+    return cryptoSuite.hash(tarsOutputStream.toByteArray());
+  }
 
-    @Override
-    public byte[] encodeAndSignBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair) {
-        byte[] hash = encodeAndHashBytes(rawTransaction, cryptoKeyPair);
-        SignatureResult result = transactionSignerService.sign(hash, cryptoKeyPair);
-        return encode(rawTransaction, result);
-    }
+  @Override
+  public byte[] encodeAndSignBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
+    byte[] hash = encodeAndHashBytes(rawTransaction, cryptoKeyPair);
+    SignatureResult result = transactionSignerService.sign(hash, cryptoKeyPair);
+    return encodeToTransactionBytes(rawTransaction, hash, result);
+  }
 
-    @Override
-    public byte[] encode(RawTransaction rawTransaction, SignatureResult signature) {
-        List<RlpType> values = asRlpValues(rawTransaction, signature);
-        RlpList rlpList = new RlpList(values);
-        return RlpEncoder.encode(rlpList);
-    }
+  @Override
+  public byte[] encodeToTransactionBytes(
+      TransactionData rawTransaction, byte[] hash, SignatureResult result) {
+    Transaction transaction = new Transaction(rawTransaction, hash, result.getSignatureBytes(), 0);
+    TarsOutputStream tarsOutputStream = new TarsOutputStream();
+    transaction.writeTo(tarsOutputStream);
+    return tarsOutputStream.toByteArray();
+  }
 
-    /**
-     * Rlp encode and sign based on RawTransaction
-     *
-     * @param rawTransaction data to be encoded
-     * @param signatureResult signature result
-     * @return encoded & signed transaction RLP values
-     */
-    public static List<RlpType> asRlpValues(
-            RawTransaction rawTransaction, SignatureResult signatureResult) {
-        List<RlpType> result = new ArrayList<>();
-        result.add(RlpString.create(rawTransaction.getRandomid()));
-        result.add(RlpString.create(rawTransaction.getGasPrice()));
-        result.add(RlpString.create(rawTransaction.getGasLimit()));
-        result.add(RlpString.create(rawTransaction.getBlockLimit()));
-        // an empty to address (contract creation) should not be encoded as a numeric 0 value
-        String to = rawTransaction.getTo();
-        if (to != null && to.length() > 0) {
-            // addresses that start with zeros should be encoded with the zeros included, not
-            // as numeric values
-            result.add(RlpString.create(Numeric.hexStringToByteArray(to)));
-        } else {
-            result.add(RlpString.create(""));
-        }
-
-        result.add(RlpString.create(rawTransaction.getValue()));
-
-        // value field will already be hex encoded, so we need to convert into binary first
-        byte[] data = Numeric.hexStringToByteArray(rawTransaction.getData());
-        result.add(RlpString.create(data));
-
-        // add extra data!!!
-        result.add(RlpString.create(rawTransaction.getFiscoChainId()));
-        result.add(RlpString.create(rawTransaction.getGroupId()));
-        if (rawTransaction.getExtraData() == null) {
-            result.add(RlpString.create(""));
-        } else {
-            result.add(
-                    RlpString.create(Numeric.hexStringToByteArray(rawTransaction.getExtraData())));
-        }
-        if (signatureResult != null) {
-            result.addAll(signatureResult.encode());
-        }
-        return result;
-    }
-
-    /** @return the signature */
-    public Signature getSignature() {
-        return signature;
-    }
+  /** @return the signature */
+  public Signature getSignature() {
+    return signature;
+  }
 }

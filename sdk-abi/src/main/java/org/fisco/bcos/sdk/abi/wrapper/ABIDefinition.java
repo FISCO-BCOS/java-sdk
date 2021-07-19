@@ -97,8 +97,7 @@ public class ABIDefinition {
         result.append(name);
         result.append("(");
         String params =
-                getInputs()
-                        .stream()
+                getInputs().stream()
                         .map(abi -> abi.getTypeAsString())
                         .collect(Collectors.joining(","));
         result.append(params);
@@ -358,8 +357,7 @@ public class ABIDefinition {
         private String getTupleRawTypeAsString() {
             StringBuilder result = new StringBuilder();
             String params =
-                    getComponents()
-                            .stream()
+                    getComponents().stream()
                             .map(abi -> abi.getTypeAsString())
                             .collect(Collectors.joining(","));
             result.append(params);

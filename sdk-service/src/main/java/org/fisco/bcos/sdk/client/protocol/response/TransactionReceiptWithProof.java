@@ -25,7 +25,7 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 /** getTransactionReceiptWithProof. */
 public class TransactionReceiptWithProof
         extends JsonRpcResponse<TransactionReceiptWithProof.ReceiptAndProof> {
-    public ReceiptAndProof getTransactionReceiptWithProof() {
+    public ReceiptAndProof getReceiptAndProof() {
         return getResult();
     }
 

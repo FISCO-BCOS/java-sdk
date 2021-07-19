@@ -3,9 +3,11 @@ plugins {
     id 'java'
 }
 dependencies {
-    compile project(':sdk-amop')
-    compile project(':sdk-abi')
-    compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    implementation project(':sdk-abi')
+    implementation project(':sdk-core')
+    implementation project(':sdk-crypto')
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    api("io.netty:netty-all:${nettyVersion}")
 }
 
 task sourcesJar(type: Jar) {

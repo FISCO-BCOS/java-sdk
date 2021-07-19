@@ -3,10 +3,13 @@ plugins {
     id 'java'
 }
 dependencies {
-    compile project(':sdk-transaction')
-    compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
-    compile ("com.squareup:javapoet:${javapoetVersion}")
-    compile ("info.picocli:picocli:${picocliVersion}")
+    implementation project(':sdk-transaction')
+    implementation project(':sdk-service')
+    implementation project(':sdk-core')
+    api project(':sdk-abi')
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    implementation("com.squareup:javapoet:${javapoetVersion}")
+    implementation("info.picocli:picocli:${picocliVersion}")
 }
 
 task sourcesJar(type: Jar) {

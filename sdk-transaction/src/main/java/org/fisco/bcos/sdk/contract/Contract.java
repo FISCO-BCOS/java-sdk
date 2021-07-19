@@ -21,11 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.fisco.bcos.sdk.abi.EventEncoder;
-import org.fisco.bcos.sdk.abi.EventValues;
-import org.fisco.bcos.sdk.abi.FunctionEncoder;
-import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
-import org.fisco.bcos.sdk.abi.TypeReference;
+import org.fisco.bcos.sdk.abi.*;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
 import org.fisco.bcos.sdk.abi.datatypes.Function;
@@ -34,9 +30,6 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.eventsub.EventCallback;
-import org.fisco.bcos.sdk.eventsub.EventLogParams;
-import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
@@ -66,7 +59,6 @@ public class Contract {
     protected final CryptoKeyPair credential;
     protected final CryptoSuite cryptoSuite;
     protected final EventEncoder eventEncoder;
-    private final EventSubscribe eventSubscribe;
     protected static String LATEST_BLOCK = "latest";
 
     /**
@@ -92,12 +84,6 @@ public class Contract {
         this.cryptoSuite = client.getCryptoSuite();
         this.functionEncoder = new FunctionEncoder(client.getCryptoSuite());
         this.eventEncoder = new EventEncoder(client.getCryptoSuite());
-        // create eventSubscribe
-        this.eventSubscribe =
-                EventSubscribe.build(
-                        client.getGroupManagerService(),
-                        client.getEventResource(),
-                        client.getGroupId());
     }
 
     /**
@@ -322,43 +308,6 @@ public class Contract {
         return transactionProcessor.createSignedTransaction(to, data, credential);
     }
 
-    public void subscribeEvent(EventLogParams params, EventCallback callback) {
-        this.eventSubscribe.subscribeEvent(params, callback);
-    }
-
-    public void subscribeEvent(String abi, String bin, String topic0, EventCallback callback) {
-        subscribeEvent(
-                abi, bin, topic0, LATEST_BLOCK, LATEST_BLOCK, new ArrayList<String>(), callback);
-    }
-
-    public void subscribeEvent(
-            String abi,
-            String bin,
-            String topic0,
-            String fromBlock,
-            String toBlock,
-            List<String> otherTopics,
-            EventCallback callback) {
-
-        EventLogParams filter = new EventLogParams();
-        filter.setFromBlock(fromBlock);
-        filter.setToBlock(toBlock);
-
-        List<String> addresses = new ArrayList<String>();
-        addresses.add(getContractAddress());
-        filter.setAddresses(addresses);
-
-        List<Object> topics = new ArrayList<Object>();
-        topics.add(topic0);
-        if (otherTopics != null) {
-            for (Object obj : otherTopics) {
-                topics.add(obj);
-            }
-        }
-        filter.setTopics(topics);
-        this.subscribeEvent(filter, callback);
-    }
-
     public static EventValues staticExtractEventParameters(
             EventEncoder eventEncoder, Event event, TransactionReceipt.Logs log) {
         List<String> topics = log.getTopics();
@@ -387,9 +336,7 @@ public class Contract {
 
     protected List<EventValues> extractEventParameters(
             Event event, TransactionReceipt transactionReceipt) {
-        return transactionReceipt
-                .getLogs()
-                .stream()
+        return transactionReceipt.getLogs().stream()
                 .map(log -> extractEventParameters(event, log))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -403,9 +350,7 @@ public class Contract {
 
     protected List<EventValuesWithLog> extractEventParametersWithLog(
             Event event, TransactionReceipt transactionReceipt) {
-        return transactionReceipt
-                .getLogs()
-                .stream()
+        return transactionReceipt.getLogs().stream()
                 .map(log -> extractEventParametersWithLog(event, log))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());

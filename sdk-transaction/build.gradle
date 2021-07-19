@@ -3,10 +3,15 @@ plugins {
     id 'java'
 }
 dependencies {
-    compile project(':sdk-service')
-    compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
-	compile ("commons-io:commons-io:${commonsIOVersion}")
-    compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    implementation project(':sdk-service')
+    implementation project(':sdk-core')
+    api project(':sdk-crypto')
+    implementation project(':sdk-abi')
+    implementation("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation("commons-io:commons-io:${commonsIOVersion}")
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    api("com.tencent.tars:tars-core:1.7.2")
+    api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
 }
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava

@@ -35,7 +35,7 @@ public class ChainGovernanceService {
         this.chainGovernancePrecompiled =
                 ChainGovernancePrecompiled.load(
                         PrecompiledAddress.CHAINGOVERNANCE_PRECOMPILED_ADDRESS, client, credential);
-        this.currentVersion = client.getClientNodeVersion().getNodeVersion().getSupportedVersion();
+        this.currentVersion = client.getNodeInfo().getSupportedVersion();
     }
 
     public RetCode grantCommitteeMember(String userAddress) throws ContractException {

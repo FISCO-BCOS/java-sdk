@@ -33,7 +33,7 @@ public class CnsService {
     public CnsService(Client client, CryptoKeyPair credential) {
         this.cnsPrecompiled =
                 CNSPrecompiled.load(PrecompiledAddress.CNS_PRECOMPILED_ADDRESS, client, credential);
-        this.currentVersion = client.getClientNodeVersion().getNodeVersion().getSupportedVersion();
+        this.currentVersion = client.getNodeInfo().getSupportedVersion();
     }
 
     public RetCode registerCNS(

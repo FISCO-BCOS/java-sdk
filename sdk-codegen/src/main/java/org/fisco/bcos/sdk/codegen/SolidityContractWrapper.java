@@ -13,26 +13,11 @@
  */
 package org.fisco.bcos.sdk.codegen;
 
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
+import com.squareup.javapoet.*;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -41,15 +26,7 @@ import javax.lang.model.element.Modifier;
 import org.fisco.bcos.sdk.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.abi.TypeReference;
-import org.fisco.bcos.sdk.abi.datatypes.Address;
-import org.fisco.bcos.sdk.abi.datatypes.Bool;
-import org.fisco.bcos.sdk.abi.datatypes.DynamicArray;
-import org.fisco.bcos.sdk.abi.datatypes.DynamicBytes;
-import org.fisco.bcos.sdk.abi.datatypes.Event;
-import org.fisco.bcos.sdk.abi.datatypes.Function;
-import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
+import org.fisco.bcos.sdk.abi.datatypes.*;
 import org.fisco.bcos.sdk.abi.datatypes.generated.AbiTypes;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.client.Client;
@@ -57,7 +34,6 @@ import org.fisco.bcos.sdk.codegen.exceptions.CodeGenException;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
@@ -999,7 +975,8 @@ public class SolidityContractWrapper {
                         .addParameter(String.class, TO_BLOCK);
 
         addParameter(getEventMethodBuilder, "string[]", OTHER_TOPICS);
-        getEventMethodBuilder.addParameter(EventCallback.class, CALLBACK_VALUE);
+        // FIXME: implement event sub
+        //        getEventMethodBuilder.addParameter(EventCallback.class, CALLBACK_VALUE);
         getEventMethodBuilder.addStatement(
                 "String topic0 = $N.encode(" + buildEventDefinitionName(eventName) + ")",
                 EVENT_ENCODER);
@@ -1025,20 +1002,22 @@ public class SolidityContractWrapper {
 
         String generatedFunctionName =
                 "subscribe" + StringUtils.capitaliseFirstLetter(eventName) + "Event";
+        // FIXME: event
+        //
+        //    MethodSpec.Builder getEventMethodBuilder =
+        //        MethodSpec.methodBuilder(generatedFunctionName)
+        //            .addModifiers(Modifier.PUBLIC)
+        //            .addParameter(EventCallback.class, CALLBACK_VALUE);
 
-        MethodSpec.Builder getEventMethodBuilder =
-                MethodSpec.methodBuilder(generatedFunctionName)
-                        .addModifiers(Modifier.PUBLIC)
-                        .addParameter(EventCallback.class, CALLBACK_VALUE);
-
-        getEventMethodBuilder.addStatement(
-                "String topic0 = $N.encode(" + buildEventDefinitionName(eventName) + ")",
-                EVENT_ENCODER);
-
-        getEventMethodBuilder.addStatement(
-                "subscribeEvent(ABI,BINARY" + ",topic0" + "," + CALLBACK_VALUE + ")");
-
-        return getEventMethodBuilder.build();
+        //    getEventMethodBuilder.addStatement(
+        //        "String topic0 = $N.encode(" + buildEventDefinitionName(eventName) + ")",
+        // EVENT_ENCODER);
+        //
+        //    getEventMethodBuilder.addStatement(
+        //        "subscribeEvent(ABI,BINARY" + ",topic0" + "," + CALLBACK_VALUE + ")");
+        //
+        //    return getEventMethodBuilder.build();
+        return null;
     }
 
     private MethodSpec buildEventTransactionReceiptFunction(
@@ -1137,8 +1116,8 @@ public class SolidityContractWrapper {
                 buildEventTransactionReceiptFunction(
                         responseClassName, functionName, indexedParameters, nonIndexedParameters));
 
-        methods.add(buildSubscribeEventFunction(functionName));
-        methods.add(buildDefaultSubscribeEventLog(functionName));
+        //    methods.add(buildSubscribeEventFunction(functionName));
+        //    methods.add(buildDefaultSubscribeEventLog(functionName));
 
         return methods;
     }
@@ -1375,8 +1354,7 @@ public class SolidityContractWrapper {
         }
 
         String asListParams =
-                parameterTypes
-                        .stream()
+                parameterTypes.stream()
                         .map(
                                 type -> {
                                     if (type.isIndexed()) {

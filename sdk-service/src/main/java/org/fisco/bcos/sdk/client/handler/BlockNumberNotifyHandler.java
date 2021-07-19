@@ -71,7 +71,8 @@ public class BlockNumberNotifyHandler implements MsgHandler {
                                     .attr(
                                             AttributeKey.valueOf(
                                                     EnumSocketChannelAttributeKey
-                                                            .CHANNEL_PROTOCOL_KEY.getKey()))
+                                                            .CHANNEL_PROTOCOL_KEY
+                                                            .getKey()))
                                     .get());
         }
         // default use version 1

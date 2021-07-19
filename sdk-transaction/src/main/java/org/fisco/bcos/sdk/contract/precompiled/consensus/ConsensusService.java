@@ -36,7 +36,8 @@ public class ConsensusService {
     }
 
     private boolean existsInNodeList(String nodeId) {
-        List<String> nodeIdList = client.getNodeIDList().getNodeIDList();
+        List<String> nodeIdList = client.getSealerList().getSealerList();
+        nodeIdList.addAll(client.getObserverList().getObserverList());
         return nodeIdList.contains(nodeId);
     }
 

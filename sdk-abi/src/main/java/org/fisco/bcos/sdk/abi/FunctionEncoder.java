@@ -38,6 +38,7 @@ public class FunctionEncoder {
     }
 
     public static String encodeParameters(List<Type> parameters, StringBuilder result) {
+        // TODO: support wasm and scale codec
         int dynamicDataOffset = Utils.getLength(parameters) * Type.MAX_BYTE_LENGTH;
         StringBuilder dynamicData = new StringBuilder();
 

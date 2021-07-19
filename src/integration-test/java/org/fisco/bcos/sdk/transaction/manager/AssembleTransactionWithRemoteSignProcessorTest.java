@@ -28,7 +28,7 @@ import org.fisco.bcos.sdk.transaction.mock.RemoteSignCallbackMock;
 import org.fisco.bcos.sdk.transaction.mock.RemoteSignProviderMock;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
-import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
+import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -127,7 +127,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                                 "0x0000000000000000000000000000000000000000000000000000000000000000"));
 
         // function2: deploy async with callback
-        RawTransaction rawTransaction =
+        TransactionData rawTransaction =
                 assembleTransactionWithRemoteSignProcessor.getRawTransactionForConstructor(
                         abi, bin, new ArrayList<>());
         // mock a sign callback
@@ -157,7 +157,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         System.out.println("--- finish deploy with CompletableFuture ---");
 
         // function4: send transaction async with callback
-        RawTransaction sendTxRawTransaction =
+        TransactionData sendTxRawTransaction =
                 assembleTransactionWithRemoteSignProcessor.getRawTransaction(
                         helloWorldAddrss, abi, "set", params);
         // create an instance of Remote Sign Service callback, and define the hook function.

@@ -1,16 +1,20 @@
 .gradle/
 .idea/
 log/
-build
+build/
+dist/
+bin/
+.settings/**
 java-sdk.iml
 
 ## eclipse ##
 .classpath
 .project
-.settings/
-bin/
+*/.settings/**
+*/bin/**
 out/
-dist/
+*/dist/**
+*/build/**
 conf/
 
 ## integration test files
@@ -24,3 +28,4 @@ gmsm2.param
 integrationTestEnv.sh
 gradle.properties
 gpg.gpg
+

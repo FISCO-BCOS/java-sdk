@@ -19,7 +19,6 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple8;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.eventsub.EventCallback;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
@@ -192,17 +191,6 @@ public class SM2EvidenceVerify extends Contract {
             responses.add(typedResponse);
         }
         return responses;
-    }
-
-    public void subscribeNewEvidenceEventEvent(
-            String fromBlock, String toBlock, List<String> otherTopics, EventCallback callback) {
-        String topic0 = eventEncoder.encode(NEWEVIDENCEEVENT_EVENT);
-        subscribeEvent(ABI, BINARY, topic0, fromBlock, toBlock, otherTopics, callback);
-    }
-
-    public void subscribeNewEvidenceEventEvent(EventCallback callback) {
-        String topic0 = eventEncoder.encode(NEWEVIDENCEEVENT_EVENT);
-        subscribeEvent(ABI, BINARY, topic0, callback);
     }
 
     public static SM2EvidenceVerify load(

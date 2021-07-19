@@ -46,7 +46,6 @@ import org.fisco.bcos.sdk.client.protocol.response.PendingTransactions;
 import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
 import org.fisco.bcos.sdk.client.protocol.response.RecoverGroup;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
-import org.fisco.bcos.sdk.client.protocol.response.SendTransaction;
 import org.fisco.bcos.sdk.client.protocol.response.StartGroup;
 import org.fisco.bcos.sdk.client.protocol.response.StopGroup;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
@@ -909,21 +908,6 @@ public class ResponseTest {
     }
 
     @Test
-    public void testSendTransaction() throws JsonProcessingException {
-        String sendRawTransactionStr =
-                "{\n"
-                        + "    \"id\": 1,\n"
-                        + "    \"jsonrpc\": \"2.0\",\n"
-                        + "    \"result\": \"0x0accad4228274b0d78939f48149767883a6e99c95941baa950156e926f1c96ba\"\n"
-                        + "}";
-        SendTransaction sendTransaction =
-                objectMapper.readValue(sendRawTransactionStr, SendTransaction.class);
-        Assert.assertEquals(
-                "0x0accad4228274b0d78939f48149767883a6e99c95941baa950156e926f1c96ba",
-                sendTransaction.getTransactionHash());
-    }
-
-    @Test
     public void testSyncStatus() throws JsonProcessingException {
         String syncStatusStr =
                 "{\n"
@@ -1150,11 +1134,11 @@ public class ResponseTest {
         TransactionReceiptWithProof receiptWithProof =
                 objectMapper.readValue(receiptWithProofStr, TransactionReceiptWithProof.class);
         Assert.assertEquals(
-                3, receiptWithProof.getTransactionReceiptWithProof().getReceiptProof().size());
+                3, receiptWithProof.getReceiptAndProof().getReceiptProof().size());
         Assert.assertEquals(
                 2,
                 receiptWithProof
-                        .getTransactionReceiptWithProof()
+                        .getReceiptAndProof()
                         .getReceiptProof()
                         .get(0)
                         .getLeft()
@@ -1162,7 +1146,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 13,
                 receiptWithProof
-                        .getTransactionReceiptWithProof()
+                        .getReceiptAndProof()
                         .getReceiptProof()
                         .get(0)
                         .getRight()
@@ -1170,7 +1154,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 3,
                 receiptWithProof
-                        .getTransactionReceiptWithProof()
+                        .getReceiptAndProof()
                         .getReceiptProof()
                         .get(1)
                         .getLeft()
@@ -1178,7 +1162,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 2,
                 receiptWithProof
-                        .getTransactionReceiptWithProof()
+                        .getReceiptAndProof()
                         .getReceiptProof()
                         .get(1)
                         .getRight()
@@ -1186,7 +1170,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 0,
                 receiptWithProof
-                        .getTransactionReceiptWithProof()
+                        .getReceiptAndProof()
                         .getReceiptProof()
                         .get(2)
                         .getLeft()
@@ -1194,7 +1178,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 0,
                 receiptWithProof
-                        .getTransactionReceiptWithProof()
+                        .getReceiptAndProof()
                         .getReceiptProof()
                         .get(2)
                         .getRight()
@@ -1202,7 +1186,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 "cd46118c0e99be585ffcf50423630348dbc486e54e9d9293a6a8754020a68a92",
                 receiptWithProof
-                        .getTransactionReceiptWithProof()
+                        .getReceiptAndProof()
                         .getReceiptProof()
                         .get(1)
                         .getLeft()
@@ -1210,7 +1194,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 "6a6cefef8b48e455287a8c8694b06f4f7cb7950017ab048d6e6bdd8029f9f8c9",
                 receiptWithProof
-                        .getTransactionReceiptWithProof()
+                        .getReceiptAndProof()
                         .getReceiptProof()
                         .get(1)
                         .getRight()
@@ -1218,35 +1202,35 @@ public class ResponseTest {
         // check receipt
         Assert.assertEquals(
                 "0xcd31b05e466bce99460b1ed70d6069fdfbb15e6eef84e9b9e4534358edb3899a",
-                receiptWithProof.getTransactionReceiptWithProof().getReceipt().getBlockHash());
+                receiptWithProof.getReceiptAndProof().getReceipt().getBlockHash());
         Assert.assertEquals(
                 "0x5",
-                receiptWithProof.getTransactionReceiptWithProof().getReceipt().getBlockNumber());
+                receiptWithProof.getReceiptAndProof().getReceipt().getBlockNumber());
         Assert.assertEquals(
                 "0x0000000000000000000000000000000000000000",
                 receiptWithProof
-                        .getTransactionReceiptWithProof()
+                        .getReceiptAndProof()
                         .getReceipt()
                         .getContractAddress());
         Assert.assertEquals(
                 "0x148947262ec5e21739fe3a931c29e8b84ee34a0f",
-                receiptWithProof.getTransactionReceiptWithProof().getReceipt().getFrom());
+                receiptWithProof.getReceiptAndProof().getReceipt().getFrom());
         Assert.assertEquals(
                 "0x21dc1b",
-                receiptWithProof.getTransactionReceiptWithProof().getReceipt().getGasUsed());
+                receiptWithProof.getReceiptAndProof().getReceipt().getGasUsed());
         Assert.assertEquals(
                 "0xc3b4185963c78a4ca8eb90240e5cd95371d7217a9ce2bfa1149d53f79c73afbb",
-                receiptWithProof.getTransactionReceiptWithProof().getReceipt().getRoot());
+                receiptWithProof.getReceiptAndProof().getReceipt().getRoot());
         Assert.assertEquals(
-                "0x0", receiptWithProof.getTransactionReceiptWithProof().getReceipt().getStatus());
+                "0x0", receiptWithProof.getReceiptAndProof().getReceipt().getStatus());
         Assert.assertEquals(
                 "0xd6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f",
-                receiptWithProof.getTransactionReceiptWithProof().getReceipt().getTo());
+                receiptWithProof.getReceiptAndProof().getReceipt().getTo());
         Assert.assertEquals(
-                null, receiptWithProof.getTransactionReceiptWithProof().getReceipt().getTxProof());
+                null, receiptWithProof.getReceiptAndProof().getReceipt().getTxProof());
         Assert.assertEquals(
                 null,
-                receiptWithProof.getTransactionReceiptWithProof().getReceipt().getReceiptProof());
+                receiptWithProof.getReceiptAndProof().getReceipt().getReceiptProof());
     }
 
     @Test

@@ -1,7 +1,7 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
+
 import java.util.Objects;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
@@ -14,17 +14,29 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         @JsonProperty("NodeID")
         private String nodeID;
 
-        @JsonProperty("IPAndPort")
-        private String ipAndPort;
-
         @JsonProperty("Agency")
         private String agency;
 
-        @JsonProperty("Node")
-        private String node;
+        @JsonProperty("Version")
+        private String version;
 
-        @JsonProperty("Topic")
-        private List<String> topic;
+        @JsonProperty("SupportedVersion")
+        private String supportedVersion;
+
+        @JsonProperty("ChainId")
+        private String chainId;
+
+        @JsonProperty("BuildTime")
+        private String buildTime;
+
+        @JsonProperty("BuildType")
+        private String buildType;
+
+        @JsonProperty("GitBranch")
+        private String gitBranch;
+
+        @JsonProperty("GitCommit")
+        private String gitCommit;
 
         public String getNodeID() {
             return nodeID;
@@ -32,14 +44,6 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
 
         public void setNodeID(String nodeID) {
             this.nodeID = nodeID;
-        }
-
-        public String getIpAndPort() {
-            return ipAndPort;
-        }
-
-        public void setIpAndPort(String ipAndPort) {
-            this.ipAndPort = ipAndPort;
         }
 
         public String getAgency() {
@@ -50,20 +54,60 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
             this.agency = agency;
         }
 
-        public String getNode() {
-            return node;
+        public String getVersion() {
+            return version;
         }
 
-        public void setNode(String node) {
-            this.node = node;
+        public void setVersion(String version) {
+            this.version = version;
         }
 
-        public List<String> getTopic() {
-            return topic;
+        public String getSupportedVersion() {
+            return supportedVersion;
         }
 
-        public void setTopic(List<String> topic) {
-            this.topic = topic;
+        public void setSupportedVersion(String supportedVersion) {
+            this.supportedVersion = supportedVersion;
+        }
+
+        public String getChainId() {
+            return chainId;
+        }
+
+        public void setChainId(String chainId) {
+            this.chainId = chainId;
+        }
+
+        public String getBuildTime() {
+            return buildTime;
+        }
+
+        public void setBuildTime(String buildTime) {
+            this.buildTime = buildTime;
+        }
+
+        public String getBuildType() {
+            return buildType;
+        }
+
+        public void setBuildType(String buildType) {
+            this.buildType = buildType;
+        }
+
+        public String getGitBranch() {
+            return gitBranch;
+        }
+
+        public void setGitBranch(String gitBranch) {
+            this.gitBranch = gitBranch;
+        }
+
+        public String getGitCommit() {
+            return gitCommit;
+        }
+
+        public void setGitCommit(String gitCommit) {
+            this.gitCommit = gitCommit;
         }
 
         @Override
@@ -72,15 +116,28 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
             if (o == null || getClass() != o.getClass()) return false;
             NodeInformation that = (NodeInformation) o;
             return Objects.equals(nodeID, that.nodeID)
-                    && Objects.equals(node, that.node)
                     && Objects.equals(agency, that.agency)
-                    && Objects.equals(ipAndPort, that.ipAndPort)
-                    && Objects.equals(topic, that.topic);
+                    && Objects.equals(version, that.version)
+                    && Objects.equals(supportedVersion, that.supportedVersion)
+                    && Objects.equals(chainId, that.chainId)
+                    && Objects.equals(buildTime, that.buildTime)
+                    && Objects.equals(buildType, that.buildType)
+                    && Objects.equals(gitBranch, that.gitBranch)
+                    && Objects.equals(gitCommit, that.gitCommit);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(node, nodeID, agency, ipAndPort, topic);
+            return Objects.hash(
+                    nodeID,
+                    agency,
+                    version,
+                    supportedVersion,
+                    chainId,
+                    buildTime,
+                    buildType,
+                    gitBranch,
+                    gitCommit);
         }
 
         @Override
@@ -89,17 +146,29 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
                     + "nodeId='"
                     + nodeID
                     + '\''
-                    + ", iPAndPort='"
-                    + ipAndPort
-                    + '\''
-                    + ", node='"
-                    + node
-                    + '\''
                     + ", agency='"
                     + agency
                     + '\''
-                    + ", topic='"
-                    + topic
+                    + ", version='"
+                    + version
+                    + '\''
+                    + ", supportedVersion='"
+                    + supportedVersion
+                    + '\''
+                    + ", chainId='"
+                    + chainId
+                    + '\''
+                    + ", buildTime='"
+                    + buildTime
+                    + '\''
+                    + ", buildType='"
+                    + buildType
+                    + '\''
+                    + ", gitBranch='"
+                    + gitBranch
+                    + '\''
+                    + ", gitCommit='"
+                    + gitCommit
                     + '\''
                     + '}';
         }
