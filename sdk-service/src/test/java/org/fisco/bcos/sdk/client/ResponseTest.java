@@ -23,31 +23,22 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+
 import org.fisco.bcos.sdk.client.protocol.model.GroupStatus;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceiptsDecoder;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceiptsInfo;
 import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.client.protocol.response.Code;
-import org.fisco.bcos.sdk.client.protocol.response.ConsensusStatus;
-import org.fisco.bcos.sdk.client.protocol.response.GenerateGroup;
-import org.fisco.bcos.sdk.client.protocol.response.GroupList;
-import org.fisco.bcos.sdk.client.protocol.response.GroupPeers;
 import org.fisco.bcos.sdk.client.protocol.response.NodeIDList;
 import org.fisco.bcos.sdk.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.client.protocol.response.Peers;
-import org.fisco.bcos.sdk.client.protocol.response.PendingTransactions;
 import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
-import org.fisco.bcos.sdk.client.protocol.response.RecoverGroup;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
-import org.fisco.bcos.sdk.client.protocol.response.StartGroup;
-import org.fisco.bcos.sdk.client.protocol.response.StopGroup;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
@@ -472,186 +463,6 @@ public class ResponseTest {
         Assert.assertEquals(code.getCode().hashCode(), decodedCode.getCode().hashCode());
     }
 
-    @Test
-    public void testPBFTConsensusStatus() throws IOException {
-        String pbftConsensusStatusString =
-                "{\n"
-                        + "  \"id\": 1,\n"
-                        + "  \"jsonrpc\": \"2.0\",\n"
-                        + "  \"result\": [\n"
-                        + "    {\n"
-                        + "      \"accountType\": 1,\n"
-                        + "      \"allowFutureBlocks\": true,\n"
-                        + "      \"cfgErr\": false,\n"
-                        + "      \"connectedNodes\": 3,\n"
-                        + "      \"consensusedBlockNumber\": 38207,\n"
-                        + "      \"currentView\": 54477,\n"
-                        + "      \"groupId\": 1,\n"
-                        + "      \"highestblockHash\": \"0x19a16e8833e671aa11431de589c866a6442ca6c8548ba40a44f50889cd785069\",\n"
-                        + "      \"highestblockNumber\": 38206,\n"
-                        + "      \"leaderFailed\": false,\n"
-                        + "      \"max_faulty_leader\": 1,\n"
-                        + "      \"nodeId\": \"f72648fe165da17a889bece08ca0e57862cb979c4e3661d6a77bcc2de85cb766af5d299fec8a4337eedd142dca026abc2def632f6e456f80230902f93e2bea13\",\n"
-                        + "      \"nodeNum\": 4,\n"
-                        + "      \"node_index\": 3,\n"
-                        + "      \"omitEmptyBlock\": true,\n"
-                        + "      \"protocolId\": 65544,\n"
-                        + "      \"sealer.0\": \"6a99f357ecf8a001e03b68aba66f68398ee08f3ce0f0147e777ec77995369aac470b8c9f0f85f91ebb58a98475764b7ca1be8e37637dd6cb80b3355749636a3d\",\n"
-                        + "      \"sealer.1\": \"8a453f1328c80b908b2d02ba25adca6341b16b16846d84f903c4f4912728c6aae1050ce4f24cd9c13e010ce922d3393b846f6f5c42f6af59c65a814de733afe4\",\n"
-                        + "      \"sealer.2\": \"ed483837e73ee1b56073b178f5ac0896fa328fc0ed418ae3e268d9e9109721421ec48d68f28d6525642868b40dd26555c9148dbb8f4334ca071115925132889c\",\n"
-                        + "      \"sealer.3\": \"f72648fe165da17a889bece08ca0e57862cb979c4e3661d6a77bcc2de85cb766af5d299fec8a4337eedd142dca026abc2def632f6e456f80230902f93e2bea13\",\n"
-                        + "      \"toView\": 54477\n"
-                        + "    },\n"
-                        + "    [\n"
-                        + "      {\n"
-                        + "        \"nodeId\": \"6a99f357ecf8a001e03b68aba66f68398ee08f3ce0f0147e777ec77995369aac470b8c9f0f85f91ebb58a98475764b7ca1be8e37637dd6cb80b3355749636a3d\",\n"
-                        + "        \"view\": 54474\n"
-                        + "      },\n"
-                        + "      {\n"
-                        + "        \"nodeId\": \"8a453f1328c80b908b2d02ba25adca6341b16b16846d84f903c4f4912728c6aae1050ce4f24cd9c13e010ce922d3393b846f6f5c42f6af59c65a814de733afe4\",\n"
-                        + "        \"view\": 54475\n"
-                        + "      },\n"
-                        + "      {\n"
-                        + "        \"nodeId\": \"ed483837e73ee1b56073b178f5ac0896fa328fc0ed418ae3e268d9e9109721421ec48d68f28d6525642868b40dd26555c9148dbb8f4334ca071115925132889c\",\n"
-                        + "        \"view\": 54476\n"
-                        + "      },\n"
-                        + "      {\n"
-                        + "        \"nodeId\": \"f72648fe165da17a889bece08ca0e57862cb979c4e3661d6a77bcc2de85cb766af5d299fec8a4337eedd142dca026abc2def632f6e456f80230902f93e2bea13\",\n"
-                        + "        \"view\": 54477\n"
-                        + "      }\n"
-                        + "    ]\n"
-                        + "  ]\n"
-                        + "}";
-        ConsensusStatus status =
-                objectMapper.readValue(pbftConsensusStatusString.getBytes(), ConsensusStatus.class);
-        Assert.assertEquals("2.0", status.getJsonrpc());
-        Assert.assertEquals(1, status.getId());
-        ConsensusStatus.BasicConsensusInfo basicConsensusInfo =
-                status.getConsensusStatus().getBaseConsensusInfo();
-        Assert.assertEquals(
-                "6a99f357ecf8a001e03b68aba66f68398ee08f3ce0f0147e777ec77995369aac470b8c9f0f85f91ebb58a98475764b7ca1be8e37637dd6cb80b3355749636a3d",
-                basicConsensusInfo.getSealerList().get(0).toString());
-        Assert.assertEquals("1", basicConsensusInfo.getAccountType());
-        Assert.assertEquals("4", basicConsensusInfo.getNodeNum());
-        Assert.assertEquals(4, basicConsensusInfo.getSealerList().size());
-        Assert.assertEquals(
-                "f72648fe165da17a889bece08ca0e57862cb979c4e3661d6a77bcc2de85cb766af5d299fec8a4337eedd142dca026abc2def632f6e456f80230902f93e2bea13",
-                basicConsensusInfo.getNodeId());
-        Assert.assertEquals("54477", basicConsensusInfo.getCurrentView());
-        Assert.assertEquals("1", basicConsensusInfo.getGroupId());
-        Assert.assertEquals("38206", basicConsensusInfo.getHighestblockNumber());
-        Assert.assertEquals(
-                "0x19a16e8833e671aa11431de589c866a6442ca6c8548ba40a44f50889cd785069",
-                basicConsensusInfo.getHighestblockHash());
-        Assert.assertEquals("38206", basicConsensusInfo.getHighestblockNumber());
-        Assert.assertEquals("false", basicConsensusInfo.getLeaderFailed());
-        Assert.assertEquals("1", basicConsensusInfo.getMaxFaultyNodeNum());
-        Assert.assertEquals("3", basicConsensusInfo.getNodeIndex());
-        Assert.assertEquals("true", basicConsensusInfo.getOmitEmptyBlock());
-        Assert.assertEquals("65544", basicConsensusInfo.getProtocolId());
-        Assert.assertEquals("54477", basicConsensusInfo.getToView());
-
-        // check ViewInfo
-        List<ConsensusStatus.ViewInfo> viewInfoList = status.getConsensusStatus().getViewInfos();
-        Assert.assertEquals(4, viewInfoList.size());
-        Assert.assertEquals(
-                "6a99f357ecf8a001e03b68aba66f68398ee08f3ce0f0147e777ec77995369aac470b8c9f0f85f91ebb58a98475764b7ca1be8e37637dd6cb80b3355749636a3d",
-                viewInfoList.get(0).getNodeId());
-        Assert.assertEquals("54474", viewInfoList.get(0).getView());
-        Assert.assertEquals("54475", viewInfoList.get(1).getView());
-        Assert.assertEquals("54476", viewInfoList.get(2).getView());
-        Assert.assertEquals("54477", viewInfoList.get(3).getView());
-
-        ConsensusStatus status2 =
-                objectMapper.readValue(pbftConsensusStatusString.getBytes(), ConsensusStatus.class);
-        Assert.assertEquals(status.getConsensusStatus(), status2.getConsensusStatus());
-        Assert.assertEquals(
-                status.getConsensusStatus().hashCode(), status2.getConsensusStatus().hashCode());
-    }
-
-    @Test
-    public void testRaftConsensusStatus() throws IOException {
-        String raftConsenusStatus =
-                "{\n"
-                        + "  \"id\": 1,\n"
-                        + "  \"jsonrpc\": \"2.0\",\n"
-                        + "  \"result\": [\n"
-                        + "    {\n"
-                        + "      \"accountType\": 1,\n"
-                        + "      \"allowFutureBlocks\": true,\n"
-                        + "      \"cfgErr\": false,\n"
-                        + "      \"consensusedBlockNumber\": 1,\n"
-                        + "      \"groupId\": 1,\n"
-                        + "      \"highestblockHash\": \"0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2\",\n"
-                        + "      \"highestblockNumber\": 0,\n"
-                        + "      \"leaderId\": \"d5b3a9782c6aca271c9642aea391415d8b258e3a6d92082e59cc5b813ca123745440792ae0b29f4962df568f8ad58b75fc7cea495684988e26803c9c5198f3f8\",\n"
-                        + "      \"leaderIdx\": 3,\n"
-                        + "      \"max_faulty_leader\": 1,\n"
-                        + "      \"sealer.0\": \"29c34347a190c1ec0c4507c6eed6a5bcd4d7a8f9f54ef26da616e81185c0af11a8cea4eacb74cf6f61820292b24bc5d9e426af24beda06fbd71c217960c0dff0\",\n"
-                        + "      \"sealer.1\": \"41285429582cbfe6eed501806391d2825894b3696f801e945176c7eb2379a1ecf03b36b027d72f480e89d15bacd43462d87efd09fb0549e0897f850f9eca82ba\",\n"
-                        + "      \"sealer.2\": \"87774114e4a496c68f2482b30d221fa2f7b5278876da72f3d0a75695b81e2591c1939fc0d3fadb15cc359c997bafc9ea6fc37345346acaf40b6042b5831c97e1\",\n"
-                        + "      \"sealer.3\": \"d5b3a9782c6aca271c9642aea391415d8b258e3a6d92082e59cc5b813ca123745440792ae0b29f4962df568f8ad58b75fc7cea495684988e26803c9c5198f3f8\",\n"
-                        + "      \"node index\": 1,\n"
-                        + "      \"nodeId\": \"41285429582cbfe6eed501806391d2825894b3696f801e945176c7eb2379a1ecf03b36b027d72f480e89d15bacd43462d87efd09fb0549e0897f850f9eca82ba\",\n"
-                        + "      \"nodeNum\": 4,\n"
-                        + "      \"omitEmptyBlock\": true,\n"
-                        + "      \"protocolId\": 267\n"
-                        + "    }\n"
-                        + "  ]\n"
-                        + "}";
-        ConsensusStatus status =
-                objectMapper.readValue(raftConsenusStatus.getBytes(), ConsensusStatus.class);
-        ConsensusStatus.BasicConsensusInfo basicConsensusInfo =
-                status.getConsensusStatus().getBaseConsensusInfo();
-        Assert.assertEquals("1", basicConsensusInfo.getAccountType());
-        Assert.assertEquals("true", basicConsensusInfo.getAllowFutureBlocks());
-        Assert.assertEquals(
-                "d5b3a9782c6aca271c9642aea391415d8b258e3a6d92082e59cc5b813ca123745440792ae0b29f4962df568f8ad58b75fc7cea495684988e26803c9c5198f3f8",
-                basicConsensusInfo.getLeaderId());
-        Assert.assertEquals("3", basicConsensusInfo.getLeaderIdx());
-        Assert.assertEquals("267", basicConsensusInfo.getProtocolId());
-        Assert.assertEquals(4, basicConsensusInfo.getSealerList().size());
-        Assert.assertEquals("1", basicConsensusInfo.getMaxFaultyNodeNum());
-        Assert.assertEquals("1", basicConsensusInfo.getRaftNodeIndex());
-        Assert.assertEquals(null, status.getConsensusStatus().getViewInfos());
-    }
-
-    @Test
-    public void testGroupStatus() throws IOException {
-        String groupStatusStr =
-                "{\n"
-                        + "  \"id\": 1,\n"
-                        + "  \"jsonrpc\": \"2.0\",\n"
-                        + "  \"result\": {\n"
-                        + "    \"code\": \"0x0\",\n"
-                        + "    \"message\": \"\",\n"
-                        + "    \"status\": \"STOPPED\"\n"
-                        + "  }\n"
-                        + "}";
-        // test generateGropu
-        GroupStatus groupStatus =
-                objectMapper
-                        .readValue(groupStatusStr.getBytes(), GenerateGroup.class)
-                        .getGroupStatus();
-        checkGroupStatus(groupStatus, "0x0", "", "STOPPED");
-
-        groupStatus =
-                objectMapper
-                        .readValue(groupStatusStr.getBytes(), StartGroup.class)
-                        .getGroupStatus();
-        checkGroupStatus(groupStatus, "0x0", "", "STOPPED");
-
-        groupStatus =
-                objectMapper.readValue(groupStatusStr.getBytes(), StopGroup.class).getGroupStatus();
-        checkGroupStatus(groupStatus, "0x0", "", "STOPPED");
-
-        groupStatus =
-                objectMapper
-                        .readValue(groupStatusStr.getBytes(), RecoverGroup.class)
-                        .getGroupStatus();
-        checkGroupStatus(groupStatus, "0x0", "", "STOPPED");
-    }
-
     private void checkGroupStatus(
             GroupStatus status, String expectedCode, String expectedMsg, String expectedStatus)
             throws IOException {
@@ -664,52 +475,6 @@ public class ResponseTest {
         GroupStatus decodedStatus = objectMapper.readValue(encodedData, GroupStatus.class);
         Assert.assertEquals(status, decodedStatus);
         Assert.assertEquals(status.hashCode(), decodedStatus.hashCode());
-    }
-
-    @Test
-    public void testGroupList() throws IOException {
-        String groupListStr =
-                "{\n"
-                        + "    \"id\": 1,\n"
-                        + "    \"jsonrpc\": \"2.0\",\n"
-                        + "    \"result\": [1,2,3]\n"
-                        + "}";
-        GroupList groupList = objectMapper.readValue(groupListStr.getBytes(), GroupList.class);
-        Assert.assertEquals(3, groupList.getGroupList().size());
-        List<String> parsedGroupList = Arrays.asList("1", "2", "3");
-        Assert.assertTrue(groupList.getGroupList().equals(parsedGroupList));
-
-        // encode
-        byte[] encodedBytes = objectMapper.writeValueAsBytes(groupList.getGroupList());
-        List<String> decodedGroupList =
-                objectMapper.readValue(encodedBytes, new TypeReference<List<String>>() {});
-        encodedBytes = objectMapper.writeValueAsBytes(decodedGroupList);
-
-        Assert.assertEquals(groupList.getGroupList(), decodedGroupList);
-        Assert.assertEquals(groupList.getGroupList().hashCode(), decodedGroupList.hashCode());
-    }
-
-    @Test
-    public void testGroupPeers() throws IOException {
-        String groupPeersStr =
-                "{\n"
-                        + "    \"id\": 1,\n"
-                        + "    \"jsonrpc\": \"2.0\",\n"
-                        + "    \"result\": [\n"
-                        + "        \"0c0bbd25152d40969d3d3cee3431fa28287e07cff2330df3258782d3008b876d146ddab97eab42796495bfbb281591febc2a0069dcc7dfe88c8831801c5b5801\",\n"
-                        + "        \"037c255c06161711b6234b8c0960a6979ef039374ccc8b723afea2107cba3432dbbc837a714b7da20111f74d5a24e91925c773a72158fa066f586055379a1772\",\n"
-                        + "        \"622af37b2bd29c60ae8f15d467b67c0a7fe5eb3e5c63fdc27a0ee8066707a25afa3aa0eb5a3b802d3a8e5e26de9d5af33806664554241a3de9385d3b448bcd73\",\n"
-                        + "        \"10b3a2d4b775ec7f3c2c9e8dc97fa52beb8caab9c34d026db9b95a72ac1d1c1ad551c67c2b7fdc34177857eada75836e69016d1f356c676a6e8b15c45fc9bc34\"\n"
-                        + "    ]\n"
-                        + "}";
-        GroupPeers groupPeers = objectMapper.readValue(groupPeersStr.getBytes(), GroupPeers.class);
-        Assert.assertEquals(4, groupPeers.getGroupPeers().size());
-        Assert.assertEquals(
-                "0c0bbd25152d40969d3d3cee3431fa28287e07cff2330df3258782d3008b876d146ddab97eab42796495bfbb281591febc2a0069dcc7dfe88c8831801c5b5801",
-                groupPeers.getGroupPeers().get(0));
-        Assert.assertEquals(
-                "10b3a2d4b775ec7f3c2c9e8dc97fa52beb8caab9c34d026db9b95a72ac1d1c1ad551c67c2b7fdc34177857eada75836e69016d1f356c676a6e8b15c45fc9bc34",
-                groupPeers.getGroupPeers().get(3));
     }
 
     @Test
@@ -831,42 +596,6 @@ public class ResponseTest {
         Assert.assertTrue(peers.getPeers().get(0).getTopic().isEmpty());
         Assert.assertEquals("node1", peers.getPeers().get(2).getNode());
         Assert.assertEquals("agency", peers.getPeers().get(2).getAgency());
-    }
-
-    @Test
-    public void testPendingTransactions() throws IOException {
-        String pendingListStr =
-                "{\n"
-                        + "    \"id\": 1,\n"
-                        + "    \"jsonrpc\": \"2.0\",\n"
-                        + "  \"result\": [\n"
-                        + "            {\n"
-                        + "                \"from\": \"0x6bc952a2e4db9c0c86a368d83e9df0c6ab481102\",\n"
-                        + "                \"gas\": \"0x9184e729fff\",\n"
-                        + "                \"gasPrice\": \"0x174876e7ff\",\n"
-                        + "                \"hash\": \"0x7536cf1286b5ce6c110cd4fea5c891467884240c9af366d678eb4191e1c31c6f\",\n"
-                        + "                \"input\": \"0x48f85bce000000000000000000000000000000000000000000000000000000000000001bf5bd8a9e7ba8b936ea704292ff4aaa5797bf671fdc8526dcd159f23c1f5a05f44e9fa862834dc7cb4541558f2b4961dc39eaaf0af7f7395028658d0e01b86a37\",\n"
-                        + "                \"nonce\": \"0x65f0d06e39dc3c08e32ac10a5070858962bc6c0f5760baca823f2d5582d03f\",\n"
-                        + "                \"to\": \"0xd6f1a71052366dbae2f7ab2d5d5845e77965cf0d\",\n"
-                        + "                \"value\": \"0x0\"\n"
-                        + "            }\n"
-                        + "        ]\n"
-                        + "}";
-        PendingTransactions pendingTransactions =
-                objectMapper.readValue(pendingListStr.getBytes(), PendingTransactions.class);
-        Assert.assertEquals(1, pendingTransactions.getPendingTransactions().size());
-        Assert.assertEquals(
-                "0x7536cf1286b5ce6c110cd4fea5c891467884240c9af366d678eb4191e1c31c6f",
-                pendingTransactions.getPendingTransactions().get(0).getHash());
-        Assert.assertEquals(
-                "0x48f85bce000000000000000000000000000000000000000000000000000000000000001bf5bd8a9e7ba8b936ea704292ff4aaa5797bf671fdc8526dcd159f23c1f5a05f44e9fa862834dc7cb4541558f2b4961dc39eaaf0af7f7395028658d0e01b86a37",
-                pendingTransactions.getPendingTransactions().get(0).getInput());
-        Assert.assertEquals(
-                "0xd6f1a71052366dbae2f7ab2d5d5845e77965cf0d",
-                pendingTransactions.getPendingTransactions().get(0).getTo());
-        Assert.assertEquals(
-                "0x6bc952a2e4db9c0c86a368d83e9df0c6ab481102",
-                pendingTransactions.getPendingTransactions().get(0).getFrom());
     }
 
     @Test
@@ -1607,67 +1336,4 @@ public class ResponseTest {
                 "0xed79502afaf87734f5bc75c2b50d340adc83128afed9dc626a4f5a3cfed837a7");
     }
 
-    @Test
-    public void testCompressedBatchReceipts() throws IOException {
-        String receiptListStr = "{\n" +
-                "  \"id\": 1,\n" +
-                "  \"jsonrpc\": \"2.0\",\n" +
-                "  \"result\": {\n" +
-                "    \"blockInfo\": {\n" +
-                "      \"blockHash\": \"0x9a3c01559f63f17739db7159ebe945da0105f15144c97cc0a18e5389f07a9fdb\",\n" +
-                "      \"blockNumber\": \"0x1\",\n" +
-                "      \"receiptRoot\": \"0x1e9ee115d0a0ed6a248f5a711e5e8a2f93c82b8d70922254efcec2b4bbd9d174\",\n" +
-                "      \"receiptsCount\": \"0x1\"\n" +
-                "    },\n" +
-                "    \"transactionReceipts\": [\n" +
-                "      {\n" +
-                "        \"contractAddress\": \"0x7c6dc94e4e146cb13eb03dc98d2b96ac79ef5e67\",\n" +
-                "        \"from\": \"0x6fad87071f790c3234108f41b76bb99874a6d813\",\n" +
-                "        \"gasUsed\": \"0x44ab3\",\n" +
-                "        \"logs\": [],\n" +
-                "        \"output\": \"0x\",\n" +
-                "        \"status\": \"0x0\",\n" +
-                "        \"to\": \"0x0000000000000000000000000000000000000000\",\n" +
-                "        \"transactionHash\": \"0x066dce3c06b9d74881e0996172717cfcba4330206243a9f964eb3097f3696e27\",\n" +
-                "        \"transactionIndex\": \"0x0\"\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
-
-        BcosTransactionReceiptsInfo bcosTransactionReceiptsInfo = objectMapper.readValue(receiptListStr.getBytes(), BcosTransactionReceiptsInfo.class);
-        checkReceipts(bcosTransactionReceiptsInfo.getTransactionReceiptsInfo());
-
-        String compressedReceiptStr = "{\n" +
-                "  \"id\": 1,\n" +
-                "  \"jsonrpc\": \"2.0\",\n" +
-                "  \"result\": \"eJyNUT1PZDEM7O9npN4iTpw43u5EA80VSFedKOLE4RDwgt6HhLTa/35h3wpEd67iiWc81pyMvPTyfDe1bo6nvbnNy19zNPadsy8WQuAWfQMiz1UIAqsoY6jZgg0NAiAWplJshqTBJ26WMrcq5rAL/tpeReeLJAxs1qJPb+t97+uOKasChGqz1Rqzw9RCJgANmrJr7EtykipZds4F1Fa0OEGRyhUIvySXm75NV1FzPph1ztOSy/rUp/vrhDn+OZnSp/FV1p+1zrosFwKVWAujogLGIuBVrB9Iqk445kKsLWiksa3N/fXCiS3XRJagEdvinUewqSEIRRHmRJhjTeAH5zEvvxetFxpilg/spT9++Hk4mL6tb9tufODLmtdtd2VHu/b9+Z9lvt39GaaN4z4dgUbhSpgSqGWOQI6ASiuS0XvrbHToR3ocUcVbpuYjR3X0XfZuqvp+dXh+OP/4B2fCqOE=\"\n" +
-                "}";
-        BcosTransactionReceiptsDecoder bcosTransactionReceiptsDecoder= objectMapper.readValue(compressedReceiptStr.getBytes(), BcosTransactionReceiptsDecoder.class);
-        checkReceipts(bcosTransactionReceiptsDecoder.decodeTransactionReceiptsInfo());
-    }
-
-    private void checkReceipts(BcosTransactionReceiptsInfo.TransactionReceiptsInfo receiptsInfo)
-    {
-        BcosTransactionReceiptsInfo.BlockInfo blockInfo = receiptsInfo.getBlockInfo();
-        // check block info
-        Assert.assertEquals("0x9a3c01559f63f17739db7159ebe945da0105f15144c97cc0a18e5389f07a9fdb", blockInfo.getBlockHash()
-        );
-        Assert.assertEquals("0x1", blockInfo.getBlockNumber());
-        Assert.assertEquals("0x1e9ee115d0a0ed6a248f5a711e5e8a2f93c82b8d70922254efcec2b4bbd9d174", blockInfo.getReceiptRoot());
-        Assert.assertEquals("0x1", blockInfo.getReceiptsCount());
-
-        // check receipts
-        List<TransactionReceipt> receipts = receiptsInfo.getTransactionReceipts();
-        Assert.assertTrue(receipts.size() == 1);
-        Assert.assertEquals("0x7c6dc94e4e146cb13eb03dc98d2b96ac79ef5e67", receipts.get(0).getContractAddress());
-        Assert.assertEquals("0x6fad87071f790c3234108f41b76bb99874a6d813", receipts.get(0).getFrom());
-        Assert.assertEquals("0x44ab3", receipts.get(0).getGasUsed());
-        Assert.assertEquals("0x", receipts.get(0).getOutput());
-        Assert.assertEquals("0x0", receipts.get(0).getStatus());
-        Assert.assertEquals("0x0000000000000000000000000000000000000000", receipts.get(0).getTo());
-        Assert.assertEquals("0x066dce3c06b9d74881e0996172717cfcba4330206243a9f964eb3097f3696e27", receipts.get(0).getTransactionHash());
-        Assert.assertEquals("0x0", receipts.get(0).getTransactionIndex());
-        Assert.assertTrue( receipts.get(0).getLogs().size() == 0);
-    }
 }

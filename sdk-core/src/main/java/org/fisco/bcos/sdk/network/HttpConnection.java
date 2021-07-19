@@ -1,10 +1,9 @@
 package org.fisco.bcos.sdk.network;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.net.URI;
+
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -14,21 +13,27 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.Response;
 
 public class HttpConnection implements Connection {
 
-    private final String url;
+    private final String uri;
 
     public HttpConnection(ConfigOption config) {
-        this.url = config.getNetworkConfig().getPeers().get(0);
+        if(!config.getNetworkConfig().getPeers().get(0).startsWith("http://"))
+        {
+            this.uri = "http://" + config.getNetworkConfig().getPeers().get(0);
+        }
+        else
+        {
+            this.uri =config.getNetworkConfig().getPeers().get(0);
+        }
     }
     /** close connection */
     public void close() {}
 
-    public String getEndpoint() {
-        return url;
+    public String getUri() {
+        return uri;
     }
     /**
      * connect to node
@@ -41,8 +46,8 @@ public class HttpConnection implements Connection {
 
     public String callMethod(String request) throws IOException {
         try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            final HttpPost httppost = new HttpPost("http://" + url);
 
+            final HttpPost httppost = new HttpPost(this.uri);
             final InputStreamEntity reqEntity =
                     new InputStreamEntity(
                             new ByteArrayInputStream(request.getBytes()), -1, ContentType.APPLICATION_JSON);
