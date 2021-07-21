@@ -14,12 +14,13 @@
  */
 package org.fisco.bcos.sdk.transaction.pusher;
 
-import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
+
+import java.util.concurrent.CompletableFuture;
 
 public class TransactionPusherService implements TransactionPusherInterface {
 
@@ -37,38 +38,42 @@ public class TransactionPusherService implements TransactionPusherInterface {
 
     @Override
     public void pushOnly(String signedTransaction) {
-        client.sendRawTransactionAsync(signedTransaction,false, null);
+        this.client.sendRawTransactionAsync(signedTransaction, false, null);
     }
 
     @Override
-    public Call push(String from, String to, String encodedFunction) {
+    public Call push(String from, String to, byte[] encodedFunction) {
         Transaction transaction = new Transaction(from, to, encodedFunction);
-        return client.call(transaction);
+        return this.client.call(transaction);
     }
 
     @Override
     public TransactionReceipt push(String signedTransaction) {
-        return client.sendRawTransaction(signedTransaction, false).getReceiptAndProof().getReceipt();
+        return this.client.sendRawTransaction(signedTransaction, false).getReceiptAndProof().getReceipt();
     }
 
     @Override
     public void pushAsync(String signedTransactionData, TransactionCallback callback) {
-        client.sendRawTransactionAsync(signedTransactionData,false, callback);
+        this.client.sendRawTransactionAsync(signedTransactionData, false, callback);
     }
 
     @Override
     public CompletableFuture<TransactionReceipt> pushAsync(String signedTransaction) {
         CompletableFuture<TransactionReceipt> future =
-                CompletableFuture.supplyAsync(() -> push(signedTransaction));
+                CompletableFuture.supplyAsync(() -> this.push(signedTransaction));
         return future;
     }
 
-    /** @return the client */
+    /**
+     * @return the client
+     */
     public Client getClient() {
-        return client;
+        return this.client;
     }
 
-    /** @param client the client to set */
+    /**
+     * @param client the client to set
+     */
     public void setClient(Client client) {
         this.client = client;
     }

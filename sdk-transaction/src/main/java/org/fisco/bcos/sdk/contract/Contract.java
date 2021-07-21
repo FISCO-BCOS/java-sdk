@@ -14,13 +14,6 @@
  */
 package org.fisco.bcos.sdk.contract;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.abi.*;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
@@ -38,8 +31,19 @@ import org.fisco.bcos.sdk.transaction.manager.TransactionProcessor;
 import org.fisco.bcos.sdk.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Contract help manage all operations including deploy, send transaction, call contract, and
@@ -64,10 +68,10 @@ public class Contract {
     /**
      * Constructor
      *
-     * @param contractBinary the contract binary code hex string
-     * @param contractAddress the contract address
-     * @param client a Client object
-     * @param credential key pair to use when sign transaction
+     * @param contractBinary       the contract binary code hex string
+     * @param contractAddress      the contract address
+     * @param client               a Client object
+     * @param credential           key pair to use when sign transaction
      * @param transactionProcessor TransactionProcessor object
      */
     protected Contract(
@@ -89,10 +93,10 @@ public class Contract {
     /**
      * Constructor, auto create a TransactionProcessor object
      *
-     * @param contractBinary the contract binary code hex string
+     * @param contractBinary  the contract binary code hex string
      * @param contractAddress the contract address
-     * @param client a Client object to send requests
-     * @param credential key pair to use when sign transaction
+     * @param client          a Client object to send requests
+     * @param credential      key pair to use when sign transaction
      */
     protected Contract(
             String contractBinary,
@@ -111,12 +115,12 @@ public class Contract {
      * Deploy contract
      *
      * @param type
-     * @param client a Client object to send requests
-     * @param credential key pair to use when sign transaction
+     * @param client             a Client object to send requests
+     * @param credential         key pair to use when sign transaction
      * @param transactionManager TransactionProcessor
-     * @param binary the contract binary code hex string
+     * @param binary             the contract binary code hex string
      * @param encodedConstructor
-     * @param <T> a smart contract object extends Contract
+     * @param <T>                a smart contract object extends Contract
      * @return <T> type smart contract
      * @throws ContractException
      */
@@ -160,8 +164,15 @@ public class Contract {
 
     private static <T extends Contract> T create(
             T contract, String binary, String encodedConstructor) throws ContractException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            outputStream.write(Hex.decode(binary));
+            outputStream.write(Hex.decode(encodedConstructor));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         TransactionReceipt transactionReceipt =
-                contract.executeTransaction(binary + encodedConstructor, FUNC_DEPLOY);
+                contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
 
         String contractAddress = transactionReceipt.getContractAddress();
         if (contractAddress == null) {
@@ -176,7 +187,7 @@ public class Contract {
     }
 
     public String getContractAddress() {
-        return contractAddress;
+        return this.contractAddress;
     }
 
     public void setContractAddress(String contractAddress) {
@@ -184,7 +195,7 @@ public class Contract {
     }
 
     public TransactionReceipt getDeployReceipt() {
-        return deployReceipt;
+        return this.deployReceipt;
     }
 
     public void setDeployReceipt(TransactionReceipt deployReceipt) {
@@ -193,10 +204,10 @@ public class Contract {
 
     private List<Type> executeCall(Function function) throws ContractException {
 
-        String encodedFunctionData = functionEncoder.encode(function);
+        byte[] encodedFunctionData = this.functionEncoder.encode(function);
         CallRequest callRequest =
-                new CallRequest(credential.getAddress(), contractAddress, encodedFunctionData);
-        Call response = transactionProcessor.executeCall(callRequest);
+                new CallRequest(this.credential.getAddress(), this.contractAddress, encodedFunctionData);
+        Call response = this.transactionProcessor.executeCall(callRequest);
         // get value from the response
         String callResult = response.getCallResult().getOutput();
         if (!response.getCallResult().getStatus().equals("0x0")) {
@@ -225,7 +236,7 @@ public class Contract {
 
     protected <T extends Type> T executeCallWithSingleValueReturn(Function function)
             throws ContractException {
-        List<Type> values = executeCall(function);
+        List<Type> values = this.executeCall(function);
         if (!values.isEmpty()) {
             return (T) values.get(0);
         } else {
@@ -233,13 +244,13 @@ public class Contract {
                     "executeCall for function "
                             + function.getName()
                             + " failed for empty returned value from the contract "
-                            + contractAddress);
+                            + this.contractAddress);
         }
     }
 
     protected <T extends Type, R> R executeCallWithSingleValueReturn(
             Function function, Class<R> returnType) throws ContractException {
-        T result = executeCallWithSingleValueReturn(function);
+        T result = this.executeCallWithSingleValueReturn(function);
         // cast the value into returnType
         Object value = result.getValue();
         if (returnType.isAssignableFrom(value.getClass())) {
@@ -257,27 +268,29 @@ public class Contract {
 
     protected List<Type> executeCallWithMultipleValueReturn(Function function)
             throws ContractException {
-        return executeCall(function);
+        return this.executeCall(function);
     }
 
     protected void asyncExecuteTransaction(
-            String data, String funName, TransactionCallback callback) {
-        transactionProcessor.sendTransactionAsync(contractAddress, data, credential, callback);
+            byte[] data, String funName, TransactionCallback callback) {
+        this.transactionProcessor.sendTransactionAsync(this.contractAddress, data, this.credential, callback);
     }
 
     protected void asyncExecuteTransaction(Function function, TransactionCallback callback) {
-        asyncExecuteTransaction(functionEncoder.encode(function), function.getName(), callback);
+        this.asyncExecuteTransaction(this.functionEncoder.encode(function), function.getName(), callback);
     }
 
     protected TransactionReceipt executeTransaction(Function function) {
-        return executeTransaction(functionEncoder.encode(function), function.getName());
+        return this.executeTransaction(this.functionEncoder.encode(function), function.getName());
     }
 
-    protected TransactionReceipt executeTransaction(String data, String functionName) {
-        return transactionProcessor.sendTransactionAndGetReceipt(contractAddress, data, credential);
+    protected TransactionReceipt executeTransaction(byte[] data, String functionName) {
+        return this.transactionProcessor.sendTransactionAndGetReceipt(this.contractAddress, data, this.credential);
     }
 
-    /** Adds a log field to {@link EventValues}. */
+    /**
+     * Adds a log field to {@link EventValues}.
+     */
     public static class EventValuesWithLog {
         private final EventValues eventValues;
         private final TransactionReceipt.Logs log;
@@ -288,24 +301,24 @@ public class Contract {
         }
 
         public List<Type> getIndexedValues() {
-            return eventValues.getIndexedValues();
+            return this.eventValues.getIndexedValues();
         }
 
         public List<Type> getNonIndexedValues() {
-            return eventValues.getNonIndexedValues();
+            return this.eventValues.getNonIndexedValues();
         }
 
         public TransactionReceipt.Logs getLog() {
-            return log;
+            return this.log;
         }
     }
 
     protected String createSignedTransaction(Function function) {
-        return createSignedTransaction(contractAddress, this.functionEncoder.encode(function));
+        return this.createSignedTransaction(this.contractAddress, this.functionEncoder.encode(function));
     }
 
-    protected String createSignedTransaction(String to, String data) {
-        return transactionProcessor.createSignedTransaction(to, data, credential);
+    protected String createSignedTransaction(String to, byte[] data) {
+        return this.transactionProcessor.createSignedTransaction(to, data, this.credential);
     }
 
     public static EventValues staticExtractEventParameters(
@@ -331,27 +344,27 @@ public class Contract {
     }
 
     protected EventValues extractEventParameters(Event event, TransactionReceipt.Logs log) {
-        return staticExtractEventParameters(eventEncoder, event, log);
+        return staticExtractEventParameters(this.eventEncoder, event, log);
     }
 
     protected List<EventValues> extractEventParameters(
             Event event, TransactionReceipt transactionReceipt) {
         return transactionReceipt.getLogs().stream()
-                .map(log -> extractEventParameters(event, log))
+                .map(log -> this.extractEventParameters(event, log))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     protected EventValuesWithLog extractEventParametersWithLog(
             Event event, TransactionReceipt.Logs log) {
-        final EventValues eventValues = extractEventParameters(event, log);
+        final EventValues eventValues = this.extractEventParameters(event, log);
         return (eventValues == null) ? null : new EventValuesWithLog(eventValues, log);
     }
 
     protected List<EventValuesWithLog> extractEventParametersWithLog(
             Event event, TransactionReceipt transactionReceipt) {
         return transactionReceipt.getLogs().stream()
-                .map(log -> extractEventParametersWithLog(event, log))
+                .map(log -> this.extractEventParametersWithLog(event, log))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -359,12 +372,11 @@ public class Contract {
     protected List<EventValuesWithLog> extractEventParametersWithLog(
             Event event, List<TransactionReceipt.Logs> logs) {
         return logs.stream()
-                .map(log -> extractEventParametersWithLog(event, log))
+                .map(log -> this.extractEventParametersWithLog(event, log))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
-    @SuppressWarnings("unchecked")
     public static <S extends Type, T> List<T> convertToNative(List<S> arr) {
         List<T> out = new ArrayList<T>();
         for (Iterator<S> it = arr.iterator(); it.hasNext(); ) {

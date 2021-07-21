@@ -13,11 +13,6 @@
  */
 package org.fisco.bcos.sdk.client;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.concurrent.Semaphore;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
@@ -36,31 +31,37 @@ import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.concurrent.Semaphore;
+
 public class ClientImpl implements Client {
     protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private static Logger logger = LoggerFactory.getLogger(ClientImpl.class);
-    private final Integer groupId;
-    private final Integer DefaultGroupId = Integer.valueOf(1);
+    private final String groupId;
+    private final String chainId;
     private final CryptoSuite cryptoSuite;
     private final NodeInfo nodeInfo;
     private final Connection connection;
 
-    protected ClientImpl(Connection connection, Integer groupId, CryptoSuite cryptoSuite) {
-        this.groupId = groupId;
+    protected ClientImpl(Connection connection, CryptoSuite cryptoSuite) {
         this.cryptoSuite = cryptoSuite;
+        this.connection = connection;
+        // get node info by call getNodeInfo
         this.nodeInfo =
                 this.callRemoteMethod(
                         new JsonRpcRequest(JsonRpcMethods.GET_NODE_INFO, Arrays.asList()),
                         NodeInfo.class);
-        // FIXME: get node info by call getNodeInfo
-        //        nodeVersion;
-        this.connection = connection;
+        this.chainId = this.nodeInfo.getNodeInfo().getChainId() == null ? "test_chain" : this.nodeInfo.getNodeInfo().getChainId();
+        this.groupId = this.nodeInfo.getNodeInfo().getGroupId() == null ? "test_group" : this.nodeInfo.getNodeInfo().getGroupId();
         // send request to the group, and get the blockNumber information
-        getBlockLimit();
+        this.getBlockLimit();
     }
 
     protected ClientImpl(Connection connection) {
         this.groupId = null;
+        this.chainId = null;
         this.cryptoSuite = null;
         this.nodeInfo = null;
         this.connection = null;
@@ -87,8 +88,13 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public Integer getGroupId() {
+    public String getGroupId() {
         return this.groupId;
+    }
+
+    @Override
+    public String getChainId() {
+        return this.chainId;
     }
 
     @Override
@@ -116,7 +122,7 @@ public class ClientImpl implements Client {
 
                     @Override
                     public void onError(Response errorResponse) {
-                        callback.onError(errorResponse.getErrorCode(),errorResponse.getErrorMessage());
+                        callback.onError(errorResponse.getErrorCode(), errorResponse.getErrorMessage());
                     }
                 });
     }
@@ -124,14 +130,14 @@ public class ClientImpl implements Client {
     @Override
     public Call call(Transaction transaction) {
         return this.callRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.CALL, Arrays.asList(this.groupId, transaction)),
+                new JsonRpcRequest(JsonRpcMethods.CALL, Arrays.asList(transaction)),
                 Call.class);
     }
 
     @Override
     public void callAsync(Transaction transaction, RespCallback<Call> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.CALL, Arrays.asList(this.groupId, transaction)),
+                new JsonRpcRequest(JsonRpcMethods.CALL, Arrays.asList(transaction)),
                 Call.class,
                 callback);
     }
@@ -140,14 +146,14 @@ public class ClientImpl implements Client {
     public BlockNumber getBlockNumber() {
         // create request
         JsonRpcRequest request =
-                new JsonRpcRequest(JsonRpcMethods.GET_BLOCK_NUMBER, Arrays.asList(this.groupId));
+                new JsonRpcRequest(JsonRpcMethods.GET_BLOCK_NUMBER, Arrays.asList());
         return this.callRemoteMethod(request, BlockNumber.class);
     }
 
     @Override
     public void getBlockNumberAsync(RespCallback<BlockNumber> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_BLOCK_NUMBER, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_BLOCK_NUMBER, Arrays.asList()),
                 BlockNumber.class,
                 callback);
     }
@@ -156,14 +162,14 @@ public class ClientImpl implements Client {
     public Code getCode(String address) {
         // create request
         JsonRpcRequest request =
-                new JsonRpcRequest(JsonRpcMethods.GET_CODE, Arrays.asList(this.groupId, address));
+                new JsonRpcRequest(JsonRpcMethods.GET_CODE, Arrays.asList(address));
         return this.callRemoteMethod(request, Code.class);
     }
 
     @Override
     public void getCodeAsync(String address, RespCallback<Code> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_CODE, Arrays.asList(this.groupId, address)),
+                new JsonRpcRequest(JsonRpcMethods.GET_CODE, Arrays.asList(address)),
                 Code.class,
                 callback);
     }
@@ -173,7 +179,7 @@ public class ClientImpl implements Client {
         // create request for getTotalTransactionCount
         JsonRpcRequest request =
                 new JsonRpcRequest(
-                        JsonRpcMethods.GET_TOTAL_TRANSACTION_COUNT, Arrays.asList(this.groupId));
+                        JsonRpcMethods.GET_TOTAL_TRANSACTION_COUNT, Arrays.asList());
         return this.callRemoteMethod(request, TotalTransactionCount.class);
     }
 
@@ -181,43 +187,42 @@ public class ClientImpl implements Client {
     public void getTotalTransactionCountAsync(RespCallback<TotalTransactionCount> callback) {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
-                        JsonRpcMethods.GET_TOTAL_TRANSACTION_COUNT, Arrays.asList(this.groupId)),
+                        JsonRpcMethods.GET_TOTAL_TRANSACTION_COUNT, Arrays.asList()),
                 TotalTransactionCount.class,
                 callback);
     }
 
     @Override
-    public BcosBlock getBlockByHash(String blockHash, boolean returnFullTransactionObjects) {
+    public BcosBlock getBlockByHash(String blockHash, boolean onlyHeader, boolean returnFullTransactionObjects) {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_HASH,
-                        Arrays.asList(this.groupId, blockHash, returnFullTransactionObjects)),
+                        Arrays.asList(blockHash, onlyHeader, returnFullTransactionObjects)),
                 BcosBlock.class);
     }
 
     @Override
     public void getBlockByHashAsync(
-            String blockHash,
+            String blockHash, boolean onlyHeader,
             boolean returnFullTransactionObjects,
             RespCallback<BcosBlock> callback) {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_HASH,
-                        Arrays.asList(this.groupId, blockHash, returnFullTransactionObjects)),
+                        Arrays.asList(blockHash, onlyHeader, returnFullTransactionObjects)),
                 BcosBlock.class,
                 callback);
     }
 
     @Override
     public BcosBlock getBlockByNumber(
-            BigInteger blockNumber, boolean returnFullTransactionObjects) {
+            BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions) {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
                         Arrays.asList(
-                                this.groupId,
                                 String.valueOf(blockNumber),
-                                returnFullTransactionObjects)),
+                                onlyHeader, fullTransactions)),
                 BcosBlock.class);
     }
 
@@ -230,7 +235,7 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
                         Arrays.asList(
-                                this.groupId,
+
                                 String.valueOf(blockNumber),
                                 returnFullTransactionObjects)),
                 BcosBlock.class,
@@ -242,7 +247,7 @@ public class ClientImpl implements Client {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCKHASH_BY_NUMBER,
-                        Arrays.asList(this.groupId, String.valueOf(blockNumber))),
+                        Arrays.asList(String.valueOf(blockNumber))),
                 BlockHash.class);
     }
 
@@ -252,7 +257,7 @@ public class ClientImpl implements Client {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCKHASH_BY_NUMBER,
-                        Arrays.asList(this.groupId, String.valueOf(blockNumber))),
+                        Arrays.asList(String.valueOf(blockNumber))),
                 BlockHash.class,
                 callback);
     }
@@ -262,7 +267,7 @@ public class ClientImpl implements Client {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCKHEADER_BY_HASH,
-                        Arrays.asList(this.groupId, blockHash, returnSignatureList)),
+                        Arrays.asList(blockHash, returnSignatureList)),
                 BcosBlockHeader.class);
     }
 
@@ -272,7 +277,7 @@ public class ClientImpl implements Client {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCKHEADER_BY_HASH,
-                        Arrays.asList(this.groupId, blockHash, returnSignatureList)),
+                        Arrays.asList(blockHash, returnSignatureList)),
                 BcosBlockHeader.class,
                 callback);
     }
@@ -284,7 +289,7 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCKHEADER_BY_NUMBER,
                         Arrays.asList(
-                                this.groupId, String.valueOf(blockNumber), returnSignatureList)),
+                                String.valueOf(blockNumber), returnSignatureList)),
                 BcosBlockHeader.class);
     }
 
@@ -297,7 +302,7 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCKHEADER_BY_NUMBER,
                         Arrays.asList(
-                                this.groupId, String.valueOf(blockNumber), returnSignatureList)),
+                                String.valueOf(blockNumber), returnSignatureList)),
                 BcosBlockHeader.class,
                 callback);
     }
@@ -307,7 +312,7 @@ public class ClientImpl implements Client {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_TRANSACTION_BY_HASH,
-                        Arrays.asList(this.groupId, transactionHash)),
+                        Arrays.asList(transactionHash)),
                 BcosTransaction.class);
     }
 
@@ -317,7 +322,7 @@ public class ClientImpl implements Client {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_TRANSACTION_BY_HASH,
-                        Arrays.asList(this.groupId, transactionHash)),
+                        Arrays.asList(transactionHash)),
                 BcosTransaction.class,
                 callback);
     }
@@ -327,7 +332,7 @@ public class ClientImpl implements Client {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_TRANSACTIONRECEIPT,
-                        Arrays.asList(this.groupId, transactionHash)),
+                        Arrays.asList(transactionHash)),
                 BcosTransactionReceipt.class);
     }
 
@@ -337,7 +342,7 @@ public class ClientImpl implements Client {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_TRANSACTIONRECEIPT,
-                        Arrays.asList(this.groupId, transactionHash)),
+                        Arrays.asList(transactionHash)),
                 BcosTransactionReceipt.class,
                 callback);
     }
@@ -345,35 +350,34 @@ public class ClientImpl implements Client {
     @Override
     public PendingTxSize getPendingTxSize() {
         return this.callRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_PENDING_TX_SIZE, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_PENDING_TX_SIZE, Arrays.asList()),
                 PendingTxSize.class);
     }
 
     @Override
     public void getPendingTxSizeAsync(RespCallback<PendingTxSize> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_PENDING_TX_SIZE, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_PENDING_TX_SIZE, Arrays.asList()),
                 PendingTxSize.class,
                 callback);
     }
 
     @Override
     public BigInteger getBlockLimit() {
-        Integer groupId = Integer.valueOf(this.groupId);
         return this.getBlockNumber().getBlockNumber().add(BigInteger.valueOf(500));
     }
 
     @Override
     public Peers getPeers() {
         return this.callRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(DefaultGroupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList()),
                 Peers.class);
     }
 
     @Override
     public void getPeersAsync(RespCallback<Peers> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList()),
                 Peers.class,
                 callback);
     }
@@ -381,14 +385,14 @@ public class ClientImpl implements Client {
     @Override
     public ObserverList getObserverList() {
         return this.callRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_OBSERVER_LIST, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_OBSERVER_LIST, Arrays.asList()),
                 ObserverList.class);
     }
 
     @Override
     public void getObserverList(RespCallback<ObserverList> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_OBSERVER_LIST, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_OBSERVER_LIST, Arrays.asList()),
                 ObserverList.class,
                 callback);
     }
@@ -396,14 +400,14 @@ public class ClientImpl implements Client {
     @Override
     public SealerList getSealerList() {
         return this.callRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_SEALER_LIST, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_SEALER_LIST, Arrays.asList()),
                 SealerList.class);
     }
 
     @Override
     public void getSealerListAsync(RespCallback<SealerList> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_SEALER_LIST, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_SEALER_LIST, Arrays.asList()),
                 SealerList.class,
                 callback);
     }
@@ -411,14 +415,14 @@ public class ClientImpl implements Client {
     @Override
     public PbftView getPbftView() {
         return this.callRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_PBFT_VIEW, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_PBFT_VIEW, Arrays.asList()),
                 PbftView.class);
     }
 
     @Override
     public void getPbftViewAsync(RespCallback<PbftView> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_PBFT_VIEW, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_PBFT_VIEW, Arrays.asList()),
                 PbftView.class,
                 callback);
     }
@@ -427,7 +431,7 @@ public class ClientImpl implements Client {
     public SystemConfig getSystemConfigByKey(String key) {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
-                        JsonRpcMethods.GET_SYSTEM_CONFIG_BY_KEY, Arrays.asList(this.groupId, key)),
+                        JsonRpcMethods.GET_SYSTEM_CONFIG_BY_KEY, Arrays.asList(key)),
                 SystemConfig.class);
     }
 
@@ -435,7 +439,7 @@ public class ClientImpl implements Client {
     public void getSystemConfigByKeyAsync(String key, RespCallback<SystemConfig> callback) {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
-                        JsonRpcMethods.GET_SYSTEM_CONFIG_BY_KEY, Arrays.asList(this.groupId)),
+                        JsonRpcMethods.GET_SYSTEM_CONFIG_BY_KEY, Arrays.asList()),
                 SystemConfig.class,
                 callback);
     }
@@ -443,14 +447,14 @@ public class ClientImpl implements Client {
     @Override
     public SyncStatus getSyncStatus() {
         return this.callRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_SYNC_STATUS, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_SYNC_STATUS, Arrays.asList()),
                 SyncStatus.class);
     }
 
     @Override
     public void getSyncStatus(RespCallback<SyncStatus> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_SYNC_STATUS, Arrays.asList(this.groupId)),
+                new JsonRpcRequest(JsonRpcMethods.GET_SYNC_STATUS, Arrays.asList()),
                 SyncStatus.class,
                 callback);
     }
@@ -461,7 +465,7 @@ public class ClientImpl implements Client {
 
         SynchronousTransactionCallback() {
             try {
-                semaphore.acquire(1);
+                this.semaphore.acquire(1);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -470,14 +474,14 @@ public class ClientImpl implements Client {
         @Override
         public void onTimeout() {
             super.onTimeout();
-            semaphore.release();
+            this.semaphore.release();
         }
 
         // wait until get the transactionReceipt
         @Override
         public void onResponse(TransactionReceipt receipt) {
             this.receipt = receipt;
-            semaphore.release();
+            this.semaphore.release();
         }
     }
 
@@ -490,13 +494,13 @@ public class ClientImpl implements Client {
             JsonRpcRequest request, TransactionCallback callback, Class<T> responseType) {
         try {
             this.connection.asyncCallMethod(
-                    objectMapper.writeValueAsString(request),
+                    this.objectMapper.writeValueAsString(request),
                     new ResponseCallback() {
                         @Override
                         public void onResponse(Response response) {
                             try {
                                 // decode the transaction
-                                parseResponseIntoJsonRpcResponse(request, response.getContent(), responseType);
+                                ClientImpl.this.parseResponseIntoJsonRpcResponse(request, response.getContent(), responseType);
                                 // FIXME: call callback
                             } catch (ClientException e) {
                                 // fake the transactionReceipt
@@ -508,21 +512,19 @@ public class ClientImpl implements Client {
             e.printStackTrace();
         }
     }
-    
+
     public <T extends JsonRpcResponse> T callRemoteMethod(
             JsonRpcRequest request, Class<T> responseType) {
         String response = null;
         try {
-            response = this.connection.callMethod(objectMapper.writeValueAsString(request));
+            response = this.connection.callMethod(this.objectMapper.writeValueAsString(request));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         if (response == null) {
             throw new ClientException(
-                    "callRemoteMethod to "
-                            + this.groupId
-                            + " failed for select peers to send message failed, please make sure that the group exists");
+                    "callRemoteMethod failed for select peers to send message failed, please make sure that the group exists");
         }
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
@@ -533,14 +535,14 @@ public class ClientImpl implements Client {
             RespCallback<T> callback) {
         try {
             this.connection.asyncCallMethod(
-                    objectMapper.writeValueAsString(request),
+                    this.objectMapper.writeValueAsString(request),
                     new ResponseCallback() {
                         @Override
                         public void onResponse(Response response) {
                             try {
                                 // decode the transaction
                                 T jsonRpcResponse =
-                                        parseResponseIntoJsonRpcResponse(request, response.getContent(), responseType);
+                                        ClientImpl.this.parseResponseIntoJsonRpcResponse(request, response.getContent(), responseType);
                                 callback.onResponse(jsonRpcResponse);
                             } catch (ClientException e) {
                                 callback.onError(response);
@@ -555,13 +557,14 @@ public class ClientImpl implements Client {
     protected <T extends JsonRpcResponse> T parseResponseIntoJsonRpcResponse(
             JsonRpcRequest request, String response, Class<T> responseType) {
         try {
+            System.out.println("get response:" + response);
             // parse the response into JsonRPCResponse
-            T jsonRpcResponse = objectMapper.readValue(response, responseType);
+            T jsonRpcResponse = this.objectMapper.readValue(response, responseType);
             if (jsonRpcResponse.getError() != null) {
                 logger.error(
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {},  retErrorMessage: {}, retErrorCode: {}",
                         request.getMethod(),
-                        this.groupId,
+
                         jsonRpcResponse.getError().getMessage(),
                         jsonRpcResponse.getError().getCode());
                 throw new ClientException(

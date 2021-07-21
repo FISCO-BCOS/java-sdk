@@ -20,14 +20,14 @@ import java.util.Objects;
 public class Transaction {
     private String from;
     private String to;
-    private String data;
+    private byte[] data;
 
     /**
-     * @param from from address
-     * @param to to address
+     * @param from            from address
+     * @param to              to address
      * @param encodedFunction the string encodedFunction
      */
-    public Transaction(String from, String to, String encodedFunction) {
+    public Transaction(String from, String to, byte[] encodedFunction) {
         super();
         this.from = from;
         this.to = to;
@@ -35,7 +35,7 @@ public class Transaction {
     }
 
     public String getFrom() {
-        return from;
+        return this.from;
     }
 
     public void setFrom(String from) {
@@ -43,33 +43,33 @@ public class Transaction {
     }
 
     public String getTo() {
-        return to;
+        return this.to;
     }
 
     public void setTo(String to) {
         this.to = to;
     }
 
-    public String getData() {
-        return data;
+    public byte[] getData() {
+        return this.data;
     }
 
-    public void setData(String data) {
+    public void setData(byte[] data) {
         this.data = data;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || this.getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return Objects.equals(from, that.from)
-                && Objects.equals(to, that.to)
-                && Objects.equals(data, that.data);
+        return Objects.equals(this.from, that.from)
+                && Objects.equals(this.to, that.to)
+                && Objects.equals(this.data, that.data);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(from, to, data);
+        return Objects.hash(this.from, this.to, this.data);
     }
 }

@@ -28,59 +28,65 @@ import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Base64;
+
 public class TransactionEncoderService implements TransactionEncoderInterface {
-  protected static Logger logger = LoggerFactory.getLogger(TransactionEncoderService.class);
-  private final Signature signature;
-  private final TransactionSignerInterface transactionSignerService;
-  private final CryptoSuite cryptoSuite;
+    protected static Logger logger = LoggerFactory.getLogger(TransactionEncoderService.class);
+    private final Signature signature;
+    private final TransactionSignerInterface transactionSignerService;
+    private final CryptoSuite cryptoSuite;
 
-  public TransactionEncoderService(CryptoSuite cryptoSuite) {
-    super();
-    this.cryptoSuite = cryptoSuite;
-    this.signature = cryptoSuite.getSignatureImpl();
-    this.transactionSignerService = TransactionSignerFactory.createTransactionSigner(signature);
-  }
+    public TransactionEncoderService(CryptoSuite cryptoSuite) {
+        super();
+        this.cryptoSuite = cryptoSuite;
+        this.signature = cryptoSuite.getSignatureImpl();
+        this.transactionSignerService = TransactionSignerFactory.createTransactionSigner(this.signature);
+    }
 
-  public TransactionEncoderService(
-      CryptoSuite cryptoSuite, RemoteSignProviderInterface transactionSignProvider) {
-    super();
-    this.cryptoSuite = cryptoSuite;
-    this.signature = cryptoSuite.getSignatureImpl();
-    this.transactionSignerService =
-        TransactionSignerFactory.createTransactionSigner(
-            transactionSignProvider, cryptoSuite.getCryptoTypeConfig());
-  }
+    public TransactionEncoderService(
+            CryptoSuite cryptoSuite, RemoteSignProviderInterface transactionSignProvider) {
+        super();
+        this.cryptoSuite = cryptoSuite;
+        this.signature = cryptoSuite.getSignatureImpl();
+        this.transactionSignerService =
+                TransactionSignerFactory.createTransactionSigner(
+                        transactionSignProvider, cryptoSuite.getCryptoTypeConfig());
+    }
 
-  @Override
-  public String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
-    return Numeric.toHexString(encodeAndSignBytes(rawTransaction, cryptoKeyPair));
-  }
+    @Override
+    public String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
+        return Base64.getEncoder().encodeToString(this.encodeAndSignBytes(rawTransaction, cryptoKeyPair));
+    }
 
-  @Override
-  public byte[] encodeAndHashBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
-    TarsOutputStream tarsOutputStream = new TarsOutputStream();
-    rawTransaction.writeTo(tarsOutputStream);
-    return cryptoSuite.hash(tarsOutputStream.toByteArray());
-  }
+    @Override
+    public byte[] encodeAndHashBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
+        TarsOutputStream tarsOutputStream = new TarsOutputStream();
+        rawTransaction.writeTo(tarsOutputStream);
+        //TODO: delete this print
+        System.out.println("tx hex data: " + Numeric.toHexString(tarsOutputStream.toByteArray()));
+        return this.cryptoSuite.hash(tarsOutputStream.toByteArray());
+    }
 
-  @Override
-  public byte[] encodeAndSignBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
-    byte[] hash = encodeAndHashBytes(rawTransaction, cryptoKeyPair);
-    SignatureResult result = transactionSignerService.sign(hash, cryptoKeyPair);
-    return encodeToTransactionBytes(rawTransaction, hash, result);
-  }
+    @Override
+    public byte[] encodeAndSignBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
+        byte[] hash = this.encodeAndHashBytes(rawTransaction, cryptoKeyPair);
+        SignatureResult result = this.transactionSignerService.sign(hash, cryptoKeyPair);
+        return this.encodeToTransactionBytes(rawTransaction, hash, result);
+    }
 
-  @Override
-  public byte[] encodeToTransactionBytes(
-      TransactionData rawTransaction, byte[] hash, SignatureResult result) {
-    Transaction transaction = new Transaction(rawTransaction, hash, result.getSignatureBytes(), 0);
-    TarsOutputStream tarsOutputStream = new TarsOutputStream();
-    transaction.writeTo(tarsOutputStream);
-    return tarsOutputStream.toByteArray();
-  }
+    @Override
+    public byte[] encodeToTransactionBytes(
+            TransactionData rawTransaction, byte[] hash, SignatureResult result) {
+        Transaction transaction = new Transaction(rawTransaction, hash, result.getSignatureBytes(), 0);
+        TarsOutputStream tarsOutputStream = new TarsOutputStream();
+        transaction.writeTo(tarsOutputStream);
+        return tarsOutputStream.toByteArray();
+    }
 
-  /** @return the signature */
-  public Signature getSignature() {
-    return signature;
-  }
+    /**
+     * @return the signature
+     */
+    public Signature getSignature() {
+        return this.signature;
+    }
 }

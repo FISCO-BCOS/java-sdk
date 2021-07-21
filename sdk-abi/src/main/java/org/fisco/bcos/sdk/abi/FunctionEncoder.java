@@ -1,13 +1,16 @@
 package org.fisco.bcos.sdk.abi;
 
-import java.math.BigInteger;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.abi.datatypes.Function;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.datatypes.Uint;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Ethereum Contract Application Binary Interface (ABI) encoding for functions. Further details are
@@ -21,20 +24,20 @@ public class FunctionEncoder {
         this.cryptoSuite = cryptoSuite;
     }
 
-    public String encode(Function function) {
+    public byte[] encode(Function function) {
         List<Type> parameters = function.getInputParameters();
 
         String methodSignature = buildMethodSignature(function.getName(), parameters);
-        String methodId = buildMethodId(methodSignature);
+        byte[] methodId = this.buildMethodId(methodSignature);
 
         StringBuilder result = new StringBuilder();
-        result.append(methodId);
+        result.append(Numeric.toHexString(methodId));
 
-        return encodeParameters(parameters, result);
+        return Hex.decode(encodeParameters(parameters, result));
     }
 
-    public static String encodeConstructor(List<Type> parameters) {
-        return encodeParameters(parameters, new StringBuilder());
+    public static byte[] encodeConstructor(List<Type> parameters) {
+        return Hex.decode(encodeParameters(parameters, new StringBuilder()));
     }
 
     public static String encodeParameters(List<Type> parameters, StringBuilder result) {
@@ -71,18 +74,22 @@ public class FunctionEncoder {
         return result.toString();
     }
 
-    public String buildMethodId(String methodSignature) {
+    public byte[] buildMethodId(String methodSignature) {
         byte[] input = methodSignature.getBytes();
-        byte[] hash = cryptoSuite.hash(input);
-        return Numeric.toHexString(hash).substring(0, 10);
+        byte[] hash = this.cryptoSuite.hash(input);
+        return Arrays.copyOfRange(hash, 0, 4);
     }
 
-    /** @return the cryptoSuite */
+    /**
+     * @return the cryptoSuite
+     */
     public CryptoSuite getCryptoSuite() {
-        return cryptoSuite;
+        return this.cryptoSuite;
     }
 
-    /** @param cryptoSuite the cryptoSuite to set */
+    /**
+     * @param cryptoSuite the cryptoSuite to set
+     */
     public void setCryptoSuite(CryptoSuite cryptoSuite) {
         this.cryptoSuite = cryptoSuite;
     }

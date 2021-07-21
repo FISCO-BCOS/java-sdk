@@ -55,335 +55,335 @@ import java.util.concurrent.CompletableFuture;
  * @author maojiayu
  */
 public class AssembleTransactionProcessor extends TransactionProcessor
-    implements AssembleTransactionProcessorInterface {
-  protected static Logger log = LoggerFactory.getLogger(AssembleTransactionProcessor.class);
-  protected final TransactionDecoderInterface transactionDecoder;
-  protected final TransactionPusherInterface transactionPusher;
-  protected final ABICodec abiCodec;
-  protected ContractLoader contractLoader;
+        implements AssembleTransactionProcessorInterface {
+    protected static Logger log = LoggerFactory.getLogger(AssembleTransactionProcessor.class);
+    protected final TransactionDecoderInterface transactionDecoder;
+    protected final TransactionPusherInterface transactionPusher;
+    protected final ABICodec abiCodec;
+    protected ContractLoader contractLoader;
 
-  public AssembleTransactionProcessor(
-      Client client,
-      CryptoKeyPair cryptoKeyPair,
-      Integer groupId,
-      String chainId,
-      ContractLoader contractLoader) {
-    super(client, cryptoKeyPair, groupId, chainId);
-    this.transactionDecoder = new TransactionDecoderService(cryptoSuite);
-    this.transactionPusher = new TransactionPusherService(client);
-    this.abiCodec = new ABICodec(cryptoSuite);
-    this.contractLoader = contractLoader;
-  }
-
-  public AssembleTransactionProcessor(
-      Client client,
-      CryptoKeyPair cryptoKeyPair,
-      Integer groupId,
-      String chainId,
-      String contractName,
-      String abi,
-      String bin) {
-    super(client, cryptoKeyPair, groupId, chainId);
-    this.transactionDecoder = new TransactionDecoderService(cryptoSuite);
-    this.transactionPusher = new TransactionPusherService(client);
-    this.abiCodec = new ABICodec(cryptoSuite);
-    this.contractLoader = new ContractLoader(contractName, abi, bin);
-  }
-
-  @Override
-  public void deployOnly(String abi, String bin, List<Object> params) throws ABICodecException {
-    transactionPusher.pushOnly(createSignedConstructor(abi, bin, params));
-  }
-
-  @Override
-  public TransactionReceipt deployAndGetReceipt(String data) {
-    String signedData = createSignedTransaction(null, data, this.cryptoKeyPair);
-    return transactionPusher.push(signedData);
-  }
-
-  @Override
-  public TransactionResponse deployAndGetResponse(String abi, String signedData) {
-    TransactionReceipt receipt = transactionPusher.push(signedData);
-    try {
-      return transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
-    } catch (TransactionException | IOException | ABICodecException e) {
-      log.error("deploy exception: {}", e.getMessage());
-      return new TransactionResponse(
-          receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
+    public AssembleTransactionProcessor(
+            Client client,
+            CryptoKeyPair cryptoKeyPair,
+            String groupId,
+            String chainId,
+            ContractLoader contractLoader) {
+        super(client, cryptoKeyPair, groupId, chainId);
+        this.transactionDecoder = new TransactionDecoderService(this.cryptoSuite);
+        this.transactionPusher = new TransactionPusherService(client);
+        this.abiCodec = new ABICodec(this.cryptoSuite);
+        this.contractLoader = contractLoader;
     }
-  }
 
-  @Override
-  public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
-      throws ABICodecException {
-    return deployAndGetResponse(abi, createSignedConstructor(abi, bin, params));
-  }
-
-  @Override
-  public TransactionResponse deployAndGetResponseWithStringParams(
-      String abi, String bin, List<String> params) throws ABICodecException {
-    return deployAndGetResponse(
-        abi,
-        createSignedTransaction(
-            null, abiCodec.encodeConstructorFromString(abi, bin, params), this.cryptoKeyPair));
-  }
-
-  @Override
-  public void deployAsync(String abi, String bin, List<Object> params, TransactionCallback callback)
-      throws ABICodecException {
-    transactionPusher.pushAsync(createSignedConstructor(abi, bin, params), callback);
-  }
-
-  @Override
-  public CompletableFuture<TransactionReceipt> deployAsync(
-      String abi, String bin, List<Object> params) throws ABICodecException {
-    return transactionPusher.pushAsync(createSignedConstructor(abi, bin, params));
-  }
-
-  /**
-   * Deploy by bin and abi files. Should init with contractLoader.
-   *
-   * @param contractName the contract name
-   * @param args the params when deploy a contract
-   * @return the transaction response
-   * @throws TransactionBaseException send transaction exceptioned
-   * @throws ABICodecException abi encode exceptioned
-   * @throws NoSuchTransactionFileException Files related to abi codec were not found
-   */
-  @Override
-  public TransactionResponse deployByContractLoader(String contractName, List<Object> args)
-      throws ABICodecException, TransactionBaseException {
-    return deployAndGetResponse(
-        contractLoader.getABIByContractName(contractName),
-        contractLoader.getBinaryByContractName(contractName),
-        args);
-  }
-
-  @Override
-  public void deployByContractLoaderAsync(
-      String contractName, List<Object> args, TransactionCallback callback)
-      throws ABICodecException, NoSuchTransactionFileException {
-    deployAsync(
-        contractLoader.getABIByContractName(contractName),
-        contractLoader.getBinaryByContractName(contractName),
-        args,
-        callback);
-  }
-
-  @Override
-  public void sendTransactionOnly(String signedData) {
-    this.transactionPusher.pushOnly(signedData);
-  }
-
-  @Override
-  public TransactionResponse sendTransactionAndGetResponse(
-      String to, String abi, String functionName, String data)
-      throws TransactionBaseException, ABICodecException {
-    String signedData = createSignedTransaction(to, data, this.cryptoKeyPair);
-    TransactionReceipt receipt = this.transactionPusher.push(signedData);
-    try {
-      return transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
-    } catch (TransactionException | IOException e) {
-      log.error("sendTransaction exception: {}", e.getMessage());
-      return new TransactionResponse(
-          receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
+    public AssembleTransactionProcessor(
+            Client client,
+            CryptoKeyPair cryptoKeyPair,
+            String groupId,
+            String chainId,
+            String contractName,
+            String abi,
+            String bin) {
+        super(client, cryptoKeyPair, groupId, chainId);
+        this.transactionDecoder = new TransactionDecoderService(this.cryptoSuite);
+        this.transactionPusher = new TransactionPusherService(client);
+        this.abiCodec = new ABICodec(this.cryptoSuite);
+        this.contractLoader = new ContractLoader(contractName, abi, bin);
     }
-  }
 
-  @Override
-  public TransactionResponse sendTransactionAndGetResponse(
-      String to, String abi, String functionName, List<Object> params)
-      throws ABICodecException, TransactionBaseException {
-    String data = encodeFunction(abi, functionName, params);
-    return sendTransactionAndGetResponse(to, abi, functionName, data);
-  }
-
-  @Override
-  public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
-      String to, String abi, String functionName, List<String> params)
-      throws ABICodecException, TransactionBaseException {
-    String data = abiCodec.encodeMethodFromString(abi, functionName, params);
-    return sendTransactionAndGetResponse(to, abi, functionName, data);
-  }
-
-  @Override
-  public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
-      String contractName, String contractAddress, String functionName, List<Object> args)
-      throws ABICodecException, TransactionBaseException {
-    String data =
-        abiCodec.encodeMethod(
-            contractLoader.getABIByContractName(contractName), functionName, args);
-    return sendTransactionAndGetReceipt(contractAddress, data, cryptoKeyPair);
-  }
-
-  @Override
-  public TransactionResponse sendTransactionAndGetResponseByContractLoader(
-      String contractName, String contractAddress, String functionName, List<Object> funcParams)
-      throws ABICodecException, TransactionBaseException {
-    return sendTransactionAndGetResponse(
-        contractAddress,
-        contractLoader.getABIByContractName(contractName),
-        functionName,
-        funcParams);
-  }
-
-  @Override
-  public void sendTransactionAsync(String signedTransaction, TransactionCallback callback) {
-    transactionPusher.pushAsync(signedTransaction, callback);
-  }
-
-  @Override
-  public void sendTransactionAsync(
-      String to, String abi, String functionName, List<Object> params, TransactionCallback callback)
-      throws TransactionBaseException, ABICodecException {
-    String data = encodeFunction(abi, functionName, params);
-    sendTransactionAsync(to, data, this.cryptoKeyPair, callback);
-  }
-
-  @Override
-  public CompletableFuture<TransactionReceipt> sendTransactionAsync(String signedData) {
-    return transactionPusher.pushAsync(signedData);
-  }
-
-  @Override
-  public void sendTransactionAndGetReceiptByContractLoaderAsync(
-      String contractName,
-      String contractAddress,
-      String functionName,
-      List<Object> args,
-      TransactionCallback callback)
-      throws ABICodecException, TransactionBaseException {
-    String data =
-        abiCodec.encodeMethod(
-            contractLoader.getABIByContractName(contractName), functionName, args);
-    sendTransactionAsync(contractAddress, data, this.cryptoKeyPair, callback);
-  }
-
-  @Override
-  public CallResponse sendCallByContractLoader(
-      String contractName, String contractAddress, String functionName, List<Object> args)
-      throws TransactionBaseException, ABICodecException {
-    return sendCall(
-        this.cryptoKeyPair.getAddress(),
-        contractAddress,
-        contractLoader.getABIByContractName(contractName),
-        functionName,
-        args);
-  }
-
-  @Override
-  public CallResponse sendCall(
-      String from, String to, String abi, String functionName, List<Object> paramsList)
-      throws TransactionBaseException, ABICodecException {
-    String data = abiCodec.encodeMethod(abi, functionName, paramsList);
-    return callAndGetResponse(from, to, abi, functionName, data);
-  }
-
-  @Override
-  public CallResponse sendCall(CallRequest callRequest)
-      throws TransactionBaseException, ABICodecException {
-    Call call = executeCall(callRequest);
-    CallResponse callResponse = parseCallResponseStatus(call.getCallResult());
-    String callOutput = call.getCallResult().getOutput();
-    Pair<List<Object>, List<ABIObject>> results =
-        abiCodec.decodeMethodAndGetOutputObject(callRequest.getAbi(), callOutput);
-    callResponse.setValues(JsonUtils.toJson(results.getLeft()));
-    callResponse.setReturnObject(results.getLeft());
-    callResponse.setReturnABIObject(results.getRight());
-    return callResponse;
-  }
-
-  @Override
-  public CallResponse sendCallWithStringParams(
-      String from, String to, String abi, String functionName, List<String> paramsList)
-      throws TransactionBaseException, ABICodecException {
-    String data = abiCodec.encodeMethodFromString(abi, functionName, paramsList);
-    return callAndGetResponse(from, to, abi, functionName, data);
-  }
-
-  public CallResponse callAndGetResponse(
-      String from, String to, String abi, String functionName, String data)
-      throws ABICodecException, TransactionBaseException {
-    Call call = executeCall(from, to, data);
-    CallResponse callResponse = parseCallResponseStatus(call.getCallResult());
-    Pair<List<Object>, List<ABIObject>> results =
-        abiCodec.decodeMethodAndGetOutputObject(
-            abi, functionName, call.getCallResult().getOutput());
-    callResponse.setValues(JsonUtils.toJson(results.getLeft()));
-    callResponse.setReturnObject(results.getLeft());
-    callResponse.setReturnABIObject(results.getRight());
-    return callResponse;
-  }
-
-  @Override
-  public String createSignedConstructor(String abi, String bin, List<Object> params)
-      throws ABICodecException {
-    return createSignedTransaction(
-        null, abiCodec.encodeConstructor(abi, bin, params), this.cryptoKeyPair);
-  }
-
-  @Override
-  public String encodeFunction(String abi, String functionName, List<Object> params)
-      throws ABICodecException {
-    return abiCodec.encodeMethod(abi, functionName, params);
-  }
-
-  @Override
-  public TransactionData getRawTransactionForConstructor(
-      String abi, String bin, List<Object> params) throws ABICodecException {
-    return transactionBuilder.createTransaction(
-        null,
-        abiCodec.encodeConstructor(abi, bin, params),
-        new BigInteger(this.chainId),
-        BigInteger.valueOf(this.groupId));
-  }
-
-  @Override
-  public TransactionData getRawTransactionForConstructor(
-      BigInteger blockLimit, String abi, String bin, List<Object> params) throws ABICodecException {
-    return transactionBuilder.createTransaction(
-        blockLimit,
-        null,
-        abiCodec.encodeConstructor(abi, bin, params),
-        new BigInteger(this.chainId),
-        BigInteger.valueOf(this.groupId));
-  }
-
-  @Override
-  public TransactionData getRawTransaction(
-      String to, String abi, String functionName, List<Object> params) throws ABICodecException {
-    return transactionBuilder.createTransaction(
-        to,
-        abiCodec.encodeMethod(abi, functionName, params),
-        new BigInteger(this.chainId),
-        BigInteger.valueOf(this.groupId));
-  }
-
-  @Override
-  public TransactionData getRawTransaction(
-      BigInteger blockLimit, String to, String abi, String functionName, List<Object> params)
-      throws ABICodecException {
-    return transactionBuilder.createTransaction(
-        blockLimit,
-        to,
-        abiCodec.encodeMethod(abi, functionName, params),
-        new BigInteger(this.chainId),
-        BigInteger.valueOf(this.groupId));
-  }
-
-  private CallResponse parseCallResponseStatus(Call.CallOutput callOutput)
-      throws TransactionBaseException {
-    CallResponse callResponse = new CallResponse();
-    RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
-    callResponse.setReturnCode(Numeric.decodeQuantity(callOutput.getStatus()).intValue());
-    callResponse.setReturnMessage(retCode.getMessage());
-    if (!retCode.getMessage().equals(PrecompiledRetCode.CODE_SUCCESS.getMessage())) {
-      throw new TransactionBaseException(retCode);
+    @Override
+    public void deployOnly(String abi, String bin, List<Object> params) throws ABICodecException {
+        this.transactionPusher.pushOnly(this.createSignedConstructor(abi, bin, params));
     }
-    return callResponse;
-  }
 
-  public ContractLoader getContractLoader() {
-    return contractLoader;
-  }
+    @Override
+    public TransactionReceipt deployAndGetReceipt(byte[] data) {
+        String signedData = this.createSignedTransaction(null, data, this.cryptoKeyPair);
+        return this.transactionPusher.push(signedData);
+    }
+
+    @Override
+    public TransactionResponse deployAndGetResponse(String abi, String signedData) {
+        TransactionReceipt receipt = this.transactionPusher.push(signedData);
+        try {
+            return this.transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
+        } catch (TransactionException | IOException | ABICodecException e) {
+            log.error("deploy exception: {}", e.getMessage());
+            return new TransactionResponse(
+                    receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
+        }
+    }
+
+    @Override
+    public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
+            throws ABICodecException {
+        return this.deployAndGetResponse(abi, this.createSignedConstructor(abi, bin, params));
+    }
+
+    @Override
+    public TransactionResponse deployAndGetResponseWithStringParams(
+            String abi, String bin, List<String> params) throws ABICodecException {
+        return this.deployAndGetResponse(
+                abi,
+                this.createSignedTransaction(
+                        null, this.abiCodec.encodeConstructorFromString(abi, bin, params), this.cryptoKeyPair));
+    }
+
+    @Override
+    public void deployAsync(String abi, String bin, List<Object> params, TransactionCallback callback)
+            throws ABICodecException {
+        this.transactionPusher.pushAsync(this.createSignedConstructor(abi, bin, params), callback);
+    }
+
+    @Override
+    public CompletableFuture<TransactionReceipt> deployAsync(
+            String abi, String bin, List<Object> params) throws ABICodecException {
+        return this.transactionPusher.pushAsync(this.createSignedConstructor(abi, bin, params));
+    }
+
+    /**
+     * Deploy by bin and abi files. Should init with contractLoader.
+     *
+     * @param contractName the contract name
+     * @param args         the params when deploy a contract
+     * @return the transaction response
+     * @throws TransactionBaseException       send transaction exceptioned
+     * @throws ABICodecException              abi encode exceptioned
+     * @throws NoSuchTransactionFileException Files related to abi codec were not found
+     */
+    @Override
+    public TransactionResponse deployByContractLoader(String contractName, List<Object> args)
+            throws ABICodecException, TransactionBaseException {
+        return this.deployAndGetResponse(
+                this.contractLoader.getABIByContractName(contractName),
+                this.contractLoader.getBinaryByContractName(contractName),
+                args);
+    }
+
+    @Override
+    public void deployByContractLoaderAsync(
+            String contractName, List<Object> args, TransactionCallback callback)
+            throws ABICodecException, NoSuchTransactionFileException {
+        this.deployAsync(
+                this.contractLoader.getABIByContractName(contractName),
+                this.contractLoader.getBinaryByContractName(contractName),
+                args,
+                callback);
+    }
+
+    @Override
+    public void sendTransactionOnly(String signedData) {
+        this.transactionPusher.pushOnly(signedData);
+    }
+
+    @Override
+    public TransactionResponse sendTransactionAndGetResponse(
+            String to, String abi, String functionName, byte[] data)
+            throws TransactionBaseException, ABICodecException {
+        String signedData = this.createSignedTransaction(to, data, this.cryptoKeyPair);
+        TransactionReceipt receipt = this.transactionPusher.push(signedData);
+        try {
+            return this.transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
+        } catch (TransactionException | IOException e) {
+            log.error("sendTransaction exception: {}", e.getMessage());
+            return new TransactionResponse(
+                    receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
+        }
+    }
+
+    @Override
+    public TransactionResponse sendTransactionAndGetResponse(
+            String to, String abi, String functionName, List<Object> params)
+            throws ABICodecException, TransactionBaseException {
+        byte[] data = this.encodeFunction(abi, functionName, params);
+        return this.sendTransactionAndGetResponse(to, abi, functionName, data);
+    }
+
+    @Override
+    public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
+            String to, String abi, String functionName, List<String> params)
+            throws ABICodecException, TransactionBaseException {
+        byte[] data = this.abiCodec.encodeMethodFromString(abi, functionName, params);
+        return this.sendTransactionAndGetResponse(to, abi, functionName, data);
+    }
+
+    @Override
+    public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
+            String contractName, String contractAddress, String functionName, List<Object> args)
+            throws ABICodecException, TransactionBaseException {
+        byte[] data =
+                this.abiCodec.encodeMethod(
+                        this.contractLoader.getABIByContractName(contractName), functionName, args);
+        return this.sendTransactionAndGetReceipt(contractAddress, data, this.cryptoKeyPair);
+    }
+
+    @Override
+    public TransactionResponse sendTransactionAndGetResponseByContractLoader(
+            String contractName, String contractAddress, String functionName, List<Object> funcParams)
+            throws ABICodecException, TransactionBaseException {
+        return this.sendTransactionAndGetResponse(
+                contractAddress,
+                this.contractLoader.getABIByContractName(contractName),
+                functionName,
+                funcParams);
+    }
+
+    @Override
+    public void sendTransactionAsync(String signedTransaction, TransactionCallback callback) {
+        this.transactionPusher.pushAsync(signedTransaction, callback);
+    }
+
+    @Override
+    public void sendTransactionAsync(
+            String to, String abi, String functionName, List<Object> params, TransactionCallback callback)
+            throws TransactionBaseException, ABICodecException {
+        byte[] data = this.encodeFunction(abi, functionName, params);
+        this.sendTransactionAsync(to, data, this.cryptoKeyPair, callback);
+    }
+
+    @Override
+    public CompletableFuture<TransactionReceipt> sendTransactionAsync(String signedData) {
+        return this.transactionPusher.pushAsync(signedData);
+    }
+
+    @Override
+    public void sendTransactionAndGetReceiptByContractLoaderAsync(
+            String contractName,
+            String contractAddress,
+            String functionName,
+            List<Object> args,
+            TransactionCallback callback)
+            throws ABICodecException, TransactionBaseException {
+        byte[] data =
+                this.abiCodec.encodeMethod(
+                        this.contractLoader.getABIByContractName(contractName), functionName, args);
+        this.sendTransactionAsync(contractAddress, data, this.cryptoKeyPair, callback);
+    }
+
+    @Override
+    public CallResponse sendCallByContractLoader(
+            String contractName, String contractAddress, String functionName, List<Object> args)
+            throws TransactionBaseException, ABICodecException {
+        return this.sendCall(
+                this.cryptoKeyPair.getAddress(),
+                contractAddress,
+                this.contractLoader.getABIByContractName(contractName),
+                functionName,
+                args);
+    }
+
+    @Override
+    public CallResponse sendCall(
+            String from, String to, String abi, String functionName, List<Object> paramsList)
+            throws TransactionBaseException, ABICodecException {
+        byte[] data = this.abiCodec.encodeMethod(abi, functionName, paramsList);
+        return this.callAndGetResponse(from, to, abi, functionName, data);
+    }
+
+    @Override
+    public CallResponse sendCall(CallRequest callRequest)
+            throws TransactionBaseException, ABICodecException {
+        Call call = this.executeCall(callRequest);
+        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
+        String callOutput = call.getCallResult().getOutput();
+        Pair<List<Object>, List<ABIObject>> results =
+                this.abiCodec.decodeMethodAndGetOutputObject(callRequest.getAbi(), callOutput);
+        callResponse.setValues(JsonUtils.toJson(results.getLeft()));
+        callResponse.setReturnObject(results.getLeft());
+        callResponse.setReturnABIObject(results.getRight());
+        return callResponse;
+    }
+
+    @Override
+    public CallResponse sendCallWithStringParams(
+            String from, String to, String abi, String functionName, List<String> paramsList)
+            throws TransactionBaseException, ABICodecException {
+        byte[] data = this.abiCodec.encodeMethodFromString(abi, functionName, paramsList);
+        return this.callAndGetResponse(from, to, abi, functionName, data);
+    }
+
+    public CallResponse callAndGetResponse(
+            String from, String to, String abi, String functionName, byte[] data)
+            throws ABICodecException, TransactionBaseException {
+        Call call = this.executeCall(from, to, data);
+        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
+        Pair<List<Object>, List<ABIObject>> results =
+                this.abiCodec.decodeMethodAndGetOutputObject(
+                        abi, functionName, call.getCallResult().getOutput());
+        callResponse.setValues(JsonUtils.toJson(results.getLeft()));
+        callResponse.setReturnObject(results.getLeft());
+        callResponse.setReturnABIObject(results.getRight());
+        return callResponse;
+    }
+
+    @Override
+    public String createSignedConstructor(String abi, String bin, List<Object> params)
+            throws ABICodecException {
+        return this.createSignedTransaction(
+                null, this.abiCodec.encodeConstructor(abi, bin, params), this.cryptoKeyPair);
+    }
+
+    @Override
+    public byte[] encodeFunction(String abi, String functionName, List<Object> params)
+            throws ABICodecException {
+        return this.abiCodec.encodeMethod(abi, functionName, params);
+    }
+
+    @Override
+    public TransactionData getRawTransactionForConstructor(
+            String abi, String bin, List<Object> params) throws ABICodecException {
+        return this.transactionBuilder.createTransaction(
+                null,
+                this.abiCodec.encodeConstructor(abi, bin, params),
+                this.chainId,
+                this.groupId);
+    }
+
+    @Override
+    public TransactionData getRawTransactionForConstructor(
+            BigInteger blockLimit, String abi, String bin, List<Object> params) throws ABICodecException {
+        return this.transactionBuilder.createTransaction(
+                blockLimit,
+                null,
+                this.abiCodec.encodeConstructor(abi, bin, params),
+                this.chainId,
+                this.groupId);
+    }
+
+    @Override
+    public TransactionData getRawTransaction(
+            String to, String abi, String functionName, List<Object> params) throws ABICodecException {
+        return this.transactionBuilder.createTransaction(
+                to,
+                this.abiCodec.encodeMethod(abi, functionName, params),
+                this.chainId,
+                this.groupId);
+    }
+
+    @Override
+    public TransactionData getRawTransaction(
+            BigInteger blockLimit, String to, String abi, String functionName, List<Object> params)
+            throws ABICodecException {
+        return this.transactionBuilder.createTransaction(
+                blockLimit,
+                to,
+                this.abiCodec.encodeMethod(abi, functionName, params),
+                this.chainId,
+                this.groupId);
+    }
+
+    private CallResponse parseCallResponseStatus(Call.CallOutput callOutput)
+            throws TransactionBaseException {
+        CallResponse callResponse = new CallResponse();
+        RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
+        callResponse.setReturnCode(Numeric.decodeQuantity(callOutput.getStatus()).intValue());
+        callResponse.setReturnMessage(retCode.getMessage());
+        if (!retCode.getMessage().equals(PrecompiledRetCode.CODE_SUCCESS.getMessage())) {
+            throw new TransactionBaseException(retCode);
+        }
+        return callResponse;
+    }
+
+    public ContractLoader getContractLoader() {
+        return this.contractLoader;
+    }
 }

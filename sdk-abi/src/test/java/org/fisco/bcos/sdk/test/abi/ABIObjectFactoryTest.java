@@ -1,16 +1,18 @@
 package org.fisco.bcos.sdk.test.abi;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-
-import java.util.Objects;
 import org.fisco.bcos.sdk.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Objects;
+
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 public class ABIObjectFactoryTest {
 
@@ -102,7 +104,7 @@ public class ABIObjectFactoryTest {
                                 .get(0)
                                 .getMethodSignatureAsString()),
                 "0xd92a9e33");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xd92a9e33")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xd92a9e33"))));
 
         assertEquals(
                 contractABIDefinition.getFunctions().get("b").get(0).getMethodSignatureAsString(),
@@ -115,7 +117,7 @@ public class ABIObjectFactoryTest {
                                 .get(0)
                                 .getMethodSignatureAsString()),
                 "0x5282e79c");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x5282e79c")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x5282e79c"))));
 
         assertEquals(
                 contractABIDefinition.getFunctions().get("c").get(0).getMethodSignatureAsString(),
@@ -129,7 +131,7 @@ public class ABIObjectFactoryTest {
                                 .getMethodSignatureAsString()),
                 "0xf332a566");
 
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xf332a566")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xf332a566"))));
 
         assertEquals(
                 contractABIDefinition.getFunctions().get("d").get(0).getMethodSignatureAsString(),
@@ -142,7 +144,7 @@ public class ABIObjectFactoryTest {
                                 .get(0)
                                 .getMethodSignatureAsString()),
                 "0x7f6b590c");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x7f6b590c")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x7f6b590c"))));
 
         assertEquals(
                 contractABIDefinition.getFunctions().get("e").get(0).getMethodSignatureAsString(),
@@ -155,7 +157,7 @@ public class ABIObjectFactoryTest {
                                 .get(0)
                                 .getMethodSignatureAsString()),
                 "0xb45c9d9f");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xb45c9d9f")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xb45c9d9f"))));
 
         assertEquals(
                 contractABIDefinition.getFunctions().get("f").get(0).getMethodSignatureAsString(),
@@ -169,7 +171,7 @@ public class ABIObjectFactoryTest {
                                 .getMethodSignatureAsString()),
                 "0xedb896f9");
 
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xedb896f9")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xedb896f9"))));
 
         assertEquals(
                 contractABIDefinition.getFunctions().get("g").get(0).getMethodSignatureAsString(),
@@ -182,7 +184,7 @@ public class ABIObjectFactoryTest {
                         .getMethodId(Utils.getCryptoSuite()),
                 "0xadc86690");
 
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xadc86690")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xadc86690"))));
 
         assertEquals(
                 contractABIDefinition.getFunctions().get("h").get(0).getMethodSignatureAsString(),
@@ -194,7 +196,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x7a3093eb");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xadc86690")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xadc86690"))));
     }
 
     @Test
@@ -348,7 +350,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x00a3c75d");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x00a3c75d")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x00a3c75d"))));
 
         assertEquals(
                 contractABIDefinition
@@ -365,7 +367,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x6b59084d");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x6b59084d")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x6b59084d"))));
     }
 
     @Test
@@ -645,7 +647,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0xe1207bee");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xe1207bee")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xe1207bee"))));
 
         assertEquals(
                 contractABIDefinition
@@ -662,7 +664,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x063ff7ef");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x063ff7ef")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x063ff7ef"))));
 
         assertEquals(
                 contractABIDefinition
@@ -679,7 +681,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0xb54138b0");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xb54138b0")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xb54138b0"))));
 
         assertEquals(
                 contractABIDefinition
@@ -696,7 +698,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0xf4fa9d03");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xf4fa9d03")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xf4fa9d03"))));
 
         assertEquals(
                 contractABIDefinition
@@ -713,7 +715,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x6ccc29dc");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x6ccc29dc")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x6ccc29dc"))));
 
         assertEquals(
                 contractABIDefinition
@@ -730,7 +732,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x9edd3441");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x9edd3441")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x9edd3441"))));
 
         assertEquals(
                 contractABIDefinition
@@ -747,7 +749,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0xcb797d2f");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xcb797d2f")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xcb797d2f"))));
 
         assertEquals(
                 contractABIDefinition
@@ -764,7 +766,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x4efcaed0");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x4efcaed0")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x4efcaed0"))));
 
         assertEquals(
                 contractABIDefinition
@@ -781,7 +783,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0xd55c01f7");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xd55c01f7")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xd55c01f7"))));
 
         assertEquals(
                 contractABIDefinition
@@ -798,7 +800,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x8bc4827c");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x8bc4827c")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x8bc4827c"))));
 
         assertEquals(
                 contractABIDefinition
@@ -815,7 +817,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x8c31f9ad");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x8c31f9ad")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x8c31f9ad"))));
 
         assertEquals(
                 contractABIDefinition
@@ -832,7 +834,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x772d0b53");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x772d0b53")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x772d0b53"))));
 
         assertEquals(
                 contractABIDefinition
@@ -849,7 +851,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x51cd3824");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x51cd3824")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x51cd3824"))));
 
         assertEquals(
                 contractABIDefinition
@@ -866,7 +868,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x18a56b67");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x18a56b67")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x18a56b67"))));
 
         assertEquals(
                 contractABIDefinition
@@ -883,7 +885,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0xe25a0866");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xe25a0866")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xe25a0866"))));
 
         assertEquals(
                 contractABIDefinition
@@ -900,7 +902,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0xac5d3723");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xac5d3723")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xac5d3723"))));
     }
 
     @Test
@@ -1200,7 +1202,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0xf92a5e47");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0xf92a5e47")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0xf92a5e47"))));
 
         assertEquals(
                 contractABIDefinition
@@ -1217,7 +1219,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x10c7e4ab");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x10c7e4ab")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x10c7e4ab"))));
 
         assertEquals(
                 contractABIDefinition
@@ -1234,7 +1236,7 @@ public class ABIObjectFactoryTest {
                         .get(0)
                         .getMethodId(Utils.getCryptoSuite()),
                 "0x70be28d9");
-        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId("0x70be28d9")));
+        assertTrue(Objects.nonNull(contractABIDefinition.getABIDefinitionByMethodId(Hex.decode("0x70be28d9"))));
     }
 
     @Test

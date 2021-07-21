@@ -25,85 +25,27 @@ import java.math.BigInteger;
  */
 public interface TransactionBuilderInterface {
 
-  /**
-   * Create fisco bcos transaction
-   *
-   * @param gasPrice, @see DefaultGasProvider
-   * @param gasLimit, @see DefaultGasProvider
-   * @param to target address
-   * @param data encoded data
-   * @param value default 0
-   * @param chainId default 1
-   * @param groupId the group that need create transaction
-   * @param extraData default null
-   * @return TransactionData the created transaction
-   */
-  public TransactionData createTransaction(
-      BigInteger gasPrice,
-      BigInteger gasLimit,
-      String to,
-      String data,
-      BigInteger value,
-      BigInteger chainId,
-      BigInteger groupId,
-      String extraData);
+    /**
+     * Create fisco bcos transaction for short
+     *
+     * @param to      target address
+     * @param data    encoded data
+     * @param groupId group id
+     * @param chainId chain id
+     * @return TransactionData the created transaction
+     */
+    public TransactionData createTransaction(
+            String to, byte[] data, String chainId, String groupId);
 
-  /**
-   * Create fisco bcos transaction
-   *
-   * @param blockLimit, block limit
-   * @param gasPrice, @see DefaultGasProvider
-   * @param gasLimit, @see DefaultGasProvider
-   * @param to target address
-   * @param data encoded data
-   * @param value default 0
-   * @param chainId default 1
-   * @param groupId the group that need create transaction
-   * @param extraData default null
-   * @return TransactionData the created transaction
-   */
-  public TransactionData createTransaction(
-      BigInteger blockLimit,
-      BigInteger gasPrice,
-      BigInteger gasLimit,
-      String to,
-      String data,
-      BigInteger value,
-      BigInteger chainId,
-      BigInteger groupId,
-      String extraData);
-
-  /**
-   * Create fisco bcos transaction for short
-   *
-   * @param to target address
-   * @param data encoded data
-   * @param groupId group id
-   * @return TransactionData the created transaction
-   */
-  public TransactionData createTransaction(String to, String data, BigInteger groupId);
-
-  /**
-   * Create fisco bcos transaction for short
-   *
-   * @param to target address
-   * @param data encoded data
-   * @param groupId group id
-   * @param chainId chain id
-   * @return TransactionData the created transaction
-   */
-  public TransactionData createTransaction(
-      String to, String data, BigInteger chainId, BigInteger groupId);
-
-  /**
-   * Create fisco bcos transaction for short
-   *
-   * @param blockLimit, block limit
-   * @param to target address
-   * @param data encoded data
-   * @param groupId group id
-   * @return TransactionData the created transaction
-   */
-  public TransactionData createTransaction(
-      BigInteger blockLimit, String to, String data, BigInteger chainId, BigInteger groupId);
+    /**
+     * Create fisco bcos transaction for short
+     *
+     * @param blockLimit, block limit
+     * @param to          target address
+     * @param data        encoded data
+     * @param groupId     group id
+     * @return TransactionData the created transaction
+     */
+    public TransactionData createTransaction(
+            BigInteger blockLimit, String to, byte[] data, String chainId, String groupId);
 }

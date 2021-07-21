@@ -14,11 +14,11 @@
 package org.fisco.bcos.sdk.service;
 
 public class GroupServiceFactory {
-    public GroupService createGroupSerivce(Integer groupId, String nodeIpAndPortInfo) {
+    public GroupService createGroupSerivce(String groupId, String nodeIpAndPortInfo) {
         return new GroupServiceImpl(groupId, nodeIpAndPortInfo);
     }
 
-    public GroupService createGroupSerivce(Integer groupId) {
+    public GroupService createGroupSerivce(String groupId) {
         return new GroupServiceImpl(groupId);
     }
 }

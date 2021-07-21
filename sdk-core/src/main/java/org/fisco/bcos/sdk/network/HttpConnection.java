@@ -26,7 +26,7 @@ public class HttpConnection implements Connection {
         }
         else
         {
-            this.uri =config.getNetworkConfig().getPeers().get(0);
+            this.uri = config.getNetworkConfig().getPeers().get(0);
         }
     }
     /** close connection */

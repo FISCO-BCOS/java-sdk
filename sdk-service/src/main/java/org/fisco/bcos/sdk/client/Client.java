@@ -15,17 +15,17 @@
 
 package org.fisco.bcos.sdk.client;
 
-import java.math.BigInteger;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.CryptoType;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.network.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
 
 /**
  * This is the interface of client module.
@@ -39,22 +39,20 @@ public interface Client {
      * Build a client instance GroupId is identified, all interfaces are available
      *
      * @param connection the connection instance
-     * @param groupId the group id
      * @return a client instance
      */
-    static Client build(Connection connection, Integer groupId, ConfigOption config) {
+    static Client build(Connection connection, ConfigOption config) {
         // get cryptoType
         //        Integer cryptoType = connection.getCryptoType();
         Integer cryptoType = CryptoType.ECDSA_TYPE;
         if (cryptoType == null) {
             logger.warn(
-                    "build client failed for get crypto type or nodeVersion failed, groupId: {}",
-                    groupId);
+                    "build client failed for get crypto type or nodeVersion failed");
             return null;
         }
         CryptoSuite cryptoSuite = new CryptoSuite(cryptoType, config);
-        logger.info("build client success for group {}", groupId);
-        return new ClientImpl(connection, groupId, cryptoSuite);
+        logger.info("build client success");
+        return new ClientImpl(connection, cryptoSuite);
     }
 
     /**
@@ -90,7 +88,14 @@ public interface Client {
      *
      * @return the groupId
      */
-    Integer getGroupId();
+    String getGroupId();
+
+    /**
+     * get groupId of the client
+     *
+     * @return the groupId
+     */
+    String getChainId();
 
     /**
      * Ledger operation: send transaction
@@ -104,7 +109,7 @@ public interface Client {
      * Ledger operation: async send transaction
      *
      * @param signedTransactionData transaction string
-     * @param callback the callback that will be called when receive the response
+     * @param callback              the callback that will be called when receive the response
      */
     void sendRawTransactionAsync(
             String signedTransactionData, boolean withProof, TransactionCallback callback);
@@ -121,7 +126,7 @@ public interface Client {
      * Ledger operation: async call contract functions without sending transaction
      *
      * @param transaction transaction instance
-     * @param callback the callback that will be called when receive the response
+     * @param callback    the callback that will be called when receive the response
      */
     void callAsync(Transaction transaction, RespCallback<Call> callback);
 
@@ -150,7 +155,7 @@ public interface Client {
     /**
      * Ledger operation: async get code
      *
-     * @param address the address string
+     * @param address  the address string
      * @param callback the callback that will be called when receive the response
      */
     void getCodeAsync(String address, RespCallback<Code> callback);
@@ -172,21 +177,21 @@ public interface Client {
     /**
      * Ledger operation: get block by hash
      *
-     * @param blockHash the hashcode of the block
+     * @param blockHash                    the hashcode of the block
      * @param returnFullTransactionObjects the boolean define the tx is full or not
      * @return a block
      */
-    BcosBlock getBlockByHash(String blockHash, boolean returnFullTransactionObjects);
+    BcosBlock getBlockByHash(String blockHash, boolean onlyHeader, boolean returnFullTransactionObjects);
 
     /**
      * Ledger operation: async get block by hash
      *
-     * @param blockHash the hashcode of the block
+     * @param blockHash                    the hashcode of the block
      * @param returnFullTransactionObjects the boolean define the tx is full or not
-     * @param callback the callback that will be called when receive the response
+     * @param callback                     the callback that will be called when receive the response
      */
     void getBlockByHashAsync(
-            String blockHash,
+            String blockHash, boolean onlyHeader,
             boolean returnFullTransactionObjects,
             RespCallback<BcosBlock> callback);
 
@@ -194,17 +199,17 @@ public interface Client {
      * Ledger operation: get block by block number
      *
      * @param blockNumber the number of the block
-     * @param returnFullTransactionObjects the boolean define the tx is full or not
+     * @param onlyHeader  the boolean define if only return header
      * @return block
      */
-    BcosBlock getBlockByNumber(BigInteger blockNumber, boolean returnFullTransactionObjects);
+    BcosBlock getBlockByNumber(BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions);
 
     /**
      * Ledger operation: async get block by block number
      *
-     * @param blockNumber the number of the block
+     * @param blockNumber                  the number of the block
      * @param returnFullTransactionObjects the boolean define the tx is full or not
-     * @param callback the callback that will be called when receive the response
+     * @param callback                     the callback that will be called when receive the response
      */
     void getBlockByNumberAsync(
             BigInteger blockNumber,
@@ -223,14 +228,14 @@ public interface Client {
      * Ledger operation: async get block hash by block number
      *
      * @param blockNumber the number of the block
-     * @param callback the callback that will be called when receive the response
+     * @param callback    the callback that will be called when receive the response
      */
     void getBlockHashByNumberAsync(BigInteger blockNumber, RespCallback<BlockHash> callback);
 
     /**
      * Ledger operation: get block header by block hash
      *
-     * @param blockHash the hashcode of the block
+     * @param blockHash           the hashcode of the block
      * @param returnSignatureList the boolean define the signature list is returned or not
      * @return block header
      */
@@ -239,9 +244,9 @@ public interface Client {
     /**
      * Ledger operation: async get block header by block hash
      *
-     * @param blockHash the hashcode of the block
+     * @param blockHash           the hashcode of the block
      * @param returnSignatureList the boolean define the signature list is returned or not
-     * @param callback the call back instance
+     * @param callback            the call back instance
      */
     void getBlockHeaderByHashAsync(
             String blockHash, boolean returnSignatureList, RespCallback<BcosBlockHeader> callback);
@@ -249,7 +254,7 @@ public interface Client {
     /**
      * get block header by number
      *
-     * @param blockNumber the number of the block
+     * @param blockNumber         the number of the block
      * @param returnSignatureList the boolean define the signature list is returned or not
      * @return the block header response from the blockchain node
      */
@@ -272,7 +277,7 @@ public interface Client {
      * Ledger operation: async get trnasaction by hash
      *
      * @param transactionHash the hashcode of transaction
-     * @param callback the callback that will be called when receive the response
+     * @param callback        the callback that will be called when receive the response
      */
     void getTransactionByHashAsync(String transactionHash, RespCallback<BcosTransaction> callback);
 
@@ -288,7 +293,7 @@ public interface Client {
      * Ledger operation: async get transaction receipt by transaction hash
      *
      * @param transactionHash the hashcode of transaction
-     * @param callback the callback that will be called when receive the response
+     * @param callback        the callback that will be called when receive the response
      */
     void getTransactionReceiptAsync(
             String transactionHash, RespCallback<BcosTransactionReceipt> callback);
@@ -381,7 +386,7 @@ public interface Client {
     /**
      * Peer operation: async get system config
      *
-     * @param key the string of key
+     * @param key      the string of key
      * @param callback the callback instance
      */
     void getSystemConfigByKeyAsync(String key, RespCallback<SystemConfig> callback);

@@ -15,10 +15,6 @@
 package org.fisco.bcos.sdk.transaction.decoder;
 
 import com.google.common.collect.Lists;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.model.ConstantConfig;
@@ -31,6 +27,11 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * TransactionDecoderServiceTest @Description: TransactionDecoderServiceTest
@@ -48,7 +49,7 @@ public class TransactionDecoderServiceTest {
     @Test
     public void testDecode() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
-        Client client = sdk.getClient(Integer.valueOf(1));
+        Client client = sdk.getClient("1");
         TransactionDecoderInterface decoder =
                 new TransactionDecoderService(client.getCryptoSuite());
         ContractLoader contractLoader = new ContractLoader(abiFile, binFile);

@@ -18,42 +18,78 @@
 package org.fisco.bcos.sdk;
 
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.exceptions.ClientException;
-import org.fisco.bcos.sdk.client.protocol.response.*;
+import org.fisco.bcos.sdk.client.protocol.response.NodeInfo;
+import org.fisco.bcos.sdk.client.protocol.response.ObserverList;
+import org.fisco.bcos.sdk.client.protocol.response.PbftView;
+import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.contract.HelloWorld;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
+import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.junit.Test;
 
-import java.math.BigInteger;
-
 public class BcosSDKTest {
-  private static final String configFile =
-      BcosSDKTest.class.getClassLoader().getResource(ConstantConfig.CONFIG_FILE_NAME).getPath();
+    private static final String configFile =
+            BcosSDKTest.class.getClassLoader().getResource(ConstantConfig.CONFIG_FILE_NAME).getPath();
 
-  @Test
-  public void testClient() throws ConfigException {
-    BcosSDK sdk = BcosSDK.build(configFile);
-    // get the client
-    Client client = sdk.getClient(Integer.valueOf(1));
+    @Test
+    public void testClient() throws ConfigException {
+        BcosSDK sdk = BcosSDK.build(configFile);
+        // get the client
+        Client client = sdk.getClient("1");
 
-    // get NodeVersion
-    NodeInfo.NodeInformation nodeVersion = client.getNodeInfo();
-    System.out.println(nodeVersion);
+        // get NodeVersion
+        NodeInfo.NodeInformation nodeVersion = client.getNodeInfo();
+        System.out.println(nodeVersion);
 
-    // test getBlockNumber
-    BlockNumber blockNumber = client.getBlockNumber();
+//    // test getBlockNumber
+//    BlockNumber blockNumber = client.getBlockNumber();
+//    System.out.println(blockNumber);
+//
+//    // test getBlockByNumber
+//    BcosBlock block = client.getBlockByNumber(BigInteger.ZERO, false);
+//    System.out.println(block);
 
-    // test getBlockByNumber
-    BcosBlock block = client.getBlockByNumber(BigInteger.ZERO, false);
+        // get SealerList
+        SealerList sealerList = client.getSealerList();
+        System.out.println(sealerList.getSealerList());
 
-    // get SealerList
-    SealerList sealerList = client.getSealerList();
+        // get observerList
+        ObserverList observerList = client.getObserverList();
+        System.out.println(observerList.getObserverList());
 
-    // get observerList
-    client.getObserverList();
+        // get pbftView
+        PbftView pbftView = client.getPbftView();
+        System.out.println(pbftView.getPbftView());
 
-    // get pbftView
-    client.getPbftView();
+    }
 
-  }
+    @Test
+    public void testHelloWorld() {
+        BcosSDK sdk = BcosSDK.build(configFile);
+        // get the client
+        Client client = sdk.getClient("1");
+        CryptoSuite cryptoSuite = client.getCryptoSuite();
+        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        HelloWorld helloWorld = null;
+        try {
+            helloWorld = HelloWorld.deploy(client, keyPair);
+        } catch (ContractException e) {
+            e.printStackTrace();
+        }
+        System.out.println("helloworld address :" + helloWorld.getContractAddress());
+        try {
+            String s = helloWorld.get();
+            System.out.println("helloworld get :" + s);
+            helloWorld.set("fisco hello");
+            System.out.println("helloworld set :" + "fisco hello");
+            s = helloWorld.get();
+            System.out.println("helloworld get :" + s);
+        } catch (ContractException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

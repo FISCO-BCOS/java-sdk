@@ -15,9 +15,6 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
@@ -35,6 +32,10 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 /**
  * TransactionProcessorTest @Description: TransactionProcessorTest
  *
@@ -51,19 +52,19 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     // prepare sdk， read from the config file
     private BcosSDK sdk = BcosSDK.build(configFile);
     // set the group number 1
-    private Client client = sdk.getClient(Integer.valueOf(1));
+    private Client client = this.sdk.getClient("1");
     // create new keypair
-    private CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+    private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
     // mock remote sign service
     private RemoteSignProviderInterface remoteSignProviderMock =
-            new RemoteSignProviderMock(client.getCryptoSuite());
+            new RemoteSignProviderMock(this.client.getCryptoSuite());
 
     @Test
     public void test1HelloWorldSync() throws Exception {
         // build processor
         AssembleTransactionWithRemoteSignProcessor assembleTransactionWithRemoteSignProcessor =
                 TransactionProcessorFactory.createAssembleTransactionWithRemoteSignProcessor(
-                        client, cryptoKeyPair, abiFile, binFile, remoteSignProviderMock);
+                        this.client, this.cryptoKeyPair, abiFile, binFile, this.remoteSignProviderMock);
         // read HelloWorld contract abi and binary from the config file path
         String abi =
                 assembleTransactionWithRemoteSignProcessor.contractLoader.getABIByContractName(
@@ -82,12 +83,12 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
-                                helloWorldAddrss,
-                                "0x0000000000000000000000000000000000000000000000000000000000000000"));
+                        helloWorldAddrss,
+                        "0x0000000000000000000000000000000000000000000000000000000000000000"));
 
         // function2: send transaction `HelloWorld.set("test")` sync
         assembleTransactionWithRemoteSignProcessor.sendTransactionAndGetResponse(
-                helloWorldAddrss, abi, "set", params);
+                helloWorldAddrss, abi, "set", this.params);
         // Assert.assertEquals("0x0", transactionResponse2.getTransactionReceipt().getStatus());
 
         // function3:  call, which only support sync mode.
@@ -102,7 +103,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         // build processor
         AssembleTransactionWithRemoteSignProcessor assembleTransactionWithRemoteSignProcessor =
                 TransactionProcessorFactory.createAssembleTransactionWithRemoteSignProcessor(
-                        client, cryptoKeyPair, abiFile, binFile, remoteSignProviderMock);
+                        this.client, this.cryptoKeyPair, abiFile, binFile, this.remoteSignProviderMock);
         // read HelloWorld contract abi and binary from the config file path
         String abi =
                 assembleTransactionWithRemoteSignProcessor.contractLoader.getABIByContractName(
@@ -123,8 +124,8 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
-                                helloWorldAddrss,
-                                "0x0000000000000000000000000000000000000000000000000000000000000000"));
+                        helloWorldAddrss,
+                        "0x0000000000000000000000000000000000000000000000000000000000000000"));
 
         // function2: deploy async with callback
         TransactionData rawTransaction =
@@ -159,19 +160,19 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         // function4: send transaction async with callback
         TransactionData sendTxRawTransaction =
                 assembleTransactionWithRemoteSignProcessor.getRawTransaction(
-                        helloWorldAddrss, abi, "set", params);
+                        helloWorldAddrss, abi, "set", this.params);
         // create an instance of Remote Sign Service callback, and define the hook function.
         RemoteSignCallbackMock callbackMock2 =
                 new RemoteSignCallbackMock(
                         assembleTransactionWithRemoteSignProcessor, sendTxRawTransaction);
         System.out.println(System.currentTimeMillis() + " begin to send tx with callback: ");
         assembleTransactionWithRemoteSignProcessor.sendTransactionAsync(
-                helloWorldAddrss, abi, "set", params, callbackMock2);
+                helloWorldAddrss, abi, "set", this.params, callbackMock2);
 
         // function5: deploy async with CompletableFuture
         CompletableFuture<TransactionReceipt> future2 =
                 assembleTransactionWithRemoteSignProcessor.sendTransactionAsync(
-                        helloWorldAddrss, abi, "set", params);
+                        helloWorldAddrss, abi, "set", this.params);
         // if exceptional
         future2.exceptionally(
                 e -> {

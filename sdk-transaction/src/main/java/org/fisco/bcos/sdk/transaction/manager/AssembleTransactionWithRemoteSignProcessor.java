@@ -26,7 +26,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
   public AssembleTransactionWithRemoteSignProcessor(
       Client client,
       CryptoKeyPair cryptoKeyPair,
-      Integer groupId,
+      String groupId,
       String chainId,
       String contractName,
       RemoteSignProviderInterface transactionSignProvider) {
@@ -38,7 +38,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
   public AssembleTransactionWithRemoteSignProcessor(
       Client client,
       CryptoKeyPair cryptoKeyPair,
-      Integer groupId,
+      String groupId,
       String chainId,
       ContractLoader contractLoader,
       RemoteSignProviderInterface transactionSignProvider) {

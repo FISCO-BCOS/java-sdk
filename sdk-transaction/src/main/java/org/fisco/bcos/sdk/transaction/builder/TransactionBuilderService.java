@@ -19,7 +19,6 @@ import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
-import org.fisco.bcos.sdk.transaction.model.gas.DefaultGasProvider;
 import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
 
 import java.math.BigInteger;
@@ -28,141 +27,98 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TransactionBuilderService implements TransactionBuilderInterface {
-  private Client client;
+    private Client client;
 
-  /**
-   * create TransactionBuilderService
-   *
-   * @param client the client object
-   */
-  public TransactionBuilderService(Client client) {
-    super();
-    this.client = client;
-  }
+    /**
+     * create TransactionBuilderService
+     *
+     * @param client the client object
+     */
+    public TransactionBuilderService(Client client) {
+        super();
+        this.client = client;
+    }
 
-  /**
-   * Create fisco bcos transaction
-   *
-   * @param cryptoSuite @See CryptoSuite
-   * @param groupId the group that need create transaction
-   * @param chainId default 1
-   * @param blockLimit, cached limited block number
-   * @param abi, compiled contract abi
-   * @param to target address
-   * @param functionName function name
-   * @param params object list of function paramater
-   * @return TransactionData the signed transaction hexed string
-   */
-  public static String createSignedTransaction(
-      CryptoSuite cryptoSuite,
-      int groupId,
-      int chainId,
-      BigInteger blockLimit,
-      String abi,
-      String to,
-      String functionName,
-      List<Object> params)
-      throws ABICodecException {
-    ABICodec abiCodec = new ABICodec(cryptoSuite);
-    String data = abiCodec.encodeMethod(abi, functionName, params);
-    Random r = ThreadLocalRandom.current();
-    BigInteger randomId = new BigInteger(250, r);
-    TransactionData rawTransaction =
-        new TransactionData(
-            0,
-            Integer.toString(chainId),
-            Integer.toString(groupId),
-            blockLimit.intValue(),
-            randomId.toString(),
-            to.getBytes(),
-            data.getBytes());
+    /**
+     * Create fisco bcos transaction
+     *
+     * @param cryptoSuite  @See CryptoSuite
+     * @param groupId      the group that need create transaction
+     * @param chainId      default 1
+     * @param blockLimit,  cached limited block number
+     * @param abi,         compiled contract abi
+     * @param to           target address
+     * @param functionName function name
+     * @param params       object list of function paramater
+     * @return TransactionData the signed transaction hexed string
+     */
+    public static String createSignedTransaction(
+            CryptoSuite cryptoSuite,
+            String groupId,
+            String chainId,
+            BigInteger blockLimit,
+            String abi,
+            String to,
+            String functionName,
+            List<Object> params)
+            throws ABICodecException {
+        ABICodec abiCodec = new ABICodec(cryptoSuite);
+        byte[] data = abiCodec.encodeMethod(abi, functionName, params);
+        Random r = ThreadLocalRandom.current();
+        BigInteger randomId = new BigInteger(250, r);
+        TransactionData rawTransaction =
+                new TransactionData(
+                        0,
+                        chainId,
+                        groupId,
+                        blockLimit.intValue(),
+                        randomId.toString(),
+                        to.getBytes(),
+                        data);
 
-    TransactionEncoderService transactionEncoder = new TransactionEncoderService(cryptoSuite);
-    return transactionEncoder.encodeAndSign(rawTransaction, cryptoSuite.getCryptoKeyPair());
-  }
+        TransactionEncoderService transactionEncoder = new TransactionEncoderService(cryptoSuite);
+        return transactionEncoder.encodeAndSign(rawTransaction, cryptoSuite.getCryptoKeyPair());
+    }
 
-  @Override
-  public TransactionData createTransaction(
-      BigInteger gasPrice,
-      BigInteger gasLimit,
-      String to,
-      String data,
-      BigInteger value,
-      BigInteger chainId,
-      BigInteger groupId,
-      String extraData) {
-    return createTransaction(
-        client.getBlockLimit(), gasPrice, gasLimit, to, data, value, chainId, groupId, extraData);
-  }
+    @Override
+    public TransactionData createTransaction(
+            String to, byte[] data, String chainId, String groupId) {
 
-  @Override
-  public TransactionData createTransaction(
-      BigInteger blockLimit,
-      BigInteger gasPrice,
-      BigInteger gasLimit,
-      String to,
-      String data,
-      BigInteger value,
-      BigInteger chainId,
-      BigInteger groupId,
-      String extraData) {
-    Random r = ThreadLocalRandom.current();
-    BigInteger randomId = new BigInteger(250, r);
-    TransactionData transactionData =
-        new TransactionData(
-            0,
-            chainId.toString(),
-            groupId.toString(),
-            blockLimit.intValue(),
-            randomId.toString(),
-            to.getBytes(),
-            data.getBytes());
+        return this.createTransaction(
+                this.client.getBlockLimit(),
+                to,
+                data,
+                chainId,
+                groupId);
+    }
 
-    return transactionData;
-  }
+    @Override
+    public TransactionData createTransaction(
+            BigInteger blockLimit, String to, byte[] data, String chainId, String groupId) {
+        Random r = ThreadLocalRandom.current();
+        BigInteger randomId = new BigInteger(250, r);
+        return
+                new TransactionData(
+                        0,
+                        chainId,
+                        groupId,
+                        blockLimit.intValue(),
+                        randomId.toString(),
+                        to == null ? null : to.getBytes(),
+                        data);
+    }
 
-  @Override
-  public TransactionData createTransaction(String to, String data, BigInteger groupId) {
-    return createTransaction(to, data, BigInteger.ONE, groupId);
-  }
+    /**
+     * @return the client
+     */
+    public Client getClient() {
+        return this.client;
+    }
 
-  @Override
-  public TransactionData createTransaction(
-      String to, String data, BigInteger chainId, BigInteger groupId) {
-
-    return createTransaction(
-        DefaultGasProvider.GAS_PRICE,
-        DefaultGasProvider.GAS_LIMIT,
-        to,
-        data,
-        BigInteger.ZERO,
-        chainId,
-        groupId,
-        null);
-  }
-
-  @Override
-  public TransactionData createTransaction(
-      BigInteger blockLimit, String to, String data, BigInteger chainId, BigInteger groupId) {
-    return createTransaction(
-        blockLimit,
-        DefaultGasProvider.GAS_PRICE,
-        DefaultGasProvider.GAS_LIMIT,
-        to,
-        data,
-        BigInteger.ZERO,
-        chainId,
-        groupId,
-        null);
-  }
-
-  /** @return the client */
-  public Client getClient() {
-    return client;
-  }
-
-  /** @param client the client to set */
-  public void setClient(Client client) {
-    this.client = client;
-  }
+    /**
+     * @param client the client to set
+     */
+    public void setClient(Client client) {
+        this.client = client;
+    }
 }

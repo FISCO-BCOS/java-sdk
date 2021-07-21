@@ -1,13 +1,13 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
 import java.util.Objects;
-import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
 public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
     public NodeInfo.NodeInformation getNodeInfo() {
-        return getResult();
+        return this.getResult();
     }
 
     public static class NodeInformation {
@@ -26,6 +26,9 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         @JsonProperty("ChainId")
         private String chainId;
 
+        @JsonProperty("GroupId")
+        private String groupId;
+
         @JsonProperty("BuildTime")
         private String buildTime;
 
@@ -39,7 +42,7 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         private String gitCommit;
 
         public String getNodeID() {
-            return nodeID;
+            return this.nodeID;
         }
 
         public void setNodeID(String nodeID) {
@@ -47,7 +50,7 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         }
 
         public String getAgency() {
-            return agency;
+            return this.agency;
         }
 
         public void setAgency(String agency) {
@@ -55,7 +58,7 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         }
 
         public String getVersion() {
-            return version;
+            return this.version;
         }
 
         public void setVersion(String version) {
@@ -63,7 +66,7 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         }
 
         public String getSupportedVersion() {
-            return supportedVersion;
+            return this.supportedVersion;
         }
 
         public void setSupportedVersion(String supportedVersion) {
@@ -71,15 +74,23 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         }
 
         public String getChainId() {
-            return chainId;
+            return this.chainId;
         }
 
         public void setChainId(String chainId) {
             this.chainId = chainId;
         }
 
+        public String getGroupId() {
+            return this.groupId;
+        }
+
+        public void setGroupId(String groupId) {
+            this.groupId = groupId;
+        }
+
         public String getBuildTime() {
-            return buildTime;
+            return this.buildTime;
         }
 
         public void setBuildTime(String buildTime) {
@@ -87,7 +98,7 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         }
 
         public String getBuildType() {
-            return buildType;
+            return this.buildType;
         }
 
         public void setBuildType(String buildType) {
@@ -95,7 +106,7 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         }
 
         public String getGitBranch() {
-            return gitBranch;
+            return this.gitBranch;
         }
 
         public void setGitBranch(String gitBranch) {
@@ -103,7 +114,7 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         }
 
         public String getGitCommit() {
-            return gitCommit;
+            return this.gitCommit;
         }
 
         public void setGitCommit(String gitCommit) {
@@ -113,64 +124,66 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || this.getClass() != o.getClass()) return false;
             NodeInformation that = (NodeInformation) o;
-            return Objects.equals(nodeID, that.nodeID)
-                    && Objects.equals(agency, that.agency)
-                    && Objects.equals(version, that.version)
-                    && Objects.equals(supportedVersion, that.supportedVersion)
-                    && Objects.equals(chainId, that.chainId)
-                    && Objects.equals(buildTime, that.buildTime)
-                    && Objects.equals(buildType, that.buildType)
-                    && Objects.equals(gitBranch, that.gitBranch)
-                    && Objects.equals(gitCommit, that.gitCommit);
+            return Objects.equals(this.nodeID, that.nodeID)
+                    && Objects.equals(this.agency, that.agency)
+                    && Objects.equals(this.version, that.version)
+                    && Objects.equals(this.supportedVersion, that.supportedVersion)
+                    && Objects.equals(this.chainId, that.chainId)
+                    && Objects.equals(this.buildTime, that.buildTime)
+                    && Objects.equals(this.buildType, that.buildType)
+                    && Objects.equals(this.gitBranch, that.gitBranch)
+                    && Objects.equals(this.gitCommit, that.gitCommit);
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(
-                    nodeID,
-                    agency,
-                    version,
-                    supportedVersion,
-                    chainId,
-                    buildTime,
-                    buildType,
-                    gitBranch,
-                    gitCommit);
+                    this.nodeID,
+                    this.agency,
+                    this.version,
+                    this.supportedVersion,
+                    this.chainId,
+                    this.buildTime,
+                    this.buildType,
+                    this.gitBranch,
+                    this.gitCommit);
         }
 
         @Override
         public String toString() {
             return "NodeInfo{"
                     + "nodeId='"
-                    + nodeID
+                    + this.nodeID
                     + '\''
                     + ", agency='"
-                    + agency
+                    + this.agency
                     + '\''
                     + ", version='"
-                    + version
+                    + this.version
                     + '\''
                     + ", supportedVersion='"
-                    + supportedVersion
+                    + this.supportedVersion
                     + '\''
                     + ", chainId='"
-                    + chainId
+                    + this.chainId
                     + '\''
                     + ", buildTime='"
-                    + buildTime
+                    + this.buildTime
                     + '\''
                     + ", buildType='"
-                    + buildType
+                    + this.buildType
                     + '\''
                     + ", gitBranch='"
-                    + gitBranch
+                    + this.gitBranch
                     + '\''
                     + ", gitCommit='"
-                    + gitCommit
+                    + this.gitCommit
                     + '\''
                     + '}';
         }
+
+
     }
 }

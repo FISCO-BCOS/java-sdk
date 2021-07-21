@@ -15,14 +15,6 @@
 
 package org.fisco.bcos.sdk.precompiled;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.BcosSDKTest;
 import org.fisco.bcos.sdk.client.Client;
@@ -53,6 +45,15 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PrecompiledTest {
     private static final String configFile =
@@ -66,7 +67,7 @@ public class PrecompiledTest {
     public void test1ConsensusService() throws ConfigException, ContractException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClient(Integer.valueOf(1));
+            Client client = sdk.getClient("1");
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             ConsensusService consensusService = new ConsensusService(client, cryptoKeyPair);
             // get the current sealerList
@@ -133,7 +134,7 @@ public class PrecompiledTest {
     public void test2CnsService() throws ConfigException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClient(Integer.valueOf(1));
+            Client client = sdk.getClient("1");
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
             String contractAddress = helloWorld.getContractAddress();
@@ -201,12 +202,12 @@ public class PrecompiledTest {
     public void test3SystemConfigService() throws ConfigException, ContractException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClient(Integer.valueOf(1));
+            Client client = sdk.getClient("1");
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             SystemConfigService systemConfigService =
                     new SystemConfigService(client, cryptoKeyPair);
-            testSystemConfigService(client, systemConfigService, "tx_count_limit");
-            testSystemConfigService(client, systemConfigService, "tx_gas_limit");
+            this.testSystemConfigService(client, systemConfigService, "tx_count_limit");
+            this.testSystemConfigService(client, systemConfigService, "tx_gas_limit");
         } catch (ClientException | ContractException e) {
             System.out.println(
                     "testSystemConfigPrecompiled exceptioned, error inforamtion:" + e.getMessage());
@@ -227,12 +228,13 @@ public class PrecompiledTest {
         // Assert.assertTrue(queriedValue.equals(updatedValue));
         // Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(1000))));
     }
+
     // Note: Please make sure that the ut is before the permission-related ut
     @Test
     public void test5CRUDService() throws ConfigException, ContractException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClient(Integer.valueOf(1));
+            Client client = sdk.getClient("1");
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             TableCRUDService tableCRUDService = new TableCRUDService(client, cryptoKeyPair);
             // create a user table
@@ -287,7 +289,7 @@ public class PrecompiledTest {
     public void test51SyncCRUDService() throws ConfigException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClient(Integer.valueOf(1));
+            Client client = sdk.getClient("1");
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
             String tableName = "test_sync";
@@ -353,11 +355,12 @@ public class PrecompiledTest {
 
     class FakeTransactionCallback implements PrecompiledCallback {
         public TransactionReceipt receipt;
+
         // wait until get the transactionReceipt
         @Override
         public void onResponse(RetCode retCode) {
             this.receipt = retCode.getTransactionReceipt();
-            receiptCount.addAndGet(1);
+            PrecompiledTest.this.receiptCount.addAndGet(1);
         }
     }
 
@@ -365,7 +368,7 @@ public class PrecompiledTest {
     public void test52AsyncCRUDService() {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClient(Integer.valueOf(1));
+            Client client = sdk.getClient("1");
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
             // create table
@@ -421,7 +424,7 @@ public class PrecompiledTest {
                             }
                         });
             }
-            while (receiptCount.get() != 300) {
+            while (this.receiptCount.get() != 300) {
                 Thread.sleep(1000);
             }
             ThreadPoolService.stopThreadPool(threadPool);
@@ -444,7 +447,7 @@ public class PrecompiledTest {
     public void test6PermissionService() throws ConfigException, ContractException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClient(Integer.valueOf(1));
+            Client client = sdk.getClient("1");
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             PermissionService permissionService = new PermissionService(client, cryptoKeyPair);
 
@@ -485,7 +488,7 @@ public class PrecompiledTest {
     public void test7ContractLifeCycleService() throws ConfigException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClient(Integer.valueOf(1));
+            Client client = sdk.getClient("1");
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             ContractLifeCycleService contractLifeCycleService =
                     new ContractLifeCycleService(client, cryptoKeyPair);
@@ -542,7 +545,7 @@ public class PrecompiledTest {
     public void test8GovernanceService() throws ConfigException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClient(Integer.valueOf(1));
+            Client client = sdk.getClient("1");
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             ChainGovernanceService chainGovernanceService =
                     new ChainGovernanceService(client, cryptoKeyPair);

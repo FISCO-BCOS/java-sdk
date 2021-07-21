@@ -23,85 +23,84 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TransactionProcessorFactory {
-  private static final Logger logger = LoggerFactory.getLogger(TransactionProcessorFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(TransactionProcessorFactory.class);
 
-  @SuppressWarnings("unlikely-arg-type")
-  public static Pair<String, Integer> getChainIdAndGroupId(Client client) {
-    String binaryVersion = client.getNodeInfo().getVersion();
-    logger.debug(
-        "getNodeVersion before createTransactionManager, binaryVerison: {}", binaryVersion);
-    // transaction manager for rc1 transaction (without groupId and chainId)
+    public static Pair<String, String> getChainIdAndGroupId(Client client) {
+        String binaryVersion = client.getNodeInfo().getVersion();
+        logger.debug(
+                "getNodeVersion before createTransactionManager, binaryVerison: {}", binaryVersion);
+        // transaction manager for rc1 transaction (without groupId and chainId)
 
-    // get chainId
-    String chainId = client.getNodeInfo().getChainId();
-    // get groupId
-    Integer groupId = client.getGroupId();
-    logger.debug(
-        "createTransactionManager for >=rc2 node, chainId: {}, groupId: {}", chainId, groupId);
-    return Pair.of(chainId, groupId);
-  }
+        // get chainId
+        String chainId = client.getChainId();
+        // get groupId
+        String groupId = client.getGroupId();
+        logger.debug(
+                "createTransactionManager for >=rc2 node, chainId: {}, groupId: {}", chainId, groupId);
+        return Pair.of(chainId, groupId);
+    }
 
-  public static TransactionProcessor createTransactionProcessor(
-      Client client, CryptoKeyPair cryptoKeyPair) {
-    Pair<String, Integer> pair = getChainIdAndGroupId(client);
-    return new TransactionProcessor(client, cryptoKeyPair, pair.getRight(), pair.getLeft());
-  }
+    public static TransactionProcessor createTransactionProcessor(
+            Client client, CryptoKeyPair cryptoKeyPair) {
+        Pair<String, String> pair = getChainIdAndGroupId(client);
+        return new TransactionProcessor(client, cryptoKeyPair, pair.getRight(), pair.getLeft());
+    }
 
-  public static AssembleTransactionProcessor createAssembleTransactionProcessor(
-      Client client, CryptoKeyPair cryptoKeyPair) throws Exception {
-    Pair<String, Integer> pair = getChainIdAndGroupId(client);
-    return new AssembleTransactionProcessor(
-        client, cryptoKeyPair, pair.getRight(), pair.getLeft(), null);
-  }
+    public static AssembleTransactionProcessor createAssembleTransactionProcessor(
+            Client client, CryptoKeyPair cryptoKeyPair) throws Exception {
+        Pair<String, String> pair = getChainIdAndGroupId(client);
+        return new AssembleTransactionProcessor(
+                client, cryptoKeyPair, pair.getRight(), pair.getLeft(), null);
+    }
 
-  public static AssembleTransactionProcessor createAssembleTransactionProcessor(
-      Client client, CryptoKeyPair cryptoKeyPair, String abiFilePath, String binFilePath)
-      throws Exception {
-    Pair<String, Integer> pair = getChainIdAndGroupId(client);
-    ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
-    return new AssembleTransactionProcessor(
-        client, cryptoKeyPair, pair.getRight(), pair.getLeft(), contractLoader);
-  }
+    public static AssembleTransactionProcessor createAssembleTransactionProcessor(
+            Client client, CryptoKeyPair cryptoKeyPair, String abiFilePath, String binFilePath)
+            throws Exception {
+        Pair<String, String> pair = getChainIdAndGroupId(client);
+        ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
+        return new AssembleTransactionProcessor(
+                client, cryptoKeyPair, pair.getRight(), pair.getLeft(), contractLoader);
+    }
 
-  public static AssembleTransactionProcessor createAssembleTransactionProcessor(
-      Client client, CryptoKeyPair cryptoKeyPair, String contractName, String abi, String bin) {
-    Pair<String, Integer> pair = getChainIdAndGroupId(client);
-    return new AssembleTransactionProcessor(
-        client, cryptoKeyPair, pair.getRight(), pair.getLeft(), contractName, abi, bin);
-  }
+    public static AssembleTransactionProcessor createAssembleTransactionProcessor(
+            Client client, CryptoKeyPair cryptoKeyPair, String contractName, String abi, String bin) {
+        Pair<String, String> pair = getChainIdAndGroupId(client);
+        return new AssembleTransactionProcessor(
+                client, cryptoKeyPair, pair.getRight(), pair.getLeft(), contractName, abi, bin);
+    }
 
-  public static AssembleTransactionWithRemoteSignProcessor
-      createAssembleTransactionWithRemoteSignProcessor(
-          Client client,
-          CryptoKeyPair cryptoKeyPair,
-          String contractName,
-          RemoteSignProviderInterface transactionSignProvider) {
-    Pair<String, Integer> pair = getChainIdAndGroupId(client);
-    return new AssembleTransactionWithRemoteSignProcessor(
-        client,
-        cryptoKeyPair,
-        pair.getRight(),
-        pair.getLeft(),
-        contractName,
-        transactionSignProvider);
-  }
+    public static AssembleTransactionWithRemoteSignProcessor
+    createAssembleTransactionWithRemoteSignProcessor(
+            Client client,
+            CryptoKeyPair cryptoKeyPair,
+            String contractName,
+            RemoteSignProviderInterface transactionSignProvider) {
+        Pair<String, String> pair = getChainIdAndGroupId(client);
+        return new AssembleTransactionWithRemoteSignProcessor(
+                client,
+                cryptoKeyPair,
+                pair.getRight(),
+                pair.getLeft(),
+                contractName,
+                transactionSignProvider);
+    }
 
-  public static AssembleTransactionWithRemoteSignProcessor
-      createAssembleTransactionWithRemoteSignProcessor(
-          Client client,
-          CryptoKeyPair cryptoKeyPair,
-          String abiFilePath,
-          String binFilePath,
-          RemoteSignProviderInterface transactionSignProvider)
-          throws Exception {
-    Pair<String, Integer> pair = getChainIdAndGroupId(client);
-    ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
-    return new AssembleTransactionWithRemoteSignProcessor(
-        client,
-        cryptoKeyPair,
-        pair.getRight(),
-        pair.getLeft(),
-        contractLoader,
-        transactionSignProvider);
-  }
+    public static AssembleTransactionWithRemoteSignProcessor
+    createAssembleTransactionWithRemoteSignProcessor(
+            Client client,
+            CryptoKeyPair cryptoKeyPair,
+            String abiFilePath,
+            String binFilePath,
+            RemoteSignProviderInterface transactionSignProvider)
+            throws Exception {
+        Pair<String, String> pair = getChainIdAndGroupId(client);
+        ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
+        return new AssembleTransactionWithRemoteSignProcessor(
+                client,
+                cryptoKeyPair,
+                pair.getRight(),
+                pair.getLeft(),
+                contractLoader,
+                transactionSignProvider);
+    }
 }

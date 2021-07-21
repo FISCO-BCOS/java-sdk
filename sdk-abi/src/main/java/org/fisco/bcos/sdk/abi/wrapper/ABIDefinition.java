@@ -1,5 +1,8 @@
 package org.fisco.bcos.sdk.abi.wrapper;
 
+import org.fisco.bcos.sdk.abi.FunctionEncoder;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,8 +10,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.fisco.bcos.sdk.abi.FunctionEncoder;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
 
 /**
  * ABIDefinition wrapper
@@ -38,7 +39,8 @@ public class ABIDefinition {
     private List<NamedType> outputs;
     public static List<String> CONSTANT_KEY = Arrays.asList("view");
 
-    public ABIDefinition() {}
+    public ABIDefinition() {
+    }
 
     public ABIDefinition(
             String name,
@@ -94,10 +96,10 @@ public class ABIDefinition {
      */
     public String getMethodSignatureAsString() {
         StringBuilder result = new StringBuilder();
-        result.append(name);
+        result.append(this.name);
         result.append("(");
         String params =
-                getInputs().stream()
+                this.getInputs().stream()
                         .map(abi -> abi.getTypeAsString())
                         .collect(Collectors.joining(","));
         result.append(params);
@@ -111,13 +113,13 @@ public class ABIDefinition {
      * @param cryptoSuite the crypto suite used for hash calculation
      * @return the method id
      */
-    public String getMethodId(CryptoSuite cryptoSuite) {
+    public byte[] getMethodId(CryptoSuite cryptoSuite) {
         FunctionEncoder encoder = new FunctionEncoder(cryptoSuite);
-        return encoder.buildMethodId(getMethodSignatureAsString());
+        return encoder.buildMethodId(this.getMethodSignatureAsString());
     }
 
     public boolean isConstant() {
-        return constant || CONSTANT_KEY.contains(this.getStateMutability());
+        return this.constant || CONSTANT_KEY.contains(this.getStateMutability());
     }
 
     public void setConstant(boolean constant) {
@@ -125,7 +127,7 @@ public class ABIDefinition {
     }
 
     public List<NamedType> getInputs() {
-        return inputs;
+        return this.inputs;
     }
 
     public void setInputs(List<NamedType> inputs) {
@@ -133,7 +135,7 @@ public class ABIDefinition {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -141,11 +143,11 @@ public class ABIDefinition {
     }
 
     public List<NamedType> getOutputs() {
-        return outputs;
+        return this.outputs;
     }
 
     public boolean hasOutputs() {
-        return !outputs.isEmpty();
+        return !this.outputs.isEmpty();
     }
 
     public void setOutputs(List<NamedType> outputs) {
@@ -153,7 +155,7 @@ public class ABIDefinition {
     }
 
     public String getType() {
-        return type;
+        return this.type;
     }
 
     public void setType(String type) {
@@ -161,7 +163,7 @@ public class ABIDefinition {
     }
 
     public boolean isPayable() {
-        return payable;
+        return this.payable;
     }
 
     public void setPayable(boolean payable) {
@@ -169,7 +171,7 @@ public class ABIDefinition {
     }
 
     public String getStateMutability() {
-        return stateMutability;
+        return this.stateMutability;
     }
 
     public void setStateMutability(String stateMutability) {
@@ -177,7 +179,7 @@ public class ABIDefinition {
     }
 
     public boolean isAnonymous() {
-        return anonymous;
+        return this.anonymous;
     }
 
     public void setAnonymous(boolean anonymous) {
@@ -195,42 +197,42 @@ public class ABIDefinition {
 
         ABIDefinition that = (ABIDefinition) o;
 
-        if (isConstant() != that.isConstant()) {
+        if (this.isConstant() != that.isConstant()) {
             return false;
         }
-        if (isPayable() != that.isPayable()) {
+        if (this.isPayable() != that.isPayable()) {
             return false;
         }
-        if (getInputs() != null
-                ? !getInputs().equals(that.getInputs())
+        if (this.getInputs() != null
+                ? !this.getInputs().equals(that.getInputs())
                 : that.getInputs() != null) {
             return false;
         }
-        if (getName() != null ? !getName().equals(that.getName()) : that.getName() != null) {
+        if (this.getName() != null ? !this.getName().equals(that.getName()) : that.getName() != null) {
             return false;
         }
-        if (getOutputs() != null
-                ? !getOutputs().equals(that.getOutputs())
+        if (this.getOutputs() != null
+                ? !this.getOutputs().equals(that.getOutputs())
                 : that.getOutputs() != null) {
             return false;
         }
-        if (getStateMutability() != null
-                ? !getStateMutability().equals(that.getStateMutability())
+        if (this.getStateMutability() != null
+                ? !this.getStateMutability().equals(that.getStateMutability())
                 : that.getStateMutability() != null) {
             return false;
         }
-        return getType() != null ? getType().equals(that.getType()) : that.getType() == null;
+        return this.getType() != null ? this.getType().equals(that.getType()) : that.getType() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = (isConstant() ? 1 : 0);
-        result = 31 * result + (getInputs() != null ? getInputs().hashCode() : 0);
-        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
-        result = 31 * result + (getOutputs() != null ? getOutputs().hashCode() : 0);
-        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
-        result = 31 * result + (isPayable() ? 1 : 0);
-        result = 31 * result + (getStateMutability() != null ? getStateMutability().hashCode() : 0);
+        int result = (this.isConstant() ? 1 : 0);
+        result = 31 * result + (this.getInputs() != null ? this.getInputs().hashCode() : 0);
+        result = 31 * result + (this.getName() != null ? this.getName().hashCode() : 0);
+        result = 31 * result + (this.getOutputs() != null ? this.getOutputs().hashCode() : 0);
+        result = 31 * result + (this.getType() != null ? this.getType().hashCode() : 0);
+        result = 31 * result + (this.isPayable() ? 1 : 0);
+        result = 31 * result + (this.getStateMutability() != null ? this.getStateMutability().hashCode() : 0);
         return result;
     }
 
@@ -248,14 +250,14 @@ public class ABIDefinition {
 
         private void initialize() {
             Pattern p = Pattern.compile("\\[[0-9]{0,}\\]");
-            Matcher m = p.matcher(type);
+            Matcher m = p.matcher(this.type);
             while (m.find()) {
                 String s = m.group();
                 String dig = s.substring(s.indexOf('[') + 1, s.indexOf(']')).trim();
                 if (dig.isEmpty()) {
-                    dimensions.add(0);
+                    this.dimensions.add(0);
                 } else {
-                    dimensions.add(Integer.valueOf(dig));
+                    this.dimensions.add(Integer.valueOf(dig));
                 }
             }
         }
@@ -264,47 +266,47 @@ public class ABIDefinition {
         public String toString() {
             return "Type{"
                     + "name='"
-                    + type
+                    + this.type
                     + '\''
                     + ", baseName='"
-                    + rawType
+                    + this.rawType
                     + '\''
                     + ", dimensions="
-                    + dimensions
+                    + this.dimensions
                     + '}';
         }
 
         public String getType() {
-            return type;
+            return this.type;
         }
 
         public String getRawType() {
-            return rawType;
+            return this.rawType;
         }
 
         public Type reduceDimensionAndGetType() {
-            if (isList()) {
-                String r = rawType;
-                for (int i = 0; i < dimensions.size() - 1; i++) {
-                    r += ("[" + (dimensions.get(i) != 0 ? dimensions.get(i) : "") + "]");
+            if (this.isList()) {
+                String r = this.rawType;
+                for (int i = 0; i < this.dimensions.size() - 1; i++) {
+                    r += ("[" + (this.dimensions.get(i) != 0 ? this.dimensions.get(i) : "") + "]");
                 }
 
                 return new Type(r);
             }
 
-            return new Type(rawType);
+            return new Type(this.rawType);
         }
 
         public boolean isList() {
-            return !dimensions.isEmpty();
+            return !this.dimensions.isEmpty();
         }
 
         public boolean isDynamicList() {
-            return isList() && (dimensions.get(dimensions.size() - 1) == 0);
+            return this.isList() && (this.dimensions.get(this.dimensions.size() - 1) == 0);
         }
 
         public boolean isFixedList() {
-            return isList() && (dimensions.get(dimensions.size() - 1) != 0);
+            return this.isList() && (this.dimensions.get(this.dimensions.size() - 1) != 0);
         }
 
         public void setType(String type) {
@@ -316,15 +318,15 @@ public class ABIDefinition {
         }
 
         public List<Integer> getDimensions() {
-            return dimensions;
+            return this.dimensions;
         }
 
         public Integer getLastDimension() {
-            if (!isList()) {
+            if (!this.isList()) {
                 return 0;
             }
 
-            return dimensions.get(dimensions.size() - 1);
+            return this.dimensions.get(this.dimensions.size() - 1);
         }
 
         public void setDimensions(List<Integer> dimensions) {
@@ -338,7 +340,8 @@ public class ABIDefinition {
         private boolean indexed;
         private List<NamedType> components;
 
-        public NamedType() {}
+        public NamedType() {
+        }
 
         public NamedType(String name, String type) {
             this(name, type, false);
@@ -351,13 +354,13 @@ public class ABIDefinition {
         }
 
         public Type newType() {
-            return new Type(type);
+            return new Type(this.type);
         }
 
         private String getTupleRawTypeAsString() {
             StringBuilder result = new StringBuilder();
             String params =
-                    getComponents().stream()
+                    this.getComponents().stream()
                             .map(abi -> abi.getTypeAsString())
                             .collect(Collectors.joining(","));
             result.append(params);
@@ -366,17 +369,17 @@ public class ABIDefinition {
 
         public String getTypeAsString() {
             // not tuple, return
-            if (!type.startsWith("tuple")) {
-                return type;
+            if (!this.type.startsWith("tuple")) {
+                return this.type;
             }
 
-            String tupleRawString = getTupleRawTypeAsString();
-            String result = type.replaceAll("tuple", "(" + tupleRawString + ")");
+            String tupleRawString = this.getTupleRawTypeAsString();
+            String result = this.type.replaceAll("tuple", "(" + tupleRawString + ")");
             return result;
         }
 
         public String getName() {
-            return name;
+            return this.name;
         }
 
         public void setName(String name) {
@@ -384,7 +387,7 @@ public class ABIDefinition {
         }
 
         public String getType() {
-            return type;
+            return this.type;
         }
 
         public void setType(String type) {
@@ -392,7 +395,7 @@ public class ABIDefinition {
         }
 
         public boolean isIndexed() {
-            return indexed;
+            return this.indexed;
         }
 
         public void setIndexed(boolean indexed) {
@@ -400,7 +403,7 @@ public class ABIDefinition {
         }
 
         public List<NamedType> getComponents() {
-            return components;
+            return this.components;
         }
 
         public void setComponents(List<NamedType> components) {
@@ -410,32 +413,32 @@ public class ABIDefinition {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || this.getClass() != o.getClass()) return false;
             NamedType namedType = (NamedType) o;
-            return indexed == namedType.indexed
-                    && Objects.equals(name, namedType.name)
-                    && Objects.equals(type, namedType.type)
-                    && Objects.equals(components, namedType.components);
+            return this.indexed == namedType.indexed
+                    && Objects.equals(this.name, namedType.name)
+                    && Objects.equals(this.type, namedType.type)
+                    && Objects.equals(this.components, namedType.components);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(name, type, indexed, components);
+            return Objects.hash(this.name, this.type, this.indexed, this.components);
         }
 
         @Override
         public String toString() {
             return "NamedType{"
                     + "name='"
-                    + name
+                    + this.name
                     + '\''
                     + ", type='"
-                    + type
+                    + this.type
                     + '\''
                     + ", indexed="
-                    + indexed
+                    + this.indexed
                     + ", components="
-                    + components
+                    + this.components
                     + '}';
         }
     }

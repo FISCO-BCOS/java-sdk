@@ -26,71 +26,66 @@ import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderService;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
-import org.fisco.bcos.sdk.transaction.model.gas.DefaultGasProvider;
 import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-
 public class TransactionProcessor implements TransactionProcessorInterface {
-  protected static Logger log = LoggerFactory.getLogger(TransactionProcessor.class);
-  protected final CryptoSuite cryptoSuite;
-  protected final CryptoKeyPair cryptoKeyPair;
-  protected final Client client;
-  protected final Integer groupId;
-  protected final String chainId;
-  protected final TransactionBuilderInterface transactionBuilder;
-  protected TransactionEncoderInterface transactionEncoder;
+    protected static Logger log = LoggerFactory.getLogger(TransactionProcessor.class);
+    protected final CryptoSuite cryptoSuite;
+    protected final CryptoKeyPair cryptoKeyPair;
+    protected final Client client;
+    protected final String groupId;
+    protected final String chainId;
+    protected final TransactionBuilderInterface transactionBuilder;
+    protected TransactionEncoderInterface transactionEncoder;
 
-  public TransactionProcessor(
-      Client client, CryptoKeyPair cryptoKeyPair, Integer groupId, String chainId) {
-    this.cryptoSuite = client.getCryptoSuite();
-    this.cryptoKeyPair = cryptoKeyPair;
-    this.client = client;
-    this.groupId = groupId;
-    this.chainId = chainId;
-    this.transactionBuilder = new TransactionBuilderService(client);
-    this.transactionEncoder = new TransactionEncoderService(client.getCryptoSuite());
-  }
+    public TransactionProcessor(
+            Client client, CryptoKeyPair cryptoKeyPair, String groupId, String chainId) {
+        this.cryptoSuite = client.getCryptoSuite();
+        this.cryptoKeyPair = cryptoKeyPair;
+        this.client = client;
+        this.groupId = groupId;
+        this.chainId = chainId;
+        this.transactionBuilder = new TransactionBuilderService(client);
+        this.transactionEncoder = new TransactionEncoderService(client.getCryptoSuite());
+    }
 
-  @Override
-  public TransactionReceipt sendTransactionAndGetReceipt(
-      String to, String data, CryptoKeyPair cryptoKeyPair) {
-    String signedData = createSignedTransaction(to, data, cryptoKeyPair);
-    return this.client.sendRawTransaction(signedData,false).getReceiptAndProof().getReceipt();
-  }
+    @Override
+    public TransactionReceipt sendTransactionAndGetReceipt(
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair) {
+        String signedData = this.createSignedTransaction(to, data, cryptoKeyPair);
+        return this.client.sendRawTransaction(signedData, false).getReceiptAndProof().getReceipt();
+    }
 
-  @Override
-  public void sendTransactionAsync(
-      String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
-    String signedData = createSignedTransaction(to, data, cryptoKeyPair);
-    client.sendRawTransactionAsync(signedData,false, callback);
-  }
+    @Override
+    public void sendTransactionAsync(
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
+        String signedData = this.createSignedTransaction(to, data, cryptoKeyPair);
+        this.client.sendRawTransactionAsync(signedData, false, callback);
+    }
 
-  @Override
-  public Call executeCall(CallRequest callRequest) {
-    return executeCall(
-        callRequest.getFrom(), callRequest.getTo(), callRequest.getEncodedFunction());
-  }
+    @Override
+    public Call executeCall(CallRequest callRequest) {
+        return this.executeCall(
+                callRequest.getFrom(), callRequest.getTo(), callRequest.getEncodedFunction());
+    }
 
-  @Override
-  public Call executeCall(String from, String to, String encodedFunction) {
-    return client.call(new Transaction(from, to, encodedFunction));
-  }
+    @Override
+    public Call executeCall(String from, String to, byte[] encodedFunction) {
+        return this.client.call(new Transaction(from, to, encodedFunction));
+    }
 
-  @Override
-  public String createSignedTransaction(String to, String data, CryptoKeyPair cryptoKeyPair) {
-    TransactionData rawTransaction =
-        transactionBuilder.createTransaction(
-            DefaultGasProvider.GAS_PRICE,
-            DefaultGasProvider.GAS_LIMIT,
-            to,
-            data,
-            BigInteger.ZERO,
-            new BigInteger(this.chainId),
-            BigInteger.valueOf(this.groupId),
-            "");
-    return transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
-  }
+    @Override
+    public String createSignedTransaction(String to, byte[] data, CryptoKeyPair cryptoKeyPair) {
+        TransactionData rawTransaction =
+                this.transactionBuilder.createTransaction(
+                        to,
+                        data,
+                        this.chainId,
+                        this.groupId);
+        //TODO: delete thi print
+        System.out.println(rawTransaction);
+        return this.transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
+    }
 }

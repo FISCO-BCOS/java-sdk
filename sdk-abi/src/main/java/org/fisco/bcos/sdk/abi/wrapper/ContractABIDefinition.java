@@ -1,13 +1,14 @@
 package org.fisco.bcos.sdk.abi.wrapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ContractABIDefinition {
 
@@ -17,9 +18,9 @@ public class ContractABIDefinition {
     private Map<String, List<ABIDefinition>> functions = new HashMap<>();
     private Map<String, List<ABIDefinition>> events = new HashMap<>();
     // method id => function
-    private Map<String, ABIDefinition> methodIDToFunctions = new HashMap<>();
+    private Map<byte[], ABIDefinition> methodIDToFunctions = new HashMap<>();
     // event topic => topic
-    private Map<String, ABIDefinition> eventTopicToEvents = new HashMap<>();
+    private Map<byte[], ABIDefinition> eventTopicToEvents = new HashMap<>();
     private CryptoSuite cryptoSuite;
 
     public ContractABIDefinition(CryptoSuite cryptoSuite) {
@@ -27,7 +28,7 @@ public class ContractABIDefinition {
     }
 
     public ABIDefinition getConstructor() {
-        return constructor;
+        return this.constructor;
     }
 
     public void setConstructor(ABIDefinition constructor) {
@@ -35,7 +36,7 @@ public class ContractABIDefinition {
     }
 
     public Map<String, List<ABIDefinition>> getFunctions() {
-        return functions;
+        return this.functions;
     }
 
     public void setFunctions(Map<String, List<ABIDefinition>> functions) {
@@ -43,43 +44,43 @@ public class ContractABIDefinition {
     }
 
     public Map<String, List<ABIDefinition>> getEvents() {
-        return events;
+        return this.events;
     }
 
     public void setEvents(Map<String, List<ABIDefinition>> events) {
         this.events = events;
     }
 
-    public Map<String, ABIDefinition> getMethodIDToFunctions() {
-        return methodIDToFunctions;
+    public Map<byte[], ABIDefinition> getMethodIDToFunctions() {
+        return this.methodIDToFunctions;
     }
 
-    public void setMethodIDToFunctions(Map<String, ABIDefinition> methodIDToFunctions) {
+    public void setMethodIDToFunctions(Map<byte[], ABIDefinition> methodIDToFunctions) {
         this.methodIDToFunctions = methodIDToFunctions;
     }
 
-    public Map<String, ABIDefinition> getEventTopicToEvents() {
-        return eventTopicToEvents;
+    public Map<byte[], ABIDefinition> getEventTopicToEvents() {
+        return this.eventTopicToEvents;
     }
 
-    public void setEventTopicToEvents(Map<String, ABIDefinition> eventTopicToEvents) {
+    public void setEventTopicToEvents(Map<byte[], ABIDefinition> eventTopicToEvents) {
         this.eventTopicToEvents = eventTopicToEvents;
     }
 
     public void addFunction(String name, ABIDefinition abiDefinition) {
 
-        List<ABIDefinition> abiDefinitions = functions.get(name);
+        List<ABIDefinition> abiDefinitions = this.functions.get(name);
         if (abiDefinitions == null) {
-            functions.put(name, new ArrayList<>());
-            abiDefinitions = functions.get(name);
+            this.functions.put(name, new ArrayList<>());
+            abiDefinitions = this.functions.get(name);
         } else {
             logger.info(" overload method ??? name: {}, abiDefinition: {}", name, abiDefinition);
         }
         abiDefinitions.add(abiDefinition);
 
         // calculate method id and add abiDefinition to methodIdToFunctions
-        String methodId = abiDefinition.getMethodId(cryptoSuite);
-        methodIDToFunctions.put(methodId, abiDefinition);
+        byte[] methodId = abiDefinition.getMethodId(this.cryptoSuite);
+        this.methodIDToFunctions.put(methodId, abiDefinition);
 
         logger.info(
                 " name: {}, methodId: {}, methodSignature: {}, abi: {}",
@@ -90,21 +91,21 @@ public class ContractABIDefinition {
     }
 
     public void addEvent(String name, ABIDefinition abiDefinition) {
-        events.putIfAbsent(name, new ArrayList<>());
-        List<ABIDefinition> abiDefinitions = events.get(name);
+        this.events.putIfAbsent(name, new ArrayList<>());
+        List<ABIDefinition> abiDefinitions = this.events.get(name);
         abiDefinitions.add(abiDefinition);
         logger.info(" name: {}, abi: {}", name, abiDefinition);
 
         // calculate method id and add abiDefinition to eventTopicToEvents
-        String methodId = abiDefinition.getMethodId(cryptoSuite);
-        eventTopicToEvents.put(methodId, abiDefinition);
+        byte[] methodId = abiDefinition.getMethodId(this.cryptoSuite);
+        this.eventTopicToEvents.put(methodId, abiDefinition);
     }
 
-    public ABIDefinition getABIDefinitionByMethodId(String methodId) {
-        return methodIDToFunctions.get(Numeric.prependHexPrefix(methodId));
+    public ABIDefinition getABIDefinitionByMethodId(byte[] methodId) {
+        return this.methodIDToFunctions.get(methodId);
     }
 
     public ABIDefinition getABIDefinitionByEventTopic(String topic) {
-        return eventTopicToEvents.get(Numeric.prependHexPrefix(topic));
+        return this.eventTopicToEvents.get(Numeric.prependHexPrefix(topic));
     }
 }

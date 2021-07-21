@@ -13,6 +13,9 @@
  */
 package org.fisco.bcos.sdk.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GroupServiceImpl implements GroupService {
 
@@ -31,15 +32,15 @@ public class GroupServiceImpl implements GroupService {
     private ConcurrentHashMap<String, BigInteger> groupNodeToBlockNumber =
             new ConcurrentHashMap<>();
     private Set<String> groupNodeSet = new CopyOnWriteArraySet<>();
-    private final Integer groupId;
+    private final String groupId;
     private AtomicLong latestBlockNumber = new AtomicLong(0);
     private List<String> nodeWithLatestBlockNumber = new CopyOnWriteArrayList<String>();
 
-    public GroupServiceImpl(Integer groupId) {
+    public GroupServiceImpl(String groupId) {
         this.groupId = groupId;
     }
 
-    public GroupServiceImpl(Integer groupId, String groupNodeAddress) {
+    public GroupServiceImpl(String groupId, String groupNodeAddress) {
         this.groupId = groupId;
         this.groupNodeSet.add(groupNodeAddress);
         logger.debug("insert group: {} for peer {}", groupId, groupNodeAddress);
@@ -53,25 +54,25 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public boolean removeNode(String nodeAddress) {
         boolean shouldResetLatestBlockNumber = false;
-        if (groupNodeToBlockNumber.containsKey(nodeAddress)) {
-            groupNodeToBlockNumber.remove(nodeAddress);
+        if (this.groupNodeToBlockNumber.containsKey(nodeAddress)) {
+            this.groupNodeToBlockNumber.remove(nodeAddress);
             shouldResetLatestBlockNumber = true;
         }
-        if (nodeWithLatestBlockNumber.contains(nodeAddress)) {
-            nodeWithLatestBlockNumber.remove(nodeAddress);
+        if (this.nodeWithLatestBlockNumber.contains(nodeAddress)) {
+            this.nodeWithLatestBlockNumber.remove(nodeAddress);
             shouldResetLatestBlockNumber = true;
         }
         if (shouldResetLatestBlockNumber) {
-            resetLatestBlockNumber();
+            this.resetLatestBlockNumber();
         }
         logger.debug(
                 "g:{}, removeNode={}, blockNumberInfoSize={}, latestBlockNumber:{}",
-                groupId,
+                this.groupId,
                 nodeAddress,
                 this.groupNodeToBlockNumber.size(),
-                latestBlockNumber);
-        if (groupNodeSet.contains(nodeAddress)) {
-            groupNodeSet.remove(nodeAddress);
+                this.latestBlockNumber);
+        if (this.groupNodeSet.contains(nodeAddress)) {
+            this.groupNodeSet.remove(nodeAddress);
             return true;
         }
         return false;
@@ -79,18 +80,18 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public boolean insertNode(String nodeAddress) {
-        if (!groupNodeSet.contains(nodeAddress)) {
-            groupNodeSet.add(nodeAddress);
+        if (!this.groupNodeSet.contains(nodeAddress)) {
+            this.groupNodeSet.add(nodeAddress);
             logger.debug(
                     "g:{}, insertNode={}, nodeSize={}, blockNumberInfoSize={}",
-                    groupId,
+                    this.groupId,
                     nodeAddress,
                     this.groupNodeSet.size(),
                     this.groupNodeToBlockNumber.size());
             return true;
         }
-        if (!groupNodeToBlockNumber.containsKey(nodeAddress)) {
-            groupNodeToBlockNumber.put(nodeAddress, BigInteger.valueOf(0));
+        if (!this.groupNodeToBlockNumber.containsKey(nodeAddress)) {
+            this.groupNodeToBlockNumber.put(nodeAddress, BigInteger.valueOf(0));
         }
         return false;
     }
@@ -99,46 +100,46 @@ public class GroupServiceImpl implements GroupService {
     public void updatePeersBlockNumberInfo(String peerIpAndPort, BigInteger blockNumber) {
         // Note: In order to ensure that the cache information is updated in time when the node is
         // restarted, the block height information of the node must be directly updated
-        if (!groupNodeToBlockNumber.containsKey(peerIpAndPort)
-                || !groupNodeToBlockNumber.get(peerIpAndPort).equals(blockNumber)) {
+        if (!this.groupNodeToBlockNumber.containsKey(peerIpAndPort)
+                || !this.groupNodeToBlockNumber.get(peerIpAndPort).equals(blockNumber)) {
             logger.debug(
                     "updatePeersBlockNumberInfo for {}, updated blockNumber: {}, groupId: {}",
                     peerIpAndPort,
                     blockNumber,
-                    groupId);
-            groupNodeToBlockNumber.put(peerIpAndPort, blockNumber);
+                    this.groupId);
+            this.groupNodeToBlockNumber.put(peerIpAndPort, blockNumber);
         }
-        if (!groupNodeSet.contains(peerIpAndPort)) {
-            groupNodeSet.add(peerIpAndPort);
+        if (!this.groupNodeSet.contains(peerIpAndPort)) {
+            this.groupNodeSet.add(peerIpAndPort);
         }
-        updateLatestBlockNumber(peerIpAndPort, blockNumber);
+        this.updateLatestBlockNumber(peerIpAndPort, blockNumber);
     }
 
     private void updateLatestBlockNumber(String peerIpAndPort, BigInteger blockNumber) {
-        if (blockNumber.longValue() == latestBlockNumber.get()
-                && !nodeWithLatestBlockNumber.contains(peerIpAndPort)) {
-            nodeWithLatestBlockNumber.add(peerIpAndPort);
+        if (blockNumber.longValue() == this.latestBlockNumber.get()
+                && !this.nodeWithLatestBlockNumber.contains(peerIpAndPort)) {
+            this.nodeWithLatestBlockNumber.add(peerIpAndPort);
         }
-        if (blockNumber.longValue() > latestBlockNumber.get()) {
-            latestBlockNumber.getAndSet(blockNumber.longValue());
-            nodeWithLatestBlockNumber.clear();
-            nodeWithLatestBlockNumber.add(peerIpAndPort);
+        if (blockNumber.longValue() > this.latestBlockNumber.get()) {
+            this.latestBlockNumber.getAndSet(blockNumber.longValue());
+            this.nodeWithLatestBlockNumber.clear();
+            this.nodeWithLatestBlockNumber.add(peerIpAndPort);
         }
         logger.debug(
                 "g:{}, updateLatestBlockNumber, latestBlockNumber: {}, nodeWithLatestBlockNumber:{}",
-                groupId,
-                latestBlockNumber.get(),
-                nodeWithLatestBlockNumber.toString());
+                this.groupId,
+                this.latestBlockNumber.get(),
+                this.nodeWithLatestBlockNumber.toString());
     }
 
     private void resetLatestBlockNumber() {
         BigInteger maxBlockNumber = null;
-        if (groupNodeToBlockNumber.size() == 0) {
-            latestBlockNumber.getAndSet(BigInteger.ZERO.longValue());
+        if (this.groupNodeToBlockNumber.size() == 0) {
+            this.latestBlockNumber.getAndSet(BigInteger.ZERO.longValue());
             return;
         }
-        for (String groupNode : groupNodeToBlockNumber.keySet()) {
-            BigInteger blockNumber = groupNodeToBlockNumber.get(groupNode);
+        for (String groupNode : this.groupNodeToBlockNumber.keySet()) {
+            BigInteger blockNumber = this.groupNodeToBlockNumber.get(groupNode);
             if (blockNumber == null) {
                 continue;
             }
@@ -150,19 +151,19 @@ public class GroupServiceImpl implements GroupService {
         if (maxBlockNumber == null) {
             return;
         }
-        latestBlockNumber.getAndSet(maxBlockNumber.longValue());
-        nodeWithLatestBlockNumber.clear();
-        for (String groupNode : groupNodeToBlockNumber.keySet()) {
-            BigInteger blockNumber = groupNodeToBlockNumber.get(groupNode);
-            if (latestBlockNumber.equals(blockNumber)) {
-                nodeWithLatestBlockNumber.add(groupNode);
+        this.latestBlockNumber.getAndSet(maxBlockNumber.longValue());
+        this.nodeWithLatestBlockNumber.clear();
+        for (String groupNode : this.groupNodeToBlockNumber.keySet()) {
+            BigInteger blockNumber = this.groupNodeToBlockNumber.get(groupNode);
+            if (this.latestBlockNumber.equals(blockNumber)) {
+                this.nodeWithLatestBlockNumber.add(groupNode);
             }
         }
         logger.debug(
                 "g:{}, resetLatestBlockNumber, latestBlockNumber: {}, nodeWithLatestBlockNumber:{}, maxBlockNumber: {}",
-                groupId,
-                latestBlockNumber.get(),
-                nodeWithLatestBlockNumber.toString(),
+                this.groupId,
+                this.latestBlockNumber.get(),
+                this.nodeWithLatestBlockNumber.toString(),
                 maxBlockNumber);
     }
 
@@ -176,7 +177,7 @@ public class GroupServiceImpl implements GroupService {
         try {
             // in case of nodeWithLatestBlockNumber modified
             final List<String> tmpNodeWithLatestBlockNumber =
-                    new ArrayList<>(nodeWithLatestBlockNumber);
+                    new ArrayList<>(this.nodeWithLatestBlockNumber);
             // the case that the sdk is allowed to access all the connected node, select the first
             // connected node to send the request
             if (tmpNodeWithLatestBlockNumber.size() > 0) {
@@ -193,14 +194,14 @@ public class GroupServiceImpl implements GroupService {
                     e);
         }
         // select the first element
-        if (!groupNodeSet.isEmpty()) {
-            return groupNodeSet.iterator().next();
+        if (!this.groupNodeSet.isEmpty()) {
+            return this.groupNodeSet.iterator().next();
         }
         return null;
     }
 
     @Override
     public boolean existPeer(String peer) {
-        return groupNodeSet.contains(peer);
+        return this.groupNodeSet.contains(peer);
     }
 }
