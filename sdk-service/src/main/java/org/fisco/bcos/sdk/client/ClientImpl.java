@@ -98,26 +98,26 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public TransactionReceiptWithProof sendRawTransaction(String signedTransactionData, boolean withProof) {
+    public BcosTransactionReceipt sendTransaction(String signedTransactionData, boolean withProof) {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.SEND_TRANSACTION,
                         Arrays.asList(signedTransactionData, withProof)),
-                TransactionReceiptWithProof.class);
+                BcosTransactionReceipt.class);
     }
 
     @Override
-    public void sendRawTransactionAsync(
+    public void sendTransactionAsync(
             String signedTransactionData, boolean withProof, TransactionCallback callback) {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.SEND_TRANSACTION,
                         Arrays.asList(signedTransactionData, withProof)),
-                TransactionReceiptWithProof.class,
-                new RespCallback<TransactionReceiptWithProof>() {
+                BcosTransactionReceipt.class,
+                new RespCallback<BcosTransactionReceipt>() {
                     @Override
-                    public void onResponse(TransactionReceiptWithProof transactionReceiptWithProof) {
-                        callback.onResponse(transactionReceiptWithProof.getReceiptAndProof().getReceipt());
+                    public void onResponse(BcosTransactionReceipt transactionReceiptWithProof) {
+                        callback.onResponse(transactionReceiptWithProof.getTransactionReceipt());
                     }
 
                     @Override
@@ -221,7 +221,7 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
                         Arrays.asList(
-                                String.valueOf(blockNumber),
+                                blockNumber,
                                 onlyHeader, fullTransactions)),
                 BcosBlock.class);
     }
@@ -235,20 +235,10 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
                         Arrays.asList(
-
-                                String.valueOf(blockNumber),
+                                blockNumber,
                                 returnFullTransactionObjects)),
                 BcosBlock.class,
                 callback);
-    }
-
-    @Override
-    public BlockHash getBlockHashByNumber(BigInteger blockNumber) {
-        return this.callRemoteMethod(
-                new JsonRpcRequest(
-                        JsonRpcMethods.GET_BLOCKHASH_BY_NUMBER,
-                        Arrays.asList(String.valueOf(blockNumber))),
-                BlockHash.class);
     }
 
     @Override
@@ -257,58 +247,13 @@ public class ClientImpl implements Client {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCKHASH_BY_NUMBER,
-                        Arrays.asList(String.valueOf(blockNumber))),
+                        Arrays.asList(blockNumber)),
                 BlockHash.class,
                 callback);
     }
 
     @Override
-    public BcosBlockHeader getBlockHeaderByHash(String blockHash, boolean returnSignatureList) {
-        return this.callRemoteMethod(
-                new JsonRpcRequest(
-                        JsonRpcMethods.GET_BLOCKHEADER_BY_HASH,
-                        Arrays.asList(blockHash, returnSignatureList)),
-                BcosBlockHeader.class);
-    }
-
-    @Override
-    public void getBlockHeaderByHashAsync(
-            String blockHash, boolean returnSignatureList, RespCallback<BcosBlockHeader> callback) {
-        this.asyncCallRemoteMethod(
-                new JsonRpcRequest(
-                        JsonRpcMethods.GET_BLOCKHEADER_BY_HASH,
-                        Arrays.asList(blockHash, returnSignatureList)),
-                BcosBlockHeader.class,
-                callback);
-    }
-
-    @Override
-    public BcosBlockHeader getBlockHeaderByNumber(
-            BigInteger blockNumber, boolean returnSignatureList) {
-        return this.callRemoteMethod(
-                new JsonRpcRequest(
-                        JsonRpcMethods.GET_BLOCKHEADER_BY_NUMBER,
-                        Arrays.asList(
-                                String.valueOf(blockNumber), returnSignatureList)),
-                BcosBlockHeader.class);
-    }
-
-    @Override
-    public void getBlockHeaderByNumberAsync(
-            BigInteger blockNumber,
-            boolean returnSignatureList,
-            RespCallback<BcosBlockHeader> callback) {
-        this.asyncCallRemoteMethod(
-                new JsonRpcRequest(
-                        JsonRpcMethods.GET_BLOCKHEADER_BY_NUMBER,
-                        Arrays.asList(
-                                String.valueOf(blockNumber), returnSignatureList)),
-                BcosBlockHeader.class,
-                callback);
-    }
-
-    @Override
-    public BcosTransaction getTransactionByHash(String transactionHash) {
+    public BcosTransaction getTransaction(String transactionHash) {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_TRANSACTION_BY_HASH,
@@ -317,7 +262,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void getTransactionByHashAsync(
+    public void getTransactionAsync(
             String transactionHash, RespCallback<BcosTransaction> callback) {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(

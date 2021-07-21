@@ -15,10 +15,7 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
@@ -31,6 +28,11 @@ import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader> {
     private static Logger logger = LoggerFactory.getLogger(BcosBlockHeader.class);
 
@@ -40,17 +42,18 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
     }
 
     public BlockHeader getBlockHeader() {
-        return getResult();
+        return this.getResult();
     }
 
     public static class Signature {
         private String index;
         private String signature;
 
-        public Signature() {}
+        public Signature() {
+        }
 
         public String getIndex() {
-            return index;
+            return this.index;
         }
 
         public void setIndex(String index) {
@@ -58,7 +61,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         }
 
         public String getSignature() {
-            return signature;
+            return this.signature;
         }
 
         public void setSignature(String signature) {
@@ -68,39 +71,48 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || this.getClass() != o.getClass()) return false;
             Signature signature1 = (Signature) o;
-            return Objects.equals(index, signature1.index)
-                    && Objects.equals(signature, signature1.signature);
+            return Objects.equals(this.index, signature1.index)
+                    && Objects.equals(this.signature, signature1.signature);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(index, signature);
+            return Objects.hash(this.index, this.signature);
         }
 
         @Override
         public String toString() {
-            return "{" + "index='" + index + '\'' + ", signature='" + signature + '\'' + '}';
+            return "{" + "index='" + this.index + '\'' + ", signature='" + this.signature + '\'' + '}';
         }
     }
 
     public static class BlockHeader {
+        @JsonProperty("blockNumber")
         protected String number;
+
+        protected Integer version;
+
         protected String hash;
         protected String parentHash;
         protected String logsBloom;
+
+        @JsonProperty("txsRoot")
         protected String transactionsRoot;
-        protected String receiptsRoot;
+
+        protected String receiptRoot;
         protected String dbHash;
         protected String stateRoot;
-        protected String sealer;
+        protected Integer sealer;
         protected List<String> sealerList;
-        protected List<String> extraData;
+
+        protected String extraData;
         protected String gasLimit;
         protected String gasUsed;
         protected String timestamp;
         protected List<Signature> signatureList;
+        protected List<Integer> consensusWeights;
 
         public void setSignatureList(List<Signature> signatureList) {
             this.signatureList = signatureList;
@@ -130,8 +142,8 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.transactionsRoot = transactionsRoot;
         }
 
-        public void setReceiptsRoot(String receiptsRoot) {
-            this.receiptsRoot = receiptsRoot;
+        public void setReceiptRoot(String receiptRoot) {
+            this.receiptRoot = receiptRoot;
         }
 
         public void setDbHash(String dbHash) {
@@ -142,7 +154,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.stateRoot = stateRoot;
         }
 
-        public void setSealer(String sealer) {
+        public void setSealer(Integer sealer) {
             this.sealer = sealer;
         }
 
@@ -150,7 +162,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.sealerList = sealerList;
         }
 
-        public void setExtraData(List<String> extraData) {
+        public void setExtraData(String extraData) {
             this.extraData = extraData;
         }
 
@@ -167,82 +179,78 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         }
 
         public BigInteger getNumber() {
-            return Numeric.decodeQuantity(number);
+            return Numeric.decodeQuantity(this.number);
         }
 
         public String getHash() {
-            return hash;
+            return this.hash;
         }
 
         public String getParentHash() {
-            return parentHash;
+            return this.parentHash;
         }
 
         public String getLogsBloom() {
-            return logsBloom;
+            return this.logsBloom;
         }
 
         public String getTransactionsRoot() {
-            return transactionsRoot;
+            return this.transactionsRoot;
         }
 
-        public String getReceiptsRoot() {
-            return receiptsRoot;
+        public String getReceiptRoot() {
+            return this.receiptRoot;
         }
 
         public String getDbHash() {
-            return dbHash;
+            return this.dbHash;
         }
 
         public String getStateRoot() {
-            return stateRoot;
+            return this.stateRoot;
         }
 
-        public String getSealer() {
-            return sealer;
+        public Integer getSealer() {
+            return this.sealer;
         }
 
         public List<String> getSealerList() {
-            return sealerList;
+            return this.sealerList;
         }
 
-        public List<String> getExtraData() {
-            return extraData;
+        public String getExtraData() {
+            return this.extraData;
         }
 
         public String getGasLimit() {
-            return gasLimit;
+            return this.gasLimit;
         }
 
         public String getGasUsed() {
-            return gasUsed;
+            return this.gasUsed;
         }
 
         public String getTimestamp() {
-            return timestamp;
+            return this.timestamp;
         }
 
         private byte[] encodeBlockHeader() {
             List<RlpType> encodedRlp = new ArrayList<>();
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(parentHash)));
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(stateRoot)));
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(transactionsRoot)));
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(receiptsRoot)));
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(dbHash)));
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(logsBloom)));
-            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(number)));
-            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(gasLimit)));
-            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(gasUsed)));
-            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(timestamp)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.parentHash)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.stateRoot)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.transactionsRoot)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.receiptRoot)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.dbHash)));
+            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.logsBloom)));
+            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(this.number)));
+            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(this.gasLimit)));
+            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(this.gasUsed)));
+            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(this.timestamp)));
 
-            List<RlpType> extraDataRlp = new ArrayList<>();
-            for (String data : extraData) {
-                extraDataRlp.add(RlpString.create(Numeric.hexStringToByteArray(data)));
-            }
-            encodedRlp.add(new RlpList(extraDataRlp));
-            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(sealer)));
+            encodedRlp.add(RlpString.create(this.extraData));
+            encodedRlp.add(RlpString.create(this.sealer));
             List<RlpType> sealerListRlp = new ArrayList<>();
-            for (String sealerString : sealerList) {
+            for (String sealerString : this.sealerList) {
                 sealerListRlp.add(RlpString.create(Numeric.hexStringToByteArray(sealerString)));
             }
             encodedRlp.add(new RlpList(sealerListRlp));
@@ -253,17 +261,17 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         // calculate hash for the block or the block header
         public String calculateHash(CryptoSuite cryptoSuite) {
             try {
-                byte[] hash = cryptoSuite.hash(encodeBlockHeader());
+                byte[] hash = cryptoSuite.hash(this.encodeBlockHeader());
                 return "0x" + Hex.toHexString(hash);
             } catch (Exception e) {
-                logger.warn(
+                BcosBlockHeader.logger.warn(
                         "calculateHash for the block failed, blockNumber: {}, blockHash: {}, error info: {}",
-                        hash,
-                        number,
+                        this.hash,
+                        this.number,
                         e.getMessage());
                 throw new ClientException(
                         "calculateHash for block "
-                                + hash
+                                + this.hash
                                 + " failed, error info: "
                                 + e.getMessage(),
                         e);
@@ -273,90 +281,90 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || this.getClass() != o.getClass()) return false;
             BlockHeader that = (BlockHeader) o;
             return Objects.equals(
-                            Numeric.decodeQuantity(number), Numeric.decodeQuantity(that.number))
-                    && Objects.equals(hash, that.hash)
-                    && Objects.equals(parentHash, that.parentHash)
-                    && Objects.equals(logsBloom, that.logsBloom)
-                    && Objects.equals(transactionsRoot, that.transactionsRoot)
-                    && Objects.equals(receiptsRoot, that.receiptsRoot)
-                    && Objects.equals(dbHash, that.dbHash)
-                    && Objects.equals(stateRoot, that.stateRoot)
-                    && Objects.equals(sealer, that.sealer)
-                    && Objects.equals(sealerList, that.sealerList)
-                    && Objects.equals(extraData, that.extraData)
-                    && Objects.equals(gasLimit, that.gasLimit)
-                    && Objects.equals(gasUsed, that.gasUsed)
-                    && Objects.equals(timestamp, that.timestamp)
-                    && Objects.equals(signatureList, that.signatureList);
+                    Numeric.decodeQuantity(this.number), Numeric.decodeQuantity(that.number))
+                    && Objects.equals(this.hash, that.hash)
+                    && Objects.equals(this.parentHash, that.parentHash)
+                    && Objects.equals(this.logsBloom, that.logsBloom)
+                    && Objects.equals(this.transactionsRoot, that.transactionsRoot)
+                    && Objects.equals(this.receiptRoot, that.receiptRoot)
+                    && Objects.equals(this.dbHash, that.dbHash)
+                    && Objects.equals(this.stateRoot, that.stateRoot)
+                    && Objects.equals(this.sealer, that.sealer)
+                    && Objects.equals(this.sealerList, that.sealerList)
+                    && Objects.equals(this.extraData, that.extraData)
+                    && Objects.equals(this.gasLimit, that.gasLimit)
+                    && Objects.equals(this.gasUsed, that.gasUsed)
+                    && Objects.equals(this.timestamp, that.timestamp)
+                    && Objects.equals(this.signatureList, that.signatureList);
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(
-                    Numeric.decodeQuantity(number),
-                    hash,
-                    parentHash,
-                    logsBloom,
-                    transactionsRoot,
-                    receiptsRoot,
-                    dbHash,
-                    stateRoot,
-                    sealer,
-                    sealerList,
-                    extraData,
-                    gasLimit,
-                    gasUsed,
-                    timestamp,
-                    signatureList);
+                    Numeric.decodeQuantity(this.number),
+                    this.hash,
+                    this.parentHash,
+                    this.logsBloom,
+                    this.transactionsRoot,
+                    this.receiptRoot,
+                    this.dbHash,
+                    this.stateRoot,
+                    this.sealer,
+                    this.sealerList,
+                    this.extraData,
+                    this.gasLimit,
+                    this.gasUsed,
+                    this.timestamp,
+                    this.signatureList);
         }
 
         @Override
         public String toString() {
             return "BlockHeader{"
                     + "number="
-                    + number
+                    + this.number
                     + ", hash='"
-                    + hash
+                    + this.hash
                     + '\''
                     + ", parentHash='"
-                    + parentHash
+                    + this.parentHash
                     + '\''
                     + ", logsBloom='"
-                    + logsBloom
+                    + this.logsBloom
                     + '\''
                     + ", transactionsRoot='"
-                    + transactionsRoot
+                    + this.transactionsRoot
                     + '\''
-                    + ", receiptsRoot='"
-                    + receiptsRoot
+                    + ", receiptRoot='"
+                    + this.receiptRoot
                     + '\''
                     + ", dbHash='"
-                    + dbHash
+                    + this.dbHash
                     + '\''
                     + ", stateRoot='"
-                    + stateRoot
+                    + this.stateRoot
                     + '\''
                     + ", sealer='"
-                    + sealer
+                    + this.sealer
                     + '\''
                     + ", sealerList="
-                    + sealerList
+                    + this.sealerList
                     + ", extraData="
-                    + extraData
+                    + this.extraData
                     + ", gasLimit='"
-                    + gasLimit
+                    + this.gasLimit
                     + '\''
                     + ", gasUsed='"
-                    + gasUsed
+                    + this.gasUsed
                     + '\''
                     + ", timestamp='"
-                    + timestamp
+                    + this.timestamp
                     + '\''
                     + ", signatureList="
-                    + signatureList
+                    + this.signatureList
                     + '}';
         }
     }

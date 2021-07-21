@@ -11,34 +11,31 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
     }
 
     public static class NodeInformation {
-        @JsonProperty("NodeID")
+        @JsonProperty("nodeID")
         private String nodeID;
 
-        @JsonProperty("Agency")
+        @JsonProperty("agency")
         private String agency;
 
-        @JsonProperty("Version")
+        @JsonProperty("version")
         private String version;
 
-        @JsonProperty("SupportedVersion")
+        @JsonProperty("supportedVersion")
         private String supportedVersion;
 
-        @JsonProperty("ChainId")
+        @JsonProperty("chainID")
         private String chainId;
 
-        @JsonProperty("GroupId")
+        @JsonProperty("groupID")
         private String groupId;
 
-        @JsonProperty("BuildTime")
+        @JsonProperty("buildTime")
         private String buildTime;
 
         @JsonProperty("BuildType")
         private String buildType;
 
-        @JsonProperty("GitBranch")
-        private String gitBranch;
-
-        @JsonProperty("GitCommit")
+        @JsonProperty("gitCommit")
         private String gitCommit;
 
         public String getNodeID() {
@@ -105,14 +102,6 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
             this.buildType = buildType;
         }
 
-        public String getGitBranch() {
-            return this.gitBranch;
-        }
-
-        public void setGitBranch(String gitBranch) {
-            this.gitBranch = gitBranch;
-        }
-
         public String getGitCommit() {
             return this.gitCommit;
         }
@@ -133,7 +122,6 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
                     && Objects.equals(this.chainId, that.chainId)
                     && Objects.equals(this.buildTime, that.buildTime)
                     && Objects.equals(this.buildType, that.buildType)
-                    && Objects.equals(this.gitBranch, that.gitBranch)
                     && Objects.equals(this.gitCommit, that.gitCommit);
         }
 
@@ -147,7 +135,6 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
                     this.chainId,
                     this.buildTime,
                     this.buildType,
-                    this.gitBranch,
                     this.gitCommit);
         }
 
@@ -174,9 +161,6 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
                     + '\''
                     + ", buildType='"
                     + this.buildType
-                    + '\''
-                    + ", gitBranch='"
-                    + this.gitBranch
                     + '\''
                     + ", gitCommit='"
                     + this.gitCommit

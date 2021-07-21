@@ -15,9 +15,10 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
+import org.fisco.bcos.sdk.model.JsonRpcResponse;
+
 import java.util.List;
 import java.util.Objects;
-import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
 /**
  * getSyncStatus.
@@ -26,7 +27,7 @@ import org.fisco.bcos.sdk.model.JsonRpcResponse;
  */
 public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
     public SyncStatus.SyncStatusInfo getSyncStatus() {
-        return getResult();
+        return this.getResult();
     }
 
     public static class PeersInfo {
@@ -36,7 +37,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         private String latestHash;
 
         public String getNodeId() {
-            return nodeId;
+            return this.nodeId;
         }
 
         public void setNodeId(String nodeId) {
@@ -44,7 +45,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         }
 
         public String getGenesisHash() {
-            return genesisHash;
+            return this.genesisHash;
         }
 
         public void setGenesisHash(String genesisHash) {
@@ -52,7 +53,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         }
 
         public String getBlockNumber() {
-            return blockNumber;
+            return this.blockNumber;
         }
 
         public void setBlockNumber(String blockNumber) {
@@ -60,7 +61,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         }
 
         public String getLatestHash() {
-            return latestHash;
+            return this.latestHash;
         }
 
         public void setLatestHash(String latestHash) {
@@ -70,68 +71,68 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || this.getClass() != o.getClass()) return false;
             PeersInfo peersInfo = (PeersInfo) o;
-            return Objects.equals(nodeId, peersInfo.nodeId)
-                    && Objects.equals(genesisHash, peersInfo.genesisHash)
-                    && Objects.equals(blockNumber, peersInfo.blockNumber)
-                    && Objects.equals(latestHash, peersInfo.latestHash);
+            return Objects.equals(this.nodeId, peersInfo.nodeId)
+                    && Objects.equals(this.genesisHash, peersInfo.genesisHash)
+                    && Objects.equals(this.blockNumber, peersInfo.blockNumber)
+                    && Objects.equals(this.latestHash, peersInfo.latestHash);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(nodeId, genesisHash, blockNumber, latestHash);
+            return Objects.hash(this.nodeId, this.genesisHash, this.blockNumber, this.latestHash);
         }
 
         @Override
         public String toString() {
             return "PeersInfo{"
                     + "nodeId='"
-                    + nodeId
+                    + this.nodeId
                     + '\''
                     + ", genesisHash='"
-                    + genesisHash
+                    + this.genesisHash
                     + '\''
                     + ", blockNumber='"
-                    + blockNumber
+                    + this.blockNumber
                     + '\''
                     + ", latestHash='"
-                    + latestHash
+                    + this.latestHash
                     + '\''
                     + '}';
         }
     }
 
     public static class SyncStatusInfo {
-        private String isSyncing;
+        private Boolean isSyncing;
         private String protocolId;
         private String genesisHash;
         private String nodeId;
-        private String blockNumber;
+        private Integer blockNumber;
         private String latestHash;
-        private String knownHighestNumber;
+        private Integer knownHighestNumber;
         private String txPoolSize;
         private List<PeersInfo> peers;
         private String knownLatestHash;
 
         public String getKnownLatestHash() {
-            return knownLatestHash;
+            return this.knownLatestHash;
         }
 
         public void setKnownLatestHash(String knownLatestHash) {
             this.knownLatestHash = knownLatestHash;
         }
 
-        public String getIsSyncing() {
-            return isSyncing;
+        public Boolean getIsSyncing() {
+            return this.isSyncing;
         }
 
-        public void setIsSyncing(String isSyncing) {
+        public void setIsSyncing(Boolean isSyncing) {
             this.isSyncing = isSyncing;
         }
 
         public String getProtocolId() {
-            return protocolId;
+            return this.protocolId;
         }
 
         public void setProtocolId(String protocolId) {
@@ -139,7 +140,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         }
 
         public String getGenesisHash() {
-            return genesisHash;
+            return this.genesisHash;
         }
 
         public void setGenesisHash(String genesisHash) {
@@ -147,39 +148,39 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         }
 
         public String getNodeId() {
-            return nodeId;
+            return this.nodeId;
         }
 
         public void setNodeId(String nodeId) {
             this.nodeId = nodeId;
         }
 
-        public String getBlockNumber() {
-            return blockNumber;
+        public Integer getBlockNumber() {
+            return this.blockNumber;
         }
 
-        public void setBlockNumber(String blockNumber) {
+        public void setBlockNumber(Integer blockNumber) {
             this.blockNumber = blockNumber;
         }
 
         public String getLatestHash() {
-            return latestHash;
+            return this.latestHash;
         }
 
         public void setLatestHash(String latestHash) {
             this.latestHash = latestHash;
         }
 
-        public String getKnownHighestNumber() {
-            return knownHighestNumber;
+        public Integer getKnownHighestNumber() {
+            return this.knownHighestNumber;
         }
 
-        public void setKnownHighestNumber(String knownHighestNumber) {
+        public void setKnownHighestNumber(Integer knownHighestNumber) {
             this.knownHighestNumber = knownHighestNumber;
         }
 
         public String getTxPoolSize() {
-            return txPoolSize;
+            return this.txPoolSize;
         }
 
         public void setTxPoolSize(String txPoolSize) {
@@ -187,7 +188,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         }
 
         public List<PeersInfo> getPeers() {
-            return peers;
+            return this.peers;
         }
 
         public void setPeers(List<PeersInfo> peers) {
@@ -197,66 +198,66 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || this.getClass() != o.getClass()) return false;
             SyncStatusInfo that = (SyncStatusInfo) o;
-            return Objects.equals(isSyncing, that.isSyncing)
-                    && Objects.equals(protocolId, that.protocolId)
-                    && Objects.equals(genesisHash, that.genesisHash)
-                    && Objects.equals(nodeId, that.nodeId)
-                    && Objects.equals(blockNumber, that.blockNumber)
-                    && Objects.equals(latestHash, that.latestHash)
-                    && Objects.equals(knownHighestNumber, that.knownHighestNumber)
-                    && Objects.equals(txPoolSize, that.txPoolSize)
-                    && Objects.equals(peers, that.peers)
-                    && Objects.equals(knownLatestHash, that.knownLatestHash);
+            return Objects.equals(this.isSyncing, that.isSyncing)
+                    && Objects.equals(this.protocolId, that.protocolId)
+                    && Objects.equals(this.genesisHash, that.genesisHash)
+                    && Objects.equals(this.nodeId, that.nodeId)
+                    && Objects.equals(this.blockNumber, that.blockNumber)
+                    && Objects.equals(this.latestHash, that.latestHash)
+                    && Objects.equals(this.knownHighestNumber, that.knownHighestNumber)
+                    && Objects.equals(this.txPoolSize, that.txPoolSize)
+                    && Objects.equals(this.peers, that.peers)
+                    && Objects.equals(this.knownLatestHash, that.knownLatestHash);
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(
-                    isSyncing,
-                    protocolId,
-                    genesisHash,
-                    nodeId,
-                    blockNumber,
-                    latestHash,
-                    knownHighestNumber,
-                    txPoolSize,
-                    peers,
-                    knownLatestHash);
+                    this.isSyncing,
+                    this.protocolId,
+                    this.genesisHash,
+                    this.nodeId,
+                    this.blockNumber,
+                    this.latestHash,
+                    this.knownHighestNumber,
+                    this.txPoolSize,
+                    this.peers,
+                    this.knownLatestHash);
         }
 
         @Override
         public String toString() {
             return "SyncStatusInfo{"
                     + "isSyncing='"
-                    + isSyncing
+                    + this.isSyncing
                     + '\''
                     + ", protocolId='"
-                    + protocolId
+                    + this.protocolId
                     + '\''
                     + ", genesisHash='"
-                    + genesisHash
+                    + this.genesisHash
                     + '\''
                     + ", nodeId='"
-                    + nodeId
+                    + this.nodeId
                     + '\''
                     + ", blockNumber='"
-                    + blockNumber
+                    + this.blockNumber
                     + '\''
                     + ", latestHash='"
-                    + latestHash
+                    + this.latestHash
                     + '\''
                     + ", knownHighestNumber='"
-                    + knownHighestNumber
+                    + this.knownHighestNumber
                     + '\''
                     + ", txPoolSize='"
-                    + txPoolSize
+                    + this.txPoolSize
                     + '\''
                     + ", peers="
-                    + peers
+                    + this.peers
                     + ", knownLatestHash='"
-                    + knownLatestHash
+                    + this.knownLatestHash
                     + '\''
                     + '}';
         }

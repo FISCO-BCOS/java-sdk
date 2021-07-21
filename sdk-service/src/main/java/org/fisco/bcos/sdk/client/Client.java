@@ -103,7 +103,7 @@ public interface Client {
      * @param signedTransactionData transaction string
      * @return SendTransaction
      */
-    TransactionReceiptWithProof sendRawTransaction(String signedTransactionData, boolean withProof);
+    BcosTransactionReceipt sendTransaction(String signedTransactionData, boolean withProof);
 
     /**
      * Ledger operation: async send transaction
@@ -111,7 +111,7 @@ public interface Client {
      * @param signedTransactionData transaction string
      * @param callback              the callback that will be called when receive the response
      */
-    void sendRawTransactionAsync(
+    void sendTransactionAsync(
             String signedTransactionData, boolean withProof, TransactionCallback callback);
 
     /**
@@ -217,14 +217,6 @@ public interface Client {
             RespCallback<BcosBlock> callback);
 
     /**
-     * Ledger operation: get block hash by block number
-     *
-     * @param blockNumber the number of the block
-     * @return block hash
-     */
-    BlockHash getBlockHashByNumber(BigInteger blockNumber);
-
-    /**
      * Ledger operation: async get block hash by block number
      *
      * @param blockNumber the number of the block
@@ -233,45 +225,12 @@ public interface Client {
     void getBlockHashByNumberAsync(BigInteger blockNumber, RespCallback<BlockHash> callback);
 
     /**
-     * Ledger operation: get block header by block hash
-     *
-     * @param blockHash           the hashcode of the block
-     * @param returnSignatureList the boolean define the signature list is returned or not
-     * @return block header
-     */
-    BcosBlockHeader getBlockHeaderByHash(String blockHash, boolean returnSignatureList);
-
-    /**
-     * Ledger operation: async get block header by block hash
-     *
-     * @param blockHash           the hashcode of the block
-     * @param returnSignatureList the boolean define the signature list is returned or not
-     * @param callback            the call back instance
-     */
-    void getBlockHeaderByHashAsync(
-            String blockHash, boolean returnSignatureList, RespCallback<BcosBlockHeader> callback);
-
-    /**
-     * get block header by number
-     *
-     * @param blockNumber         the number of the block
-     * @param returnSignatureList the boolean define the signature list is returned or not
-     * @return the block header response from the blockchain node
-     */
-    BcosBlockHeader getBlockHeaderByNumber(BigInteger blockNumber, boolean returnSignatureList);
-
-    void getBlockHeaderByNumberAsync(
-            BigInteger blockNumber,
-            boolean returnSignatureList,
-            RespCallback<BcosBlockHeader> callback);
-
-    /**
      * Ledger operation: get trnasaction by hash
      *
      * @param transactionHash the hashcode of transaction
      * @return transaction
      */
-    BcosTransaction getTransactionByHash(String transactionHash);
+    BcosTransaction getTransaction(String transactionHash);
 
     /**
      * Ledger operation: async get trnasaction by hash
@@ -279,7 +238,7 @@ public interface Client {
      * @param transactionHash the hashcode of transaction
      * @param callback        the callback that will be called when receive the response
      */
-    void getTransactionByHashAsync(String transactionHash, RespCallback<BcosTransaction> callback);
+    void getTransactionAsync(String transactionHash, RespCallback<BcosTransaction> callback);
 
     /**
      * Ledger operation: get transaction receipt by transaction hash

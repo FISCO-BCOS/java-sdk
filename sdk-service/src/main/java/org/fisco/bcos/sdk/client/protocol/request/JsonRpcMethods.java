@@ -14,7 +14,9 @@
 package org.fisco.bcos.sdk.client.protocol.request;
 
 public class JsonRpcMethods {
-    /** define the method name for all jsonRPC interfaces */
+    /**
+     * define the method name for all jsonRPC interfaces
+     */
     // the interface related to the group
     public static final String GET_BLOCK_NUMBER = "getBlockNumber";
     public static final String GET_PBFT_VIEW = "getPbftView";
@@ -27,7 +29,7 @@ public class JsonRpcMethods {
     public static final String GET_BLOCK_BY_NUMBER = "getBlockByNumber";
     public static final String GET_BLOCKHEADER_BY_NUMBER = "getBlockHeaderByNumber";
     public static final String GET_BLOCKHASH_BY_NUMBER = "getBlockHashByNumber";
-    public static final String GET_TRANSACTION_BY_HASH = "getTransactionByHash";
+    public static final String GET_TRANSACTION_BY_HASH = "getTransaction";
     public static final String GET_TRANSACTIONRECEIPT = "getTransactionReceipt";
     public static final String GET_PENDING_TX_SIZE = "getPendingTxSize";
     public static final String CALL = "call";
@@ -40,5 +42,6 @@ public class JsonRpcMethods {
     public static final String GET_PEERS = "getPeers";
 
 
-    private JsonRpcMethods() {}
+    private JsonRpcMethods() {
+    }
 }

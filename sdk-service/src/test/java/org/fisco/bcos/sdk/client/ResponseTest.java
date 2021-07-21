@@ -13,44 +13,21 @@
  */
 package org.fisco.bcos.sdk.test.client;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
-
 import org.fisco.bcos.sdk.client.protocol.model.GroupStatus;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
-import org.fisco.bcos.sdk.client.protocol.response.BlockHash;
-import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
-import org.fisco.bcos.sdk.client.protocol.response.Call;
-import org.fisco.bcos.sdk.client.protocol.response.Code;
-import org.fisco.bcos.sdk.client.protocol.response.NodeIDList;
-import org.fisco.bcos.sdk.client.protocol.response.ObserverList;
-import org.fisco.bcos.sdk.client.protocol.response.PbftView;
-import org.fisco.bcos.sdk.client.protocol.response.Peers;
-import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
-import org.fisco.bcos.sdk.client.protocol.response.SealerList;
-import org.fisco.bcos.sdk.client.protocol.response.SyncStatus;
-import org.fisco.bcos.sdk.client.protocol.response.SystemConfig;
-import org.fisco.bcos.sdk.client.protocol.response.TotalTransactionCount;
-import org.fisco.bcos.sdk.client.protocol.response.TransactionReceiptWithProof;
-import org.fisco.bcos.sdk.client.protocol.response.TransactionWithProof;
+import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.NodeVersion;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.math.BigInteger;
 
 public class ResponseTest {
     private static ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
@@ -70,7 +47,7 @@ public class ResponseTest {
                         + "    \"logsBloom\": \"0x0000abc123\",\n"
                         + "    \"number\": 1,\n"
                         + "    \"parentHash\": \"0x3d161a0302bb05d97d68e129c552a83f171e673d0b6b866c1f687c3da98d9a08\",\n"
-                        + "    \"receiptsRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n"
+                        + "    \"receiptRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n"
                         + "    \"sealer\": \"0x3\",\n"
                         + "    \"sealerList\": [\n"
                         + "      \"11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f\",\n"
@@ -122,7 +99,7 @@ public class ResponseTest {
                     blockHeader.getBlockHeader().getParentHash());
             Assert.assertEquals(
                     "0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2",
-                    blockHeader.getBlockHeader().getReceiptsRoot());
+                    blockHeader.getBlockHeader().getReceiptRoot());
             Assert.assertEquals("0x100", blockHeader.getBlockHeader().getGasLimit());
             Assert.assertEquals("0x200", blockHeader.getBlockHeader().getGasUsed());
             Assert.assertEquals(
@@ -230,7 +207,7 @@ public class ResponseTest {
                         + "    \"logsBloom\": \"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\",\n"
                         + "    \"number\": \"0x100\",\n"
                         + "    \"parentHash\": \"0x3d161a0302bb05d97d68e129c552a83f171e673d0b6b866c1f687c3da98d9a08\",\n"
-                        + "    \"receiptsRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n"
+                        + "    \"receiptRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n"
                         + "    \"sealer\": \"0x4\",\n"
                         + "    \"sealerList\": [\n"
                         + "      \"11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f\",\n"
@@ -258,10 +235,10 @@ public class ResponseTest {
                         + "  }";
         // encode the string into object
         BcosBlock bcosBlock = objectMapper.readValue(blockString.getBytes(), BcosBlock.class);
-        checkBlockHeader(bcosBlock);
+        this.checkBlockHeader(bcosBlock);
         // check the transaction
-        checkTransactionsForBlock(bcosBlock);
-        checkEncodeDecode(bcosBlock);
+        this.checkTransactionsForBlock(bcosBlock);
+        this.checkEncodeDecode(bcosBlock);
     }
 
     public void testBcosBlockWithoutTransaction() throws IOException {
@@ -278,7 +255,7 @@ public class ResponseTest {
                         + "    \"logsBloom\": \"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\",\n"
                         + "    \"number\": \"0x100\",\n"
                         + "    \"parentHash\": \"0x3d161a0302bb05d97d68e129c552a83f171e673d0b6b866c1f687c3da98d9a08\",\n"
-                        + "    \"receiptsRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n"
+                        + "    \"receiptRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n"
                         + "    \"sealer\": \"0x4\",\n"
                         + "    \"sealerList\": [\n"
                         + "      \"11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f\",\n"
@@ -293,7 +270,7 @@ public class ResponseTest {
                         + "    }\n"
                         + "  }";
         BcosBlock bcosBlock = objectMapper.readValue(blockString.getBytes(), BcosBlock.class);
-        checkBlockHeader(bcosBlock);
+        this.checkBlockHeader(bcosBlock);
         // check transaction
         BcosBlock.TransactionHash transactionHash =
                 ((BcosBlock.TransactionHash) bcosBlock.getBlock().getTransactions().get(0));
@@ -301,7 +278,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 "0x19e5f919888038fcb16c7d75bb86945e1bf6349c591d33e3b5fdcda973577875",
                 transactionHash);
-        checkEncodeDecode(bcosBlock);
+        this.checkEncodeDecode(bcosBlock);
     }
 
     private void checkEncodeDecode(BcosBlock bcosBlock) throws IOException {
@@ -327,7 +304,7 @@ public class ResponseTest {
                 bcosBlock.getBlock().getParentHash());
         Assert.assertEquals(
                 "0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2",
-                bcosBlock.getBlock().getReceiptsRoot());
+                bcosBlock.getBlock().getReceiptRoot());
         Assert.assertEquals(2, bcosBlock.getBlock().getSealerList().size());
         Assert.assertEquals(
                 "11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f",
@@ -765,36 +742,36 @@ public class ResponseTest {
                 objectMapper.readValue(receiptStr, BcosTransactionReceipt.class);
         Assert.assertEquals(
                 "0x977efec48c248ea4be87016446b40d7785d7b71b7d4e3aa0b103b9cf0f5fe19e",
-                transactionReceipt.getTransactionReceipt().get().getBlockHash());
+                transactionReceipt.getTransactionReceipt().getBlockHash());
         Assert.assertEquals(
-                "0xa", transactionReceipt.getTransactionReceipt().get().getBlockNumber());
+                "0xa", transactionReceipt.getTransactionReceipt().getBlockNumber());
         Assert.assertEquals(
                 "0x0000000000000000000000000000000000000000",
-                transactionReceipt.getTransactionReceipt().get().getContractAddress());
+                transactionReceipt.getTransactionReceipt().getContractAddress());
         Assert.assertEquals(
                 "0xcdcce60801c0a2e6bb534322c32ae528b9dec8d2",
-                transactionReceipt.getTransactionReceipt().get().getFrom());
+                transactionReceipt.getTransactionReceipt().getFrom());
         Assert.assertEquals(
-                "0x1fb8d", transactionReceipt.getTransactionReceipt().get().getGasUsed());
+                "0x1fb8d", transactionReceipt.getTransactionReceipt().getGasUsed());
         Assert.assertEquals(
                 "0xb602109a000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000203078313030303030303030303030303030303030303030303030303030303030000000000000000000000000000000000000000000000000000000000000000832303139303733300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002616100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000026262000000000000000000000000000000000000000000000000000000000000",
-                transactionReceipt.getTransactionReceipt().get().getInput());
-        Assert.assertEquals(0, transactionReceipt.getTransactionReceipt().get().getLogs().size());
+                transactionReceipt.getTransactionReceipt().getInput());
+        Assert.assertEquals(0, transactionReceipt.getTransactionReceipt().getLogs().size());
         Assert.assertEquals(
                 "0x0000000000000000000000000000000000000000000000000000000000000000",
-                transactionReceipt.getTransactionReceipt().get().getOutput());
+                transactionReceipt.getTransactionReceipt().getOutput());
         Assert.assertEquals(
                 "0x38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
-                transactionReceipt.getTransactionReceipt().get().getRoot());
-        Assert.assertEquals("0xc", transactionReceipt.getTransactionReceipt().get().getStatus());
+                transactionReceipt.getTransactionReceipt().getRoot());
+        Assert.assertEquals("0xc", transactionReceipt.getTransactionReceipt().getStatus());
         Assert.assertEquals(
                 "0x15538acd403ac1b2ff09083c70d04856b8c0bdfd",
-                transactionReceipt.getTransactionReceipt().get().getTo());
+                transactionReceipt.getTransactionReceipt().getTo());
         Assert.assertEquals(
                 "0x708b5781b62166bd86e543217be6cd954fd815fd192b9a124ee9327580df8f3f",
-                transactionReceipt.getTransactionReceipt().get().getTransactionHash());
+                transactionReceipt.getTransactionReceipt().getTransactionHash());
         Assert.assertEquals(
-                "0x10", transactionReceipt.getTransactionReceipt().get().getTransactionIndex());
+                "0x10", transactionReceipt.getTransactionReceipt().getTransactionIndex());
     }
 
     @Test
@@ -860,106 +837,96 @@ public class ResponseTest {
                         + "    }\n"
                         + "  }\n"
                         + "}";
-        TransactionReceiptWithProof receiptWithProof =
-                objectMapper.readValue(receiptWithProofStr, TransactionReceiptWithProof.class);
+        BcosTransactionReceipt receiptWithProof =
+                objectMapper.readValue(receiptWithProofStr, BcosTransactionReceipt.class);
         Assert.assertEquals(
-                3, receiptWithProof.getReceiptAndProof().getReceiptProof().size());
+                3, receiptWithProof.getTransactionReceipt().getReceiptProof().size());
         Assert.assertEquals(
                 2,
-                receiptWithProof
-                        .getReceiptAndProof()
-                        .getReceiptProof()
+                receiptWithProof.getTransactionReceipt().getReceiptProof()
                         .get(0)
                         .getLeft()
                         .size());
         Assert.assertEquals(
                 13,
                 receiptWithProof
-                        .getReceiptAndProof()
-                        .getReceiptProof()
+                        .getTransactionReceipt().getReceiptProof()
                         .get(0)
                         .getRight()
                         .size());
         Assert.assertEquals(
                 3,
                 receiptWithProof
-                        .getReceiptAndProof()
-                        .getReceiptProof()
+                        .getTransactionReceipt().getReceiptProof()
                         .get(1)
                         .getLeft()
                         .size());
         Assert.assertEquals(
                 2,
                 receiptWithProof
-                        .getReceiptAndProof()
-                        .getReceiptProof()
+                        .getTransactionReceipt().getReceiptProof()
                         .get(1)
                         .getRight()
                         .size());
         Assert.assertEquals(
                 0,
                 receiptWithProof
-                        .getReceiptAndProof()
-                        .getReceiptProof()
+                        .getTransactionReceipt().getReceiptProof()
                         .get(2)
                         .getLeft()
                         .size());
         Assert.assertEquals(
                 0,
                 receiptWithProof
-                        .getReceiptAndProof()
-                        .getReceiptProof()
+                        .getTransactionReceipt().getReceiptProof()
                         .get(2)
                         .getRight()
                         .size());
         Assert.assertEquals(
                 "cd46118c0e99be585ffcf50423630348dbc486e54e9d9293a6a8754020a68a92",
                 receiptWithProof
-                        .getReceiptAndProof()
-                        .getReceiptProof()
+                        .getTransactionReceipt().getReceiptProof()
                         .get(1)
                         .getLeft()
                         .get(0));
         Assert.assertEquals(
                 "6a6cefef8b48e455287a8c8694b06f4f7cb7950017ab048d6e6bdd8029f9f8c9",
                 receiptWithProof
-                        .getReceiptAndProof()
-                        .getReceiptProof()
+                        .getTransactionReceipt().getReceiptProof()
                         .get(1)
                         .getRight()
                         .get(0));
         // check receipt
         Assert.assertEquals(
                 "0xcd31b05e466bce99460b1ed70d6069fdfbb15e6eef84e9b9e4534358edb3899a",
-                receiptWithProof.getReceiptAndProof().getReceipt().getBlockHash());
+                receiptWithProof.getTransactionReceipt().getBlockHash());
         Assert.assertEquals(
                 "0x5",
-                receiptWithProof.getReceiptAndProof().getReceipt().getBlockNumber());
+                receiptWithProof.getTransactionReceipt().getBlockNumber());
         Assert.assertEquals(
                 "0x0000000000000000000000000000000000000000",
                 receiptWithProof
-                        .getReceiptAndProof()
-                        .getReceipt()
+                        .getTransactionReceipt()
                         .getContractAddress());
         Assert.assertEquals(
                 "0x148947262ec5e21739fe3a931c29e8b84ee34a0f",
-                receiptWithProof.getReceiptAndProof().getReceipt().getFrom());
+                receiptWithProof.getTransactionReceipt().getFrom());
         Assert.assertEquals(
                 "0x21dc1b",
-                receiptWithProof.getReceiptAndProof().getReceipt().getGasUsed());
+                receiptWithProof.getTransactionReceipt().getGasUsed());
         Assert.assertEquals(
                 "0xc3b4185963c78a4ca8eb90240e5cd95371d7217a9ce2bfa1149d53f79c73afbb",
-                receiptWithProof.getReceiptAndProof().getReceipt().getRoot());
+                receiptWithProof.getTransactionReceipt().getRoot());
         Assert.assertEquals(
-                "0x0", receiptWithProof.getReceiptAndProof().getReceipt().getStatus());
+                "0x0", receiptWithProof.getTransactionReceipt().getStatus());
         Assert.assertEquals(
                 "0xd6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f",
-                receiptWithProof.getReceiptAndProof().getReceipt().getTo());
+                receiptWithProof.getTransactionReceipt().getTo());
         Assert.assertEquals(
-                null, receiptWithProof.getReceiptAndProof().getReceipt().getTxProof());
+                null, receiptWithProof.getTransactionReceipt().getTxProof());
         Assert.assertEquals(
                 null,
-                receiptWithProof.getReceiptAndProof().getReceipt().getReceiptProof());
+                receiptWithProof.getTransactionReceipt().getReceiptProof());
     }
 
     @Test
@@ -1197,12 +1164,13 @@ public class ResponseTest {
                 "    \"value\": \"0x0\"\n" +
                 "  }\n" +
                 "}";
-         bcosTransaction = objectMapper.readValue(transactionString.getBytes(), BcosTransaction.class);
-         cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
+        bcosTransaction = objectMapper.readValue(transactionString.getBytes(), BcosTransaction.class);
+        cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
         Assert.assertEquals(
                 bcosTransaction.getTransaction().get().calculateHash(cryptoSuite),
                 bcosTransaction.getTransaction().get().getHash());
     }
+
     @Test
     public void testSMGetBlockAndCalculateHash() throws IOException {
         String blockHeaderStr = "{\n" +
@@ -1217,7 +1185,7 @@ public class ResponseTest {
                 "    \"logsBloom\": \"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\",\n" +
                 "    \"number\": 1,\n" +
                 "    \"parentHash\": \"0x7e1b0fc3efa8026f282bfa994d3a79305542d5ad3ea65b84a8d72b152f15dfb1\",\n" +
-                "    \"receiptsRoot\": \"0xd748b478e6b8f90e049f7a4a9d2b9acf76624baed8c2abe0e868b33cd5e989e5\",\n" +
+                "    \"receiptRoot\": \"0xd748b478e6b8f90e049f7a4a9d2b9acf76624baed8c2abe0e868b33cd5e989e5\",\n" +
                 "    \"sealer\": \"0x3\",\n" +
                 "    \"sealerList\": [\n" +
                 "      \"1daca8140ba483b560d1b3b8905ca07f447b305875a4f9c6cb2a826c9315ef10bc87a7e135d0a34f605f3a95ff5d9a8c83f2ac5f070c6fe740400910813110a2\",\n" +
@@ -1302,7 +1270,7 @@ public class ResponseTest {
                 "    \"logsBloom\": \"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\",\n" +
                 "    \"number\": 1,\n" +
                 "    \"parentHash\": \"0x4f6394763c33c1709e5a72b202ad4d7a3b8152de3dc698cef6f675ecdaf20a3b\",\n" +
-                "    \"receiptsRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n" +
+                "    \"receiptRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n" +
                 "    \"sealer\": \"0x3\",\n" +
                 "    \"sealerList\": [\n" +
                 "      \"11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f\",\n" +

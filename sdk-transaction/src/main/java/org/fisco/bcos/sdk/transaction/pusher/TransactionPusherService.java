@@ -38,7 +38,7 @@ public class TransactionPusherService implements TransactionPusherInterface {
 
     @Override
     public void pushOnly(String signedTransaction) {
-        this.client.sendRawTransactionAsync(signedTransaction, false, null);
+        this.client.sendTransactionAsync(signedTransaction, false, null);
     }
 
     @Override
@@ -49,12 +49,12 @@ public class TransactionPusherService implements TransactionPusherInterface {
 
     @Override
     public TransactionReceipt push(String signedTransaction) {
-        return this.client.sendRawTransaction(signedTransaction, false).getReceiptAndProof().getReceipt();
+        return this.client.sendTransaction(signedTransaction, false).getTransactionReceipt();
     }
 
     @Override
     public void pushAsync(String signedTransactionData, TransactionCallback callback) {
-        this.client.sendRawTransactionAsync(signedTransactionData, false, callback);
+        this.client.sendTransactionAsync(signedTransactionData, false, callback);
     }
 
     @Override
