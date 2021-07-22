@@ -17,9 +17,62 @@ package org.fisco.bcos.sdk.client.protocol.response;
 
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
-/** getSystemConfigByKey */
-public class SystemConfig extends JsonRpcResponse<String> {
-    public String getSystemConfig() {
-        return getResult();
+import java.util.Objects;
+
+/**
+ * getSystemConfigByKey
+ */
+public class SystemConfig extends JsonRpcResponse<SystemConfig.Config> {
+    public SystemConfig.Config getSystemConfig() {
+        return this.getResult();
+    }
+
+    public static class Config {
+        private Integer blockNumber;
+        private String value;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || this.getClass() != o.getClass()) return false;
+            SystemConfig.Config that = (SystemConfig.Config) o;
+            return Objects.equals(this.blockNumber, that.blockNumber)
+                    && Objects.equals(this.value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(
+                    this.blockNumber,
+                    this.value);
+        }
+
+        @Override
+        public String toString() {
+            return "SystemConfig{"
+                    + "blockNumber='"
+                    + this.blockNumber
+                    + '\''
+                    + ", value='"
+                    + this.value
+                    + '\''
+                    + '}';
+        }
+
+        public Integer getBlockNumber() {
+            return this.blockNumber;
+        }
+
+        public void setBlockNumber(Integer blockNumber) {
+            this.blockNumber = blockNumber;
+        }
+
+        public String getValue() {
+            return this.value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
     }
 }

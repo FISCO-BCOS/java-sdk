@@ -14,227 +14,210 @@ import com.qq.tars.protocol.util.TarsUtil;
 @TarsStruct
 public class TransactionData {
 
-  @TarsStructProperty(order = 1, isRequire = false)
-  public int version = 0;
+    @TarsStructProperty(order = 1, isRequire = true)
+    public int version = 0;
+    @TarsStructProperty(order = 2, isRequire = true)
+    public String chainID = "";
+    @TarsStructProperty(order = 3, isRequire = true)
+    public String groupID = "";
+    @TarsStructProperty(order = 4, isRequire = true)
+    public long blockLimit = 0L;
+    @TarsStructProperty(order = 5, isRequire = true)
+    public String nonce = "";
+    @TarsStructProperty(order = 6, isRequire = false)
+    public byte[] to = null;
+    @TarsStructProperty(order = 7, isRequire = true)
+    public byte[] input = null;
 
-  @TarsStructProperty(order = 2, isRequire = false)
-  public String chainID = "";
-
-  @TarsStructProperty(order = 3, isRequire = false)
-  public String groupID = "";
-
-  @TarsStructProperty(order = 4, isRequire = false)
-  public long blockLimit = 0L;
-
-  @TarsStructProperty(order = 5, isRequire = false)
-  public String nonce = "";
-
-  @TarsStructProperty(order = 6, isRequire = false)
-  public byte[] to = null;
-
-  @TarsStructProperty(order = 8, isRequire = false)
-  public byte[] input = null;
-
-  public int getVersion() {
-    return version;
-  }
-
-  public void setVersion(int version) {
-    this.version = version;
-  }
-
-  public String getChainID() {
-    return chainID;
-  }
-
-  public void setChainID(String chainID) {
-    this.chainID = chainID;
-  }
-
-  public String getGroupID() {
-    return groupID;
-  }
-
-  public void setGroupID(String groupID) {
-    this.groupID = groupID;
-  }
-
-  public long getBlockLimit() {
-    return blockLimit;
-  }
-
-  public void setBlockLimit(long blockLimit) {
-    this.blockLimit = blockLimit;
-  }
-
-  public String getNonce() {
-    return nonce;
-  }
-
-  public void setNonce(String nonce) {
-    this.nonce = nonce;
-  }
-
-  public byte[] getTo() {
-    return to;
-  }
-
-  public void setTo(byte[] to) {
-    this.to = to;
-  }
-
-  public byte[] getInput() {
-    return input;
-  }
-
-  public void setInput(byte[] input) {
-    this.input = input;
-  }
-
-  public TransactionData() {}
-
-  public TransactionData(
-      int version,
-      String chainID,
-      String groupID,
-      long blockLimit,
-      String nonce,
-      byte[] to,
-      byte[] input) {
-    this.version = version;
-    this.chainID = chainID;
-    this.groupID = groupID;
-    this.blockLimit = blockLimit;
-    this.nonce = nonce;
-    this.to = to;
-    this.input = input;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + TarsUtil.hashCode(version);
-    result = prime * result + TarsUtil.hashCode(chainID);
-    result = prime * result + TarsUtil.hashCode(groupID);
-    result = prime * result + TarsUtil.hashCode(blockLimit);
-    result = prime * result + TarsUtil.hashCode(nonce);
-    result = prime * result + TarsUtil.hashCode(to);
-    result = prime * result + TarsUtil.hashCode(input);
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
+    public int getVersion() {
+        return this.version;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (!(obj instanceof TransactionData)) {
-      return false;
-    }
-    TransactionData other = (TransactionData) obj;
-    return (TarsUtil.equals(version, other.version)
-        && TarsUtil.equals(chainID, other.chainID)
-        && TarsUtil.equals(groupID, other.groupID)
-        && TarsUtil.equals(blockLimit, other.blockLimit)
-        && TarsUtil.equals(nonce, other.nonce)
-        && TarsUtil.equals(to, other.to)
-        && TarsUtil.equals(input, other.input));
-  }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder("TransactionData(");
-    sb.append("version:");
-    sb.append(this.version);
-    sb.append(", ");
-    sb.append("chainID:");
-    if (this.chainID == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.chainID);
+    public void setVersion(int version) {
+        this.version = version;
     }
-    sb.append(", ");
-    sb.append("groupID:");
-    if (this.groupID == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.groupID);
-    }
-    sb.append(", ");
-    sb.append("blockLimit:");
-    sb.append(this.blockLimit);
-    sb.append(", ");
-    sb.append("nonce:");
-    if (this.nonce == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.nonce);
-    }
-    sb.append(", ");
-    sb.append("to:");
-    if (this.to == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.to);
-    }
-    sb.append(", ");
-    sb.append("input:");
-    if (this.input == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.input);
-    }
-    sb.append(")");
-    return sb.toString();
-  }
 
-  public void writeTo(TarsOutputStream _os) {
-    _os.write(version, 1);
-    if (null != chainID) {
-      _os.write(chainID, 2);
+    public String getChainID() {
+        return this.chainID;
     }
-    if (null != groupID) {
-      _os.write(groupID, 3);
+
+    public void setChainID(String chainID) {
+        this.chainID = chainID;
     }
-    _os.write(blockLimit, 4);
-    if (null != nonce) {
-      _os.write(nonce, 5);
+
+    public String getGroupID() {
+        return this.groupID;
     }
-    if (null != to) {
-      _os.write(to, 6);
+
+    public void setGroupID(String groupID) {
+        this.groupID = groupID;
     }
-    if (null != input) {
-      _os.write(input, 8);
+
+    public long getBlockLimit() {
+        return this.blockLimit;
     }
-  }
 
-  static byte[] cache_to;
+    public void setBlockLimit(long blockLimit) {
+        this.blockLimit = blockLimit;
+    }
 
-  static {
-    cache_to = new byte[1];
-    byte var_10 = (byte) 0;
-    cache_to[0] = var_10;
-  }
+    public String getNonce() {
+        return this.nonce;
+    }
 
-  static byte[] cache_input;
+    public void setNonce(String nonce) {
+        this.nonce = nonce;
+    }
 
-  static {
-    cache_input = new byte[1];
-    byte var_11 = (byte) 0;
-    cache_input[0] = var_11;
-  }
+    public byte[] getTo() {
+        return this.to;
+    }
 
-  public void readFrom(TarsInputStream _is) {
-    this.version = _is.read(version, 1, false);
-    this.chainID = _is.readString(2, false);
-    this.groupID = _is.readString(3, false);
-    this.blockLimit = _is.read(blockLimit, 4, false);
-    this.nonce = _is.readString(5, false);
-    this.to = (byte[]) _is.read(cache_to, 6, false);
-    this.input = (byte[]) _is.read(cache_input, 8, false);
-  }
+    public void setTo(byte[] to) {
+        this.to = to;
+    }
+
+    public byte[] getInput() {
+        return this.input;
+    }
+
+    public void setInput(byte[] input) {
+        this.input = input;
+    }
+
+    public TransactionData() {
+    }
+
+    public TransactionData(int version, String chainID, String groupID, long blockLimit, String nonce, byte[] to, byte[] input) {
+        this.version = version;
+        this.chainID = chainID;
+        this.groupID = groupID;
+        this.blockLimit = blockLimit;
+        this.nonce = nonce;
+        this.to = to;
+        this.input = input;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + TarsUtil.hashCode(this.version);
+        result = prime * result + TarsUtil.hashCode(this.chainID);
+        result = prime * result + TarsUtil.hashCode(this.groupID);
+        result = prime * result + TarsUtil.hashCode(this.blockLimit);
+        result = prime * result + TarsUtil.hashCode(this.nonce);
+        result = prime * result + TarsUtil.hashCode(this.to);
+        result = prime * result + TarsUtil.hashCode(this.input);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof TransactionData)) {
+            return false;
+        }
+        TransactionData other = (TransactionData) obj;
+        return (
+                TarsUtil.equals(this.version, other.version) &&
+                        TarsUtil.equals(this.chainID, other.chainID) &&
+                        TarsUtil.equals(this.groupID, other.groupID) &&
+                        TarsUtil.equals(this.blockLimit, other.blockLimit) &&
+                        TarsUtil.equals(this.nonce, other.nonce) &&
+                        TarsUtil.equals(this.to, other.to) &&
+                        TarsUtil.equals(this.input, other.input)
+        );
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("TransactionData(");
+        sb.append("version:");
+        sb.append(this.version);
+        sb.append(", ");
+        sb.append("chainID:");
+        if (this.chainID == null) {
+            sb.append("null");
+        } else {
+            sb.append(this.chainID);
+        }
+        sb.append(", ");
+        sb.append("groupID:");
+        if (this.groupID == null) {
+            sb.append("null");
+        } else {
+            sb.append(this.groupID);
+        }
+        sb.append(", ");
+        sb.append("blockLimit:");
+        sb.append(this.blockLimit);
+        sb.append(", ");
+        sb.append("nonce:");
+        if (this.nonce == null) {
+            sb.append("null");
+        } else {
+            sb.append(this.nonce);
+        }
+        sb.append(", ");
+        sb.append("to:");
+        if (this.to == null) {
+            sb.append("null");
+        } else {
+            sb.append(this.to);
+        }
+        sb.append(", ");
+        sb.append("input:");
+        if (this.input == null) {
+            sb.append("null");
+        } else {
+            sb.append(this.input);
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    public void writeTo(TarsOutputStream _os) {
+        _os.write(this.version, 1);
+        _os.write(this.chainID, 2);
+        _os.write(this.groupID, 3);
+        _os.write(this.blockLimit, 4);
+        _os.write(this.nonce, 5);
+        if (null != this.to) {
+            _os.write(this.to, 6);
+        }
+        _os.write(this.input, 7);
+    }
+
+    static byte[] cache_to;
+
+    static {
+        cache_to = new byte[1];
+        byte var_1 = (byte) 0;
+        cache_to[0] = var_1;
+    }
+
+    static byte[] cache_input;
+
+    static {
+        cache_input = new byte[1];
+        byte var_2 = (byte) 0;
+        cache_input[0] = var_2;
+    }
+
+    public void readFrom(TarsInputStream _is) {
+        this.version = _is.read(this.version, 1, true);
+        this.chainID = _is.readString(2, true);
+        this.groupID = _is.readString(3, true);
+        this.blockLimit = _is.read(this.blockLimit, 4, true);
+        this.nonce = _is.readString(5, true);
+        this.to = (byte[]) _is.read(cache_to, 6, false);
+        this.input = (byte[]) _is.read(cache_input, 7, true);
+    }
 }
+

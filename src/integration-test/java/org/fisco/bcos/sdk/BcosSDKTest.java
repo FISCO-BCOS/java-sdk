@@ -51,10 +51,10 @@ public class BcosSDKTest {
 
         // test getBlockByNumber
         BcosBlock block = client.getBlockByNumber(BigInteger.ZERO, false, false);
-        System.out.println("genesis block=" + block);
+        System.out.println("genesis block=" + block.getBlock());
         // getBlockByHash
         BcosBlock block0 = client.getBlockByHash(block.getBlock().getHash(), false, false);
-        System.out.println("genesis block=" + block0);
+        System.out.println("genesis block=" + block0.getBlock());
         Assert.assertEquals(block.getBlock(), block0.getBlock());
 
         // get SealerList
@@ -73,10 +73,6 @@ public class BcosSDKTest {
         PendingTxSize pendingTxSize = client.getPendingTxSize();
         System.out.println(pendingTxSize.getPendingTxSize());
 
-        // get getSyncStatus
-        SyncStatus syncStatus = client.getSyncStatus();
-        System.out.println(syncStatus.getSyncStatus());
-
         // get getSystemConfigByKey
         SystemConfig tx_count_limit = client.getSystemConfigByKey("tx_count_limit");
         System.out.println(tx_count_limit.getSystemConfig());
@@ -92,6 +88,11 @@ public class BcosSDKTest {
         // get NodeInfo
         NodeInfo.NodeInformation nodeInfo = client.getNodeInfo();
         System.out.println(nodeInfo);
+
+
+        // get getSyncStatus
+        SyncStatus syncStatus = client.getSyncStatus();
+        System.out.println(syncStatus.getSyncStatus());
     }
 
     @Test
@@ -111,21 +112,23 @@ public class BcosSDKTest {
         try {
             String s = helloWorld.get();
             System.out.println("helloworld get :" + s);
-
             TransactionReceipt receipt = helloWorld.set("fisco hello");
+            System.out.println("helloworld set :" + "fisco hello");
             Assert.assertEquals(receipt.getStatus(), 0);
+            // getTransaction
             BcosTransaction transaction = client.getTransaction(receipt.getTransactionHash());
             System.out.println("getTransaction :" + transaction.getTransaction());
-            System.out.println("helloworld set :" + "fisco hello");
+            // getTransactionReceipt
+            BcosTransactionReceipt receipt1 = client.getTransactionReceipt(receipt.getTransactionHash());
+            System.out.println("getTransactionReceipt :" + receipt1.getTransactionReceipt());
+            // getCode
+            Code code = client.getCode(receipt.getContractAddress());
+            System.out.println("getTransactionReceipt :" + code.getCode());
             s = helloWorld.get();
             System.out.println("helloworld get :" + s);
         } catch (ContractException e) {
             e.printStackTrace();
         }
-        // getTransaction
-        // getTransactionReceipt
-        // getCode
-        //
     }
 
 }

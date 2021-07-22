@@ -711,8 +711,8 @@ public class ResponseTest {
         TotalTransactionCount txCount =
                 objectMapper.readValue(totalTxCountStr, TotalTransactionCount.class);
         Assert.assertEquals("0x1", txCount.getTotalTransactionCount().getBlockNumber());
-        Assert.assertEquals("0x0", txCount.getTotalTransactionCount().getFailedTxSum());
-        Assert.assertEquals("0x20", txCount.getTotalTransactionCount().getTxSum());
+        Assert.assertEquals("0x0", txCount.getTotalTransactionCount().getFailedTransactionCount());
+        Assert.assertEquals("0x20", txCount.getTotalTransactionCount().getTransactionCount());
     }
 
     @Test

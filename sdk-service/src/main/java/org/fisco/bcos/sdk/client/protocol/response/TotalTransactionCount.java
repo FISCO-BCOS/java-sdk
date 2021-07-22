@@ -15,71 +15,74 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-import java.util.Objects;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
-/** getTotalTransactionCount */
+import java.util.Objects;
+
+/**
+ * getTotalTransactionCount
+ */
 public class TotalTransactionCount
         extends JsonRpcResponse<TotalTransactionCount.TransactionCountInfo> {
     public TransactionCountInfo getTotalTransactionCount() {
-        return getResult();
+        return this.getResult();
     }
 
     public static class TransactionCountInfo {
-        private String txSum;
+        private String transactionCount;
         private String blockNumber;
-        private String failedTxSum;
+        private String failedTransactionCount;
 
-        public String getTxSum() {
-            return txSum;
+        public String getTransactionCount() {
+            return this.transactionCount;
         }
 
-        public void setTxSum(String txSum) {
-            this.txSum = txSum;
+        public void setTransactionCount(String transactionCount) {
+            this.transactionCount = transactionCount;
         }
 
         public String getBlockNumber() {
-            return blockNumber;
+            return this.blockNumber;
         }
 
         public void setBlockNumber(String blockNumber) {
             this.blockNumber = blockNumber;
         }
 
-        public String getFailedTxSum() {
-            return failedTxSum;
+        public String getFailedTransactionCount() {
+            return this.failedTransactionCount;
         }
 
-        public void setFailedTxSum(String failedTxSum) {
-            this.failedTxSum = failedTxSum;
+        public void setFailedTransactionCount(String failedTransactionCount) {
+            this.failedTransactionCount = failedTransactionCount;
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || this.getClass() != o.getClass()) return false;
             TransactionCountInfo that = (TransactionCountInfo) o;
-            return Objects.equals(txSum, that.txSum)
-                    && Objects.equals(blockNumber, that.blockNumber)
-                    && Objects.equals(failedTxSum, that.failedTxSum);
+            return Objects.equals(this.transactionCount, that.transactionCount)
+                    && Objects.equals(this.blockNumber, that.blockNumber)
+                    && Objects.equals(this.failedTransactionCount, that.failedTransactionCount);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(txSum, blockNumber, failedTxSum);
+            return Objects.hash(this.transactionCount, this.blockNumber, this.failedTransactionCount);
         }
 
         @Override
         public String toString() {
             return "TransactionCountInfo{"
-                    + "txSum='"
-                    + txSum
+                    + "transactionCount='"
+                    + this.transactionCount
                     + '\''
                     + ", blockNumber='"
-                    + blockNumber
+                    + this.blockNumber
                     + '\''
-                    + ", failedTxSum='"
-                    + failedTxSum
+                    + ", failedTransactionCount='"
+                    + this.failedTransactionCount
                     + '\''
                     + '}';
         }

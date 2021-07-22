@@ -217,13 +217,13 @@ public class PrecompiledTest {
     private void testSystemConfigService(
             Client client, SystemConfigService systemConfigService, String key)
             throws ContractException {
-        BigInteger value = new BigInteger(client.getSystemConfigByKey(key).getSystemConfig());
+        BigInteger value = new BigInteger(client.getSystemConfigByKey(key).getSystemConfig().getValue());
         BigInteger updatedValue = value.add(BigInteger.valueOf(1000));
         String updatedValueStr = String.valueOf(updatedValue);
         systemConfigService.setValueByKey(key, updatedValueStr);
 
         BigInteger queriedValue =
-                new BigInteger(client.getSystemConfigByKey(key).getSystemConfig());
+                new BigInteger(client.getSystemConfigByKey(key).getSystemConfig().getValue());
         System.out.println("queriedValue: " + queriedValue);
         // Assert.assertTrue(queriedValue.equals(updatedValue));
         // Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(1000))));
@@ -305,7 +305,7 @@ public class PrecompiledTest {
                     new BigInteger(
                             client.getTotalTransactionCount()
                                     .getTotalTransactionCount()
-                                    .getTxSum()
+                                    .getTransactionCount()
                                     .substring(2),
                             16);
             for (int i = 0; i < 100; i++) {
@@ -342,7 +342,7 @@ public class PrecompiledTest {
                     new BigInteger(
                             client.getTotalTransactionCount()
                                     .getTotalTransactionCount()
-                                    .getTxSum()
+                                    .getTransactionCount()
                                     .substring(2),
                             16);
             System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
@@ -383,7 +383,7 @@ public class PrecompiledTest {
                     new BigInteger(
                             client.getTotalTransactionCount()
                                     .getTotalTransactionCount()
-                                    .getTxSum()
+                                    .getTransactionCount()
                                     .substring(2),
                             16);
             for (int i = 0; i < 100; i++) {
@@ -432,7 +432,7 @@ public class PrecompiledTest {
                     new BigInteger(
                             client.getTotalTransactionCount()
                                     .getTotalTransactionCount()
-                                    .getTxSum()
+                                    .getTransactionCount()
                                     .substring(2),
                             16);
             System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);

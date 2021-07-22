@@ -15,6 +15,14 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.Converter;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
 import java.util.List;
@@ -25,15 +33,24 @@ import java.util.Objects;
  *
  * <p>Returns an object with data about the sync status or false.
  */
+
 public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
     public SyncStatus.SyncStatusInfo getSyncStatus() {
         return this.getResult();
     }
 
+    @Override
+    @JsonDeserialize(converter = SyncStatusInfoConvert.class)
+    public void setResult(SyncStatus.SyncStatusInfo result) {
+        super.setResult(result);
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class PeersInfo {
+        @JsonProperty("nodeID")
         private String nodeId;
         private String genesisHash;
-        private String blockNumber;
+        private Integer blockNumber;
         private String latestHash;
 
         public String getNodeId() {
@@ -52,11 +69,11 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
             this.genesisHash = genesisHash;
         }
 
-        public String getBlockNumber() {
+        public Integer getBlockNumber() {
             return this.blockNumber;
         }
 
-        public void setBlockNumber(String blockNumber) {
+        public void setBlockNumber(Integer blockNumber) {
             this.blockNumber = blockNumber;
         }
 
@@ -103,10 +120,13 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         }
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class SyncStatusInfo {
         private Boolean isSyncing;
         private String protocolId;
         private String genesisHash;
+
+        @JsonProperty("nodeID")
         private String nodeId;
         private Integer blockNumber;
         private String latestHash;
@@ -260,6 +280,27 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
                     + this.knownLatestHash
                     + '\''
                     + '}';
+        }
+    }
+
+    public static class SyncStatusInfoConvert implements Converter<String, SyncStatusInfo> {
+        @Override
+        public SyncStatusInfo convert(String value) {
+            try {
+                return new ObjectMapper().readValue(value, SyncStatusInfo.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public JavaType getInputType(TypeFactory typeFactory) {
+            return typeFactory.constructSimpleType(String.class, null);
+        }
+
+        @Override
+        public JavaType getOutputType(TypeFactory typeFactory) {
+            return typeFactory.constructSimpleType(SyncStatusInfo.class, null);
         }
     }
 }
