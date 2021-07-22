@@ -14,10 +14,6 @@
  */
 package org.fisco.bcos.sdk.client.protocol.model;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.signature.ECDSASignatureResult;
@@ -33,28 +29,36 @@ import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class JsonTransactionResponse {
     private static Logger logger = LoggerFactory.getLogger(JsonTransactionResponse.class);
 
     // the fields related to get-transaction
-    private String blockHash;
-    private String blockNumber;
+    private Integer version;
     private String from;
-    private String gas;
     private String hash;
     private String input;
     private String nonce;
     private String to;
-    private String transactionIndex;
-    private String value;
-    private String gasPrice;
-    private String blockLimit;
+    private Integer blockLimit;
     private String chainId;
     private String groupId;
-    private String extraData;
     private SignatureResponse signature;
 
-    public JsonTransactionResponse() {}
+    public JsonTransactionResponse() {
+    }
+
+    public Integer getVersion() {
+        return this.version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 
     public static class SignatureResponse {
         private String r;
@@ -62,10 +66,11 @@ public class JsonTransactionResponse {
         private String v;
         private String signature;
 
-        public SignatureResponse() {}
+        public SignatureResponse() {
+        }
 
         public String getR() {
-            return r;
+            return this.r;
         }
 
         public void setR(String r) {
@@ -73,7 +78,7 @@ public class JsonTransactionResponse {
         }
 
         public String getS() {
-            return s;
+            return this.s;
         }
 
         public void setS(String s) {
@@ -81,7 +86,7 @@ public class JsonTransactionResponse {
         }
 
         public String getV() {
-            return v;
+            return this.v;
         }
 
         public void setV(String v) {
@@ -89,7 +94,7 @@ public class JsonTransactionResponse {
         }
 
         public String getSignature() {
-            return signature;
+            return this.signature;
         }
 
         public void setSignature(String signature) {
@@ -100,16 +105,16 @@ public class JsonTransactionResponse {
         public String toString() {
             return "{"
                     + "r='"
-                    + r
+                    + this.r
                     + '\''
                     + ", s='"
-                    + s
+                    + this.s
                     + '\''
                     + ", v='"
-                    + v
+                    + this.v
                     + '\''
                     + ", signature='"
-                    + signature
+                    + this.signature
                     + '\''
                     + '}';
         }
@@ -117,54 +122,30 @@ public class JsonTransactionResponse {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || this.getClass() != o.getClass()) return false;
             SignatureResponse that = (SignatureResponse) o;
-            return Objects.equals(r, that.r)
-                    && Objects.equals(s, that.s)
-                    && Objects.equals(v, that.v)
-                    && Objects.equals(signature, that.signature);
+            return Objects.equals(this.r, that.r)
+                    && Objects.equals(this.s, that.s)
+                    && Objects.equals(this.v, that.v)
+                    && Objects.equals(this.signature, that.signature);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(r, s, v, signature);
+            return Objects.hash(this.r, this.s, this.v, this.signature);
         }
     }
 
-    public String getBlockHash() {
-        return blockHash;
-    }
-
-    public void setBlockHash(String blockHash) {
-        this.blockHash = blockHash;
-    }
-
-    public BigInteger getBlockNumber() {
-        return Numeric.decodeQuantity(blockNumber);
-    }
-
-    public void setBlockNumber(String blockNumber) {
-        this.blockNumber = blockNumber;
-    }
-
     public String getFrom() {
-        return from;
+        return this.from;
     }
 
     public void setFrom(String from) {
         this.from = from;
     }
 
-    public String getGas() {
-        return gas;
-    }
-
-    public void setGas(String gas) {
-        this.gas = gas;
-    }
-
     public String getHash() {
-        return hash;
+        return this.hash;
     }
 
     public void setHash(String hash) {
@@ -172,7 +153,7 @@ public class JsonTransactionResponse {
     }
 
     public String getInput() {
-        return input;
+        return this.input;
     }
 
     public void setInput(String input) {
@@ -180,7 +161,7 @@ public class JsonTransactionResponse {
     }
 
     public String getNonce() {
-        return nonce;
+        return this.nonce;
     }
 
     public void setNonce(String nonce) {
@@ -188,47 +169,23 @@ public class JsonTransactionResponse {
     }
 
     public String getTo() {
-        return to;
+        return this.to;
     }
 
     public void setTo(String to) {
         this.to = to;
     }
 
-    public String getTransactionIndex() {
-        return transactionIndex;
+    public Integer getBlockLimit() {
+        return this.blockLimit;
     }
 
-    public void setTransactionIndex(String transactionIndex) {
-        this.transactionIndex = transactionIndex;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getGasPrice() {
-        return gasPrice;
-    }
-
-    public void setGasPrice(String gasPrice) {
-        this.gasPrice = gasPrice;
-    }
-
-    public String getBlockLimit() {
-        return blockLimit;
-    }
-
-    public void setBlockLimit(String blockLimit) {
+    public void setBlockLimit(Integer blockLimit) {
         this.blockLimit = blockLimit;
     }
 
     public String getChainId() {
-        return chainId;
+        return this.chainId;
     }
 
     public void setChainId(String chainId) {
@@ -236,23 +193,15 @@ public class JsonTransactionResponse {
     }
 
     public String getGroupId() {
-        return groupId;
+        return this.groupId;
     }
 
     public void setGroupId(String groupId) {
         this.groupId = groupId;
     }
 
-    public String getExtraData() {
-        return extraData;
-    }
-
-    public void setExtraData(String extraData) {
-        this.extraData = extraData;
-    }
-
     public SignatureResponse getSignature() {
-        return signature;
+        return this.signature;
     }
 
     public void setSignature(SignatureResponse signature) {
@@ -261,57 +210,45 @@ public class JsonTransactionResponse {
 
     private List<RlpType> encodeTransactionResponse(CryptoSuite cryptoSuite)
             throws ClientException {
-        if (blockLimit == null
-                || chainId == null
-                || groupId == null
-                || extraData == null
-                || signature == null) {
+        if (this.blockLimit == null
+                || this.chainId == null
+                || this.groupId == null
+                || this.signature == null) {
             throw new ClientException(
                     "calculate hash for the transaction failed for missing fields! Please make sure FISCO BCOS version >= v2.7.0");
         }
         List<RlpType> result = new ArrayList<>();
         // nonce
-        result.add(RlpString.create(Numeric.decodeQuantity(nonce)));
-        // gasPrice
-        result.add(RlpString.create(Numeric.decodeQuantity(gasPrice)));
-        // gas
-        result.add(RlpString.create(Numeric.decodeQuantity(gas)));
+        result.add(RlpString.create(Numeric.decodeQuantity(this.nonce)));
         // blockLimit
-        result.add(RlpString.create(Numeric.decodeQuantity(blockLimit)));
+        result.add(RlpString.create(this.blockLimit));
         // to
-        BigInteger receiveAddressValue = Numeric.decodeQuantity(to);
+        BigInteger receiveAddressValue = Numeric.decodeQuantity(this.to);
         if (receiveAddressValue.equals(BigInteger.ZERO)) {
             result.add(RlpString.create(""));
         } else {
-            result.add(RlpString.create(Numeric.hexStringToByteArray(to)));
+            result.add(RlpString.create(Numeric.hexStringToByteArray(this.to)));
         }
-        // value
-        result.add(RlpString.create(Numeric.decodeQuantity(value)));
         // input
-        result.add(RlpString.create(Numeric.hexStringToByteArray(input)));
+        result.add(RlpString.create(Numeric.hexStringToByteArray(this.input)));
         // chainId
-        result.add(RlpString.create(Numeric.decodeQuantity(chainId)));
+        result.add(RlpString.create(Numeric.decodeQuantity(this.chainId)));
         // groupId
-        result.add(RlpString.create(Numeric.decodeQuantity(groupId)));
-        // extraData
-        if (extraData.equals("0x")) {
-            result.add(RlpString.create(""));
-        } else {
-            result.add(RlpString.create(Numeric.hexStringToByteArray(extraData)));
-        }
+        result.add(RlpString.create(Numeric.decodeQuantity(this.groupId)));
+
         int startIndex = 0;
-        if (signature.getSignature().startsWith("0x")) {
+        if (this.signature.getSignature().startsWith("0x")) {
             startIndex = 2;
         }
         // signature
         SignatureResult signatureResult;
         if (cryptoSuite.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE) {
             signatureResult =
-                    new ECDSASignatureResult(signature.getSignature().substring(startIndex));
+                    new ECDSASignatureResult(this.signature.getSignature().substring(startIndex));
         } else {
             signatureResult =
                     new SM2SignatureResult(
-                            signature.getV(), signature.getSignature().substring(startIndex));
+                            this.signature.getV(), this.signature.getSignature().substring(startIndex));
         }
         result.addAll(signatureResult.encode());
         return result;
@@ -320,117 +257,78 @@ public class JsonTransactionResponse {
     // calculate the hash for the transaction
     public String calculateHash(CryptoSuite cryptoSuite) throws ClientException {
         try {
-            List<RlpType> encodedTransaction = encodeTransactionResponse(cryptoSuite);
+            List<RlpType> encodedTransaction = this.encodeTransactionResponse(cryptoSuite);
             RlpList rlpList = new RlpList(encodedTransaction);
             return "0x" + Hex.toHexString(cryptoSuite.hash(RlpEncoder.encode(rlpList)));
         } catch (Exception e) {
             logger.warn(
-                    "calculate hash for the transaction failed, blockHash: {}, blockNumber: {}, transactionHash: {}, error info: {}",
-                    blockHash,
-                    blockNumber,
-                    hash,
+                    "calculate hash for the transaction failed, transactionHash: {}, error info: {}",
+                    this.hash,
                     e);
             throw new ClientException(
-                    "calculate hash for transaction " + hash + " failed for " + e.getMessage(), e);
+                    "calculate hash for transaction " + this.hash + " failed for " + e.getMessage(), e);
         }
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || this.getClass() != o.getClass()) return false;
         JsonTransactionResponse that = (JsonTransactionResponse) o;
-        return Objects.equals(blockHash, that.blockHash)
-                && Objects.equals(
-                        Numeric.decodeQuantity(blockNumber),
-                        Numeric.decodeQuantity(that.blockNumber))
-                && Objects.equals(from, that.from)
-                && Objects.equals(gas, that.gas)
-                && Objects.equals(hash, that.hash)
-                && Objects.equals(input, that.input)
-                && Objects.equals(nonce, that.nonce)
-                && Objects.equals(to, that.to)
-                && Objects.equals(transactionIndex, that.transactionIndex)
-                && Objects.equals(value, that.value)
-                && Objects.equals(gasPrice, that.gasPrice)
-                && Objects.equals(blockLimit, that.blockLimit)
-                && Objects.equals(chainId, that.chainId)
-                && Objects.equals(groupId, that.groupId)
-                && Objects.equals(extraData, that.extraData)
-                && Objects.equals(signature, that.signature);
+        return Objects.equals(this.from, that.from)
+                && Objects.equals(this.hash, that.hash)
+                && Objects.equals(this.input, that.input)
+                && Objects.equals(this.nonce, that.nonce)
+                && Objects.equals(this.to, that.to)
+                && Objects.equals(this.blockLimit, that.blockLimit)
+                && Objects.equals(this.chainId, that.chainId)
+                && Objects.equals(this.groupId, that.groupId)
+                && Objects.equals(this.signature, that.signature);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
-                blockHash,
-                Numeric.decodeQuantity(blockNumber),
-                from,
-                gas,
-                hash,
-                input,
-                nonce,
-                to,
-                transactionIndex,
-                value,
-                gasPrice,
-                blockLimit,
-                chainId,
-                groupId,
-                extraData,
-                signature);
+                this.from,
+                this.hash,
+                this.input,
+                this.nonce,
+                this.to,
+                this.blockLimit,
+                this.chainId,
+                this.groupId,
+                this.signature);
     }
 
     @Override
     public String toString() {
         return "{"
-                + "blockHash='"
-                + blockHash
-                + '\''
-                + ", blockNumber='"
-                + blockNumber
-                + '\''
                 + ", from='"
-                + from
-                + '\''
-                + ", gas='"
-                + gas
+                + this.from
                 + '\''
                 + ", hash='"
-                + hash
+                + this.hash
                 + '\''
                 + ", input='"
-                + input
+                + this.input
                 + '\''
                 + ", nonce='"
-                + nonce
+                + this.nonce
                 + '\''
                 + ", to='"
-                + to
-                + '\''
-                + ", transactionIndex='"
-                + transactionIndex
-                + '\''
-                + ", value='"
-                + value
-                + '\''
-                + ", gasPrice='"
-                + gasPrice
+                + this.to
                 + '\''
                 + ", blockLimit='"
-                + blockLimit
+                + this.blockLimit
                 + '\''
                 + ", chainId='"
-                + chainId
+                + this.chainId
                 + '\''
                 + ", groupId='"
-                + groupId
-                + '\''
-                + ", extraData='"
-                + extraData
+                + this.groupId
                 + '\''
                 + ", signature="
-                + signature
+                + this.signature
                 + '}';
     }
 }

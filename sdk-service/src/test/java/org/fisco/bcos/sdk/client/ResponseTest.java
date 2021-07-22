@@ -154,15 +154,8 @@ public class ResponseTest {
         Assert.assertEquals(100, transaction.getId());
         Assert.assertEquals(null, transaction.getError());
         Assert.assertEquals(
-                "0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82",
-                transaction.getTransaction().get().getBlockHash());
-        Assert.assertEquals(
-                BigInteger.valueOf(0x1001), transaction.getTransaction().get().getBlockNumber());
-        Assert.assertEquals(
                 "0x2d6300a8f067872ebc87252d711b83a0c9325d35",
                 transaction.getTransaction().get().getFrom());
-        Assert.assertEquals("0x2faf080", transaction.getTransaction().get().getGas());
-        Assert.assertEquals("0xa", transaction.getTransaction().get().getGasPrice());
         Assert.assertEquals(
                 "0x83ae369e15e1aafb18df7da2ff30de009bf53a1ff72ced3d1c342182409c4f87",
                 transaction.getTransaction().get().getHash());
@@ -175,8 +168,6 @@ public class ResponseTest {
         Assert.assertEquals(
                 "0x8c17cf316c1063ab6c89df875e96c9f0f5b2f744",
                 transaction.getTransaction().get().getTo());
-        Assert.assertEquals("0x199", transaction.getTransaction().get().getTransactionIndex());
-        Assert.assertEquals("0x010", transaction.getTransaction().get().getValue());
 
         // encode the transaction
         byte[] encodedData = objectMapper.writeValueAsBytes(transaction);
@@ -311,20 +302,14 @@ public class ResponseTest {
                 bcosBlock.getBlock().getSealerList().get(0));
         Assert.assertEquals("0x4", bcosBlock.getBlock().getSealer());
         Assert.assertEquals("0x1736f190efb", bcosBlock.getBlock().getTimestamp());
-        Assert.assertEquals(0, bcosBlock.getBlock().getExtraData().size());
+        Assert.assertEquals(0, bcosBlock.getBlock().getExtraData().length());
     }
 
     private void checkTransactionsForBlock(BcosBlock bcosBlock) {
         Assert.assertEquals(1, bcosBlock.getBlock().getTransactions().size());
         BcosBlock.TransactionObject transaction =
                 ((BcosBlock.TransactionObject) bcosBlock.getBlock().getTransactions().get(0));
-        Assert.assertEquals(
-                "0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82",
-                transaction.getBlockHash());
-        Assert.assertEquals(BigInteger.valueOf(0x100), transaction.getBlockNumber());
         Assert.assertEquals("0x2d6300a8f067872ebc87252d711b83a0c9325d35", transaction.getFrom());
-        Assert.assertEquals("0x2faf080", transaction.getGas());
-        Assert.assertEquals("0xa", transaction.getGasPrice());
         Assert.assertEquals(
                 "0x83ae369e15e1aafb18df7da2ff30de009bf53a1ff72ced3d1c342182409c4f87",
                 transaction.getHash());
@@ -335,8 +320,6 @@ public class ResponseTest {
                 "0x3eb675ec791c2d19858c91d0046821c27d815e2e9c151595296779000016038",
                 transaction.getNonce());
         Assert.assertEquals("0x8c17cf316c1063ab6c89df875e96c9f0f5b2f744", transaction.getTo());
-        Assert.assertEquals("0x0", transaction.getTransactionIndex());
-        Assert.assertEquals("0x0", transaction.getValue());
     }
 
     @Test
@@ -452,29 +435,6 @@ public class ResponseTest {
         GroupStatus decodedStatus = objectMapper.readValue(encodedData, GroupStatus.class);
         Assert.assertEquals(status, decodedStatus);
         Assert.assertEquals(status.hashCode(), decodedStatus.hashCode());
-    }
-
-    @Test
-    public void testNodeIDList() throws IOException {
-        String nodeIdListStr =
-                "{\n"
-                        + "    \"id\": 1,\n"
-                        + "    \"jsonrpc\": \"2.0\",\n"
-                        + "    \"result\": [\n"
-                        + "        \"0c0bbd25152d40969d3d3cee3431fa28287e07cff2330df3258782d3008b876d146ddab97eab42796495bfbb281591febc2a0069dcc7dfe88c8831801c5b5801\",\n"
-                        + "        \"037c255c06161711b6234b8c0960a6979ef039374ccc8b723afea2107cba3432dbbc837a714b7da20111f74d5a24e91925c773a72158fa066f586055379a1772\",\n"
-                        + "        \"622af37b2bd29c60ae8f15d467b67c0a7fe5eb3e5c63fdc27a0ee8066707a25afa3aa0eb5a3b802d3a8e5e26de9d5af33806664554241a3de9385d3b448bcd73\",\n"
-                        + "        \"10b3a2d4b775ec7f3c2c9e8dc97fa52beb8caab9c34d026db9b95a72ac1d1c1ad551c67c2b7fdc34177857eada75836e69016d1f356c676a6e8b15c45fc9bc34\"\n"
-                        + "    ]\n"
-                        + "}";
-        NodeIDList nodeIDList = objectMapper.readValue(nodeIdListStr.getBytes(), NodeIDList.class);
-        Assert.assertEquals(4, nodeIDList.getNodeIDList().size());
-        Assert.assertEquals(
-                "0c0bbd25152d40969d3d3cee3431fa28287e07cff2330df3258782d3008b876d146ddab97eab42796495bfbb281591febc2a0069dcc7dfe88c8831801c5b5801",
-                nodeIDList.getNodeIDList().get(0));
-        Assert.assertEquals(
-                "622af37b2bd29c60ae8f15d467b67c0a7fe5eb3e5c63fdc27a0ee8066707a25afa3aa0eb5a3b802d3a8e5e26de9d5af33806664554241a3de9385d3b448bcd73",
-                nodeIDList.getNodeIDList().get(2));
     }
 
     @Test
@@ -927,178 +887,6 @@ public class ResponseTest {
         Assert.assertEquals(
                 null,
                 receiptWithProof.getTransactionReceipt().getReceiptProof());
-    }
-
-    @Test
-    public void testTransactionWithProof() throws IOException {
-        String transactionWithProofStr =
-                "{\n"
-                        + "  \"id\": 1,\n"
-                        + "  \"jsonrpc\": \"2.0\",\n"
-                        + "  \"result\": {\n"
-                        + "    \"transaction\": {\n"
-                        + "      \"blockHash\": \"0xcd31b05e466bce99460b1ed70d6069fdfbb15e6eef84e9b9e4534358edb3899a\",\n"
-                        + "      \"blockNumber\": \"0x5\",\n"
-                        + "      \"from\": \"0x148947262ec5e21739fe3a931c29e8b84ee34a0f\",\n"
-                        + "      \"gas\": \"0x1c9c380\",\n"
-                        + "      \"gasPrice\": \"0x1c9c380\",\n"
-                        + "      \"hash\": \"0xd2c12e211315ef09dbad53407bc820d062780232841534954f9c23ab11d8ab4c\",\n"
-                        + "      \"input\": \"0x8a42ebe90000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000000000000000000000000000000000000000000a3564646636663863653800000000000000000000000000000000000000000000\",\n"
-                        + "      \"nonce\": \"0x208f6fd78d48aad370df51c6fdf866f8ab022de765c2959841ff2e81bfd9af9\",\n"
-                        + "      \"to\": \"0xd6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f\",\n"
-                        + "      \"transactionIndex\": \"0x32\",\n"
-                        + "      \"value\": \"0x0\"\n"
-                        + "    },\n"
-                        + "    \"txProof\": [\n"
-                        + "      {\n"
-                        + "        \"left\": [\n"
-                        + "          \"30f0abfcf4ca152815548620e33d21fd0feaa7c78867791c751e57cb5aa38248c2\",\n"
-                        + "          \"31a864156ca9841da8176738bb981d5da9102d9703746039b3e5407fa987e5183e\"\n"
-                        + "        ],\n"
-                        + "        \"right\": [\n"
-                        + "          \"33d8078d7e71df3544f8845a9db35aa35b2638e8468a321423152e64b9004367b4\",\n"
-                        + "          \"34343a4bce325ec8f6cf48517588830cd15f69b60a05598b78b03c3656d1fbf2f5\",\n"
-                        + "          \"35ac231554047ce77c0b31cd1c469f1f39ebe23404fa8ff6cc7819ad83e2c029e7\",\n"
-                        + "          \"361f6c588e650323e03afe6460dd89a9c061583e0d62c117ba64729d2c9d79317c\",\n"
-                        + "          \"377606f79f3e08b1ba3759eceada7fde3584f01822467855aa6356652f2499c738\",\n"
-                        + "          \"386722fe270659232c5572ba54ce23b474c85d8b709e7c08e85230afb1c155fe18\",\n"
-                        + "          \"39a9441d668e5e09a5619c365577c8c31365f44a984bde04300d4dbba190330c0b\",\n"
-                        + "          \"3a78a8c288120cbe612c24a33cce2731dd3a8fe6927d9ee25cb2350dba08a541f5\",\n"
-                        + "          \"3bd9b67256e201b5736f6081f39f83bcb917261144384570bdbb8766586c3bb417\",\n"
-                        + "          \"3c3158e5a82a1ac1ed41c4fd78d5be06bf79327f60b094895b886e7aae57cff375\",\n"
-                        + "          \"3de9a4d98c5ae658ffe764fbfa81edfdd4774e01b35ccb42beacb67064a5457863\",\n"
-                        + "          \"3e525e60c0f7eb935125f1156a692eb455ab4038c6b16390ce30937b0d1b314298\",\n"
-                        + "          \"3f1600afe67dec2d21582b8c7b76a15e569371d736d7bfc7a96c0327d280b91dfc\"\n"
-                        + "        ]\n"
-                        + "      },\n"
-                        + "      {\n"
-                        + "        \"left\": [\n"
-                        + "          \"3577673b86ad4d594d86941d731f17d1515f4669483aed091d49f279d677cb19\",\n"
-                        + "          \"75603bfea5b44df4c41fbb99268364641896334f006af3a3f67edaa4b26477ca\",\n"
-                        + "          \"1339d43c526f0f34d8a0f4fb3bb47b716fdfde8d35697be5992e0888e4d794c9\"\n"
-                        + "        ],\n"
-                        + "        \"right\": [\n"
-                        + "          \"63c8e574fb2ef52e995427a8acaa72c27073dd8e37736add8dbf36be4f609ecb\",\n"
-                        + "          \"e65353d911d6cc8ead3fad53ab24cab69a1e31df8397517b124f578ba908558d\"\n"
-                        + "        ]\n"
-                        + "      },\n"
-                        + "      {\n"
-                        + "        \"left\": [],\n"
-                        + "        \"right\": []\n"
-                        + "      }\n"
-                        + "    ]\n"
-                        + "  }\n"
-                        + "}";
-        TransactionWithProof transactionWithProof =
-                objectMapper.readValue(
-                        transactionWithProofStr.getBytes(), TransactionWithProof.class);
-        Assert.assertEquals(
-                3, transactionWithProof.getTransactionWithProof().getTransactionProof().size());
-        Assert.assertEquals(
-                2,
-                transactionWithProof
-                        .getTransactionWithProof()
-                        .getTransactionProof()
-                        .get(0)
-                        .getLeft()
-                        .size());
-        Assert.assertEquals(
-                13,
-                transactionWithProof
-                        .getTransactionWithProof()
-                        .getTransactionProof()
-                        .get(0)
-                        .getRight()
-                        .size());
-
-        Assert.assertEquals(
-                3,
-                transactionWithProof
-                        .getTransactionWithProof()
-                        .getTransactionProof()
-                        .get(1)
-                        .getLeft()
-                        .size());
-        Assert.assertEquals(
-                2,
-                transactionWithProof
-                        .getTransactionWithProof()
-                        .getTransactionProof()
-                        .get(1)
-                        .getRight()
-                        .size());
-
-        Assert.assertEquals(
-                0,
-                transactionWithProof
-                        .getTransactionWithProof()
-                        .getTransactionProof()
-                        .get(2)
-                        .getLeft()
-                        .size());
-        Assert.assertEquals(
-                0,
-                transactionWithProof
-                        .getTransactionWithProof()
-                        .getTransactionProof()
-                        .get(2)
-                        .getRight()
-                        .size());
-
-        Assert.assertEquals(
-                "3577673b86ad4d594d86941d731f17d1515f4669483aed091d49f279d677cb19",
-                transactionWithProof
-                        .getTransactionWithProof()
-                        .getTransactionProof()
-                        .get(1)
-                        .getLeft()
-                        .get(0));
-        Assert.assertEquals(
-                "63c8e574fb2ef52e995427a8acaa72c27073dd8e37736add8dbf36be4f609ecb",
-                transactionWithProof
-                        .getTransactionWithProof()
-                        .getTransactionProof()
-                        .get(1)
-                        .getRight()
-                        .get(0));
-
-        // check transaction
-        Assert.assertEquals(
-                "0xcd31b05e466bce99460b1ed70d6069fdfbb15e6eef84e9b9e4534358edb3899a",
-                transactionWithProof.getTransactionWithProof().getTransaction().getBlockHash());
-        Assert.assertEquals(
-                BigInteger.valueOf(0x5),
-                transactionWithProof.getTransactionWithProof().getTransaction().getBlockNumber());
-        Assert.assertEquals(
-                "0x148947262ec5e21739fe3a931c29e8b84ee34a0f",
-                transactionWithProof.getTransactionWithProof().getTransaction().getFrom());
-        Assert.assertEquals(
-                "0x1c9c380",
-                transactionWithProof.getTransactionWithProof().getTransaction().getGas());
-        Assert.assertEquals(
-                "0x1c9c380",
-                transactionWithProof.getTransactionWithProof().getTransaction().getGasPrice());
-        Assert.assertEquals(
-                "0xd2c12e211315ef09dbad53407bc820d062780232841534954f9c23ab11d8ab4c",
-                transactionWithProof.getTransactionWithProof().getTransaction().getHash());
-        Assert.assertEquals(
-                "0x8a42ebe90000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000000000000000000000000000000000000000000a3564646636663863653800000000000000000000000000000000000000000000",
-                transactionWithProof.getTransactionWithProof().getTransaction().getInput());
-        Assert.assertEquals(
-                "0x208f6fd78d48aad370df51c6fdf866f8ab022de765c2959841ff2e81bfd9af9",
-                transactionWithProof.getTransactionWithProof().getTransaction().getNonce());
-        Assert.assertEquals(
-                "0xd6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f",
-                transactionWithProof.getTransactionWithProof().getTransaction().getTo());
-        Assert.assertEquals(
-                "0x32",
-                transactionWithProof
-                        .getTransactionWithProof()
-                        .getTransaction()
-                        .getTransactionIndex());
-        Assert.assertEquals(
-                "0x0", transactionWithProof.getTransactionWithProof().getTransaction().getValue());
-
     }
 
     @Test
