@@ -140,4 +140,26 @@ public class ReceiptParser {
             return PrecompiledRetCode.CODE_SUCCESS;
         }
     }
+
+    /**
+     * parse output of call for assemble tx processor only. The output parse way is different from
+     * the precompile contract.
+     *
+     * @param callResult rpc response of call
+     * @return return code @see RetCode
+     */
+    public static RetCode parseCallOutput(Call.CallOutput callResult) {
+        if (!callResult.getStatus().equals("0x0")) {
+            Tuple2<Boolean, String> errorOutput =
+                    RevertMessageParser.tryResolveRevertMessage(
+                            callResult.getStatus(), callResult.getOutput());
+            if (errorOutput.getValue1()) {
+                return new RetCode(
+                        Numeric.decodeQuantity(callResult.getStatus()).intValue(),
+                        errorOutput.getValue2());
+            }
+            return TransactionReceiptStatus.getStatusMessage(callResult.getStatus(), "");
+        }
+        return PrecompiledRetCode.CODE_SUCCESS;
+    }
 }

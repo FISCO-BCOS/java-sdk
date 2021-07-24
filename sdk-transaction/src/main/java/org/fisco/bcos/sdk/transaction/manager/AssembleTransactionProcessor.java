@@ -25,7 +25,6 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
@@ -385,12 +384,9 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     private CallResponse parseCallResponseStatus(Call.CallOutput callOutput)
             throws TransactionBaseException {
         CallResponse callResponse = new CallResponse();
-        RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
+        RetCode retCode = ReceiptParser.parseCallOutput(callOutput);
         callResponse.setReturnCode(Numeric.decodeQuantity(callOutput.getStatus()).intValue());
         callResponse.setReturnMessage(retCode.getMessage());
-        if (!retCode.getMessage().equals(PrecompiledRetCode.CODE_SUCCESS.getMessage())) {
-            throw new TransactionBaseException(retCode);
-        }
         return callResponse;
     }
 
