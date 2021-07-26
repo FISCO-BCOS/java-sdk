@@ -142,10 +142,7 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
                     + this.transactionsRoot
                     + '\''
                     + ", receiptRoot='"
-                    + this.receiptRoot
-                    + '\''
-                    + ", dbHash='"
-                    + this.dbHash
+                    + this.receiptsRoot
                     + '\''
                     + ", stateRoot='"
                     + this.stateRoot
@@ -157,9 +154,6 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
                     + this.sealerList
                     + ", extraData="
                     + this.extraData
-                    + ", gasLimit='"
-                    + this.gasLimit
-                    + '\''
                     + ", gasUsed='"
                     + this.gasUsed
                     + '\''

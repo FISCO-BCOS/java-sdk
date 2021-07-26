@@ -13,14 +13,13 @@
  */
 package org.fisco.bcos.sdk.crypto.signature;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
-import org.fisco.bcos.sdk.rlp.RlpString;
-import org.fisco.bcos.sdk.rlp.RlpType;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class ECDSASignatureResult extends SignatureResult {
     protected static Logger logger = LoggerFactory.getLogger(SignatureResult.class);
@@ -56,16 +55,22 @@ public class ECDSASignatureResult extends SignatureResult {
     }
 
     @Override
-    public List<RlpType> encode() {
-        List<RlpType> encodeResult = new ArrayList<>();
-        int encodedV = this.v + VBASE;
-        encodeResult.add(RlpString.create((byte) encodedV));
-        super.encodeCommonField(encodeResult);
-        return encodeResult;
+    public byte[] encode() {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byteArrayOutputStream.write(this.v);
+
+        try {
+            byteArrayOutputStream.write(this.r);
+            byteArrayOutputStream.write(this.s);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 
     public byte getV() {
-        return v;
+        return this.v;
     }
 
     public void setV(byte v) {

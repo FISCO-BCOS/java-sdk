@@ -14,50 +14,32 @@
  */
 package org.fisco.bcos.sdk.client.protocol.model;
 
+import com.qq.tars.protocol.tars.TarsOutputStream;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.crypto.signature.ECDSASignatureResult;
-import org.fisco.bcos.sdk.crypto.signature.SM2SignatureResult;
-import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
-import org.fisco.bcos.sdk.model.CryptoType;
-import org.fisco.bcos.sdk.rlp.RlpEncoder;
-import org.fisco.bcos.sdk.rlp.RlpList;
-import org.fisco.bcos.sdk.rlp.RlpString;
-import org.fisco.bcos.sdk.rlp.RlpType;
 import org.fisco.bcos.sdk.utils.Hex;
-import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Base64;
 import java.util.Objects;
 
 public class JsonTransactionResponse {
     private static Logger logger = LoggerFactory.getLogger(JsonTransactionResponse.class);
 
     // the fields related to get-transaction
-    private Integer version;
-    private String from;
+    private String version;
     private String hash;
-    private String input;
     private String nonce;
-    private String to;
     private Integer blockLimit;
+    private String to;
+    private String from;
+    private String input;
     private String chainId;
     private String groupId;
     private SignatureResponse signature;
 
     public JsonTransactionResponse() {
-    }
-
-    public Integer getVersion() {
-        return this.version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     public static class SignatureResponse {
@@ -136,6 +118,14 @@ public class JsonTransactionResponse {
         }
     }
 
+    public String getVersion() {
+        return this.version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     public String getFrom() {
         return this.from;
     }
@@ -208,61 +198,26 @@ public class JsonTransactionResponse {
         this.signature = signature;
     }
 
-    private List<RlpType> encodeTransactionResponse(CryptoSuite cryptoSuite)
-            throws ClientException {
-        if (this.blockLimit == null
-                || this.chainId == null
-                || this.groupId == null
-                || this.signature == null) {
-            throw new ClientException(
-                    "calculate hash for the transaction failed for missing fields! Please make sure FISCO BCOS version >= v2.7.0");
-        }
-        List<RlpType> result = new ArrayList<>();
-        // nonce
-        result.add(RlpString.create(Numeric.decodeQuantity(this.nonce)));
-        // blockLimit
-        result.add(RlpString.create(this.blockLimit));
-        // to
-        BigInteger receiveAddressValue = Numeric.decodeQuantity(this.to);
-        if (receiveAddressValue.equals(BigInteger.ZERO)) {
-            result.add(RlpString.create(""));
-        } else {
-            result.add(RlpString.create(Numeric.hexStringToByteArray(this.to)));
-        }
-        // input
-        result.add(RlpString.create(Numeric.hexStringToByteArray(this.input)));
-        // chainId
-        result.add(RlpString.create(Numeric.decodeQuantity(this.chainId)));
-        // groupId
-        result.add(RlpString.create(Numeric.decodeQuantity(this.groupId)));
-
-        int startIndex = 0;
-        if (this.signature.getSignature().startsWith("0x")) {
-            startIndex = 2;
-        }
-        // signature
-        SignatureResult signatureResult;
-        if (cryptoSuite.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE) {
-            signatureResult =
-                    new ECDSASignatureResult(this.signature.getSignature().substring(startIndex));
-        } else {
-            signatureResult =
-                    new SM2SignatureResult(
-                            this.signature.getV(), this.signature.getSignature().substring(startIndex));
-        }
-        result.addAll(signatureResult.encode());
-        return result;
-    }
-
     // calculate the hash for the transaction
     public String calculateHash(CryptoSuite cryptoSuite) throws ClientException {
         try {
-            List<RlpType> encodedTransaction = this.encodeTransactionResponse(cryptoSuite);
-            RlpList rlpList = new RlpList(encodedTransaction);
-            return "0x" + Hex.toHexString(cryptoSuite.hash(RlpEncoder.encode(rlpList)));
+            TransactionData rawTransaction =
+                    new TransactionData(
+                            0,
+                            this.chainId,
+                            this.groupId,
+                            this.blockLimit,
+                            this.nonce,
+                            this.to.getBytes(),
+                            Base64.getDecoder().decode(this.input));
+            TarsOutputStream tarsOutputStream = new TarsOutputStream();
+            rawTransaction.writeTo(tarsOutputStream);
+            byte[] encodedTransaction = cryptoSuite.hash(tarsOutputStream.toByteArray());
+            return "0x" + Hex.toHexString(cryptoSuite.hash(encodedTransaction));
         } catch (Exception e) {
             logger.warn(
-                    "calculate hash for the transaction failed, transactionHash: {}, error info: {}",
+                    "calculate hash for the transaction failed, version: {}, transactionHash: {}, error info: {}",
+                    this.version,
                     this.hash,
                     e);
             throw new ClientException(
@@ -275,7 +230,8 @@ public class JsonTransactionResponse {
         if (this == o) return true;
         if (o == null || this.getClass() != o.getClass()) return false;
         JsonTransactionResponse that = (JsonTransactionResponse) o;
-        return Objects.equals(this.from, that.from)
+        return Objects.equals(this.version, that.version)
+                && Objects.equals(this.from, that.from)
                 && Objects.equals(this.hash, that.hash)
                 && Objects.equals(this.input, that.input)
                 && Objects.equals(this.nonce, that.nonce)
@@ -289,6 +245,7 @@ public class JsonTransactionResponse {
     @Override
     public int hashCode() {
         return Objects.hash(
+                this.version,
                 this.from,
                 this.hash,
                 this.input,
@@ -303,6 +260,9 @@ public class JsonTransactionResponse {
     @Override
     public String toString() {
         return "{"
+                + "version='"
+                + this.version
+                + '\''
                 + ", from='"
                 + this.from
                 + '\''

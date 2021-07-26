@@ -8,6 +8,7 @@ dependencies {
     implementation project(':sdk-crypto')
     implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     api("io.netty:netty-all:${nettyVersion}")
+    api("com.tencent.tars:tars-core:1.7.2")
 }
 
 task sourcesJar(type: Jar) {

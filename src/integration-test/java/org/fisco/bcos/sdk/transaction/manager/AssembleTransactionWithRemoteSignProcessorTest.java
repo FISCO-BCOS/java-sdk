@@ -25,7 +25,7 @@ import org.fisco.bcos.sdk.transaction.mock.RemoteSignCallbackMock;
 import org.fisco.bcos.sdk.transaction.mock.RemoteSignProviderMock;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
-import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;

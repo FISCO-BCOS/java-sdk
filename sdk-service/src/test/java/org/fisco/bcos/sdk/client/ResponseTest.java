@@ -100,7 +100,6 @@ public class ResponseTest {
             Assert.assertEquals(
                     "0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2",
                     blockHeader.getBlockHeader().getReceiptRoot());
-            Assert.assertEquals("0x100", blockHeader.getBlockHeader().getGasLimit());
             Assert.assertEquals("0x200", blockHeader.getBlockHeader().getGasUsed());
             Assert.assertEquals(
                     "0x000000000000000000000000000000000000000000000000000c000000000000",

@@ -17,9 +17,9 @@ package org.fisco.bcos.sdk.transaction.builder;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
-import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
 
 import java.math.BigInteger;
 import java.util.List;

@@ -14,7 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.builder;
 
-import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 
 import java.math.BigInteger;
 

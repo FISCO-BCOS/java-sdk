@@ -13,11 +13,7 @@
  */
 package org.fisco.bcos.sdk.crypto.signature;
 
-import java.util.List;
 import org.fisco.bcos.sdk.crypto.exceptions.SignatureException;
-import org.fisco.bcos.sdk.rlp.RlpString;
-import org.fisco.bcos.sdk.rlp.RlpType;
-import org.fisco.bcos.sdk.utils.ByteUtils;
 import org.fisco.bcos.sdk.utils.Hex;
 
 public abstract class SignatureResult {
@@ -46,7 +42,7 @@ public abstract class SignatureResult {
                             + ", signatureString len: "
                             + signatureString.length()
                             + ", signatureBytes size:"
-                            + signatureBytes.length);
+                            + this.signatureBytes.length);
         }
         // get R
         this.r = new byte[32];
@@ -57,15 +53,15 @@ public abstract class SignatureResult {
     }
 
     public byte[] getR() {
-        return r;
+        return this.r;
     }
 
     public byte[] getS() {
-        return s;
+        return this.s;
     }
 
     public byte[] getSignatureBytes() {
-        return signatureBytes;
+        return this.signatureBytes;
     }
 
     public void setR(byte[] r) {
@@ -80,11 +76,6 @@ public abstract class SignatureResult {
         this.signatureBytes = signatureBytes;
     }
 
-    protected void encodeCommonField(List<RlpType> encodeResult) {
-        encodeResult.add(RlpString.create(ByteUtils.trimLeadingZeroes(this.getR())));
-        encodeResult.add(RlpString.create(ByteUtils.trimLeadingZeroes(this.getS())));
-    }
-
     /**
      * covert signatureResult into String
      *
@@ -97,5 +88,5 @@ public abstract class SignatureResult {
      *
      * @return the encoded rlp-list with r, s, v( or pub)
      */
-    public abstract List<RlpType> encode();
+    public abstract byte[] encode();
 }

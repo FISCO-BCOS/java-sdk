@@ -14,9 +14,9 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.encode;
 
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
-import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
 
 /**
  * TransactionEncoderInterface @Description: TransactionEncoderInterface
@@ -25,41 +25,40 @@ import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
  */
 public interface TransactionEncoderInterface {
 
-  /**
-   * Rlp encode and sign based on TransactionData
-   *
-   * @param rawTransaction data to be encoded
-   * @param cryptoKeyPair keypair
-   * @return encoded & signed transaction byte array
-   */
-  byte[] encodeAndSignBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);
+    /**
+     * Rlp encode and sign based on TransactionData
+     *
+     * @param rawTransaction data to be encoded
+     * @param cryptoKeyPair  keypair
+     * @return encoded & signed transaction byte array
+     */
+    byte[] encodeAndSignBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);
 
-  /**
-   * Rlp encode and sign based on TransactionData
-   *
-   * @param rawTransaction data to be encoded
-   * @param cryptoKeyPair keypair
-   * @return encoded & signed transaction hexed String
-   */
-  String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);
+    /**
+     * Rlp encode and sign based on TransactionData
+     *
+     * @param rawTransaction data to be encoded
+     * @param cryptoKeyPair  keypair
+     * @return encoded & signed transaction hexed String
+     */
+    String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);
 
-  /**
-   * Rlp encode and hash based on TransactionData
-   *
-   * @param rawTransaction data to be encoded
-   * @param cryptoKeyPair keypair
-   * @return encoded & hashed transaction byte array
-   */
-  byte[] encodeAndHashBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);
+    /**
+     * Rlp encode and hash based on TransactionData
+     *
+     * @param rawTransaction data to be encoded
+     * @return encoded & hashed transaction byte array
+     */
+    byte[] encodeAndHashBytes(TransactionData rawTransaction);
 
-  /**
-   * Encode rawTransaction to Transaction bytes
-   *
-   * @param rawTransaction
-   * @param hash
-   * @param result
-   * @return
-   */
-  byte[] encodeToTransactionBytes(
-      TransactionData rawTransaction, byte[] hash, SignatureResult result);
+    /**
+     * Encode rawTransaction to Transaction bytes
+     *
+     * @param rawTransaction
+     * @param hash
+     * @param result
+     * @return
+     */
+    byte[] encodeToTransactionBytes(
+            TransactionData rawTransaction, byte[] hash, SignatureResult result);
 }

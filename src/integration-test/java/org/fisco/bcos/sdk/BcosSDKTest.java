@@ -89,7 +89,6 @@ public class BcosSDKTest {
         NodeInfo.NodeInformation nodeInfo = client.getNodeInfo();
         System.out.println(nodeInfo);
 
-
         // get getSyncStatus
         SyncStatus syncStatus = client.getSyncStatus();
         System.out.println(syncStatus.getSyncStatus());

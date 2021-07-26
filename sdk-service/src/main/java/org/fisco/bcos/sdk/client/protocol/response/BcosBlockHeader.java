@@ -16,19 +16,15 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.qq.tars.protocol.tars.TarsOutputStream;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
+import org.fisco.bcos.sdk.client.protocol.model.ParentInfo;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
-import org.fisco.bcos.sdk.rlp.RlpEncoder;
-import org.fisco.bcos.sdk.rlp.RlpList;
-import org.fisco.bcos.sdk.rlp.RlpString;
-import org.fisco.bcos.sdk.rlp.RlpType;
 import org.fisco.bcos.sdk.utils.Hex;
-import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -46,17 +42,18 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
     }
 
     public static class Signature {
-        private String index;
+        @JsonProperty("sealerIndex")
+        private Integer index;
         private String signature;
 
         public Signature() {
         }
 
-        public String getIndex() {
+        public Integer getIndex() {
             return this.index;
         }
 
-        public void setIndex(String index) {
+        public void setIndex(Integer index) {
             this.index = index;
         }
 
@@ -89,30 +86,24 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
     }
 
     public static class BlockHeader {
-        @JsonProperty("blockNumber")
-        protected String number;
-
+        protected Integer number;
         protected Integer version;
-
         protected String hash;
         protected String parentHash;
         protected String logsBloom;
 
         @JsonProperty("txsRoot")
         protected String transactionsRoot;
-
-        protected String receiptRoot;
-        protected String dbHash;
+        protected String receiptsRoot;
         protected String stateRoot;
         protected Integer sealer;
         protected List<String> sealerList;
-
         protected String extraData;
-        protected String gasLimit;
         protected String gasUsed;
-        protected String timestamp;
+        protected Integer timestamp;
+        protected List<ParentInfo> parentInfo;
         protected List<Signature> signatureList;
-        protected List<Integer> consensusWeights;
+        protected List<Long> consensusWeights;
 
         public void setSignatureList(List<Signature> signatureList) {
             this.signatureList = signatureList;
@@ -122,7 +113,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             return this.signatureList;
         }
 
-        public void setNumber(String number) {
+        public void setNumber(Integer number) {
             this.number = number;
         }
 
@@ -142,12 +133,8 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.transactionsRoot = transactionsRoot;
         }
 
-        public void setReceiptRoot(String receiptRoot) {
-            this.receiptRoot = receiptRoot;
-        }
-
-        public void setDbHash(String dbHash) {
-            this.dbHash = dbHash;
+        public void setReceiptRoot(String receiptsRoot) {
+            this.receiptsRoot = receiptsRoot;
         }
 
         public void setStateRoot(String stateRoot) {
@@ -166,20 +153,16 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.extraData = extraData;
         }
 
-        public void setGasLimit(String gasLimit) {
-            this.gasLimit = gasLimit;
-        }
-
         public void setGasUsed(String gasUsed) {
             this.gasUsed = gasUsed;
         }
 
-        public void setTimestamp(String timestamp) {
+        public void setTimestamp(Integer timestamp) {
             this.timestamp = timestamp;
         }
 
-        public BigInteger getNumber() {
-            return Numeric.decodeQuantity(this.number);
+        public Integer getNumber() {
+            return this.number;
         }
 
         public String getHash() {
@@ -199,11 +182,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         }
 
         public String getReceiptRoot() {
-            return this.receiptRoot;
-        }
-
-        public String getDbHash() {
-            return this.dbHash;
+            return this.receiptsRoot;
         }
 
         public String getStateRoot() {
@@ -222,47 +201,31 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             return this.extraData;
         }
 
-        public String getGasLimit() {
-            return this.gasLimit;
-        }
-
         public String getGasUsed() {
             return this.gasUsed;
         }
 
-        public String getTimestamp() {
+        public Integer getTimestamp() {
             return this.timestamp;
-        }
-
-        private byte[] encodeBlockHeader() {
-            List<RlpType> encodedRlp = new ArrayList<>();
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.parentHash)));
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.stateRoot)));
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.transactionsRoot)));
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.receiptRoot)));
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.dbHash)));
-            encodedRlp.add(RlpString.create(Numeric.hexStringToByteArray(this.logsBloom)));
-            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(this.number)));
-            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(this.gasLimit)));
-            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(this.gasUsed)));
-            encodedRlp.add(RlpString.create(Numeric.decodeQuantity(this.timestamp)));
-
-            encodedRlp.add(RlpString.create(this.extraData));
-            encodedRlp.add(RlpString.create(this.sealer));
-            List<RlpType> sealerListRlp = new ArrayList<>();
-            for (String sealerString : this.sealerList) {
-                sealerListRlp.add(RlpString.create(Numeric.hexStringToByteArray(sealerString)));
-            }
-            encodedRlp.add(new RlpList(sealerListRlp));
-            RlpList rlpList = new RlpList(encodedRlp);
-            return RlpEncoder.encode(rlpList);
         }
 
         // calculate hash for the block or the block header
         public String calculateHash(CryptoSuite cryptoSuite) {
             try {
-                byte[] hash = cryptoSuite.hash(this.encodeBlockHeader());
-                return "0x" + Hex.toHexString(hash);
+                // TODO: use custom serializer and deserializer to implement BlockHeader
+                List<byte[]> sealerList = new ArrayList<>();
+                for (String sealer : this.sealerList) {
+                    sealerList.add(Hex.decode(sealer));
+                }
+                List<org.fisco.bcos.sdk.client.protocol.model.Signature> signatureList = new ArrayList<>();
+                for (Signature signature : this.signatureList) {
+                    signatureList.add(new org.fisco.bcos.sdk.client.protocol.model.Signature(signature.getIndex(), Hex.decode(signature.getSignature())));
+                }
+                org.fisco.bcos.sdk.client.protocol.model.BlockHeader blockHeader = new org.fisco.bcos.sdk.client.protocol.model.BlockHeader(0, this.parentInfo, Hex.decode(this.transactionsRoot), Hex.decode(this.receiptsRoot), Hex.decode(this.stateRoot),
+                        this.number, this.gasUsed, this.timestamp, this.sealer, sealerList, Hex.decode(this.extraData), signatureList, this.consensusWeights);
+                TarsOutputStream tarsOutputStream = new TarsOutputStream();
+                blockHeader.writeTo(tarsOutputStream);
+                return "0x" + Hex.toHexString(tarsOutputStream.toByteArray());
             } catch (Exception e) {
                 BcosBlockHeader.logger.warn(
                         "calculateHash for the block failed, blockNumber: {}, blockHash: {}, error info: {}",
@@ -284,18 +247,16 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             if (o == null || this.getClass() != o.getClass()) return false;
             BlockHeader that = (BlockHeader) o;
             return Objects.equals(
-                    Numeric.decodeQuantity(this.number), Numeric.decodeQuantity(that.number))
+                    this.number, that.number)
                     && Objects.equals(this.hash, that.hash)
                     && Objects.equals(this.parentHash, that.parentHash)
                     && Objects.equals(this.logsBloom, that.logsBloom)
                     && Objects.equals(this.transactionsRoot, that.transactionsRoot)
-                    && Objects.equals(this.receiptRoot, that.receiptRoot)
-                    && Objects.equals(this.dbHash, that.dbHash)
+                    && Objects.equals(this.receiptsRoot, that.receiptsRoot)
                     && Objects.equals(this.stateRoot, that.stateRoot)
                     && Objects.equals(this.sealer, that.sealer)
                     && Objects.equals(this.sealerList, that.sealerList)
                     && Objects.equals(this.extraData, that.extraData)
-                    && Objects.equals(this.gasLimit, that.gasLimit)
                     && Objects.equals(this.gasUsed, that.gasUsed)
                     && Objects.equals(this.timestamp, that.timestamp)
                     && Objects.equals(this.signatureList, that.signatureList);
@@ -304,18 +265,16 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         @Override
         public int hashCode() {
             return Objects.hash(
-                    Numeric.decodeQuantity(this.number),
+                    this.number,
                     this.hash,
                     this.parentHash,
                     this.logsBloom,
                     this.transactionsRoot,
-                    this.receiptRoot,
-                    this.dbHash,
+                    this.receiptsRoot,
                     this.stateRoot,
                     this.sealer,
                     this.sealerList,
                     this.extraData,
-                    this.gasLimit,
                     this.gasUsed,
                     this.timestamp,
                     this.signatureList);
@@ -338,11 +297,8 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
                     + ", transactionsRoot='"
                     + this.transactionsRoot
                     + '\''
-                    + ", receiptRoot='"
-                    + this.receiptRoot
-                    + '\''
-                    + ", dbHash='"
-                    + this.dbHash
+                    + ", receiptsRoot='"
+                    + this.receiptsRoot
                     + '\''
                     + ", stateRoot='"
                     + this.stateRoot
@@ -354,9 +310,6 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
                     + this.sealerList
                     + ", extraData="
                     + this.extraData
-                    + ", gasLimit='"
-                    + this.gasLimit
-                    + '\''
                     + ", gasUsed='"
                     + this.gasUsed
                     + '\''

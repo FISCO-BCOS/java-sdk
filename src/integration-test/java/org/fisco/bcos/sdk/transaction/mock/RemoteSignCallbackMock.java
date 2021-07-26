@@ -3,7 +3,7 @@ package org.fisco.bcos.sdk.transaction.mock;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionWithRemoteSignProcessor;
-import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignCallbackInterface;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 

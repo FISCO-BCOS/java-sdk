@@ -15,16 +15,15 @@
 package org.fisco.bcos.sdk.transaction.codec.encode;
 
 import com.qq.tars.protocol.tars.TarsOutputStream;
+import org.fisco.bcos.sdk.client.protocol.model.Transaction;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
-import org.fisco.bcos.sdk.transaction.model.po.Transaction;
-import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerFactory;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
-import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,17 +58,15 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     }
 
     @Override
-    public byte[] encodeAndHashBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
+    public byte[] encodeAndHashBytes(TransactionData rawTransaction) {
         TarsOutputStream tarsOutputStream = new TarsOutputStream();
         rawTransaction.writeTo(tarsOutputStream);
-        //TODO: delete this print
-        System.out.println("tx hex data: " + Numeric.toHexString(tarsOutputStream.toByteArray()));
         return this.cryptoSuite.hash(tarsOutputStream.toByteArray());
     }
 
     @Override
     public byte[] encodeAndSignBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
-        byte[] hash = this.encodeAndHashBytes(rawTransaction, cryptoKeyPair);
+        byte[] hash = this.encodeAndHashBytes(rawTransaction);
         SignatureResult result = this.transactionSignerService.sign(hash, cryptoKeyPair);
         return this.encodeToTransactionBytes(rawTransaction, hash, result);
     }

@@ -13,11 +13,10 @@
  */
 package org.fisco.bcos.sdk.crypto.signature;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.fisco.bcos.sdk.rlp.RlpString;
-import org.fisco.bcos.sdk.rlp.RlpType;
 import org.fisco.bcos.sdk.utils.Hex;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class SM2SignatureResult extends SignatureResult {
     protected byte[] pub;
@@ -46,15 +45,23 @@ public class SM2SignatureResult extends SignatureResult {
     }
 
     @Override
-    public List<RlpType> encode() {
-        List<RlpType> encodeResult = new ArrayList<>();
-        encodeResult.add(RlpString.create(this.pub));
-        super.encodeCommonField(encodeResult);
-        return encodeResult;
+    public byte[] encode() {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        
+        try {
+            byteArrayOutputStream.write(this.pub);
+            byteArrayOutputStream.write(this.r);
+            byteArrayOutputStream.write(this.s);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return byteArrayOutputStream.toByteArray();
     }
 
     public byte[] getPub() {
-        return pub;
+        return this.pub;
     }
 
     public void setPub(byte[] pub) {

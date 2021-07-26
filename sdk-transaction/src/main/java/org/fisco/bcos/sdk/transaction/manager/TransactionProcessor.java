@@ -15,6 +15,7 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -26,7 +27,6 @@ import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderService;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
-import org.fisco.bcos.sdk.transaction.model.po.TransactionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
