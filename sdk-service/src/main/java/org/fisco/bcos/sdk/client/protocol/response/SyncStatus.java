@@ -50,7 +50,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         @JsonProperty("nodeID")
         private String nodeId;
         private String genesisHash;
-        private Integer blockNumber;
+        private Long blockNumber;
         private String latestHash;
 
         public String getNodeId() {
@@ -69,11 +69,11 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
             this.genesisHash = genesisHash;
         }
 
-        public Integer getBlockNumber() {
+        public Long getBlockNumber() {
             return this.blockNumber;
         }
 
-        public void setBlockNumber(Integer blockNumber) {
+        public void setBlockNumber(Long blockNumber) {
             this.blockNumber = blockNumber;
         }
 
@@ -128,7 +128,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
 
         @JsonProperty("nodeID")
         private String nodeId;
-        private Integer blockNumber;
+        private Long blockNumber;
         private String latestHash;
         private Integer knownHighestNumber;
         private String txPoolSize;
@@ -175,11 +175,11 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
             this.nodeId = nodeId;
         }
 
-        public Integer getBlockNumber() {
+        public Long getBlockNumber() {
             return this.blockNumber;
         }
 
-        public void setBlockNumber(Integer blockNumber) {
+        public void setBlockNumber(Long blockNumber) {
             this.blockNumber = blockNumber;
         }
 

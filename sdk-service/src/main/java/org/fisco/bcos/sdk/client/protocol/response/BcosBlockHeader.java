@@ -86,7 +86,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
     }
 
     public static class BlockHeader {
-        protected Integer number;
+        protected Long number;
         protected Integer version;
         protected String hash;
         protected String parentHash;
@@ -113,7 +113,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             return this.signatureList;
         }
 
-        public void setNumber(Integer number) {
+        public void setNumber(Long number) {
             this.number = number;
         }
 
@@ -161,7 +161,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.timestamp = timestamp;
         }
 
-        public Integer getNumber() {
+        public Long getNumber() {
             return this.number;
         }
 

@@ -1,11 +1,13 @@
 package org.fisco.bcos.sdk.abi;
 
-import static org.fisco.bcos.sdk.abi.datatypes.Type.MAX_BYTE_LENGTH;
+import org.fisco.bcos.sdk.abi.datatypes.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import org.fisco.bcos.sdk.abi.datatypes.*;
-import org.fisco.bcos.sdk.utils.Numeric;
+
+import static org.fisco.bcos.sdk.abi.datatypes.Type.MAX_BYTE_LENGTH;
 
 /**
  * Ethereum Contract Application Binary Interface (ABI) encoding for types. Further details are
@@ -13,10 +15,10 @@ import org.fisco.bcos.sdk.utils.Numeric;
  */
 public class TypeEncoder {
 
-    private TypeEncoder() {}
+    private TypeEncoder() {
+    }
 
-    @SuppressWarnings("unchecked")
-    public static String encode(Type parameter) {
+    public static byte[] encode(Type parameter) {
         if (parameter instanceof NumericType) {
             return encodeNumeric(((NumericType) parameter));
         } else if (parameter instanceof Address) {
@@ -39,11 +41,11 @@ public class TypeEncoder {
         }
     }
 
-    public static String encodeAddress(Address address) {
+    public static byte[] encodeAddress(Address address) {
         return encodeNumeric(address.toUint160());
     }
 
-    public static String encodeNumeric(NumericType numericType) {
+    public static byte[] encodeNumeric(NumericType numericType) {
         byte[] rawValue = toByteArray(numericType);
         byte paddingValue = getPaddingValue(numericType);
         byte[] paddedRawValue = new byte[MAX_BYTE_LENGTH];
@@ -55,7 +57,7 @@ public class TypeEncoder {
 
         System.arraycopy(
                 rawValue, 0, paddedRawValue, MAX_BYTE_LENGTH - rawValue.length, rawValue.length);
-        return Numeric.toHexStringNoPrefix(paddedRawValue);
+        return paddedRawValue;
     }
 
     private static byte getPaddingValue(NumericType numericType) {
@@ -81,15 +83,15 @@ public class TypeEncoder {
         return value.toByteArray();
     }
 
-    static String encodeBool(Bool value) {
+    static byte[] encodeBool(Bool value) {
         byte[] rawValue = new byte[MAX_BYTE_LENGTH];
         if (value.getValue()) {
             rawValue[rawValue.length - 1] = 1;
         }
-        return Numeric.toHexStringNoPrefix(rawValue);
+        return rawValue;
     }
 
-    static String encodeBytes(BytesType bytesType) {
+    static byte[] encodeBytes(BytesType bytesType) {
         byte[] value = bytesType.getValue();
         int length = value.length;
         int mod = length % MAX_BYTE_LENGTH;
@@ -102,73 +104,79 @@ public class TypeEncoder {
         } else {
             dest = value;
         }
-        return Numeric.toHexStringNoPrefix(dest);
+        return dest;
     }
 
-    static String encodeDynamicBytes(DynamicBytes dynamicBytes) {
+    static byte[] encodeDynamicBytes(DynamicBytes dynamicBytes) {
         int size = dynamicBytes.getValue().length;
-        String encodedLength = encode(new Uint(BigInteger.valueOf(size)));
-        String encodedValue = encodeBytes(dynamicBytes);
+        byte[] encodedLength = encode(new Uint(BigInteger.valueOf(size)));
+        byte[] encodedValue = encodeBytes(dynamicBytes);
 
-        StringBuilder result = new StringBuilder();
-        result.append(encodedLength);
-        result.append(encodedValue);
-        return result.toString();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            byteArrayOutputStream.write(encodedLength);
+            byteArrayOutputStream.write(encodedValue);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 
-    static String encodeString(Utf8String string) {
+    static byte[] encodeString(Utf8String string) {
         byte[] utfEncoded = string.getValue().getBytes(StandardCharsets.UTF_8);
         return encodeDynamicBytes(new DynamicBytes(utfEncoded));
     }
 
-    static <T extends Type> String encodeArrayValues(Array<T> value) {
+    static <T extends Type> byte[] encodeArrayValues(Array<T> value) {
 
-        StringBuilder encodedOffset = new StringBuilder();
-        StringBuilder encodedValue = new StringBuilder();
+        ByteArrayOutputStream encodedOffset = new ByteArrayOutputStream();
+        ByteArrayOutputStream encodedValue = new ByteArrayOutputStream();
 
         int offset = value.getValue().size() * MAX_BYTE_LENGTH;
 
-        for (Type type : value.getValue()) {
-            String r = encode(type);
-            encodedValue.append(r);
-            if (type.dynamicType()) {
-                encodedOffset.append(encode(new Uint(BigInteger.valueOf(offset))));
-                offset += (r.length() >> 1);
+        try {
+
+            for (Type type : value.getValue()) {
+                byte[] r = encode(type);
+                encodedValue.write(r);
+                if (type.dynamicType()) {
+                    encodedOffset.write(encode(new Uint(BigInteger.valueOf(offset))));
+                    offset += (r.length >> 1);
+                }
             }
+            encodedOffset.write(encodedValue.toByteArray());
+            return encodedOffset.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
 
-        StringBuilder result = new StringBuilder();
-        result.append(encodedOffset);
-        result.append(encodedValue);
-
-        return result.toString();
     }
 
-    static <T extends Type> String encodeDynamicArray(DynamicArray<T> value) {
+    static <T extends Type> byte[] encodeDynamicArray(DynamicArray<T> value) {
 
-        StringBuilder encodedSize = new StringBuilder();
-        StringBuilder encodedOffset = new StringBuilder();
-        StringBuilder encodedValue = new StringBuilder();
-
-        encodedSize.append(encode(new Uint(BigInteger.valueOf(value.getValue().size()))));
-
-        int offset = value.getValue().size() * MAX_BYTE_LENGTH;
-
-        for (Type type : value.getValue()) {
-            String r = encode(type);
-            encodedValue.append(r);
-
-            if (type.dynamicType()) {
-                encodedOffset.append(encode(new Uint(BigInteger.valueOf(offset))));
-                offset += (r.length() >> 1);
+        ByteArrayOutputStream encodedSize = new ByteArrayOutputStream();
+        ByteArrayOutputStream encodedOffset = new ByteArrayOutputStream();
+        ByteArrayOutputStream encodedValue = new ByteArrayOutputStream();
+        try {
+            encodedSize.write(encode(new Uint(BigInteger.valueOf(value.getValue().size()))));
+            int offset = value.getValue().size() * MAX_BYTE_LENGTH;
+            for (Type type : value.getValue()) {
+                byte[] r = encode(type);
+                encodedValue.write(r);
+                if (type.dynamicType()) {
+                    encodedOffset.write(encode(new Uint(BigInteger.valueOf(offset))));
+                    offset += (r.length >> 1);
+                }
             }
+            encodedSize.write(encodedOffset.toByteArray());
+            encodedSize.write(encodedValue.toByteArray());
+            return encodedSize.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
 
-        StringBuilder result = new StringBuilder();
-        result.append(encodedSize);
-        result.append(encodedOffset);
-        result.append(encodedValue);
-
-        return result.toString();
     }
 }

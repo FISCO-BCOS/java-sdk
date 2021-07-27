@@ -4,9 +4,9 @@ import org.fisco.bcos.sdk.abi.datatypes.Function;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.datatypes.Uint;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.utils.Hex;
-import org.fisco.bcos.sdk.utils.Numeric;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -30,37 +30,41 @@ public class FunctionEncoder {
         String methodSignature = buildMethodSignature(function.getName(), parameters);
         byte[] methodId = this.buildMethodId(methodSignature);
 
-        StringBuilder result = new StringBuilder();
-        result.append(Numeric.toHexString(methodId));
-
-        return Hex.decode(encodeParameters(parameters, result));
+        return encodeParameters(parameters, methodId);
     }
 
     public static byte[] encodeConstructor(List<Type> parameters) {
-        return Hex.decode(encodeParameters(parameters, new StringBuilder()));
+        return encodeParameters(parameters, null);
     }
 
-    public static String encodeParameters(List<Type> parameters, StringBuilder result) {
+    public static byte[] encodeParameters(List<Type> parameters, byte[] methodID) {
         // TODO: support wasm and scale codec
         int dynamicDataOffset = Utils.getLength(parameters) * Type.MAX_BYTE_LENGTH;
-        StringBuilder dynamicData = new StringBuilder();
-
-        for (Type parameter : parameters) {
-            String encodedValue = TypeEncoder.encode(parameter);
-
-            if (parameter.dynamicType()) {
-                String encodedDataOffset =
-                        TypeEncoder.encodeNumeric(new Uint(BigInteger.valueOf(dynamicDataOffset)));
-                result.append(encodedDataOffset);
-                dynamicData.append(encodedValue);
-                dynamicDataOffset += (encodedValue.length() >> 1);
-            } else {
-                result.append(encodedValue);
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        try {
+            if (methodID != null) {
+                result.write(methodID);
             }
-        }
-        result.append(dynamicData);
+            ByteArrayOutputStream dynamicData = new ByteArrayOutputStream();
+            for (Type parameter : parameters) {
+                byte[] encodedValue = TypeEncoder.encode(parameter);
 
-        return result.toString();
+                if (parameter.dynamicType()) {
+                    byte[] encodedDataOffset =
+                            TypeEncoder.encodeNumeric(new Uint(BigInteger.valueOf(dynamicDataOffset)));
+                    result.write(encodedDataOffset);
+                    dynamicData.write(encodedValue);
+                    dynamicDataOffset += (encodedValue.length >> 1);
+                } else {
+                    result.write(encodedValue);
+                }
+            }
+            result.write(dynamicData.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result.toByteArray();
     }
 
     public static String buildMethodSignature(String methodName, List<Type> parameters) {

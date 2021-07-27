@@ -15,10 +15,9 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-import java.math.BigInteger;
-import java.util.Objects;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
-import org.fisco.bcos.sdk.utils.Numeric;
+
+import java.util.Objects;
 
 /**
  * RPC response of ledger call
@@ -27,20 +26,20 @@ import org.fisco.bcos.sdk.utils.Numeric;
  */
 public class Call extends JsonRpcResponse<Call.CallOutput> {
     public static class CallOutput {
-        private String currentBlockNumber;
-        private String status;
+        private Long blockNumber;
         private String output;
+        private String status;
 
-        public BigInteger getCurrentBlockNumber() {
-            return Numeric.decodeQuantity(currentBlockNumber);
+        public Long getBlockNumber() {
+            return this.blockNumber;
         }
 
-        public void setCurrentBlockNumber(String currentBlockNumber) {
-            this.currentBlockNumber = currentBlockNumber;
+        public void setBlockNumber(Long blockNumber) {
+            this.blockNumber = blockNumber;
         }
 
         public String getStatus() {
-            return status;
+            return this.status;
         }
 
         public void setStatus(String status) {
@@ -48,7 +47,7 @@ public class Call extends JsonRpcResponse<Call.CallOutput> {
         }
 
         public String getOutput() {
-            return output;
+            return this.output;
         }
 
         public void setOutput(String output) {
@@ -58,41 +57,42 @@ public class Call extends JsonRpcResponse<Call.CallOutput> {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || this.getClass() != o.getClass()) return false;
             CallOutput that = (CallOutput) o;
             return Objects.equals(
-                            Numeric.decodeQuantity(currentBlockNumber),
-                            Numeric.decodeQuantity(that.currentBlockNumber))
-                    && Objects.equals(status, that.status)
-                    && Objects.equals(output, that.output);
+                    this.blockNumber,
+                    that.blockNumber)
+                    && Objects.equals(this.status, that.status)
+                    && Objects.equals(this.output, that.output);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(Numeric.decodeQuantity(currentBlockNumber), status, output);
+            return Objects.hash(this.blockNumber, this.status, this.output);
         }
 
         @Override
         public String toString() {
             return "CallOutput{"
-                    + "currentBlockNumber='"
-                    + currentBlockNumber
+                    + "blockNumber='"
+                    + this.blockNumber
                     + '\''
                     + ", status='"
-                    + status
+                    + this.status
                     + '\''
                     + ", output='"
-                    + output
+                    + this.output
                     + '\''
                     + '}';
         }
     }
 
+    @Override
     public void setResult(CallOutput result) {
         super.setResult(result);
     }
 
     public CallOutput getCallResult() {
-        return getResult();
+        return this.getResult();
     }
 }

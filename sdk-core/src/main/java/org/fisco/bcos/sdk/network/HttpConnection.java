@@ -29,11 +29,13 @@ public class HttpConnection implements Connection {
     /**
      * close connection
      */
+    @Override
     public void close() {
     }
 
+    @Override
     public String getUri() {
-        return uri;
+        return this.uri;
     }
 
     /**
@@ -41,14 +43,17 @@ public class HttpConnection implements Connection {
      *
      * @return true if connected
      */
+    @Override
     public Boolean connect() {
         return true;
     }
-    
+
+    @Override
     public Boolean reConnect() {
         return true;
     }
 
+    @Override
     public String callMethod(String request) throws IOException {
         try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
 
@@ -64,6 +69,7 @@ public class HttpConnection implements Connection {
         }
     }
 
+    @Override
     public void asyncCallMethod(String request, ResponseCallback callback) throws IOException {
         String response = this.callMethod(request);
         Response resp = new Response();

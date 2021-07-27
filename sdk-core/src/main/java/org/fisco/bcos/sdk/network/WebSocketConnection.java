@@ -99,6 +99,9 @@ public class WebSocketConnection implements Connection {
             if (this.channel != null) {
                 this.channel.closeFuture().sync();
             }
+            if (this.channel != null) {
+                this.channel.close().sync();
+            }
             logger.info("The connection of {} has been stopped", this.uri);
         } catch (InterruptedException e) {
             logger.warn("Stop netty failed for {}", e.getMessage());
@@ -177,7 +180,15 @@ public class WebSocketConnection implements Connection {
                                     WebSocketConnection.this.handler);
                         }
                     });
+            //TODO: reconnect
             this.channel = this.bootstrap.connect(host, port).sync().channel();
+//            this.channel.closeFuture().addListener(new ChannelFutureListener() {
+//                @Override
+//                public void operationComplete(ChannelFuture future) throws Exception {
+//
+//                }
+//            })
+
             this.handler.handshakeFuture().sync();
         } catch (URISyntaxException | InterruptedException e) {
             e.printStackTrace();

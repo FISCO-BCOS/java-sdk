@@ -130,7 +130,7 @@ public class ClientImpl implements Client {
     @Override
     public Call call(Transaction transaction) {
         return this.callRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.CALL, Arrays.asList(transaction)),
+                new JsonRpcRequest(JsonRpcMethods.CALL, Arrays.asList(transaction.getTo(), transaction.getData())),
                 Call.class);
     }
 
@@ -471,6 +471,7 @@ public class ClientImpl implements Client {
             throw new ClientException(
                     "callRemoteMethod failed for select peers to send message failed, please make sure that the group exists");
         }
+        System.out.println("Executing response: " + response);
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
 

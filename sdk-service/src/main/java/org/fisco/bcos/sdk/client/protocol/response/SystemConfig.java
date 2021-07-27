@@ -28,7 +28,7 @@ public class SystemConfig extends JsonRpcResponse<SystemConfig.Config> {
     }
 
     public static class Config {
-        private Integer blockNumber;
+        private Long blockNumber;
         private String value;
 
         @Override
@@ -59,11 +59,11 @@ public class SystemConfig extends JsonRpcResponse<SystemConfig.Config> {
                     + '}';
         }
 
-        public Integer getBlockNumber() {
+        public Long getBlockNumber() {
             return this.blockNumber;
         }
 
-        public void setBlockNumber(Integer blockNumber) {
+        public void setBlockNumber(Long blockNumber) {
             this.blockNumber = blockNumber;
         }
 
