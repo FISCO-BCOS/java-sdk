@@ -460,6 +460,7 @@ public class ClientImpl implements Client {
 
     public <T extends JsonRpcResponse> T callRemoteMethod(
             JsonRpcRequest request, Class<T> responseType) {
+
         String response = null;
         try {
             response = this.connection.callMethod(this.objectMapper.writeValueAsString(request));
@@ -471,7 +472,7 @@ public class ClientImpl implements Client {
             throw new ClientException(
                     "callRemoteMethod failed for select peers to send message failed, please make sure that the group exists");
         }
-//        System.out.println("Executing response: " + response);
+        // System.out.println("Executing response: " + response);
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
 
@@ -503,7 +504,6 @@ public class ClientImpl implements Client {
     protected <T extends JsonRpcResponse> T parseResponseIntoJsonRpcResponse(
             JsonRpcRequest request, String response, Class<T> responseType) {
         try {
-//            System.out.println("get response:" + response);
             // parse the response into JsonRPCResponse
             T jsonRpcResponse = this.objectMapper.readValue(response, responseType);
             if (jsonRpcResponse.getError() != null) {

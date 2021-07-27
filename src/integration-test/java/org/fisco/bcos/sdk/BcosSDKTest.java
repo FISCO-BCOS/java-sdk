@@ -46,7 +46,7 @@ public class BcosSDKTest {
         System.out.println("blockNumber=" + blockNumber.getBlockNumber());
 
         // test getBlockByNumber only header
-        BcosBlock onlyHeader = client.getBlockByNumber(BigInteger.ONE, true, false);
+        BcosBlock onlyHeader = client.getBlockByNumber(BigInteger.ZERO, true, false);
         System.out.println("genesis header=" + onlyHeader.getBlock());
 
         // test getBlockByNumber

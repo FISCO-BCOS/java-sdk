@@ -100,7 +100,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         protected List<String> sealerList;
         protected String extraData;
         protected String gasUsed;
-        protected Integer timestamp;
+        protected Long timestamp;
         protected List<ParentInfo> parentInfo;
         protected List<Signature> signatureList;
         protected List<Long> consensusWeights;
@@ -157,7 +157,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.gasUsed = gasUsed;
         }
 
-        public void setTimestamp(Integer timestamp) {
+        public void setTimestamp(Long timestamp) {
             this.timestamp = timestamp;
         }
 
@@ -205,7 +205,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             return this.gasUsed;
         }
 
-        public Integer getTimestamp() {
+        public Long getTimestamp() {
             return this.timestamp;
         }
 
