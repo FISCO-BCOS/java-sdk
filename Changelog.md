@@ -1,3 +1,24 @@
+## v2.8.0
+(2021-07-27)
+Added:
+* Add Hardware Secure Module(HSM), use hardware protect your private key, speed up crypto procedure.
+* Support use PCI crypto card or crypto machine to make SM2 SM3 calculation.
+* Support use HSM internal key to make TLS connection with FISCO BCOS nodes.
+* Support use HSM internal key to sign transaction.
+
+Update:
+* Update crypto dependency version of sdk-crypto module.
+
+----
+添加:
+* 新增硬件加密模块，使用硬件保护您的私钥，提升密码运算速度。
+* 支持使用PCI加密卡/加密机进行SM2，SM3运算。
+* 支持使用密码卡/密码机内部密钥与FISCO BCOS节点建立连接。
+* 支持使用密码卡/密码机内部密钥进行交易签名。
+
+更新：
+* 更新sdk-crypto模块所使用的密码算法库版本。
+
 ## v2.7.2
 (2021-03-24)
 Please read documentation of Java SDK.
