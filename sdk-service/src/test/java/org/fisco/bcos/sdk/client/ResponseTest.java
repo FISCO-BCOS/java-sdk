@@ -387,7 +387,7 @@ public class ResponseTest {
         Assert.assertEquals(102, callResult.getId());
         // check callResult
         Call.CallOutput callOutput = callResult.getCallResult();
-        Assert.assertEquals(BigInteger.valueOf(0xb), callOutput.getCurrentBlockNumber());
+        Assert.assertEquals(BigInteger.valueOf(0xb), callOutput.getBlockNumber());
         Assert.assertEquals("0x", callOutput.getOutput());
         Assert.assertEquals("0x0", callOutput.getStatus());
 

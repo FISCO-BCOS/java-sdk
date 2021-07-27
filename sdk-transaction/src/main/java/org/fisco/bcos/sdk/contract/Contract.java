@@ -210,7 +210,7 @@ public class Contract {
         Call response = this.transactionProcessor.executeCall(callRequest);
         // get value from the response
         String callResult = response.getCallResult().getOutput();
-        if (!response.getCallResult().getStatus().equals("0x0")) {
+        if (!response.getCallResult().getStatus().equals(0)) {
             ContractException contractException =
                     new ContractException(
                             "execute "

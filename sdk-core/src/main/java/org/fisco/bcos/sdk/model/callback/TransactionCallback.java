@@ -30,32 +30,32 @@ public abstract class TransactionCallback {
     public abstract void onResponse(TransactionReceipt receipt);
 
     public void onError(int errorCode, String errorMessage) {
-        cancelTimeout();
+        this.cancelTimeout();
         logger.error(
                 "transaction exception, errorCode: {}, errorMessage: {}", errorCode, errorMessage);
         TransactionReceipt receipt = new TransactionReceipt();
-        receipt.setStatus(String.valueOf(errorCode));
+        receipt.setStatus(errorCode);
         receipt.setMessage(errorMessage);
-        onResponse(receipt);
+        this.onResponse(receipt);
     }
 
     public void cancelTimeout() {
-        if (getTimeoutHandler() != null && !getTimeoutHandler().isCancelled()) {
-            getTimeoutHandler().cancel();
+        if (this.getTimeoutHandler() != null && !this.getTimeoutHandler().isCancelled()) {
+            this.getTimeoutHandler().cancel();
         }
     }
 
     public void onTimeout() {
-        cancelTimeout();
+        this.cancelTimeout();
         logger.warn("transactionSuc timeout");
         TransactionReceipt receipt = new TransactionReceipt();
-        receipt.setStatus(String.valueOf(TransactionReceiptStatus.TimeOut.getCode()));
+        receipt.setStatus(TransactionReceiptStatus.TimeOut.getCode());
         receipt.setMessage(TransactionReceiptStatus.TimeOut.getMessage());
-        onResponse(receipt);
+        this.onResponse(receipt);
     }
 
     public Timeout getTimeoutHandler() {
-        return timeoutHandler;
+        return this.timeoutHandler;
     }
 
     public void setTimeoutHandler(Timeout timeoutHandler) {

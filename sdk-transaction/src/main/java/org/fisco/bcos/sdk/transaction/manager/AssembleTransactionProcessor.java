@@ -19,6 +19,7 @@ import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
@@ -35,12 +36,10 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface;
 import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherService;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
-import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -375,7 +374,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws TransactionBaseException {
         CallResponse callResponse = new CallResponse();
         RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
-        callResponse.setReturnCode(Numeric.decodeQuantity(callOutput.getStatus()).intValue());
+        callResponse.setReturnCode(callOutput.getStatus());
         callResponse.setReturnMessage(retCode.getMessage());
         if (!retCode.getMessage().equals(PrecompiledRetCode.CODE_SUCCESS.getMessage())) {
             throw new TransactionBaseException(retCode);

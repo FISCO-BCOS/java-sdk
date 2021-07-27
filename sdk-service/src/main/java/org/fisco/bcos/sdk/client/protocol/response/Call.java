@@ -28,7 +28,7 @@ public class Call extends JsonRpcResponse<Call.CallOutput> {
     public static class CallOutput {
         private Long blockNumber;
         private String output;
-        private String status;
+        private Integer status;
 
         public Long getBlockNumber() {
             return this.blockNumber;
@@ -38,11 +38,11 @@ public class Call extends JsonRpcResponse<Call.CallOutput> {
             this.blockNumber = blockNumber;
         }
 
-        public String getStatus() {
+        public Integer getStatus() {
             return this.status;
         }
 
-        public void setStatus(String status) {
+        public void setStatus(Integer status) {
             this.status = status;
         }
 

@@ -29,7 +29,7 @@ public class TransactionReceipt {
     private String contractAddress;
     private List<Logs> logs;
     private String logsBloom;
-    private String status;
+    private Integer status;
     // the node returned status message corresponding to the status
     private String statusMsg;
     private String input;
@@ -39,7 +39,7 @@ public class TransactionReceipt {
     private String message;
 
     public boolean isStatusOK() {
-        return status.equals("0x0") || status.equals("0");
+        return this.status == 0;
     }
 
     public static class Logs {
@@ -49,7 +49,7 @@ public class TransactionReceipt {
         private String blockNumber;
 
         public String getAddress() {
-            return address;
+            return this.address;
         }
 
         public void setAddress(String address) {
@@ -57,7 +57,7 @@ public class TransactionReceipt {
         }
 
         public List<String> getTopics() {
-            return topics;
+            return this.topics;
         }
 
         public void setTopics(List<String> topics) {
@@ -65,7 +65,7 @@ public class TransactionReceipt {
         }
 
         public String getData() {
-            return data;
+            return this.data;
         }
 
         public void setData(String data) {
@@ -73,7 +73,7 @@ public class TransactionReceipt {
         }
 
         public String getBlockNumber() {
-            return blockNumber;
+            return this.blockNumber;
         }
 
         public void setBlockNumber(String blockNumber) {
@@ -92,35 +92,35 @@ public class TransactionReceipt {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || this.getClass() != o.getClass()) return false;
             Logs logs = (Logs) o;
-            return Objects.equals(address, logs.address)
-                    && Objects.equals(topics, logs.topics)
-                    && Objects.equals(data, logs.data);
+            return Objects.equals(this.address, logs.address)
+                    && Objects.equals(this.topics, logs.topics)
+                    && Objects.equals(this.data, logs.data);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(address, topics, data);
+            return Objects.hash(this.address, this.topics, this.data);
         }
 
         @Override
         public String toString() {
             return "Logs{"
                     + "address='"
-                    + address
+                    + this.address
                     + '\''
                     + ", topics="
-                    + topics
+                    + this.topics
                     + ", data='"
-                    + data
+                    + this.data
                     + '\''
                     + '}';
         }
     }
 
     public List<MerkleProofUnit> getReceiptProof() {
-        return receiptProof;
+        return this.receiptProof;
     }
 
     public void setReceiptProof(List<MerkleProofUnit> receiptProof) {
@@ -128,7 +128,7 @@ public class TransactionReceipt {
     }
 
     public String getTransactionHash() {
-        return transactionHash;
+        return this.transactionHash;
     }
 
     public void setTransactionHash(String transactionHash) {
@@ -136,7 +136,7 @@ public class TransactionReceipt {
     }
 
     public String getTransactionIndex() {
-        return transactionIndex;
+        return this.transactionIndex;
     }
 
     public void setTransactionIndex(String transactionIndex) {
@@ -144,7 +144,7 @@ public class TransactionReceipt {
     }
 
     public String getRoot() {
-        return root;
+        return this.root;
     }
 
     public void setRoot(String root) {
@@ -152,7 +152,7 @@ public class TransactionReceipt {
     }
 
     public String getBlockNumber() {
-        return blockNumber;
+        return this.blockNumber;
     }
 
     public void setBlockNumber(String blockNumber) {
@@ -160,7 +160,7 @@ public class TransactionReceipt {
     }
 
     public String getBlockHash() {
-        return blockHash;
+        return this.blockHash;
     }
 
     public void setBlockHash(String blockHash) {
@@ -168,7 +168,7 @@ public class TransactionReceipt {
     }
 
     public String getFrom() {
-        return from;
+        return this.from;
     }
 
     public void setFrom(String from) {
@@ -176,7 +176,7 @@ public class TransactionReceipt {
     }
 
     public String getTo() {
-        return to;
+        return this.to;
     }
 
     public void setTo(String to) {
@@ -184,7 +184,7 @@ public class TransactionReceipt {
     }
 
     public String getGasUsed() {
-        return gasUsed;
+        return this.gasUsed;
     }
 
     public void setGasUsed(String gasUsed) {
@@ -192,7 +192,7 @@ public class TransactionReceipt {
     }
 
     public String getContractAddress() {
-        return contractAddress;
+        return this.contractAddress;
     }
 
     public void setContractAddress(String contractAddress) {
@@ -200,7 +200,7 @@ public class TransactionReceipt {
     }
 
     public List<Logs> getLogs() {
-        return logs;
+        return this.logs;
     }
 
     public void setLogs(List<Logs> logs) {
@@ -208,23 +208,23 @@ public class TransactionReceipt {
     }
 
     public String getLogsBloom() {
-        return logsBloom;
+        return this.logsBloom;
     }
 
     public void setLogsBloom(String logsBloom) {
         this.logsBloom = logsBloom;
     }
 
-    public String getStatus() {
-        return status;
+    public Integer getStatus() {
+        return this.status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
     public String getInput() {
-        return input;
+        return this.input;
     }
 
     public void setInput(String input) {
@@ -232,7 +232,7 @@ public class TransactionReceipt {
     }
 
     public String getOutput() {
-        return output;
+        return this.output;
     }
 
     public void setOutput(String output) {
@@ -240,7 +240,7 @@ public class TransactionReceipt {
     }
 
     public List<MerkleProofUnit> getTxProof() {
-        return txProof;
+        return this.txProof;
     }
 
     public void setTxProof(List<MerkleProofUnit> txProof) {
@@ -250,28 +250,28 @@ public class TransactionReceipt {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || this.getClass() != o.getClass()) return false;
         TransactionReceipt that = (TransactionReceipt) o;
-        return Objects.equals(transactionHash, that.transactionHash)
-                && Objects.equals(transactionIndex, that.transactionIndex)
-                && Objects.equals(root, that.root)
-                && Objects.equals(blockNumber, that.blockNumber)
-                && Objects.equals(blockHash, that.blockHash)
-                && Objects.equals(from, that.from)
-                && Objects.equals(to, that.to)
-                && Objects.equals(gasUsed, that.gasUsed)
-                && Objects.equals(contractAddress, that.contractAddress)
-                && Objects.equals(logs, that.logs)
-                && Objects.equals(logsBloom, that.logsBloom)
-                && Objects.equals(status, that.status)
-                && Objects.equals(input, that.input)
-                && Objects.equals(output, that.output)
-                && Objects.equals(txProof, that.txProof)
-                && Objects.equals(receiptProof, that.receiptProof);
+        return Objects.equals(this.transactionHash, that.transactionHash)
+                && Objects.equals(this.transactionIndex, that.transactionIndex)
+                && Objects.equals(this.root, that.root)
+                && Objects.equals(this.blockNumber, that.blockNumber)
+                && Objects.equals(this.blockHash, that.blockHash)
+                && Objects.equals(this.from, that.from)
+                && Objects.equals(this.to, that.to)
+                && Objects.equals(this.gasUsed, that.gasUsed)
+                && Objects.equals(this.contractAddress, that.contractAddress)
+                && Objects.equals(this.logs, that.logs)
+                && Objects.equals(this.logsBloom, that.logsBloom)
+                && Objects.equals(this.status, that.status)
+                && Objects.equals(this.input, that.input)
+                && Objects.equals(this.output, that.output)
+                && Objects.equals(this.txProof, that.txProof)
+                && Objects.equals(this.receiptProof, that.receiptProof);
     }
 
     public String getStatusMsg() {
-        return statusMsg;
+        return this.statusMsg;
     }
 
     public void setStatusMsg(String statusMsg) {
@@ -281,84 +281,88 @@ public class TransactionReceipt {
     @Override
     public int hashCode() {
         return Objects.hash(
-                transactionHash,
-                transactionIndex,
-                root,
-                blockNumber,
-                blockHash,
-                from,
-                to,
-                gasUsed,
-                contractAddress,
-                logs,
-                logsBloom,
-                status,
-                input,
-                output,
-                txProof,
-                receiptProof);
+                this.transactionHash,
+                this.transactionIndex,
+                this.root,
+                this.blockNumber,
+                this.blockHash,
+                this.from,
+                this.to,
+                this.gasUsed,
+                this.contractAddress,
+                this.logs,
+                this.logsBloom,
+                this.status,
+                this.input,
+                this.output,
+                this.txProof,
+                this.receiptProof);
     }
 
     @Override
     public String toString() {
         return "TransactionReceipt{"
                 + "transactionHash='"
-                + transactionHash
+                + this.transactionHash
                 + '\''
                 + ", transactionIndex='"
-                + transactionIndex
+                + this.transactionIndex
                 + '\''
                 + ", root='"
-                + root
+                + this.root
                 + '\''
                 + ", blockNumber='"
-                + blockNumber
+                + this.blockNumber
                 + '\''
                 + ", blockHash='"
-                + blockHash
+                + this.blockHash
                 + '\''
                 + ", from='"
-                + from
+                + this.from
                 + '\''
                 + ", to='"
-                + to
+                + this.to
                 + '\''
                 + ", gasUsed='"
-                + gasUsed
+                + this.gasUsed
                 + '\''
                 + ", contractAddress='"
-                + contractAddress
+                + this.contractAddress
                 + '\''
                 + ", logs="
-                + logs
+                + this.logs
                 + ", logsBloom='"
-                + logsBloom
+                + this.logsBloom
                 + '\''
                 + ", status='"
-                + status
+                + this.status
                 + '\''
                 + ", statusMsg='"
-                + statusMsg
+                + this.statusMsg
                 + '\''
                 + ", input='"
-                + input
+                + this.input
                 + '\''
                 + ", output='"
-                + output
+                + this.output
                 + '\''
                 + ", txProof="
-                + txProof
+                + this.txProof
                 + ", receiptProof="
-                + receiptProof
+                + this.receiptProof
                 + '}';
     }
 
-    /** @return the message */
+    /**
+     * @return the message
+     */
     public String getMessage() {
-        return message;
+        return this.message;
     }
 
-    /** @param message the message to set */
+    /**
+     * @param message the message to set
+     */
     public void setMessage(String message) {
         this.message = message;
     }

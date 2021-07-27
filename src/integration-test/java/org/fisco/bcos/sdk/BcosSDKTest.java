@@ -46,7 +46,7 @@ public class BcosSDKTest {
         System.out.println("blockNumber=" + blockNumber.getBlockNumber());
 
         // test getBlockByNumber only header
-        BcosBlock onlyHeader = client.getBlockByNumber(BigInteger.ZERO, true, false);
+        BcosBlock onlyHeader = client.getBlockByNumber(BigInteger.ONE, true, false);
         System.out.println("genesis header=" + onlyHeader.getBlock());
 
         // test getBlockByNumber
@@ -112,8 +112,8 @@ public class BcosSDKTest {
             String s = helloWorld.get();
             System.out.println("helloworld get :" + s);
             TransactionReceipt receipt = helloWorld.set("fisco hello");
-            System.out.println("helloworld set :" + "fisco hello");
-            Assert.assertEquals(receipt.getStatus(), 0);
+            System.out.println("helloworld set :" + "fisco hello, status=" + receipt.getStatus());
+
             // getTransaction
             BcosTransaction transaction = client.getTransaction(receipt.getTransactionHash());
             System.out.println("getTransaction :" + transaction.getTransaction());
@@ -121,8 +121,8 @@ public class BcosSDKTest {
             BcosTransactionReceipt receipt1 = client.getTransactionReceipt(receipt.getTransactionHash());
             System.out.println("getTransactionReceipt :" + receipt1.getTransactionReceipt());
             // getCode
-            Code code = client.getCode(receipt.getContractAddress());
-            System.out.println("getTransactionReceipt :" + code.getCode());
+            Code code = client.getCode(helloWorld.getContractAddress());
+            System.out.println("getCode :" + code.getCode());
             s = helloWorld.get();
             System.out.println("helloworld get :" + s);
         } catch (ContractException e) {
