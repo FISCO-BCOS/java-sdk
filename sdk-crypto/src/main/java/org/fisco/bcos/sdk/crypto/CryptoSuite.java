@@ -127,7 +127,9 @@ public class CryptoSuite {
                             + " crypto type");
         }
         // create keyPair randomly
-        createKeyPair();
+        if (cryptoTypeConfig != CryptoType.SM_HSM_TYPE) {
+            createKeyPair();
+        }
     }
 
     /** Load sdf internal account */
