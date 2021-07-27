@@ -13,30 +13,20 @@
  */
 package org.fisco.bcos.sdk.service.model;
 
-import java.io.IOException;
 import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 public class BlockNumberMessageDecoder {
     private static Logger logger = LoggerFactory.getLogger(BlockNumberMessageDecoder.class);
 
     public BlockNumberNotification decode(EnumChannelProtocolVersion version, Message message) {
         BlockNumberNotification blockNumberNotification;
-        switch (version) {
-            case VERSION_1:
-                {
-                    blockNumberNotification = decodeV1(message);
-                }
-                break;
-            default:
-                {
-                    blockNumberNotification = decodeByDefault(message);
-                }
-                break;
-        }
+        blockNumberNotification = this.decodeByDefault(message);
         return blockNumberNotification;
     }
 
@@ -50,24 +40,12 @@ public class BlockNumberMessageDecoder {
                     .readValue(message.getData(), BlockNumberNotification.class);
         } catch (IOException e) {
             logger.error(
-                    "BlockNumberMessageDecoder: decode BlockNumberNotification message failed, type: {}, seq: {}, size: {}, reason: {}",
+                    "BlockNumberMessageDecoder: decode BlockNumberNotification message failed, type: {}, seq: {}, " +
+                            "reason: {}",
                     message.getType(),
                     message.getSeq(),
-                    message.getLength(),
                     e.getMessage());
             return null;
         }
-    }
-
-    /**
-     * @param message the notification message
-     * @return the decoded block number information
-     */
-    protected BlockNumberNotification decodeV1(Message message) {
-        String[] split = message.getData().toString().split(",");
-        if (split.length != 2) {
-            return null;
-        }
-        return new BlockNumberNotification(split[0], split[1]);
     }
 }

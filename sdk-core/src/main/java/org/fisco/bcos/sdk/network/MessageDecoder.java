@@ -18,15 +18,15 @@ package org.fisco.bcos.sdk.network;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import java.util.List;
 import org.fisco.bcos.sdk.model.Message;
+
+import java.util.List;
 
 public class MessageDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)
             throws Exception {
-        Message msg = new Message();
-        msg.decode(in);
+        Message msg = new Message(in);
         out.add(msg);
     }
 }

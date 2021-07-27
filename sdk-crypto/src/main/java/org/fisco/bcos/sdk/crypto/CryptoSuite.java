@@ -13,7 +13,6 @@
  */
 package org.fisco.bcos.sdk.crypto;
 
-import java.security.KeyPair;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.AccountConfig;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
@@ -34,6 +33,8 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.KeyPair;
 
 public class CryptoSuite {
 
@@ -56,22 +57,23 @@ public class CryptoSuite {
         this(cryptoTypeConfig);
         this.cryptoKeyPair = this.keyPairFactory.createKeyPair(hexedPrivateKey);
     }
+
     /**
      * init CryptoSuite
      *
      * @param cryptoTypeConfig the crypto type, e.g. ECDSA_TYPE or SM_TYPE
-     * @param configOption the configuration of account.
+     * @param configOption     the configuration of account.
      */
     public CryptoSuite(int cryptoTypeConfig, ConfigOption configOption) {
         this(cryptoTypeConfig);
         logger.info("init CryptoSuite, cryptoType: {}", cryptoTypeConfig);
-        setConfig(configOption);
+        this.setConfig(configOption);
         // doesn't set the account name, generate the keyPair randomly
         if (!configOption.getAccountConfig().isAccountConfigured()) {
-            createKeyPair();
+            this.createKeyPair();
             return;
         }
-        loadAccount(configOption);
+        this.loadAccount(configOption);
     }
 
     /**
@@ -100,15 +102,15 @@ public class CryptoSuite {
                             + " crypto type");
         }
         // create keyPair randomly
-        createKeyPair();
+        this.createKeyPair();
     }
 
     /**
      * Load account from file
      *
      * @param accountFileFormat file format, e.g. p21, pem
-     * @param accountFilePath file path
-     * @param password password of the key file
+     * @param accountFilePath   file path
+     * @param password          password of the key file
      */
     public void loadAccount(String accountFileFormat, String accountFilePath, String password) {
         KeyTool keyTool = null;
@@ -123,7 +125,7 @@ public class CryptoSuite {
                             + ", current supported are p12 and pem");
         }
         logger.debug("Load account from {}", accountFilePath);
-        createKeyPair(keyTool.getKeyPair());
+        this.createKeyPair(keyTool.getKeyPair());
     }
 
     /**
@@ -137,13 +139,13 @@ public class CryptoSuite {
         if (accountFilePath == null || accountFilePath.equals("")) {
             if (accountConfig.getAccountFileFormat().compareToIgnoreCase("p12") == 0) {
                 accountFilePath =
-                        keyPairFactory.getP12KeyStoreFilePath(accountConfig.getAccountAddress());
+                        this.keyPairFactory.getP12KeyStoreFilePath(accountConfig.getAccountAddress());
             } else if (accountConfig.getAccountFileFormat().compareToIgnoreCase("pem") == 0) {
                 accountFilePath =
-                        keyPairFactory.getPemKeyStoreFilePath(accountConfig.getAccountAddress());
+                        this.keyPairFactory.getPemKeyStoreFilePath(accountConfig.getAccountAddress());
             }
         }
-        loadAccount(
+        this.loadAccount(
                 accountConfig.getAccountFileFormat(),
                 accountFilePath,
                 accountConfig.getAccountPassword());
@@ -160,11 +162,11 @@ public class CryptoSuite {
     }
 
     public int getCryptoTypeConfig() {
-        return cryptoTypeConfig;
+        return this.cryptoTypeConfig;
     }
 
     public Signature getSignatureImpl() {
-        return signatureImpl;
+        return this.signatureImpl;
     }
 
     /**
@@ -173,7 +175,7 @@ public class CryptoSuite {
      * @return the hash function
      */
     public Hash getHashImpl() {
-        return hashImpl;
+        return this.hashImpl;
     }
 
     /**
@@ -183,7 +185,7 @@ public class CryptoSuite {
      * @return the hash digest of input data
      */
     public String hash(final String inputData) {
-        return hashImpl.hash(inputData);
+        return this.hashImpl.hash(inputData);
     }
 
     /**
@@ -193,7 +195,7 @@ public class CryptoSuite {
      * @return the hashed string
      */
     public byte[] hash(final byte[] inputBytes) {
-        return hashImpl.hash(inputBytes);
+        return this.hashImpl.hash(inputBytes);
     }
 
     /**
@@ -201,10 +203,10 @@ public class CryptoSuite {
      *
      * @param message byte array type input string, must be a digest
      * @param keyPair key pair used to do signature
-     * @return the signature result
+     * @return the signature errorCode
      */
     public SignatureResult sign(final byte[] message, final CryptoKeyPair keyPair) {
-        return signatureImpl.sign(message, keyPair);
+        return this.signatureImpl.sign(message, keyPair);
     }
 
     /**
@@ -212,10 +214,10 @@ public class CryptoSuite {
      *
      * @param message string type input message, must be a digest
      * @param keyPair key pair used to do signature
-     * @return the signature result
+     * @return the signature errorCode
      */
     public SignatureResult sign(final String message, final CryptoKeyPair keyPair) {
-        return signatureImpl.sign(message, keyPair);
+        return this.signatureImpl.sign(message, keyPair);
     }
 
     // for AMOP topic verify, generate signature
@@ -229,55 +231,55 @@ public class CryptoSuite {
      */
     public String sign(KeyTool keyTool, String message) {
         CryptoKeyPair cryptoKeyPair = this.keyPairFactory.createKeyPair(keyTool.getKeyPair());
-        return signatureImpl.signWithStringSignature(message, cryptoKeyPair);
+        return this.signatureImpl.signWithStringSignature(message, cryptoKeyPair);
     }
 
     /**
      * Verify signature, used in AMOP private topic verification procedure
      *
-     * @param keyTool the key
-     * @param message the string type input message, must be a digest
+     * @param keyTool   the key
+     * @param message   the string type input message, must be a digest
      * @param signature the string type signature
-     * @return the verify result
+     * @return the verify errorCode
      */
     public boolean verify(KeyTool keyTool, String message, String signature) {
-        return verify(keyTool.getHexedPublicKey(), message, signature);
+        return this.verify(keyTool.getHexedPublicKey(), message, signature);
     }
 
     /**
      * Verify signature, used in AMOP private topic verification procedure
      *
-     * @param keyTool the key
-     * @param message the byte array type input message, must be a digest
+     * @param keyTool   the key
+     * @param message   the byte array type input message, must be a digest
      * @param signature the byte array type signature
-     * @return the verify result
+     * @return the verify errorCode
      */
     public boolean verify(KeyTool keyTool, byte[] message, byte[] signature) {
-        return verify(keyTool.getHexedPublicKey(), message, signature);
+        return this.verify(keyTool.getHexedPublicKey(), message, signature);
     }
 
     /**
      * Verify signature
      *
      * @param publicKey the string type public key
-     * @param message the string type input message, must be a digest
+     * @param message   the string type input message, must be a digest
      * @param signature the string type signature
-     * @return the verify result
+     * @return the verify errorCode
      */
     public boolean verify(final String publicKey, final String message, final String signature) {
-        return signatureImpl.verify(publicKey, message, signature);
+        return this.signatureImpl.verify(publicKey, message, signature);
     }
 
     /**
      * Verify signature
      *
      * @param publicKey the string type public key
-     * @param message the byte array type input message, must be a digest
+     * @param message   the byte array type input message, must be a digest
      * @param signature the byte array type signature
-     * @return the verify result
+     * @return the verify errorCode
      */
     public boolean verify(final String publicKey, final byte[] message, final byte[] signature) {
-        return signatureImpl.verify(publicKey, message, signature);
+        return this.signatureImpl.verify(publicKey, message, signature);
     }
 
     /**
@@ -287,7 +289,7 @@ public class CryptoSuite {
      */
     public CryptoKeyPair createKeyPair() {
         this.cryptoKeyPair = this.keyPairFactory.generateKeyPair();
-        this.cryptoKeyPair.setConfig(config);
+        this.cryptoKeyPair.setConfig(this.config);
         return this.cryptoKeyPair;
     }
 
@@ -299,7 +301,7 @@ public class CryptoSuite {
      */
     public CryptoKeyPair createKeyPair(KeyPair keyPair) {
         this.cryptoKeyPair = this.keyPairFactory.createKeyPair(keyPair);
-        this.cryptoKeyPair.setConfig(config);
+        this.cryptoKeyPair.setConfig(this.config);
         return this.cryptoKeyPair;
     }
 
@@ -311,7 +313,7 @@ public class CryptoSuite {
      */
     public CryptoKeyPair createKeyPair(String hexedPrivateKey) {
         this.cryptoKeyPair = this.keyPairFactory.createKeyPair(hexedPrivateKey);
-        this.cryptoKeyPair.setConfig(config);
+        this.cryptoKeyPair.setConfig(this.config);
         return this.cryptoKeyPair;
     }
 
@@ -322,7 +324,7 @@ public class CryptoSuite {
      */
     public void setCryptoKeyPair(CryptoKeyPair cryptoKeyPair) {
         this.cryptoKeyPair = cryptoKeyPair;
-        this.cryptoKeyPair.setConfig(config);
+        this.cryptoKeyPair.setConfig(this.config);
     }
 
     /**

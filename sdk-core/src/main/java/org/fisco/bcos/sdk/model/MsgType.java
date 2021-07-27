@@ -15,15 +15,17 @@
 
 package org.fisco.bcos.sdk.model;
 
-/** Message types send from fisco bcos node. */
+/**
+ * Message types send from fisco bcos node.
+ */
 public enum MsgType {
 
     /**
-     * Message types which Client module interested in. CHANNEL_RPC_REQUEST: type of rpc request
+     * Message types which Client module interested in. RPC_REQUEST: type of rpc request
      * message TRANSACTION_NOTIFY: type of transaction notify message BLOCK_NOTIFY: type of block
      * notify message
      */
-    CHANNEL_RPC_REQUEST(0x12),
+    RPC_REQUEST(0x12),
     TRANSACTION_NOTIFY(0x1000),
     BLOCK_NOTIFY(0x1001),
 
@@ -62,7 +64,7 @@ public enum MsgType {
     }
 
     public int getType() {
-        return type;
+        return this.type;
     }
 
     public void setType(int type) {

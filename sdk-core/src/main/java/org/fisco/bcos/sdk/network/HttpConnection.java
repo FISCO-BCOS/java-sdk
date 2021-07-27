@@ -1,9 +1,5 @@
 package org.fisco.bcos.sdk.network;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URI;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -15,32 +11,41 @@ import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Response;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 public class HttpConnection implements Connection {
 
     private final String uri;
 
     public HttpConnection(ConfigOption config) {
-        if(!config.getNetworkConfig().getPeers().get(0).startsWith("http://"))
-        {
+        if (!config.getNetworkConfig().getPeers().get(0).startsWith("http://")) {
             this.uri = "http://" + config.getNetworkConfig().getPeers().get(0);
-        }
-        else
-        {
+        } else {
             this.uri = config.getNetworkConfig().getPeers().get(0);
         }
     }
-    /** close connection */
-    public void close() {}
+
+    /**
+     * close connection
+     */
+    public void close() {
+    }
 
     public String getUri() {
         return uri;
     }
+
     /**
      * connect to node
      *
      * @return true if connected
      */
     public Boolean connect() {
+        return true;
+    }
+    
+    public Boolean reConnect() {
         return true;
     }
 

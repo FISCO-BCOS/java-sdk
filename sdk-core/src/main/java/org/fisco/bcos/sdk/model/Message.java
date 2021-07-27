@@ -16,29 +16,43 @@
 package org.fisco.bcos.sdk.model;
 
 import io.netty.buffer.ByteBuf;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import org.fisco.bcos.sdk.model.exceptions.DecodeMessageException;
 
-/** Messages between sdk and FISCO BCOS node. */
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+
+/**
+ * Messages between sdk and FISCO BCOS node.
+ */
 public class Message implements Serializable {
     private static final long serialVersionUID = -7276897518418560354L;
-    protected Integer length = 0;
     protected Short type = 0;
+    protected Short errorCode = 0;
     protected String seq = "";
-    protected Integer result = 0;
     protected byte[] data;
 
     public static final int HEADER_LENGTH = 4 + 2 + 32 + 4;
 
+    public Message(Short type, String seq, byte[] data) {
+        this.type = type;
+        this.seq = seq;
+        this.data = data;
+    }
+
+    public Message(ByteBuf in) {
+        this.decode(in);
+    }
+
     /**
      * encode the message into ByteBuf
      *
-     * @param encodedData the ByteBuf stores the encodedData
+     * @param out the ByteBuf stores the encodedData
      */
-    public void encode(ByteBuf encodedData) {
-        writeHeader(encodedData);
-        writeDataToByteBuf(encodedData);
+    public void encode(ByteBuf out) {
+        out.writeShort(this.type);
+        out.writeShort(this.errorCode);
+        out.writeBytes(this.seq.getBytes(), 0, 32);
+        out.writeBytes(this.data);
     }
 
     /**
@@ -47,61 +61,28 @@ public class Message implements Serializable {
      * @param in the ByteBuf that needs to decoded into the message
      */
     public void decode(ByteBuf in) {
-        readHeader(in);
-        readDataFromByteBuf(in);
-    }
-
-    protected void readDataFromByteBuf(ByteBuf in) {
-        data = new byte[length - HEADER_LENGTH];
-        in.readBytes(data, 0, length - HEADER_LENGTH);
-    }
-
-    protected void writeDataToByteBuf(ByteBuf out) {
-        out.writeBytes(data);
-    }
-
-    protected void readHeader(ByteBuf in) {
-        length = in.readInt();
-        type = in.readShort();
+        this.type = in.readShort();
+        this.errorCode = in.readShort();
         byte[] dst = new byte[32];
         in.readBytes(dst);
         try {
-            seq = new String(dst, "utf-8");
+            this.seq = new String(dst, "utf-8");
         } catch (UnsupportedEncodingException e) {
             throw new DecodeMessageException(
                     "readHeader failed, seq: "
-                            + seq
+                            + this.seq
                             + ", type:"
-                            + type
+                            + this.type
                             + " dataLen : "
-                            + data.length,
+                            + this.data.length,
                     e);
         }
-        result = in.readInt();
-    }
-
-    protected void writeHeader(ByteBuf out) {
-        // calculate the total length
-        if (length.equals(0)) {
-            length = HEADER_LENGTH + data.length;
-        }
-
-        out.writeInt(length);
-        out.writeShort(type);
-        out.writeBytes(seq.getBytes(), 0, 32);
-        out.writeInt(result);
-    }
-
-    public Integer getLength() {
-        return length;
-    }
-
-    public void setLength(Integer length) {
-        this.length = length;
+        this.data = new byte[in.capacity() - in.readerIndex()];
+        in.readBytes(this.data);
     }
 
     public Short getType() {
-        return type;
+        return this.type;
     }
 
     public void setType(Short type) {
@@ -109,27 +90,26 @@ public class Message implements Serializable {
     }
 
     public String getSeq() {
-        return seq;
+        return this.seq;
     }
 
     public void setSeq(String seq) {
         this.seq = seq;
     }
 
-    public Integer getResult() {
-        return result;
+    public Short getErrorCode() {
+        return this.errorCode;
     }
 
-    public void setResult(Integer result) {
-        this.result = result;
+    public void setErrorCode(Short errorCode) {
+        this.errorCode = errorCode;
     }
 
     public byte[] getData() {
-        return data;
+        return this.data;
     }
 
     public void setData(byte[] data) {
         this.data = data;
-        this.length = data.length + HEADER_LENGTH;
     }
 }

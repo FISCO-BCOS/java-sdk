@@ -17,26 +17,27 @@ package org.fisco.bcos.sdk.network;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class CodecTest {
     String seq = UUID.randomUUID().toString().replaceAll("-", "");
 
     @Test
     public void testMsgDecoder() {
-        ByteBuf in = getEventMsgByteBuf();
+        ByteBuf in = this.getEventMsgByteBuf();
         MessageDecoder decoder = new MessageDecoder();
         List<Object> out = new ArrayList<>();
         try {
             decoder.decode(null, in, out);
             Message msg = (Message) out.get(0);
-            Assert.assertEquals(seq, msg.getSeq());
+            Assert.assertEquals(this.seq, msg.getSeq());
             Assert.assertEquals(MsgType.EVENT_LOG_PUSH.ordinal(), msg.getType().intValue());
             Assert.assertEquals("data", new String(msg.getData()));
         } catch (Exception e) {
@@ -49,28 +50,24 @@ public class CodecTest {
         MessageEncoder encoder = new MessageEncoder();
         ByteBuf out = Unpooled.buffer();
         try {
-            encoder.encode(null, getEventMsg(), out);
-            Assert.assertEquals(out, getEventMsgByteBuf());
+            encoder.encode(null, this.getEventMsg(), out);
+            Assert.assertEquals(out, this.getEventMsgByteBuf());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private Message getEventMsg() {
-        Message msg = new Message();
-        msg.setSeq(seq);
-        msg.setType((short) MsgType.EVENT_LOG_PUSH.ordinal());
-        msg.setResult(0);
+        Message msg = new Message((short) MsgType.EVENT_LOG_PUSH.ordinal(), this.seq, null);
+        msg.setErrorCode((short) 0);
         msg.setData("data".getBytes());
         return msg;
     }
 
     private ByteBuf getEventMsgByteBuf() {
         ByteBuf byteBuf = Unpooled.buffer();
-        Message msg = new Message();
-        msg.setSeq(seq);
-        msg.setType((short) MsgType.EVENT_LOG_PUSH.ordinal());
-        msg.setResult(0);
+        Message msg = new Message((short) MsgType.EVENT_LOG_PUSH.ordinal(), this.seq, null);
+        msg.setErrorCode((short) 0);
         msg.setData("data".getBytes());
         msg.encode(byteBuf);
         return byteBuf;

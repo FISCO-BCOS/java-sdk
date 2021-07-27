@@ -16,23 +16,22 @@
 package org.fisco.bcos.sdk.network;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.ssl.SMSslClientContextFactory;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.*;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
+import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.model.CryptoType;
+import org.fisco.bcos.sdk.model.RetCode;
+import org.fisco.bcos.sdk.utils.ThreadPoolService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.SSLException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -46,19 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLException;
-import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.model.CryptoType;
-import org.fisco.bcos.sdk.model.RetCode;
-import org.fisco.bcos.sdk.utils.ThreadPoolService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.*;
 
 /**
  * Maintain peer connections. Start a schedule to reconnect failed peers.
@@ -67,7 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConnectionManager {
     private static Logger logger = LoggerFactory.getLogger(ConnectionManager.class);
-    private ChannelHandler channelHandler;
+    private WebSocketHandler websocketHandler;
     private List<ConnectionInfo> connectionInfoList = new CopyOnWriteArrayList<>();
     private Map<String, ChannelHandlerContext> availableConnections = new ConcurrentHashMap<>();
     private EventLoopGroup workerGroup;
@@ -83,40 +70,40 @@ public class ConnectionManager {
     public ConnectionManager(List<String> ipList, MsgHandler msgHandler) {
         if (ipList != null) {
             for (String peerIpPort : ipList) {
-                connectionInfoList.add(new ConnectionInfo(peerIpPort));
+                this.connectionInfoList.add(new ConnectionInfo(peerIpPort));
             }
         }
-        channelHandler = new ChannelHandler(this, msgHandler);
+        this.websocketHandler = new WebSocketHandler(null, msgHandler);
         logger.info(
                 " all connections, size: {}, list: {}",
-                connectionInfoList.size(),
-                connectionInfoList);
+                this.connectionInfoList.size(),
+                this.connectionInfoList);
     }
 
     public void startConnect(ConfigOption configOption) throws NetworkException {
-        if (running) {
+        if (this.running) {
             logger.debug("running");
             return;
         }
         logger.debug(" start connect. ");
         /** init netty * */
-        initNetty(configOption);
-        running = true;
+        this.initNetty(configOption);
+        this.running = true;
 
         /** try connection */
-        for (ConnectionInfo connect : connectionInfoList) {
+        for (ConnectionInfo connect : this.connectionInfoList) {
             logger.debug("startConnect to {}", connect.getEndPoint());
-            ChannelFuture channelFuture = bootstrap.connect(connect.getIp(), connect.getPort());
-            connChannelFuture.add(channelFuture);
+            ChannelFuture channelFuture = this.bootstrap.connect(connect.getIp(), connect.getPort());
+            this.connChannelFuture.add(channelFuture);
         }
 
-        /** check connection result */
+        /** check connection errorCode */
         boolean atLeastOneConnectSuccess = false;
         List<RetCode> errorMessageList = new ArrayList<>();
-        for (int i = 0; i < connectionInfoList.size(); i++) {
-            ConnectionInfo connInfo = connectionInfoList.get(i);
-            ChannelFuture connectFuture = connChannelFuture.get(i);
-            if (checkConnectionResult(connInfo, connectFuture, errorMessageList)) {
+        for (int i = 0; i < this.connectionInfoList.size(); i++) {
+            ConnectionInfo connInfo = this.connectionInfoList.get(i);
+            ChannelFuture connectFuture = this.connChannelFuture.get(i);
+            if (this.checkConnectionResult(connInfo, connectFuture, errorMessageList)) {
                 atLeastOneConnectSuccess = true;
             }
         }
@@ -145,28 +132,28 @@ public class ConnectionManager {
 
     public void startReconnectSchedule() {
         logger.debug(" start reconnect schedule");
-        reconnSchedule.scheduleAtFixedRate(
-                () -> reconnect(),
+        this.reconnSchedule.scheduleAtFixedRate(
+                () -> this.reconnect(),
                 TimeoutConfig.reconnectDelay,
                 TimeoutConfig.reconnectDelay,
                 TimeUnit.MILLISECONDS);
     }
 
     public void stopReconnectSchedule() {
-        ThreadPoolService.stopThreadPool(reconnSchedule);
+        ThreadPoolService.stopThreadPool(this.reconnSchedule);
     }
 
     public void stopNetty() {
         try {
-            if (running) {
+            if (this.running) {
 
-                if (workerGroup != null) {
-                    workerGroup.shutdownGracefully().sync();
+                if (this.workerGroup != null) {
+                    this.workerGroup.shutdownGracefully().sync();
                 }
-                for (ChannelFuture channelFuture : connChannelFuture) {
+                for (ChannelFuture channelFuture : this.connChannelFuture) {
                     channelFuture.channel().closeFuture().sync();
                 }
-                running = false;
+                this.running = false;
                 logger.info("The netty has been stopped");
             }
         } catch (InterruptedException e) {
@@ -178,8 +165,8 @@ public class ConnectionManager {
         // Get connection which need reconnect
         List<ConnectionInfo> needReconnect = new ArrayList<>();
         int aliveConnectionCount = 0;
-        for (ConnectionInfo connectionInfo : connectionInfoList) {
-            ChannelHandlerContext ctx = availableConnections.get(connectionInfo.getEndPoint());
+        for (ConnectionInfo connectionInfo : this.connectionInfoList) {
+            ChannelHandlerContext ctx = this.availableConnections.get(connectionInfo.getEndPoint());
             if (Objects.isNull(ctx) || !ctx.channel().isActive()) {
                 needReconnect.add(connectionInfo);
             } else {
@@ -191,9 +178,9 @@ public class ConnectionManager {
         // Reconnect
         for (ConnectionInfo connectionInfo : needReconnect) {
             ChannelFuture connectFuture =
-                    bootstrap.connect(connectionInfo.getIp(), connectionInfo.getPort());
+                    this.bootstrap.connect(connectionInfo.getIp(), connectionInfo.getPort());
             List<RetCode> errorMessageList = new ArrayList<>();
-            if (checkConnectionResult(connectionInfo, connectFuture, errorMessageList)) {
+            if (this.checkConnectionResult(connectionInfo, connectFuture, errorMessageList)) {
                 logger.info(
                         " reconnect to {}:{} success",
                         connectionInfo.getIp(),
@@ -209,19 +196,19 @@ public class ConnectionManager {
     }
 
     public void setMsgHandleThreadPool(ExecutorService msgHandleThreadPool) {
-        channelHandler.setMsgHandleThreadPool(msgHandleThreadPool);
+        this.websocketHandler.setMsgHandleThreadPool(msgHandleThreadPool);
     }
 
     public List<ConnectionInfo> getConnectionInfoList() {
-        return connectionInfoList;
+        return this.connectionInfoList;
     }
 
     public Map<String, ChannelHandlerContext> getAvailableConnections() {
-        return availableConnections;
+        return this.availableConnections;
     }
 
     public ChannelHandlerContext getConnectionCtx(String peer) {
-        return availableConnections.get(peer);
+        return this.availableConnections.get(peer);
     }
 
     private SslContext initSslContext(ConfigOption configOption) throws NetworkException {
@@ -318,17 +305,17 @@ public class ConnectionManager {
     }
 
     private void initNetty(ConfigOption configOption) throws NetworkException {
-        workerGroup = new NioEventLoopGroup();
-        bootstrap.group(workerGroup);
-        bootstrap.channel(NioSocketChannel.class);
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+        this.workerGroup = new NioEventLoopGroup();
+        this.bootstrap.group(this.workerGroup);
+        this.bootstrap.channel(NioSocketChannel.class);
+        this.bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
         // set connection timeout
-        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeoutConfig.connectTimeout);
+        this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeoutConfig.connectTimeout);
         int sslCryptoType = configOption.getCryptoMaterialConfig().getSslCryptoType();
         SslContext sslContext =
                 (sslCryptoType == CryptoType.ECDSA_TYPE
-                        ? initSslContext(configOption)
-                        : initSMSslContext(configOption));
+                        ? this.initSslContext(configOption)
+                        : this.initSMSslContext(configOption));
         SslContext finalSslContext = sslContext;
         ChannelInitializer<SocketChannel> initializer =
                 new ChannelInitializer<SocketChannel>() {
@@ -352,10 +339,10 @@ public class ConnectionManager {
                                                 TimeUnit.MILLISECONDS),
                                         new MessageEncoder(),
                                         new MessageDecoder(),
-                                        channelHandler);
+                                        ConnectionManager.this.websocketHandler);
                     }
                 };
-        bootstrap.handler(initializer);
+        this.bootstrap.handler(initializer);
     }
 
     private boolean checkConnectionResult(
@@ -382,7 +369,7 @@ public class ConnectionManager {
                                     + " failed"));
             return false;
         } else {
-            /** connect success, check ssl handshake result. */
+            /** connect success, check ssl handshake errorCode. */
             SslHandler sslhandler = connectFuture.channel().pipeline().get(SslHandler.class);
             String checkerMessage =
                     "! Please check the certificate and ensure that the SDK and the node are in the same agency!";
@@ -425,18 +412,18 @@ public class ConnectionManager {
             String ip, int port, ChannelHandlerContext ctx) {
         String endpoint = ip + ":" + port;
         logger.debug("addConnectionContext, endpoint: {}, ctx:{}", endpoint, ctx);
-        return availableConnections.put(endpoint, ctx);
+        return this.availableConnections.put(endpoint, ctx);
     }
 
     protected void removeConnectionContext(String ip, int port, ChannelHandlerContext ctx) {
         String endpoint = ip + ":" + port;
-        if (Objects.isNull(availableConnections.get(endpoint))) {
+        if (Objects.isNull(this.availableConnections.get(endpoint))) {
             return;
         }
-        Boolean result = availableConnections.remove(endpoint, ctx);
+        Boolean result = this.availableConnections.remove(endpoint, ctx);
         if (logger.isDebugEnabled()) {
             logger.debug(
-                    " result: {}, host: {}, port: {}, ctx: {}",
+                    " errorCode: {}, host: {}, port: {}, ctx: {}",
                     result,
                     ip,
                     port,
@@ -445,10 +432,10 @@ public class ConnectionManager {
     }
 
     public void removeConnection(String peerIpPort) {
-        for (ConnectionInfo conn : connectionInfoList) {
+        for (ConnectionInfo conn : this.connectionInfoList) {
             String ipPort = conn.getIp() + ":" + conn.getPort();
             if (ipPort.equals(peerIpPort)) {
-                connectionInfoList.remove(conn);
+                this.connectionInfoList.remove(conn);
                 return;
             }
         }
