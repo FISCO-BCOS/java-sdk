@@ -48,7 +48,7 @@ public class EventDecodeTest {
     @Test
     public void testDecode() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
-        Client client = sdk.getClient("1");
+        Client client = sdk.getClientByGroupID("1");
         // System.out.println(cryptoInterface.getCryptoKeyPair().getAddress());
         AssembleTransactionProcessor manager =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(

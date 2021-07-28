@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -25,7 +26,6 @@ import org.fisco.bcos.sdk.transaction.mock.RemoteSignCallbackMock;
 import org.fisco.bcos.sdk.transaction.mock.RemoteSignProviderMock;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -52,7 +52,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     // prepare sdk， read from the config file
     private BcosSDK sdk = BcosSDK.build(configFile);
     // set the group number 1
-    private Client client = this.sdk.getClient("1");
+    private Client client = this.sdk.getClientByGroupID("1");
     // create new keypair
     private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
     // mock remote sign service

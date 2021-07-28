@@ -8,7 +8,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
-import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Response;
 
 import java.io.ByteArrayInputStream;
@@ -18,11 +17,11 @@ public class HttpConnection implements Connection {
 
     private final String uri;
 
-    public HttpConnection(ConfigOption config) {
-        if (!config.getNetworkConfig().getPeers().get(0).startsWith("http://")) {
-            this.uri = "http://" + config.getNetworkConfig().getPeers().get(0);
+    public HttpConnection(String endpoint) {
+        if (!endpoint.startsWith("http://")) {
+            this.uri = "http://" + endpoint;
         } else {
-            this.uri = config.getNetworkConfig().getPeers().get(0);
+            this.uri = endpoint;
         }
     }
 

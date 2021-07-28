@@ -49,7 +49,7 @@ public class TransactionDecoderServiceTest {
     @Test
     public void testDecode() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
-        Client client = sdk.getClient("1");
+        Client client = sdk.getClientByGroupID("1");
         TransactionDecoderInterface decoder =
                 new TransactionDecoderService(client.getCryptoSuite());
         ContractLoader contractLoader = new ContractLoader(abiFile, binFile);

@@ -18,9 +18,6 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.network.Connection;
-import org.fisco.bcos.sdk.network.HttpConnection;
-import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +29,7 @@ public class BcosSDK {
     public static final String SM_TYPE_STR = "sm";
 
     private final ConfigOption config;
-    private final Connection connection;
     private ConcurrentHashMap<String, Client> groupToClient = new ConcurrentHashMap<>();
-    private long maxWaitEstablishConnectionTime = 30000;
-    private ThreadPoolService threadPoolService;
 
     /**
      * Build BcosSDK instance
@@ -63,8 +57,11 @@ public class BcosSDK {
     public BcosSDK(ConfigOption configOption) throws BcosSDKException {
         try {
             this.config = configOption;
-            // create GroupMangerService
-            this.connection = new HttpConnection(this.config);
+            for (String endpoint : this.config.getNetworkConfig().getPeers()) {
+                // create all clients
+                Client client = Client.build(endpoint, this.config);
+                this.groupToClient.put(client.getGroupId(), client);
+            }
             logger.info("create BcosSDK, create connection success");
         } catch (ChannelException e) {
             this.stopAll();
@@ -78,31 +75,30 @@ public class BcosSDK {
      * @param groupId the group id
      * @return Client
      */
-    public Client getClient(String groupId) {
+    public Client getClientByGroupID(String groupId) {
         if (!this.groupToClient.containsKey(groupId)) {
             // create a new client for the specified group
-            Client client = Client.build(this.connection, this.config);
-            if (client == null) {
-                throw new BcosSDKException(
-                        "create client for group "
-                                + groupId
-                                + " failed! Please check the existence of group "
-                                + groupId
-                                + " of the connected node!");
-            }
-            this.groupToClient.put(groupId, client);
-            logger.info("create client for group {} success", groupId);
+            logger.info(
+                    "client for group " + groupId + " is not exist! Please check the existence of group "
+                            + groupId + " of the connected node!");
+            return null;
         }
         return this.groupToClient.get(groupId);
     }
 
     /**
-     * Get group manager service instance
+     * Get a Client instance of a specific group
      *
-     * @return GroupManagerService
+     * @param endpoint
+     * @return Client
      */
-    public Connection getConnection() {
-        return this.connection;
+    public Client getClientByEndpoint(String endpoint) {
+        for (Client client : this.groupToClient.values()) {
+            if (client.getConnection().getUri().contains(endpoint)) {
+                return client;
+            }
+        }
+        return null;
     }
 
     /**
@@ -118,12 +114,6 @@ public class BcosSDK {
      * Stop all module of BcosSDK
      */
     public void stopAll() {
-        if (this.threadPoolService != null) {
-            this.threadPoolService.stop();
-        }
-        if (this.connection != null) {
-            this.connection.close();
-        }
         // stop the client
         for (String groupId : this.groupToClient.keySet()) {
             this.groupToClient.get(groupId).stop();

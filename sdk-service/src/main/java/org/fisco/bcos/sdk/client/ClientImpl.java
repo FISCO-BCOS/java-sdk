@@ -21,7 +21,9 @@ import org.fisco.bcos.sdk.client.protocol.request.JsonRpcMethods;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -41,20 +43,28 @@ public class ClientImpl implements Client {
     private static Logger logger = LoggerFactory.getLogger(ClientImpl.class);
     private final String groupId;
     private final String chainId;
+    private final Boolean wasm;
+    private final Boolean smCrypto;
     private final CryptoSuite cryptoSuite;
     private final NodeInfo nodeInfo;
     private final Connection connection;
 
-    protected ClientImpl(Connection connection, CryptoSuite cryptoSuite) {
-        this.cryptoSuite = cryptoSuite;
+    protected ClientImpl(Connection connection, ConfigOption configOption) {
         this.connection = connection;
         // get node info by call getNodeInfo
         this.nodeInfo =
                 this.callRemoteMethod(
                         new JsonRpcRequest(JsonRpcMethods.GET_NODE_INFO, Arrays.asList()),
                         NodeInfo.class);
-        this.chainId = this.nodeInfo.getNodeInfo().getChainId() == null ? "test_chain" : this.nodeInfo.getNodeInfo().getChainId();
-        this.groupId = this.nodeInfo.getNodeInfo().getGroupId() == null ? "test_group" : this.nodeInfo.getNodeInfo().getGroupId();
+        this.chainId = this.nodeInfo.getNodeInfo().getChainId();
+        this.groupId = this.nodeInfo.getNodeInfo().getGroupId();
+        this.wasm = this.nodeInfo.getNodeInfo().getWasm();
+        this.smCrypto = this.nodeInfo.getNodeInfo().getSmCrypto();
+        if (this.smCrypto) {
+            this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
+        } else {
+            this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
+        }
         // send request to the group, and get the blockNumber information
         this.getBlockLimit();
     }
@@ -65,6 +75,8 @@ public class ClientImpl implements Client {
         this.cryptoSuite = null;
         this.nodeInfo = null;
         this.connection = null;
+        this.wasm = false;
+        this.smCrypto = null;
     }
 
     @Override
@@ -402,6 +414,14 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(JsonRpcMethods.GET_SYNC_STATUS, Arrays.asList()),
                 SyncStatus.class,
                 callback);
+    }
+
+    public Boolean getWasm() {
+        return this.wasm;
+    }
+
+    public Boolean getSmCrypto() {
+        return this.smCrypto;
     }
 
     class SynchronousTransactionCallback extends TransactionCallback {

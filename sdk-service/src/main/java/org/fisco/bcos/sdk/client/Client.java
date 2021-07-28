@@ -19,9 +19,9 @@ import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.network.Connection;
+import org.fisco.bcos.sdk.network.HttpConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,21 +38,12 @@ public interface Client {
     /**
      * Build a client instance GroupId is identified, all interfaces are available
      *
-     * @param connection the connection instance
+     * @param endpoint the connection info
      * @return a client instance
      */
-    static Client build(Connection connection, ConfigOption config) {
-        // get cryptoType
-        //        Integer cryptoType = connection.getCryptoType();
-        Integer cryptoType = CryptoType.ECDSA_TYPE;
-        if (cryptoType == null) {
-            logger.warn(
-                    "build client failed for get crypto type or nodeVersion failed");
-            return null;
-        }
-        CryptoSuite cryptoSuite = new CryptoSuite(cryptoType, config);
-        logger.info("build client success");
-        return new ClientImpl(connection, cryptoSuite);
+    static Client build(String endpoint, ConfigOption config) {
+        HttpConnection connection = new HttpConnection(endpoint);
+        return new ClientImpl(connection, config);
     }
 
     /**

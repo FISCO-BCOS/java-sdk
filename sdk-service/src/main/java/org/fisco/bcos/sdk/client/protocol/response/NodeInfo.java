@@ -38,6 +38,9 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         @JsonProperty("gitCommit")
         private String gitCommit;
 
+        private Boolean smCrypto;
+        private Boolean wasm;
+
         public String getNodeID() {
             return this.nodeID;
         }
@@ -169,5 +172,20 @@ public class NodeInfo extends JsonRpcResponse<NodeInfo.NodeInformation> {
         }
 
 
+        public Boolean getSmCrypto() {
+            return this.smCrypto;
+        }
+
+        public void setSmCrypto(Boolean smCrypto) {
+            this.smCrypto = smCrypto;
+        }
+
+        public Boolean getWasm() {
+            return this.wasm;
+        }
+
+        public void setWasm(Boolean wasm) {
+            this.wasm = wasm;
+        }
     }
 }

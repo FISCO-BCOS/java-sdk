@@ -59,7 +59,7 @@ public class AssembleTransactionProcessorTest {
     // init the sdk, and set the config options.
     private BcosSDK sdk = BcosSDK.build(configFile);
     // group 1
-    private Client client = this.sdk.getClient("1");
+    private Client client = this.sdk.getClientByGroupID("1");
     private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
 
     @Test

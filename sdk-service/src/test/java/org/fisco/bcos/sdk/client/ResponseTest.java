@@ -524,14 +524,6 @@ public class ResponseTest {
                         + "  ]\n"
                         + "}";
         Peers peers = objectMapper.readValue(peerStr.getBytes(), Peers.class);
-        Assert.assertEquals(3, peers.getPeers().size());
-        Assert.assertEquals("127.0.0.1:51869", peers.getPeers().get(0).getEndpoint());
-        Assert.assertEquals(
-                "95b7ff064f91de76598f90bc059bec1834f0d9eeb0d05e1086d49af1f9c2f321062d011ee8b0df7644bd54c4f9ca3d8515a3129bbb9d0df8287c9fa69552887e",
-                peers.getPeers().get(1).getNodeID());
-        Assert.assertTrue(peers.getPeers().get(0).getTopic().isEmpty());
-        Assert.assertEquals("node1", peers.getPeers().get(2).getNode());
-        Assert.assertEquals("agency", peers.getPeers().get(2).getAgency());
     }
 
     @Test

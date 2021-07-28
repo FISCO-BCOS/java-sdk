@@ -39,7 +39,7 @@ public class BcosSDKTest {
     public void testClient() throws ConfigException {
         BcosSDK sdk = BcosSDK.build(configFile);
         // get the client
-        Client client = sdk.getClient("1");
+        Client client = sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
 
         // test getBlockNumber
         BlockNumber blockNumber = client.getBlockNumber();
@@ -98,7 +98,7 @@ public class BcosSDKTest {
     public void testHelloWorld() {
         BcosSDK sdk = BcosSDK.build(configFile);
         // get the client
-        Client client = sdk.getClient("1");
+        Client client = sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
         CryptoSuite cryptoSuite = client.getCryptoSuite();
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
         HelloWorld helloWorld = null;
