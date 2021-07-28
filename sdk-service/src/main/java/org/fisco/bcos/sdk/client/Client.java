@@ -74,6 +74,8 @@ public interface Client {
      */
     Integer getCryptoType();
 
+    Boolean isWASM();
+
     /**
      * get groupId of the client
      *

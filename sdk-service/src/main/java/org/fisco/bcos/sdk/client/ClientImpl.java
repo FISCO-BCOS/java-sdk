@@ -140,6 +140,11 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public Boolean isWASM() {
+        return this.wasm;
+    }
+
+    @Override
     public Call call(Transaction transaction) {
         return this.callRemoteMethod(
                 new JsonRpcRequest(JsonRpcMethods.CALL, Arrays.asList(transaction.getTo(), transaction.getData())),

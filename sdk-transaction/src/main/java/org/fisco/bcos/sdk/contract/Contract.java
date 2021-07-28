@@ -285,7 +285,8 @@ public class Contract {
     }
 
     protected TransactionReceipt executeTransaction(byte[] data, String functionName) {
-        return this.transactionProcessor.sendTransactionAndGetReceipt(this.contractAddress, data, this.credential);
+        return this.transactionProcessor.sendTransactionAndGetReceipt(this.contractAddress, data,
+                this.credential);
     }
 
     /**

@@ -20,6 +20,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
+import org.fisco.bcos.sdk.utils.Hex;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -97,6 +98,17 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
             BigInteger blockLimit, String to, byte[] data, String chainId, String groupId) {
         Random r = ThreadLocalRandom.current();
         BigInteger randomId = new BigInteger(250, r);
+        byte[] address = null;
+        if (to != null) {
+            address = to.getBytes();
+            if (!this.client.isWASM()) {
+                if (to.startsWith("0x")) {
+                    address = Hex.decode(to.substring(2));
+                } else {
+                    address = Hex.decode(to);
+                }
+            }
+        }
         return
                 new TransactionData(
                         0,
@@ -104,7 +116,7 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
                         groupId,
                         blockLimit.intValue(),
                         randomId.toString(),
-                        to == null ? null : to.getBytes(),
+                        address,
                         data);
     }
 
