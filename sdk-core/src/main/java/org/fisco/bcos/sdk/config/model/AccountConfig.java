@@ -15,6 +15,10 @@
 
 package org.fisco.bcos.sdk.config.model;
 
+import static org.fisco.bcos.sdk.model.CryptoProviderType.HSM;
+import static org.fisco.bcos.sdk.model.CryptoProviderType.SSM;
+
+import java.util.Map;
 import java.util.Objects;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 
@@ -25,6 +29,7 @@ public class AccountConfig {
     private String accountFileFormat;
     private String accountPassword;
     private String accountFilePath;
+    private String accountKeyIndex;
 
     public AccountConfig(ConfigProperty configProperty) throws ConfigException {
         this.keyStoreDir =
@@ -38,13 +43,27 @@ public class AccountConfig {
         this.accountPassword = ConfigProperty.getValue(configProperty.getAccount(), "password", "");
         this.accountFilePath =
                 ConfigProperty.getValue(configProperty.getAccount(), "accountFilePath", "");
+        this.accountKeyIndex =
+                ConfigProperty.getValue(configProperty.getAccount(), "accountKeyIndex", "");
         if (!this.accountFilePath.equals("")) {
             this.accountFilePath = ConfigProperty.getConfigFilePath(this.accountFilePath);
         }
-        checkAccountConfig();
+        checkAccountConfig(configProperty);
     }
 
-    private void checkAccountConfig() throws ConfigException {
+    private void checkAccountConfig(ConfigProperty configProperty) throws ConfigException {
+        Map<String, Object> cryptoMaterial = configProperty.getCryptoMaterial();
+        String cryptoType = SSM;
+        if (cryptoMaterial != null) {
+            cryptoType = ConfigProperty.getValue(cryptoMaterial, "cryptoProvider", SSM);
+        }
+        if (cryptoType.equalsIgnoreCase(HSM)) {
+            if (accountKeyIndex == null) {
+                throw new ConfigException(
+                        "load account failed, you are using hardware secure moduele(HSM), please config accountKeyIndex.");
+            }
+            return;
+        }
         if (this.accountAddress.equals("")) {
             return;
         }
@@ -95,6 +114,14 @@ public class AccountConfig {
 
     public void setAccountPassword(String accountPassword) {
         this.accountPassword = accountPassword;
+    }
+
+    public String getAccountKeyIndex() {
+        return accountKeyIndex;
+    }
+
+    public void setAccountKeyIndex(String accountKeyIndex) {
+        this.accountKeyIndex = accountKeyIndex;
     }
 
     @Override
