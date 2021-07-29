@@ -25,7 +25,7 @@ ext {
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
     webankJavaCryptoVersion = "1.0.0"
-    webankHsmCryptoVersion = "1.0.0-008-SNAPSHOT"
+    webankHsmCryptoVersion = "1.0.0"
 
     slf4jVersion = "1.7.30"
     junitVersion = "4.12"
