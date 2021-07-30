@@ -25,7 +25,7 @@ public class TransactionData {
     @TarsStructProperty(order = 5, isRequire = true)
     public String nonce = "";
     @TarsStructProperty(order = 6, isRequire = false)
-    public byte[] to = null;
+    public String to = "";
     @TarsStructProperty(order = 7, isRequire = true)
     public byte[] input = null;
 
@@ -69,11 +69,11 @@ public class TransactionData {
         this.nonce = nonce;
     }
 
-    public byte[] getTo() {
+    public String getTo() {
         return this.to;
     }
 
-    public void setTo(byte[] to) {
+    public void setTo(String to) {
         this.to = to;
     }
 
@@ -88,7 +88,7 @@ public class TransactionData {
     public TransactionData() {
     }
 
-    public TransactionData(int version, String chainID, String groupID, long blockLimit, String nonce, byte[] to, byte[] input) {
+    public TransactionData(int version, String chainID, String groupID, long blockLimit, String nonce, String to, byte[] input) {
         this.version = version;
         this.chainID = chainID;
         this.groupID = groupID;
@@ -194,20 +194,12 @@ public class TransactionData {
         _os.write(this.input, 7);
     }
 
-    static byte[] cache_to;
-
-    static {
-        cache_to = new byte[1];
-        byte var_1 = (byte) 0;
-        cache_to[0] = var_1;
-    }
-
     static byte[] cache_input;
 
     static {
         cache_input = new byte[1];
-        byte var_2 = (byte) 0;
-        cache_input[0] = var_2;
+        byte var_1 = (byte) 0;
+        cache_input[0] = var_1;
     }
 
     public void readFrom(TarsInputStream _is) {
@@ -216,8 +208,10 @@ public class TransactionData {
         this.groupID = _is.readString(3, true);
         this.blockLimit = _is.read(this.blockLimit, 4, true);
         this.nonce = _is.readString(5, true);
-        this.to = (byte[]) _is.read(cache_to, 6, false);
+        this.to = _is.readString(6, false);
         this.input = (byte[]) _is.read(cache_input, 7, true);
     }
+
 }
+
 

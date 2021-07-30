@@ -22,16 +22,12 @@ public class TransactionReceipt {
     private String transactionIndex;
     private String root;
     private String blockNumber;
-    private String blockHash;
     private String from;
     private String to;
     private String gasUsed;
     private String contractAddress;
-    private List<Logs> logs;
-    private String logsBloom;
+    private List<Logs> logEntries;
     private Integer status;
-    // the node returned status message corresponding to the status
-    private String statusMsg;
     private String input;
     private String output;
     private List<MerkleProofUnit> txProof;
@@ -159,14 +155,6 @@ public class TransactionReceipt {
         this.blockNumber = blockNumber;
     }
 
-    public String getBlockHash() {
-        return this.blockHash;
-    }
-
-    public void setBlockHash(String blockHash) {
-        this.blockHash = blockHash;
-    }
-
     public String getFrom() {
         return this.from;
     }
@@ -200,19 +188,11 @@ public class TransactionReceipt {
     }
 
     public List<Logs> getLogs() {
-        return this.logs;
+        return this.logEntries;
     }
 
     public void setLogs(List<Logs> logs) {
-        this.logs = logs;
-    }
-
-    public String getLogsBloom() {
-        return this.logsBloom;
-    }
-
-    public void setLogsBloom(String logsBloom) {
-        this.logsBloom = logsBloom;
+        this.logEntries = logs;
     }
 
     public Integer getStatus() {
@@ -256,26 +236,16 @@ public class TransactionReceipt {
                 && Objects.equals(this.transactionIndex, that.transactionIndex)
                 && Objects.equals(this.root, that.root)
                 && Objects.equals(this.blockNumber, that.blockNumber)
-                && Objects.equals(this.blockHash, that.blockHash)
                 && Objects.equals(this.from, that.from)
                 && Objects.equals(this.to, that.to)
                 && Objects.equals(this.gasUsed, that.gasUsed)
                 && Objects.equals(this.contractAddress, that.contractAddress)
-                && Objects.equals(this.logs, that.logs)
-                && Objects.equals(this.logsBloom, that.logsBloom)
+                && Objects.equals(this.logEntries, that.logEntries)
                 && Objects.equals(this.status, that.status)
                 && Objects.equals(this.input, that.input)
                 && Objects.equals(this.output, that.output)
                 && Objects.equals(this.txProof, that.txProof)
                 && Objects.equals(this.receiptProof, that.receiptProof);
-    }
-
-    public String getStatusMsg() {
-        return this.statusMsg;
-    }
-
-    public void setStatusMsg(String statusMsg) {
-        this.statusMsg = statusMsg;
     }
 
     @Override
@@ -285,13 +255,11 @@ public class TransactionReceipt {
                 this.transactionIndex,
                 this.root,
                 this.blockNumber,
-                this.blockHash,
                 this.from,
                 this.to,
                 this.gasUsed,
                 this.contractAddress,
-                this.logs,
-                this.logsBloom,
+                this.logEntries,
                 this.status,
                 this.input,
                 this.output,
@@ -314,9 +282,6 @@ public class TransactionReceipt {
                 + ", blockNumber='"
                 + this.blockNumber
                 + '\''
-                + ", blockHash='"
-                + this.blockHash
-                + '\''
                 + ", from='"
                 + this.from
                 + '\''
@@ -330,15 +295,9 @@ public class TransactionReceipt {
                 + this.contractAddress
                 + '\''
                 + ", logs="
-                + this.logs
-                + ", logsBloom='"
-                + this.logsBloom
-                + '\''
+                + this.logEntries
                 + ", status='"
                 + this.status
-                + '\''
-                + ", statusMsg='"
-                + this.statusMsg
                 + '\''
                 + ", input='"
                 + this.input

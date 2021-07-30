@@ -692,9 +692,6 @@ public class ResponseTest {
         BcosTransactionReceipt transactionReceipt =
                 objectMapper.readValue(receiptStr, BcosTransactionReceipt.class);
         Assert.assertEquals(
-                "0x977efec48c248ea4be87016446b40d7785d7b71b7d4e3aa0b103b9cf0f5fe19e",
-                transactionReceipt.getTransactionReceipt().getBlockHash());
-        Assert.assertEquals(
                 "0xa", transactionReceipt.getTransactionReceipt().getBlockNumber());
         Assert.assertEquals(
                 "0x0000000000000000000000000000000000000000",
@@ -847,10 +844,6 @@ public class ResponseTest {
                         .get(1)
                         .getRight()
                         .get(0));
-        // check receipt
-        Assert.assertEquals(
-                "0xcd31b05e466bce99460b1ed70d6069fdfbb15e6eef84e9b9e4534358edb3899a",
-                receiptWithProof.getTransactionReceipt().getBlockHash());
         Assert.assertEquals(
                 "0x5",
                 receiptWithProof.getTransactionReceipt().getBlockNumber());

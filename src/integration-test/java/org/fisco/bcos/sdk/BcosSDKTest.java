@@ -112,8 +112,8 @@ public class BcosSDKTest {
             String s = helloWorld.get();
             System.out.println("helloworld get :" + s);
             TransactionReceipt receipt = helloWorld.set("fisco hello");
-            System.out.println("helloworld set :" + "fisco hello, status=" + receipt.getStatus());
-
+            System.out.println("helloworld set : fisco hello, status=" + receipt.getStatus());
+            System.out.println(receipt);
             // getTransaction
             BcosTransaction transaction = client.getTransaction(receipt.getTransactionHash());
             System.out.println("getTransaction :" + transaction.getTransaction());

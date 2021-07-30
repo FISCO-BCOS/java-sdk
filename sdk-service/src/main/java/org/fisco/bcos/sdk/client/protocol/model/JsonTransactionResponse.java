@@ -208,7 +208,7 @@ public class JsonTransactionResponse {
                             this.groupId,
                             this.blockLimit,
                             this.nonce,
-                            this.to.getBytes(),
+                            this.to,
                             Base64.getDecoder().decode(this.input));
             TarsOutputStream tarsOutputStream = new TarsOutputStream();
             rawTransaction.writeTo(tarsOutputStream);
