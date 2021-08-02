@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.network.Connection;
 import org.fisco.bcos.sdk.network.HttpConnection;
+import org.fisco.bcos.sdk.network.NetworkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +42,13 @@ public interface Client {
      * @param endpoint the connection info
      * @return a client instance
      */
-    static Client build(String endpoint, ConfigOption config) {
+    static Client build(String endpoint, ConfigOption configOption) throws NetworkException {
         HttpConnection connection = new HttpConnection(endpoint);
-        return new ClientImpl(connection, config);
+//        WebSocketConnection = new WebSocketConnection(configOption);
+        if (!connection.connect()) {
+            throw new NetworkException("try connect to " + endpoint + " failed");
+        }
+        return new ClientImpl(connection, configOption);
     }
 
     /**
@@ -221,9 +226,10 @@ public interface Client {
      * Ledger operation: get trnasaction by hash
      *
      * @param transactionHash the hashcode of transaction
+     * @param withProof       with the transaction proof
      * @return transaction
      */
-    BcosTransaction getTransaction(String transactionHash);
+    BcosTransaction getTransaction(String transactionHash, Boolean withProof);
 
     /**
      * Ledger operation: async get trnasaction by hash
@@ -231,7 +237,7 @@ public interface Client {
      * @param transactionHash the hashcode of transaction
      * @param callback        the callback that will be called when receive the response
      */
-    void getTransactionAsync(String transactionHash, RespCallback<BcosTransaction> callback);
+    void getTransactionAsync(String transactionHash, Boolean withProof, RespCallback<BcosTransaction> callback);
 
     /**
      * Ledger operation: get transaction receipt by transaction hash
@@ -239,7 +245,7 @@ public interface Client {
      * @param transactionHash the hashcode of transaction
      * @return transaction receipt
      */
-    BcosTransactionReceipt getTransactionReceipt(String transactionHash);
+    BcosTransactionReceipt getTransactionReceipt(String transactionHash, Boolean withProof);
 
     /**
      * Ledger operation: async get transaction receipt by transaction hash
@@ -248,7 +254,7 @@ public interface Client {
      * @param callback        the callback that will be called when receive the response
      */
     void getTransactionReceiptAsync(
-            String transactionHash, RespCallback<BcosTransactionReceipt> callback);
+            String transactionHash, Boolean withProof, RespCallback<BcosTransactionReceipt> callback);
 
     /**
      * Ledger operation: get pending transaction size

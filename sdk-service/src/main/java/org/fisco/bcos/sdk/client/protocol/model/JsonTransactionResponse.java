@@ -17,11 +17,13 @@ package org.fisco.bcos.sdk.client.protocol.model;
 import com.qq.tars.protocol.tars.TarsOutputStream;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.model.MerkleProofUnit;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Objects;
 
 public class JsonTransactionResponse {
@@ -37,85 +39,18 @@ public class JsonTransactionResponse {
     private String input;
     private String chainId;
     private String groupId;
-    private SignatureResponse signature;
+    private String signature;
+    private List<MerkleProofUnit> transactionProof;
 
     public JsonTransactionResponse() {
     }
 
-    public static class SignatureResponse {
-        private String r;
-        private String s;
-        private String v;
-        private String signature;
+    public List<MerkleProofUnit> getTransactionProof() {
+        return this.transactionProof;
+    }
 
-        public SignatureResponse() {
-        }
-
-        public String getR() {
-            return this.r;
-        }
-
-        public void setR(String r) {
-            this.r = r;
-        }
-
-        public String getS() {
-            return this.s;
-        }
-
-        public void setS(String s) {
-            this.s = s;
-        }
-
-        public String getV() {
-            return this.v;
-        }
-
-        public void setV(String v) {
-            this.v = v;
-        }
-
-        public String getSignature() {
-            return this.signature;
-        }
-
-        public void setSignature(String signature) {
-            this.signature = signature;
-        }
-
-        @Override
-        public String toString() {
-            return "{"
-                    + "r='"
-                    + this.r
-                    + '\''
-                    + ", s='"
-                    + this.s
-                    + '\''
-                    + ", v='"
-                    + this.v
-                    + '\''
-                    + ", signature='"
-                    + this.signature
-                    + '\''
-                    + '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || this.getClass() != o.getClass()) return false;
-            SignatureResponse that = (SignatureResponse) o;
-            return Objects.equals(this.r, that.r)
-                    && Objects.equals(this.s, that.s)
-                    && Objects.equals(this.v, that.v)
-                    && Objects.equals(this.signature, that.signature);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.r, this.s, this.v, this.signature);
-        }
+    public void setTransactionProof(List<MerkleProofUnit> transactionProof) {
+        this.transactionProof = transactionProof;
     }
 
     public String getVersion() {
@@ -190,11 +125,11 @@ public class JsonTransactionResponse {
         this.groupId = groupId;
     }
 
-    public SignatureResponse getSignature() {
+    public String getSignature() {
         return this.signature;
     }
 
-    public void setSignature(SignatureResponse signature) {
+    public void setSignature(String signature) {
         this.signature = signature;
     }
 
@@ -233,6 +168,7 @@ public class JsonTransactionResponse {
         return Objects.equals(this.version, that.version)
                 && Objects.equals(this.from, that.from)
                 && Objects.equals(this.hash, that.hash)
+                && Objects.equals(this.transactionProof, that.transactionProof)
                 && Objects.equals(this.input, that.input)
                 && Objects.equals(this.nonce, that.nonce)
                 && Objects.equals(this.to, that.to)
@@ -286,6 +222,9 @@ public class JsonTransactionResponse {
                 + '\''
                 + ", groupId='"
                 + this.groupId
+                + '\''
+                + ", transactionProof='"
+                + this.transactionProof
                 + '\''
                 + ", signature="
                 + this.signature

@@ -19,8 +19,7 @@ import java.util.Objects;
 
 public class TransactionReceipt {
     private String transactionHash;
-    private String transactionIndex;
-    private String root;
+    private String version;
     private String blockNumber;
     private String from;
     private String to;
@@ -30,7 +29,7 @@ public class TransactionReceipt {
     private Integer status;
     private String input;
     private String output;
-    private List<MerkleProofUnit> txProof;
+    private List<MerkleProofUnit> transactionProof;
     private List<MerkleProofUnit> receiptProof;
     private String message;
 
@@ -132,19 +131,11 @@ public class TransactionReceipt {
     }
 
     public String getTransactionIndex() {
-        return this.transactionIndex;
+        return this.version;
     }
 
     public void setTransactionIndex(String transactionIndex) {
-        this.transactionIndex = transactionIndex;
-    }
-
-    public String getRoot() {
-        return this.root;
-    }
-
-    public void setRoot(String root) {
-        this.root = root;
+        this.version = this.version;
     }
 
     public String getBlockNumber() {
@@ -219,12 +210,12 @@ public class TransactionReceipt {
         this.output = output;
     }
 
-    public List<MerkleProofUnit> getTxProof() {
-        return this.txProof;
+    public List<MerkleProofUnit> getTransactionProof() {
+        return this.transactionProof;
     }
 
-    public void setTxProof(List<MerkleProofUnit> txProof) {
-        this.txProof = txProof;
+    public void setTransactionProof(List<MerkleProofUnit> transactionProof) {
+        this.transactionProof = transactionProof;
     }
 
     @Override
@@ -233,8 +224,7 @@ public class TransactionReceipt {
         if (o == null || this.getClass() != o.getClass()) return false;
         TransactionReceipt that = (TransactionReceipt) o;
         return Objects.equals(this.transactionHash, that.transactionHash)
-                && Objects.equals(this.transactionIndex, that.transactionIndex)
-                && Objects.equals(this.root, that.root)
+                && Objects.equals(this.version, that.version)
                 && Objects.equals(this.blockNumber, that.blockNumber)
                 && Objects.equals(this.from, that.from)
                 && Objects.equals(this.to, that.to)
@@ -244,7 +234,7 @@ public class TransactionReceipt {
                 && Objects.equals(this.status, that.status)
                 && Objects.equals(this.input, that.input)
                 && Objects.equals(this.output, that.output)
-                && Objects.equals(this.txProof, that.txProof)
+                && Objects.equals(this.transactionProof, that.transactionProof)
                 && Objects.equals(this.receiptProof, that.receiptProof);
     }
 
@@ -252,8 +242,7 @@ public class TransactionReceipt {
     public int hashCode() {
         return Objects.hash(
                 this.transactionHash,
-                this.transactionIndex,
-                this.root,
+                this.version,
                 this.blockNumber,
                 this.from,
                 this.to,
@@ -263,7 +252,7 @@ public class TransactionReceipt {
                 this.status,
                 this.input,
                 this.output,
-                this.txProof,
+                this.transactionProof,
                 this.receiptProof);
     }
 
@@ -273,11 +262,8 @@ public class TransactionReceipt {
                 + "transactionHash='"
                 + this.transactionHash
                 + '\''
-                + ", transactionIndex='"
-                + this.transactionIndex
-                + '\''
-                + ", root='"
-                + this.root
+                + ", version='"
+                + this.version
                 + '\''
                 + ", blockNumber='"
                 + this.blockNumber
@@ -305,8 +291,8 @@ public class TransactionReceipt {
                 + ", output='"
                 + this.output
                 + '\''
-                + ", txProof="
-                + this.txProof
+                + ", transactionProof="
+                + this.transactionProof
                 + ", receiptProof="
                 + this.receiptProof
                 + '}';

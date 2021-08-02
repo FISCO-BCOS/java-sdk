@@ -115,13 +115,16 @@ public class BcosSDKTest {
             System.out.println("helloworld set : fisco hello, status=" + receipt.getStatus());
             System.out.println(receipt);
             // getTransaction
-            BcosTransaction transaction = client.getTransaction(receipt.getTransactionHash());
+            BcosTransaction transaction = client.getTransaction(receipt.getTransactionHash(), true);
+            Assert.assertTrue(transaction.getTransaction().isPresent());
             System.out.println("getTransaction :" + transaction.getTransaction());
             // getTransactionReceipt
-            BcosTransactionReceipt receipt1 = client.getTransactionReceipt(receipt.getTransactionHash());
+            BcosTransactionReceipt receipt1 = client.getTransactionReceipt(receipt.getTransactionHash(), true);
+            Assert.assertTrue(receipt1.getTransactionReceipt().isPresent());
             System.out.println("getTransactionReceipt :" + receipt1.getTransactionReceipt());
             // getCode
             Code code = client.getCode(helloWorld.getContractAddress());
+            Assert.assertNotNull(code.getResult());
             System.out.println("getCode :" + code.getCode());
             s = helloWorld.get();
             System.out.println("helloworld get :" + s);

@@ -62,7 +62,6 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         this.handshaker.handshake(ctx.channel());
     }
 
-
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         try {
@@ -83,24 +82,6 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
 
         } catch (Exception e) {
             logger.error("error ", e);
-        }
-    }
-
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        final ChannelHandlerContext ctxF = ctx;
-        final Message in = (Message) msg;
-
-        if (this.msgHandleThreadPool == null) {
-            this.msgHandler.onMessage(ctxF, in);
-        } else {
-            this.msgHandleThreadPool.execute(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            WebSocketHandler.this.msgHandler.onMessage(ctxF, in);
-                        }
-                    });
         }
     }
 
@@ -127,6 +108,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         }
 
         WebSocketFrame frame = (WebSocketFrame) msg;
+
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
             System.out.println("WebSocket Client received message: " + textFrame.text());
@@ -136,7 +118,13 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
             BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) frame;
             ByteBuf content = binaryWebSocketFrame.content();
             Message message = new Message(content);
-            this.msgHandler.onMessage(ctx, message);
+            if (this.msgHandleThreadPool == null) {
+                this.msgHandler.onMessage(ctx, message);
+            } else {
+                this.msgHandleThreadPool.execute(
+                        () -> WebSocketHandler.this.msgHandler.onMessage(ctx, message));
+            }
+
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
             ch.close();

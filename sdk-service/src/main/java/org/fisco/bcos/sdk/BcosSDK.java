@@ -18,6 +18,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.network.NetworkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,7 @@ public class BcosSDK {
                 this.groupToClient.put(client.getGroupId(), client);
             }
             logger.info("create BcosSDK, create connection success");
-        } catch (ChannelException e) {
+        } catch (ChannelException | NetworkException e) {
             this.stopAll();
             throw new BcosSDKException("create BcosSDK failed, error info: " + e.getMessage(), e);
         }

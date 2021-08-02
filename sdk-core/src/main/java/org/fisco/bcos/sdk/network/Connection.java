@@ -17,12 +17,6 @@ public interface Connection {
     Boolean connect();
 
     /**
-     * @return true if connected
-     * @description connect to node
-     */
-    Boolean reConnect();
-
-    /**
      * call rpc method
      *
      * @param request jsonrpc format string

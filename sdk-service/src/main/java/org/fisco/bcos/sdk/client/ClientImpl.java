@@ -129,7 +129,7 @@ public class ClientImpl implements Client {
                 new RespCallback<BcosTransactionReceipt>() {
                     @Override
                     public void onResponse(BcosTransactionReceipt transactionReceiptWithProof) {
-                        callback.onResponse(transactionReceiptWithProof.getTransactionReceipt());
+                        callback.onResponse(transactionReceiptWithProof.getTransactionReceipt().get());
                     }
 
                     @Override
@@ -270,17 +270,17 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public BcosTransaction getTransaction(String transactionHash) {
+    public BcosTransaction getTransaction(String transactionHash, Boolean withProof) {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_TRANSACTION_BY_HASH,
-                        Arrays.asList(transactionHash)),
+                        Arrays.asList(transactionHash, withProof)),
                 BcosTransaction.class);
     }
 
     @Override
     public void getTransactionAsync(
-            String transactionHash, RespCallback<BcosTransaction> callback) {
+            String transactionHash, Boolean withProof, RespCallback<BcosTransaction> callback) {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_TRANSACTION_BY_HASH,
@@ -290,7 +290,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public BcosTransactionReceipt getTransactionReceipt(String transactionHash) {
+    public BcosTransactionReceipt getTransactionReceipt(String transactionHash, Boolean withProof) {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_TRANSACTIONRECEIPT,
@@ -300,7 +300,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getTransactionReceiptAsync(
-            String transactionHash, RespCallback<BcosTransactionReceipt> callback) {
+            String transactionHash, Boolean withProof, RespCallback<BcosTransactionReceipt> callback) {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_TRANSACTIONRECEIPT,
@@ -497,7 +497,6 @@ public class ClientImpl implements Client {
             throw new ClientException(
                     "callRemoteMethod failed for select peers to send message failed, please make sure that the group exists");
         }
-        // System.out.println("Executing response: " + response);
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
 

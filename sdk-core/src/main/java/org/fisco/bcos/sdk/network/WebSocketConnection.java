@@ -197,8 +197,73 @@ public class WebSocketConnection implements Connection {
         return true;
     }
 
-    @Override
-    public Boolean reConnect() {
+    private class CheckCertExistenceResult {
+        private boolean checkPassed = true;
+        private String errorMessage = "";
+
+        public boolean isCheckPassed() {
+            return this.checkPassed;
+        }
+
+        public void setCheckPassed(boolean checkPassed) {
+            this.checkPassed = checkPassed;
+        }
+
+        public String getErrorMessage() {
+            return this.errorMessage;
+        }
+
+        public void setErrorMessage(String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+    }
+
+    private CheckCertExistenceResult checkCertExistence(boolean isSM) {
+
+        CheckCertExistenceResult result = new CheckCertExistenceResult();
+        result.setCheckPassed(true);
+        String errorMessage = "";
+        errorMessage = errorMessage + "Please make sure ";
+        if (!new File(this.configOption.getCryptoMaterialConfig().getCaCertPath()).exists()) {
+            result.setCheckPassed(false);
+            errorMessage =
+                    errorMessage + this.configOption.getCryptoMaterialConfig().getCaCertPath() + " ";
+        }
+        if (!new File(this.configOption.getCryptoMaterialConfig().getSdkCertPath()).exists()) {
+            result.setCheckPassed(false);
+            errorMessage =
+                    errorMessage + this.configOption.getCryptoMaterialConfig().getSdkCertPath() + " ";
+        }
+        if (!new File(this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()).exists()) {
+            result.setCheckPassed(false);
+            errorMessage =
+                    errorMessage
+                            + this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()
+                            + " ";
+        }
+        if (!isSM) {
+            errorMessage = errorMessage + "exists!";
+            result.setErrorMessage(errorMessage);
+            return result;
+        }
+        if (!new File(this.configOption.getCryptoMaterialConfig().getEnSSLCertPath()).exists()) {
+            errorMessage =
+                    errorMessage + this.configOption.getCryptoMaterialConfig().getEnSSLCertPath() + " ";
+            result.setCheckPassed(false);
+        }
+        if (!new File(this.configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()).exists()) {
+            errorMessage =
+                    errorMessage
+                            + this.configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()
+                            + " ";
+            result.setCheckPassed(false);
+        }
+        errorMessage = errorMessage + "exist!";
+        result.setErrorMessage(errorMessage);
+        return result;
+    }
+
+    public Boolean doConnect() {
         // TODO: implement reconnect
         return true;
     }

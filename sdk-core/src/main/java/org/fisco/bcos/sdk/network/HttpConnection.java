@@ -47,10 +47,6 @@ public class HttpConnection implements Connection {
         return true;
     }
 
-    @Override
-    public Boolean reConnect() {
-        return true;
-    }
 
     @Override
     public String callMethod(String request) throws IOException {
@@ -61,7 +57,6 @@ public class HttpConnection implements Connection {
                     new InputStreamEntity(
                             new ByteArrayInputStream(request.getBytes()), -1, ContentType.APPLICATION_JSON);
             httppost.setEntity(reqEntity);
-            // System.out.println("Executing request: " + request);
             try (final CloseableHttpResponse response = httpclient.execute(httppost)) {
                 return EntityUtils.toString(response.getEntity());
             }

@@ -49,7 +49,7 @@ public class TransactionPusherService implements TransactionPusherInterface {
 
     @Override
     public TransactionReceipt push(String signedTransaction) {
-        return this.client.sendTransaction(signedTransaction, false).getTransactionReceipt();
+        return this.client.sendTransaction(signedTransaction, false).getTransactionReceipt().get();
     }
 
     @Override

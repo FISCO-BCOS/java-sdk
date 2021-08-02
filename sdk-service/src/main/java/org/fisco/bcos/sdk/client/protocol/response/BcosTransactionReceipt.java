@@ -25,13 +25,14 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * getTransactionReceipt.
  */
 public class BcosTransactionReceipt extends JsonRpcResponse<TransactionReceipt> {
-    public TransactionReceipt getTransactionReceipt() {
-        return this.getResult();
+    public Optional<TransactionReceipt> getTransactionReceipt() {
+        return Optional.ofNullable(this.getResult());
     }
 
     public static class ResponseDeserialiser extends JsonDeserializer<TransactionReceipt> {
