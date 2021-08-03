@@ -30,9 +30,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebSocketConnection implements Connection {
@@ -50,7 +51,7 @@ public class WebSocketConnection implements Connection {
     private SslContext sslCtx;
     private URI uri;
     private final String scheme = "ws://";
-    private final Timer timer = new Timer();
+    private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
     private final int connectInterval = 1000; // milliseconds
 
 
@@ -166,25 +167,6 @@ public class WebSocketConnection implements Connection {
 //            logger.error("initSslContext failed, error: {}, e: {}", e.getMessage(), e);
 //            return false;
 //        }
-    
-        return doConnect();
-    }
-
-
-    private void scheduleConnect() {
-        this.timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                WebSocketConnection.this.doConnect();
-            }
-        }, this.connectInterval);
-    }
-
-    public Boolean doConnect() {
-        if (!this.isRunning.get()) {
-            logger.info("the connection is stopped");
-            return false;
-        }
         WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(this.uri,
                 WebSocketVersion.V13, null,
                 false, new DefaultHttpHeaders());
@@ -206,6 +188,24 @@ public class WebSocketConnection implements Connection {
                                 WebSocketConnection.this.handler);
                     }
                 });
+        return this.doConnect();
+    }
+
+
+    private void scheduleConnect() {
+        this.scheduledExecutorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                WebSocketConnection.this.doConnect();
+            }
+        }, this.connectInterval, TimeUnit.MILLISECONDS);
+    }
+
+    public Boolean doConnect() {
+        if (!this.isRunning.get()) {
+            logger.info("the connection is stopped");
+            return false;
+        }
         // reconnect
         ChannelFuture f = this.bootstrap.connect(this.uri.getHost(), this.uri.getPort());
         f.addListener(new ChannelFutureListener() {
@@ -214,17 +214,13 @@ public class WebSocketConnection implements Connection {
                 if (!future.isSuccess()) {//if is not successful, reconnect
                     future.channel().close();
                     WebSocketConnection.this.bootstrap.connect(WebSocketConnection.this.uri.getHost(), WebSocketConnection.this.uri.getPort()).addListener(this);
-                } else {//good, the connection is ok
+                } else {
                     WebSocketConnection.this.channel = future.channel();
                     //add a listener to detect the connection lost
-                    WebSocketConnection.this.channel.closeFuture().addListener(new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            WebSocketConnection.logger.warn("connection lost, try to recconnnect to " + WebSocketConnection.this.uri);
-                            WebSocketConnection.this.scheduleConnect();
-                        }
+                    WebSocketConnection.this.channel.closeFuture().addListener((ChannelFutureListener) future1 -> {
+                        WebSocketConnection.logger.warn("connection lost, try to recconnnect to " + WebSocketConnection.this.uri);
+                        WebSocketConnection.this.scheduleConnect();
                     });
-
                 }
             }
         });

@@ -64,6 +64,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         System.out.println("WebSocket Client disconnected!");
+        ctx.channel().close();
     }
 
     @Override
@@ -106,6 +107,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
             }
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received close frame");
+            this.msgHandler.onDisconnect(ctx);
             ch.close();
         } else {
             logger.warn("WebSocket received unknown frame");

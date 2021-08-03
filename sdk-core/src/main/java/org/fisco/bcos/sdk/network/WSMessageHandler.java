@@ -113,5 +113,6 @@ public class WSMessageHandler implements MsgHandler {
     @Override
     public void onDisconnect(ChannelHandlerContext ctx) {
         logger.debug("onDisconnect in ChannelMsgHandler called, host:{}", ctx.channel().remoteAddress());
+        // FIXME: clear all callback
     }
 }
