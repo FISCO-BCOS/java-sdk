@@ -18,7 +18,6 @@ package org.fisco.bcos.sdk.network;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
@@ -64,25 +63,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        try {
-            // lost the connection, get ip info
-            // TODO: reconnect
-            String host =
-                    ((SocketChannel) ctx.channel()).remoteAddress().getAddress().getHostAddress();
-            Integer port = ((SocketChannel) ctx.channel()).remoteAddress().getPort();
-
-            logger.debug(
-                    " channelInactive, disconnect "
-                            + host
-                            + ":"
-                            + String.valueOf(port)
-                            + " ,"
-                            + String.valueOf(ctx.channel().isActive()));
-            this.msgHandler.onDisconnect(ctx);
-
-        } catch (Exception e) {
-            logger.error("error ", e);
-        }
+        System.out.println("WebSocket Client disconnected!");
     }
 
     @Override
@@ -108,7 +89,6 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         }
 
         WebSocketFrame frame = (WebSocketFrame) msg;
-
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
             System.out.println("WebSocket Client received message: " + textFrame.text());
@@ -124,9 +104,8 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
                 this.msgHandleThreadPool.execute(
                         () -> WebSocketHandler.this.msgHandler.onMessage(ctx, message));
             }
-
         } else if (frame instanceof CloseWebSocketFrame) {
-            logger.debug("WebSocket Client received closing");
+            logger.debug("WebSocket Client received close frame");
             ch.close();
         } else {
             logger.warn("WebSocket received unknown frame");

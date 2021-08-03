@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
+import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcMethods;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
@@ -46,20 +47,20 @@ public class ClientImpl implements Client {
     private final Boolean wasm;
     private final Boolean smCrypto;
     private final CryptoSuite cryptoSuite;
-    private final NodeInfo nodeInfo;
+    private final NodeInfoResponse nodeInfoResponse;
     private final Connection connection;
 
     protected ClientImpl(Connection connection, ConfigOption configOption) {
         this.connection = connection;
         // get node info by call getNodeInfo
-        this.nodeInfo =
+        this.nodeInfoResponse =
                 this.callRemoteMethod(
                         new JsonRpcRequest(JsonRpcMethods.GET_NODE_INFO, Arrays.asList()),
-                        NodeInfo.class);
-        this.chainId = this.nodeInfo.getNodeInfo().getChainId();
-        this.groupId = this.nodeInfo.getNodeInfo().getGroupId();
-        this.wasm = this.nodeInfo.getNodeInfo().getWasm();
-        this.smCrypto = this.nodeInfo.getNodeInfo().getSmCrypto();
+                        NodeInfoResponse.class);
+        this.chainId = this.nodeInfoResponse.getNodeInfo().getChainId();
+        this.groupId = this.nodeInfoResponse.getNodeInfo().getGroupId();
+        this.wasm = this.nodeInfoResponse.getNodeInfo().getWasm();
+        this.smCrypto = this.nodeInfoResponse.getNodeInfo().getSmCrypto();
         if (this.smCrypto) {
             this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
         } else {
@@ -73,7 +74,7 @@ public class ClientImpl implements Client {
         this.groupId = null;
         this.chainId = null;
         this.cryptoSuite = null;
-        this.nodeInfo = null;
+        this.nodeInfoResponse = null;
         this.connection = null;
         this.wasm = false;
         this.smCrypto = null;
@@ -90,8 +91,8 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public NodeInfo.NodeInformation getNodeInfo() {
-        return this.nodeInfo.getNodeInfo();
+    public NodeInfo getNodeInfo() {
+        return this.nodeInfoResponse.getNodeInfo();
     }
 
     @Override

@@ -17,6 +17,7 @@
 
 package org.fisco.bcos.sdk;
 
+import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
@@ -86,8 +87,8 @@ public class BcosSDKTest {
         System.out.println(peers.getPeers());
 
         // get NodeInfo
-        NodeInfo.NodeInformation nodeInfo = client.getNodeInfo();
-        System.out.println(nodeInfo);
+        NodeInfo NodeInfo = client.getNodeInfo();
+        System.out.println(NodeInfo);
 
         // get getSyncStatus
         SyncStatus syncStatus = client.getSyncStatus();

@@ -1,12 +1,11 @@
 package org.fisco.bcos.sdk.network;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -15,46 +14,59 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
+import org.fisco.bcos.sdk.channel.model.ChannelHandshake;
+import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.utils.ChannelUtils;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.Security;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebSocketConnection implements Connection {
+    private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private static Logger logger = LoggerFactory.getLogger(WebSocketConnection.class);
     private ConfigOption configOption;
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
     private Bootstrap bootstrap = new Bootstrap();
     private Channel channel;
     private WebSocketHandler handler;
-    ChannelMsgHandler channelMsgHandler;
+    private AtomicBoolean isRunning;
+    WSMessageHandler channelMsgHandler;
+    private int protocolVersion;
+    private NodeInfo nodeInfo;
     private SslContext sslCtx;
-    private final String uri;
+    private URI uri;
+    private final String scheme = "ws://";
+    private final Timer timer = new Timer();
+    private final int connectInterval = 1000; // milliseconds
 
-    public WebSocketConnection(ConfigOption configOption) {
+
+    public WebSocketConnection(ConfigOption configOption, String endpoint) {
         this.configOption = configOption;
-        if (!configOption.getNetworkConfig().getPeers().get(0).startsWith("wss://")) {
-            this.uri = "wss://" + configOption.getNetworkConfig().getPeers().get(0);
+        String urlString;
+        if (!endpoint.startsWith(this.scheme)) {
+            urlString = this.scheme + endpoint;
         } else {
-            this.uri = configOption.getNetworkConfig().getPeers().get(0);
+            urlString = endpoint;
         }
-
+        try {
+            this.uri = new URI(urlString);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     // TODO: use promise ?
@@ -94,6 +106,7 @@ public class WebSocketConnection implements Connection {
      */
     @Override
     public void close() {
+        this.isRunning.set(false);
         try {
             this.workerGroup.shutdownGracefully().sync();
             if (this.channel != null) {
@@ -116,84 +129,114 @@ public class WebSocketConnection implements Connection {
      */
     @Override
     public Boolean connect() {
-        try {
-            Security.setProperty("jdk.disabled.namedCurves", "");
-            System.setProperty("jdk.sunec.disableNative", "false");
-            // Get file, file existence is already checked when check config file.
-            FileInputStream caCert =
-                    new FileInputStream(
-                            new File(this.configOption.getCryptoMaterialConfig().getCaCertPath()));
-            FileInputStream sslCert =
-                    new FileInputStream(
-                            new File(this.configOption.getCryptoMaterialConfig().getSdkCertPath()));
-            FileInputStream sslKey =
-                    new FileInputStream(
-                            new File(
-                                    this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
-            // Init SslContext
-            logger.info(" build ssl context with configured certificates ");
-            this.sslCtx =
-                    SslContextBuilder.forClient()
-                            .trustManager(caCert)
-                            .keyManager(sslCert, sslKey)
-                            .sslProvider(SslProvider.OPENSSL)
-                            // .sslProvider(SslProvider.JDK)
-                            .build();
-        } catch (FileNotFoundException | SSLException e) {
-            logger.error(
-                    "initSslContext failed, caCert: {}, sslCert: {}, sslKey: {}, error: {}, e: {}",
-                    this.configOption.getCryptoMaterialConfig().getCaCertPath(),
-                    this.configOption.getCryptoMaterialConfig().getSdkCertPath(),
-                    this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath(),
-                    e.getMessage(),
-                    e);
-            return false;
-        } catch (IllegalArgumentException e) {
-            logger.error("initSslContext failed, error: {}, e: {}", e.getMessage(), e);
+        this.isRunning = new AtomicBoolean(true);
+//        try {
+//            Security.setProperty("jdk.disabled.namedCurves", "");
+//            System.setProperty("jdk.sunec.disableNative", "false");
+//            // Get file, file existence is already checked when check config file.
+//            FileInputStream caCert =
+//                    new FileInputStream(
+//                            new File(this.configOption.getCryptoMaterialConfig().getCaCertPath()));
+//            FileInputStream sslCert =
+//                    new FileInputStream(
+//                            new File(this.configOption.getCryptoMaterialConfig().getSdkCertPath()));
+//            FileInputStream sslKey =
+//                    new FileInputStream(
+//                            new File(
+//                                    this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
+//            // Init SslContext
+//            logger.info(" build ssl context with configured certificates ");
+//            this.sslCtx =
+//                    SslContextBuilder.forClient()
+//                            .trustManager(caCert)
+//                            .keyManager(sslCert, sslKey)
+//                            .sslProvider(SslProvider.OPENSSL)
+//                            // .sslProvider(SslProvider.JDK)
+//                            .build();
+//        } catch (FileNotFoundException | SSLException e) {
+//            logger.error(
+//                    "initSslContext failed, caCert: {}, sslCert: {}, sslKey: {}, error: {}, e: {}",
+//                    this.configOption.getCryptoMaterialConfig().getCaCertPath(),
+//                    this.configOption.getCryptoMaterialConfig().getSdkCertPath(),
+//                    this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath(),
+//                    e.getMessage(),
+//                    e);
+//            return false;
+//        } catch (IllegalArgumentException e) {
+//            logger.error("initSslContext failed, error: {}, e: {}", e.getMessage(), e);
+//            return false;
+//        }
+    
+        return doConnect();
+    }
+
+
+    private void scheduleConnect() {
+        this.timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                WebSocketConnection.this.doConnect();
+            }
+        }, this.connectInterval);
+    }
+
+    public Boolean doConnect() {
+        if (!this.isRunning.get()) {
+            logger.info("the connection is stopped");
             return false;
         }
-        try {
-            URI uri = new URI(this.uri);
-            final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
-            final int port;
-            if (uri.getPort() == -1) {
-                port = 443;
-            } else {
-                port = uri.getPort();
-            }
-            WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(uri,
-                    WebSocketVersion.V13, null,
-                    false, new DefaultHttpHeaders());
-            this.channelMsgHandler = new ChannelMsgHandler();
-            this.handler = new WebSocketHandler(handshaker, this.channelMsgHandler);
-            this.bootstrap.group(this.workerGroup)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline p = ch.pipeline();
-                            p.addLast(WebSocketConnection.this.sslCtx.newHandler(ch.alloc(), host, port));
-                            p.addLast(
-                                    new HttpClientCodec(),
-                                    new HttpObjectAggregator(8192),
+        WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(this.uri,
+                WebSocketVersion.V13, null,
+                false, new DefaultHttpHeaders());
+        this.channelMsgHandler = new WSMessageHandler();
+        this.handler = new WebSocketHandler(handshaker, this.channelMsgHandler);
+        this.bootstrap.group(this.workerGroup)
+                .channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) {
+                        ChannelPipeline p = ch.pipeline();
+                        if (WebSocketConnection.this.sslCtx != null) {
+                            p.addLast(WebSocketConnection.this.sslCtx.newHandler(ch.alloc(), WebSocketConnection.this.uri.getHost(), WebSocketConnection.this.uri.getPort()));
+                        }
+                        p.addLast(
+                                new HttpClientCodec(),
+                                new HttpObjectAggregator(8192),
 //                                    WebSocketClientCompressionHandler.INSTANCE,
-                                    WebSocketConnection.this.handler);
+                                WebSocketConnection.this.handler);
+                    }
+                });
+        // reconnect
+        ChannelFuture f = this.bootstrap.connect(this.uri.getHost(), this.uri.getPort());
+        f.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (!future.isSuccess()) {//if is not successful, reconnect
+                    future.channel().close();
+                    WebSocketConnection.this.bootstrap.connect(WebSocketConnection.this.uri.getHost(), WebSocketConnection.this.uri.getPort()).addListener(this);
+                } else {//good, the connection is ok
+                    WebSocketConnection.this.channel = future.channel();
+                    //add a listener to detect the connection lost
+                    WebSocketConnection.this.channel.closeFuture().addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            WebSocketConnection.logger.warn("connection lost, try to recconnnect to " + WebSocketConnection.this.uri);
+                            WebSocketConnection.this.scheduleConnect();
                         }
                     });
-            //TODO: reconnect
-            this.channel = this.bootstrap.connect(host, port).sync().channel();
-//            this.channel.closeFuture().addListener(new ChannelFutureListener() {
-//                @Override
-//                public void operationComplete(ChannelFuture future) throws Exception {
-//
-//                }
-//            })
 
+                }
+            }
+        });
+        System.out.println("connecting :" + this.uri.getHost() + ":" + this.uri.getPort());
+        try {
+            this.channel = f.sync().channel();
             this.handler.handshakeFuture().sync();
-        } catch (URISyntaxException | InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException e) {
+            WebSocketConnection.logger.info("reconnect to {} failed, message:{}", WebSocketConnection.this.uri,
+                    e.getMessage());
+            this.scheduleConnect();
         }
-
         return true;
     }
 
@@ -263,11 +306,6 @@ public class WebSocketConnection implements Connection {
         return result;
     }
 
-    public Boolean doConnect() {
-        // TODO: implement reconnect
-        return true;
-    }
-
     /**
      * call rpc method
      *
@@ -277,20 +315,45 @@ public class WebSocketConnection implements Connection {
      */
     @Override
     public String callMethod(String request) throws IOException {
+        System.out.println("executing request:" + request);
         Callback callback = new Callback();
-        Message message = new Message((short) MsgType.RPC_REQUEST.ordinal(), ChannelUtils.newSeq(), request.getBytes());
+        Message message = new Message((short) MsgType.RPC_REQUEST.getType(), ChannelUtils.newSeq(), request.getBytes());
         // FIXME: complete message use request
         this.asyncSendMessage(message, callback);
         this.waitResponse(callback);
         if (callback.retResponse.getErrorCode() != 0) {
             // TODO: throw exception
         }
+        System.out.println("response : " + callback.retResponse.getContent());
         return callback.retResponse.getContent();
+    }
+
+    private Boolean handShake() {
+        Callback callback = new Callback();
+        ChannelHandshake channelHandshake = new ChannelHandshake();
+        try {
+            byte[] payload = this.objectMapper.writeValueAsBytes(channelHandshake);
+            Message message = new Message((short) MsgType.CLIENT_HANDSHAKE.getType(), ChannelUtils.newSeq(), payload);
+            this.asyncSendMessage(message, callback);
+            this.waitResponse(callback);
+            if (callback.retResponse.getErrorCode() != 0) {
+                // TODO: throw exception
+                return false;
+            }
+            this.nodeInfo = this.objectMapper.readValue(callback.retResponse.getContent(),
+                    NodeInfo.class);
+            System.out.println(this.nodeInfo);
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String getUri() {
-        return this.uri;
+        return this.uri.toString();
     }
 
     private void waitResponse(Callback callback) {
@@ -311,7 +374,7 @@ public class WebSocketConnection implements Connection {
      */
     @Override
     public void asyncCallMethod(String request, ResponseCallback callback) throws IOException {
-        Message message = new Message((short) MsgType.RPC_REQUEST.ordinal(), ChannelUtils.newSeq(), request.getBytes());
+        Message message = new Message((short) MsgType.RPC_REQUEST.getType(), ChannelUtils.newSeq(), request.getBytes());
         this.asyncSendMessage(message, callback);
     }
 
