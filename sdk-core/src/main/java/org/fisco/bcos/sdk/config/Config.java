@@ -16,10 +16,10 @@
 package org.fisco.bcos.sdk.config;
 
 import com.moandjiezana.toml.Toml;
-import java.io.File;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.config.model.ConfigProperty;
-import org.fisco.bcos.sdk.model.CryptoType;
+
+import java.io.File;
 
 /**
  * Config is to load config file and verify.
@@ -27,22 +27,17 @@ import org.fisco.bcos.sdk.model.CryptoType;
  * @author Maggie
  */
 public class Config {
-    public static ConfigOption load(String tomlConfigFile) throws ConfigException {
-        // default load ECDSA config
-        return load(tomlConfigFile, CryptoType.ECDSA_TYPE);
-    }
     /**
      * @param tomlConfigFile the toml configuration file path
-     * @param cryptoType the type of crypto function
      * @return ConfigOption the configuration object
      * @throws ConfigException the configuration exception
      */
-    public static ConfigOption load(String tomlConfigFile, int cryptoType) throws ConfigException {
+    public static ConfigOption load(String tomlConfigFile) throws ConfigException {
         // Load a toml config file to an java object
         File configFile = new File(tomlConfigFile);
         try {
             ConfigProperty configProperty = new Toml().read(configFile).to(ConfigProperty.class);
-            ConfigOption configOption = new ConfigOption(configProperty, cryptoType);
+            ConfigOption configOption = new ConfigOption(configProperty);
             return configOption;
         } catch (Exception e) {
             throw new ConfigException(

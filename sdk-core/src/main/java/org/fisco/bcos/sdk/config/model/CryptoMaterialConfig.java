@@ -15,14 +15,17 @@
 
 package org.fisco.bcos.sdk.config.model;
 
-import java.io.File;
-import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Crypto material configuration, include certs and keys */
+import java.io.File;
+import java.util.Map;
+
+/**
+ * Crypto material configuration, include certs and keys
+ */
 public class CryptoMaterialConfig {
     private static Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
     private String certPath = "conf";
@@ -31,19 +34,26 @@ public class CryptoMaterialConfig {
     private String sdkPrivateKeyPath;
     private String enSSLCertPath;
     private String enSSLPrivateKeyPath;
-    private int sslCryptoType;
+    private Boolean useSmCrypto;
 
-    protected CryptoMaterialConfig() {}
+    protected CryptoMaterialConfig() {
+    }
 
-    public CryptoMaterialConfig(ConfigProperty configProperty, int cryptoType)
+    public CryptoMaterialConfig(ConfigProperty configProperty)
             throws ConfigException {
-        this.sslCryptoType = cryptoType;
+
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
+        this.useSmCrypto = (Boolean) cryptoMaterialProperty.get("useSMCrypto");
+        if (this.useSmCrypto == null) {
+            // TODO: if we require user to specific use sm crypto?
+            this.useSmCrypto = false;
+        }
+        int cryptoType = this.useSmCrypto ? CryptoType.SM_TYPE : CryptoType.ECDSA_TYPE;
         this.certPath =
                 ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(cryptoMaterialProperty, "certPath", this.certPath));
         CryptoMaterialConfig defaultCryptoMaterialConfig =
-                getDefaultCaCertPath(cryptoType, this.certPath);
+                this.getDefaultCaCertPath(cryptoType, this.certPath);
         this.caCertPath =
                 ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(
@@ -112,7 +122,7 @@ public class CryptoMaterialConfig {
     }
 
     public String getCertPath() {
-        return certPath;
+        return this.certPath;
     }
 
     public void setCertPath(String certPath) {
@@ -120,7 +130,7 @@ public class CryptoMaterialConfig {
     }
 
     public String getCaCertPath() {
-        return caCertPath;
+        return this.caCertPath;
     }
 
     public void setCaCertPath(String caCertPath) {
@@ -128,7 +138,7 @@ public class CryptoMaterialConfig {
     }
 
     public String getSdkCertPath() {
-        return sdkCertPath;
+        return this.sdkCertPath;
     }
 
     public void setSdkCertPath(String sdkCertPath) {
@@ -136,7 +146,7 @@ public class CryptoMaterialConfig {
     }
 
     public String getSdkPrivateKeyPath() {
-        return sdkPrivateKeyPath;
+        return this.sdkPrivateKeyPath;
     }
 
     public void setSdkPrivateKeyPath(String sdkPrivateKeyPath) {
@@ -144,7 +154,7 @@ public class CryptoMaterialConfig {
     }
 
     public String getEnSSLCertPath() {
-        return enSSLCertPath;
+        return this.enSSLCertPath;
     }
 
     public void setEnSSLCertPath(String enSSLCertPath) {
@@ -152,44 +162,49 @@ public class CryptoMaterialConfig {
     }
 
     public String getEnSSLPrivateKeyPath() {
-        return enSSLPrivateKeyPath;
+        return this.enSSLPrivateKeyPath;
     }
 
     public void setEnSSLPrivateKeyPath(String enSSLPrivateKeyPath) {
         this.enSSLPrivateKeyPath = enSSLPrivateKeyPath;
     }
 
-    public int getSslCryptoType() {
-        return sslCryptoType;
+    public Boolean getUseSmCrypto() {
+        return this.useSmCrypto;
     }
 
-    public void setSslCryptoType(int sslCryptoType) {
-        this.sslCryptoType = sslCryptoType;
+    public void setUseSmCrypto(Boolean useSmCrypto) {
+        this.useSmCrypto = useSmCrypto;
+    }
+
+    public int getSslCryptoType() {
+        return this.useSmCrypto ? CryptoType.SM_TYPE : CryptoType.ECDSA_TYPE;
     }
 
     @Override
     public String toString() {
         return "CryptoMaterialConfig{"
                 + "certPath='"
-                + certPath
+                + this.certPath
                 + '\''
                 + ", caCertPath='"
-                + caCertPath
+                + this.caCertPath
                 + '\''
                 + ", sdkCertPath='"
-                + sdkCertPath
+                + this.sdkCertPath
                 + '\''
                 + ", sdkPrivateKeyPath='"
-                + sdkPrivateKeyPath
+                + this.sdkPrivateKeyPath
                 + '\''
                 + ", enSSLCertPath='"
-                + enSSLCertPath
+                + this.enSSLCertPath
                 + '\''
                 + ", enSSLPrivateKeyPath='"
-                + enSSLPrivateKeyPath
+                + this.enSSLPrivateKeyPath
                 + '\''
-                + ", sslCryptoType="
-                + sslCryptoType
+                + ", useSmCrypto="
+                + this.useSmCrypto
                 + '}';
     }
+
 }

@@ -13,9 +13,6 @@
  */
 package org.fisco.bcos.sdk.crypto;
 
-import java.io.File;
-import java.math.BigInteger;
-
 import org.bouncycastle.util.encoders.Hex;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
@@ -41,6 +38,9 @@ import org.fisco.bcos.sdk.utils.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.math.BigInteger;
+
 public class SignatureTest {
     private static final String configFile =
             SignatureTest.class
@@ -62,7 +62,7 @@ public class SignatureTest {
         Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
 
         // test signature
-        testSignature(cryptoSuite, keyPair);
+        this.testSignature(cryptoSuite, keyPair);
 
         // load KeyPair from the given privateKey
         String privateKeyStr =
@@ -77,11 +77,11 @@ public class SignatureTest {
         System.out.println("keyPair.getHexPublicKey(): " + keyPair.getHexPublicKey());
         System.out.println("keyPair.getHexPrivate(): " + keyPair.getHexPrivateKey());
         Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey().substring(2));
-        testSignature(cryptoSuite, keyPair);
+        this.testSignature(cryptoSuite, keyPair);
 
         String hexedPrivateKeyStr = "bcec428d5205abe0f0cc8a734083908d9eb8563e31f943d760786edf42ad67dd";
         keyPair = cryptoSuite.getKeyPairFactory().createKeyPair(hexedPrivateKeyStr);
-        testSignature(cryptoSuite, keyPair);
+        this.testSignature(cryptoSuite, keyPair);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class SignatureTest {
         Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
         Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
         // test signature
-        testSignature(cryptoSuite, keyPair);
+        this.testSignature(cryptoSuite, keyPair);
     }
 
     @Test
@@ -106,10 +106,10 @@ public class SignatureTest {
         Signature ecdsaSignature = new ECDSASignature();
         CryptoKeyPair keyPair = (new ECDSAKeyPair()).generateKeyPair();
         Hash hasher = new Keccak256();
-        testSignature(hasher, ecdsaSignature, keyPair);
+        this.testSignature(hasher, ecdsaSignature, keyPair);
 
         keyPair = ECDSAKeyPair.createKeyPair();
-        testSignature(hasher, ecdsaSignature, keyPair);
+        this.testSignature(hasher, ecdsaSignature, keyPair);
     }
 
     @Test
@@ -117,10 +117,10 @@ public class SignatureTest {
         Signature sm2Signature = new SM2Signature();
         CryptoKeyPair keyPair = (new SM2KeyPair()).generateKeyPair();
         Hash hasher = new SM3Hash();
-        testSignature(hasher, sm2Signature, keyPair);
+        this.testSignature(hasher, sm2Signature, keyPair);
 
         keyPair = SM2KeyPair.createKeyPair();
-        testSignature(hasher, sm2Signature, keyPair);
+        this.testSignature(hasher, sm2Signature, keyPair);
     }
 
     @Test
@@ -132,13 +132,13 @@ public class SignatureTest {
 
         String hexPublicKey2 = "00000";
         String expectedHash2 = "0x3f17f1962b36e491b30a40b2405849e597ba5fb5";
-        testValidGetAddressForKeyPair(
+        this.testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2, false);
 
         // create keyPair with cryptoSuite
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         keyPair = cryptoSuite.createKeyPair();
-        testValidGetAddressForKeyPair(
+        this.testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2, false);
 
         // test getAddress with generated KeyPair
@@ -154,13 +154,13 @@ public class SignatureTest {
 
         String hexPublicKey2 = "00000";
         String expectedHash2 = "0x0ec7f82b659cc8c6b753f26d4e9ec85bc91c231e";
-        testValidGetAddressForKeyPair(
+        this.testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2, true);
 
         // create keyPair with cryptoSuite
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
         keyPair = cryptoSuite.createKeyPair();
-        testValidGetAddressForKeyPair(
+        this.testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2, true);
 
         // test getAddress with generated keyPair
@@ -174,36 +174,35 @@ public class SignatureTest {
             String hexPublicKey2,
             String expectedHash2, boolean smCrypto) {
         // case1: input public key is hexed string, without 0x prefix
-        testKeyPair(keyPair, hexPublicKey, expectedHash, smCrypto);
+        this.testKeyPair(keyPair, hexPublicKey, expectedHash, smCrypto);
 
         // case2: input public key is bytes, without 0x prefix
         byte[] publicKeyBytes = Hex.decode(hexPublicKey);
-        testKeyPair(keyPair, publicKeyBytes, expectedHash);
+        this.testKeyPair(keyPair, publicKeyBytes, expectedHash);
 
         // case3: input public key is hexed string, with 0x prefix
         String hexPublicKeyWithPrefix = "0x" + hexPublicKey;
-        testKeyPair(keyPair, hexPublicKeyWithPrefix, expectedHash, smCrypto);
+        this.testKeyPair(keyPair, hexPublicKeyWithPrefix, expectedHash, smCrypto);
 
         // case4: input public key is bytes, with 0x prefix
         publicKeyBytes = Hex.decode(hexPublicKey);
-        testKeyPair(keyPair, publicKeyBytes, expectedHash);
+        this.testKeyPair(keyPair, publicKeyBytes, expectedHash);
 
         // case5: input public key is bigInteger
         BigInteger publicKeyValue = new BigInteger(hexPublicKey, 16);
-        testKeyPair(keyPair, publicKeyValue, expectedHash);
+        this.testKeyPair(keyPair, publicKeyValue, expectedHash);
 
         // case6: input is 0
-        testKeyPair(keyPair, hexPublicKey2, expectedHash2, smCrypto);
-        testKeyPair(keyPair, hexPublicKey2 + "00000", expectedHash2, smCrypto);
-        testKeyPair(keyPair, new BigInteger("0", 16), expectedHash2);
+        this.testKeyPair(keyPair, hexPublicKey2, expectedHash2, smCrypto);
+        this.testKeyPair(keyPair, hexPublicKey2 + "00000", expectedHash2, smCrypto);
+        this.testKeyPair(keyPair, new BigInteger("0", 16), expectedHash2);
     }
 
     private void testKeyPair(CryptoKeyPair keyPair, String publicKey, String expectedAddress, boolean smCrypto) {
         Assert.assertEquals(expectedAddress, keyPair.getAddress(publicKey));
         String uncompressedPublicKey = publicKey;
         boolean contain0x = false;
-        if(publicKey.startsWith("0x"))
-        {
+        if (publicKey.startsWith("0x")) {
             contain0x = true;
             uncompressedPublicKey = publicKey.substring(2);
         }
@@ -214,32 +213,28 @@ public class SignatureTest {
                             + uncompressedPublicKey;
         }
         String prefix = "04";
-        if(contain0x)
-        {
+        if (contain0x) {
             prefix = "0x04";
         }
         Assert.assertEquals(expectedAddress, keyPair.getAddress(prefix + uncompressedPublicKey));
         // convert the publicKey into BigInteger
-        BigInteger  uncompressedPublicKeyValue = new BigInteger(uncompressedPublicKey, 16);
+        BigInteger uncompressedPublicKeyValue = new BigInteger(uncompressedPublicKey, 16);
         Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(keyPair.getAddress(uncompressedPublicKeyValue)));
         // convert the publicKey into bytes
         byte[] uncompressedPublicKeyBytes = Hex.decode(Numeric.cleanHexPrefix(uncompressedPublicKey));
         Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(keyPair.getAddress(uncompressedPublicKeyBytes)));
 
-        if(smCrypto)
-        {
-            Assert.assertEquals(expectedAddress,  SM2KeyPair.getAddressByPublicKey(publicKey));
-            Assert.assertEquals(expectedAddress,  SM2KeyPair.getAddressByPublicKey(uncompressedPublicKey));
-            Assert.assertEquals(expectedAddress,  "0x" + Hex.toHexString(SM2KeyPair.getAddressByPublicKey(uncompressedPublicKeyValue)));
-            Assert.assertEquals(expectedAddress,  "0x" + Hex.toHexString(SM2KeyPair.getAddressByPublicKey(uncompressedPublicKeyBytes)));
+        if (smCrypto) {
+            Assert.assertEquals(expectedAddress, SM2KeyPair.getAddressByPublicKey(publicKey));
+            Assert.assertEquals(expectedAddress, SM2KeyPair.getAddressByPublicKey(uncompressedPublicKey));
+            Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(SM2KeyPair.getAddressByPublicKey(uncompressedPublicKeyValue)));
+            Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(SM2KeyPair.getAddressByPublicKey(uncompressedPublicKeyBytes)));
 
-        }
-        else
-        {
-            Assert.assertEquals(expectedAddress,  ECDSAKeyPair.getAddressByPublicKey(publicKey));
-            Assert.assertEquals(expectedAddress,  ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKey));
-            Assert.assertEquals(expectedAddress,  "0x" + Hex.toHexString(ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKeyValue)));
-            Assert.assertEquals(expectedAddress,  "0x" + Hex.toHexString(ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKeyBytes)));
+        } else {
+            Assert.assertEquals(expectedAddress, ECDSAKeyPair.getAddressByPublicKey(publicKey));
+            Assert.assertEquals(expectedAddress, ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKey));
+            Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKeyValue)));
+            Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKeyBytes)));
         }
     }
 
@@ -254,27 +249,27 @@ public class SignatureTest {
     @Test(expected = KeyPairException.class)
     public void testInvalidCaseForSM2KeyPair() {
         CryptoKeyPair keyPair = (new SM2KeyPair()).generateKeyPair();
-        testInvalidPublicKey(keyPair);
+        this.testInvalidPublicKey(keyPair);
     }
 
     @Test(expected = KeyPairException.class)
     public void testInvalidCaseForECDSAKeyPair() {
         CryptoKeyPair keyPair = (new ECDSAKeyPair()).generateKeyPair();
-        testInvalidPublicKey(keyPair);
+        this.testInvalidPublicKey(keyPair);
     }
 
     @Test(expected = KeyPairException.class)
     public void testInvalidCaseForECDSACryptoSuite() {
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
-        testInvalidPublicKey(keyPair);
+        this.testInvalidPublicKey(keyPair);
     }
 
     @Test(expected = KeyPairException.class)
     public void testInvalidCaseForSM2CryptoSuite() {
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
-        testInvalidPublicKey(keyPair);
+        this.testInvalidPublicKey(keyPair);
     }
 
     private void testInvalidPublicKey(CryptoKeyPair keyPair) {
@@ -343,20 +338,17 @@ public class SignatureTest {
         try {
             String invalidMessage = "0xb3b9ce5a0725c1457b8c7872d05accb3887ecc09a50dc7619b53837e4d9f";
             SignatureResult signResult = signature.sign(invalidMessage, keyPair);
-        }catch(SignatureException e)
-        {
+        } catch (SignatureException e) {
             System.out.println("Sign failed for " + e.getMessage());
         }
 
         try {
             String invalidMessage = "";
-            for(int i = 0; i < 64; i++)
-            {
+            for (int i = 0; i < 64; i++) {
                 invalidMessage += "r";
             }
             SignatureResult signResult = signature.sign(invalidMessage, keyPair);
-        }catch(SignatureException e)
-        {
+        } catch (SignatureException e) {
             System.out.println("Sign failed for " + e.getMessage());
         }
     }
@@ -414,12 +406,12 @@ public class SignatureTest {
         String publicKeyPem =
                 "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.public.pem";
         KeyTool verifykeyTool =
-                new PEMKeyStore(getClass().getClassLoader().getResource(publicKeyPem).getPath());
+                new PEMKeyStore(this.getClass().getClassLoader().getResource(publicKeyPem).getPath());
 
         String keyPairPem = "keystore/ecdsa/0x45e14c53197adbcb719d915fb93342c25600faaf.p12";
         KeyTool signKeyTool =
                 new P12KeyStore(
-                        getClass().getClassLoader().getResource(keyPairPem).getPath(), "123456");
+                        this.getClass().getClassLoader().getResource(keyPairPem).getPath(), "123456");
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         // sign and verify message with keyManager
         for (int i = 0; i < 10; i++) {
@@ -443,26 +435,26 @@ public class SignatureTest {
 
     @Test
     public void testSMLoadAndStoreKeyPairWithPEM() throws ConfigException {
-        testLoadAndStoreKeyPairWithPEM(CryptoType.SM_TYPE);
+        this.testLoadAndStoreKeyPairWithPEM(CryptoType.SM_TYPE);
     }
 
     @Test
     public void testECDSALoadAndStoreKeyPairWithPEM() throws ConfigException {
-        testLoadAndStoreKeyPairWithPEM(CryptoType.ECDSA_TYPE);
+        this.testLoadAndStoreKeyPairWithPEM(CryptoType.ECDSA_TYPE);
     }
 
     @Test
     public void testSMLoadAndStoreKeyPairWithP12() throws ConfigException {
-        testLoadAndStoreKeyPairWithP12(CryptoType.SM_TYPE);
+        this.testLoadAndStoreKeyPairWithP12(CryptoType.SM_TYPE);
     }
 
     @Test
     public void testECDSALoadAndStoreKeyPairWithP12() throws ConfigException {
-        testLoadAndStoreKeyPairWithP12(CryptoType.ECDSA_TYPE);
+        this.testLoadAndStoreKeyPairWithP12(CryptoType.ECDSA_TYPE);
     }
 
     public void testLoadAndStoreKeyPairWithPEM(int cryptoType) throws ConfigException {
-        ConfigOption configOption = Config.load(configFile, CryptoType.ECDSA_TYPE);
+        ConfigOption configOption = Config.load(configFile);
         CryptoSuite cryptoSuite = new CryptoSuite(cryptoType);
         cryptoSuite.getCryptoKeyPair().setConfig(configOption);
         cryptoSuite.getCryptoKeyPair().storeKeyPairWithPemFormat();
@@ -470,7 +462,7 @@ public class SignatureTest {
 
         // get pem file path
         String pemFilePath =
-                getKeyStoreFilePath(cryptoSuite, configOption, CryptoKeyPair.PEM_FILE_POSTFIX);
+                this.getKeyStoreFilePath(cryptoSuite, configOption, CryptoKeyPair.PEM_FILE_POSTFIX);
         // load pem file
         KeyTool pemManager = new PEMKeyStore(pemFilePath);
         CryptoKeyPair decodedCryptoKeyPair = cryptoSuite.createKeyPair(pemManager.getKeyPair());
@@ -485,12 +477,12 @@ public class SignatureTest {
         String publicPemPath = pemFilePath + ".pub";
         KeyTool verifyKeyTool = new PEMKeyStore(publicPemPath);
 
-        checkSignAndVerifyWithKeyManager(
+        this.checkSignAndVerifyWithKeyManager(
                 pemManager, decodedCryptoKeyPair, verifyKeyTool, cryptoSuite);
     }
 
     public void testLoadAndStoreKeyPairWithP12(int cryptoType) throws ConfigException {
-        ConfigOption configOption = Config.load(configFile, CryptoType.ECDSA_TYPE);
+        ConfigOption configOption = Config.load(configFile);
         CryptoSuite cryptoSuite = new CryptoSuite(cryptoType);
         cryptoSuite.getCryptoKeyPair().setConfig(configOption);
         String password = "123";
@@ -499,7 +491,7 @@ public class SignatureTest {
 
         // get p12 file path
         String p12FilePath =
-                getKeyStoreFilePath(cryptoSuite, configOption, CryptoKeyPair.P12_FILE_POSTFIX);
+                this.getKeyStoreFilePath(cryptoSuite, configOption, CryptoKeyPair.P12_FILE_POSTFIX);
         // load p12 file
         KeyTool p12Manager = new P12KeyStore(p12FilePath, password);
         CryptoKeyPair decodedCryptoKeyPair = cryptoSuite.createKeyPair(p12Manager.getKeyPair());
@@ -518,7 +510,7 @@ public class SignatureTest {
         // test sign and verify message with
         String publicP12Path = p12FilePath + ".pub";
         KeyTool verifyKeyTool = new PEMKeyStore(publicP12Path);
-        checkSignAndVerifyWithKeyManager(
+        this.checkSignAndVerifyWithKeyManager(
                 p12Manager, decodedCryptoKeyPair, verifyKeyTool, cryptoSuite);
     }
 

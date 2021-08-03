@@ -17,13 +17,7 @@ package org.fisco.bcos.sdk.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.config.model.AccountConfig;
-import org.fisco.bcos.sdk.config.model.AmopConfig;
-import org.fisco.bcos.sdk.config.model.ConfigProperty;
-import org.fisco.bcos.sdk.config.model.CryptoMaterialConfig;
-import org.fisco.bcos.sdk.config.model.NetworkConfig;
-import org.fisco.bcos.sdk.config.model.ThreadPoolConfig;
-import org.fisco.bcos.sdk.model.CryptoType;
+import org.fisco.bcos.sdk.config.model.*;
 
 /**
  * ConfigOption is the java object of the config file.
@@ -40,30 +34,26 @@ public class ConfigOption {
     private ConfigProperty configProperty;
 
     public ConfigOption(ConfigProperty configProperty) throws ConfigException {
-        this(configProperty, CryptoType.ECDSA_TYPE);
-    }
-
-    public ConfigOption(ConfigProperty configProperty, int cryptoType) throws ConfigException {
         // load cryptoMaterialConfig
-        cryptoMaterialConfig = new CryptoMaterialConfig(configProperty, cryptoType);
+        this.cryptoMaterialConfig = new CryptoMaterialConfig(configProperty);
         // load accountConfig
-        accountConfig = new AccountConfig(configProperty);
+        this.accountConfig = new AccountConfig(configProperty);
         // load AmopConfig
-        amopConfig = new AmopConfig(configProperty);
+        this.amopConfig = new AmopConfig(configProperty);
         // load networkConfig
-        networkConfig = new NetworkConfig(configProperty);
+        this.networkConfig = new NetworkConfig(configProperty);
         // load threadPoolConfig
-        threadPoolConfig = new ThreadPoolConfig(configProperty);
+        this.threadPoolConfig = new ThreadPoolConfig(configProperty);
         // init configProperty
         this.configProperty = configProperty;
     }
 
     public void reloadConfig(int cryptoType) throws ConfigException {
-        cryptoMaterialConfig = new CryptoMaterialConfig(configProperty, cryptoType);
+        this.cryptoMaterialConfig = new CryptoMaterialConfig(this.configProperty);
     }
 
     public CryptoMaterialConfig getCryptoMaterialConfig() {
-        return cryptoMaterialConfig;
+        return this.cryptoMaterialConfig;
     }
 
     public void setCryptoMaterialConfig(CryptoMaterialConfig cryptoMaterialConfig) {
@@ -71,7 +61,7 @@ public class ConfigOption {
     }
 
     public AccountConfig getAccountConfig() {
-        return accountConfig;
+        return this.accountConfig;
     }
 
     public void setAccountConfig(AccountConfig accountConfig) {
@@ -79,7 +69,7 @@ public class ConfigOption {
     }
 
     public AmopConfig getAmopConfig() {
-        return amopConfig;
+        return this.amopConfig;
     }
 
     public void setAmopConfig(AmopConfig amopConfig) {
@@ -87,7 +77,7 @@ public class ConfigOption {
     }
 
     public NetworkConfig getNetworkConfig() {
-        return networkConfig;
+        return this.networkConfig;
     }
 
     public void setNetworkConfig(NetworkConfig networkConfig) {
@@ -95,7 +85,7 @@ public class ConfigOption {
     }
 
     public ThreadPoolConfig getThreadPoolConfig() {
-        return threadPoolConfig;
+        return this.threadPoolConfig;
     }
 
     public void setThreadPoolConfig(ThreadPoolConfig threadPoolConfig) {

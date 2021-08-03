@@ -17,21 +17,21 @@ ext {
         ossrhPassword = "xxx"
     }
     // jackson version
-    jacksonVersion = "2.11.0"
-    commonsIOVersion = "2.4"
-    commonsLang3Version = "3.1"
-    javapoetVersion = "1.7.0"
-    picocliVersion = "3.6.0"
-    nettyVersion = "4.1.53.Final"
+    jacksonVersion = '2.12.4'
+    commonsIOVersion = '2.4'
+    commonsLang3Version = '3.12.0'
+    javapoetVersion = '1.13.0'
+    picocliVersion = '4.6.1'
+    nettyVersion = '4.1.66.Final'
     nettySMSSLContextVersion = "1.2.0"
     toml4jVersion = "0.7.2"
-    bcprovJDK15onVersion = "1.60"
+    bcprovJDK15onVersion = '1.69'
     keyMiniToolkit = "1.0.3"
 
-    slf4jVersion = "1.7.30"
-    junitVersion = "4.12"
+    slf4jVersion = '1.7.32'
+    junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
-    guavaVersion = "29.0-jre"
+    guavaVersion = '30.1.1-jre'
     tarsCoreVersion = "1.7.2"
 }
 
@@ -73,8 +73,7 @@ allprojects {
     }
 
     dependencies {
-        implementation("org.slf4j:slf4j-api:${slf4jVersion}")
-
+        api("org.slf4j:slf4j-api:${slf4jVersion}")
         testImplementation("junit:junit:${junitVersion}")
         testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
         testImplementation("com.google.guava:guava:${guavaVersion}")
@@ -208,19 +207,19 @@ sourceSets {
 //}
 
 dependencies {
-//    implementation("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
-    implementation("org.apache.commons:commons-lang3:${commonsLang3Version}")
-    implementation("io.netty:netty-all:${nettyVersion}")
-    implementation("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}")
-    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
-    implementation("commons-io:commons-io:${commonsIOVersion}")
-    implementation("com.squareup:javapoet:${javapoetVersion}")
-    implementation("info.picocli:picocli:${picocliVersion}")
-    implementation("com.webank:key-mini-toolkit:${keyMiniToolkit}")
-    implementation("com.moandjiezana.toml:toml4j:${toml4jVersion}")
-    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-    implementation 'com.google.googlejavaformat:google-java-format:1.10.0'
-    implementation 'com.tencent.tars:tars-core:1.7.2'
+    api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
+    api("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    api("io.netty:netty-all:${nettyVersion}")
+    api("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}")
+    api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    api("commons-io:commons-io:${commonsIOVersion}")
+    api("com.squareup:javapoet:${javapoetVersion}")
+    api("info.picocli:picocli:${picocliVersion}")
+    api("com.webank:key-mini-toolkit:${keyMiniToolkit}")
+    api("com.moandjiezana.toml:toml4j:${toml4jVersion}")
+    api("org.apache.httpcomponents:httpclient:4.5.13")
+    api("com.google.googlejavaformat:google-java-format:1.10.0")
+    api("com.tencent.tars:tars-core:1.7.2")
 
     testImplementation("junit:junit:${junitVersion}")
     testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
