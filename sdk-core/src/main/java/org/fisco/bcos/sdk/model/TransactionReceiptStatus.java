@@ -22,49 +22,37 @@ import org.fisco.bcos.sdk.utils.Numeric;
 public class TransactionReceiptStatus {
     public static final RetCode Success = new RetCode(0, "Success");
     public static final RetCode Unknown = new RetCode(1, "Unknown");
-    public static final RetCode BadRLP = new RetCode(2, "Bad RLP");
-    public static final RetCode InvalidFormat = new RetCode(3, "Invalid format");
-    public static final RetCode OutOfGasIntrinsic =
-            new RetCode(4, "The contract to deploy is too long(or input data is too long)");
-    public static final RetCode InvalidSignature = new RetCode(5, "Invalid signature");
-    public static final RetCode InvalidNonce = new RetCode(6, "Invalid nonce");
+    public static final RetCode BadRLP = new RetCode(2, "OutOfGasLimit");
     public static final RetCode NotEnoughCash = new RetCode(7, "Not enough cash");
-    public static final RetCode OutOfGasBase = new RetCode(8, "Input data is too long");
-    public static final RetCode BlockGasLimitReached = new RetCode(9, "Block gas limit reached");
     public static final RetCode BadInstruction = new RetCode(10, "Bad instruction");
     public static final RetCode BadJumpDestination = new RetCode(11, "Bad jump destination");
     public static final RetCode OutOfGas = new RetCode(12, "Out-of-gas during EVM execution");
     public static final RetCode OutOfStack = new RetCode(13, "Out of stack");
     public static final RetCode StackUnderflow = new RetCode(14, "Stack underflow");
-    public static final RetCode NonceCheckFail = new RetCode(15, "Nonce check fail");
-    public static final RetCode BlockLimitCheckFail = new RetCode(16, "Block limit check fail");
-    public static final RetCode FilterCheckFail = new RetCode(17, "Filter check fail");
-    public static final RetCode NoDeployPermission = new RetCode(18, "No deploy permission");
-    public static final RetCode NoCallPermission = new RetCode(19, "No call permission");
-    public static final RetCode NoTxPermission = new RetCode(20, "No tx permission");
-    public static final RetCode PrecompiledError = new RetCode(21, "Precompiled error");
-    public static final RetCode RevertInstruction = new RetCode(22, "Revert instruction");
-    public static final RetCode InvalidZeroSignatureFormat =
-            new RetCode(23, "Invalid zero signature format");
-    public static final RetCode AddressAlreadyUsed = new RetCode(24, "Address already used");
-    public static final RetCode PermissionDenied = new RetCode(25, "Permission denied");
-    public static final RetCode CallAddressError = new RetCode(26, "Call address error");
-    public static final RetCode GasOverflow = new RetCode(27, "Gas overflow");
-    public static final RetCode TxPoolIsFull = new RetCode(28, "Transaction pool is full");
-    public static final RetCode TransactionRefused = new RetCode(29, "Transaction refused");
-    public static final RetCode ContractFrozen = new RetCode(30, "The contract has been frozen");
-    public static final RetCode AccountFrozen = new RetCode(31, "The account has been frozen");
-    public static final RetCode AlreadyKnown = new RetCode(10000, "Transaction already known");
-    public static final RetCode AlreadyInChain = new RetCode(10001, "Transaction already in chain");
-    public static final RetCode InvalidChainId = new RetCode(10002, "Invalid chain id");
-    public static final RetCode InvalidGroupId = new RetCode(10003, "Invalid group id");
-    public static final RetCode RequestNotBelongToTheGroup =
-            new RetCode(10004, "The request doesn't belong to the group");
-    public static final RetCode MalformedTx = new RetCode(10005, "Malformed transaction");
-    public static final RetCode OverGroupMemoryLimit =
-            new RetCode(10006, "Exceeded the group transaction pool capacity limit");
+    public static final RetCode PrecompiledError = new RetCode(15, "Precompiled error");
+    public static final RetCode RevertInstruction = new RetCode(16, "Revert instruction");
+    public static final RetCode ContractAddressAlreadyUsed = new RetCode(17, "ContractAddressAlreadyUsed");
+    public static final RetCode PermissionDenied = new RetCode(18, "Permission denied");
+    public static final RetCode CallAddressError = new RetCode(19, "Call address error");
+    public static final RetCode GasOverflow = new RetCode(20, "GasOverflow");
+    public static final RetCode ContractFrozen = new RetCode(21, "ContractFrozen");
+    public static final RetCode AccountFrozen = new RetCode(22, "AccountFrozen");
+    public static final RetCode WASMValidationFailure = new RetCode(32, "WASMValidationFailure");
+    public static final RetCode WASMArgumentOutOfRange = new RetCode(33, "WASMArgumentOutOfRange");
+    public static final RetCode WASMUnreacheableInstruction = new RetCode(34, "WASMUnreacheableInstruction");
+    public static final RetCode WASMTrap = new RetCode(35, "WASMTrap");
+    public static final RetCode NonceCheckFail = new RetCode(1000, "NonceCheckFail");
+    public static final RetCode BlockLimitCheckFail = new RetCode(1001, "BlockLimitCheckFail");
+    public static final RetCode TxPoolIsFull = new RetCode(1002, "TxPoolIsFull");
+    public static final RetCode Malform = new RetCode(1003, "Malform tx");
+    public static final RetCode AlreadyInTxPool = new RetCode(1004, "AlreadyInTxPool");
+    public static final RetCode TxAlreadyInChain = new RetCode(1005, "TxAlreadyInChain");
+    public static final RetCode  InvalidChainId = new RetCode(1006, "InvalidChainId");
+    public static final RetCode  InvalidGroupId = new RetCode(1007, "InvalidGroupId");
+    public static final RetCode  InvalidSignature = new RetCode(1008, "InvalidSignature");
+    public static final RetCode  RequestNotBelongToTheGroup = new RetCode(1009, "RequestNotBelongToTheGroup");
     public static final RetCode TimeOut = new RetCode(50001, "Transaction receipt timeout");
-
+    
     protected static Map<Integer, RetCode> codeToRetCode = new HashMap<>();
 
     static {
