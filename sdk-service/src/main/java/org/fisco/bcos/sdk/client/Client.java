@@ -206,13 +206,14 @@ public interface Client {
     /**
      * Ledger operation: async get block by block number
      *
-     * @param blockNumber                  the number of the block
-     * @param returnFullTransactionObjects the boolean define the tx is full or not
-     * @param callback                     the callback that will be called when receive the response
+     * @param blockNumber      the number of the block
+     * @param onlyHeader       the boolean if only need header
+     * @param fullTransactions the boolean if need all transactions
+     * @param callback         the callback that will be called when receive the response
      */
     void getBlockByNumberAsync(
             BigInteger blockNumber,
-            boolean returnFullTransactionObjects,
+            boolean onlyHeader, boolean fullTransactions,
             RespCallback<BcosBlock> callback);
 
     /**

@@ -247,14 +247,14 @@ public class ClientImpl implements Client {
     @Override
     public void getBlockByNumberAsync(
             BigInteger blockNumber,
-            boolean returnFullTransactionObjects,
+            boolean onlyHeader, boolean fullTransactions,
             RespCallback<BcosBlock> callback) {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
                         Arrays.asList(
                                 blockNumber,
-                                returnFullTransactionObjects)),
+                                onlyHeader, fullTransactions)),
                 BcosBlock.class,
                 callback);
     }
@@ -491,12 +491,11 @@ public class ClientImpl implements Client {
         try {
             response = this.connection.callMethod(this.objectMapper.writeValueAsString(request));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("callRemoteMethod failed, " + e.getMessage());
+            throw new ClientException("RPC call failed" + e.getMessage());
         }
-
         if (response == null) {
-            throw new ClientException(
-                    "callRemoteMethod failed for select peers to send message failed, please make sure that the group exists");
+            throw new ClientException("RPC call failed, please try again");
         }
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
@@ -535,7 +534,7 @@ public class ClientImpl implements Client {
                 logger.error(
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {},  retErrorMessage: {}, retErrorCode: {}",
                         request.getMethod(),
-
+                        this.groupId,
                         jsonRpcResponse.getError().getMessage(),
                         jsonRpcResponse.getError().getCode());
                 throw new ClientException(
@@ -549,8 +548,6 @@ public class ClientImpl implements Client {
                                 + jsonRpcResponse.getError().getMessage());
             }
             return jsonRpcResponse;
-
-
         } catch (JsonProcessingException e) {
             logger.error(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}, groupId: {}",

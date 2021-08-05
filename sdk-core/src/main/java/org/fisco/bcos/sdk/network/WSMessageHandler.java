@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.ChannelHandlerContext;
 import org.fisco.bcos.sdk.channel.ChannelVersionNegotiation;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
+import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An implementation of channel.
@@ -43,8 +45,8 @@ public class WSMessageHandler implements MsgHandler {
 
     private List<MsgHandler> msgDisconnectHandleList = new CopyOnWriteArrayList<MsgHandler>();
     private Map<Integer, MsgHandler> msgHandlers = new ConcurrentHashMap<>();
-
     private Map<String, ResponseCallback> seq2Callback = new ConcurrentHashMap<>();
+    private ReentrantLock seq2CallbackLock = new ReentrantLock();
 
     public void addMessageHandler(MsgType type, MsgHandler handler) {
         this.msgHandlers.put(type.getType(), handler);
@@ -55,7 +57,9 @@ public class WSMessageHandler implements MsgHandler {
     }
 
     public void addSeq2CallBack(String seq, ResponseCallback callback) {
+        this.seq2CallbackLock.lock();
         this.seq2Callback.put(seq, callback);
+        this.seq2CallbackLock.unlock();
     }
 
     private ResponseCallback getAndRemoveSeq(String seq) {
@@ -74,7 +78,7 @@ public class WSMessageHandler implements MsgHandler {
     @Override
     public void onMessage(ChannelHandlerContext ctx, Message msg) {
         logger.debug(
-                "onMessage in ChannelMsgHandler called, host : {}, seq : {}, msgType : {}",
+                "onMessage in wsMessageHandler called, host : {}, seq : {}, msgType : {}",
                 ChannelVersionNegotiation.getPeerHost(ctx),
                 msg.getSeq(),
                 (int) msg.getType());
@@ -106,13 +110,22 @@ public class WSMessageHandler implements MsgHandler {
                         msg.getErrorCode());
                 msgHandler.onMessage(ctx, msg);
             }
-            logger.debug(" call ");
         }
     }
 
     @Override
     public void onDisconnect(ChannelHandlerContext ctx) {
         logger.debug("onDisconnect in ChannelMsgHandler called, host:{}", ctx.channel().remoteAddress());
-        // FIXME: clear all callback
+        this.seq2CallbackLock.lock();
+        for (String seq : this.seq2Callback.keySet()) {
+            logger.debug("send message with seq {} failed ", seq);
+            ResponseCallback callback = this.seq2Callback.get(seq);
+            Response response = new Response();
+            response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
+            response.setErrorMessage(String.format("connection to {} lost", ctx.channel().remoteAddress()));
+            response.setMessageID(seq);
+            callback.onResponse(response);
+        }
+        this.seq2CallbackLock.unlock();
     }
 }

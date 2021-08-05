@@ -16,6 +16,7 @@ import io.netty.handler.codec.http.websocketx.*;
 import io.netty.handler.ssl.SslContext;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.ChannelHandshake;
+import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
 import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
@@ -23,10 +24,10 @@ import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.utils.ChannelUtils;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
+import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,6 +36,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class WebSocketConnection implements Connection {
     private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
@@ -42,7 +44,7 @@ public class WebSocketConnection implements Connection {
     private ConfigOption configOption;
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
     private Bootstrap bootstrap = new Bootstrap();
-    private Channel channel;
+    private AtomicReference<Channel> channel = new AtomicReference<>();
     private WebSocketHandler handler;
     private AtomicBoolean isRunning;
     WSMessageHandler channelMsgHandler;
@@ -53,7 +55,7 @@ public class WebSocketConnection implements Connection {
     private final String scheme = "ws://";
     private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
     private final int connectInterval = 1000; // milliseconds
-
+    private ThreadPoolService threadPoolService;
 
     public WebSocketConnection(ConfigOption configOption, String endpoint) {
         this.configOption = configOption;
@@ -68,6 +70,11 @@ public class WebSocketConnection implements Connection {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+        this.threadPoolService =
+                new ThreadPoolService(
+                        "wsProcessor",
+                        configOption.getThreadPoolConfig().getChannelProcessorThreadSize(),
+                        configOption.getThreadPoolConfig().getMaxBlockingQueueSize());
     }
 
     // TODO: use promise ?
@@ -109,19 +116,18 @@ public class WebSocketConnection implements Connection {
     public void close() {
         this.isRunning.set(false);
         try {
-            this.workerGroup.shutdownGracefully().sync();
-            if (this.channel != null) {
-                this.channel.closeFuture().sync();
+            if (this.threadPoolService != null) {
+                this.threadPoolService.stop();
             }
-            if (this.channel != null) {
-                this.channel.close().sync();
+            this.workerGroup.shutdownGracefully().sync();
+            if (this.channel.get() != null) {
+                this.channel.get().close().sync();
             }
             logger.info("The connection of {} has been stopped", this.uri);
         } catch (InterruptedException e) {
             logger.warn("Stop netty failed for {}", e.getMessage());
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -172,6 +178,7 @@ public class WebSocketConnection implements Connection {
                 false, new DefaultHttpHeaders());
         this.channelMsgHandler = new WSMessageHandler();
         this.handler = new WebSocketHandler(handshaker, this.channelMsgHandler);
+        this.handler.setMsgHandleThreadPool(this.threadPoolService.getThreadPool());
         this.bootstrap.group(this.workerGroup)
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
@@ -191,12 +198,13 @@ public class WebSocketConnection implements Connection {
         return this.doConnect();
     }
 
-
     private void scheduleConnect() {
         this.scheduledExecutorService.schedule(new Runnable() {
             @Override
             public void run() {
-                WebSocketConnection.this.doConnect();
+                if (WebSocketConnection.this.doConnect()) {
+                    WebSocketConnection.this.handshake();
+                }
             }
         }, this.connectInterval, TimeUnit.MILLISECONDS);
     }
@@ -215,18 +223,18 @@ public class WebSocketConnection implements Connection {
                     future.channel().close();
                     WebSocketConnection.this.bootstrap.connect(WebSocketConnection.this.uri.getHost(), WebSocketConnection.this.uri.getPort()).addListener(this);
                 } else {
-                    WebSocketConnection.this.channel = future.channel();
+                    Channel channel = future.channel();
                     //add a listener to detect the connection lost
-                    WebSocketConnection.this.channel.closeFuture().addListener((ChannelFutureListener) future1 -> {
+                    channel.closeFuture().addListener((ChannelFutureListener) future1 -> {
                         WebSocketConnection.logger.warn("connection lost, try to recconnnect to " + WebSocketConnection.this.uri);
                         WebSocketConnection.this.scheduleConnect();
                     });
+                    WebSocketConnection.this.channel.set(channel);
                 }
             }
         });
-        System.out.println("connecting :" + this.uri.getHost() + ":" + this.uri.getPort());
         try {
-            this.channel = f.sync().channel();
+            this.channel.set(f.sync().channel());
             this.handler.handshakeFuture().sync();
         } catch (InterruptedException e) {
             WebSocketConnection.logger.info("reconnect to {} failed, message:{}", WebSocketConnection.this.uri,
@@ -236,95 +244,8 @@ public class WebSocketConnection implements Connection {
         return true;
     }
 
-    private class CheckCertExistenceResult {
-        private boolean checkPassed = true;
-        private String errorMessage = "";
 
-        public boolean isCheckPassed() {
-            return this.checkPassed;
-        }
-
-        public void setCheckPassed(boolean checkPassed) {
-            this.checkPassed = checkPassed;
-        }
-
-        public String getErrorMessage() {
-            return this.errorMessage;
-        }
-
-        public void setErrorMessage(String errorMessage) {
-            this.errorMessage = errorMessage;
-        }
-    }
-
-    private CheckCertExistenceResult checkCertExistence(boolean isSM) {
-
-        CheckCertExistenceResult result = new CheckCertExistenceResult();
-        result.setCheckPassed(true);
-        String errorMessage = "";
-        errorMessage = errorMessage + "Please make sure ";
-        if (!new File(this.configOption.getCryptoMaterialConfig().getCaCertPath()).exists()) {
-            result.setCheckPassed(false);
-            errorMessage =
-                    errorMessage + this.configOption.getCryptoMaterialConfig().getCaCertPath() + " ";
-        }
-        if (!new File(this.configOption.getCryptoMaterialConfig().getSdkCertPath()).exists()) {
-            result.setCheckPassed(false);
-            errorMessage =
-                    errorMessage + this.configOption.getCryptoMaterialConfig().getSdkCertPath() + " ";
-        }
-        if (!new File(this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()).exists()) {
-            result.setCheckPassed(false);
-            errorMessage =
-                    errorMessage
-                            + this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()
-                            + " ";
-        }
-        if (!isSM) {
-            errorMessage = errorMessage + "exists!";
-            result.setErrorMessage(errorMessage);
-            return result;
-        }
-        if (!new File(this.configOption.getCryptoMaterialConfig().getEnSSLCertPath()).exists()) {
-            errorMessage =
-                    errorMessage + this.configOption.getCryptoMaterialConfig().getEnSSLCertPath() + " ";
-            result.setCheckPassed(false);
-        }
-        if (!new File(this.configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()).exists()) {
-            errorMessage =
-                    errorMessage
-                            + this.configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()
-                            + " ";
-            result.setCheckPassed(false);
-        }
-        errorMessage = errorMessage + "exist!";
-        result.setErrorMessage(errorMessage);
-        return result;
-    }
-
-    /**
-     * call rpc method
-     *
-     * @param request jsonrpc format string
-     * @return response
-     * @throws IOException
-     */
-    @Override
-    public String callMethod(String request) throws IOException {
-        System.out.println("executing request:" + request);
-        Callback callback = new Callback();
-        Message message = new Message((short) MsgType.RPC_REQUEST.getType(), ChannelUtils.newSeq(), request.getBytes());
-        // FIXME: complete message use request
-        this.asyncSendMessage(message, callback);
-        this.waitResponse(callback);
-        if (callback.retResponse.getErrorCode() != 0) {
-            // TODO: throw exception
-        }
-        System.out.println("response : " + callback.retResponse.getContent());
-        return callback.retResponse.getContent();
-    }
-
-    private Boolean handShake() {
+    private Boolean handshake() {
         Callback callback = new Callback();
         ChannelHandshake channelHandshake = new ChannelHandshake();
         try {
@@ -338,8 +259,7 @@ public class WebSocketConnection implements Connection {
             }
             this.nodeInfo = this.objectMapper.readValue(callback.retResponse.getContent(),
                     NodeInfo.class);
-            System.out.println(this.nodeInfo);
-
+            logger.info("handshake whit node got: {}", this.nodeInfo);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return false;
@@ -362,6 +282,26 @@ public class WebSocketConnection implements Connection {
     }
 
     /**
+     * call rpc method
+     *
+     * @param request jsonrpc format string
+     * @return response
+     * @throws IOException
+     */
+    @Override
+    public String callMethod(String request) throws IOException {
+        Callback callback = new Callback();
+        Message message = new Message((short) MsgType.RPC_REQUEST.getType(), ChannelUtils.newSeq(), request.getBytes());
+        // FIXME: complete message use request
+        this.asyncSendMessage(message, callback);
+        this.waitResponse(callback);
+        if (callback.retResponse.getErrorCode() != 0) {
+            throw new IOException(callback.retResponse.getErrorMessage());
+        }
+        return callback.retResponse.getContent();
+    }
+
+    /**
      * Send a message to a node in the group and select the node with the highest block height in
      * the group
      *
@@ -379,7 +319,22 @@ public class WebSocketConnection implements Connection {
         ByteBuf byteBuf = Unpooled.buffer();
         message.encode(byteBuf);
         WebSocketFrame frame = new BinaryWebSocketFrame(byteBuf);
-        this.channel.writeAndFlush(frame);
-        this.channelMsgHandler.addSeq2CallBack(message.getSeq(), callback);
+        Channel channel = this.channel.get();
+        if (channel.isActive()) {
+            channel.writeAndFlush(frame);
+            this.channelMsgHandler.addSeq2CallBack(message.getSeq(), callback);
+        } else {
+            logger.warn("send message with seq {} failed ", message.getSeq());
+            Response response = new Response();
+            response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
+            String errorContent =
+                    "Send message failed for connect failed";
+            response.setErrorMessage(errorContent);
+            response.setContent(errorContent);
+            response.setMessageID(message.getSeq());
+            if (callback != null) {
+                callback.onResponse(response);
+            }
+        }
     }
 }
