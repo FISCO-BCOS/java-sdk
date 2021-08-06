@@ -14,8 +14,12 @@
  */
 package org.fisco.bcos.sdk.model;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 public class ConstantConfig {
     public static final String CONFIG_FILE_NAME = "config.toml";
     public static final Integer MIN_GROUPID = 1;
     public static final Integer MAX_GROUPID = 32767;
+    public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 }

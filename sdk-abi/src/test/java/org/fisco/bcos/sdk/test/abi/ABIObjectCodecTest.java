@@ -1,5 +1,6 @@
 package org.fisco.bcos.sdk.test.abi;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -263,7 +264,7 @@ public class ABIObjectCodecTest {
                     + "48656c6c6f20776f726c64210000000000000000000000000000000000000000";
 
     @Test
-    public void testLoadABIJSON() {
+    public void testLoadABIJSON() throws IOException {
         ContractABIDefinition contractABIDefinition = Utils.getContractABIDefinition(abiDesc);
 
         Assert.assertEquals(2, contractABIDefinition.getFunctions().size());

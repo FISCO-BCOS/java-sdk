@@ -30,8 +30,7 @@ public class BcosSDK {
     public static final String SM_TYPE_STR = "sm";
 
     private final ConfigOption config;
-    private ConcurrentHashMap<String, Client> uriToClient = new ConcurrentHashMap<>();
-
+    private ConcurrentHashMap<String, Client> endPointToClient = new ConcurrentHashMap<>();
     /**
      * Build BcosSDK instance
      *
@@ -61,7 +60,7 @@ public class BcosSDK {
             for (String endpoint : this.config.getNetworkConfig().getPeers()) {
                 // create all clients
                 Client client = Client.build(endpoint, this.config);
-                updateUriToClient(client);
+                updateEndPointToClient(client);
             }
             logger.info("create BcosSDK, create connection success");
         } catch (ChannelException | NetworkException e) {
@@ -70,16 +69,16 @@ public class BcosSDK {
         }
     }
 
-    private boolean updateUriToClient(Client client) {
-        if (this.uriToClient.containsKey(client.getConnection().getUri()) == false) {
-            uriToClient.put(client.getConnection().getUri(), client);
+    private boolean updateEndPointToClient(Client client) {
+        if (this.endPointToClient.containsKey(client.getConnection().getEndPoint()) == false) {
+            endPointToClient.put(client.getConnection().getEndPoint(), client);
             return true;
         }
         return false;
     }
 
     public Enumeration<String> getAllConnections() {
-        return this.uriToClient.keys();
+        return this.endPointToClient.keys();
     }
 
     /**
@@ -89,8 +88,8 @@ public class BcosSDK {
      * @return Client
      */
     public Client getClientByGroupID(String groupId) {
-        for (String endPoint : this.uriToClient.keySet()) {
-            Client client = this.uriToClient.get(endPoint);
+        for (String endPoint : this.endPointToClient.keySet()) {
+            Client client = this.endPointToClient.get(endPoint);
             if (client.getGroupId() == groupId) {
                 return client;
             }
@@ -105,8 +104,8 @@ public class BcosSDK {
      * @return Client
      */
     public Client getClientByEndpoint(String endPoint) {
-        if (this.uriToClient.containsKey(endPoint)) {
-            return this.uriToClient.get(endPoint);
+        if (this.endPointToClient.containsKey(endPoint)) {
+            return this.endPointToClient.get(endPoint);
         }
         return null;
     }
@@ -123,8 +122,8 @@ public class BcosSDK {
     /** Stop all module of BcosSDK */
     public void stopAll() {
         // stop the client
-        for (String endPoint : this.uriToClient.keySet()) {
-            this.uriToClient.get(endPoint).stop();
+        for (String endPoint : this.endPointToClient.keySet()) {
+            this.endPointToClient.get(endPoint).stop();
         }
     }
 }

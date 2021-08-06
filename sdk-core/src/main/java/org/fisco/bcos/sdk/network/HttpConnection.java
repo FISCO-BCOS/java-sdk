@@ -15,8 +15,10 @@ import org.fisco.bcos.sdk.model.Response;
 public class HttpConnection implements Connection {
 
     private final String uri;
+    private final String endPoint;
 
     public HttpConnection(String endpoint) {
+        this.endPoint = endpoint;
         if (!endpoint.startsWith("http://")) {
             this.uri = "http://" + endpoint;
         } else {
@@ -24,6 +26,10 @@ public class HttpConnection implements Connection {
         }
     }
 
+    @Override
+    public String getEndPoint() {
+        return this.endPoint;
+    }
     /** close connection */
     @Override
     public void close() {}

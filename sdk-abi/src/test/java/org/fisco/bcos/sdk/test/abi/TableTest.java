@@ -270,7 +270,7 @@ public class TableTest {
     }
 
     @Test
-    public void ABIObjectCodecTest() {
+    public void ABIObjectCodecTest() throws IOException {
         ContractABIDefinition contractABIDefinition = Utils.getContractABIDefinition(abiDesc);
         ABIObject insertInputObject =
                 ABIObjectFactory.createInputObject(
