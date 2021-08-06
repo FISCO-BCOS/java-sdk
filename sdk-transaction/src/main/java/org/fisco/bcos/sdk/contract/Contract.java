@@ -130,7 +130,7 @@ public class Contract {
             CryptoKeyPair credential,
             TransactionProcessor transactionManager,
             String binary,
-            String encodedConstructor)
+            byte[] encodedConstructor)
             throws ContractException {
         try {
             Constructor<T> constructor =
@@ -151,7 +151,7 @@ public class Contract {
             Client client,
             CryptoKeyPair credential,
             String binary,
-            String encodedConstructor)
+            byte[] encodedConstructor)
             throws ContractException {
         return deploy(
                 type,
@@ -163,11 +163,13 @@ public class Contract {
     }
 
     private static <T extends Contract> T create(
-            T contract, String binary, String encodedConstructor) throws ContractException {
+            T contract, String binary, byte[] encodedConstructor) throws ContractException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             outputStream.write(Hex.decode(binary));
-            outputStream.write(Hex.decode(encodedConstructor));
+            if (encodedConstructor != null) {
+                outputStream.write(encodedConstructor);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
