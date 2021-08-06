@@ -55,8 +55,10 @@ public class WebSocketConnection implements Connection {
     private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
     private final int connectInterval = 1000; // milliseconds
     private ThreadPoolService threadPoolService;
+    private final String endPoint;
 
     public WebSocketConnection(ConfigOption configOption, String endpoint) {
+        this.endPoint = endpoint;
         this.configOption = configOption;
         String urlString;
         if (!endpoint.startsWith(this.scheme)) {
@@ -74,6 +76,11 @@ public class WebSocketConnection implements Connection {
                         "wsProcessor",
                         configOption.getThreadPoolConfig().getChannelProcessorThreadSize(),
                         configOption.getThreadPoolConfig().getMaxBlockingQueueSize());
+    }
+
+    @Override
+    public String getEndPoint() {
+        return this.endPoint;
     }
 
     // TODO: use promise ?

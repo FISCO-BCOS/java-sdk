@@ -3,6 +3,7 @@ package org.fisco.bcos.sdk.test.abi;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.Bool;
@@ -25,7 +26,7 @@ import org.junit.Test;
 public class ABIObjectTest {
 
     @Test
-    public void testMixedTypeEncode0() {
+    public void testMixedTypeEncode0() throws IOException {
         // int a, Info[] memory b, string memory c
         /*
          	 * {
@@ -334,7 +335,7 @@ public class ABIObjectTest {
     }
 
     @Test
-    public void testSingleValue() {
+    public void testSingleValue() throws IOException {
         ABIObject abiObject = new ABIObject(new Utf8String("Greetings!"));
         ABIObject structObject = new ABIObject(ObjectType.STRUCT);
         structObject.getStructFields().add(abiObject);
@@ -347,7 +348,7 @@ public class ABIObjectTest {
     }
 
     @Test
-    public void testEncode1() {
+    public void testEncode1() throws IOException {
 
         ABIObject abiObject = new ABIObject(ObjectType.STRUCT);
         abiObject.getStructFields().add(new ABIObject(new Uint256(69)));
@@ -467,7 +468,7 @@ public class ABIObjectTest {
     }
 
     @Test
-    public void testBoolTypeEncode() {
+    public void testBoolTypeEncode() throws IOException {
         assertThat(
                 new ABIObject(new Bool(false)).encode(),
                 is("0000000000000000000000000000000000000000000000000000000000000000"));
@@ -477,7 +478,7 @@ public class ABIObjectTest {
     }
 
     @Test
-    public void testIntTypeEncode() {
+    public void testIntTypeEncode() throws IOException {
         assertThat(
                 new ABIObject(new Uint256(BigInteger.ZERO)).encode(),
                 is("0000000000000000000000000000000000000000000000000000000000000000"));
@@ -505,7 +506,7 @@ public class ABIObjectTest {
     }
 
     @Test
-    public void testEmptyListEncode() {
+    public void testEmptyListEncode() throws IOException {
 
         assertThat(
                 new ABIObject(ABIObject.ListType.DYNAMIC).encode(),
@@ -513,7 +514,7 @@ public class ABIObjectTest {
     }
 
     @Test
-    public void testStringEncode() {
+    public void testStringEncode() throws IOException {
         assertThat(
                 new ABIObject(new Utf8String("Hello, world!")).encode(),
                 is(
@@ -526,7 +527,7 @@ public class ABIObjectTest {
     }
 
     @Test
-    public void testAddressEncode() {
+    public void testAddressEncode() throws IOException {
         Address address = new Address("0xbe5422d15f39373eb0a97ff8c10fbd0e40e29338");
         assertThat(
                 new ABIObject(address).encode(),
@@ -534,7 +535,7 @@ public class ABIObjectTest {
     }
 
     @Test
-    public void testStaticBytesEncode() {
+    public void testStaticBytesEncode() throws IOException {
         Bytes staticBytes = new Bytes6(new byte[] {0, 1, 2, 3, 4, 5});
         assertThat(
                 new ABIObject(staticBytes).encode(),
@@ -552,7 +553,7 @@ public class ABIObjectTest {
     }
 
     @Test
-    public void testDynamicBytesEncode() {
+    public void testDynamicBytesEncode() throws IOException {
         DynamicBytes dynamicBytes = new DynamicBytes(new byte[] {0, 1, 2, 3, 4, 5});
         assertThat(
                 new ABIObject(dynamicBytes).encode(),

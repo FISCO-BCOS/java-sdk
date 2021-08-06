@@ -1,5 +1,7 @@
 package org.fisco.bcos.sdk.abi.wrapper;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +17,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Bytes32;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
+import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -334,9 +337,8 @@ public class ABIObject {
      *
      * @return the encoded object
      */
-    public String encode() {
-
-        StringBuffer stringBuffer = new StringBuffer();
+    public String encode() throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         switch (type) {
             case VALUE:
                 {
@@ -344,12 +346,12 @@ public class ABIObject {
                         case UINT:
                         case INT:
                             {
-                                stringBuffer.append(TypeEncoder.encode(numericValue));
+                                outputStream.write(TypeEncoder.encode(numericValue));
                                 break;
                             }
                         case BOOL:
                             {
-                                stringBuffer.append(TypeEncoder.encode(boolValue));
+                                outputStream.write(TypeEncoder.encode(boolValue));
                                 break;
                             }
                         case FIXED:
@@ -361,22 +363,22 @@ public class ABIObject {
                             }
                         case BYTES:
                             {
-                                stringBuffer.append(TypeEncoder.encode(bytesValue));
+                                outputStream.write(TypeEncoder.encode(bytesValue));
                                 break;
                             }
                         case ADDRESS:
                             {
-                                stringBuffer.append(TypeEncoder.encode(addressValue));
+                                outputStream.write(TypeEncoder.encode(addressValue));
                                 break;
                             }
                         case DBYTES:
                             {
-                                stringBuffer.append(TypeEncoder.encode(dynamicBytesValue));
+                                outputStream.write(TypeEncoder.encode(dynamicBytesValue));
                                 break;
                             }
                         case STRING:
                             {
-                                stringBuffer.append(TypeEncoder.encode(stringValue));
+                                outputStream.write(TypeEncoder.encode(stringValue));
                                 break;
                             }
                         default:
@@ -393,55 +395,52 @@ public class ABIObject {
                     for (ABIObject abiObject : structFields) {
                         dynamicOffset += abiObject.offsetAsByteLength();
                     }
-
-                    StringBuffer fixedBuffer = new StringBuffer();
-                    StringBuffer dynamicBuffer = new StringBuffer();
-
+                    ByteArrayOutputStream fixedBuffer = new ByteArrayOutputStream();
+                    ByteArrayOutputStream dynamicBuffer = new ByteArrayOutputStream();
                     for (ABIObject abiObject : structFields) {
                         String encodeValue = abiObject.encode();
                         if (abiObject.isDynamic()) {
-                            fixedBuffer.append(TypeEncoder.encode(new Uint256(dynamicOffset)));
-                            dynamicBuffer.append(encodeValue);
+                            fixedBuffer.write(TypeEncoder.encode(new Uint256(dynamicOffset)));
+                            dynamicBuffer.write(
+                                    encodeValue.getBytes(ConstantConfig.DEFAULT_CHARSET));
                             dynamicOffset += (encodeValue.length() >> 1);
                         } else {
-                            fixedBuffer.append(encodeValue);
+                            fixedBuffer.write(encodeValue.getBytes(ConstantConfig.DEFAULT_CHARSET));
                         }
                     }
-
-                    stringBuffer.append(fixedBuffer).append(dynamicBuffer);
+                    outputStream.write(fixedBuffer.toByteArray());
+                    outputStream.write(dynamicBuffer.toByteArray());
                     break;
                 }
             case LIST:
                 {
-                    StringBuffer lengthBuffer = new StringBuffer();
-                    StringBuffer listValueBuffer = new StringBuffer();
-                    StringBuffer offsetBuffer = new StringBuffer();
+                    ByteArrayOutputStream lengthBuffer = new ByteArrayOutputStream();
+                    ByteArrayOutputStream listValueBuffer = new ByteArrayOutputStream();
+                    ByteArrayOutputStream offsetBuffer = new ByteArrayOutputStream();
 
                     if (listType == ListType.DYNAMIC) {
-                        lengthBuffer.append(TypeEncoder.encode(new Uint256(listValues.size())));
+                        lengthBuffer.write(TypeEncoder.encode(new Uint256(listValues.size())));
                     }
 
                     int dynamicOffset = listValues.size() * Type.MAX_BYTE_LENGTH;
 
                     for (ABIObject abiObject : listValues) {
                         String listValueEncode = abiObject.encode();
-                        listValueBuffer.append(abiObject.encode());
+                        listValueBuffer.write(
+                                abiObject.encode().getBytes(ConstantConfig.DEFAULT_CHARSET));
                         if (abiObject.isDynamic()) {
-                            offsetBuffer.append(TypeEncoder.encode(new Uint256(dynamicOffset)));
+                            offsetBuffer.write(TypeEncoder.encode(new Uint256(dynamicOffset)));
                             dynamicOffset += (listValueEncode.length() >> 1);
                         }
                     }
 
-                    stringBuffer.append(lengthBuffer).append(offsetBuffer).append(listValueBuffer);
+                    outputStream.write(lengthBuffer.toByteArray());
+                    outputStream.write(offsetBuffer.toByteArray());
+                    outputStream.write(listValueBuffer.toByteArray());
                     break;
                 }
         }
-
-        if (logger.isTraceEnabled()) {
-            logger.trace("ABI: {}", stringBuffer.toString());
-        }
-
-        return stringBuffer.toString();
+        return outputStream.toString(ConstantConfig.DEFAULT_CHARSET.name());
     }
 
     /**
