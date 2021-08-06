@@ -14,6 +14,7 @@
 package org.fisco.bcos.sdk;
 
 import io.netty.channel.ChannelException;
+import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
@@ -60,7 +61,7 @@ public class BcosSDK {
             for (String endpoint : this.config.getNetworkConfig().getPeers()) {
                 // create all clients
                 Client client = Client.build(endpoint, this.config);
-                updateUriToClient(endpoint, client);
+                updateUriToClient(client);
             }
             logger.info("create BcosSDK, create connection success");
         } catch (ChannelException | NetworkException e) {
@@ -69,12 +70,16 @@ public class BcosSDK {
         }
     }
 
-    private boolean updateUriToClient(String endPoint, Client client) {
-        if (!this.uriToClient.containsKey(endPoint)) {
-            uriToClient.put(endPoint, client);
+    private boolean updateUriToClient(Client client) {
+        if (this.uriToClient.containsKey(client.getConnection().getUri()) == false) {
+            uriToClient.put(client.getConnection().getUri(), client);
             return true;
         }
         return false;
+    }
+
+    public Enumeration<String> getAllConnections() {
+        return this.uriToClient.keys();
     }
 
     /**
