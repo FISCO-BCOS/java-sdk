@@ -1,12 +1,11 @@
 package org.fisco.bcos.sdk.network;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -15,46 +14,67 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
+import org.fisco.bcos.sdk.channel.model.ChannelHandshake;
+import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
+import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.utils.ChannelUtils;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
+import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.Security;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class WebSocketConnection implements Connection {
+    private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private static Logger logger = LoggerFactory.getLogger(WebSocketConnection.class);
     private ConfigOption configOption;
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
     private Bootstrap bootstrap = new Bootstrap();
-    private Channel channel;
+    private AtomicReference<Channel> channel = new AtomicReference<>();
     private WebSocketHandler handler;
-    ChannelMsgHandler channelMsgHandler;
+    private AtomicBoolean isRunning;
+    WSMessageHandler channelMsgHandler;
+    private int protocolVersion;
+    private NodeInfo nodeInfo;
     private SslContext sslCtx;
-    private final String uri;
+    private URI uri;
+    private final String scheme = "ws://";
+    private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+    private final int connectInterval = 1000; // milliseconds
+    private ThreadPoolService threadPoolService;
 
-    public WebSocketConnection(ConfigOption configOption) {
+    public WebSocketConnection(ConfigOption configOption, String endpoint) {
         this.configOption = configOption;
-        if (!configOption.getNetworkConfig().getPeers().get(0).startsWith("wss://")) {
-            this.uri = "wss://" + configOption.getNetworkConfig().getPeers().get(0);
+        String urlString;
+        if (!endpoint.startsWith(this.scheme)) {
+            urlString = this.scheme + endpoint;
         } else {
-            this.uri = configOption.getNetworkConfig().getPeers().get(0);
+            urlString = endpoint;
         }
-
+        try {
+            this.uri = new URI(urlString);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        this.threadPoolService =
+                new ThreadPoolService(
+                        "wsProcessor",
+                        configOption.getThreadPoolConfig().getChannelProcessorThreadSize(),
+                        configOption.getThreadPoolConfig().getMaxBlockingQueueSize());
     }
 
     // TODO: use promise ?
@@ -94,20 +114,20 @@ public class WebSocketConnection implements Connection {
      */
     @Override
     public void close() {
+        this.isRunning.set(false);
         try {
-            this.workerGroup.shutdownGracefully().sync();
-            if (this.channel != null) {
-                this.channel.closeFuture().sync();
+            if (this.threadPoolService != null) {
+                this.threadPoolService.stop();
             }
-            if (this.channel != null) {
-                this.channel.close().sync();
+            this.workerGroup.shutdownGracefully().sync();
+            if (this.channel.get() != null) {
+                this.channel.get().close().sync();
             }
             logger.info("The connection of {} has been stopped", this.uri);
         } catch (InterruptedException e) {
             logger.warn("Stop netty failed for {}", e.getMessage());
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -116,181 +136,140 @@ public class WebSocketConnection implements Connection {
      */
     @Override
     public Boolean connect() {
-        try {
-            Security.setProperty("jdk.disabled.namedCurves", "");
-            System.setProperty("jdk.sunec.disableNative", "false");
-            // Get file, file existence is already checked when check config file.
-            FileInputStream caCert =
-                    new FileInputStream(
-                            new File(this.configOption.getCryptoMaterialConfig().getCaCertPath()));
-            FileInputStream sslCert =
-                    new FileInputStream(
-                            new File(this.configOption.getCryptoMaterialConfig().getSdkCertPath()));
-            FileInputStream sslKey =
-                    new FileInputStream(
-                            new File(
-                                    this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
-            // Init SslContext
-            logger.info(" build ssl context with configured certificates ");
-            this.sslCtx =
-                    SslContextBuilder.forClient()
-                            .trustManager(caCert)
-                            .keyManager(sslCert, sslKey)
-                            .sslProvider(SslProvider.OPENSSL)
-                            // .sslProvider(SslProvider.JDK)
-                            .build();
-        } catch (FileNotFoundException | SSLException e) {
-            logger.error(
-                    "initSslContext failed, caCert: {}, sslCert: {}, sslKey: {}, error: {}, e: {}",
-                    this.configOption.getCryptoMaterialConfig().getCaCertPath(),
-                    this.configOption.getCryptoMaterialConfig().getSdkCertPath(),
-                    this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath(),
-                    e.getMessage(),
-                    e);
-            return false;
-        } catch (IllegalArgumentException e) {
-            logger.error("initSslContext failed, error: {}, e: {}", e.getMessage(), e);
-            return false;
-        }
-        try {
-            URI uri = new URI(this.uri);
-            final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
-            final int port;
-            if (uri.getPort() == -1) {
-                port = 443;
-            } else {
-                port = uri.getPort();
-            }
-            WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(uri,
-                    WebSocketVersion.V13, null,
-                    false, new DefaultHttpHeaders());
-            this.channelMsgHandler = new ChannelMsgHandler();
-            this.handler = new WebSocketHandler(handshaker, this.channelMsgHandler);
-            this.bootstrap.group(this.workerGroup)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline p = ch.pipeline();
-                            p.addLast(WebSocketConnection.this.sslCtx.newHandler(ch.alloc(), host, port));
-                            p.addLast(
-                                    new HttpClientCodec(),
-                                    new HttpObjectAggregator(8192),
-//                                    WebSocketClientCompressionHandler.INSTANCE,
-                                    WebSocketConnection.this.handler);
+        this.isRunning = new AtomicBoolean(true);
+//        try {
+//            Security.setProperty("jdk.disabled.namedCurves", "");
+//            System.setProperty("jdk.sunec.disableNative", "false");
+//            // Get file, file existence is already checked when check config file.
+//            FileInputStream caCert =
+//                    new FileInputStream(
+//                            new File(this.configOption.getCryptoMaterialConfig().getCaCertPath()));
+//            FileInputStream sslCert =
+//                    new FileInputStream(
+//                            new File(this.configOption.getCryptoMaterialConfig().getSdkCertPath()));
+//            FileInputStream sslKey =
+//                    new FileInputStream(
+//                            new File(
+//                                    this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
+//            // Init SslContext
+//            logger.info(" build ssl context with configured certificates ");
+//            this.sslCtx =
+//                    SslContextBuilder.forClient()
+//                            .trustManager(caCert)
+//                            .keyManager(sslCert, sslKey)
+//                            .sslProvider(SslProvider.OPENSSL)
+//                            // .sslProvider(SslProvider.JDK)
+//                            .build();
+//        } catch (FileNotFoundException | SSLException e) {
+//            logger.error(
+//                    "initSslContext failed, caCert: {}, sslCert: {}, sslKey: {}, error: {}, e: {}",
+//                    this.configOption.getCryptoMaterialConfig().getCaCertPath(),
+//                    this.configOption.getCryptoMaterialConfig().getSdkCertPath(),
+//                    this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath(),
+//                    e.getMessage(),
+//                    e);
+//            return false;
+//        } catch (IllegalArgumentException e) {
+//            logger.error("initSslContext failed, error: {}, e: {}", e.getMessage(), e);
+//            return false;
+//        }
+        WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(this.uri,
+                WebSocketVersion.V13, null,
+                false, new DefaultHttpHeaders());
+        this.channelMsgHandler = new WSMessageHandler();
+        this.handler = new WebSocketHandler(handshaker, this.channelMsgHandler);
+        this.handler.setMsgHandleThreadPool(this.threadPoolService.getThreadPool());
+        this.bootstrap.group(this.workerGroup)
+                .channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) {
+                        ChannelPipeline p = ch.pipeline();
+                        if (WebSocketConnection.this.sslCtx != null) {
+                            p.addLast(WebSocketConnection.this.sslCtx.newHandler(ch.alloc(), WebSocketConnection.this.uri.getHost(), WebSocketConnection.this.uri.getPort()));
                         }
-                    });
-            //TODO: reconnect
-            this.channel = this.bootstrap.connect(host, port).sync().channel();
-//            this.channel.closeFuture().addListener(new ChannelFutureListener() {
-//                @Override
-//                public void operationComplete(ChannelFuture future) throws Exception {
-//
-//                }
-//            })
-
-            this.handler.handshakeFuture().sync();
-        } catch (URISyntaxException | InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        return true;
+                        p.addLast(
+                                new HttpClientCodec(),
+                                new HttpObjectAggregator(8192),
+//                                    WebSocketClientCompressionHandler.INSTANCE,
+                                WebSocketConnection.this.handler);
+                    }
+                });
+        return this.doConnect();
     }
 
-    private class CheckCertExistenceResult {
-        private boolean checkPassed = true;
-        private String errorMessage = "";
-
-        public boolean isCheckPassed() {
-            return this.checkPassed;
-        }
-
-        public void setCheckPassed(boolean checkPassed) {
-            this.checkPassed = checkPassed;
-        }
-
-        public String getErrorMessage() {
-            return this.errorMessage;
-        }
-
-        public void setErrorMessage(String errorMessage) {
-            this.errorMessage = errorMessage;
-        }
-    }
-
-    private CheckCertExistenceResult checkCertExistence(boolean isSM) {
-
-        CheckCertExistenceResult result = new CheckCertExistenceResult();
-        result.setCheckPassed(true);
-        String errorMessage = "";
-        errorMessage = errorMessage + "Please make sure ";
-        if (!new File(this.configOption.getCryptoMaterialConfig().getCaCertPath()).exists()) {
-            result.setCheckPassed(false);
-            errorMessage =
-                    errorMessage + this.configOption.getCryptoMaterialConfig().getCaCertPath() + " ";
-        }
-        if (!new File(this.configOption.getCryptoMaterialConfig().getSdkCertPath()).exists()) {
-            result.setCheckPassed(false);
-            errorMessage =
-                    errorMessage + this.configOption.getCryptoMaterialConfig().getSdkCertPath() + " ";
-        }
-        if (!new File(this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()).exists()) {
-            result.setCheckPassed(false);
-            errorMessage =
-                    errorMessage
-                            + this.configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()
-                            + " ";
-        }
-        if (!isSM) {
-            errorMessage = errorMessage + "exists!";
-            result.setErrorMessage(errorMessage);
-            return result;
-        }
-        if (!new File(this.configOption.getCryptoMaterialConfig().getEnSSLCertPath()).exists()) {
-            errorMessage =
-                    errorMessage + this.configOption.getCryptoMaterialConfig().getEnSSLCertPath() + " ";
-            result.setCheckPassed(false);
-        }
-        if (!new File(this.configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()).exists()) {
-            errorMessage =
-                    errorMessage
-                            + this.configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()
-                            + " ";
-            result.setCheckPassed(false);
-        }
-        errorMessage = errorMessage + "exist!";
-        result.setErrorMessage(errorMessage);
-        return result;
+    private void scheduleConnect() {
+        this.scheduledExecutorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                if (WebSocketConnection.this.doConnect()) {
+                    WebSocketConnection.this.handshake();
+                }
+            }
+        }, this.connectInterval, TimeUnit.MILLISECONDS);
     }
 
     public Boolean doConnect() {
-        // TODO: implement reconnect
+        if (!this.isRunning.get()) {
+            logger.info("the connection is stopped");
+            return false;
+        }
+        // reconnect
+        ChannelFuture f = this.bootstrap.connect(this.uri.getHost(), this.uri.getPort());
+        f.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (!future.isSuccess()) {//if is not successful, reconnect
+                    future.channel().close();
+                    WebSocketConnection.this.bootstrap.connect(WebSocketConnection.this.uri.getHost(), WebSocketConnection.this.uri.getPort()).addListener(this);
+                } else {
+                    Channel channel = future.channel();
+                    //add a listener to detect the connection lost
+                    channel.closeFuture().addListener((ChannelFutureListener) future1 -> {
+                        WebSocketConnection.logger.warn("connection lost, try to recconnnect to " + WebSocketConnection.this.uri);
+                        WebSocketConnection.this.scheduleConnect();
+                    });
+                    WebSocketConnection.this.channel.set(channel);
+                }
+            }
+        });
+        try {
+            this.channel.set(f.sync().channel());
+            this.handler.handshakeFuture().sync();
+        } catch (InterruptedException e) {
+            WebSocketConnection.logger.info("reconnect to {} failed, message:{}", WebSocketConnection.this.uri,
+                    e.getMessage());
+            this.scheduleConnect();
+        }
         return true;
     }
 
-    /**
-     * call rpc method
-     *
-     * @param request jsonrpc format string
-     * @return response
-     * @throws IOException
-     */
-    @Override
-    public String callMethod(String request) throws IOException {
+
+    private Boolean handshake() {
         Callback callback = new Callback();
-        Message message = new Message((short) MsgType.RPC_REQUEST.ordinal(), ChannelUtils.newSeq(), request.getBytes());
-        // FIXME: complete message use request
-        this.asyncSendMessage(message, callback);
-        this.waitResponse(callback);
-        if (callback.retResponse.getErrorCode() != 0) {
-            // TODO: throw exception
+        ChannelHandshake channelHandshake = new ChannelHandshake();
+        try {
+            byte[] payload = this.objectMapper.writeValueAsBytes(channelHandshake);
+            Message message = new Message((short) MsgType.CLIENT_HANDSHAKE.getType(), ChannelUtils.newSeq(), payload);
+            this.asyncSendMessage(message, callback);
+            this.waitResponse(callback);
+            if (callback.retResponse.getErrorCode() != 0) {
+                // TODO: throw exception
+                return false;
+            }
+            this.nodeInfo = this.objectMapper.readValue(callback.retResponse.getContent(),
+                    NodeInfo.class);
+            logger.info("handshake whit node got: {}", this.nodeInfo);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
         }
-        return callback.retResponse.getContent();
+        return true;
     }
 
     @Override
     public String getUri() {
-        return this.uri;
+        return this.uri.toString();
     }
 
     private void waitResponse(Callback callback) {
@@ -303,6 +282,26 @@ public class WebSocketConnection implements Connection {
     }
 
     /**
+     * call rpc method
+     *
+     * @param request jsonrpc format string
+     * @return response
+     * @throws IOException
+     */
+    @Override
+    public String callMethod(String request) throws IOException {
+        Callback callback = new Callback();
+        Message message = new Message((short) MsgType.RPC_REQUEST.getType(), ChannelUtils.newSeq(), request.getBytes());
+        // FIXME: complete message use request
+        this.asyncSendMessage(message, callback);
+        this.waitResponse(callback);
+        if (callback.retResponse.getErrorCode() != 0) {
+            throw new IOException(callback.retResponse.getErrorMessage());
+        }
+        return callback.retResponse.getContent();
+    }
+
+    /**
      * Send a message to a node in the group and select the node with the highest block height in
      * the group
      *
@@ -311,7 +310,7 @@ public class WebSocketConnection implements Connection {
      */
     @Override
     public void asyncCallMethod(String request, ResponseCallback callback) throws IOException {
-        Message message = new Message((short) MsgType.RPC_REQUEST.ordinal(), ChannelUtils.newSeq(), request.getBytes());
+        Message message = new Message((short) MsgType.RPC_REQUEST.getType(), ChannelUtils.newSeq(), request.getBytes());
         this.asyncSendMessage(message, callback);
     }
 
@@ -320,7 +319,22 @@ public class WebSocketConnection implements Connection {
         ByteBuf byteBuf = Unpooled.buffer();
         message.encode(byteBuf);
         WebSocketFrame frame = new BinaryWebSocketFrame(byteBuf);
-        this.channel.writeAndFlush(frame);
-        this.channelMsgHandler.addSeq2CallBack(message.getSeq(), callback);
+        Channel channel = this.channel.get();
+        if (channel.isActive()) {
+            channel.writeAndFlush(frame);
+            this.channelMsgHandler.addSeq2CallBack(message.getSeq(), callback);
+        } else {
+            logger.warn("send message with seq {} failed ", message.getSeq());
+            Response response = new Response();
+            response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
+            String errorContent =
+                    "Send message failed for connect failed";
+            response.setErrorMessage(errorContent);
+            response.setContent(errorContent);
+            response.setMessageID(message.getSeq());
+            if (callback != null) {
+                callback.onResponse(response);
+            }
+        }
     }
 }

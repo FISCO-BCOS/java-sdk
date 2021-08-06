@@ -31,7 +31,6 @@ public class Message implements Serializable {
     protected String seq = "";
     protected byte[] data;
 
-    public static final int HEADER_LENGTH = 4 + 2 + 32 + 4;
 
     public Message(Short type, String seq, byte[] data) {
         this.type = type;

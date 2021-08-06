@@ -15,14 +15,15 @@
 
 package org.fisco.bcos.sdk.client;
 
+import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.network.Connection;
-import org.fisco.bcos.sdk.network.HttpConnection;
 import org.fisco.bcos.sdk.network.NetworkException;
+import org.fisco.bcos.sdk.network.WebSocketConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +44,8 @@ public interface Client {
      * @return a client instance
      */
     static Client build(String endpoint, ConfigOption configOption) throws NetworkException {
-        HttpConnection connection = new HttpConnection(endpoint);
-//        WebSocketConnection = new WebSocketConnection(configOption);
+//        HttpConnection connection = new HttpConnection(endpoint);
+        WebSocketConnection connection = new WebSocketConnection(configOption, endpoint);
         if (!connection.connect()) {
             throw new NetworkException("try connect to " + endpoint + " failed");
         }
@@ -70,7 +71,7 @@ public interface Client {
      *
      * @return the NodeVersion of the connected node
      */
-    NodeInfo.NodeInformation getNodeInfo();
+    NodeInfo getNodeInfo();
 
     /**
      * Get crypto type
@@ -205,13 +206,14 @@ public interface Client {
     /**
      * Ledger operation: async get block by block number
      *
-     * @param blockNumber                  the number of the block
-     * @param returnFullTransactionObjects the boolean define the tx is full or not
-     * @param callback                     the callback that will be called when receive the response
+     * @param blockNumber      the number of the block
+     * @param onlyHeader       the boolean if only need header
+     * @param fullTransactions the boolean if need all transactions
+     * @param callback         the callback that will be called when receive the response
      */
     void getBlockByNumberAsync(
             BigInteger blockNumber,
-            boolean returnFullTransactionObjects,
+            boolean onlyHeader, boolean fullTransactions,
             RespCallback<BcosBlock> callback);
 
     /**

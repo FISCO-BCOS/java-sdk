@@ -17,19 +17,24 @@
 
 package org.fisco.bcos.sdk;
 
+import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.contract.HelloWorld;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
+import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigInteger;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class BcosSDKTest {
     private static final String configFile =
@@ -86,12 +91,118 @@ public class BcosSDKTest {
         System.out.println(peers.getPeers());
 
         // get NodeInfo
-        NodeInfo.NodeInformation nodeInfo = client.getNodeInfo();
-        System.out.println(nodeInfo);
+        NodeInfo NodeInfo = client.getNodeInfo();
+        System.out.println(NodeInfo);
 
         // get getSyncStatus
         SyncStatus syncStatus = client.getSyncStatus();
         System.out.println(syncStatus.getSyncStatus());
+    }
+
+    @Test
+    public void testClientAsync() throws ConfigException {
+        BcosSDK sdk = BcosSDK.build(configFile);
+        // get the client
+        Client client = sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+
+        // test getBlockByNumber only header
+        final String[] genesisHash = {null};
+
+        client.getBlockByNumberAsync(BigInteger.ZERO, true, true, new RespCallback<BcosBlock>() {
+            @Override
+            public void onResponse(BcosBlock bcosBlock) {
+                System.out.println("getBlockByNumberAsync=" + bcosBlock.getBlock());
+                genesisHash[0] = bcosBlock.getBlock().getHash();
+            }
+
+            @Override
+            public void onError(Response errorResponse) {
+                System.out.printf("getBlockByNumberAsync failed: {}", errorResponse.getErrorMessage());
+            }
+        });
+        // test getBlockByNumber
+        client.getBlockByNumberAsync(BigInteger.ZERO, false, false, new RespCallback<BcosBlock>() {
+            @Override
+            public void onResponse(BcosBlock bcosBlock) {
+                System.out.println("getBlockByNumberAsync=" + bcosBlock.getBlock());
+            }
+
+            @Override
+            public void onError(Response errorResponse) {
+                System.out.printf("getBlockByNumberAsync failed: {}", errorResponse.getErrorMessage());
+            }
+        });
+
+        // getBlockByHash
+        client.getBlockByHashAsync(genesisHash[0], true, true, new RespCallback<BcosBlock>() {
+            @Override
+            public void onResponse(BcosBlock bcosBlock) {
+                System.out.println("genesis block=" + bcosBlock.getBlock());
+            }
+
+            @Override
+            public void onError(Response errorResponse) {
+                System.out.printf("getBlockByHashAsync failed: {}", errorResponse.getErrorMessage());
+            }
+        });
+
+        // get SealerList
+        SealerList sealerList = client.getSealerList();
+        System.out.println(sealerList.getSealerList());
+
+        // get observerList
+        ObserverList observerList = client.getObserverList();
+        System.out.println(observerList.getObserverList());
+
+        // get pbftView
+        PbftView pbftView = client.getPbftView();
+        System.out.println(pbftView.getPbftView());
+
+        // get getPendingTxSize
+        PendingTxSize pendingTxSize = client.getPendingTxSize();
+        System.out.println(pendingTxSize.getPendingTxSize());
+
+        // get getSystemConfigByKey
+        SystemConfig tx_count_limit = client.getSystemConfigByKey("tx_count_limit");
+        System.out.println(tx_count_limit.getSystemConfig());
+
+        // get getTotalTransactionCount
+        TotalTransactionCount totalTransactionCount = client.getTotalTransactionCount();
+        System.out.println(totalTransactionCount.getTotalTransactionCount());
+
+        // get getPeers
+        Peers peers = client.getPeers();
+        System.out.println(peers.getPeers());
+
+        // get NodeInfo
+        NodeInfo NodeInfo = client.getNodeInfo();
+        System.out.println(NodeInfo);
+
+        // get getSyncStatus
+        SyncStatus syncStatus = client.getSyncStatus();
+        System.out.println(syncStatus.getSyncStatus());
+        
+        // test getBlockNumber
+        CompletableFuture<BigInteger> future = new CompletableFuture<>();
+        client.getBlockNumberAsync(new RespCallback<BlockNumber>() {
+            @Override
+            public void onResponse(BlockNumber blockNumber) {
+                System.out.println("getBlockNumberAsync=" + blockNumber.getBlockNumber());
+                future.complete(blockNumber.getBlockNumber());
+            }
+
+            @Override
+            public void onError(Response errorResponse) {
+                System.out.printf("getBlockNumberAsync failed: {}", errorResponse.getErrorMessage());
+                future.complete(BigInteger.valueOf(-1));
+            }
+        });
+        try {
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Test
