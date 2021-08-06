@@ -20,20 +20,23 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 
+@SuppressWarnings("unchecked")
 public class ConsensusPrecompiled extends Contract {
     public static final String[] BINARY_ARRAY = {};
 
-    public static final String BINARY = String.join("", BINARY_ARRAY);
+    public static final String BINARY =
+            org.fisco.bcos.sdk.utils.StringUtils.joinAll("", BINARY_ARRAY);
 
     public static final String[] SM_BINARY_ARRAY = {};
 
-    public static final String SM_BINARY = String.join("", SM_BINARY_ARRAY);
+    public static final String SM_BINARY =
+            org.fisco.bcos.sdk.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
         "[{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"addObserver\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"remove\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"addSealer\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
-    public static final String ABI = String.join("", ABI_ARRAY);
+    public static final String ABI = org.fisco.bcos.sdk.utils.StringUtils.joinAll("", ABI_ARRAY);
 
     public static final String FUNC_ADDOBSERVER = "addObserver";
 
@@ -57,7 +60,7 @@ public class ConsensusPrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.executeTransaction(function);
+        return executeTransaction(function);
     }
 
     public void addObserver(String param0, TransactionCallback callback) {
@@ -67,7 +70,7 @@ public class ConsensusPrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
                         Collections.<TypeReference<?>>emptyList());
-        this.asyncExecuteTransaction(function, callback);
+        asyncExecuteTransaction(function, callback);
     }
 
     public String getSignedTransactionForAddObserver(String param0) {
@@ -77,7 +80,7 @@ public class ConsensusPrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.createSignedTransaction(function);
+        return createSignedTransaction(function);
     }
 
     public Tuple1<String> getAddObserverInput(TransactionReceipt transactionReceipt) {
@@ -109,7 +112,7 @@ public class ConsensusPrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.executeTransaction(function);
+        return executeTransaction(function);
     }
 
     public void remove(String param0, TransactionCallback callback) {
@@ -119,7 +122,7 @@ public class ConsensusPrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
                         Collections.<TypeReference<?>>emptyList());
-        this.asyncExecuteTransaction(function, callback);
+        asyncExecuteTransaction(function, callback);
     }
 
     public String getSignedTransactionForRemove(String param0) {
@@ -129,7 +132,7 @@ public class ConsensusPrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.createSignedTransaction(function);
+        return createSignedTransaction(function);
     }
 
     public Tuple1<String> getRemoveInput(TransactionReceipt transactionReceipt) {
@@ -161,7 +164,7 @@ public class ConsensusPrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.executeTransaction(function);
+        return executeTransaction(function);
     }
 
     public void addSealer(String param0, TransactionCallback callback) {
@@ -171,7 +174,7 @@ public class ConsensusPrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
                         Collections.<TypeReference<?>>emptyList());
-        this.asyncExecuteTransaction(function, callback);
+        asyncExecuteTransaction(function, callback);
     }
 
     public String getSignedTransactionForAddSealer(String param0) {
@@ -181,7 +184,7 @@ public class ConsensusPrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.createSignedTransaction(function);
+        return createSignedTransaction(function);
     }
 
     public Tuple1<String> getAddSealerInput(TransactionReceipt transactionReceipt) {
@@ -213,7 +216,7 @@ public class ConsensusPrecompiled extends Contract {
 
     public static ConsensusPrecompiled deploy(Client client, CryptoKeyPair credential)
             throws ContractException {
-        return Contract.deploy(
+        return deploy(
                 ConsensusPrecompiled.class,
                 client,
                 credential,

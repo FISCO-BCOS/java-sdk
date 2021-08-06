@@ -23,20 +23,23 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 
-public class CRUD extends Contract {
+@SuppressWarnings("unchecked")
+public class CRUDPrecompiled extends Contract {
     public static final String[] BINARY_ARRAY = {};
 
-    public static final String BINARY = String.join("", BINARY_ARRAY);
+    public static final String BINARY =
+            org.fisco.bcos.sdk.utils.StringUtils.joinAll("", BINARY_ARRAY);
 
     public static final String[] SM_BINARY_ARRAY = {};
 
-    public static final String SM_BINARY = String.join("", SM_BINARY_ARRAY);
+    public static final String SM_BINARY =
+            org.fisco.bcos.sdk.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
         "[{\"constant\":false,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"entry\",\"type\":\"string\"},{\"name\":\"condition\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"update\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"}],\"name\":\"desc\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"condition\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"select\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"entry\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"insert\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"condition\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"remove\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
-    public static final String ABI = String.join("", ABI_ARRAY);
+    public static final String ABI = org.fisco.bcos.sdk.utils.StringUtils.joinAll("", ABI_ARRAY);
 
     public static final String FUNC_UPDATE = "update";
 
@@ -48,7 +51,7 @@ public class CRUD extends Contract {
 
     public static final String FUNC_REMOVE = "remove";
 
-    protected CRUD(String contractAddress, Client client, CryptoKeyPair credential) {
+    protected CRUDPrecompiled(String contractAddress, Client client, CryptoKeyPair credential) {
         super(getBinary(client.getCryptoSuite()), contractAddress, client, credential);
     }
 
@@ -68,7 +71,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(condition),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param4)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.executeTransaction(function);
+        return executeTransaction(function);
     }
 
     public void update(
@@ -88,7 +91,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(condition),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param4)),
                         Collections.<TypeReference<?>>emptyList());
-        this.asyncExecuteTransaction(function, callback);
+        asyncExecuteTransaction(function, callback);
     }
 
     public String getSignedTransactionForUpdate(
@@ -103,7 +106,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(condition),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param4)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.createSignedTransaction(function);
+        return createSignedTransaction(function);
     }
 
     public Tuple5<String, String, String, String, String> getUpdateInput(
@@ -148,7 +151,7 @@ public class CRUD extends Contract {
                         Arrays.<TypeReference<?>>asList(
                                 new TypeReference<Utf8String>() {},
                                 new TypeReference<Utf8String>() {}));
-        List<Type> results = this.executeCallWithMultipleValueReturn(function);
+        List<Type> results = executeCallWithMultipleValueReturn(function);
         return new Tuple2<String, String>(
                 (String) results.get(0).getValue(), (String) results.get(1).getValue());
     }
@@ -164,7 +167,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(condition),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param3)),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
-        return this.executeCallWithSingleValueReturn(function, String.class);
+        return executeCallWithSingleValueReturn(function, String.class);
     }
 
     public TransactionReceipt insert(String tableName, String key, String entry, String param3) {
@@ -177,7 +180,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(entry),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param3)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.executeTransaction(function);
+        return executeTransaction(function);
     }
 
     public void insert(
@@ -195,7 +198,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(entry),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param3)),
                         Collections.<TypeReference<?>>emptyList());
-        this.asyncExecuteTransaction(function, callback);
+        asyncExecuteTransaction(function, callback);
     }
 
     public String getSignedTransactionForInsert(
@@ -209,7 +212,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(entry),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param3)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.createSignedTransaction(function);
+        return createSignedTransaction(function);
     }
 
     public Tuple4<String, String, String, String> getInsertInput(
@@ -254,7 +257,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(condition),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param3)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.executeTransaction(function);
+        return executeTransaction(function);
     }
 
     public void remove(
@@ -272,7 +275,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(condition),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param3)),
                         Collections.<TypeReference<?>>emptyList());
-        this.asyncExecuteTransaction(function, callback);
+        asyncExecuteTransaction(function, callback);
     }
 
     public String getSignedTransactionForRemove(
@@ -286,7 +289,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(condition),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param3)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.createSignedTransaction(function);
+        return createSignedTransaction(function);
     }
 
     public Tuple4<String, String, String, String> getRemoveInput(
@@ -320,12 +323,18 @@ public class CRUD extends Contract {
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
-    public static CRUD load(String contractAddress, Client client, CryptoKeyPair credential) {
-        return new CRUD(contractAddress, client, credential);
+    public static CRUDPrecompiled load(
+            String contractAddress, Client client, CryptoKeyPair credential) {
+        return new CRUDPrecompiled(contractAddress, client, credential);
     }
 
-    public static CRUD deploy(Client client, CryptoKeyPair credential) throws ContractException {
-        return Contract.deploy(
-                CRUD.class, client, credential, getBinary(client.getCryptoSuite()), null);
+    public static CRUDPrecompiled deploy(Client client, CryptoKeyPair credential)
+            throws ContractException {
+        return deploy(
+                CRUDPrecompiled.class,
+                client,
+                credential,
+                getBinary(client.getCryptoSuite()),
+                null);
     }
 }

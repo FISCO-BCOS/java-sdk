@@ -21,20 +21,23 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 
+@SuppressWarnings("unchecked")
 public class SystemConfigPrecompiled extends Contract {
     public static final String[] BINARY_ARRAY = {};
 
-    public static final String BINARY = String.join("", BINARY_ARRAY);
+    public static final String BINARY =
+            org.fisco.bcos.sdk.utils.StringUtils.joinAll("", BINARY_ARRAY);
 
     public static final String[] SM_BINARY_ARRAY = {};
 
-    public static final String SM_BINARY = String.join("", SM_BINARY_ARRAY);
+    public static final String SM_BINARY =
+            org.fisco.bcos.sdk.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
         "[{\"constant\":false,\"inputs\":[{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"value\",\"type\":\"string\"}],\"name\":\"setValueByKey\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
-    public static final String ABI = String.join("", ABI_ARRAY);
+    public static final String ABI = org.fisco.bcos.sdk.utils.StringUtils.joinAll("", ABI_ARRAY);
 
     public static final String FUNC_SETVALUEBYKEY = "setValueByKey";
 
@@ -55,7 +58,7 @@ public class SystemConfigPrecompiled extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(key),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(value)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.executeTransaction(function);
+        return executeTransaction(function);
     }
 
     public void setValueByKey(String key, String value, TransactionCallback callback) {
@@ -66,7 +69,7 @@ public class SystemConfigPrecompiled extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(key),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(value)),
                         Collections.<TypeReference<?>>emptyList());
-        this.asyncExecuteTransaction(function, callback);
+        asyncExecuteTransaction(function, callback);
     }
 
     public String getSignedTransactionForSetValueByKey(String key, String value) {
@@ -77,7 +80,7 @@ public class SystemConfigPrecompiled extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(key),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(value)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.createSignedTransaction(function);
+        return createSignedTransaction(function);
     }
 
     public Tuple2<String, String> getSetValueByKeyInput(TransactionReceipt transactionReceipt) {
@@ -112,7 +115,7 @@ public class SystemConfigPrecompiled extends Contract {
 
     public static SystemConfigPrecompiled deploy(Client client, CryptoKeyPair credential)
             throws ContractException {
-        return Contract.deploy(
+        return deploy(
                 SystemConfigPrecompiled.class,
                 client,
                 credential,

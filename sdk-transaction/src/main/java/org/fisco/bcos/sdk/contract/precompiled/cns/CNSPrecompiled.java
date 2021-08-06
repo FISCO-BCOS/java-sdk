@@ -22,20 +22,23 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 
+@SuppressWarnings("unchecked")
 public class CNSPrecompiled extends Contract {
     public static final String[] BINARY_ARRAY = {};
 
-    public static final String BINARY = String.join("", BINARY_ARRAY);
+    public static final String BINARY =
+            org.fisco.bcos.sdk.utils.StringUtils.joinAll("", BINARY_ARRAY);
 
     public static final String[] SM_BINARY_ARRAY = {};
 
-    public static final String SM_BINARY = String.join("", SM_BINARY_ARRAY);
+    public static final String SM_BINARY =
+            org.fisco.bcos.sdk.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
         "[{\"constant\":true,\"inputs\":[{\"name\":\"name\",\"type\":\"string\"}],\"name\":\"selectByName\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"}],\"name\":\"selectByNameAndVersion\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"addr\",\"type\":\"string\"},{\"name\":\"abi\",\"type\":\"string\"}],\"name\":\"insert\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"}],\"name\":\"getContractAddress\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
     };
 
-    public static final String ABI = String.join("", ABI_ARRAY);
+    public static final String ABI = org.fisco.bcos.sdk.utils.StringUtils.joinAll("", ABI_ARRAY);
 
     public static final String FUNC_SELECTBYNAME = "selectByName";
 
@@ -59,7 +62,7 @@ public class CNSPrecompiled extends Contract {
                         FUNC_SELECTBYNAME,
                         Arrays.<Type>asList(new org.fisco.bcos.sdk.abi.datatypes.Utf8String(name)),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
-        return this.executeCallWithSingleValueReturn(function, String.class);
+        return executeCallWithSingleValueReturn(function, String.class);
     }
 
     public String selectByNameAndVersion(String name, String version) throws ContractException {
@@ -70,7 +73,7 @@ public class CNSPrecompiled extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(name),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(version)),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
-        return this.executeCallWithSingleValueReturn(function, String.class);
+        return executeCallWithSingleValueReturn(function, String.class);
     }
 
     public TransactionReceipt insert(String name, String version, String addr, String abi) {
@@ -83,7 +86,7 @@ public class CNSPrecompiled extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(addr),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(abi)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.executeTransaction(function);
+        return executeTransaction(function);
     }
 
     public void insert(
@@ -97,7 +100,7 @@ public class CNSPrecompiled extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(addr),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(abi)),
                         Collections.<TypeReference<?>>emptyList());
-        this.asyncExecuteTransaction(function, callback);
+        asyncExecuteTransaction(function, callback);
     }
 
     public String getSignedTransactionForInsert(
@@ -111,7 +114,7 @@ public class CNSPrecompiled extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(addr),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(abi)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.createSignedTransaction(function);
+        return createSignedTransaction(function);
     }
 
     public Tuple4<String, String, String, String> getInsertInput(
@@ -153,7 +156,7 @@ public class CNSPrecompiled extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(name),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(version)),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
-        return this.executeCallWithSingleValueReturn(function, String.class);
+        return executeCallWithSingleValueReturn(function, String.class);
     }
 
     public static CNSPrecompiled load(
@@ -163,7 +166,7 @@ public class CNSPrecompiled extends Contract {
 
     public static CNSPrecompiled deploy(Client client, CryptoKeyPair credential)
             throws ContractException {
-        return Contract.deploy(
+        return deploy(
                 CNSPrecompiled.class, client, credential, getBinary(client.getCryptoSuite()), null);
     }
 }
