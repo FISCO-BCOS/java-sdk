@@ -14,6 +14,7 @@
 package org.fisco.bcos.sdk;
 
 import io.netty.channel.ChannelException;
+import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
@@ -21,8 +22,6 @@ import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.network.NetworkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 public class BcosSDK {
     private static Logger logger = LoggerFactory.getLogger(BcosSDK.class);
@@ -70,12 +69,10 @@ public class BcosSDK {
         }
     }
 
-    private boolean updateUriToClient(String endPoint, Client client)
-    {
-        if(!this.uriToClient.containsKey(endPoint))
-        {
+    private boolean updateUriToClient(String endPoint, Client client) {
+        if (!this.uriToClient.containsKey(endPoint)) {
             uriToClient.put(endPoint, client);
-           return true;
+            return true;
         }
         return false;
     }
@@ -87,11 +84,9 @@ public class BcosSDK {
      * @return Client
      */
     public Client getClientByGroupID(String groupId) {
-        for(String endPoint : this.uriToClient.keySet())
-        {
+        for (String endPoint : this.uriToClient.keySet()) {
             Client client = this.uriToClient.get(endPoint);
-            if(client.getGroupId() == groupId)
-            {
+            if (client.getGroupId() == groupId) {
                 return client;
             }
         }
@@ -105,8 +100,7 @@ public class BcosSDK {
      * @return Client
      */
     public Client getClientByEndpoint(String endPoint) {
-        if(this.uriToClient.containsKey(endPoint))
-        {
+        if (this.uriToClient.containsKey(endPoint)) {
             return this.uriToClient.get(endPoint);
         }
         return null;
@@ -121,9 +115,7 @@ public class BcosSDK {
         return this.config;
     }
 
-    /**
-     * Stop all module of BcosSDK
-     */
+    /** Stop all module of BcosSDK */
     public void stopAll() {
         // stop the client
         for (String endPoint : this.uriToClient.keySet()) {

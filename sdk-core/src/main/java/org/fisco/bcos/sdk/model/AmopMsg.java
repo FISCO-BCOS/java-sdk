@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.model;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.io.UnsupportedEncodingException;
 
 public class AmopMsg extends Message {

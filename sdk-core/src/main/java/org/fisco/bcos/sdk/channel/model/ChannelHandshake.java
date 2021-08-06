@@ -4,9 +4,7 @@ public class ChannelHandshake {
 
     private String clientType = "java-sdk";
 
-    public ChannelHandshake() {
-    }
-
+    public ChannelHandshake() {}
 
     public String getClientType() {
         return this.clientType;
@@ -18,8 +16,6 @@ public class ChannelHandshake {
 
     @Override
     public String toString() {
-        return "ChannelHandshake [clientType="
-                + this.clientType
-                + "]";
+        return "ChannelHandshake [clientType=" + this.clientType + "]";
     }
 }

@@ -1,16 +1,15 @@
 package org.fisco.bcos.sdk.abi;
 
-import org.fisco.bcos.sdk.abi.datatypes.Function;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.abi.datatypes.Uint;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.fisco.bcos.sdk.abi.datatypes.Function;
+import org.fisco.bcos.sdk.abi.datatypes.Type;
+import org.fisco.bcos.sdk.abi.datatypes.Uint;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 
 /**
  * Ethereum Contract Application Binary Interface (ABI) encoding for functions. Further details are
@@ -51,7 +50,8 @@ public class FunctionEncoder {
 
                 if (parameter.dynamicType()) {
                     byte[] encodedDataOffset =
-                            TypeEncoder.encodeNumeric(new Uint(BigInteger.valueOf(dynamicDataOffset)));
+                            TypeEncoder.encodeNumeric(
+                                    new Uint(BigInteger.valueOf(dynamicDataOffset)));
                     result.write(encodedDataOffset);
                     dynamicData.write(encodedValue);
                     dynamicDataOffset += (encodedValue.length >> 1);
@@ -84,16 +84,12 @@ public class FunctionEncoder {
         return Arrays.copyOfRange(hash, 0, 4);
     }
 
-    /**
-     * @return the cryptoSuite
-     */
+    /** @return the cryptoSuite */
     public CryptoSuite getCryptoSuite() {
         return this.cryptoSuite;
     }
 
-    /**
-     * @param cryptoSuite the cryptoSuite to set
-     */
+    /** @param cryptoSuite the cryptoSuite to set */
     public void setCryptoSuite(CryptoSuite cryptoSuite) {
         this.cryptoSuite = cryptoSuite;
     }

@@ -1,5 +1,9 @@
 package org.fisco.bcos.sdk.contract.precompiled.crud;
 
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.datatypes.Function;
@@ -19,11 +23,6 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 public class CRUD extends Contract {
     public static final String[] BINARY_ARRAY = {};
 
@@ -34,7 +33,7 @@ public class CRUD extends Contract {
     public static final String SM_BINARY = String.join("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
-            "[{\"constant\":false,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"entry\",\"type\":\"string\"},{\"name\":\"condition\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"update\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"}],\"name\":\"desc\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"condition\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"select\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"entry\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"insert\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"condition\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"remove\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+        "[{\"constant\":false,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"entry\",\"type\":\"string\"},{\"name\":\"condition\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"update\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"}],\"name\":\"desc\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"condition\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"select\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"entry\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"insert\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"tableName\",\"type\":\"string\"},{\"name\":\"key\",\"type\":\"string\"},{\"name\":\"condition\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"remove\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = String.join("", ABI_ARRAY);
@@ -115,16 +114,11 @@ public class CRUD extends Contract {
                         FUNC_UPDATE,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                }));
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {}));
         List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple5<String, String, String, String, String>(
                 (String) results.get(0).getValue(),
@@ -140,8 +134,7 @@ public class CRUD extends Contract {
                 new Function(
                         FUNC_UPDATE,
                         Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {
-                        }));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
         List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
@@ -153,10 +146,8 @@ public class CRUD extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(tableName)),
                         Arrays.<TypeReference<?>>asList(
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                }));
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {}));
         List<Type> results = this.executeCallWithMultipleValueReturn(function);
         return new Tuple2<String, String>(
                 (String) results.get(0).getValue(), (String) results.get(1).getValue());
@@ -172,8 +163,7 @@ public class CRUD extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(key),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(condition),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param3)),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {
-                        }));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
         return this.executeCallWithSingleValueReturn(function, String.class);
     }
 
@@ -230,14 +220,10 @@ public class CRUD extends Contract {
                         FUNC_INSERT,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                }));
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {}));
         List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple4<String, String, String, String>(
                 (String) results.get(0).getValue(),
@@ -252,8 +238,7 @@ public class CRUD extends Contract {
                 new Function(
                         FUNC_INSERT,
                         Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {
-                        }));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
         List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
@@ -312,14 +297,10 @@ public class CRUD extends Contract {
                         FUNC_REMOVE,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                }));
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {}));
         List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple4<String, String, String, String>(
                 (String) results.get(0).getValue(),
@@ -334,8 +315,7 @@ public class CRUD extends Contract {
                 new Function(
                         FUNC_REMOVE,
                         Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {
-                        }));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
         List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
@@ -345,6 +325,7 @@ public class CRUD extends Contract {
     }
 
     public static CRUD deploy(Client client, CryptoKeyPair credential) throws ContractException {
-        return Contract.deploy(CRUD.class, client, credential, getBinary(client.getCryptoSuite()), null);
+        return Contract.deploy(
+                CRUD.class, client, credential, getBinary(client.getCryptoSuite()), null);
     }
 }

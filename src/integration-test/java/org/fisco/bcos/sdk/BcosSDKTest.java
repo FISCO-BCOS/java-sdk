@@ -17,6 +17,9 @@
 
 package org.fisco.bcos.sdk;
 
+import java.math.BigInteger;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.RespCallback;
@@ -32,19 +35,19 @@ import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.math.BigInteger;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 public class BcosSDKTest {
     private static final String configFile =
-            BcosSDKTest.class.getClassLoader().getResource(ConstantConfig.CONFIG_FILE_NAME).getPath();
+            BcosSDKTest.class
+                    .getClassLoader()
+                    .getResource(ConstantConfig.CONFIG_FILE_NAME)
+                    .getPath();
 
     @Test
     public void testClient() throws ConfigException {
         BcosSDK sdk = BcosSDK.build(configFile);
         // get the client
-        Client client = sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+        Client client =
+                sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
 
         // test getBlockNumber
         BlockNumber blockNumber = client.getBlockNumber();
@@ -103,48 +106,66 @@ public class BcosSDKTest {
     public void testClientAsync() throws ConfigException {
         BcosSDK sdk = BcosSDK.build(configFile);
         // get the client
-        Client client = sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+        Client client =
+                sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
 
         // test getBlockByNumber only header
         final String[] genesisHash = {null};
 
-        client.getBlockByNumberAsync(BigInteger.ZERO, true, true, new RespCallback<BcosBlock>() {
-            @Override
-            public void onResponse(BcosBlock bcosBlock) {
-                System.out.println("getBlockByNumberAsync=" + bcosBlock.getBlock());
-                genesisHash[0] = bcosBlock.getBlock().getHash();
-            }
+        client.getBlockByNumberAsync(
+                BigInteger.ZERO,
+                true,
+                true,
+                new RespCallback<BcosBlock>() {
+                    @Override
+                    public void onResponse(BcosBlock bcosBlock) {
+                        System.out.println("getBlockByNumberAsync=" + bcosBlock.getBlock());
+                        genesisHash[0] = bcosBlock.getBlock().getHash();
+                    }
 
-            @Override
-            public void onError(Response errorResponse) {
-                System.out.printf("getBlockByNumberAsync failed: {}", errorResponse.getErrorMessage());
-            }
-        });
+                    @Override
+                    public void onError(Response errorResponse) {
+                        System.out.printf(
+                                "getBlockByNumberAsync failed: {}",
+                                errorResponse.getErrorMessage());
+                    }
+                });
         // test getBlockByNumber
-        client.getBlockByNumberAsync(BigInteger.ZERO, false, false, new RespCallback<BcosBlock>() {
-            @Override
-            public void onResponse(BcosBlock bcosBlock) {
-                System.out.println("getBlockByNumberAsync=" + bcosBlock.getBlock());
-            }
+        client.getBlockByNumberAsync(
+                BigInteger.ZERO,
+                false,
+                false,
+                new RespCallback<BcosBlock>() {
+                    @Override
+                    public void onResponse(BcosBlock bcosBlock) {
+                        System.out.println("getBlockByNumberAsync=" + bcosBlock.getBlock());
+                    }
 
-            @Override
-            public void onError(Response errorResponse) {
-                System.out.printf("getBlockByNumberAsync failed: {}", errorResponse.getErrorMessage());
-            }
-        });
+                    @Override
+                    public void onError(Response errorResponse) {
+                        System.out.printf(
+                                "getBlockByNumberAsync failed: {}",
+                                errorResponse.getErrorMessage());
+                    }
+                });
 
         // getBlockByHash
-        client.getBlockByHashAsync(genesisHash[0], true, true, new RespCallback<BcosBlock>() {
-            @Override
-            public void onResponse(BcosBlock bcosBlock) {
-                System.out.println("genesis block=" + bcosBlock.getBlock());
-            }
+        client.getBlockByHashAsync(
+                genesisHash[0],
+                true,
+                true,
+                new RespCallback<BcosBlock>() {
+                    @Override
+                    public void onResponse(BcosBlock bcosBlock) {
+                        System.out.println("genesis block=" + bcosBlock.getBlock());
+                    }
 
-            @Override
-            public void onError(Response errorResponse) {
-                System.out.printf("getBlockByHashAsync failed: {}", errorResponse.getErrorMessage());
-            }
-        });
+                    @Override
+                    public void onError(Response errorResponse) {
+                        System.out.printf(
+                                "getBlockByHashAsync failed: {}", errorResponse.getErrorMessage());
+                    }
+                });
 
         // get SealerList
         SealerList sealerList = client.getSealerList();
@@ -181,35 +202,37 @@ public class BcosSDKTest {
         // get getSyncStatus
         SyncStatus syncStatus = client.getSyncStatus();
         System.out.println(syncStatus.getSyncStatus());
-        
+
         // test getBlockNumber
         CompletableFuture<BigInteger> future = new CompletableFuture<>();
-        client.getBlockNumberAsync(new RespCallback<BlockNumber>() {
-            @Override
-            public void onResponse(BlockNumber blockNumber) {
-                System.out.println("getBlockNumberAsync=" + blockNumber.getBlockNumber());
-                future.complete(blockNumber.getBlockNumber());
-            }
+        client.getBlockNumberAsync(
+                new RespCallback<BlockNumber>() {
+                    @Override
+                    public void onResponse(BlockNumber blockNumber) {
+                        System.out.println("getBlockNumberAsync=" + blockNumber.getBlockNumber());
+                        future.complete(blockNumber.getBlockNumber());
+                    }
 
-            @Override
-            public void onError(Response errorResponse) {
-                System.out.printf("getBlockNumberAsync failed: {}", errorResponse.getErrorMessage());
-                future.complete(BigInteger.valueOf(-1));
-            }
-        });
+                    @Override
+                    public void onError(Response errorResponse) {
+                        System.out.printf(
+                                "getBlockNumberAsync failed: {}", errorResponse.getErrorMessage());
+                        future.complete(BigInteger.valueOf(-1));
+                    }
+                });
         try {
             future.get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-
     }
 
     @Test
     public void testHelloWorld() {
         BcosSDK sdk = BcosSDK.build(configFile);
         // get the client
-        Client client = sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+        Client client =
+                sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
         CryptoSuite cryptoSuite = client.getCryptoSuite();
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
         HelloWorld helloWorld = null;
@@ -230,7 +253,8 @@ public class BcosSDKTest {
             Assert.assertTrue(transaction.getTransaction().isPresent());
             System.out.println("getTransaction :" + transaction.getTransaction());
             // getTransactionReceipt
-            BcosTransactionReceipt receipt1 = client.getTransactionReceipt(receipt.getTransactionHash(), true);
+            BcosTransactionReceipt receipt1 =
+                    client.getTransactionReceipt(receipt.getTransactionHash(), true);
             Assert.assertTrue(receipt1.getTransactionReceipt().isPresent());
             System.out.println("getTransactionReceipt :" + receipt1.getTransactionReceipt());
             // getCode
@@ -243,5 +267,4 @@ public class BcosSDKTest {
             e.printStackTrace();
         }
     }
-
 }

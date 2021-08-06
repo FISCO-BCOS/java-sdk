@@ -15,6 +15,12 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
 import com.google.common.collect.Lists;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
@@ -34,13 +40,6 @@ import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * TransactionProcessorTest @Description: TransactionProcessorTest
@@ -80,8 +79,8 @@ public class AssembleTransactionProcessorTest {
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
-                        helloWorldAddrss,
-                        "0x0000000000000000000000000000000000000000000000000000000000000000"));
+                                helloWorldAddrss,
+                                "0x0000000000000000000000000000000000000000000000000000000000000000"));
         // test call, which would be queried off-chain.
         CallResponse callResponse1 =
                 transactionProcessor.sendCallByContractLoader(
@@ -186,8 +185,8 @@ public class AssembleTransactionProcessorTest {
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
-                        contractAddress,
-                        "0x0000000000000000000000000000000000000000000000000000000000000000"));
+                                contractAddress,
+                                "0x0000000000000000000000000000000000000000000000000000000000000000"));
         // System.out.println(JsonUtils.toJson(response));
         Map<String, List<List<Object>>> map = response.getEventResultMap();
         Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
@@ -289,7 +288,8 @@ public class AssembleTransactionProcessorTest {
                         try {
                             callResponse3 =
                                     transactionProcessor.sendCall(
-                                            AssembleTransactionProcessorTest.this.cryptoKeyPair.getAddress(),
+                                            AssembleTransactionProcessorTest.this.cryptoKeyPair
+                                                    .getAddress(),
                                             contractAddress,
                                             AssembleTransactionProcessorTest.this.abi,
                                             "getUint256",
@@ -394,7 +394,8 @@ public class AssembleTransactionProcessorTest {
         List<Object> paramsSetBytes = Lists.newArrayList("2".getBytes());
         byte[] data = transactionProcessor.encodeFunction(this.abi, "setBytes", paramsSetBytes);
         String signedData =
-                transactionProcessor.createSignedTransaction(contractAddress, data, this.cryptoKeyPair);
+                transactionProcessor.createSignedTransaction(
+                        contractAddress, data, this.cryptoKeyPair);
         CompletableFuture<TransactionReceipt> future =
                 transactionProcessor.sendTransactionAsync(signedData);
         future.thenAccept(

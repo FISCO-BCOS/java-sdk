@@ -30,8 +30,8 @@ public interface TransactionProcessorInterface {
     /**
      * send transaction to fisco bcos node and get transaction receipt.
      *
-     * @param to            target contract address
-     * @param data          ABI encoded transaction data
+     * @param to target contract address
+     * @param data ABI encoded transaction data
      * @param cryptoKeyPair key pair
      * @return transaction receipt
      */
@@ -41,10 +41,10 @@ public interface TransactionProcessorInterface {
     /**
      * send transaction to fisco bcos node and get transaction receipt asynchronously.
      *
-     * @param to            target contract address
-     * @param data          ABI encoded transaction data
+     * @param to target contract address
+     * @param data ABI encoded transaction data
      * @param cryptoKeyPair key pair
-     * @param callback      define hook function
+     * @param callback define hook function
      */
     public void sendTransactionAsync(
             String to, byte[] data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback);
@@ -60,8 +60,8 @@ public interface TransactionProcessorInterface {
     /**
      * send encoded function call to fisco bcos node and receive call response.
      *
-     * @param from            outer account address of sender
-     * @param to              target contract address
+     * @param from outer account address of sender
+     * @param to target contract address
      * @param encodedFunction signed transaction string
      * @return Call
      */
@@ -70,8 +70,8 @@ public interface TransactionProcessorInterface {
     /**
      * create signed transaction
      *
-     * @param to            target contract address
-     * @param data          ABI encoded transaction data
+     * @param to target contract address
+     * @param data ABI encoded transaction data
      * @param cryptoKeyPair key pair
      * @return hexed data of signed transaction
      */

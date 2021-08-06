@@ -17,18 +17,25 @@ public class Block {
 
     @TarsStructProperty(order = 1, isRequire = false)
     public int version = 0;
+
     @TarsStructProperty(order = 2, isRequire = false)
     public int type = 0;
+
     @TarsStructProperty(order = 3, isRequire = false)
     public BlockHeader blockHeader = null;
+
     @TarsStructProperty(order = 4, isRequire = false)
     public java.util.List<Transaction> transactions = null;
+
     @TarsStructProperty(order = 5, isRequire = false)
     public java.util.List<TransactionReceipt> receipts = null;
+
     @TarsStructProperty(order = 6, isRequire = false)
     public java.util.List<byte[]> transactionsHash = null;
+
     @TarsStructProperty(order = 7, isRequire = false)
     public java.util.List<byte[]> receiptsHash = null;
+
     @TarsStructProperty(order = 8, isRequire = false)
     public java.util.List<String> nonceList = null;
 
@@ -96,10 +103,17 @@ public class Block {
         this.nonceList = nonceList;
     }
 
-    public Block() {
-    }
+    public Block() {}
 
-    public Block(int version, int type, BlockHeader blockHeader, java.util.List<Transaction> transactions, java.util.List<TransactionReceipt> receipts, java.util.List<byte[]> transactionsHash, java.util.List<byte[]> receiptsHash, java.util.List<String> nonceList) {
+    public Block(
+            int version,
+            int type,
+            BlockHeader blockHeader,
+            java.util.List<Transaction> transactions,
+            java.util.List<TransactionReceipt> receipts,
+            java.util.List<byte[]> transactionsHash,
+            java.util.List<byte[]> receiptsHash,
+            java.util.List<String> nonceList) {
         this.version = version;
         this.type = type;
         this.blockHeader = blockHeader;
@@ -137,16 +151,14 @@ public class Block {
             return false;
         }
         Block other = (Block) obj;
-        return (
-                TarsUtil.equals(this.version, other.version) &&
-                        TarsUtil.equals(this.type, other.type) &&
-                        TarsUtil.equals(this.blockHeader, other.blockHeader) &&
-                        TarsUtil.equals(this.transactions, other.transactions) &&
-                        TarsUtil.equals(this.receipts, other.receipts) &&
-                        TarsUtil.equals(this.transactionsHash, other.transactionsHash) &&
-                        TarsUtil.equals(this.receiptsHash, other.receiptsHash) &&
-                        TarsUtil.equals(this.nonceList, other.nonceList)
-        );
+        return (TarsUtil.equals(this.version, other.version)
+                && TarsUtil.equals(this.type, other.type)
+                && TarsUtil.equals(this.blockHeader, other.blockHeader)
+                && TarsUtil.equals(this.transactions, other.transactions)
+                && TarsUtil.equals(this.receipts, other.receipts)
+                && TarsUtil.equals(this.transactionsHash, other.transactionsHash)
+                && TarsUtil.equals(this.receiptsHash, other.receiptsHash)
+                && TarsUtil.equals(this.nonceList, other.nonceList));
     }
 
     @Override
@@ -286,5 +298,4 @@ public class Block {
         this.receiptsHash = (java.util.List<byte[]>) _is.read(cache_receiptsHash, 7, false);
         this.nonceList = (java.util.List<String>) _is.read(cache_nonceList, 8, false);
     }
-
 }

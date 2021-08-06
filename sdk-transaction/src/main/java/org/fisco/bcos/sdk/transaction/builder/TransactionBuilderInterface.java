@@ -14,9 +14,8 @@
  */
 package org.fisco.bcos.sdk.transaction.builder;
 
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
-
 import java.math.BigInteger;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 
 /**
  * TransactionBuilderInterface @Description: TransactionBuilderInterface
@@ -28,8 +27,8 @@ public interface TransactionBuilderInterface {
     /**
      * Create fisco bcos transaction for short
      *
-     * @param to      target address
-     * @param data    encoded data
+     * @param to target address
+     * @param data encoded data
      * @param groupId group id
      * @param chainId chain id
      * @return TransactionData the created transaction
@@ -41,9 +40,9 @@ public interface TransactionBuilderInterface {
      * Create fisco bcos transaction for short
      *
      * @param blockLimit, block limit
-     * @param to          target address
-     * @param data        encoded data
-     * @param groupId     group id
+     * @param to target address
+     * @param data encoded data
+     * @param groupId group id
      * @return TransactionData the created transaction
      */
     public TransactionData createTransaction(

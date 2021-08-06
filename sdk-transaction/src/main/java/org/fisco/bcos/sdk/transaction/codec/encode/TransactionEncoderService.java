@@ -15,6 +15,7 @@
 package org.fisco.bcos.sdk.transaction.codec.encode;
 
 import com.qq.tars.protocol.tars.TarsOutputStream;
+import java.util.Base64;
 import org.fisco.bcos.sdk.client.protocol.model.Transaction;
 import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -27,8 +28,6 @@ import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Base64;
-
 public class TransactionEncoderService implements TransactionEncoderInterface {
     protected static Logger logger = LoggerFactory.getLogger(TransactionEncoderService.class);
     private final Signature signature;
@@ -39,7 +38,8 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
         super();
         this.cryptoSuite = cryptoSuite;
         this.signature = cryptoSuite.getSignatureImpl();
-        this.transactionSignerService = TransactionSignerFactory.createTransactionSigner(this.signature);
+        this.transactionSignerService =
+                TransactionSignerFactory.createTransactionSigner(this.signature);
     }
 
     public TransactionEncoderService(
@@ -54,7 +54,8 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
 
     @Override
     public String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
-        return Base64.getEncoder().encodeToString(this.encodeAndSignBytes(rawTransaction, cryptoKeyPair));
+        return Base64.getEncoder()
+                .encodeToString(this.encodeAndSignBytes(rawTransaction, cryptoKeyPair));
     }
 
     @Override
@@ -74,15 +75,14 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     @Override
     public byte[] encodeToTransactionBytes(
             TransactionData rawTransaction, byte[] hash, SignatureResult result) {
-        Transaction transaction = new Transaction(rawTransaction, hash, result.getSignatureBytes(), 0);
+        Transaction transaction =
+                new Transaction(rawTransaction, hash, result.getSignatureBytes(), 0);
         TarsOutputStream tarsOutputStream = new TarsOutputStream();
         transaction.writeTo(tarsOutputStream);
         return tarsOutputStream.toByteArray();
     }
 
-    /**
-     * @return the signature
-     */
+    /** @return the signature */
     public Signature getSignature() {
         return this.signature;
     }

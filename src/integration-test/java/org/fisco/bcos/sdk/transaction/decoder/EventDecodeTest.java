@@ -15,6 +15,8 @@
 package org.fisco.bcos.sdk.transaction.decoder;
 
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.client.Client;
@@ -26,9 +28,6 @@ import org.fisco.bcos.sdk.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * EventDecodeTest @Description: EventDecodeTest

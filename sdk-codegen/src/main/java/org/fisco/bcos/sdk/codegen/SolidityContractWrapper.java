@@ -14,6 +14,15 @@
 package org.fisco.bcos.sdk.codegen;
 
 import com.squareup.javapoet.*;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Modifier;
 import org.fisco.bcos.sdk.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.abi.TypeReference;
@@ -34,19 +43,7 @@ import org.fisco.bcos.sdk.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Modifier;
-import java.io.File;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-/**
- * Generate Java Classes based on generated Solidity bin and abi files.
- */
+/** Generate Java Classes based on generated Solidity bin and abi files. */
 public class SolidityContractWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(SolidityContractWrapper.class);
@@ -84,7 +81,7 @@ public class SolidityContractWrapper {
             String destinationDir,
             String basePackageName)
             throws IOException, ClassNotFoundException, UnsupportedOperationException,
-            CodeGenException {
+                    CodeGenException {
         String className = StringUtils.capitaliseFirstLetter(contractName);
 
         logger.info("bin: {}", bin);
@@ -356,7 +353,9 @@ public class SolidityContractWrapper {
 
         methodBuilder
                 .addStatement(
-                        "byte[] encodedConstructor = $T.encodeConstructor(" + "$T.<$T>asList($L)" + ")",
+                        "byte[] encodedConstructor = $T.encodeConstructor("
+                                + "$T.<$T>asList($L)"
+                                + ")",
                         FunctionEncoder.class,
                         Arrays.class,
                         Type.class,
@@ -606,7 +605,7 @@ public class SolidityContractWrapper {
      * a struct type.
      *
      * @param name parameter name
-     * @param idx  parameter index
+     * @param idx parameter index
      * @return non-empty parameter name
      */
     protected static String createValidParamName(String name, int idx) {
@@ -684,7 +683,8 @@ public class SolidityContractWrapper {
         } else {
             String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
             methodBuilder.addParameter(TransactionCallback.class, "callback");
-            this.buildTransactionFunctionWithCallback(functionDefinition, methodBuilder, inputParams);
+            this.buildTransactionFunctionWithCallback(
+                    functionDefinition, methodBuilder, inputParams);
         }
 
         return methodBuilder.build();
@@ -873,7 +873,8 @@ public class SolidityContractWrapper {
             buildVariableLengthReturnFunctionConstructor(
                     methodBuilder, functionName, inputParams, outputParameterTypes);
 
-            this.buildTupleResultContainer(methodBuilder, parameterizedTupleType, outputParameterTypes);
+            this.buildTupleResultContainer(
+                    methodBuilder, parameterizedTupleType, outputParameterTypes);
         }
     }
 

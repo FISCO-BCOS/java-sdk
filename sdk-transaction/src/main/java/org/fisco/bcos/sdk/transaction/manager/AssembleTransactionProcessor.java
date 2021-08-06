@@ -14,6 +14,10 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
@@ -42,11 +46,6 @@ import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * ContractlessTransactionManager @Description: ContractlessTransactionManager
@@ -124,11 +123,14 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         return this.deployAndGetResponse(
                 abi,
                 this.createSignedTransaction(
-                        null, this.abiCodec.encodeConstructorFromString(abi, bin, params), this.cryptoKeyPair));
+                        null,
+                        this.abiCodec.encodeConstructorFromString(abi, bin, params),
+                        this.cryptoKeyPair));
     }
 
     @Override
-    public void deployAsync(String abi, String bin, List<Object> params, TransactionCallback callback)
+    public void deployAsync(
+            String abi, String bin, List<Object> params, TransactionCallback callback)
             throws ABICodecException {
         this.transactionPusher.pushAsync(this.createSignedConstructor(abi, bin, params), callback);
     }
@@ -143,10 +145,10 @@ public class AssembleTransactionProcessor extends TransactionProcessor
      * Deploy by bin and abi files. Should init with contractLoader.
      *
      * @param contractName the contract name
-     * @param args         the params when deploy a contract
+     * @param args the params when deploy a contract
      * @return the transaction response
-     * @throws TransactionBaseException       send transaction exceptioned
-     * @throws ABICodecException              abi encode exceptioned
+     * @throws TransactionBaseException send transaction exceptioned
+     * @throws ABICodecException abi encode exceptioned
      * @throws NoSuchTransactionFileException Files related to abi codec were not found
      */
     @Override
@@ -217,7 +219,10 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionResponse sendTransactionAndGetResponseByContractLoader(
-            String contractName, String contractAddress, String functionName, List<Object> funcParams)
+            String contractName,
+            String contractAddress,
+            String functionName,
+            List<Object> funcParams)
             throws ABICodecException, TransactionBaseException {
         return this.sendTransactionAndGetResponse(
                 contractAddress,
@@ -233,7 +238,11 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public void sendTransactionAsync(
-            String to, String abi, String functionName, List<Object> params, TransactionCallback callback)
+            String to,
+            String abi,
+            String functionName,
+            List<Object> params,
+            TransactionCallback callback)
             throws TransactionBaseException, ABICodecException {
         byte[] data = this.encodeFunction(abi, functionName, params);
         this.sendTransactionAsync(to, data, this.cryptoKeyPair, callback);
@@ -339,7 +348,8 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionData getRawTransactionForConstructor(
-            BigInteger blockLimit, String abi, String bin, List<Object> params) throws ABICodecException {
+            BigInteger blockLimit, String abi, String bin, List<Object> params)
+            throws ABICodecException {
         return this.transactionBuilder.createTransaction(
                 blockLimit,
                 null,
@@ -350,7 +360,8 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionData getRawTransaction(
-            String to, String abi, String functionName, List<Object> params) throws ABICodecException {
+            String to, String abi, String functionName, List<Object> params)
+            throws ABICodecException {
         return this.transactionBuilder.createTransaction(
                 to,
                 this.abiCodec.encodeMethod(abi, functionName, params),

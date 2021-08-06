@@ -58,8 +58,7 @@ public class Transaction {
         this.importTime = importTime;
     }
 
-    public Transaction() {
-    }
+    public Transaction() {}
 
     public Transaction(TransactionData data, byte[] dataHash, byte[] signature, long importTime) {
         this.data = data;

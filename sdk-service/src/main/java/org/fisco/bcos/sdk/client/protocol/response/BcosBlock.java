@@ -22,15 +22,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
-import org.fisco.bcos.sdk.model.JsonRpcResponse;
-import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
+import org.fisco.bcos.sdk.model.JsonRpcResponse;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
@@ -52,8 +51,7 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
     public static class TransactionHash implements TransactionResult<String> {
         private String value;
 
-        public TransactionHash() {
-        }
+        public TransactionHash() {}
 
         public TransactionHash(String value) {
             this.value = value;

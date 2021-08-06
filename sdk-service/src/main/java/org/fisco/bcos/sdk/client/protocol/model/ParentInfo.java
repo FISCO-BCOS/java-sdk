@@ -16,6 +16,7 @@ public class ParentInfo {
 
     @TarsStructProperty(order = 1, isRequire = true)
     public long blockNumber = 0L;
+
     @TarsStructProperty(order = 2, isRequire = true)
     public byte[] blockHash = null;
 
@@ -35,8 +36,7 @@ public class ParentInfo {
         this.blockHash = blockHash;
     }
 
-    public ParentInfo() {
-    }
+    public ParentInfo() {}
 
     public ParentInfo(long blockNumber, byte[] blockHash) {
         this.blockNumber = blockNumber;
@@ -64,10 +64,8 @@ public class ParentInfo {
             return false;
         }
         ParentInfo other = (ParentInfo) obj;
-        return (
-                TarsUtil.equals(this.blockNumber, other.blockNumber) &&
-                        TarsUtil.equals(this.blockHash, other.blockHash)
-        );
+        return (TarsUtil.equals(this.blockNumber, other.blockNumber)
+                && TarsUtil.equals(this.blockHash, other.blockHash));
     }
 
     @Override
@@ -103,5 +101,4 @@ public class ParentInfo {
         this.blockNumber = _is.read(this.blockNumber, 1, true);
         this.blockHash = (byte[]) _is.read(cache_blockHash, 2, true);
     }
-
 }

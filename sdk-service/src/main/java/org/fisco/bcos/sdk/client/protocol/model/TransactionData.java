@@ -16,16 +16,22 @@ public class TransactionData {
 
     @TarsStructProperty(order = 1, isRequire = true)
     public int version = 0;
+
     @TarsStructProperty(order = 2, isRequire = true)
     public String chainID = "";
+
     @TarsStructProperty(order = 3, isRequire = true)
     public String groupID = "";
+
     @TarsStructProperty(order = 4, isRequire = true)
     public long blockLimit = 0L;
+
     @TarsStructProperty(order = 5, isRequire = true)
     public String nonce = "";
+
     @TarsStructProperty(order = 6, isRequire = false)
     public String to = "";
+
     @TarsStructProperty(order = 7, isRequire = true)
     public byte[] input = null;
 
@@ -85,10 +91,16 @@ public class TransactionData {
         this.input = input;
     }
 
-    public TransactionData() {
-    }
+    public TransactionData() {}
 
-    public TransactionData(int version, String chainID, String groupID, long blockLimit, String nonce, String to, byte[] input) {
+    public TransactionData(
+            int version,
+            String chainID,
+            String groupID,
+            long blockLimit,
+            String nonce,
+            String to,
+            byte[] input) {
         this.version = version;
         this.chainID = chainID;
         this.groupID = groupID;
@@ -124,15 +136,13 @@ public class TransactionData {
             return false;
         }
         TransactionData other = (TransactionData) obj;
-        return (
-                TarsUtil.equals(this.version, other.version) &&
-                        TarsUtil.equals(this.chainID, other.chainID) &&
-                        TarsUtil.equals(this.groupID, other.groupID) &&
-                        TarsUtil.equals(this.blockLimit, other.blockLimit) &&
-                        TarsUtil.equals(this.nonce, other.nonce) &&
-                        TarsUtil.equals(this.to, other.to) &&
-                        TarsUtil.equals(this.input, other.input)
-        );
+        return (TarsUtil.equals(this.version, other.version)
+                && TarsUtil.equals(this.chainID, other.chainID)
+                && TarsUtil.equals(this.groupID, other.groupID)
+                && TarsUtil.equals(this.blockLimit, other.blockLimit)
+                && TarsUtil.equals(this.nonce, other.nonce)
+                && TarsUtil.equals(this.to, other.to)
+                && TarsUtil.equals(this.input, other.input));
     }
 
     @Override
@@ -211,7 +221,4 @@ public class TransactionData {
         this.to = _is.readString(6, false);
         this.input = (byte[]) _is.read(cache_input, 7, true);
     }
-
 }
-
-

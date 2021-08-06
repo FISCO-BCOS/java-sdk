@@ -1,7 +1,6 @@
 package org.fisco.bcos.sdk.channel.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Objects;
 
 public class NodeInfo {
@@ -165,7 +164,6 @@ public class NodeInfo {
                 + '\''
                 + '}';
     }
-
 
     public Boolean getSmCrypto() {
         return this.smCrypto;

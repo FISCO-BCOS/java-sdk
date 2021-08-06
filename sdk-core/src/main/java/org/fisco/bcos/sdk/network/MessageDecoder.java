@@ -18,9 +18,8 @@ package org.fisco.bcos.sdk.network;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import org.fisco.bcos.sdk.model.Message;
-
 import java.util.List;
+import org.fisco.bcos.sdk.model.Message;
 
 public class MessageDecoder extends ByteToMessageDecoder {
     @Override

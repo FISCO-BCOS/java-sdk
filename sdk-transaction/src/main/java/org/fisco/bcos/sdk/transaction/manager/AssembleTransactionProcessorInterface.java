@@ -14,7 +14,11 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.math.BigInteger;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.abi.ABICodecException;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
@@ -22,11 +26,6 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public interface AssembleTransactionProcessorInterface {
 
@@ -41,8 +40,8 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * deploy contract to fisco bcos node only without receive any response.
      *
-     * @param abi    contract abi, which could be obtained by compiling solidity contract.
-     * @param bin    contract binary, which could be obtained by compiling solidity contract.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
      */
     public void deployOnly(String abi, String bin, List<Object> params) throws ABICodecException;
@@ -50,7 +49,7 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * deploy contract to fisco bcos node and get response.
      *
-     * @param abi        contract abi, which could be obtained by compiling solidity contract.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param signedData signed & encoded constructor data
      * @return transaction response @See TransactionResponse
      */
@@ -59,8 +58,8 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * deploy contract to fisco bcos node and get response.
      *
-     * @param abi    contract abi, which could be obtained by compiling solidity contract.
-     * @param bin    contract binary, which could be obtained by compiling solidity contract.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
      * @return transaction response @See TransactionResponse
      */
@@ -70,8 +69,8 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * deploy contract to fisco bcos node and get response.
      *
-     * @param abi    contract abi, which could be obtained by compiling solidity contract.
-     * @param bin    contract binary, which could be obtained by compiling solidity contract.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct string parameters
      */
     public TransactionResponse deployAndGetResponseWithStringParams(
@@ -80,19 +79,20 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * deploy contract to fisco bcos node asynchronously.
      *
-     * @param abi      contract abi, which could be obtained by compiling solidity contract.
-     * @param bin      contract binary, which could be obtained by compiling solidity contract.
-     * @param params   contract construct parameters
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
+     * @param params contract construct parameters
      * @param callback transaction with callback function
      */
-    public void deployAsync(String abi, String bin, List<Object> params, TransactionCallback callback)
+    public void deployAsync(
+            String abi, String bin, List<Object> params, TransactionCallback callback)
             throws ABICodecException;
 
     /**
      * deploy contract to fisco bcos node asynchronously.
      *
-     * @param abi    contract abi, which could be obtained by compiling solidity contract.
-     * @param bin    contract binary, which could be obtained by compiling solidity contract.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
      * @return CompletableFuture wrapper transaction receipt
      */
@@ -100,11 +100,11 @@ public interface AssembleTransactionProcessorInterface {
             String abi, String bin, List<Object> params) throws ABICodecException;
 
     /**
-     * deploy contract to fisco bcos node and get response by contract name. The contract loader will
-     * load the transaction abi & bin information.
+     * deploy contract to fisco bcos node and get response by contract name. The contract loader
+     * will load the transaction abi & bin information.
      *
      * @param contractName contract name.
-     * @param params       contract construct parameters
+     * @param params contract construct parameters
      * @return transaction response
      */
     public TransactionResponse deployByContractLoader(String contractName, List<Object> params)
@@ -115,8 +115,8 @@ public interface AssembleTransactionProcessorInterface {
      * contract loader will load the transaction abi & bin information.
      *
      * @param contractName contract name.
-     * @param params       contract construct parameters
-     * @param callback     transaction with callback function
+     * @param params contract construct parameters
+     * @param callback transaction with callback function
      */
     public void deployByContractLoaderAsync(
             String contractName, List<Object> params, TransactionCallback callback)
@@ -130,13 +130,13 @@ public interface AssembleTransactionProcessorInterface {
     public void sendTransactionOnly(String signedData);
 
     /**
-     * send transaction to fisco bcos node and get transaction receipt by contract name. The contract
-     * loader will load the transaction abi & bin information.
+     * send transaction to fisco bcos node and get transaction receipt by contract name. The
+     * contract loader will load the transaction abi & bin information.
      *
-     * @param contractName    contract name.
+     * @param contractName contract name.
      * @param contractAddress contract address
-     * @param functionName    contract function name
-     * @param params          contract construct parameters
+     * @param functionName contract function name
+     * @param params contract construct parameters
      * @return transaction receipt
      */
     public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
@@ -146,10 +146,10 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send transaction to fisco bcos node and get response.
      *
-     * @param to           the target contract address.
-     * @param abi          contract abi, which could be obtained by compiling solidity contract.
+     * @param to the target contract address.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param functionName contract function name.
-     * @param data         abi encoded transaction data
+     * @param data abi encoded transaction data
      * @return transaction response @See TransactionResponse
      */
     public TransactionResponse sendTransactionAndGetResponse(
@@ -159,10 +159,10 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send transaction to fisco bcos node and get response.
      *
-     * @param to           the target contract address.
-     * @param abi          contract abi, which could be obtained by compiling solidity contract.
+     * @param to the target contract address.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param functionName contract function name.
-     * @param params       contract construct parameters
+     * @param params contract construct parameters
      * @return transaction response @See TransactionResponse
      */
     public TransactionResponse sendTransactionAndGetResponse(
@@ -172,10 +172,10 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send transaction to fisco bcos node and get response.
      *
-     * @param to           the target contract address.
-     * @param abi          contract abi, which could be obtained by compiling solidity contract.
+     * @param to the target contract address.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param functionName contract function name.
-     * @param params       contract function string parameters
+     * @param params contract function string parameters
      * @return transaction response @See TransactionResponse
      */
     public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
@@ -186,7 +186,7 @@ public interface AssembleTransactionProcessorInterface {
      * send transaction to fisco bcos node asynchronously.
      *
      * @param signedTransaction signed & encoded transaction data
-     * @param callback          transaction with callback function
+     * @param callback transaction with callback function
      */
     public void sendTransactionAsync(String signedTransaction, TransactionCallback callback);
 
@@ -194,14 +194,18 @@ public interface AssembleTransactionProcessorInterface {
      * send transaction to fisco bcos node by contract name asynchronously. The contract loader will
      * load the transaction abi information.
      *
-     * @param to           the target contract address.
-     * @param abi          contract abi, which could be obtained by compiling solidity contract.
+     * @param to the target contract address.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param functionName contract function name.
-     * @param params       contract function parameters
-     * @param callback     transaction with callback function
+     * @param params contract function parameters
+     * @param callback transaction with callback function
      */
     public void sendTransactionAsync(
-            String to, String abi, String functionName, List<Object> params, TransactionCallback callback)
+            String to,
+            String abi,
+            String functionName,
+            List<Object> params,
+            TransactionCallback callback)
             throws TransactionBaseException, ABICodecException;
 
     /**
@@ -217,10 +221,10 @@ public interface AssembleTransactionProcessorInterface {
      * load the transaction abi information.
      *
      * @param contractName contract name.
-     * @param to           the target contract address.
+     * @param to the target contract address.
      * @param functionName contract function name.
-     * @param params       contract function parameters
-     * @param callback     transaction with callback function
+     * @param params contract function parameters
+     * @param callback transaction with callback function
      */
     public void sendTransactionAndGetReceiptByContractLoaderAsync(
             String contractName,
@@ -231,13 +235,13 @@ public interface AssembleTransactionProcessorInterface {
             throws ABICodecException, TransactionBaseException;
 
     /**
-     * send transaction to fisco bcos node and get transaction response by contract name. The contract
-     * loader will load the transaction abi information.
+     * send transaction to fisco bcos node and get transaction response by contract name. The
+     * contract loader will load the transaction abi information.
      *
      * @param contractName contract name.
-     * @param to           the target contract address.
+     * @param to the target contract address.
      * @param functionName contract function name.
-     * @param funcParams   contract function parameters
+     * @param funcParams contract function parameters
      * @return transaction response
      */
     public TransactionResponse sendTransactionAndGetResponseByContractLoader(
@@ -249,9 +253,9 @@ public interface AssembleTransactionProcessorInterface {
      * load the transaction abi information.
      *
      * @param contractName contract name.
-     * @param to           the target contract address.
+     * @param to the target contract address.
      * @param functionName contract function name.
-     * @param params       contract call parameters
+     * @param params contract call parameters
      * @return call response
      */
     public CallResponse sendCallByContractLoader(
@@ -261,10 +265,10 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send call to fisco bcos node and get call response
      *
-     * @param from         sender address
-     * @param to           the target contract address.
+     * @param from sender address
+     * @param to the target contract address.
      * @param functionName contract function name.
-     * @param params       contract call parameters
+     * @param params contract call parameters
      * @return call response
      */
     public CallResponse sendCall(
@@ -283,10 +287,10 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send call to fisco bcos node and get call response
      *
-     * @param from         sender address
-     * @param to           the target contract address.
+     * @param from sender address
+     * @param to the target contract address.
      * @param functionName contract function name.
-     * @param params       contract call parameters
+     * @param params contract call parameters
      * @return call response
      */
     public CallResponse sendCallWithStringParams(
@@ -296,8 +300,8 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * create signed constructor.
      *
-     * @param abi    contract abi, which could be obtained by compiling solidity contract.
-     * @param bin    contract binary, which could be obtained by compiling solidity contract.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
      * @return signed constructor string
      */
@@ -307,9 +311,9 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * encode function with abi and parameters.
      *
-     * @param abi          contract abi, which could be obtained by compiling solidity contract.
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param functionName contract function name
-     * @param params       contract function parameters
+     * @param params contract function parameters
      * @return encoded function string
      */
     public byte[] encodeFunction(String abi, String functionName, List<Object> params)
@@ -318,8 +322,8 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * get constructor raw transaction.
      *
-     * @param abi    contract abi, which could be obtained by compiling solidity contract.
-     * @param bin    contract binary
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary
      * @param params contract function parameters
      * @return raw transaction
      */
@@ -330,34 +334,36 @@ public interface AssembleTransactionProcessorInterface {
      * get constructor raw transaction.
      *
      * @param blockLimit block limit
-     * @param abi        contract abi, which could be obtained by compiling solidity contract.
-     * @param bin        contract binary
-     * @param params     contract function parameters
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary
+     * @param params contract function parameters
      * @return raw transaction
      */
     TransactionData getRawTransactionForConstructor(
-            BigInteger blockLimit, String abi, String bin, List<Object> params) throws ABICodecException;
-
-    /**
-     * get raw transaction exclude constructor.
-     *
-     * @param to           target address
-     * @param abi          contract abi, which could be obtained by compiling solidity contract.
-     * @param functionName function name
-     * @param params       contract function parameters
-     * @return raw transaction
-     */
-    TransactionData getRawTransaction(String to, String abi, String functionName, List<Object> params)
+            BigInteger blockLimit, String abi, String bin, List<Object> params)
             throws ABICodecException;
 
     /**
      * get raw transaction exclude constructor.
      *
-     * @param blockLimit   block limit
-     * @param to           target address
-     * @param abi          contract abi, which could be obtained by compiling solidity contract.
+     * @param to target address
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param functionName function name
-     * @param params       contract function parameters
+     * @param params contract function parameters
+     * @return raw transaction
+     */
+    TransactionData getRawTransaction(
+            String to, String abi, String functionName, List<Object> params)
+            throws ABICodecException;
+
+    /**
+     * get raw transaction exclude constructor.
+     *
+     * @param blockLimit block limit
+     * @param to target address
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param functionName function name
+     * @param params contract function parameters
      * @return raw transaction
      */
     TransactionData getRawTransaction(

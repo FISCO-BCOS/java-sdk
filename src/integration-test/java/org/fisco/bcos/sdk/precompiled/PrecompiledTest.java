@@ -15,6 +15,14 @@
 
 package org.fisco.bcos.sdk.precompiled;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.BcosSDKTest;
 import org.fisco.bcos.sdk.client.Client;
@@ -44,15 +52,6 @@ import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PrecompiledTest {
@@ -217,7 +216,8 @@ public class PrecompiledTest {
     private void testSystemConfigService(
             Client client, SystemConfigService systemConfigService, String key)
             throws ContractException {
-        BigInteger value = new BigInteger(client.getSystemConfigByKey(key).getSystemConfig().getValue());
+        BigInteger value =
+                new BigInteger(client.getSystemConfigByKey(key).getSystemConfig().getValue());
         BigInteger updatedValue = value.add(BigInteger.valueOf(1000));
         String updatedValueStr = String.valueOf(updatedValue);
         systemConfigService.setValueByKey(key, updatedValueStr);
@@ -526,9 +526,9 @@ public class PrecompiledTest {
             // freeze the contract
             retCode = contractLifeCycleService1.freeze(helloWorld.getContractAddress());
             receipt = helloWorld.set("Hello, fisco2");
-//            Assert.assertTrue(
-//                    new BigInteger(receipt.getStatus().substring(2), 16)
-//                            .equals(BigInteger.valueOf(30)));
+            //            Assert.assertTrue(
+            //                    new BigInteger(receipt.getStatus().substring(2), 16)
+            //                            .equals(BigInteger.valueOf(30)));
 
             // unfreeze the contract
             contractLifeCycleService1.unfreeze(helloWorld.getContractAddress());

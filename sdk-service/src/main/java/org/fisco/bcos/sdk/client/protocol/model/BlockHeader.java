@@ -16,28 +16,40 @@ public class BlockHeader {
 
     @TarsStructProperty(order = 2, isRequire = true)
     public int version = 0;
+
     @TarsStructProperty(order = 3, isRequire = true)
     public java.util.List<ParentInfo> parentInfo = null;
+
     @TarsStructProperty(order = 4, isRequire = true)
     public byte[] txsRoot = null;
+
     @TarsStructProperty(order = 5, isRequire = true)
     public byte[] receiptRoot = null;
+
     @TarsStructProperty(order = 6, isRequire = true)
     public byte[] stateRoot = null;
+
     @TarsStructProperty(order = 7, isRequire = true)
     public long blockNumber = 0L;
+
     @TarsStructProperty(order = 8, isRequire = true)
     public String gasUsed = "";
+
     @TarsStructProperty(order = 9, isRequire = true)
     public long timestamp = 0L;
+
     @TarsStructProperty(order = 10, isRequire = true)
     public long sealer = 0L;
+
     @TarsStructProperty(order = 11, isRequire = true)
     public java.util.List<byte[]> sealerList = null;
+
     @TarsStructProperty(order = 12, isRequire = true)
     public byte[] extraData = null;
+
     @TarsStructProperty(order = 13, isRequire = true)
     public java.util.List<Signature> signatureList = null;
+
     @TarsStructProperty(order = 14, isRequire = true)
     public java.util.List<java.lang.Long> consensusWeights = null;
 
@@ -145,10 +157,22 @@ public class BlockHeader {
         this.consensusWeights = consensusWeights;
     }
 
-    public BlockHeader() {
-    }
+    public BlockHeader() {}
 
-    public BlockHeader(int version, java.util.List<ParentInfo> parentInfo, byte[] txsRoot, byte[] receiptRoot, byte[] stateRoot, long blockNumber, String gasUsed, long timestamp, long sealer, java.util.List<byte[]> sealerList, byte[] extraData, java.util.List<Signature> signatureList, java.util.List<java.lang.Long> consensusWeights) {
+    public BlockHeader(
+            int version,
+            java.util.List<ParentInfo> parentInfo,
+            byte[] txsRoot,
+            byte[] receiptRoot,
+            byte[] stateRoot,
+            long blockNumber,
+            String gasUsed,
+            long timestamp,
+            long sealer,
+            java.util.List<byte[]> sealerList,
+            byte[] extraData,
+            java.util.List<Signature> signatureList,
+            java.util.List<java.lang.Long> consensusWeights) {
         this.version = version;
         this.parentInfo = parentInfo;
         this.txsRoot = txsRoot;
@@ -196,21 +220,19 @@ public class BlockHeader {
             return false;
         }
         BlockHeader other = (BlockHeader) obj;
-        return (
-                TarsUtil.equals(this.version, other.version) &&
-                        TarsUtil.equals(this.parentInfo, other.parentInfo) &&
-                        TarsUtil.equals(this.txsRoot, other.txsRoot) &&
-                        TarsUtil.equals(this.receiptRoot, other.receiptRoot) &&
-                        TarsUtil.equals(this.stateRoot, other.stateRoot) &&
-                        TarsUtil.equals(this.blockNumber, other.blockNumber) &&
-                        TarsUtil.equals(this.gasUsed, other.gasUsed) &&
-                        TarsUtil.equals(this.timestamp, other.timestamp) &&
-                        TarsUtil.equals(this.sealer, other.sealer) &&
-                        TarsUtil.equals(this.sealerList, other.sealerList) &&
-                        TarsUtil.equals(this.extraData, other.extraData) &&
-                        TarsUtil.equals(this.signatureList, other.signatureList) &&
-                        TarsUtil.equals(this.consensusWeights, other.consensusWeights)
-        );
+        return (TarsUtil.equals(this.version, other.version)
+                && TarsUtil.equals(this.parentInfo, other.parentInfo)
+                && TarsUtil.equals(this.txsRoot, other.txsRoot)
+                && TarsUtil.equals(this.receiptRoot, other.receiptRoot)
+                && TarsUtil.equals(this.stateRoot, other.stateRoot)
+                && TarsUtil.equals(this.blockNumber, other.blockNumber)
+                && TarsUtil.equals(this.gasUsed, other.gasUsed)
+                && TarsUtil.equals(this.timestamp, other.timestamp)
+                && TarsUtil.equals(this.sealer, other.sealer)
+                && TarsUtil.equals(this.sealerList, other.sealerList)
+                && TarsUtil.equals(this.extraData, other.extraData)
+                && TarsUtil.equals(this.signatureList, other.signatureList)
+                && TarsUtil.equals(this.consensusWeights, other.consensusWeights));
     }
 
     @Override
@@ -389,7 +411,7 @@ public class BlockHeader {
         this.sealerList = (java.util.List<byte[]>) _is.read(cache_sealerList, 11, true);
         this.extraData = (byte[]) _is.read(cache_extraData, 12, true);
         this.signatureList = (java.util.List<Signature>) _is.read(cache_signatureList, 13, true);
-        this.consensusWeights = (java.util.List<java.lang.Long>) _is.read(cache_consensusWeights, 14, true);
+        this.consensusWeights =
+                (java.util.List<java.lang.Long>) _is.read(cache_consensusWeights, 14, true);
     }
-
 }

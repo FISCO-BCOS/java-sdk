@@ -1,12 +1,11 @@
 package org.fisco.bcos.sdk.abi.tools;
 
+import java.math.BigInteger;
 import org.fisco.bcos.sdk.abi.TypeEncoder;
 import org.fisco.bcos.sdk.abi.datatypes.Bytes;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.utils.AddressUtils;
 import org.fisco.bcos.sdk.utils.Numeric;
-
-import java.math.BigInteger;
 
 public class TopicTools {
 

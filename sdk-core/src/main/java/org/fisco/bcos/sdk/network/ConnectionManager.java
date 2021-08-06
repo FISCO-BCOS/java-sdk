@@ -24,14 +24,6 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.ssl.*;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
-import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.model.CryptoType;
-import org.fisco.bcos.sdk.model.RetCode;
-import org.fisco.bcos.sdk.utils.ThreadPoolService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.SSLException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -46,6 +38,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.*;
+import javax.net.ssl.SSLException;
+import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.model.CryptoType;
+import org.fisco.bcos.sdk.model.RetCode;
+import org.fisco.bcos.sdk.utils.ThreadPoolService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Maintain peer connections. Start a schedule to reconnect failed peers.
@@ -93,7 +92,8 @@ public class ConnectionManager {
         /** try connection */
         for (ConnectionInfo connect : this.connectionInfoList) {
             logger.debug("startConnect to {}", connect.getEndPoint());
-            ChannelFuture channelFuture = this.bootstrap.connect(connect.getIp(), connect.getPort());
+            ChannelFuture channelFuture =
+                    this.bootstrap.connect(connect.getIp(), connect.getPort());
             this.connChannelFuture.add(channelFuture);
         }
 
@@ -310,7 +310,8 @@ public class ConnectionManager {
         this.bootstrap.channel(NioSocketChannel.class);
         this.bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
         // set connection timeout
-        this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeoutConfig.connectTimeout);
+        this.bootstrap.option(
+                ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeoutConfig.connectTimeout);
         int sslCryptoType = configOption.getCryptoMaterialConfig().getSslCryptoType();
         SslContext sslContext =
                 (sslCryptoType == CryptoType.ECDSA_TYPE

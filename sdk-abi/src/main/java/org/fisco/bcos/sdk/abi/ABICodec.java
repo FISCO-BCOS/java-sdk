@@ -15,6 +15,10 @@
 
 package org.fisco.bcos.sdk.abi;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.wrapper.*;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -24,14 +28,7 @@ import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * ABI encode and decode tool
- */
+/** ABI encode and decode tool */
 public class ABICodec {
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodec.class);
@@ -62,7 +59,8 @@ public class ABICodec {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             outputStream.write(Hex.decode(BIN));
-            outputStream.write(Hex.decode(abiCodecObject.encodeValue(inputABIObject, params).encode()));
+            outputStream.write(
+                    Hex.decode(abiCodecObject.encodeValue(inputABIObject, params).encode()));
             return outputStream.toByteArray();
         } catch (Exception e) {
             logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
@@ -81,7 +79,8 @@ public class ABICodec {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             outputStream.write(Hex.decode(BIN));
-            outputStream.write(Hex.decode(this.abiCodecJsonWrapper.encode(inputABIObject, params).encode()));
+            outputStream.write(
+                    Hex.decode(this.abiCodecJsonWrapper.encode(inputABIObject, params).encode()));
             return outputStream.toByteArray();
         } catch (Exception e) {
             cause = e;
@@ -108,7 +107,9 @@ public class ABICodec {
                 try {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     outputStream.write(abiDefinition.getMethodId(this.cryptoSuite));
-                    outputStream.write(Hex.decode(abiCodecObject.encodeValue(inputABIObject, params).encode()));
+                    outputStream.write(
+                            Hex.decode(
+                                    abiCodecObject.encodeValue(inputABIObject, params).encode()));
                     return outputStream.toByteArray();
                 } catch (Exception e) {
                     logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
@@ -176,7 +177,8 @@ public class ABICodec {
             try {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 outputStream.write(abiDefinition.getMethodId(this.cryptoSuite));
-                outputStream.write(Hex.decode(abiCodecObject.encodeValue(inputABIObject, params).encode()));
+                outputStream.write(
+                        Hex.decode(abiCodecObject.encodeValue(inputABIObject, params).encode()));
                 return outputStream.toByteArray();
             } catch (Exception e) {
                 logger.error(
@@ -211,7 +213,9 @@ public class ABICodec {
                 try {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     outputStream.write(abiDefinition.getMethodId(this.cryptoSuite));
-                    outputStream.write(Hex.decode(abiCodecJsonWrapper.encode(inputABIObject, params).encode()));
+                    outputStream.write(
+                            Hex.decode(
+                                    abiCodecJsonWrapper.encode(inputABIObject, params).encode()));
                     return outputStream.toByteArray();
                 } catch (Exception e) {
                     logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
@@ -257,7 +261,8 @@ public class ABICodec {
             try {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 outputStream.write(abiDefinition.getMethodId(this.cryptoSuite));
-                outputStream.write(Hex.decode(abiCodecJsonWrapper.encode(inputABIObject, params).encode()));
+                outputStream.write(
+                        Hex.decode(abiCodecJsonWrapper.encode(inputABIObject, params).encode()));
                 return outputStream.toByteArray();
             } catch (IOException e) {
                 logger.error(
