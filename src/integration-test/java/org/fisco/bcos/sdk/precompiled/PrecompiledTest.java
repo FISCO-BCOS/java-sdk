@@ -36,9 +36,6 @@ import org.fisco.bcos.sdk.contract.precompiled.consensus.ConsensusService;
 import org.fisco.bcos.sdk.contract.precompiled.contractmgr.ContractLifeCycleService;
 import org.fisco.bcos.sdk.contract.precompiled.crud.TableCRUDService;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
-import org.fisco.bcos.sdk.contract.precompiled.permission.ChainGovernanceService;
-import org.fisco.bcos.sdk.contract.precompiled.permission.PermissionInfo;
-import org.fisco.bcos.sdk.contract.precompiled.permission.PermissionService;
 import org.fisco.bcos.sdk.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -444,47 +441,6 @@ public class PrecompiledTest {
     }
 
     @Test
-    public void test6PermissionService() throws ConfigException, ContractException {
-        try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClientByGroupID("1");
-            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
-            PermissionService permissionService = new PermissionService(client, cryptoKeyPair);
-
-            String tableName = "test";
-            permissionService.grantPermission(tableName, cryptoKeyPair.getAddress());
-
-            // insert data to the table with the account without permission
-            CryptoSuite invalidCryptoSuite =
-                    new CryptoSuite(client.getCryptoSuite().getCryptoTypeConfig());
-            TableCRUDService tableCRUDService =
-                    new TableCRUDService(client, invalidCryptoSuite.createKeyPair());
-            String key = "key2";
-            Map<String, String> value = new HashMap<>(5);
-            for (int i = 0; i < 5; i++) {
-                value.put("field" + i, "value2" + i);
-            }
-            RetCode retCode = tableCRUDService.insert(tableName, key, new Entry(value));
-            Assert.assertTrue(retCode.getCode() == PrecompiledRetCode.CODE_NO_AUTHORIZED.getCode());
-            Assert.assertTrue(
-                    retCode.getMessage() == PrecompiledRetCode.CODE_NO_AUTHORIZED.getMessage());
-
-            // insert data to the table with the account with permission
-            TableCRUDService tableCRUDService2 = new TableCRUDService(client, cryptoKeyPair);
-            retCode = tableCRUDService2.insert(tableName, key, new Entry(value));
-            Assert.assertTrue(retCode.getCode() == 1);
-
-            // revoke permission
-            permissionService.revokePermission(tableName, cryptoKeyPair.getAddress());
-            retCode = tableCRUDService.insert(tableName, key, new Entry(value));
-            Assert.assertTrue(retCode.getCode() == 1);
-        } catch (ContractException e) {
-            System.out.println(
-                    "testPermissionPrecompiled exceptioned, error info: " + e.getMessage());
-        }
-    }
-
-    @Test
     public void test7ContractLifeCycleService() throws ConfigException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
@@ -536,78 +492,6 @@ public class PrecompiledTest {
             Assert.assertTrue("Hello, fisco3".equals(helloWorld.get()));
         } catch (ContractException | ClientException e) {
             System.out.println("testContractLifeCycleService failed, error info:" + e.getMessage());
-        }
-    }
-
-    @Test
-    public void test8GovernanceService() throws ConfigException {
-        try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClientByGroupID("1");
-            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
-            ChainGovernanceService chainGovernanceService =
-                    new ChainGovernanceService(client, cryptoKeyPair);
-
-            List<PermissionInfo> orgPermissionInfos = chainGovernanceService.listCommitteeMembers();
-            chainGovernanceService.grantCommitteeMember(cryptoKeyPair.getAddress());
-            List<PermissionInfo> permissionInfos = chainGovernanceService.listCommitteeMembers();
-            // Assert.assertTrue(permissionInfos.size() == orgPermissionInfos.size() + 1);
-            System.out.println("permissionInfos size: " + permissionInfos.size());
-
-            Assert.assertTrue(
-                    chainGovernanceService
-                            .queryCommitteeMemberWeight(cryptoKeyPair.getAddress())
-                            .equals(BigInteger.valueOf(1)));
-
-            RetCode retCode = chainGovernanceService.grantOperator(cryptoKeyPair.getAddress());
-            Assert.assertTrue(
-                    retCode.equals(PrecompiledRetCode.CODE_COMMITTEE_MEMBER_CANNOT_BE_OPERATOR));
-
-            // create a new account and grantOperator
-            int orgOperatorSize = chainGovernanceService.listOperators().size();
-            CryptoSuite cryptoSuite1 =
-                    new CryptoSuite(client.getCryptoSuite().getCryptoTypeConfig());
-            CryptoKeyPair cryptoKeyPair1 = cryptoSuite1.createKeyPair();
-            chainGovernanceService.grantOperator(cryptoKeyPair.getAddress());
-            // Assert.assertTrue(chainGovernanceService.listOperators().size() == orgOperatorSize +
-            // 1);
-            System.out.println(
-                    "listOperators size:"
-                            + chainGovernanceService.listOperators().size()
-                            + ", orgOperatorSize: "
-                            + orgOperatorSize);
-
-            // only the committeeMember can freeze account
-            CryptoKeyPair cryptoKeyPair2 =
-                    new CryptoSuite(client.getCryptoSuite().getCryptoTypeConfig()).createKeyPair();
-            chainGovernanceService.grantOperator(cryptoKeyPair2.getAddress());
-            // create the account
-            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair2);
-            TransactionReceipt receipt = helloWorld.set("test");
-            Assert.assertTrue(receipt.getStatus().equals("0x0"));
-            // the operator freeze account failed
-            ChainGovernanceService chainGovernanceService1 =
-                    new ChainGovernanceService(client, cryptoKeyPair1);
-            retCode = chainGovernanceService1.freezeAccount(cryptoKeyPair2.getAddress());
-            Assert.assertTrue(retCode.equals(PrecompiledRetCode.CODE_NO_AUTHORIZED));
-
-            // the committeeMember freeze account succ
-            chainGovernanceService.freezeAccount(cryptoKeyPair2.getAddress());
-            receipt = helloWorld.set("test_freeze");
-            // account frozen: status is 31
-            Assert.assertTrue(receipt.getStatus().equals("0x1f"));
-
-            // unfreeze the account
-            chainGovernanceService.unfreezeAccount(cryptoKeyPair2.getAddress());
-            receipt = helloWorld.set("test_unfreeze");
-            Assert.assertTrue(receipt.getStatus().equals("0x0"));
-            // Assert.assertTrue("test_unfreeze".equals(helloWorld.get()));
-
-            // revoke the committeeMember
-            chainGovernanceService.revokeCommitteeMember(cryptoKeyPair.getAddress());
-            Assert.assertTrue(chainGovernanceService.listCommitteeMembers().size() == 0);
-        } catch (ContractException e) {
-            System.out.println("test8GovernanceService failed, error info:" + e.getMessage());
         }
     }
 }

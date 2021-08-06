@@ -43,7 +43,7 @@ import org.fisco.bcos.sdk.utils.StringUtils;
 
 public class TableCRUDService {
     private final Client client;
-    private final CRUD crudService;
+    private final CRUDPrecompiled crudService;
     private final TableFactory tableFactory;
     private static final String ValueFieldsDelimiter = ",";
     private final String currentVersion;
@@ -51,7 +51,8 @@ public class TableCRUDService {
     public TableCRUDService(Client client, CryptoKeyPair credential) {
         this.client = client;
         this.crudService =
-                CRUD.load(PrecompiledAddress.CRUD_PRECOMPILED_ADDRESS, client, credential);
+                CRUDPrecompiled.load(
+                        PrecompiledAddress.CRUD_PRECOMPILED_ADDRESS, client, credential);
         this.tableFactory =
                 TableFactory.load(
                         PrecompiledAddress.TABLEFACTORY_PRECOMPILED_ADDRESS, client, credential);

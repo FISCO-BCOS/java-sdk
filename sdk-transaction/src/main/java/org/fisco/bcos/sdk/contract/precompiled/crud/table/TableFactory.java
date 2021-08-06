@@ -22,20 +22,23 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 
+@SuppressWarnings("unchecked")
 public class TableFactory extends Contract {
     public static final String[] BINARY_ARRAY = {};
 
-    public static final String BINARY = String.join("", BINARY_ARRAY);
+    public static final String BINARY =
+            org.fisco.bcos.sdk.utils.StringUtils.joinAll("", BINARY_ARRAY);
 
     public static final String[] SM_BINARY_ARRAY = {};
 
-    public static final String SM_BINARY = String.join("", SM_BINARY_ARRAY);
+    public static final String SM_BINARY =
+            org.fisco.bcos.sdk.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
         "[{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"createTable\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"openTable\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
     };
 
-    public static final String ABI = String.join("", ABI_ARRAY);
+    public static final String ABI = org.fisco.bcos.sdk.utils.StringUtils.joinAll("", ABI_ARRAY);
 
     public static final String FUNC_CREATETABLE = "createTable";
 
@@ -58,7 +61,7 @@ public class TableFactory extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param1),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param2)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.executeTransaction(function);
+        return executeTransaction(function);
     }
 
     public void createTable(
@@ -71,7 +74,7 @@ public class TableFactory extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param1),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param2)),
                         Collections.<TypeReference<?>>emptyList());
-        this.asyncExecuteTransaction(function, callback);
+        asyncExecuteTransaction(function, callback);
     }
 
     public String getSignedTransactionForCreateTable(String param0, String param1, String param2) {
@@ -83,7 +86,7 @@ public class TableFactory extends Contract {
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param1),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param2)),
                         Collections.<TypeReference<?>>emptyList());
-        return this.createSignedTransaction(function);
+        return createSignedTransaction(function);
     }
 
     public Tuple3<String, String, String> getCreateTableInput(
@@ -122,7 +125,7 @@ public class TableFactory extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
-        return this.executeCallWithSingleValueReturn(function, String.class);
+        return executeCallWithSingleValueReturn(function, String.class);
     }
 
     public static TableFactory load(
@@ -132,7 +135,7 @@ public class TableFactory extends Contract {
 
     public static TableFactory deploy(Client client, CryptoKeyPair credential)
             throws ContractException {
-        return Contract.deploy(
+        return deploy(
                 TableFactory.class, client, credential, getBinary(client.getCryptoSuite()), null);
     }
 }
