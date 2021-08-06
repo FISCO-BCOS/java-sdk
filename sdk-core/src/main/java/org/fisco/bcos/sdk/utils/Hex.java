@@ -114,6 +114,14 @@ public class Hex {
      * @return a byte array representing the decoded data.
      */
     public static byte[] decode(String data) {
+        if (data.startsWith("0x")) {
+            return Hex.decodeInner(data.substring(2));
+        } else {
+            return Hex.decodeInner(data);
+        }
+    }
+
+    private static byte[] decodeInner(String data){
         ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 
         try {

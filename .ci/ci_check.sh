@@ -111,16 +111,16 @@ check_sm_node()
   ## clean
   clean_node
 }
-LOG_INFO "------ download_tassl---------"
-download_tassl
-LOG_INFO "------ download_build_chain---------"
-download_build_chain
-LOG_INFO "------ check_standard_node---------"
-check_standard_node
-LOG_INFO "------ check_sm_node---------"
-check_sm_node
-LOG_INFO "------ check_basic---------"
-check_basic
+#LOG_INFO "------ download_tassl---------"
+#download_tassl
+#LOG_INFO "------ download_build_chain---------"
+#download_build_chain
+#LOG_INFO "------ check_standard_node---------"
+#check_standard_node
+#LOG_INFO "------ check_sm_node---------"
+#check_sm_node
+#LOG_INFO "------ check_basic---------"
+#check_basic
 #LOG_INFO "------ check_log---------"
 #cat log/* |grep -i error
 #cat log/* |grep -i warn

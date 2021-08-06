@@ -30,7 +30,7 @@ public class BcosSDK {
     public static final String SM_TYPE_STR = "sm";
 
     private final ConfigOption config;
-    private ConcurrentHashMap<String, Client> groupToClient = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Client> uriToClient = new ConcurrentHashMap<>();
 
     /**
      * Build BcosSDK instance
@@ -61,13 +61,23 @@ public class BcosSDK {
             for (String endpoint : this.config.getNetworkConfig().getPeers()) {
                 // create all clients
                 Client client = Client.build(endpoint, this.config);
-                this.groupToClient.put(client.getGroupId(), client);
+                updateUriToClient(endpoint, client);
             }
             logger.info("create BcosSDK, create connection success");
         } catch (ChannelException | NetworkException e) {
             this.stopAll();
             throw new BcosSDKException("create BcosSDK failed, error info: " + e.getMessage(), e);
         }
+    }
+
+    private boolean updateUriToClient(String endPoint, Client client)
+    {
+        if(!this.uriToClient.containsKey(endPoint))
+        {
+            uriToClient.put(endPoint, client);
+           return true;
+        }
+        return false;
     }
 
     /**
@@ -77,27 +87,27 @@ public class BcosSDK {
      * @return Client
      */
     public Client getClientByGroupID(String groupId) {
-        if (!this.groupToClient.containsKey(groupId)) {
-            // create a new client for the specified group
-            logger.info(
-                    "client for group " + groupId + " is not exist! Please check the existence of group "
-                            + groupId + " of the connected node!");
-            return null;
+        for(String endPoint : this.uriToClient.keySet())
+        {
+            Client client = this.uriToClient.get(endPoint);
+            if(client.getGroupId() == groupId)
+            {
+                return client;
+            }
         }
-        return this.groupToClient.get(groupId);
+        return null;
     }
 
     /**
      * Get a Client instance of a specific group
      *
-     * @param endpoint
+     * @param endPoint
      * @return Client
      */
-    public Client getClientByEndpoint(String endpoint) {
-        for (Client client : this.groupToClient.values()) {
-            if (client.getConnection().getUri().contains(endpoint)) {
-                return client;
-            }
+    public Client getClientByEndpoint(String endPoint) {
+        if(this.uriToClient.containsKey(endPoint))
+        {
+            return this.uriToClient.get(endPoint);
         }
         return null;
     }
@@ -116,8 +126,8 @@ public class BcosSDK {
      */
     public void stopAll() {
         // stop the client
-        for (String groupId : this.groupToClient.keySet()) {
-            this.groupToClient.get(groupId).stop();
+        for (String endPoint : this.uriToClient.keySet()) {
+            this.uriToClient.get(endPoint).stop();
         }
     }
 }
