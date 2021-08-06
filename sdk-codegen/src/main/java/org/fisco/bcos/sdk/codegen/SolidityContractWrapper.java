@@ -14,15 +14,6 @@
 package org.fisco.bcos.sdk.codegen;
 
 import com.squareup.javapoet.*;
-import java.io.File;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Modifier;
 import org.fisco.bcos.sdk.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.abi.TypeReference;
@@ -43,7 +34,19 @@ import org.fisco.bcos.sdk.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Generate Java Classes based on generated Solidity bin and abi files. */
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Modifier;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+/**
+ * Generate Java Classes based on generated Solidity bin and abi files.
+ */
 public class SolidityContractWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(SolidityContractWrapper.class);
@@ -81,7 +84,7 @@ public class SolidityContractWrapper {
             String destinationDir,
             String basePackageName)
             throws IOException, ClassNotFoundException, UnsupportedOperationException,
-                    CodeGenException {
+            CodeGenException {
         String className = StringUtils.capitaliseFirstLetter(contractName);
 
         logger.info("bin: {}", bin);
@@ -94,18 +97,18 @@ public class SolidityContractWrapper {
         }
 
         List<ABIDefinition> abiDefinitions = CodeGenUtils.loadContractAbiDefinition(abi);
-        TypeSpec.Builder classBuilder = createClassBuilder(className, bin, smBin, abi);
+        TypeSpec.Builder classBuilder = this.createClassBuilder(className, bin, smBin, abi);
 
         classBuilder.addMethod(
                 buildGetBinaryMethod(CryptoSuite.class, CryptoType.class, CRYPTOSUITE));
         classBuilder.addMethod(buildConstructor(CryptoKeyPair.class, CREDENTIAL));
 
-        classBuilder.addFields(buildFuncNameConstants(abiDefinitions));
-        classBuilder.addMethods(buildFunctionDefinitions(classBuilder, abiDefinitions));
+        classBuilder.addFields(this.buildFuncNameConstants(abiDefinitions));
+        classBuilder.addMethods(this.buildFunctionDefinitions(classBuilder, abiDefinitions));
         classBuilder.addMethod(buildLoad(className, CryptoKeyPair.class, CREDENTIAL));
-        classBuilder.addMethods(buildDeployMethods(className, abiDefinitions));
+        classBuilder.addMethods(this.buildDeployMethods(className, abiDefinitions));
 
-        write(basePackageName, classBuilder.build(), destinationDir);
+        this.write(basePackageName, classBuilder.build(), destinationDir);
     }
 
     protected void write(String packageName, TypeSpec typeSpec, String destinationDir)
@@ -130,13 +133,13 @@ public class SolidityContractWrapper {
                                         .addMember("value", "$S", "unchecked")
                                         .build())
                         // binary fields
-                        .addField(createArrayDefinition(BINARY_ARRAY_NAME, binary))
-                        .addField(createDefinition(BINARY_NAME, BINARY_ARRAY_NAME))
-                        .addField(createArrayDefinition(SM_BINARY_ARRAY_NAME, smBinary))
-                        .addField(createDefinition(SM_BINARY_NAME, SM_BINARY_ARRAY_NAME))
+                        .addField(this.createArrayDefinition(BINARY_ARRAY_NAME, binary))
+                        .addField(this.createDefinition(BINARY_NAME, BINARY_ARRAY_NAME))
+                        .addField(this.createArrayDefinition(SM_BINARY_ARRAY_NAME, smBinary))
+                        .addField(this.createDefinition(SM_BINARY_NAME, SM_BINARY_ARRAY_NAME))
                         // abi fields
-                        .addField(createArrayDefinition(ABI_ARRAY_NAME, abi))
-                        .addField(createDefinition(ABI_NAME, ABI_ARRAY_NAME));
+                        .addField(this.createArrayDefinition(ABI_ARRAY_NAME, abi))
+                        .addField(this.createDefinition(ABI_NAME, ABI_ARRAY_NAME));
 
         return builder;
     }
@@ -162,7 +165,7 @@ public class SolidityContractWrapper {
     }
 
     private FieldSpec createArrayDefinition(String type, String binary) {
-        List<String> binaryArray = stringToArrayString(binary);
+        List<String> binaryArray = this.stringToArrayString(binary);
         List<String> formatArray =
                 new ArrayList<String>(Collections.nCopies(binaryArray.size(), "$S"));
 
@@ -188,7 +191,7 @@ public class SolidityContractWrapper {
 
         CodeBlock initializer = buildVariableLengthEventInitializer(name, parameters);
 
-        return FieldSpec.builder(Event.class, buildEventDefinitionName(name))
+        return FieldSpec.builder(Event.class, this.buildEventDefinitionName(name))
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer(initializer)
                 .build();
@@ -220,32 +223,32 @@ public class SolidityContractWrapper {
         List<MethodSpec> methodSpecs = new ArrayList<>();
         for (ABIDefinition functionDefinition : functionDefinitions) {
             if (functionDefinition.getType().equals("function")) {
-                MethodSpec ms = buildFunction(functionDefinition);
+                MethodSpec ms = this.buildFunction(functionDefinition);
                 methodSpecs.add(ms);
 
                 if (!functionDefinition.isConstant()) {
-                    MethodSpec msCallback = buildFunctionWithCallback(functionDefinition);
+                    MethodSpec msCallback = this.buildFunctionWithCallback(functionDefinition);
                     methodSpecs.add(msCallback);
 
-                    MethodSpec msSeq = buildFunctionSignedTransaction(functionDefinition);
+                    MethodSpec msSeq = this.buildFunctionSignedTransaction(functionDefinition);
                     methodSpecs.add(msSeq);
 
                     boolean isOverLoad =
                             isOverLoadFunction(functionDefinition.getName(), functionDefinitions);
                     if (!functionDefinition.getInputs().isEmpty()) {
                         MethodSpec inputDecoder =
-                                buildFunctionWithInputDecoder(functionDefinition, isOverLoad);
+                                this.buildFunctionWithInputDecoder(functionDefinition, isOverLoad);
                         methodSpecs.add(inputDecoder);
                     }
 
                     if (!functionDefinition.getOutputs().isEmpty()) {
                         MethodSpec outputDecoder =
-                                buildFunctionWithOutputDecoder(functionDefinition, isOverLoad);
+                                this.buildFunctionWithOutputDecoder(functionDefinition, isOverLoad);
                         methodSpecs.add(outputDecoder);
                     }
                 }
             } else if (functionDefinition.getType().equals("event")) {
-                methodSpecs.addAll(buildEventFunctions(functionDefinition, classBuilder));
+                methodSpecs.addAll(this.buildEventFunctions(functionDefinition, classBuilder));
             }
         }
 
@@ -260,7 +263,7 @@ public class SolidityContractWrapper {
             if (functionDefinition.getType().equals("constructor")) {
                 constructor = true;
                 methodSpecs.add(
-                        buildDeploy(
+                        this.buildDeploy(
                                 className, functionDefinition, CryptoKeyPair.class, CREDENTIAL));
             }
         }
@@ -336,7 +339,7 @@ public class SolidityContractWrapper {
     private MethodSpec buildDeploy(
             String className, ABIDefinition functionDefinition, Class authType, String authName) {
         MethodSpec.Builder methodBuilder = getDeployMethodSpec(className, authType, authName);
-        String inputParams = addParameters(methodBuilder, functionDefinition.getInputs());
+        String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
 
         if (!inputParams.isEmpty()) {
             return buildDeployWithParams(methodBuilder, className, inputParams, authName);
@@ -353,8 +356,7 @@ public class SolidityContractWrapper {
 
         methodBuilder
                 .addStatement(
-                        "$T encodedConstructor = $T.encodeConstructor(" + "$T.<$T>asList($L)" + ")",
-                        String.class,
+                        "byte[] encodedConstructor = $T.encodeConstructor(" + "$T.<$T>asList($L)" + ")",
                         FunctionEncoder.class,
                         Arrays.class,
                         Type.class,
@@ -371,7 +373,7 @@ public class SolidityContractWrapper {
     private static MethodSpec buildDeployNoParams(
             MethodSpec.Builder methodBuilder, String className, String authName) {
         methodBuilder.addStatement(
-                "return deploy($L.class, $L, $L, $L, \"\")",
+                "return deploy($L.class, $L, $L, $L, null)",
                 className,
                 CLIENT,
                 authName,
@@ -409,7 +411,7 @@ public class SolidityContractWrapper {
     private MethodSpec.Builder addParameter(
             MethodSpec.Builder methodBuilder, String type, String name) {
 
-        ParameterSpec parameterSpec = buildParameterType(type, name);
+        ParameterSpec parameterSpec = this.buildParameterType(type, name);
 
         TypeName typeName = getNativeType(parameterSpec.type);
 
@@ -604,7 +606,7 @@ public class SolidityContractWrapper {
      * a struct type.
      *
      * @param name parameter name
-     * @param idx parameter index
+     * @param idx  parameter index
      * @return non-empty parameter name
      */
     protected static String createValidParamName(String name, int idx) {
@@ -634,14 +636,14 @@ public class SolidityContractWrapper {
         MethodSpec.Builder methodBuilder =
                 MethodSpec.methodBuilder(functionName).addModifiers(Modifier.PUBLIC);
 
-        String inputParams = addParameters(methodBuilder, functionDefinition.getInputs());
+        String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
 
         List<TypeName> outputParameterTypes = buildTypeNames(functionDefinition.getOutputs());
         if (functionDefinition.isConstant()) {
-            buildConstantFunction(
+            this.buildConstantFunction(
                     functionDefinition, methodBuilder, outputParameterTypes, inputParams);
         } else {
-            buildTransactionFunction(functionDefinition, methodBuilder, inputParams);
+            this.buildTransactionFunction(functionDefinition, methodBuilder, inputParams);
         }
 
         return methodBuilder.build();
@@ -659,9 +661,9 @@ public class SolidityContractWrapper {
         MethodSpec.Builder methodBuilder =
                 MethodSpec.methodBuilder(functionName).addModifiers(Modifier.PUBLIC);
 
-        String inputParams = addParameters(methodBuilder, functionDefinition.getInputs());
+        String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
 
-        buildTransactionFunctionSeq(functionDefinition, methodBuilder, inputParams);
+        this.buildTransactionFunctionSeq(functionDefinition, methodBuilder, inputParams);
 
         return methodBuilder.build();
     }
@@ -676,13 +678,13 @@ public class SolidityContractWrapper {
         List<TypeName> outputParameterTypes = buildTypeNames(functionDefinition.getOutputs());
 
         if (functionDefinition.isConstant()) {
-            String inputParams = addParameters(methodBuilder, functionDefinition.getInputs());
-            buildConstantFunction(
+            String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
+            this.buildConstantFunction(
                     functionDefinition, methodBuilder, outputParameterTypes, inputParams);
         } else {
-            String inputParams = addParameters(methodBuilder, functionDefinition.getInputs());
+            String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
             methodBuilder.addParameter(TransactionCallback.class, "callback");
-            buildTransactionFunctionWithCallback(functionDefinition, methodBuilder, inputParams);
+            this.buildTransactionFunctionWithCallback(functionDefinition, methodBuilder, inputParams);
         }
 
         return methodBuilder.build();
@@ -727,7 +729,7 @@ public class SolidityContractWrapper {
                         .addParameter(TransactionReceipt.class, "transactionReceipt");
 
         List<TypeName> returnTypes =
-                buildReturnTypes(buildTypeNames(functionDefinition.getInputs()));
+                this.buildReturnTypes(buildTypeNames(functionDefinition.getInputs()));
 
         ParameterizedTypeName parameterizedTupleType =
                 ParameterizedTypeName.get(
@@ -750,7 +752,7 @@ public class SolidityContractWrapper {
                 List.class,
                 FunctionReturnDecoder.class);
 
-        buildTupleResultContainer0(
+        this.buildTupleResultContainer0(
                 methodBuilder,
                 parameterizedTupleType,
                 buildTypeNames(functionDefinition.getInputs()));
@@ -770,7 +772,7 @@ public class SolidityContractWrapper {
                         .addParameter(TransactionReceipt.class, "transactionReceipt");
 
         List<TypeName> returnTypes =
-                buildReturnTypes(buildTypeNames(functionDefinition.getOutputs()));
+                this.buildReturnTypes(buildTypeNames(functionDefinition.getOutputs()));
 
         ParameterizedTypeName parameterizedTupleType =
                 ParameterizedTypeName.get(
@@ -793,7 +795,7 @@ public class SolidityContractWrapper {
                 List.class,
                 FunctionReturnDecoder.class);
 
-        buildTupleResultContainer0(
+        this.buildTupleResultContainer0(
                 methodBuilder,
                 parameterizedTupleType,
                 buildTypeNames(functionDefinition.getOutputs()));
@@ -818,7 +820,7 @@ public class SolidityContractWrapper {
 
             TypeName typeName = outputParameterTypes.get(0);
             TypeName nativeReturnTypeName;
-            nativeReturnTypeName = getWrapperRawType(typeName);
+            nativeReturnTypeName = this.getWrapperRawType(typeName);
 
             methodBuilder.returns(nativeReturnTypeName);
 
@@ -857,7 +859,7 @@ public class SolidityContractWrapper {
                         nativeReturnTypeName);
             }
         } else {
-            List<TypeName> returnTypes = buildReturnTypes(outputParameterTypes);
+            List<TypeName> returnTypes = this.buildReturnTypes(outputParameterTypes);
 
             ParameterizedTypeName parameterizedTupleType =
                     ParameterizedTypeName.get(
@@ -871,7 +873,7 @@ public class SolidityContractWrapper {
             buildVariableLengthReturnFunctionConstructor(
                     methodBuilder, functionName, inputParams, outputParameterTypes);
 
-            buildTupleResultContainer(methodBuilder, parameterizedTupleType, outputParameterTypes);
+            this.buildTupleResultContainer(methodBuilder, parameterizedTupleType, outputParameterTypes);
         }
     }
 
@@ -974,11 +976,11 @@ public class SolidityContractWrapper {
                         .addParameter(String.class, FROM_BLOCK)
                         .addParameter(String.class, TO_BLOCK);
 
-        addParameter(getEventMethodBuilder, "string[]", OTHER_TOPICS);
+        this.addParameter(getEventMethodBuilder, "string[]", OTHER_TOPICS);
         // FIXME: implement event sub
         //        getEventMethodBuilder.addParameter(EventCallback.class, CALLBACK_VALUE);
         getEventMethodBuilder.addStatement(
-                "String topic0 = $N.encode(" + buildEventDefinitionName(eventName) + ")",
+                "String topic0 = $N.encode(" + this.buildEventDefinitionName(eventName) + ")",
                 EVENT_ENCODER);
 
         getEventMethodBuilder.addStatement(
@@ -1041,7 +1043,7 @@ public class SolidityContractWrapper {
         transactionMethodBuilder
                 .addStatement(
                         "$T valueList = extractEventParametersWithLog("
-                                + buildEventDefinitionName(functionName)
+                                + this.buildEventDefinitionName(functionName)
                                 + ", "
                                 + "transactionReceipt)",
                         ParameterizedTypeName.get(List.class, Contract.EventValuesWithLog.class))
@@ -1054,7 +1056,7 @@ public class SolidityContractWrapper {
                         "for ($T eventValues : valueList)", Contract.EventValuesWithLog.class)
                 .addStatement("$1T typedResponse = new $1T()", ClassName.get("", responseClassName))
                 .addCode(
-                        buildTypedResponse(
+                        this.buildTypedResponse(
                                 "typedResponse", indexedParameters, nonIndexedParameters, false))
                 .addStatement("responses.add(typedResponse)")
                 .endControlFlow();
@@ -1105,15 +1107,15 @@ public class SolidityContractWrapper {
             parameters.add(parameter);
         }
 
-        classBuilder.addField(createEventDefinition(functionName, parameters));
+        classBuilder.addField(this.createEventDefinition(functionName, parameters));
 
         classBuilder.addType(
-                buildEventResponseObject(
+                this.buildEventResponseObject(
                         responseClassName, indexedParameters, nonIndexedParameters));
 
         List<MethodSpec> methods = new ArrayList<>();
         methods.add(
-                buildEventTransactionReceiptFunction(
+                this.buildEventTransactionReceiptFunction(
                         responseClassName, functionName, indexedParameters, nonIndexedParameters));
 
         //    methods.add(buildSubscribeEventFunction(functionName));
@@ -1388,15 +1390,15 @@ public class SolidityContractWrapper {
         }
 
         public String getName() {
-            return name;
+            return this.name;
         }
 
         public TypeName getTypeName() {
-            return typeName;
+            return this.typeName;
         }
 
         public boolean isIndexed() {
-            return indexed;
+            return this.indexed;
         }
     }
 
