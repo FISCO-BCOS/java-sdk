@@ -17,6 +17,9 @@ package org.fisco.bcos.sdk.client.protocol.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.qq.tars.protocol.tars.TarsOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.model.ParentInfo;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -24,10 +27,6 @@ import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader> {
     private static Logger logger = LoggerFactory.getLogger(BcosBlockHeader.class);
@@ -44,10 +43,10 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
     public static class Signature {
         @JsonProperty("sealerIndex")
         private Integer index;
+
         private String signature;
 
-        public Signature() {
-        }
+        public Signature() {}
 
         public Integer getIndex() {
             return this.index;
@@ -81,7 +80,14 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
 
         @Override
         public String toString() {
-            return "{" + "index='" + this.index + '\'' + ", signature='" + this.signature + '\'' + '}';
+            return "{"
+                    + "index='"
+                    + this.index
+                    + '\''
+                    + ", signature='"
+                    + this.signature
+                    + '\''
+                    + '}';
         }
     }
 
@@ -94,6 +100,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
 
         @JsonProperty("txsRoot")
         protected String transactionsRoot;
+
         protected String receiptsRoot;
         protected String stateRoot;
         protected Integer sealer;
@@ -217,12 +224,28 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
                 for (String sealer : this.sealerList) {
                     sealerList.add(Hex.decode(sealer));
                 }
-                List<org.fisco.bcos.sdk.client.protocol.model.Signature> signatureList = new ArrayList<>();
+                List<org.fisco.bcos.sdk.client.protocol.model.Signature> signatureList =
+                        new ArrayList<>();
                 for (Signature signature : this.signatureList) {
-                    signatureList.add(new org.fisco.bcos.sdk.client.protocol.model.Signature(signature.getIndex(), Hex.decode(signature.getSignature())));
+                    signatureList.add(
+                            new org.fisco.bcos.sdk.client.protocol.model.Signature(
+                                    signature.getIndex(), Hex.decode(signature.getSignature())));
                 }
-                org.fisco.bcos.sdk.client.protocol.model.BlockHeader blockHeader = new org.fisco.bcos.sdk.client.protocol.model.BlockHeader(0, this.parentInfo, Hex.decode(this.transactionsRoot), Hex.decode(this.receiptsRoot), Hex.decode(this.stateRoot),
-                        this.number, this.gasUsed, this.timestamp, this.sealer, sealerList, Hex.decode(this.extraData), signatureList, this.consensusWeights);
+                org.fisco.bcos.sdk.client.protocol.model.BlockHeader blockHeader =
+                        new org.fisco.bcos.sdk.client.protocol.model.BlockHeader(
+                                0,
+                                this.parentInfo,
+                                Hex.decode(this.transactionsRoot),
+                                Hex.decode(this.receiptsRoot),
+                                Hex.decode(this.stateRoot),
+                                this.number,
+                                this.gasUsed,
+                                this.timestamp,
+                                this.sealer,
+                                sealerList,
+                                Hex.decode(this.extraData),
+                                signatureList,
+                                this.consensusWeights);
                 TarsOutputStream tarsOutputStream = new TarsOutputStream();
                 blockHeader.writeTo(tarsOutputStream);
                 return "0x" + Hex.toHexString(tarsOutputStream.toByteArray());
@@ -246,8 +269,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             if (this == o) return true;
             if (o == null || this.getClass() != o.getClass()) return false;
             BlockHeader that = (BlockHeader) o;
-            return Objects.equals(
-                    this.number, that.number)
+            return Objects.equals(this.number, that.number)
                     && Objects.equals(this.hash, that.hash)
                     && Objects.equals(this.parentHash, that.parentHash)
                     && Objects.equals(this.logsBloom, that.logsBloom)

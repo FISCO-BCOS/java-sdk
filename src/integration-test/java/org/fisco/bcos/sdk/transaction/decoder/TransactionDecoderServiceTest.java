@@ -15,6 +15,10 @@
 package org.fisco.bcos.sdk.transaction.decoder;
 
 import com.google.common.collect.Lists;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.model.ConstantConfig;
@@ -27,11 +31,6 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * TransactionDecoderServiceTest @Description: TransactionDecoderServiceTest

@@ -1,8 +1,5 @@
 package org.fisco.bcos.sdk.abi.wrapper;
 
-import org.fisco.bcos.sdk.abi.FunctionEncoder;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,6 +7,8 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.fisco.bcos.sdk.abi.FunctionEncoder;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 
 /**
  * ABIDefinition wrapper
@@ -39,8 +38,7 @@ public class ABIDefinition {
     private List<NamedType> outputs;
     public static List<String> CONSTANT_KEY = Arrays.asList("view");
 
-    public ABIDefinition() {
-    }
+    public ABIDefinition() {}
 
     public ABIDefinition(
             String name,
@@ -208,7 +206,9 @@ public class ABIDefinition {
                 : that.getInputs() != null) {
             return false;
         }
-        if (this.getName() != null ? !this.getName().equals(that.getName()) : that.getName() != null) {
+        if (this.getName() != null
+                ? !this.getName().equals(that.getName())
+                : that.getName() != null) {
             return false;
         }
         if (this.getOutputs() != null
@@ -221,7 +221,9 @@ public class ABIDefinition {
                 : that.getStateMutability() != null) {
             return false;
         }
-        return this.getType() != null ? this.getType().equals(that.getType()) : that.getType() == null;
+        return this.getType() != null
+                ? this.getType().equals(that.getType())
+                : that.getType() == null;
     }
 
     @Override
@@ -232,7 +234,11 @@ public class ABIDefinition {
         result = 31 * result + (this.getOutputs() != null ? this.getOutputs().hashCode() : 0);
         result = 31 * result + (this.getType() != null ? this.getType().hashCode() : 0);
         result = 31 * result + (this.isPayable() ? 1 : 0);
-        result = 31 * result + (this.getStateMutability() != null ? this.getStateMutability().hashCode() : 0);
+        result =
+                31 * result
+                        + (this.getStateMutability() != null
+                                ? this.getStateMutability().hashCode()
+                                : 0);
         return result;
     }
 
@@ -340,8 +346,7 @@ public class ABIDefinition {
         private boolean indexed;
         private List<NamedType> components;
 
-        public NamedType() {
-        }
+        public NamedType() {}
 
         public NamedType(String name, String type) {
             this(name, type, false);

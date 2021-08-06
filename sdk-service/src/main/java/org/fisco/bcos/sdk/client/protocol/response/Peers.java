@@ -17,9 +17,7 @@ package org.fisco.bcos.sdk.client.protocol.response;
 
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
-/**
- * getPeers
- */
+/** getPeers */
 public class Peers extends JsonRpcResponse<String> {
     public String getPeers() {
         return this.getResult();

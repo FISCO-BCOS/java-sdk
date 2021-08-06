@@ -21,15 +21,12 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
+import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-
-/**
- * Channel handler process inbound message.
- */
+/** Channel handler process inbound message. */
 @Sharable
 public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
     private static Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
@@ -86,8 +83,11 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         if (msg instanceof FullHttpResponse) {
             FullHttpResponse response = (FullHttpResponse) msg;
             throw new IllegalStateException(
-                    "Unexpected FullHttpResponse (getStatus=" + response.getStatus() +
-                            ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
+                    "Unexpected FullHttpResponse (getStatus="
+                            + response.getStatus()
+                            + ", content="
+                            + response.content().toString(CharsetUtil.UTF_8)
+                            + ')');
         }
 
         WebSocketFrame frame = (WebSocketFrame) msg;

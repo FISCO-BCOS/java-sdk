@@ -1,5 +1,9 @@
 package org.fisco.bcos.sdk.contract.precompiled.crud.table;
 
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
@@ -18,11 +22,6 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 public class TableFactory extends Contract {
     public static final String[] BINARY_ARRAY = {};
 
@@ -33,7 +32,7 @@ public class TableFactory extends Contract {
     public static final String SM_BINARY = String.join("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
-            "[{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"createTable\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"openTable\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
+        "[{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"}],\"name\":\"createTable\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"openTable\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = String.join("", ABI_ARRAY);
@@ -95,12 +94,9 @@ public class TableFactory extends Contract {
                         FUNC_CREATETABLE,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                },
-                                new TypeReference<Utf8String>() {
-                                }));
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Utf8String>() {}));
         List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple3<String, String, String>(
                 (String) results.get(0).getValue(),
@@ -114,8 +110,7 @@ public class TableFactory extends Contract {
                 new Function(
                         FUNC_CREATETABLE,
                         Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {
-                        }));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
         List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
@@ -126,8 +121,7 @@ public class TableFactory extends Contract {
                         FUNC_OPENTABLE,
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {
-                        }));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
         return this.executeCallWithSingleValueReturn(function, String.class);
     }
 

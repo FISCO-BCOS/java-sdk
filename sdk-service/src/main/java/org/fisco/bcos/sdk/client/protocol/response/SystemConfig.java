@@ -15,13 +15,10 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
+import java.util.Objects;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
-import java.util.Objects;
-
-/**
- * getSystemConfigByKey
- */
+/** getSystemConfigByKey */
 public class SystemConfig extends JsonRpcResponse<SystemConfig.Config> {
     public SystemConfig.Config getSystemConfig() {
         return this.getResult();
@@ -42,9 +39,7 @@ public class SystemConfig extends JsonRpcResponse<SystemConfig.Config> {
 
         @Override
         public int hashCode() {
-            return Objects.hash(
-                    this.blockNumber,
-                    this.value);
+            return Objects.hash(this.blockNumber, this.value);
         }
 
         @Override

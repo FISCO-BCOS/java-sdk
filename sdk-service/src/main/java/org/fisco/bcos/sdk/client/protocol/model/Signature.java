@@ -16,6 +16,7 @@ public class Signature {
 
     @TarsStructProperty(order = 1, isRequire = true)
     public long sealerIndex = 0L;
+
     @TarsStructProperty(order = 2, isRequire = true)
     public byte[] signature = null;
 
@@ -35,8 +36,7 @@ public class Signature {
         this.signature = signature;
     }
 
-    public Signature() {
-    }
+    public Signature() {}
 
     public Signature(long sealerIndex, byte[] signature) {
         this.sealerIndex = sealerIndex;
@@ -64,10 +64,8 @@ public class Signature {
             return false;
         }
         Signature other = (Signature) obj;
-        return (
-                TarsUtil.equals(this.sealerIndex, other.sealerIndex) &&
-                        TarsUtil.equals(this.signature, other.signature)
-        );
+        return (TarsUtil.equals(this.sealerIndex, other.sealerIndex)
+                && TarsUtil.equals(this.signature, other.signature));
     }
 
     @Override
@@ -103,5 +101,4 @@ public class Signature {
         this.sealerIndex = _is.read(this.sealerIndex, 1, true);
         this.signature = (byte[]) _is.read(cache_signature, 2, true);
     }
-
 }

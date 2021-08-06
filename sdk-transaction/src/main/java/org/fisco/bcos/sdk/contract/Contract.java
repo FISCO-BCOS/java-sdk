@@ -14,6 +14,15 @@
  */
 package org.fisco.bcos.sdk.contract;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.abi.*;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
@@ -34,16 +43,6 @@ import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Contract help manage all operations including deploy, send transaction, call contract, and
@@ -68,10 +67,10 @@ public class Contract {
     /**
      * Constructor
      *
-     * @param contractBinary       the contract binary code hex string
-     * @param contractAddress      the contract address
-     * @param client               a Client object
-     * @param credential           key pair to use when sign transaction
+     * @param contractBinary the contract binary code hex string
+     * @param contractAddress the contract address
+     * @param client a Client object
+     * @param credential key pair to use when sign transaction
      * @param transactionProcessor TransactionProcessor object
      */
     protected Contract(
@@ -93,10 +92,10 @@ public class Contract {
     /**
      * Constructor, auto create a TransactionProcessor object
      *
-     * @param contractBinary  the contract binary code hex string
+     * @param contractBinary the contract binary code hex string
      * @param contractAddress the contract address
-     * @param client          a Client object to send requests
-     * @param credential      key pair to use when sign transaction
+     * @param client a Client object to send requests
+     * @param credential key pair to use when sign transaction
      */
     protected Contract(
             String contractBinary,
@@ -115,12 +114,12 @@ public class Contract {
      * Deploy contract
      *
      * @param type
-     * @param client             a Client object to send requests
-     * @param credential         key pair to use when sign transaction
+     * @param client a Client object to send requests
+     * @param credential key pair to use when sign transaction
      * @param transactionManager TransactionProcessor
-     * @param binary             the contract binary code hex string
+     * @param binary the contract binary code hex string
      * @param encodedConstructor
-     * @param <T>                a smart contract object extends Contract
+     * @param <T> a smart contract object extends Contract
      * @return <T> type smart contract
      * @throws ContractException
      */
@@ -208,7 +207,8 @@ public class Contract {
 
         byte[] encodedFunctionData = this.functionEncoder.encode(function);
         CallRequest callRequest =
-                new CallRequest(this.credential.getAddress(), this.contractAddress, encodedFunctionData);
+                new CallRequest(
+                        this.credential.getAddress(), this.contractAddress, encodedFunctionData);
         Call response = this.transactionProcessor.executeCall(callRequest);
         // get value from the response
         String callResult = response.getCallResult().getOutput();
@@ -275,11 +275,13 @@ public class Contract {
 
     protected void asyncExecuteTransaction(
             byte[] data, String funName, TransactionCallback callback) {
-        this.transactionProcessor.sendTransactionAsync(this.contractAddress, data, this.credential, callback);
+        this.transactionProcessor.sendTransactionAsync(
+                this.contractAddress, data, this.credential, callback);
     }
 
     protected void asyncExecuteTransaction(Function function, TransactionCallback callback) {
-        this.asyncExecuteTransaction(this.functionEncoder.encode(function), function.getName(), callback);
+        this.asyncExecuteTransaction(
+                this.functionEncoder.encode(function), function.getName(), callback);
     }
 
     protected TransactionReceipt executeTransaction(Function function) {
@@ -287,13 +289,11 @@ public class Contract {
     }
 
     protected TransactionReceipt executeTransaction(byte[] data, String functionName) {
-        return this.transactionProcessor.sendTransactionAndGetReceipt(this.contractAddress, data,
-                this.credential);
+        return this.transactionProcessor.sendTransactionAndGetReceipt(
+                this.contractAddress, data, this.credential);
     }
 
-    /**
-     * Adds a log field to {@link EventValues}.
-     */
+    /** Adds a log field to {@link EventValues}. */
     public static class EventValuesWithLog {
         private final EventValues eventValues;
         private final TransactionReceipt.Logs log;
@@ -317,7 +317,8 @@ public class Contract {
     }
 
     protected String createSignedTransaction(Function function) {
-        return this.createSignedTransaction(this.contractAddress, this.functionEncoder.encode(function));
+        return this.createSignedTransaction(
+                this.contractAddress, this.functionEncoder.encode(function));
     }
 
     protected String createSignedTransaction(String to, byte[] data) {

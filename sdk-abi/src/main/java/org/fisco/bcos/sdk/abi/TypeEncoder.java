@@ -1,13 +1,12 @@
 package org.fisco.bcos.sdk.abi;
 
-import org.fisco.bcos.sdk.abi.datatypes.*;
+import static org.fisco.bcos.sdk.abi.datatypes.Type.MAX_BYTE_LENGTH;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-
-import static org.fisco.bcos.sdk.abi.datatypes.Type.MAX_BYTE_LENGTH;
+import org.fisco.bcos.sdk.abi.datatypes.*;
 
 /**
  * Ethereum Contract Application Binary Interface (ABI) encoding for types. Further details are
@@ -15,8 +14,7 @@ import static org.fisco.bcos.sdk.abi.datatypes.Type.MAX_BYTE_LENGTH;
  */
 public class TypeEncoder {
 
-    private TypeEncoder() {
-    }
+    private TypeEncoder() {}
 
     public static byte[] encode(Type parameter) {
         if (parameter instanceof NumericType) {
@@ -151,7 +149,6 @@ public class TypeEncoder {
             e.printStackTrace();
             return null;
         }
-
     }
 
     static <T extends Type> byte[] encodeDynamicArray(DynamicArray<T> value) {
@@ -177,6 +174,5 @@ public class TypeEncoder {
             e.printStackTrace();
             return null;
         }
-
     }
 }

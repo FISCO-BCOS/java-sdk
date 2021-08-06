@@ -1,5 +1,7 @@
 package org.fisco.bcos.sdk.network;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -9,9 +11,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.model.Response;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 public class HttpConnection implements Connection {
 
@@ -25,12 +24,9 @@ public class HttpConnection implements Connection {
         }
     }
 
-    /**
-     * close connection
-     */
+    /** close connection */
     @Override
-    public void close() {
-    }
+    public void close() {}
 
     @Override
     public String getUri() {
@@ -47,7 +43,6 @@ public class HttpConnection implements Connection {
         return true;
     }
 
-
     @Override
     public String callMethod(String request) throws IOException {
         try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
@@ -55,7 +50,9 @@ public class HttpConnection implements Connection {
             final HttpPost httppost = new HttpPost(this.uri);
             final InputStreamEntity reqEntity =
                     new InputStreamEntity(
-                            new ByteArrayInputStream(request.getBytes()), -1, ContentType.APPLICATION_JSON);
+                            new ByteArrayInputStream(request.getBytes()),
+                            -1,
+                            ContentType.APPLICATION_JSON);
             httppost.setEntity(reqEntity);
             try (final CloseableHttpResponse response = httpclient.execute(httppost)) {
                 return EntityUtils.toString(response.getEntity());

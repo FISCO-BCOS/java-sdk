@@ -14,11 +14,10 @@
  */
 package org.fisco.bcos.sdk.transaction.pusher;
 
+import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * TransactionPusher @Description: TransactionPusherInterface
@@ -44,8 +43,8 @@ public interface TransactionPusherInterface {
     /**
      * push encoded function call to fisco bcos node and receive call response.
      *
-     * @param from            outer account address of sender
-     * @param to              target contract address
+     * @param from outer account address of sender
+     * @param to target contract address
      * @param encodedFunction signed transaction string
      * @return Call hexed string of encoded function
      */
@@ -63,7 +62,7 @@ public interface TransactionPusherInterface {
      * push signed transaction transaction to fisco bcos node asynchronously
      *
      * @param signedTransaction signed transaction string
-     * @param callback          define hook handle function
+     * @param callback define hook handle function
      */
     public void pushAsync(String signedTransaction, TransactionCallback callback);
 }

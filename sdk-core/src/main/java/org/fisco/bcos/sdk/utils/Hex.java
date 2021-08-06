@@ -121,7 +121,7 @@ public class Hex {
         }
     }
 
-    private static byte[] decodeInner(String data){
+    private static byte[] decodeInner(String data) {
         ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 
         try {

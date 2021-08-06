@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
+import java.math.BigInteger;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
@@ -24,13 +25,10 @@ import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-
 public class ReceiptParser {
     private static final Logger logger = LoggerFactory.getLogger(ReceiptParser.class);
 
-    private ReceiptParser() {
-    }
+    private ReceiptParser() {}
 
     /**
      * parse transaction receipt and get return code.
@@ -107,7 +105,7 @@ public class ReceiptParser {
      * parse output of call.
      *
      * @param callResult rpc response of call
-     * @param message    revert message if exists
+     * @param message revert message if exists
      * @return return code @see RetCode
      */
     public static RetCode parseCallOutput(Call.CallOutput callResult, String message) {
@@ -116,11 +114,10 @@ public class ReceiptParser {
                     RevertMessageParser.tryResolveRevertMessage(
                             callResult.getStatus().toString(), callResult.getOutput());
             if (errorOutput.getValue1()) {
-                return new RetCode(
-                        callResult.getStatus(),
-                        errorOutput.getValue2());
+                return new RetCode(callResult.getStatus(), errorOutput.getValue2());
             }
-            return TransactionReceiptStatus.getStatusMessage(callResult.getStatus().toString(), message);
+            return TransactionReceiptStatus.getStatusMessage(
+                    callResult.getStatus().toString(), message);
         }
         try {
             if (callResult.getOutput().equals("0x")) {
@@ -128,10 +125,10 @@ public class ReceiptParser {
             }
             int statusValue =
                     new BigInteger(
-                            callResult
-                                    .getOutput()
-                                    .substring(2, callResult.getOutput().length()),
-                            16)
+                                    callResult
+                                            .getOutput()
+                                            .substring(2, callResult.getOutput().length()),
+                                    16)
                             .intValue();
             RetCode ret =
                     PrecompiledRetCode.getPrecompiledResponse(

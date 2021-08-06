@@ -36,7 +36,9 @@ public class TransactionProcessorFactory {
         // get groupId
         String groupId = client.getGroupId();
         logger.debug(
-                "createTransactionManager for >=rc2 node, chainId: {}, groupId: {}", chainId, groupId);
+                "createTransactionManager for >=rc2 node, chainId: {}, groupId: {}",
+                chainId,
+                groupId);
         return Pair.of(chainId, groupId);
     }
 
@@ -63,18 +65,22 @@ public class TransactionProcessorFactory {
     }
 
     public static AssembleTransactionProcessor createAssembleTransactionProcessor(
-            Client client, CryptoKeyPair cryptoKeyPair, String contractName, String abi, String bin) {
+            Client client,
+            CryptoKeyPair cryptoKeyPair,
+            String contractName,
+            String abi,
+            String bin) {
         Pair<String, String> pair = getChainIdAndGroupId(client);
         return new AssembleTransactionProcessor(
                 client, cryptoKeyPair, pair.getRight(), pair.getLeft(), contractName, abi, bin);
     }
 
     public static AssembleTransactionWithRemoteSignProcessor
-    createAssembleTransactionWithRemoteSignProcessor(
-            Client client,
-            CryptoKeyPair cryptoKeyPair,
-            String contractName,
-            RemoteSignProviderInterface transactionSignProvider) {
+            createAssembleTransactionWithRemoteSignProcessor(
+                    Client client,
+                    CryptoKeyPair cryptoKeyPair,
+                    String contractName,
+                    RemoteSignProviderInterface transactionSignProvider) {
         Pair<String, String> pair = getChainIdAndGroupId(client);
         return new AssembleTransactionWithRemoteSignProcessor(
                 client,
@@ -86,13 +92,13 @@ public class TransactionProcessorFactory {
     }
 
     public static AssembleTransactionWithRemoteSignProcessor
-    createAssembleTransactionWithRemoteSignProcessor(
-            Client client,
-            CryptoKeyPair cryptoKeyPair,
-            String abiFilePath,
-            String binFilePath,
-            RemoteSignProviderInterface transactionSignProvider)
-            throws Exception {
+            createAssembleTransactionWithRemoteSignProcessor(
+                    Client client,
+                    CryptoKeyPair cryptoKeyPair,
+                    String abiFilePath,
+                    String binFilePath,
+                    RemoteSignProviderInterface transactionSignProvider)
+                    throws Exception {
         Pair<String, String> pair = getChainIdAndGroupId(client);
         ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
         return new AssembleTransactionWithRemoteSignProcessor(

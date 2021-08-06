@@ -23,17 +23,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
-import org.fisco.bcos.sdk.model.JsonRpcResponse;
-
 import java.util.List;
 import java.util.Objects;
+import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
 /**
  * getSyncStatus.
  *
  * <p>Returns an object with data about the sync status or false.
  */
-
 public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
     public SyncStatus.SyncStatusInfo getSyncStatus() {
         return this.getResult();
@@ -49,6 +47,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
     public static class PeersInfo {
         @JsonProperty("nodeID")
         private String nodeId;
+
         private String genesisHash;
         private Long blockNumber;
         private String latestHash;
@@ -128,6 +127,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
 
         @JsonProperty("nodeID")
         private String nodeId;
+
         private Long blockNumber;
         private String latestHash;
         private Integer knownHighestNumber;

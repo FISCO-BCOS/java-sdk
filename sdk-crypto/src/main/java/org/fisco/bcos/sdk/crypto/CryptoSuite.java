@@ -13,6 +13,7 @@
  */
 package org.fisco.bcos.sdk.crypto;
 
+import java.security.KeyPair;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.AccountConfig;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
@@ -33,8 +34,6 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.security.KeyPair;
 
 public class CryptoSuite {
 
@@ -62,7 +61,7 @@ public class CryptoSuite {
      * init CryptoSuite
      *
      * @param cryptoTypeConfig the crypto type, e.g. ECDSA_TYPE or SM_TYPE
-     * @param configOption     the configuration of account.
+     * @param configOption the configuration of account.
      */
     public CryptoSuite(int cryptoTypeConfig, ConfigOption configOption) {
         this(cryptoTypeConfig);
@@ -109,8 +108,8 @@ public class CryptoSuite {
      * Load account from file
      *
      * @param accountFileFormat file format, e.g. p21, pem
-     * @param accountFilePath   file path
-     * @param password          password of the key file
+     * @param accountFilePath file path
+     * @param password password of the key file
      */
     public void loadAccount(String accountFileFormat, String accountFilePath, String password) {
         KeyTool keyTool = null;
@@ -139,10 +138,12 @@ public class CryptoSuite {
         if (accountFilePath == null || accountFilePath.equals("")) {
             if (accountConfig.getAccountFileFormat().compareToIgnoreCase("p12") == 0) {
                 accountFilePath =
-                        this.keyPairFactory.getP12KeyStoreFilePath(accountConfig.getAccountAddress());
+                        this.keyPairFactory.getP12KeyStoreFilePath(
+                                accountConfig.getAccountAddress());
             } else if (accountConfig.getAccountFileFormat().compareToIgnoreCase("pem") == 0) {
                 accountFilePath =
-                        this.keyPairFactory.getPemKeyStoreFilePath(accountConfig.getAccountAddress());
+                        this.keyPairFactory.getPemKeyStoreFilePath(
+                                accountConfig.getAccountAddress());
             }
         }
         this.loadAccount(
@@ -237,8 +238,8 @@ public class CryptoSuite {
     /**
      * Verify signature, used in AMOP private topic verification procedure
      *
-     * @param keyTool   the key
-     * @param message   the string type input message, must be a digest
+     * @param keyTool the key
+     * @param message the string type input message, must be a digest
      * @param signature the string type signature
      * @return the verify errorCode
      */
@@ -249,8 +250,8 @@ public class CryptoSuite {
     /**
      * Verify signature, used in AMOP private topic verification procedure
      *
-     * @param keyTool   the key
-     * @param message   the byte array type input message, must be a digest
+     * @param keyTool the key
+     * @param message the byte array type input message, must be a digest
      * @param signature the byte array type signature
      * @return the verify errorCode
      */
@@ -262,7 +263,7 @@ public class CryptoSuite {
      * Verify signature
      *
      * @param publicKey the string type public key
-     * @param message   the string type input message, must be a digest
+     * @param message the string type input message, must be a digest
      * @param signature the string type signature
      * @return the verify errorCode
      */
@@ -274,7 +275,7 @@ public class CryptoSuite {
      * Verify signature
      *
      * @param publicKey the string type public key
-     * @param message   the byte array type input message, must be a digest
+     * @param message the byte array type input message, must be a digest
      * @param signature the byte array type signature
      * @return the verify errorCode
      */

@@ -79,12 +79,8 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     @Override
     public String createSignedTransaction(String to, byte[] data, CryptoKeyPair cryptoKeyPair) {
         TransactionData rawTransaction =
-                this.transactionBuilder.createTransaction(
-                        to,
-                        data,
-                        this.chainId,
-                        this.groupId);
-        //TODO: delete thi print
+                this.transactionBuilder.createTransaction(to, data, this.chainId, this.groupId);
+        // TODO: delete thi print
         System.out.println(rawTransaction);
         return this.transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
     }

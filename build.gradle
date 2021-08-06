@@ -1,10 +1,10 @@
 // Apply the java-library plugin to add support for Java Library
 plugins {
-    id "com.diffplug.spotless" version "5.14.1"
     id 'maven-publish'
     id 'java-library'
     id 'java'
     id 'org.ajoberstar.grgit' version '4.1.0'
+    id 'com.github.sherter.google-java-format' version '0.9'
 }
 println("Notice: current gradle version is " + gradle.gradleVersion)
 // Additional attribute definition
@@ -173,39 +173,12 @@ sourceSets {
     }
 }
 
-//googleJavaFormat {
-//    options style: 'AOSP'
-//    source = sourceSets*.allJava
-//    include '**/*.java'
-//}
-
-//spotless {
-//    format 'misc', {
-//        // define the files to apply `misc` to
-//        target '*.gradle', '*.md', '.gitignore'
-//
-//        // define the steps to apply to those files
-//        trimTrailingWhitespace()
-//        indentWithTabs() // or spaces. Takes an integer argument if you don't like 4
-//        endWithNewline()
-//    }
-//    java {
-//        target fileTree('.') {
-//            include '**/*.java'
-////            exclude '**/mybatis/**'
-//        }
-//        importOrder() // standard import order
-//        removeUnusedImports()
-//
-//        // apply a specific flavor of google-java-format
-//        googleJavaFormat('1.8').aosp()
-//        // make sure every file has the following copyright header.
-//        // optionally, Spotless can set copyright years by digging
-//        // through git history (see "license" section below)
-//        licenseHeader '/* (C)$YEAR */'
-//    }
-//}
-
+googleJavaFormat {
+    toolVersion = '1.7'
+    options style: 'AOSP'
+    source = sourceSets*.allJava
+    include '**/*.java'
+}
 dependencies {
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")

@@ -15,17 +15,14 @@
 
 package org.fisco.bcos.sdk.config.model;
 
+import java.io.File;
+import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.Map;
-
-/**
- * Crypto material configuration, include certs and keys
- */
+/** Crypto material configuration, include certs and keys */
 public class CryptoMaterialConfig {
     private static Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
     private String certPath = "conf";
@@ -36,11 +33,9 @@ public class CryptoMaterialConfig {
     private String enSSLPrivateKeyPath;
     private Boolean useSmCrypto;
 
-    protected CryptoMaterialConfig() {
-    }
+    protected CryptoMaterialConfig() {}
 
-    public CryptoMaterialConfig(ConfigProperty configProperty)
-            throws ConfigException {
+    public CryptoMaterialConfig(ConfigProperty configProperty) throws ConfigException {
 
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
         this.useSmCrypto = (Boolean) cryptoMaterialProperty.get("useSMCrypto");
@@ -206,5 +201,4 @@ public class CryptoMaterialConfig {
                 + this.useSmCrypto
                 + '}';
     }
-
 }

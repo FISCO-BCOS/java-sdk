@@ -15,16 +15,15 @@
 package org.fisco.bcos.sdk.client.protocol.model;
 
 import com.qq.tars.protocol.tars.TarsOutputStream;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.MerkleProofUnit;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
 
 public class JsonTransactionResponse {
     private static Logger logger = LoggerFactory.getLogger(JsonTransactionResponse.class);
@@ -42,8 +41,7 @@ public class JsonTransactionResponse {
     private String signature;
     private List<MerkleProofUnit> transactionProof;
 
-    public JsonTransactionResponse() {
-    }
+    public JsonTransactionResponse() {}
 
     public List<MerkleProofUnit> getTransactionProof() {
         return this.transactionProof;
@@ -156,7 +154,8 @@ public class JsonTransactionResponse {
                     this.hash,
                     e);
             throw new ClientException(
-                    "calculate hash for transaction " + this.hash + " failed for " + e.getMessage(), e);
+                    "calculate hash for transaction " + this.hash + " failed for " + e.getMessage(),
+                    e);
         }
     }
 

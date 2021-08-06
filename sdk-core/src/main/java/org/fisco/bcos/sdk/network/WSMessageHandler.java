@@ -17,6 +17,11 @@ package org.fisco.bcos.sdk.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.ChannelHandlerContext;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 import org.fisco.bcos.sdk.channel.ChannelVersionNegotiation;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
@@ -26,12 +31,6 @@ import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An implementation of channel.
@@ -115,14 +114,16 @@ public class WSMessageHandler implements MsgHandler {
 
     @Override
     public void onDisconnect(ChannelHandlerContext ctx) {
-        logger.debug("onDisconnect in ChannelMsgHandler called, host:{}", ctx.channel().remoteAddress());
+        logger.debug(
+                "onDisconnect in ChannelMsgHandler called, host:{}", ctx.channel().remoteAddress());
         this.seq2CallbackLock.lock();
         for (String seq : this.seq2Callback.keySet()) {
             logger.debug("send message with seq {} failed ", seq);
             ResponseCallback callback = this.seq2Callback.get(seq);
             Response response = new Response();
             response.setErrorCode(ChannelMessageError.CONNECTION_INVALID.getError());
-            response.setErrorMessage(String.format("connection to {} lost", ctx.channel().remoteAddress()));
+            response.setErrorMessage(
+                    String.format("connection to {} lost", ctx.channel().remoteAddress()));
             response.setMessageID(seq);
             callback.onResponse(response);
         }

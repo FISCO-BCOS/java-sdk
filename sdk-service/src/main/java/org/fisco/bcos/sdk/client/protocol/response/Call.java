@@ -15,9 +15,8 @@
 
 package org.fisco.bcos.sdk.client.protocol.response;
 
-import org.fisco.bcos.sdk.model.JsonRpcResponse;
-
 import java.util.Objects;
+import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
 /**
  * RPC response of ledger call
@@ -59,9 +58,7 @@ public class Call extends JsonRpcResponse<Call.CallOutput> {
             if (this == o) return true;
             if (o == null || this.getClass() != o.getClass()) return false;
             CallOutput that = (CallOutput) o;
-            return Objects.equals(
-                    this.blockNumber,
-                    that.blockNumber)
+            return Objects.equals(this.blockNumber, that.blockNumber)
                     && Objects.equals(this.status, that.status)
                     && Objects.equals(this.output, that.output);
         }

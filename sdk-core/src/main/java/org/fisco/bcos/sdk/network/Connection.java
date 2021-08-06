@@ -1,13 +1,10 @@
 package org.fisco.bcos.sdk.network;
 
+import java.io.IOException;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 
-import java.io.IOException;
-
 public interface Connection {
-    /**
-     * @description close connection
-     */
+    /** @description close connection */
     void close();
 
     /**
@@ -31,7 +28,7 @@ public interface Connection {
      * Send a message to a node in the group and select the node with the highest block height in
      * the group
      *
-     * @param request  The request to be sent
+     * @param request The request to be sent
      * @param callback callback to be called after receiving response
      */
     void asyncCallMethod(String request, ResponseCallback callback) throws IOException;

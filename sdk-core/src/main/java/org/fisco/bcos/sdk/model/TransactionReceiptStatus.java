@@ -31,7 +31,8 @@ public class TransactionReceiptStatus {
     public static final RetCode StackUnderflow = new RetCode(14, "Stack underflow");
     public static final RetCode PrecompiledError = new RetCode(15, "Precompiled error");
     public static final RetCode RevertInstruction = new RetCode(16, "Revert instruction");
-    public static final RetCode ContractAddressAlreadyUsed = new RetCode(17, "ContractAddressAlreadyUsed");
+    public static final RetCode ContractAddressAlreadyUsed =
+            new RetCode(17, "ContractAddressAlreadyUsed");
     public static final RetCode PermissionDenied = new RetCode(18, "Permission denied");
     public static final RetCode CallAddressError = new RetCode(19, "Call address error");
     public static final RetCode GasOverflow = new RetCode(20, "GasOverflow");
@@ -39,7 +40,8 @@ public class TransactionReceiptStatus {
     public static final RetCode AccountFrozen = new RetCode(22, "AccountFrozen");
     public static final RetCode WASMValidationFailure = new RetCode(32, "WASMValidationFailure");
     public static final RetCode WASMArgumentOutOfRange = new RetCode(33, "WASMArgumentOutOfRange");
-    public static final RetCode WASMUnreacheableInstruction = new RetCode(34, "WASMUnreacheableInstruction");
+    public static final RetCode WASMUnreacheableInstruction =
+            new RetCode(34, "WASMUnreacheableInstruction");
     public static final RetCode WASMTrap = new RetCode(35, "WASMTrap");
     public static final RetCode NonceCheckFail = new RetCode(1000, "NonceCheckFail");
     public static final RetCode BlockLimitCheckFail = new RetCode(1001, "BlockLimitCheckFail");
@@ -47,12 +49,13 @@ public class TransactionReceiptStatus {
     public static final RetCode Malform = new RetCode(1003, "Malform tx");
     public static final RetCode AlreadyInTxPool = new RetCode(1004, "AlreadyInTxPool");
     public static final RetCode TxAlreadyInChain = new RetCode(1005, "TxAlreadyInChain");
-    public static final RetCode  InvalidChainId = new RetCode(1006, "InvalidChainId");
-    public static final RetCode  InvalidGroupId = new RetCode(1007, "InvalidGroupId");
-    public static final RetCode  InvalidSignature = new RetCode(1008, "InvalidSignature");
-    public static final RetCode  RequestNotBelongToTheGroup = new RetCode(1009, "RequestNotBelongToTheGroup");
+    public static final RetCode InvalidChainId = new RetCode(1006, "InvalidChainId");
+    public static final RetCode InvalidGroupId = new RetCode(1007, "InvalidGroupId");
+    public static final RetCode InvalidSignature = new RetCode(1008, "InvalidSignature");
+    public static final RetCode RequestNotBelongToTheGroup =
+            new RetCode(1009, "RequestNotBelongToTheGroup");
     public static final RetCode TimeOut = new RetCode(50001, "Transaction receipt timeout");
-    
+
     protected static Map<Integer, RetCode> codeToRetCode = new HashMap<>();
 
     static {

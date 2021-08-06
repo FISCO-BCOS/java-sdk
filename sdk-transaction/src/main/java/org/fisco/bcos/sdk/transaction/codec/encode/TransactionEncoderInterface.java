@@ -29,7 +29,7 @@ public interface TransactionEncoderInterface {
      * Rlp encode and sign based on TransactionData
      *
      * @param rawTransaction data to be encoded
-     * @param cryptoKeyPair  keypair
+     * @param cryptoKeyPair keypair
      * @return encoded & signed transaction byte array
      */
     byte[] encodeAndSignBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);
@@ -38,7 +38,7 @@ public interface TransactionEncoderInterface {
      * Rlp encode and sign based on TransactionData
      *
      * @param rawTransaction data to be encoded
-     * @param cryptoKeyPair  keypair
+     * @param cryptoKeyPair keypair
      * @return encoded & signed transaction hexed String
      */
     String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);

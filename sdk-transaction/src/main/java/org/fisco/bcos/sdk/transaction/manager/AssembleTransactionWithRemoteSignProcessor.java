@@ -1,8 +1,11 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.bouncycastle.util.encoders.Hex;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -10,14 +13,10 @@ import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignCallbackInterface;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerServcie;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransactionProcessor
         implements AssembleTransactionWithRemoteSignProviderInterface {
@@ -32,7 +31,8 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             RemoteSignProviderInterface transactionSignProvider) {
         super(client, cryptoKeyPair, groupId, chainId, contractName, "", "");
         this.transactionSignProvider = transactionSignProvider;
-        super.transactionEncoder = new TransactionEncoderService(this.cryptoSuite, transactionSignProvider);
+        super.transactionEncoder =
+                new TransactionEncoderService(this.cryptoSuite, transactionSignProvider);
     }
 
     public AssembleTransactionWithRemoteSignProcessor(
@@ -44,7 +44,8 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             RemoteSignProviderInterface transactionSignProvider) {
         super(client, cryptoKeyPair, groupId, chainId, contractLoader);
         this.transactionSignProvider = transactionSignProvider;
-        super.transactionEncoder = new TransactionEncoderService(this.cryptoSuite, transactionSignProvider);
+        super.transactionEncoder =
+                new TransactionEncoderService(this.cryptoSuite, transactionSignProvider);
     }
 
     @Override
@@ -129,7 +130,8 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
 
     @Override
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
-            String to, String abi, String functionName, List<Object> params) throws ABICodecException {
+            String to, String abi, String functionName, List<Object> params)
+            throws ABICodecException {
         TransactionData rawTransaction = this.getRawTransaction(to, abi, functionName, params);
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
         return this.signAndPush(rawTransaction, rawTxHash);
@@ -144,7 +146,8 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
                         this.cryptoSuite.getCryptoTypeConfig(),
                         this.cryptoSuite.createKeyPair().getHexPublicKey());
         byte[] signedTransaction =
-                this.transactionEncoder.encodeToTransactionBytes(rawTransaction, rawTxHash, signatureResult);
+                this.transactionEncoder.encodeToTransactionBytes(
+                        rawTransaction, rawTxHash, signatureResult);
         return this.transactionPusher.push(Hex.toHexString(signedTransaction));
     }
 
@@ -159,17 +162,20 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
                         });
         future.exceptionally(
                 e -> {
-                    AssembleTransactionProcessor.log.error("Request remote sign Error: {}", e.getMessage());
+                    AssembleTransactionProcessor.log.error(
+                            "Request remote sign Error: {}", e.getMessage());
                     return null;
                 });
         CompletableFuture<TransactionReceipt> cr =
                 future.thenApplyAsync(
                         s -> {
                             if (s == null) {
-                                AssembleTransactionProcessor.log.error("Request remote signature is null");
+                                AssembleTransactionProcessor.log.error(
+                                        "Request remote signature is null");
                                 return null;
                             }
-                            return this.encodeAndPush(rawTransaction, rawTxHash, s.convertToString());
+                            return this.encodeAndPush(
+                                    rawTransaction, rawTxHash, s.convertToString());
                         });
         AssembleTransactionProcessor.log.info("Sign and push over, wait for callback...");
         return cr;

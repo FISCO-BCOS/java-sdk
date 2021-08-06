@@ -13,10 +13,9 @@
  */
 package org.fisco.bcos.sdk.crypto.signature;
 
-import org.fisco.bcos.sdk.utils.Hex;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import org.fisco.bcos.sdk.utils.Hex;
 
 public class SM2SignatureResult extends SignatureResult {
     protected byte[] pub;
@@ -47,7 +46,7 @@ public class SM2SignatureResult extends SignatureResult {
     @Override
     public byte[] encode() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        
+
         try {
             byteArrayOutputStream.write(this.pub);
             byteArrayOutputStream.write(this.r);

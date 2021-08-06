@@ -34,68 +34,52 @@ public class CallRequest {
     }
 
     /**
-     * @param from            the transaction sender
-     * @param to              the contract address
+     * @param from the transaction sender
+     * @param to the contract address
      * @param encodedFunction the encoded methods and params
-     * @param abi             the abi definition of the function
+     * @param abi the abi definition of the function
      */
     public CallRequest(String from, String to, byte[] encodedFunction, ABIDefinition abi) {
         this(from, to, encodedFunction);
         this.abi = abi;
     }
 
-    /**
-     * @return the from
-     */
+    /** @return the from */
     public String getFrom() {
         return this.from;
     }
 
-    /**
-     * @param from the from to set
-     */
+    /** @param from the from to set */
     public void setFrom(String from) {
         this.from = from;
     }
 
-    /**
-     * @return the to
-     */
+    /** @return the to */
     public String getTo() {
         return this.to;
     }
 
-    /**
-     * @param to the to to set
-     */
+    /** @param to the to to set */
     public void setTo(String to) {
         this.to = to;
     }
 
-    /**
-     * @return the encodedFunction
-     */
+    /** @return the encodedFunction */
     public byte[] getEncodedFunction() {
         return this.encodedFunction;
     }
 
-    /**
-     * @param encodedFunction the encodedFunction to set
-     */
+    /** @param encodedFunction the encodedFunction to set */
     public void setEncodedFunction(byte[] encodedFunction) {
         this.encodedFunction = encodedFunction;
     }
 
-    /**
-     * @return the abi
-     */
+    /** @return the abi */
     public ABIDefinition getAbi() {
         return this.abi;
     }
 
-    /**
-     * @param abi the abi to set
-     */
+    /** @param abi the abi to set */
     public void setAbi(ABIDefinition abi) {
         this.abi = abi;
     }

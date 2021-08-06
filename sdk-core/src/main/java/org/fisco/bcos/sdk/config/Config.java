@@ -16,10 +16,9 @@
 package org.fisco.bcos.sdk.config;
 
 import com.moandjiezana.toml.Toml;
+import java.io.File;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.config.model.ConfigProperty;
-
-import java.io.File;
 
 /**
  * Config is to load config file and verify.

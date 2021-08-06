@@ -14,17 +14,16 @@
  */
 package org.fisco.bcos.sdk.transaction.builder;
 
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class TransactionBuilderService implements TransactionBuilderInterface {
     private Client client;
@@ -42,14 +41,14 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
     /**
      * Create fisco bcos transaction
      *
-     * @param cryptoSuite  @See CryptoSuite
-     * @param groupId      the group that need create transaction
-     * @param chainId      default 1
-     * @param blockLimit,  cached limited block number
-     * @param abi,         compiled contract abi
-     * @param to           target address
+     * @param cryptoSuite @See CryptoSuite
+     * @param groupId the group that need create transaction
+     * @param chainId default 1
+     * @param blockLimit, cached limited block number
+     * @param abi, compiled contract abi
+     * @param to target address
      * @param functionName function name
-     * @param params       object list of function paramater
+     * @param params object list of function paramater
      * @return TransactionData the signed transaction hexed string
      */
     public static String createSignedTransaction(
@@ -68,13 +67,7 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
         BigInteger randomId = new BigInteger(250, r);
         TransactionData rawTransaction =
                 new TransactionData(
-                        0,
-                        chainId,
-                        groupId,
-                        blockLimit.intValue(),
-                        randomId.toString(),
-                        to,
-                        data);
+                        0, chainId, groupId, blockLimit.intValue(), randomId.toString(), to, data);
 
         TransactionEncoderService transactionEncoder = new TransactionEncoderService(cryptoSuite);
         return transactionEncoder.encodeAndSign(rawTransaction, cryptoSuite.getCryptoKeyPair());
@@ -84,12 +77,7 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
     public TransactionData createTransaction(
             String to, byte[] data, String chainId, String groupId) {
 
-        return this.createTransaction(
-                this.client.getBlockLimit(),
-                to,
-                data,
-                chainId,
-                groupId);
+        return this.createTransaction(this.client.getBlockLimit(), to, data, chainId, groupId);
     }
 
     @Override
@@ -97,27 +85,16 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
             BigInteger blockLimit, String to, byte[] data, String chainId, String groupId) {
         Random r = ThreadLocalRandom.current();
         BigInteger randomId = new BigInteger(250, r);
-        return
-                new TransactionData(
-                        0,
-                        chainId,
-                        groupId,
-                        blockLimit.intValue(),
-                        randomId.toString(),
-                        to,
-                        data);
+        return new TransactionData(
+                0, chainId, groupId, blockLimit.intValue(), randomId.toString(), to, data);
     }
 
-    /**
-     * @return the client
-     */
+    /** @return the client */
     public Client getClient() {
         return this.client;
     }
 
-    /**
-     * @param client the client to set
-     */
+    /** @param client the client to set */
     public void setClient(Client client) {
         this.client = client;
     }
