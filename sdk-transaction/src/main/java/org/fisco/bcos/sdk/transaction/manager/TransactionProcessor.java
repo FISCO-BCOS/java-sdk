@@ -81,7 +81,6 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         TransactionData rawTransaction =
                 this.transactionBuilder.createTransaction(to, data, this.chainId, this.groupId);
         // TODO: delete thi print
-        System.out.println(rawTransaction);
         return this.transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
     }
 }

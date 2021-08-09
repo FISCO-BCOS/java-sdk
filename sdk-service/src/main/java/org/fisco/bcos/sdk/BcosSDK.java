@@ -90,7 +90,7 @@ public class BcosSDK {
     public Client getClientByGroupID(String groupId) {
         for (String endPoint : this.endPointToClient.keySet()) {
             Client client = this.endPointToClient.get(endPoint);
-            if (client.getGroupId() == groupId) {
+            if (client.getGroupId().equals(groupId)) {
                 return client;
             }
         }
