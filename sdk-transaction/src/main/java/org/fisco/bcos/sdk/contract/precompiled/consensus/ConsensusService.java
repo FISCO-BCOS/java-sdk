@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.contract.precompiled.consensus;
 
+import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
@@ -69,5 +70,10 @@ public class ConsensusService {
             throw new ContractException(PrecompiledRetCode.ALREADY_REMOVED_FROM_THE_GROUP);
         }
         return ReceiptParser.parseTransactionReceipt(consensusPrecompiled.remove(nodeId));
+    }
+
+    public RetCode setWeight(String nodeId, BigInteger weight) throws ContractException {
+        return ReceiptParser.parseTransactionReceipt(
+                consensusPrecompiled.setWeight(nodeId, weight));
     }
 }
