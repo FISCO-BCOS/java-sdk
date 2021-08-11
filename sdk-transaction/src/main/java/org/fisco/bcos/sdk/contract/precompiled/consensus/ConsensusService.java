@@ -42,7 +42,7 @@ public class ConsensusService {
         return nodeIdList.contains(nodeId);
     }
 
-    public RetCode addSealer(String nodeId) throws ContractException {
+    public RetCode addSealer(String nodeId, BigInteger weight) throws ContractException {
         // check the nodeId exists in the nodeList or not
         if (!existsInNodeList(nodeId)) {
             throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
@@ -52,7 +52,8 @@ public class ConsensusService {
         if (sealerList.contains(nodeId)) {
             throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST);
         }
-        return ReceiptParser.parseTransactionReceipt(consensusPrecompiled.addSealer(nodeId));
+        return ReceiptParser.parseTransactionReceipt(
+                consensusPrecompiled.addSealer(nodeId, weight));
     }
 
     public RetCode addObserver(String nodeId) throws ContractException {

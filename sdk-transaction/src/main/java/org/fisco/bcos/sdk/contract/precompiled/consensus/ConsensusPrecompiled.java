@@ -35,16 +35,16 @@ public class ConsensusPrecompiled extends Contract {
             org.fisco.bcos.sdk.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
-        "[{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"addObserver\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"remove\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"addSealer\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"setWeight\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+        "[{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"addObserver\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"addSealer\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"remove\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"setWeight\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = org.fisco.bcos.sdk.utils.StringUtils.joinAll("", ABI_ARRAY);
 
     public static final String FUNC_ADDOBSERVER = "addObserver";
 
-    public static final String FUNC_REMOVE = "remove";
-
     public static final String FUNC_ADDSEALER = "addSealer";
+
+    public static final String FUNC_REMOVE = "remove";
 
     public static final String FUNC_SETWEIGHT = "setWeight";
 
@@ -109,6 +109,64 @@ public class ConsensusPrecompiled extends Contract {
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
+    public TransactionReceipt addSealer(String param0, BigInteger param1) {
+        final Function function =
+                new Function(
+                        FUNC_ADDSEALER,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0),
+                                new org.fisco.bcos.sdk.abi.datatypes.generated.Uint256(param1)),
+                        Collections.<TypeReference<?>>emptyList());
+        return executeTransaction(function);
+    }
+
+    public void addSealer(String param0, BigInteger param1, TransactionCallback callback) {
+        final Function function =
+                new Function(
+                        FUNC_ADDSEALER,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0),
+                                new org.fisco.bcos.sdk.abi.datatypes.generated.Uint256(param1)),
+                        Collections.<TypeReference<?>>emptyList());
+        asyncExecuteTransaction(function, callback);
+    }
+
+    public String getSignedTransactionForAddSealer(String param0, BigInteger param1) {
+        final Function function =
+                new Function(
+                        FUNC_ADDSEALER,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0),
+                                new org.fisco.bcos.sdk.abi.datatypes.generated.Uint256(param1)),
+                        Collections.<TypeReference<?>>emptyList());
+        return createSignedTransaction(function);
+    }
+
+    public Tuple2<String, BigInteger> getAddSealerInput(TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getInput().substring(10);
+        final Function function =
+                new Function(
+                        FUNC_ADDSEALER,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(
+                                new TypeReference<Utf8String>() {},
+                                new TypeReference<Uint256>() {}));
+        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple2<String, BigInteger>(
+                (String) results.get(0).getValue(), (BigInteger) results.get(1).getValue());
+    }
+
+    public Tuple1<BigInteger> getAddSealerOutput(TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getOutput();
+        final Function function =
+                new Function(
+                        FUNC_ADDSEALER,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
+    }
+
     public TransactionReceipt remove(String param0) {
         final Function function =
                 new Function(
@@ -155,58 +213,6 @@ public class ConsensusPrecompiled extends Contract {
         final Function function =
                 new Function(
                         FUNC_REMOVE,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
-        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
-    }
-
-    public TransactionReceipt addSealer(String param0) {
-        final Function function =
-                new Function(
-                        FUNC_ADDSEALER,
-                        Arrays.<Type>asList(
-                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
-                        Collections.<TypeReference<?>>emptyList());
-        return executeTransaction(function);
-    }
-
-    public void addSealer(String param0, TransactionCallback callback) {
-        final Function function =
-                new Function(
-                        FUNC_ADDSEALER,
-                        Arrays.<Type>asList(
-                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
-                        Collections.<TypeReference<?>>emptyList());
-        asyncExecuteTransaction(function, callback);
-    }
-
-    public String getSignedTransactionForAddSealer(String param0) {
-        final Function function =
-                new Function(
-                        FUNC_ADDSEALER,
-                        Arrays.<Type>asList(
-                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(param0)),
-                        Collections.<TypeReference<?>>emptyList());
-        return createSignedTransaction(function);
-    }
-
-    public Tuple1<String> getAddSealerInput(TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getInput().substring(10);
-        final Function function =
-                new Function(
-                        FUNC_ADDSEALER,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
-        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple1<String>((String) results.get(0).getValue());
-    }
-
-    public Tuple1<BigInteger> getAddSealerOutput(TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getOutput();
-        final Function function =
-                new Function(
-                        FUNC_ADDSEALER,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
         List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
