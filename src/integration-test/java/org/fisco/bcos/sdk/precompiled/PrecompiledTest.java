@@ -75,7 +75,7 @@ public class PrecompiledTest {
             // addSealer
             Assert.assertTrue(
                     PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST.equals(
-                            consensusService.addSealer(selectedNode)));
+                            consensusService.addSealer(selectedNode, 1)));
 
             // add the sealer to the observerList
             RetCode retCode = consensusService.addObserver(selectedNode);
