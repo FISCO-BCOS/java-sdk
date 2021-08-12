@@ -36,17 +36,7 @@ public class ConsensusService {
                         PrecompiledAddress.CONSENSUS_PRECOMPILED_ADDRESS, client, credential);
     }
 
-    private boolean existsInNodeList(String nodeId) {
-        List<String> nodeIdList = client.getSealerList().getSealerList();
-        nodeIdList.addAll(client.getObserverList().getObserverList());
-        return nodeIdList.contains(nodeId);
-    }
-
     public RetCode addSealer(String nodeId, BigInteger weight) throws ContractException {
-        // check the nodeId exists in the nodeList or not
-        if (!existsInNodeList(nodeId)) {
-            throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
-        }
         // check the node exists in the sealerList or not
         List<String> sealerList = client.getSealerList().getResult();
         if (sealerList.contains(nodeId)) {
