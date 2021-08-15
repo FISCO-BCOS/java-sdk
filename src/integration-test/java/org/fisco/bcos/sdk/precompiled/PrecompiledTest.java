@@ -75,7 +75,7 @@ public class PrecompiledTest {
             // addSealer
             Assert.assertTrue(
                     PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST.equals(
-                            consensusService.addSealer(selectedNode, 1)));
+                            consensusService.addSealer(selectedNode, BigInteger.ONE)));
 
             // add the sealer to the observerList
             RetCode retCode = consensusService.addObserver(selectedNode);
@@ -93,7 +93,7 @@ public class PrecompiledTest {
                                 .equals(PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST));
             }
             // add the node to the sealerList again
-            retCode = consensusService.addSealer(selectedNode);
+            retCode = consensusService.addSealer(selectedNode, BigInteger.ONE);
 
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
@@ -115,7 +115,7 @@ public class PrecompiledTest {
             }
 
             // add the node to the sealerList again
-            retCode = consensusService.addSealer(selectedNode);
+            retCode = consensusService.addSealer(selectedNode, BigInteger.ONE);
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
                 Assert.assertTrue(!client.getObserverList().getResult().contains(selectedNode));
@@ -256,7 +256,7 @@ public class PrecompiledTest {
             if (result.size() > 0) {
                 Assert.assertTrue(result.get(0).size() == fieldNameToValue.size() + 1);
             }
-            System.out.println("tableCRUDService select result: " + result.toString());
+            System.out.println("tableCRUDService select result: " + result);
             // update
             fieldNameToValue.clear();
             fieldNameToValueEntry.setFieldNameToValue(fieldNameToValue);
@@ -265,7 +265,7 @@ public class PrecompiledTest {
             if (result.size() > 0) {
                 Assert.assertTrue(result.get(0).size() == valueFields.size() + 1);
             }
-            System.out.println("tableCRUDService select result: " + result.toString());
+            System.out.println("tableCRUDService select result: " + result);
 
             // remove
             tableCRUDService.remove(tableName, key, null);
@@ -306,7 +306,7 @@ public class PrecompiledTest {
                                     .substring(2),
                             16);
             for (int i = 0; i < 100; i++) {
-                final Integer index = i;
+                Integer index = i;
                 threadPool.execute(
                         new Runnable() {
                             @Override
@@ -384,7 +384,7 @@ public class PrecompiledTest {
                                     .substring(2),
                             16);
             for (int i = 0; i < 100; i++) {
-                final Integer index = i;
+                Integer index = i;
                 threadPool.execute(
                         new Runnable() {
                             @Override

@@ -54,7 +54,7 @@ public class FunctionEncoder {
                                     new Uint(BigInteger.valueOf(dynamicDataOffset)));
                     result.write(encodedDataOffset);
                     dynamicData.write(encodedValue);
-                    dynamicDataOffset += (encodedValue.length >> 1);
+                    dynamicDataOffset += encodedValue.length;
                 } else {
                     result.write(encodedValue);
                 }

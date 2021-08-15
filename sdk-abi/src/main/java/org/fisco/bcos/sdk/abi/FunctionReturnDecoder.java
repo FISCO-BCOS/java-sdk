@@ -3,14 +3,9 @@ package org.fisco.bcos.sdk.abi;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.fisco.bcos.sdk.abi.datatypes.Array;
-import org.fisco.bcos.sdk.abi.datatypes.Bytes;
-import org.fisco.bcos.sdk.abi.datatypes.BytesType;
-import org.fisco.bcos.sdk.abi.datatypes.DynamicArray;
-import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
+import org.fisco.bcos.sdk.abi.datatypes.*;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Bytes32;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.fisco.bcos.sdk.utils.StringUtils;
 
@@ -59,7 +54,6 @@ public class FunctionReturnDecoder {
      * @param <T> type of TypeReference
      * @return the decode value
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Type> Type decodeIndexedValue(
             String rawInput, TypeReference<T> typeReference) {
         String input = Numeric.cleanHexPrefix(rawInput);
@@ -68,13 +62,14 @@ public class FunctionReturnDecoder {
             Class<T> type = typeReference.getClassType();
 
             if (Bytes.class.isAssignableFrom(type)) {
-                return TypeDecoder.decodeBytes(input, (Class<Bytes>) Class.forName(type.getName()));
+                return TypeDecoder.decodeBytes(
+                        Hex.decode(input), (Class<Bytes>) Class.forName(type.getName()));
             } else if (Array.class.isAssignableFrom(type)
                     || BytesType.class.isAssignableFrom(type)
                     || Utf8String.class.isAssignableFrom(type)) {
-                return TypeDecoder.decodeBytes(input, Bytes32.class);
+                return TypeDecoder.decodeBytes(Hex.decode(input), Bytes32.class);
             } else {
-                return TypeDecoder.decode(input, 0, type);
+                return TypeDecoder.decode(Hex.decode(input), 0, type);
             }
         } catch (ClassNotFoundException e) {
             throw new UnsupportedOperationException("Invalid class reference provided", e);
@@ -83,20 +78,20 @@ public class FunctionReturnDecoder {
 
     private static List<Type> build(String input, List<TypeReference<Type>> outputParameters) {
         List<Type> results = new ArrayList<>(outputParameters.size());
+        byte[] rawInput = Hex.decode(input);
 
         int offset = 0;
         for (TypeReference<?> typeReference : outputParameters) {
             try {
-                @SuppressWarnings("unchecked")
                 Class<Type> cls = (Class<Type>) typeReference.getClassType();
 
-                int hexStringDataOffset = getDataOffset(input, offset, typeReference.getType());
+                int dataOffset = getDataOffset(rawInput, offset, typeReference.getType());
 
                 Type result;
                 if (DynamicArray.class.isAssignableFrom(cls)) {
                     result =
                             TypeDecoder.decodeDynamicArray(
-                                    input, hexStringDataOffset, typeReference.getType());
+                                    rawInput, dataOffset, typeReference.getType());
                 } else if (StaticArray.class.isAssignableFrom(cls)) {
                     int length =
                             Integer.parseInt(
@@ -104,16 +99,14 @@ public class FunctionReturnDecoder {
                                             .substring(StaticArray.class.getSimpleName().length()));
                     result =
                             TypeDecoder.decodeStaticArray(
-                                    input, hexStringDataOffset, typeReference.getType(), length);
+                                    rawInput, dataOffset, typeReference.getType(), length);
                 } else {
-                    result = TypeDecoder.decode(input, hexStringDataOffset, cls);
+                    result = TypeDecoder.decode(rawInput, dataOffset, cls);
                 }
 
                 results.add(result);
 
-                offset +=
-                        Utils.getOffset(typeReference.getType())
-                                * TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING;
+                offset += Utils.getOffset(typeReference.getType()) * Type.MAX_BYTE_LENGTH;
 
             } catch (ClassNotFoundException e) {
                 throw new UnsupportedOperationException("Invalid class reference provided", e);
@@ -123,9 +116,9 @@ public class FunctionReturnDecoder {
     }
 
     private static <T extends Type> int getDataOffset(
-            String input, int offset, java.lang.reflect.Type type) throws ClassNotFoundException {
+            byte[] input, int offset, java.lang.reflect.Type type) throws ClassNotFoundException {
         if (Utils.dynamicType(type)) {
-            return TypeDecoder.decodeUintAsInt(input, offset) << 1;
+            return TypeDecoder.decodeUintAsInt(input, offset);
         } else {
             return offset;
         }

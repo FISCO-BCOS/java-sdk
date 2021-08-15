@@ -10,11 +10,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
-import org.fisco.bcos.sdk.abi.datatypes.Address;
-import org.fisco.bcos.sdk.abi.datatypes.Bool;
-import org.fisco.bcos.sdk.abi.datatypes.Bytes;
-import org.fisco.bcos.sdk.abi.datatypes.DynamicBytes;
-import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
+import org.fisco.bcos.sdk.abi.datatypes.*;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject.ListType;
@@ -30,7 +26,7 @@ public class ABICodecJsonWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodecJsonWrapper.class);
 
-    private ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+    private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
     private void errorReport(String path, String expected, String actual)
             throws InvalidParameterException {
@@ -218,7 +214,7 @@ public class ABICodecJsonWrapper {
                                 .getListValues()
                                 .add(
                                         encodeNode(
-                                                path + ".<" + String.valueOf(i) + ">",
+                                                path + ".<" + i + ">",
                                                 abiObject.getListValueType(),
                                                 iterator.next()));
                     }
@@ -386,8 +382,7 @@ public class ABICodecJsonWrapper {
                                     }
                             }
                         } catch (Exception e) {
-                            logger.error(
-                                    " e: {}, argsObject: {}", e.getMessage(), argObject.toString());
+                            logger.error(" e: {}, argsObject: {}", e.getMessage(), argObject);
                             errorReport(
                                     "ROOT",
                                     argObject.getValueType().toString(),
@@ -400,7 +395,7 @@ public class ABICodecJsonWrapper {
                 case STRUCT:
                 case LIST:
                     {
-                        JsonNode argNode = objectMapper.readTree(value.getBytes());
+                        JsonNode argNode = this.objectMapper.readTree(value.getBytes());
                         argObject = encodeNode("ROOT", argObject, argNode);
                         break;
                     }
@@ -413,7 +408,7 @@ public class ABICodecJsonWrapper {
     }
 
     public JsonNode decode(ABIObject abiObject) {
-        JsonNodeFactory jsonNodeFactory = objectMapper.getNodeFactory();
+        JsonNodeFactory jsonNodeFactory = this.objectMapper.getNodeFactory();
 
         switch (abiObject.getType()) {
             case VALUE:
@@ -478,13 +473,11 @@ public class ABICodecJsonWrapper {
         return null;
     }
 
-    public List<String> decode(ABIObject template, String buffer) {
+    public List<String> decode(ABIObject template, byte[] buffer) {
 
         if (logger.isTraceEnabled()) {
             logger.trace(" ABIObject: {}, abi: {}", template.toString(), buffer);
         }
-
-        buffer = Numeric.cleanHexPrefix(buffer);
 
         ABIObject abiObject = template.decode(buffer);
 
