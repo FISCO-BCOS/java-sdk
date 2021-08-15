@@ -140,7 +140,7 @@ public class TypeEncoder {
                 encodedValue.write(r);
                 if (type.dynamicType()) {
                     encodedOffset.write(encode(new Uint(BigInteger.valueOf(offset))));
-                    offset += (r.length >> 1);
+                    offset += r.length;
                 }
             }
             encodedOffset.write(encodedValue.toByteArray());
@@ -164,7 +164,7 @@ public class TypeEncoder {
                 encodedValue.write(r);
                 if (type.dynamicType()) {
                     encodedOffset.write(encode(new Uint(BigInteger.valueOf(offset))));
-                    offset += (r.length >> 1);
+                    offset += r.length;
                 }
             }
             encodedSize.write(encodedOffset.toByteArray());

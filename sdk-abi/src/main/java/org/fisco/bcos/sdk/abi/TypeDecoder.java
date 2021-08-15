@@ -5,26 +5,11 @@ import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
-import org.fisco.bcos.sdk.abi.datatypes.Address;
-import org.fisco.bcos.sdk.abi.datatypes.Array;
-import org.fisco.bcos.sdk.abi.datatypes.Bool;
-import org.fisco.bcos.sdk.abi.datatypes.Bytes;
-import org.fisco.bcos.sdk.abi.datatypes.DynamicArray;
-import org.fisco.bcos.sdk.abi.datatypes.DynamicBytes;
-import org.fisco.bcos.sdk.abi.datatypes.Fixed;
-import org.fisco.bcos.sdk.abi.datatypes.FixedPointType;
-import org.fisco.bcos.sdk.abi.datatypes.Int;
-import org.fisco.bcos.sdk.abi.datatypes.IntType;
-import org.fisco.bcos.sdk.abi.datatypes.NumericType;
-import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.abi.datatypes.Ufixed;
-import org.fisco.bcos.sdk.abi.datatypes.Uint;
-import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
+import org.fisco.bcos.sdk.abi.datatypes.*;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint160;
-import org.fisco.bcos.sdk.utils.Numeric;
 
 /**
  * Ethereum Contract Application Binary Interface (ABI) decoding for types. Decoding is not
@@ -33,14 +18,14 @@ import org.fisco.bcos.sdk.utils.Numeric;
  */
 public class TypeDecoder {
 
-    static final int MAX_BYTE_LENGTH_FOR_HEX_STRING = Type.MAX_BYTE_LENGTH << 1;
-
-    @SuppressWarnings("unchecked")
-    public static <T extends Type> T decode(String input, int offset, Class<T> type) {
+    public static <T extends Type> T decode(byte[] input, int offset, Class<T> type) {
         if (NumericType.class.isAssignableFrom(type)) {
-            return (T) decodeNumeric(input.substring(offset), (Class<NumericType>) type);
+            return (T)
+                    decodeNumeric(
+                            Arrays.copyOfRange(input, offset, input.length),
+                            (Class<NumericType>) type);
         } else if (Address.class.isAssignableFrom(type)) {
-            return (T) decodeAddress(input.substring(offset));
+            return (T) decodeAddress(Arrays.copyOfRange(input, offset, input.length));
         } else if (Bool.class.isAssignableFrom(type)) {
             return (T) decodeBool(input, offset);
         } else if (Bytes.class.isAssignableFrom(type)) {
@@ -57,13 +42,12 @@ public class TypeDecoder {
         }
     }
 
-    static Address decodeAddress(String input) {
+    static Address decodeAddress(byte[] input) {
         return new Address(decodeNumeric(input, Uint160.class));
     }
 
-    static <T extends NumericType> T decodeNumeric(String input, Class<T> type) {
+    static <T extends NumericType> T decodeNumeric(byte[] inputByteArray, Class<T> type) {
         try {
-            byte[] inputByteArray = Numeric.hexStringToByteArray(input);
             int typeLengthAsBytes = getTypeLengthInBytes(type);
 
             byte[] resultByteArray = new byte[typeLengthAsBytes + 1];
@@ -112,31 +96,28 @@ public class TypeDecoder {
         return Type.MAX_BIT_LENGTH;
     }
 
-    static int decodeUintAsInt(String rawInput, int offset) {
-        String input = rawInput.substring(offset, offset + MAX_BYTE_LENGTH_FOR_HEX_STRING);
+    static int decodeUintAsInt(byte[] rawInput, int offset) {
+        byte[] input = Arrays.copyOfRange(rawInput, offset, offset + Type.MAX_BYTE_LENGTH);
         return decode(input, 0, Uint.class).getValue().intValue();
     }
 
-    static Bool decodeBool(String rawInput, int offset) {
-        String input = rawInput.substring(offset, offset + MAX_BYTE_LENGTH_FOR_HEX_STRING);
-        BigInteger numericValue = Numeric.toBigInt(input);
+    static Bool decodeBool(byte[] rawInput, int offset) {
+        BigInteger numericValue =
+                new BigInteger(Arrays.copyOfRange(rawInput, offset, offset + Type.MAX_BYTE_LENGTH));
         boolean value = numericValue.equals(BigInteger.ONE);
         return new Bool(value);
     }
 
-    static <T extends Bytes> T decodeBytes(String input, Class<T> type) {
+    static <T extends Bytes> T decodeBytes(byte[] input, Class<T> type) {
         return decodeBytes(input, 0, type);
     }
 
-    static <T extends Bytes> T decodeBytes(String input, int offset, Class<T> type) {
+    static <T extends Bytes> T decodeBytes(byte[] input, int offset, Class<T> type) {
         try {
             String simpleName = type.getSimpleName();
             String[] splitName = simpleName.split(Bytes.class.getSimpleName());
             int length = Integer.parseInt(splitName[1]);
-            int hexStringLength = length << 1;
-
-            byte[] bytes =
-                    Numeric.hexStringToByteArray(input.substring(offset, offset + hexStringLength));
+            byte[] bytes = Arrays.copyOfRange(input, offset, offset + length);
             return type.getConstructor(byte[].class).newInstance(bytes);
         } catch (NoSuchMethodException
                 | SecurityException
@@ -149,19 +130,14 @@ public class TypeDecoder {
         }
     }
 
-    static DynamicBytes decodeDynamicBytes(String input, int offset) {
+    static DynamicBytes decodeDynamicBytes(byte[] input, int offset) {
         int encodedLength = decodeUintAsInt(input, offset);
-        int hexStringEncodedLength = encodedLength << 1;
-
-        int valueOffset = offset + MAX_BYTE_LENGTH_FOR_HEX_STRING;
-
-        String data = input.substring(valueOffset, valueOffset + hexStringEncodedLength);
-        byte[] bytes = Numeric.hexStringToByteArray(data);
-
+        int valueOffset = offset + Type.MAX_BYTE_LENGTH;
+        byte[] bytes = Arrays.copyOfRange(input, valueOffset, valueOffset + encodedLength);
         return new DynamicBytes(bytes);
     }
 
-    static Utf8String decodeUtf8String(String input, int offset) {
+    static Utf8String decodeUtf8String(byte[] input, int offset) {
         DynamicBytes dynamicBytesResult = decodeDynamicBytes(input, offset);
         byte[] bytes = dynamicBytesResult.getValue();
 
@@ -178,9 +154,8 @@ public class TypeDecoder {
      * @param <T> the generic type
      * @return the decoded result
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Type> T decodeStaticArray(
-            String input, int offset, java.lang.reflect.Type type, int length) {
+            byte[] input, int offset, java.lang.reflect.Type type, int length) {
 
         BiFunction<List<T>, String, T> function =
                 (elements, typeName) -> {
@@ -195,7 +170,6 @@ public class TypeDecoder {
         return decodeArrayElements(input, offset, type, length, function);
     }
 
-    @SuppressWarnings("unchecked")
     private static <T extends Type> T instantiateStaticArray(
             java.lang.reflect.Type type, List<T> elements) {
         try {
@@ -204,14 +178,12 @@ public class TypeDecoder {
             return cls.getConstructor(List.class).newInstance(elements);
 
         } catch (ReflectiveOperationException e) {
-            // noinspection unchecked
             return (T) new StaticArray<>(elements);
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T extends Type> T decodeDynamicArray(
-            String input, int offset, java.lang.reflect.Type type) {
+            byte[] input, int offset, java.lang.reflect.Type type) {
 
         int length = decodeUintAsInt(input, offset);
 
@@ -224,14 +196,13 @@ public class TypeDecoder {
                     }
                 };
 
-        int valueOffset = offset + MAX_BYTE_LENGTH_FOR_HEX_STRING;
+        int valueOffset = offset + Type.MAX_BYTE_LENGTH;
 
         return decodeArrayElements(input, valueOffset, type, length, function);
     }
 
-    @SuppressWarnings("rawtypes")
     private static <T extends Type> T decodeArrayElements(
-            String input,
+            byte[] input,
             int offset,
             java.lang.reflect.Type type,
             int length,
@@ -245,8 +216,7 @@ public class TypeDecoder {
 
             for (int i = 0; i < length; ++i) {
 
-                int currEleOffset =
-                        offset + (i * MAX_BYTE_LENGTH_FOR_HEX_STRING * Utils.getOffset(types[0]));
+                int currEleOffset = offset + (i * Type.MAX_BYTE_LENGTH * Utils.getOffset(types[0]));
 
                 T t = null;
                 if (Array.class.isAssignableFrom(paraType)) { // nest array
@@ -262,14 +232,14 @@ public class TypeDecoder {
                                                                 .length()));
                         t = decodeStaticArray(input, currEleOffset, types[0], size);
                     } else {
-                        int getOffset = TypeDecoder.decodeUintAsInt(input, currEleOffset) << 1;
+                        int getOffset = TypeDecoder.decodeUintAsInt(input, currEleOffset);
                         t = decodeDynamicArray(input, offset + getOffset, types[0]);
                     }
 
                 } else {
                     if (Utf8String.class.isAssignableFrom(paraType)
                             || DynamicBytes.class.isAssignableFrom(paraType)) { // dynamicType
-                        int getOffset = TypeDecoder.decodeUintAsInt(input, currEleOffset) << 1;
+                        int getOffset = TypeDecoder.decodeUintAsInt(input, currEleOffset);
                         t = decode(input, offset + getOffset, paraType);
                     } else {
                         t = decode(input, currEleOffset, paraType);

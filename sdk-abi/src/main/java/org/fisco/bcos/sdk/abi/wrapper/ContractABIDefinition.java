@@ -1,11 +1,12 @@
 package org.fisco.bcos.sdk.abi.wrapper;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.utils.Numeric;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +18,10 @@ public class ContractABIDefinition {
     private Map<String, List<ABIDefinition>> functions = new HashMap<>();
     private Map<String, List<ABIDefinition>> events = new HashMap<>();
     // method id => function
-    private Map<byte[], ABIDefinition> methodIDToFunctions = new HashMap<>();
+    private Map<ByteBuffer, ABIDefinition> methodIDToFunctions = new HashMap<>();
     // event topic => topic
-    private Map<byte[], ABIDefinition> eventTopicToEvents = new HashMap<>();
-    private CryptoSuite cryptoSuite;
+    private Map<ByteBuffer, ABIDefinition> eventTopicToEvents = new HashMap<>();
+    private final CryptoSuite cryptoSuite;
 
     public ContractABIDefinition(CryptoSuite cryptoSuite) {
         this.cryptoSuite = cryptoSuite;
@@ -50,19 +51,19 @@ public class ContractABIDefinition {
         this.events = events;
     }
 
-    public Map<byte[], ABIDefinition> getMethodIDToFunctions() {
+    public Map<ByteBuffer, ABIDefinition> getMethodIDToFunctions() {
         return this.methodIDToFunctions;
     }
 
-    public void setMethodIDToFunctions(Map<byte[], ABIDefinition> methodIDToFunctions) {
+    public void setMethodIDToFunctions(Map<ByteBuffer, ABIDefinition> methodIDToFunctions) {
         this.methodIDToFunctions = methodIDToFunctions;
     }
 
-    public Map<byte[], ABIDefinition> getEventTopicToEvents() {
+    public Map<ByteBuffer, ABIDefinition> getEventTopicToEvents() {
         return this.eventTopicToEvents;
     }
 
-    public void setEventTopicToEvents(Map<byte[], ABIDefinition> eventTopicToEvents) {
+    public void setEventTopicToEvents(Map<ByteBuffer, ABIDefinition> eventTopicToEvents) {
         this.eventTopicToEvents = eventTopicToEvents;
     }
 
@@ -79,7 +80,7 @@ public class ContractABIDefinition {
 
         // calculate method id and add abiDefinition to methodIdToFunctions
         byte[] methodId = abiDefinition.getMethodId(this.cryptoSuite);
-        this.methodIDToFunctions.put(methodId, abiDefinition);
+        this.methodIDToFunctions.put(ByteBuffer.wrap(methodId), abiDefinition);
 
         logger.info(
                 " name: {}, methodId: {}, methodSignature: {}, abi: {}",
@@ -97,14 +98,15 @@ public class ContractABIDefinition {
 
         // calculate method id and add abiDefinition to eventTopicToEvents
         byte[] methodId = abiDefinition.getMethodId(this.cryptoSuite);
-        this.eventTopicToEvents.put(methodId, abiDefinition);
+        this.eventTopicToEvents.put(ByteBuffer.wrap(methodId), abiDefinition);
     }
 
     public ABIDefinition getABIDefinitionByMethodId(byte[] methodId) {
-        return this.methodIDToFunctions.get(methodId);
+        return this.methodIDToFunctions.get(ByteBuffer.wrap(methodId));
     }
 
     public ABIDefinition getABIDefinitionByEventTopic(String topic) {
-        return this.eventTopicToEvents.get(Numeric.prependHexPrefix(topic));
+        // FIXME: check topic string is hex
+        return this.eventTopicToEvents.get(Hex.decode(topic));
     }
 }

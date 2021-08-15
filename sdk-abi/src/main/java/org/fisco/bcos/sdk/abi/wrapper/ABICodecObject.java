@@ -10,15 +10,11 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.fisco.bcos.sdk.abi.datatypes.Address;
-import org.fisco.bcos.sdk.abi.datatypes.Bool;
-import org.fisco.bcos.sdk.abi.datatypes.Bytes;
-import org.fisco.bcos.sdk.abi.datatypes.DynamicBytes;
-import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
+import org.fisco.bcos.sdk.abi.datatypes.*;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject.ListType;
-import org.fisco.bcos.sdk.utils.Numeric;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -294,9 +290,7 @@ public class ABICodecObject {
             logger.trace(" ABIObject: {}, abi: {}", template.toString(), input);
         }
 
-        input = Numeric.cleanHexPrefix(input);
-
-        ABIObject abiObject = template.decode(input);
+        ABIObject abiObject = template.decode(Hex.decode(input));
 
         // ABIObject -> java List<Object>
         return decodeJavaObjectAndGetOutputObject(abiObject);

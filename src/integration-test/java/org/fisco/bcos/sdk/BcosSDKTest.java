@@ -54,7 +54,7 @@ public class BcosSDKTest {
         System.out.println("blockNumber=" + blockNumber.getBlockNumber());
 
         // test getBlockByNumber only header
-        BcosBlock onlyHeader = client.getBlockByNumber(BigInteger.ZERO, true, false);
+        BcosBlock onlyHeader = client.getBlockByNumber(BigInteger.ZERO, false, false);
         System.out.println("genesis header=" + onlyHeader.getBlock());
 
         // test getBlockByNumber
@@ -110,7 +110,7 @@ public class BcosSDKTest {
                 sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
 
         // test getBlockByNumber only header
-        final String[] genesisHash = {null};
+        String[] genesisHash = {null};
 
         client.getBlockByNumberAsync(
                 BigInteger.ZERO,
@@ -242,12 +242,18 @@ public class BcosSDKTest {
             e.printStackTrace();
         }
         System.out.println("helloworld address :" + helloWorld.getContractAddress());
+        BlockNumber blockNumber = client.getBlockNumber();
+        BcosBlock block1 = client.getBlockByNumber(blockNumber.getBlockNumber(), false, false);
+        System.out.println("block=" + block1.getBlock());
         try {
             String s = helloWorld.get();
             System.out.println("helloworld get :" + s);
             TransactionReceipt receipt = helloWorld.set("fisco hello");
             System.out.println("helloworld set : fisco hello, status=" + receipt.getStatus());
             System.out.println(receipt);
+            // get 2nd block
+            block1 = client.getBlockByNumber(BigInteger.valueOf(2), false, false);
+            System.out.println("1st header=" + block1.getBlock());
             // getTransaction
             BcosTransaction transaction = client.getTransaction(receipt.getTransactionHash(), true);
             Assert.assertTrue(transaction.getTransaction().isPresent());
