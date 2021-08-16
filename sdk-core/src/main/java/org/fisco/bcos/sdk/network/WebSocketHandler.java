@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 /** Channel handler process inbound message. */
 @Sharable
 public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
-    private static Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
-    private MsgHandler msgHandler;
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
+    private final MsgHandler msgHandler;
     private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
     private ExecutorService msgHandleThreadPool;

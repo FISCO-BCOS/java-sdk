@@ -39,13 +39,13 @@ import org.slf4j.LoggerFactory;
  */
 public class WSMessageHandler implements MsgHandler {
 
-    private static Logger logger = LoggerFactory.getLogger(WSMessageHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(WSMessageHandler.class);
     private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
-    private List<MsgHandler> msgDisconnectHandleList = new CopyOnWriteArrayList<MsgHandler>();
-    private Map<Integer, MsgHandler> msgHandlers = new ConcurrentHashMap<>();
-    private Map<String, ResponseCallback> seq2Callback = new ConcurrentHashMap<>();
-    private ReentrantLock seq2CallbackLock = new ReentrantLock();
+    private final List<MsgHandler> msgDisconnectHandleList = new CopyOnWriteArrayList<MsgHandler>();
+    private final Map<Integer, MsgHandler> msgHandlers = new ConcurrentHashMap<>();
+    private final Map<String, ResponseCallback> seq2Callback = new ConcurrentHashMap<>();
+    private final ReentrantLock seq2CallbackLock = new ReentrantLock();
 
     public void addMessageHandler(MsgType type, MsgHandler handler) {
         this.msgHandlers.put(type.getType(), handler);
@@ -89,7 +89,6 @@ public class WSMessageHandler implements MsgHandler {
                     msg.getSeq(),
                     msg.getType(),
                     msg.getErrorCode());
-
             Response response = new Response();
             if (msg.getErrorCode() != 0) {
                 response.setErrorMessage("Response error");

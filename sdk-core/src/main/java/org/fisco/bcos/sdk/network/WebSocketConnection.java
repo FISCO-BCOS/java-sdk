@@ -39,11 +39,11 @@ import org.slf4j.LoggerFactory;
 
 public class WebSocketConnection implements Connection {
     private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-    private static Logger logger = LoggerFactory.getLogger(WebSocketConnection.class);
-    private ConfigOption configOption;
-    private EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private Bootstrap bootstrap = new Bootstrap();
-    private AtomicReference<Channel> channel = new AtomicReference<>();
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketConnection.class);
+    private final ConfigOption configOption;
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private final Bootstrap bootstrap = new Bootstrap();
+    private final AtomicReference<Channel> channel = new AtomicReference<>();
     private WebSocketHandler handler;
     private AtomicBoolean isRunning;
     WSMessageHandler channelMsgHandler;
@@ -52,9 +52,10 @@ public class WebSocketConnection implements Connection {
     private SslContext sslCtx;
     private URI uri;
     private final String scheme = "ws://";
-    private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+    private final ScheduledExecutorService scheduledExecutorService =
+            new ScheduledThreadPoolExecutor(1);
     private final int connectInterval = 1000; // milliseconds
-    private ThreadPoolService threadPoolService;
+    private final ThreadPoolService threadPoolService;
     private final String endPoint;
 
     public WebSocketConnection(ConfigOption configOption, String endpoint) {
@@ -331,7 +332,7 @@ public class WebSocketConnection implements Connection {
                         (short) MsgType.RPC_REQUEST.getType(),
                         ChannelUtils.newSeq(),
                         request.getBytes());
-        // FIXME: complete message use request
+
         this.asyncSendMessage(message, callback);
         this.waitResponse(callback);
         if (callback.retResponse.getErrorCode() != 0) {
@@ -364,8 +365,8 @@ public class WebSocketConnection implements Connection {
         WebSocketFrame frame = new BinaryWebSocketFrame(byteBuf);
         Channel channel = this.channel.get();
         if (channel.isActive()) {
-            channel.writeAndFlush(frame);
             this.channelMsgHandler.addSeq2CallBack(message.getSeq(), callback);
+            channel.writeAndFlush(frame);
         } else {
             logger.warn("send message with seq {} failed ", message.getSeq());
             Response response = new Response();

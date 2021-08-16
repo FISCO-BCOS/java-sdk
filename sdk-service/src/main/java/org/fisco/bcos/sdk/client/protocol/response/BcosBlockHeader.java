@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
-import org.fisco.bcos.sdk.client.protocol.model.ParentInfo;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.utils.Hex;
@@ -29,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader> {
-    private static Logger logger = LoggerFactory.getLogger(BcosBlockHeader.class);
+    private static final Logger logger = LoggerFactory.getLogger(BcosBlockHeader.class);
 
     @Override
     public void setResult(BlockHeader result) {
@@ -88,6 +87,56 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
                     + this.signature
                     + '\''
                     + '}';
+        }
+    }
+
+    public static class ParentInfo {
+        private long blockNumber;
+
+        private String blockHash;
+
+        public ParentInfo() {}
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || this.getClass() != o.getClass()) return false;
+            ParentInfo signature1 = (ParentInfo) o;
+            return Objects.equals(this.blockNumber, signature1.blockNumber)
+                    && Objects.equals(this.blockHash, signature1.blockHash);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.blockNumber, this.blockHash);
+        }
+
+        @Override
+        public String toString() {
+            return "{"
+                    + "blockHash='"
+                    + this.blockHash
+                    + '\''
+                    + ", blockNumber='"
+                    + this.blockNumber
+                    + '\''
+                    + '}';
+        }
+
+        public long getBlockNumber() {
+            return this.blockNumber;
+        }
+
+        public void setBlockNumber(long blockNumber) {
+            this.blockNumber = blockNumber;
+        }
+
+        public String getBlockHash() {
+            return this.blockHash;
+        }
+
+        public void setBlockHash(String blockHash) {
+            this.blockHash = blockHash;
         }
     }
 
@@ -231,10 +280,18 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
                             new org.fisco.bcos.sdk.client.protocol.model.Signature(
                                     signature.getIndex(), Hex.decode(signature.getSignature())));
                 }
+                List<org.fisco.bcos.sdk.client.protocol.model.ParentInfo> parentInfoList =
+                        new ArrayList<>();
+                for (ParentInfo parentInfo : this.parentInfo) {
+                    signatureList.add(
+                            new org.fisco.bcos.sdk.client.protocol.model.Signature(
+                                    parentInfo.getBlockNumber(),
+                                    Hex.decode(parentInfo.getBlockHash())));
+                }
                 org.fisco.bcos.sdk.client.protocol.model.BlockHeader blockHeader =
                         new org.fisco.bcos.sdk.client.protocol.model.BlockHeader(
                                 0,
-                                this.parentInfo,
+                                parentInfoList,
                                 Hex.decode(this.transactionsRoot),
                                 Hex.decode(this.receiptsRoot),
                                 Hex.decode(this.stateRoot),
