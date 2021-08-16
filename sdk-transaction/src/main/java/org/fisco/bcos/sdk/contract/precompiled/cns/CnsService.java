@@ -19,7 +19,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
-import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
@@ -78,8 +77,6 @@ public class CnsService {
     public String getContractAddress(String contractName, String contractVersion)
             throws ContractException {
         try {
-            PrecompiledVersionCheck.CNS_GET_CONTRACT_ADDRESS_PRECOMPILED_VERSION.checkVersion(
-                    currentVersion);
             return cnsPrecompiled.getContractAddress(contractName, contractVersion);
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);
