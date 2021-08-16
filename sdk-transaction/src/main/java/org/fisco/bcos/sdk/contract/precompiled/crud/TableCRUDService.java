@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
-import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
-import org.fisco.bcos.sdk.channel.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Condition;
@@ -45,7 +43,6 @@ public class TableCRUDService {
     private final CRUDPrecompiled crudService;
     private final TableFactory tableFactory;
     private static final String ValueFieldsDelimiter = ",";
-    private final String currentVersion;
 
     public TableCRUDService(Client client, CryptoKeyPair credential) {
         this.client = client;
@@ -55,7 +52,6 @@ public class TableCRUDService {
         this.tableFactory =
                 TableFactory.load(
                         PrecompiledAddress.TABLEFACTORY_PRECOMPILED_ADDRESS, client, credential);
-        this.currentVersion = client.getNodeInfo().getSupportedVersion();
     }
 
     public static String convertValueFieldsToString(List<String> valueFields) {
@@ -167,30 +163,6 @@ public class TableCRUDService {
                 objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class));
     }
 
-    private List<Map<String, String>> getTableDescLessThan230Version(
-            EnumNodeVersion.Version enumNodeVersion, String tableName) throws ContractException {
-        List<Map<String, String>> tableDesc = new ArrayList<>();
-        if (enumNodeVersion.getMajor() == 2 && enumNodeVersion.getMinor() < 2) {
-            tableDesc =
-                    select(
-                            PrecompiledConstant.SYS_TABLE,
-                            PrecompiledConstant.USER_TABLE_PREFIX + tableName,
-                            new Condition());
-        } else {
-            tableDesc =
-                    select(
-                            PrecompiledConstant.SYS_TABLE,
-                            PrecompiledConstant.USER_TABLE_PREFIX_2_2_0_VERSION + tableName,
-                            new Condition());
-        }
-        for (Map<String, String> item : tableDesc) {
-            if (item.containsKey(PrecompiledConstant.TABLE_NAME_FIELD)) {
-                item.remove(PrecompiledConstant.TABLE_NAME_FIELD);
-            }
-        }
-        return tableDesc;
-    }
-
     private List<Map<String, String>> getTableDesc(String tableName) throws ContractException {
         Tuple2<String, String> tableDesc = crudService.desc(tableName);
         List<Map<String, String>> tableDescList = new ArrayList<>(1);
@@ -203,19 +175,7 @@ public class TableCRUDService {
 
     public List<Map<String, String>> desc(String tableName) throws ContractException {
         try {
-            EnumNodeVersion.Version enumNodeVersion =
-                    EnumNodeVersion.getClassVersion(client.getNodeInfo().getSupportedVersion());
-            if (enumNodeVersion.getMajor() == 2 && enumNodeVersion.getMinor() <= 3) {
-                return getTableDescLessThan230Version(enumNodeVersion, tableName);
-            }
             return getTableDesc(tableName);
-        } catch (ChannelPrococolExceiption e) {
-            throw new ContractException(
-                    "Obtain description for "
-                            + tableName
-                            + " failed, error info: "
-                            + e.getMessage(),
-                    e);
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);
         }
