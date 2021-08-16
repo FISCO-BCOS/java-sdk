@@ -26,19 +26,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JsonTransactionResponse {
-    private static Logger logger = LoggerFactory.getLogger(JsonTransactionResponse.class);
+    private static final Logger logger = LoggerFactory.getLogger(JsonTransactionResponse.class);
 
     // the fields related to get-transaction
-    private String version;
+    private Integer version;
     private String hash;
     private String nonce;
-    private Integer blockLimit;
+    private Long blockLimit;
     private String to;
     private String from;
     private String input;
-    private String chainId;
-    private String groupId;
+    private String chainID;
+    private String groupID;
     private String signature;
+    private Long importTime;
     private List<MerkleProofUnit> transactionProof;
 
     public JsonTransactionResponse() {}
@@ -51,11 +52,11 @@ public class JsonTransactionResponse {
         this.transactionProof = transactionProof;
     }
 
-    public String getVersion() {
+    public Integer getVersion() {
         return this.version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -99,28 +100,28 @@ public class JsonTransactionResponse {
         this.to = to;
     }
 
-    public Integer getBlockLimit() {
+    public Long getBlockLimit() {
         return this.blockLimit;
     }
 
-    public void setBlockLimit(Integer blockLimit) {
+    public void setBlockLimit(Long blockLimit) {
         this.blockLimit = blockLimit;
     }
 
-    public String getChainId() {
-        return this.chainId;
+    public String getChainID() {
+        return this.chainID;
     }
 
-    public void setChainId(String chainId) {
-        this.chainId = chainId;
+    public void setChainID(String chainId) {
+        this.chainID = chainId;
     }
 
-    public String getGroupId() {
-        return this.groupId;
+    public String getGroupID() {
+        return this.groupID;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setGroupID(String groupID) {
+        this.groupID = groupID;
     }
 
     public String getSignature() {
@@ -137,8 +138,8 @@ public class JsonTransactionResponse {
             TransactionData rawTransaction =
                     new TransactionData(
                             0,
-                            this.chainId,
-                            this.groupId,
+                            this.chainID,
+                            this.groupID,
                             this.blockLimit,
                             this.nonce,
                             this.to,
@@ -172,8 +173,8 @@ public class JsonTransactionResponse {
                 && Objects.equals(this.nonce, that.nonce)
                 && Objects.equals(this.to, that.to)
                 && Objects.equals(this.blockLimit, that.blockLimit)
-                && Objects.equals(this.chainId, that.chainId)
-                && Objects.equals(this.groupId, that.groupId)
+                && Objects.equals(this.chainID, that.chainID)
+                && Objects.equals(this.groupID, that.groupID)
                 && Objects.equals(this.signature, that.signature);
     }
 
@@ -187,8 +188,8 @@ public class JsonTransactionResponse {
                 this.nonce,
                 this.to,
                 this.blockLimit,
-                this.chainId,
-                this.groupId,
+                this.chainID,
+                this.groupID,
                 this.signature);
     }
 
@@ -217,10 +218,10 @@ public class JsonTransactionResponse {
                 + this.blockLimit
                 + '\''
                 + ", chainId='"
-                + this.chainId
+                + this.chainID
                 + '\''
-                + ", groupId='"
-                + this.groupId
+                + ", groupID='"
+                + this.groupID
                 + '\''
                 + ", transactionProof='"
                 + this.transactionProof
@@ -228,5 +229,13 @@ public class JsonTransactionResponse {
                 + ", signature="
                 + this.signature
                 + '}';
+    }
+
+    public Long getImportTime() {
+        return this.importTime;
+    }
+
+    public void setImportTime(Long importTime) {
+        this.importTime = importTime;
     }
 }

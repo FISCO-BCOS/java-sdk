@@ -252,7 +252,9 @@ public class BcosSDKTest {
             System.out.println("helloworld set : fisco hello, status=" + receipt.getStatus());
             System.out.println(receipt);
             // get 2nd block
-            block1 = client.getBlockByNumber(BigInteger.valueOf(2), false, false);
+            block1 =
+                    client.getBlockByNumber(
+                            blockNumber.getBlockNumber().add(BigInteger.ONE), false, false);
             System.out.println("1st header=" + block1.getBlock());
             // getTransaction
             BcosTransaction transaction = client.getTransaction(receipt.getTransactionHash(), true);

@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 public class ClientImpl implements Client {
     protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-    private static Logger logger = LoggerFactory.getLogger(ClientImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientImpl.class);
     private final String groupId;
     private final String chainId;
     private final Boolean wasm;
@@ -292,7 +292,8 @@ public class ClientImpl implements Client {
     public BcosTransactionReceipt getTransactionReceipt(String transactionHash, Boolean withProof) {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
-                        JsonRpcMethods.GET_TRANSACTIONRECEIPT, Arrays.asList(transactionHash)),
+                        JsonRpcMethods.GET_TRANSACTIONRECEIPT,
+                        Arrays.asList(transactionHash, withProof)),
                 BcosTransactionReceipt.class);
     }
 
@@ -303,7 +304,8 @@ public class ClientImpl implements Client {
             RespCallback<BcosTransactionReceipt> callback) {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
-                        JsonRpcMethods.GET_TRANSACTIONRECEIPT, Arrays.asList(transactionHash)),
+                        JsonRpcMethods.GET_TRANSACTIONRECEIPT,
+                        Arrays.asList(transactionHash, withProof)),
                 BcosTransactionReceipt.class,
                 callback);
     }

@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
@@ -48,43 +46,6 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
         T get();
     }
 
-    public static class TransactionHash implements TransactionResult<String> {
-        private String value;
-
-        public TransactionHash() {}
-
-        public TransactionHash(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String get() {
-            return this.value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || this.getClass() != o.getClass()) return false;
-            TransactionHash that = (TransactionHash) o;
-            return Objects.equals(this.value, that.value);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.value);
-        }
-
-        @Override
-        public String toString() {
-            return "TransactionHash{" + "value='" + this.value + '\'' + '}';
-        }
-    }
-
     public static class TransactionObject extends JsonTransactionResponse
             implements TransactionResult<JsonTransactionResponse> {
         @Override
@@ -94,14 +55,13 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
     }
 
     public static class Block extends BcosBlockHeader.BlockHeader {
-        private List<TransactionResult> transactions;
+        private List<TransactionObject> transactions;
 
-        public List<TransactionResult> getTransactions() {
+        public List<TransactionObject> getTransactions() {
             return this.transactions;
         }
 
-        @JsonDeserialize(using = TransactionResultDeserializer.class)
-        public void setTransactions(List<TransactionResult> transactions) {
+        public void setTransactions(List<TransactionObject> transactions) {
             this.transactions = transactions;
         }
 
@@ -164,41 +124,9 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
         }
     }
 
-    // decode transactionResult
-    public static class TransactionResultDeserializer
-            extends JsonDeserializer<List<TransactionResult>> {
-
-        private ObjectReader objectReader = ObjectMapperFactory.getObjectReader();
-
-        @Override
-        public List<TransactionResult> deserialize(
-                JsonParser jsonParser, DeserializationContext deserializationContext)
-                throws IOException {
-            List<TransactionResult> transactionResults = new ArrayList<>();
-            JsonToken nextToken = jsonParser.nextToken();
-
-            if (nextToken == JsonToken.START_OBJECT) {
-                Iterator<TransactionObject> transactionObjectIterator =
-                        this.objectReader.readValues(jsonParser, TransactionObject.class);
-                while (transactionObjectIterator.hasNext()) {
-                    transactionResults.add(transactionObjectIterator.next());
-                }
-            } else if (nextToken == JsonToken.VALUE_STRING) {
-                jsonParser.getValueAsString();
-
-                Iterator<TransactionHash> transactionHashIterator =
-                        this.objectReader.readValues(jsonParser, TransactionHash.class);
-                while (transactionHashIterator.hasNext()) {
-                    transactionResults.add(transactionHashIterator.next());
-                }
-            }
-            return transactionResults;
-        }
-    }
-
     // decode the block
     public static class BlockDeserializer extends JsonDeserializer<Block> {
-        private ObjectReader objectReader = ObjectMapperFactory.getObjectReader();
+        private final ObjectReader objectReader = ObjectMapperFactory.getObjectReader();
 
         @Override
         public Block deserialize(
