@@ -19,7 +19,6 @@ import java.util.List;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
-import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
@@ -43,39 +42,28 @@ public class ContractLifeCycleService {
     }
 
     public RetCode freeze(String contractAddress) throws ContractException {
-        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
-                currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.contractLifeCyclePrecompiled.freeze(contractAddress));
     }
 
     public RetCode unfreeze(String contractAddress) throws ContractException {
-        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
-                currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.contractLifeCyclePrecompiled.unfreeze(contractAddress));
     }
 
     public RetCode grantManager(String contractAddress, String userAddress)
             throws ContractException {
-        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
-                currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.contractLifeCyclePrecompiled.grantManager(contractAddress, userAddress));
     }
 
     public RetCode revokeManager(String contractAddress, String userAddress)
             throws ContractException {
-        // only supported after v2.7.0
-        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_REVOKE_MANAGER_VERSION.checkVersion(
-                currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 this.contractLifeCyclePrecompiled.revokeManager(contractAddress, userAddress));
     }
 
     public String getContractStatus(String contractAddress) throws ContractException {
-        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
-                currentVersion);
         try {
             Tuple2<BigInteger, String> result =
                     this.contractLifeCyclePrecompiled.getStatus(contractAddress);
@@ -96,8 +84,6 @@ public class ContractLifeCycleService {
     }
 
     public List<String> listManager(String contractAddress) throws ContractException {
-        PrecompiledVersionCheck.CONTRACT_LIFE_CYCLE_PRECOMPILED_VERSION.checkVersion(
-                currentVersion);
         Tuple2<BigInteger, List<String>> result =
                 this.contractLifeCyclePrecompiled.listManager(contractAddress);
         if (result.getValue1().intValue() != PrecompiledRetCode.CODE_SUCCESS.getCode()) {

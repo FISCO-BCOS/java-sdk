@@ -29,7 +29,6 @@ import org.fisco.bcos.sdk.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.contract.precompiled.crud.table.TableFactory;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
-import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
@@ -71,7 +70,6 @@ public class TableCRUDService {
 
     public RetCode createTable(String tableName, String keyFieldName, List<String> valueFields)
             throws ContractException {
-        PrecompiledVersionCheck.TABLE_CRUD_PRECOMPILED_VERSION.checkVersion(currentVersion);
         checkKey(keyFieldName);
         String valueFieldsString = convertValueFieldsToString(valueFields);
         return ReceiptParser.parseTransactionReceipt(
@@ -80,7 +78,6 @@ public class TableCRUDService {
 
     public RetCode insert(String tableName, String key, Entry fieldNameToValue)
             throws ContractException {
-        PrecompiledVersionCheck.TABLE_CRUD_PRECOMPILED_VERSION.checkVersion(currentVersion);
         checkKey(key);
         try {
             String fieldNameToValueStr =
@@ -102,7 +99,6 @@ public class TableCRUDService {
 
     public RetCode update(String tableName, String key, Entry fieldNameToValue, Condition condition)
             throws ContractException {
-        PrecompiledVersionCheck.TABLE_CRUD_PRECOMPILED_VERSION.checkVersion(currentVersion);
         checkKey(key);
         try {
             String fieldNameToValueStr =
@@ -132,7 +128,6 @@ public class TableCRUDService {
 
     public RetCode remove(String tableName, String key, Condition condition)
             throws ContractException {
-        PrecompiledVersionCheck.TABLE_CRUD_PRECOMPILED_VERSION.checkVersion(currentVersion);
         checkKey(key);
         try {
             String conditionStr = encodeCondition(condition);
@@ -146,7 +141,6 @@ public class TableCRUDService {
 
     public List<Map<String, String>> select(String tableName, String key, Condition condition)
             throws ContractException {
-        PrecompiledVersionCheck.TABLE_CRUD_PRECOMPILED_VERSION.checkVersion(currentVersion);
         checkKey(key);
         try {
             String conditionStr = encodeCondition(condition);
@@ -208,7 +202,6 @@ public class TableCRUDService {
     }
 
     public List<Map<String, String>> desc(String tableName) throws ContractException {
-        PrecompiledVersionCheck.TABLE_CRUD_PRECOMPILED_VERSION.checkVersion(currentVersion);
         try {
             EnumNodeVersion.Version enumNodeVersion =
                     EnumNodeVersion.getClassVersion(client.getNodeInfo().getSupportedVersion());
@@ -249,7 +242,6 @@ public class TableCRUDService {
     public void asyncInsert(
             String tableName, String key, Entry fieldNameToValue, PrecompiledCallback callback)
             throws ContractException {
-        PrecompiledVersionCheck.TABLE_CRUD_PRECOMPILED_VERSION.checkVersion(currentVersion);
         checkKey(key);
         try {
             String fieldNameToValueStr =
@@ -276,7 +268,6 @@ public class TableCRUDService {
             Condition condition,
             PrecompiledCallback callback)
             throws ContractException {
-        PrecompiledVersionCheck.TABLE_CRUD_PRECOMPILED_VERSION.checkVersion(currentVersion);
         checkKey(key);
         try {
             String fieldNameToValueStr =
@@ -305,7 +296,6 @@ public class TableCRUDService {
     public void asyncRemove(
             String tableName, String key, Condition condition, PrecompiledCallback callback)
             throws ContractException {
-        PrecompiledVersionCheck.TABLE_CRUD_PRECOMPILED_VERSION.checkVersion(currentVersion);
         checkKey(key);
         try {
             this.crudService.remove(
