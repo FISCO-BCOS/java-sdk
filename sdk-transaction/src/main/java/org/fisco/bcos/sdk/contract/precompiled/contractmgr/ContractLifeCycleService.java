@@ -16,8 +16,8 @@ package org.fisco.bcos.sdk.contract.precompiled.contractmgr;
 
 import java.math.BigInteger;
 import java.util.List;
-import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;

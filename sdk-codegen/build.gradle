@@ -3,10 +3,11 @@ plugins {
     id 'java'
 }
 dependencies {
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
     implementation project(':sdk-transaction')
     implementation project(':sdk-service')
     implementation project(':sdk-core')
-    api project(':sdk-abi')
+    api project(':sdk-codec')
     implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     implementation("com.squareup:javapoet:${javapoetVersion}")
     implementation("info.picocli:picocli:${picocliVersion}")

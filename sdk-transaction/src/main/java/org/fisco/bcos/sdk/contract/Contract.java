@@ -18,18 +18,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
-import org.fisco.bcos.sdk.abi.*;
-import org.fisco.bcos.sdk.abi.datatypes.Address;
-import org.fisco.bcos.sdk.abi.datatypes.Event;
-import org.fisco.bcos.sdk.abi.datatypes.Function;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
+import org.fisco.bcos.sdk.codec.EventEncoder;
+import org.fisco.bcos.sdk.codec.FunctionEncoderInterface;
+import org.fisco.bcos.sdk.codec.FunctionReturnDecoderInterface;
+import org.fisco.bcos.sdk.codec.abi.*;
+import org.fisco.bcos.sdk.codec.datatypes.*;
+import org.fisco.bcos.sdk.contract.precompiled.wasm.DeployWasmService;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.RetCode;
@@ -58,7 +56,8 @@ public class Contract {
     protected final TransactionProcessor transactionProcessor;
     protected final Client client;
     public static final String FUNC_DEPLOY = "deploy";
-    protected final FunctionEncoder functionEncoder;
+    protected final FunctionEncoderInterface functionEncoder;
+    protected final FunctionReturnDecoderInterface functionReturnDecoder;
     protected final CryptoKeyPair credential;
     protected final CryptoSuite cryptoSuite;
     protected final EventEncoder eventEncoder;
@@ -85,8 +84,15 @@ public class Contract {
         this.transactionProcessor = transactionProcessor;
         this.credential = credential;
         this.cryptoSuite = client.getCryptoSuite();
-        this.functionEncoder = new FunctionEncoder(client.getCryptoSuite());
-        this.eventEncoder = new EventEncoder(client.getCryptoSuite());
+        this.functionEncoder =
+                client.isWASM()
+                        ? new org.fisco.bcos.sdk.codec.scale.FunctionEncoder(cryptoSuite)
+                        : new org.fisco.bcos.sdk.codec.abi.FunctionEncoder(cryptoSuite);
+        this.functionReturnDecoder =
+                client.isWASM()
+                        ? new org.fisco.bcos.sdk.codec.scale.FunctionReturnDecoder()
+                        : new org.fisco.bcos.sdk.codec.abi.FunctionReturnDecoder();
+        this.eventEncoder = new EventEncoder(cryptoSuite);
     }
 
     /**
@@ -129,14 +135,16 @@ public class Contract {
             CryptoKeyPair credential,
             TransactionProcessor transactionManager,
             String binary,
-            byte[] encodedConstructor)
+            String ABI,
+            byte[] encodedConstructor,
+            String path)
             throws ContractException {
         try {
             Constructor<T> constructor =
                     type.getDeclaredConstructor(String.class, Client.class, CryptoKeyPair.class);
             constructor.setAccessible(true);
             T contract = constructor.newInstance(null, client, credential);
-            return create(contract, binary, encodedConstructor);
+            return create(contract, binary, ABI, encodedConstructor, path);
         } catch (InstantiationException
                 | InvocationTargetException
                 | NoSuchMethodException
@@ -150,7 +158,9 @@ public class Contract {
             Client client,
             CryptoKeyPair credential,
             String binary,
-            byte[] encodedConstructor)
+            String ABI,
+            byte[] encodedConstructor,
+            String path)
             throws ContractException {
         return deploy(
                 type,
@@ -158,22 +168,41 @@ public class Contract {
                 credential,
                 TransactionProcessorFactory.createTransactionProcessor(client, credential),
                 binary,
-                encodedConstructor);
+                ABI,
+                encodedConstructor,
+                path);
     }
 
     private static <T extends Contract> T create(
-            T contract, String binary, byte[] encodedConstructor) throws ContractException {
+            T contract, String binary, String ABI, byte[] encodedConstructor, String path)
+            throws ContractException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             outputStream.write(Hex.decode(binary));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        TransactionReceipt transactionReceipt;
+        if (contract.client.isWASM()) {
+            DeployWasmService deployWasmService =
+                    new DeployWasmService(contract.client, contract.credential);
+            RetCode retCode =
+                    deployWasmService.deployWasm(
+                            outputStream.toByteArray(), encodedConstructor, path, ABI);
+            transactionReceipt = retCode.getTransactionReceipt();
+        } else {
+            transactionReceipt =
+                    contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
+        }
+
+        try {
             if (encodedConstructor != null) {
                 outputStream.write(encodedConstructor);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        TransactionReceipt transactionReceipt =
-                contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
 
         String contractAddress = transactionReceipt.getContractAddress();
         if (contractAddress == null) {
@@ -182,7 +211,12 @@ public class Contract {
             throw new ContractException(
                     "Deploy contract failed, error message: " + retCode.getMessage());
         }
-        contract.setContractAddress(contractAddress);
+
+        if (contract.client.isWASM()) {
+            contract.setContractAddress(path);
+        } else {
+            contract.setContractAddress(contractAddress);
+        }
         contract.setDeployReceipt(transactionReceipt);
         return contract;
     }
@@ -227,7 +261,7 @@ public class Contract {
             throw ReceiptParser.parseExceptionCall(contractException);
         }
         try {
-            return FunctionReturnDecoder.decode(callResult, function.getOutputParameters());
+            return functionReturnDecoder.decode(callResult, function.getOutputParameters());
         } catch (Exception e) {
             throw new ContractException(
                     "decode callResult failed, error info:" + e.getMessage(),
@@ -326,7 +360,10 @@ public class Contract {
     }
 
     public static EventValues staticExtractEventParameters(
-            EventEncoder eventEncoder, Event event, TransactionReceipt.Logs log) {
+            EventEncoder eventEncoder,
+            FunctionReturnDecoderInterface functionReturnDecoder,
+            Event event,
+            TransactionReceipt.Logs log) {
         List<String> topics = log.getTopics();
         String encodedEventSignature = eventEncoder.encode(event);
         if (!topics.get(0).equals(encodedEventSignature)) {
@@ -335,7 +372,7 @@ public class Contract {
 
         List<Type> indexedValues = new ArrayList<>();
         List<Type> nonIndexedValues =
-                FunctionReturnDecoder.decode(log.getData(), event.getNonIndexedParameters());
+                functionReturnDecoder.decode(log.getData(), event.getNonIndexedParameters());
 
         List<TypeReference<Type>> indexedParameters = event.getIndexedParameters();
         for (int i = 0; i < indexedParameters.size(); i++) {
@@ -348,7 +385,8 @@ public class Contract {
     }
 
     protected EventValues extractEventParameters(Event event, TransactionReceipt.Logs log) {
-        return staticExtractEventParameters(this.eventEncoder, event, log);
+        return staticExtractEventParameters(
+                this.eventEncoder, this.functionReturnDecoder, event, log);
     }
 
     protected List<EventValues> extractEventParameters(

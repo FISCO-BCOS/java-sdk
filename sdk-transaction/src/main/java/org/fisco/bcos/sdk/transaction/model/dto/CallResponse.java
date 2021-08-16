@@ -15,7 +15,7 @@
 package org.fisco.bcos.sdk.transaction.model.dto;
 
 import java.util.List;
-import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
+import org.fisco.bcos.sdk.codec.abi.wrapper.ABIObject;
 
 /**
  * CallResponse @Description: CallResponse

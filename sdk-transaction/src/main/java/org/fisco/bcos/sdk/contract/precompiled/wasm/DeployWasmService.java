@@ -6,6 +6,7 @@ import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.utils.Hex;
 
 public class DeployWasmService {
     private final DeployWasmPrecompiled deployWasmPrecompiled;
@@ -20,6 +21,8 @@ public class DeployWasmService {
 
     public RetCode deployWasm(byte[] code, byte[] params, String path, String jsonAbi)
             throws ContractException {
+        String x = Hex.toHexString(code);
+        String y = Hex.toHexString(params);
         return ReceiptParser.parseTransactionReceipt(
                 deployWasmPrecompiled.deployWasm(code, params, path, jsonAbi));
     }

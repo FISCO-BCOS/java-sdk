@@ -3,7 +3,7 @@ package org.fisco.bcos.sdk.transaction.model.bo;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.codec.abi.wrapper.ABIDefinition;
 
 public class AbiInfo {
 

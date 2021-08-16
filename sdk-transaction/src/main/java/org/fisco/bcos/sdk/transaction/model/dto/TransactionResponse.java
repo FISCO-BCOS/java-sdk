@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
+import org.fisco.bcos.sdk.codec.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 

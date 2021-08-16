@@ -27,12 +27,12 @@ contract Revert {
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
-import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
-import org.fisco.bcos.sdk.abi.TypeReference;
-import org.fisco.bcos.sdk.abi.datatypes.Function;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
-import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
+import org.fisco.bcos.sdk.codec.abi.FunctionReturnDecoder;
+import org.fisco.bcos.sdk.codec.datatypes.Function;
+import org.fisco.bcos.sdk.codec.datatypes.Type;
+import org.fisco.bcos.sdk.codec.datatypes.TypeReference;
+import org.fisco.bcos.sdk.codec.datatypes.Utf8String;
+import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.fisco.bcos.sdk.utils.StringUtils;
@@ -100,8 +100,10 @@ public class RevertMessageParser {
                     Numeric.containsHexPrefix(output)
                             ? output.substring(RevertMethodWithHexPrefix.length())
                             : output.substring(RevertMethod.length());
+            // I AM LAZY!
+            FunctionReturnDecoder functionReturnDecoder = new FunctionReturnDecoder();
             List<Type> result =
-                    FunctionReturnDecoder.decode(rawOutput, revertFunction.getOutputParameters());
+                    functionReturnDecoder.decode(rawOutput, revertFunction.getOutputParameters());
             if (result.get(0) instanceof Utf8String) {
                 String message = ((Utf8String) result.get(0)).getValue();
                 if (logger.isDebugEnabled()) {

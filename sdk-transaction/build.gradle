@@ -6,7 +6,7 @@ dependencies {
     implementation project(':sdk-service')
     implementation project(':sdk-core')
     api project(':sdk-crypto')
-    implementation project(':sdk-abi')
+    implementation project(':sdk-codec')
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("commons-io:commons-io:${commonsIOVersion}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")

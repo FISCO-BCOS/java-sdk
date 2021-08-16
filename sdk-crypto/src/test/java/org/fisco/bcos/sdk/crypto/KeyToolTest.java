@@ -27,6 +27,7 @@ import org.junit.Test;
 public class KeyToolTest {
     @Test
     public void testECDSALoadPEMFile() {
+        System.out.println("12");
         String keyStoreFile = "keystore/ecdsa/0x0fc3c4bb89bd90299db4c62be0174c4966286c00.pem";
         CryptoKeyPair cryptoKeyPair =
                 testLoadPEMFile(
@@ -34,7 +35,7 @@ public class KeyToolTest {
                         CryptoType.ECDSA_TYPE,
                         "0x0fc3c4bb89bd90299db4c62be0174c4966286c00");
         // check the public key and the privateKey
-        // Note  the 04 prefix
+        // Note the 04 prefix
         Assert.assertEquals(
                 "04dbbfee4f76f5a3bc3dbc2e6127c4a1f50b7614bff4138a44a79aed3d42f67f9c7aa70570205f9b60a5888c6415b6a830012677b4415a79ccd1533fe5637861df",
                 cryptoKeyPair.getHexPublicKey());
