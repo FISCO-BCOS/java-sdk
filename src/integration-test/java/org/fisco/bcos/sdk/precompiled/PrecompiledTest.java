@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.BcosSDKTest;
+import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
@@ -33,17 +34,16 @@ import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsService;
 import org.fisco.bcos.sdk.contract.precompiled.consensus.ConsensusService;
-import org.fisco.bcos.sdk.contract.precompiled.contractmgr.ContractLifeCycleService;
 import org.fisco.bcos.sdk.contract.precompiled.crud.TableCRUDService;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.contract.precompiled.sysconfig.SystemConfigService;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.utils.Numeric;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -63,7 +63,8 @@ public class PrecompiledTest {
     public void test1ConsensusService() throws ConfigException, ContractException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClientByGroupID("1");
+            Client client =
+                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             ConsensusService consensusService = new ConsensusService(client, cryptoKeyPair);
             // get the current sealerList
@@ -130,12 +131,13 @@ public class PrecompiledTest {
     public void test2CnsService() throws ConfigException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClientByGroupID("1");
+            Client client =
+                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
-            String contractAddress = helloWorld.getContractAddress();
+            String contractAddress = helloWorld.getContractAddress().toLowerCase();
             String contractName = "HelloWorld";
-            String contractVersion = "1.0";
+            String contractVersion = String.valueOf(Math.random());
             CnsService cnsService = new CnsService(client, cryptoKeyPair);
             RetCode retCode =
                     cnsService.registerCNS(contractName, contractVersion, contractAddress, "");
@@ -143,6 +145,13 @@ public class PrecompiledTest {
             List<CnsInfo> cnsInfos = cnsService.selectByName(contractName);
             Assert.assertTrue(cnsInfos.get(0).getAbi().equals(""));
             Assert.assertTrue(cnsInfos.get(0).getVersion().equals(contractVersion));
+
+            Tuple2<String, String> cnsTuple =
+                    cnsService.selectByNameAndVersion(contractName, contractVersion);
+            Assert.assertTrue(
+                    Numeric.cleanHexPrefix(cnsTuple.getValue1())
+                            .equals(contractAddress)); // address
+            Assert.assertTrue(cnsTuple.getValue2().equals("")); // abi
 
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 boolean containContractAddress = false;
@@ -158,19 +167,21 @@ public class PrecompiledTest {
             // query contractAddress
             cnsService.getContractAddress(contractName, contractVersion);
             // insert another cns info
-            String contractVersion2 = "2.0";
+            String contractVersion2 = String.valueOf(Math.random());
             retCode = cnsService.registerCNS(contractName, contractVersion2, contractAddress, "");
 
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 List<CnsInfo> cnsInfos2 = cnsService.selectByName(contractName);
                 Assert.assertTrue(cnsInfos2.size() == cnsInfos.size() + 1);
                 Assert.assertTrue(
-                        cnsService
-                                .getContractAddress(contractName, contractVersion)
+                        Numeric.cleanHexPrefix(
+                                        cnsService.getContractAddress(
+                                                contractName, contractVersion))
                                 .equals(contractAddress));
                 Assert.assertTrue(
-                        cnsService
-                                .getContractAddress(contractName, contractVersion2)
+                        Numeric.cleanHexPrefix(
+                                        cnsService.getContractAddress(
+                                                contractName, contractVersion2))
                                 .equals(contractAddress));
             }
             // insert anther cns for other contract
@@ -181,12 +192,14 @@ public class PrecompiledTest {
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 Assert.assertTrue(cnsService.getContractAddress(contractName, "abc").equals(""));
                 Assert.assertTrue(
-                        cnsService
-                                .getContractAddress(contractName2, contractVersion)
+                        Numeric.cleanHexPrefix(
+                                        cnsService.getContractAddress(
+                                                contractName2, contractVersion))
                                 .equals(contractAddress2));
                 Assert.assertTrue(
-                        cnsService
-                                .getContractAddress(contractName, contractVersion)
+                        Numeric.cleanHexPrefix(
+                                        cnsService.getContractAddress(
+                                                contractName, contractVersion))
                                 .equals(contractAddress));
             }
         } catch (ContractException e) {
@@ -198,7 +211,8 @@ public class PrecompiledTest {
     public void test3SystemConfigService() throws ConfigException, ContractException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClientByGroupID("1");
+            Client client =
+                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             SystemConfigService systemConfigService =
                     new SystemConfigService(client, cryptoKeyPair);
@@ -440,58 +454,60 @@ public class PrecompiledTest {
         }
     }
 
-    @Test
-    public void test7ContractLifeCycleService() throws ConfigException {
-        try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClientByGroupID("1");
-            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
-            ContractLifeCycleService contractLifeCycleService =
-                    new ContractLifeCycleService(client, cryptoKeyPair);
-            // deploy a helloWorld
-            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
-            String orgValue = helloWorld.get();
-            contractLifeCycleService.freeze(helloWorld.getContractAddress());
-            // call the contract
-            TransactionReceipt receipt = helloWorld.set("Hello, Fisco");
-
-            // get contract status
-            contractLifeCycleService.getContractStatus(helloWorld.getContractAddress());
-
-            // unfreeze the contract
-            contractLifeCycleService.unfreeze(helloWorld.getContractAddress());
-            String value = helloWorld.get();
-            Assert.assertTrue(value.equals(orgValue));
-
-            helloWorld.set("Hello, Fisco1");
-            value = helloWorld.get();
-            System.out.println("==== after set: " + value);
-            // Assert.assertTrue("Hello, Fisco1".equals(value));
-            // grant Manager
-            CryptoSuite cryptoSuite1 =
-                    new CryptoSuite(client.getCryptoSuite().getCryptoTypeConfig());
-            CryptoKeyPair cryptoKeyPair1 = cryptoSuite1.createKeyPair();
-            ContractLifeCycleService contractLifeCycleService1 =
-                    new ContractLifeCycleService(client, cryptoKeyPair1);
-            // freeze contract without grant manager
-            RetCode retCode = contractLifeCycleService1.freeze(helloWorld.getContractAddress());
-            Assert.assertTrue(retCode.equals(PrecompiledRetCode.CODE_INVALID_NO_AUTHORIZED));
-            // grant manager
-            contractLifeCycleService.grantManager(
-                    helloWorld.getContractAddress(), cryptoKeyPair1.getAddress());
-            // freeze the contract
-            retCode = contractLifeCycleService1.freeze(helloWorld.getContractAddress());
-            receipt = helloWorld.set("Hello, fisco2");
-            //            Assert.assertTrue(
-            //                    new BigInteger(receipt.getStatus().substring(2), 16)
-            //                            .equals(BigInteger.valueOf(30)));
-
-            // unfreeze the contract
-            contractLifeCycleService1.unfreeze(helloWorld.getContractAddress());
-            helloWorld.set("Hello, fisco3");
-            Assert.assertTrue("Hello, fisco3".equals(helloWorld.get()));
-        } catch (ContractException | ClientException e) {
-            System.out.println("testContractLifeCycleService failed, error info:" + e.getMessage());
-        }
-    }
+    //    @Test
+    //    public void test7ContractLifeCycleService() throws ConfigException {
+    //        try {
+    //            BcosSDK sdk = BcosSDK.build(configFile);
+    //            Client client = sdk.getClientByGroupID("1");
+    //            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+    //            ContractLifeCycleService contractLifeCycleService =
+    //                    new ContractLifeCycleService(client, cryptoKeyPair);
+    //            // deploy a helloWorld
+    //            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
+    //            String orgValue = helloWorld.get();
+    //            contractLifeCycleService.freeze(helloWorld.getContractAddress());
+    //            // call the contract
+    //            TransactionReceipt receipt = helloWorld.set("Hello, Fisco");
+    //
+    //            // get contract status
+    //            contractLifeCycleService.getContractStatus(helloWorld.getContractAddress());
+    //
+    //            // unfreeze the contract
+    //            contractLifeCycleService.unfreeze(helloWorld.getContractAddress());
+    //            String value = helloWorld.get();
+    //            Assert.assertTrue(value.equals(orgValue));
+    //
+    //            helloWorld.set("Hello, Fisco1");
+    //            value = helloWorld.get();
+    //            System.out.println("==== after set: " + value);
+    //            // Assert.assertTrue("Hello, Fisco1".equals(value));
+    //            // grant Manager
+    //            CryptoSuite cryptoSuite1 =
+    //                    new CryptoSuite(client.getCryptoSuite().getCryptoTypeConfig());
+    //            CryptoKeyPair cryptoKeyPair1 = cryptoSuite1.createKeyPair();
+    //            ContractLifeCycleService contractLifeCycleService1 =
+    //                    new ContractLifeCycleService(client, cryptoKeyPair1);
+    //            // freeze contract without grant manager
+    //            RetCode retCode =
+    // contractLifeCycleService1.freeze(helloWorld.getContractAddress());
+    //            Assert.assertTrue(retCode.equals(PrecompiledRetCode.CODE_INVALID_NO_AUTHORIZED));
+    //            // grant manager
+    //            contractLifeCycleService.grantManager(
+    //                    helloWorld.getContractAddress(), cryptoKeyPair1.getAddress());
+    //            // freeze the contract
+    //            retCode = contractLifeCycleService1.freeze(helloWorld.getContractAddress());
+    //            receipt = helloWorld.set("Hello, fisco2");
+    //            //            Assert.assertTrue(
+    //            //                    new BigInteger(receipt.getStatus().substring(2), 16)
+    //            //                            .equals(BigInteger.valueOf(30)));
+    //
+    //            // unfreeze the contract
+    //            contractLifeCycleService1.unfreeze(helloWorld.getContractAddress());
+    //            helloWorld.set("Hello, fisco3");
+    //            Assert.assertTrue("Hello, fisco3".equals(helloWorld.get()));
+    //        } catch (ContractException | ClientException e) {
+    //            System.out.println("testContractLifeCycleService failed, error info:" +
+    // e.getMessage());
+    //        }
+    //    }
 }

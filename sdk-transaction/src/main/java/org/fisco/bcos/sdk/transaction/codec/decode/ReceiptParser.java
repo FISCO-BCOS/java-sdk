@@ -41,7 +41,7 @@ public class ReceiptParser {
         RetCode retCode = new RetCode();
         try {
             String status = receipt.getStatus().toString();
-            if (!"0x0".equals(status)) {
+            if (!"0".equals(status)) {
                 retCode = TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
                 Tuple2<Boolean, String> errorOutput =
                         RevertMessageParser.tryResolveRevertMessage(receipt);
@@ -56,8 +56,7 @@ public class ReceiptParser {
                     return PrecompiledRetCode.CODE_SUCCESS;
                 }
                 try {
-                    int statusValue =
-                            new BigInteger(output.substring(2, output.length()), 16).intValue();
+                    int statusValue = new BigInteger(output.substring(2), 16).intValue();
                     if (receipt.getMessage() == null || receipt.getMessage().equals("")) {
                         receipt.setMessage(PrecompiledRetCode.CODE_SUCCESS.getMessage());
                     }

@@ -12,6 +12,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple1;
+import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple4;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.Contract;
@@ -65,15 +66,20 @@ public class CNSPrecompiled extends Contract {
         return executeCallWithSingleValueReturn(function, String.class);
     }
 
-    public String selectByNameAndVersion(String name, String version) throws ContractException {
+    public Tuple2<String, String> selectByNameAndVersion(String name, String version)
+            throws ContractException {
         final Function function =
                 new Function(
                         FUNC_SELECTBYNAMEANDVERSION,
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(name),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(version)),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
-        return executeCallWithSingleValueReturn(function, String.class);
+                        Arrays.<TypeReference<?>>asList(
+                                new TypeReference<Address>() {},
+                                new TypeReference<Utf8String>() {}));
+        List<Type> results = executeCallWithMultipleValueReturn(function);
+        return new Tuple2<String, String>(
+                (String) results.get(0).getValue(), (String) results.get(1).getValue());
     }
 
     public TransactionReceipt insert(String name, String version, String addr, String abi) {
@@ -83,7 +89,7 @@ public class CNSPrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(name),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(version),
-                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(addr),
+                                new org.fisco.bcos.sdk.abi.datatypes.Address(addr),
                                 new org.fisco.bcos.sdk.abi.datatypes.Utf8String(abi)),
                         Collections.<TypeReference<?>>emptyList());
         return executeTransaction(function);
