@@ -262,12 +262,6 @@ public class ResponseTest {
         BcosBlock bcosBlock = objectMapper.readValue(blockString.getBytes(), BcosBlock.class);
         this.checkBlockHeader(bcosBlock);
         // check transaction
-        BcosBlock.TransactionHash transactionHash =
-                ((BcosBlock.TransactionHash) bcosBlock.getBlock().getTransactions().get(0));
-        // check the transactionHash
-        Assert.assertEquals(
-                "0x19e5f919888038fcb16c7d75bb86945e1bf6349c591d33e3b5fdcda973577875",
-                transactionHash);
         this.checkEncodeDecode(bcosBlock);
     }
 

@@ -13,14 +13,12 @@
  */
 package org.fisco.bcos.sdk;
 
-import io.netty.channel.ChannelException;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.network.NetworkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,18 +53,24 @@ public class BcosSDK {
      * @throws BcosSDKException
      */
     public BcosSDK(ConfigOption configOption) throws BcosSDKException {
-        try {
-            this.config = configOption;
-            for (String endpoint : this.config.getNetworkConfig().getPeers()) {
+        this.config = configOption;
+        for (String endpoint : this.config.getNetworkConfig().getPeers()) {
+            try {
                 // create all clients
                 Client client = Client.build(endpoint, this.config);
                 updateEndPointToClient(client);
+            } catch (Exception e) {
+                logger.warn(
+                        "create client for {} failed, error info: {}", endpoint, e.getMessage());
             }
-            logger.info("create BcosSDK, create connection success");
-        } catch (ChannelException | NetworkException e) {
-            this.stopAll();
-            throw new BcosSDKException("create BcosSDK failed, error info: " + e.getMessage(), e);
         }
+        if (this.endPointToClient.size() > 0) {
+            logger.info(
+                    "create BcosSDK, create connection success, connection size: {}",
+                    this.endPointToClient.size());
+            return;
+        }
+        throw new BcosSDKException("create BcosSDK failed for all connect failed");
     }
 
     private boolean updateEndPointToClient(Client client) {
