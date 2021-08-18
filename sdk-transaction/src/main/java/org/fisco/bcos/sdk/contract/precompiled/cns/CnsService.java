@@ -17,6 +17,7 @@ package org.fisco.bcos.sdk.contract.precompiled.cns;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
+import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -56,19 +57,10 @@ public class CnsService {
         }
     }
 
-    public List<CnsInfo> selectByNameAndVersion(String contractName, String contractVersion)
-            throws ContractException {
-        String cnsInfo = null;
+    public Tuple2<String, String> selectByNameAndVersion(
+            String contractName, String contractVersion) throws ContractException {
         try {
-            cnsInfo = cnsPrecompiled.selectByNameAndVersion(contractName, contractVersion);
-            return ObjectMapperFactory.getObjectMapper()
-                    .readValue(cnsInfo, new TypeReference<List<CnsInfo>>() {});
-        } catch (JsonProcessingException e) {
-            throw new ContractException(
-                    "CnsService: failed to call selectByNameAndVersion interface, error message: "
-                            + e.getMessage()
-                            + ", return cnsInfo: "
-                            + cnsInfo);
+            return cnsPrecompiled.selectByNameAndVersion(contractName, contractVersion);
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);
         }
