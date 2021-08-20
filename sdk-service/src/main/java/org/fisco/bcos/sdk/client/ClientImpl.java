@@ -60,10 +60,12 @@ public class ClientImpl implements Client {
         this.groupId = this.nodeInfoResponse.getNodeInfo().getGroupId();
         this.wasm = this.nodeInfoResponse.getNodeInfo().getWasm();
         this.smCrypto = this.nodeInfoResponse.getNodeInfo().getSmCrypto();
-        if (this.smCrypto) {
+        if (configOption.getCryptoMaterialConfig().getUseSmCrypto()) {
             this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
+            logger.info("create client for {}, sm_type: {}", connection.getEndPoint(), true);
         } else {
             this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
+            logger.info("create client for {}, sm_type: {}", connection.getEndPoint(), false);
         }
         // send request to the group, and get the blockNumber information
         this.getBlockLimit();
