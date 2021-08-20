@@ -56,11 +56,10 @@ public class ECDSASignatureResult extends SignatureResult {
     @Override
     public byte[] encode() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byteArrayOutputStream.write(this.v);
-
         try {
             byteArrayOutputStream.write(this.r);
             byteArrayOutputStream.write(this.s);
+            byteArrayOutputStream.write(this.v);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

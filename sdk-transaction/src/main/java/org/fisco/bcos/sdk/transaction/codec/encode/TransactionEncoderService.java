@@ -75,8 +75,7 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     @Override
     public byte[] encodeToTransactionBytes(
             TransactionData rawTransaction, byte[] hash, SignatureResult result) {
-        Transaction transaction =
-                new Transaction(rawTransaction, hash, result.getSignatureBytes(), 0);
+        Transaction transaction = new Transaction(rawTransaction, hash, result.encode(), 0);
         TarsOutputStream tarsOutputStream = new TarsOutputStream();
         transaction.writeTo(tarsOutputStream);
         return tarsOutputStream.toByteArray();

@@ -48,9 +48,9 @@ public class SM2SignatureResult extends SignatureResult {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         try {
-            byteArrayOutputStream.write(this.pub);
             byteArrayOutputStream.write(this.r);
             byteArrayOutputStream.write(this.s);
+            byteArrayOutputStream.write(this.pub);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
