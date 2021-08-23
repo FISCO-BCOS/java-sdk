@@ -61,7 +61,7 @@ public class WSMessageHandler implements MsgHandler {
         this.seq2CallbackLock.unlock();
     }
 
-    private ResponseCallback getAndRemoveSeq(String seq) {
+    public ResponseCallback getAndRemoveSeq(String seq) {
         ResponseCallback callback = this.seq2Callback.get(seq);
         this.seq2Callback.remove(seq);
         return callback;
