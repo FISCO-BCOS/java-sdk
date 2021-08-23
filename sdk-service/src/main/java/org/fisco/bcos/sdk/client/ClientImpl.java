@@ -123,7 +123,7 @@ public class ClientImpl implements Client {
     @Override
     public void sendTransactionAsync(
             String signedTransactionData, boolean withProof, TransactionCallback callback) {
-        this.asyncCallRemoteMethod(
+        this.asyncCallRemoteMethodWithTimeout(
                 new JsonRpcRequest(
                         JsonRpcMethods.SEND_TRANSACTION,
                         Arrays.asList(signedTransactionData, withProof)),
@@ -140,7 +140,8 @@ public class ClientImpl implements Client {
                         callback.onError(
                                 errorResponse.getErrorCode(), errorResponse.getErrorMessage());
                     }
-                });
+                },
+                callback.getTimeout());
     }
 
     @Override
@@ -459,30 +460,6 @@ public class ClientImpl implements Client {
         Thread.currentThread().interrupt();
     }
 
-    public <T extends JsonRpcResponse> void asyncSendTransactionToGroup(
-            JsonRpcRequest request, TransactionCallback callback, Class<T> responseType) {
-        try {
-            this.connection.asyncCallMethod(
-                    this.objectMapper.writeValueAsString(request),
-                    new ResponseCallback() {
-                        @Override
-                        public void onResponse(Response response) {
-                            try {
-                                // decode the transaction
-                                ClientImpl.this.parseResponseIntoJsonRpcResponse(
-                                        request, response, responseType);
-                                // FIXME: call callback
-                            } catch (ClientException e) {
-                                // fake the transactionReceipt
-                                callback.onError(e.getErrorCode(), e.getErrorMessage());
-                            }
-                        }
-                    });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public <T extends JsonRpcResponse> T callRemoteMethod(
             JsonRpcRequest request, Class<T> responseType) {
 
@@ -499,25 +476,47 @@ public class ClientImpl implements Client {
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
 
+    private <T extends JsonRpcResponse> ResponseCallback createResponseCallback(
+            JsonRpcRequest request, Class<T> responseType, RespCallback<T> callback) {
+        return new ResponseCallback() {
+            @Override
+            public void onResponse(Response response) {
+                try {
+                    // decode the transaction
+                    T jsonRpcResponse =
+                            ClientImpl.this.parseResponseIntoJsonRpcResponse(
+                                    request, response, responseType);
+                    callback.onResponse(jsonRpcResponse);
+                } catch (ClientException e) {
+                    callback.onError(response);
+                }
+            }
+        };
+    }
+
+    public <T extends JsonRpcResponse> void asyncCallRemoteMethodWithTimeout(
+            JsonRpcRequest request,
+            Class<T> responseType,
+            RespCallback<T> callback,
+            long timeoutValue) {
+        try {
+            ResponseCallback responseCallback =
+                    createResponseCallback(request, responseType, callback);
+            responseCallback.setTimeoutValue(timeoutValue);
+            this.connection.asyncCallMethod(
+                    this.objectMapper.writeValueAsString(request), responseCallback);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public <T extends JsonRpcResponse> void asyncCallRemoteMethod(
             JsonRpcRequest request, Class<T> responseType, RespCallback<T> callback) {
         try {
+            ResponseCallback responseCallback =
+                    createResponseCallback(request, responseType, callback);
             this.connection.asyncCallMethod(
-                    this.objectMapper.writeValueAsString(request),
-                    new ResponseCallback() {
-                        @Override
-                        public void onResponse(Response response) {
-                            try {
-                                // decode the transaction
-                                T jsonRpcResponse =
-                                        ClientImpl.this.parseResponseIntoJsonRpcResponse(
-                                                request, response, responseType);
-                                callback.onResponse(jsonRpcResponse);
-                            } catch (ClientException e) {
-                                callback.onError(response);
-                            }
-                        }
-                    });
+                    this.objectMapper.writeValueAsString(request), responseCallback);
         } catch (IOException e) {
             e.printStackTrace();
         }

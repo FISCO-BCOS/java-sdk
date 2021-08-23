@@ -27,6 +27,7 @@ public abstract class ResponseCallback {
     private static Logger logger = LoggerFactory.getLogger(ResponseCallback.class);
 
     private Timeout timeout;
+    private long timeoutValue = -1;
 
     /**
      * OnResponse
@@ -67,5 +68,13 @@ public abstract class ResponseCallback {
 
     public void setTimeout(Timeout timeout) {
         this.timeout = timeout;
+    }
+
+    public void setTimeoutValue(long timeoutValue) {
+        this.timeoutValue = timeoutValue;
+    }
+
+    public long getTimeoutValue() {
+        return this.timeoutValue;
     }
 }
