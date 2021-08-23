@@ -178,7 +178,7 @@ public class PrecompiledTest {
             String contractVersion2 = String.valueOf(Math.random());
             retCode = cnsService.registerCNS(contractName, contractVersion2, contractAddress, "");
 
-            if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            if (retCode.getCode() == 1) {
                 List<CnsInfo> cnsInfos2 = cnsService.selectByName(contractName);
                 Assert.assertTrue(cnsInfos2.size() == cnsInfos.size() + 1);
                 Assert.assertTrue(
@@ -197,7 +197,7 @@ public class PrecompiledTest {
             String contractAddress2 = helloWorld2.getContractAddress();
             String contractName2 = "hello";
             retCode = cnsService.registerCNS(contractName2, contractVersion, contractAddress2, "");
-            if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            if (retCode.getCode() == 1) {
                 Assert.assertTrue(cnsService.getContractAddress(contractName, "abc").equals(""));
                 Assert.assertTrue(
                         Numeric.cleanHexPrefix(
