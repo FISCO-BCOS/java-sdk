@@ -332,7 +332,7 @@ public class WebSocketConnection implements Connection {
      * @throws IOException
      */
     @Override
-    public String callMethod(String request) throws IOException {
+    public Response callMethod(String request) throws IOException {
         Callback callback = new Callback();
         Message message =
                 new Message(
@@ -345,7 +345,7 @@ public class WebSocketConnection implements Connection {
         if (callback.retResponse.getErrorCode() != 0) {
             throw new IOException(callback.retResponse.getErrorMessage());
         }
-        return callback.retResponse.getContent();
+        return callback.retResponse;
     }
 
     /**
@@ -397,6 +397,10 @@ public class WebSocketConnection implements Connection {
     }
 
     private void startTimer(ResponseCallback callback, Options options, String seq) {
+        // disable the timeout when perf test
+        if (options.timeout == 0) {
+            return;
+        }
         callback.setTimeout(
                 timeoutHandler.newTimeout(
                         new TimerTask() {

@@ -43,7 +43,6 @@ public interface Client {
      * @return a client instance
      */
     static Client build(String endpoint, ConfigOption configOption) throws NetworkException {
-        //        HttpConnection connection = new HttpConnection(endpoint);
         WebSocketConnection connection = new WebSocketConnection(configOption, endpoint);
         if (!connection.connect()) {
             throw new NetworkException("try connect to " + endpoint + " failed");

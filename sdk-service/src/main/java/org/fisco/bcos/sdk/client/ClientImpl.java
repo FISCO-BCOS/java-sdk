@@ -470,7 +470,7 @@ public class ClientImpl implements Client {
                             try {
                                 // decode the transaction
                                 ClientImpl.this.parseResponseIntoJsonRpcResponse(
-                                        request, response.getContent(), responseType);
+                                        request, response, responseType);
                                 // FIXME: call callback
                             } catch (ClientException e) {
                                 // fake the transactionReceipt
@@ -486,7 +486,7 @@ public class ClientImpl implements Client {
     public <T extends JsonRpcResponse> T callRemoteMethod(
             JsonRpcRequest request, Class<T> responseType) {
 
-        String response = null;
+        Response response = null;
         try {
             response = this.connection.callMethod(this.objectMapper.writeValueAsString(request));
         } catch (IOException e) {
@@ -511,7 +511,7 @@ public class ClientImpl implements Client {
                                 // decode the transaction
                                 T jsonRpcResponse =
                                         ClientImpl.this.parseResponseIntoJsonRpcResponse(
-                                                request, response.getContent(), responseType);
+                                                request, response, responseType);
                                 callback.onResponse(jsonRpcResponse);
                             } catch (ClientException e) {
                                 callback.onError(response);
@@ -524,10 +524,22 @@ public class ClientImpl implements Client {
     }
 
     protected <T extends JsonRpcResponse> T parseResponseIntoJsonRpcResponse(
-            JsonRpcRequest request, String response, Class<T> responseType) {
+            JsonRpcRequest request, Response response, Class<T> responseType) {
         try {
+            if (response.getErrorCode() != 0) {
+                throw new ClientException(
+                        response.getErrorCode(),
+                        response.getErrorMessage(),
+                        "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: "
+                                + request.getMethod()
+                                + " ,group: "
+                                + this.groupId
+                                + ",retErrorMessage: "
+                                + response.getErrorMessage());
+            }
+            String responseContent = response.getContent();
             // parse the response into JsonRPCResponse
-            T jsonRpcResponse = this.objectMapper.readValue(response, responseType);
+            T jsonRpcResponse = this.objectMapper.readValue(responseContent, responseType);
             if (jsonRpcResponse.getError() != null) {
                 logger.error(
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {},  retErrorMessage: {}, retErrorCode: {}",
