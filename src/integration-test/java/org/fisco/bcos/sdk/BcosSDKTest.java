@@ -235,6 +235,8 @@ public class BcosSDKTest {
                 sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
         CryptoSuite cryptoSuite = client.getCryptoSuite();
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        BigInteger blockLimit = client.getBlockLimit();
+        System.out.println("blockLimit:" + blockLimit);
         HelloWorld helloWorld = null;
         try {
             helloWorld = HelloWorld.deploy(client, keyPair);
@@ -271,6 +273,9 @@ public class BcosSDKTest {
             System.out.println("getCode :" + code.getCode());
             s = helloWorld.get();
             System.out.println("helloworld get :" + s);
+
+            blockLimit = client.getBlockLimit();
+            System.out.println("blockLimit:" + blockLimit);
         } catch (ContractException e) {
             e.printStackTrace();
         }

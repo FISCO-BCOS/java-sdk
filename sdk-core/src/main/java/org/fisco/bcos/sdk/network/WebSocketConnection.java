@@ -26,12 +26,10 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
-import org.fisco.bcos.sdk.channel.model.ChannelHandshake;
-import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
-import org.fisco.bcos.sdk.channel.model.NodeInfo;
-import org.fisco.bcos.sdk.channel.model.Options;
+import org.fisco.bcos.sdk.channel.model.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
@@ -62,6 +60,16 @@ public class WebSocketConnection implements Connection {
     private final int connectInterval = 1000; // milliseconds
     private final ThreadPoolService threadPoolService;
     private final String endPoint;
+    private AtomicLong blockNumber = new AtomicLong(0);
+
+    @Override
+    public long getBlockNumber() {
+        return blockNumber.get();
+    }
+
+    public void setBlockNumber(long blockNumber) {
+        this.blockNumber.set(blockNumber);
+    }
 
     private Timer timeoutHandler = new HashedWheelTimer();
 
@@ -193,6 +201,50 @@ public class WebSocketConnection implements Connection {
                 WebSocketClientHandshakerFactory.newHandshaker(
                         this.uri, WebSocketVersion.V13, null, false, new DefaultHttpHeaders());
         this.channelMsgHandler = new WSMessageHandler();
+
+        class BlockNotifyHandler implements MsgHandler {
+
+            public BlockNotifyHandler(WebSocketConnection connection) {
+                this.connection = connection;
+            }
+
+            private WebSocketConnection connection;
+
+            public WebSocketConnection getConnection() {
+                return connection;
+            }
+
+            public void setConnection(WebSocketConnection connection) {
+                this.connection = connection;
+            }
+
+            @Override
+            public void onConnect(ChannelHandlerContext ctx) {
+                // TODO:
+            }
+
+            @Override
+            public void onMessage(ChannelHandlerContext ctx, Message msg) {
+                byte[] data = msg.getData();
+                try {
+                    BlockNotify blockNotify = objectMapper.readValue(data, BlockNotify.class);
+                    logger.info("blockNotify, blockNumber: {}", blockNotify.getBlockNumber());
+                    connection.setBlockNumber(blockNotify.getBlockNumber());
+                } catch (Exception e) {
+                    logger.warn("blockNotify, msg error: {}, e:", msg.getErrorCode(), e);
+                }
+            }
+
+            @Override
+            public void onDisconnect(ChannelHandlerContext ctx) {
+                // TODO:
+            }
+        }
+
+        BlockNotifyHandler handler = new BlockNotifyHandler(this);
+        // register blockNumber notify
+        this.channelMsgHandler.addMessageHandler(MsgType.BLOCK_NOTIFY, handler);
+
         this.handler = new WebSocketHandler(handshaker, this.channelMsgHandler);
         this.handler.setMsgHandleThreadPool(this.threadPoolService.getThreadPool());
         this.bootstrap
@@ -411,5 +463,13 @@ public class WebSocketConnection implements Connection {
                         },
                         callback.getTimeoutValue(),
                         TimeUnit.MILLISECONDS));
+    }
+
+    public WSMessageHandler getChannelMsgHandler() {
+        return channelMsgHandler;
+    }
+
+    public void setChannelMsgHandler(WSMessageHandler channelMsgHandler) {
+        this.channelMsgHandler = channelMsgHandler;
     }
 }

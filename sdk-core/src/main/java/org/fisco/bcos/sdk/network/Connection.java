@@ -27,6 +27,8 @@ public interface Connection {
 
     String getEndPoint();
 
+    long getBlockNumber();
+
     /**
      * Send a message to a node in the group and select the node with the highest block height in
      * the group
