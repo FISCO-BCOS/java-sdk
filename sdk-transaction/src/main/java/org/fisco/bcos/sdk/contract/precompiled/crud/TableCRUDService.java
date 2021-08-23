@@ -72,15 +72,13 @@ public class TableCRUDService {
                 tableFactory.createTable(tableName, keyFieldName, valueFieldsString));
     }
 
-    public RetCode insert(String tableName, String key, Entry fieldNameToValue)
-            throws ContractException {
-        checkKey(key);
+    public RetCode insert(String tableName, Entry fieldNameToValue) throws ContractException {
         try {
             String fieldNameToValueStr =
                     ObjectMapperFactory.getObjectMapper()
                             .writeValueAsString(fieldNameToValue.getFieldNameToValue());
             return ReceiptParser.parseTransactionReceipt(
-                    crudService.insert(tableName, key, fieldNameToValueStr, ""));
+                    crudService.insert(tableName, fieldNameToValueStr, ""));
         } catch (JsonProcessingException e) {
             throw new ContractException(
                     "insert "
@@ -93,16 +91,15 @@ public class TableCRUDService {
         }
     }
 
-    public RetCode update(String tableName, String key, Entry fieldNameToValue, Condition condition)
+    public RetCode update(String tableName, Entry fieldNameToValue, Condition condition)
             throws ContractException {
-        checkKey(key);
         try {
             String fieldNameToValueStr =
                     ObjectMapperFactory.getObjectMapper()
                             .writeValueAsString(fieldNameToValue.getFieldNameToValue());
             String conditionStr = encodeCondition(condition);
             return ReceiptParser.parseTransactionReceipt(
-                    crudService.update(tableName, key, fieldNameToValueStr, conditionStr, ""));
+                    crudService.update(tableName, fieldNameToValueStr, conditionStr, ""));
         } catch (JsonProcessingException e) {
             throw new ContractException(
                     "update "
@@ -122,31 +119,26 @@ public class TableCRUDService {
         return ObjectMapperFactory.getObjectMapper().writeValueAsString(condition.getConditions());
     }
 
-    public RetCode remove(String tableName, String key, Condition condition)
-            throws ContractException {
-        checkKey(key);
+    public RetCode remove(String tableName, Condition condition) throws ContractException {
         try {
             String conditionStr = encodeCondition(condition);
             return ReceiptParser.parseTransactionReceipt(
-                    crudService.remove(tableName, key, conditionStr, ""));
+                    crudService.remove(tableName, conditionStr, ""));
         } catch (JsonProcessingException e) {
-            throw new ContractException(
-                    "remove " + key + " with condition from " + tableName + " failed");
+            throw new ContractException("remove key  with condition from " + tableName + " failed");
         }
     }
 
-    public List<Map<String, String>> select(String tableName, String key, Condition condition)
+    public List<Map<String, String>> select(String tableName, Condition condition)
             throws ContractException {
-        checkKey(key);
         try {
             String conditionStr = encodeCondition(condition);
-            return parseSelectResult(crudService.select(tableName, key, conditionStr, ""));
+            return parseSelectResult(crudService.select(tableName, conditionStr, ""));
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);
         } catch (JsonProcessingException e) {
             throw new ContractException(
                     "select "
-                            + key
                             + " with condition from "
                             + tableName
                             + " failed, error info:"
@@ -199,16 +191,14 @@ public class TableCRUDService {
         };
     }
 
-    public void asyncInsert(
-            String tableName, String key, Entry fieldNameToValue, PrecompiledCallback callback)
+    public void asyncInsert(String tableName, Entry fieldNameToValue, PrecompiledCallback callback)
             throws ContractException {
-        checkKey(key);
         try {
             String fieldNameToValueStr =
                     ObjectMapperFactory.getObjectMapper()
                             .writeValueAsString(fieldNameToValue.getFieldNameToValue());
             this.crudService.insert(
-                    tableName, key, fieldNameToValueStr, "", createTransactionCallback(callback));
+                    tableName, fieldNameToValueStr, "", createTransactionCallback(callback));
         } catch (JsonProcessingException e) {
             throw new ContractException(
                     "asyncInsert "
@@ -223,12 +213,10 @@ public class TableCRUDService {
 
     public void asyncUpdate(
             String tableName,
-            String key,
             Entry fieldNameToValue,
             Condition condition,
             PrecompiledCallback callback)
             throws ContractException {
-        checkKey(key);
         try {
             String fieldNameToValueStr =
                     ObjectMapperFactory.getObjectMapper()
@@ -236,7 +224,6 @@ public class TableCRUDService {
             String conditionStr = encodeCondition(condition);
             this.crudService.update(
                     tableName,
-                    key,
                     fieldNameToValueStr,
                     conditionStr,
                     "",
@@ -253,20 +240,13 @@ public class TableCRUDService {
         }
     }
 
-    public void asyncRemove(
-            String tableName, String key, Condition condition, PrecompiledCallback callback)
+    public void asyncRemove(String tableName, Condition condition, PrecompiledCallback callback)
             throws ContractException {
-        checkKey(key);
         try {
             this.crudService.remove(
-                    tableName,
-                    key,
-                    encodeCondition(condition),
-                    "",
-                    createTransactionCallback(callback));
+                    tableName, encodeCondition(condition), "", createTransactionCallback(callback));
         } catch (JsonProcessingException e) {
-            throw new ContractException(
-                    "asyncRemove " + key + " with condition from " + tableName + " failed");
+            throw new ContractException("asyncRemove with condition from " + tableName + " failed");
         }
     }
 }

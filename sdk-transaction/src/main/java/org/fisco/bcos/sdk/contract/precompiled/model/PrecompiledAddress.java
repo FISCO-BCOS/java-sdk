@@ -15,12 +15,22 @@
 package org.fisco.bcos.sdk.contract.precompiled.model;
 
 public class PrecompiledAddress {
-    public static final String SYSCONFIG_PRECOMPILED_ADDRESS = "0x1000";
-    public static final String TABLEFACTORY_PRECOMPILED_ADDRESS = "0x1001";
-    public static final String CRUD_PRECOMPILED_ADDRESS = "0x1002";
-    public static final String CONSENSUS_PRECOMPILED_ADDRESS = "0x1003";
-    public static final String CNS_PRECOMPILED_ADDRESS = "0x1004";
-    public static final String CONTRACT_LIFECYCLE_PRECOMPILED_ADDRESS = "0x1007";
+    public static final String SYSCONFIG_PRECOMPILED_ADDRESS =
+            "0x0000000000000000000000000000000000001000";
+    public static final String TABLEFACTORY_PRECOMPILED_ADDRESS =
+            "0x0000000000000000000000000000000000001001";
+    public static final String CRUD_PRECOMPILED_ADDRESS =
+            "0x0000000000000000000000000000000000001002";
+    public static final String CONSENSUS_PRECOMPILED_ADDRESS =
+            "0x0000000000000000000000000000000000001003";
+    public static final String CNS_PRECOMPILED_ADDRESS =
+            "0x0000000000000000000000000000000000001004";
+    public static final String CONTRACT_LIFECYCLE_PRECOMPILED_ADDRESS =
+            "0x0000000000000000000000000000000000001007";
+    public static final String DEPLOY_WASM_PRECOMPILED_ADDRESS =
+            "0x000000000000000000000000000000000000100d";
+    public static final String BFS_PRECOMPILED_ADDRESS =
+            "0x000000000000000000000000000000000000100e";
 
     private PrecompiledAddress() {}
 }
