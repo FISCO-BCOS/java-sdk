@@ -16,6 +16,8 @@
 package org.fisco.bcos.sdk.network;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.CompositeByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -34,6 +36,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
     private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
     private ExecutorService msgHandleThreadPool;
+    CompositeByteBuf frameByteBufCache = null;
 
     public void setMsgHandleThreadPool(ExecutorService msgHandleThreadPool) {
         this.msgHandleThreadPool = msgHandleThreadPool;
@@ -93,26 +96,61 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            logger.info("WebSocket Client received message: " + textFrame.text());
+            if (logger.isTraceEnabled()) {
+                logger.trace("WebSocket Client received message: " + textFrame.text());
+            }
         } else if (frame instanceof PongWebSocketFrame) {
-            logger.info("WebSocket Client received pong");
+            if (logger.isTraceEnabled()) {
+                logger.trace("WebSocket Client received PongWebSocketFrame");
+            }
         } else if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) frame;
-            ByteBuf content = binaryWebSocketFrame.content();
-            Message message = new Message(content);
-            if (this.msgHandleThreadPool == null) {
-                this.msgHandler.onMessage(ctx, message);
-            } else {
-                this.msgHandleThreadPool.execute(
-                        () -> WebSocketHandler.this.msgHandler.onMessage(ctx, message));
+            ByteBuf content = binaryWebSocketFrame.content().copy();
+
+            if (frameByteBufCache == null) {
+                frameByteBufCache = Unpooled.compositeBuffer();
             }
+            frameByteBufCache.addComponent(true, content);
+            if (logger.isTraceEnabled()) {
+                logger.trace("WebSocket received BinaryWebSocketFrame: {}", content);
+            }
+        } else if (frame instanceof ContinuationWebSocketFrame) {
+            ContinuationWebSocketFrame continuationWebSocketFrame =
+                    (ContinuationWebSocketFrame) frame;
+            ByteBuf content = continuationWebSocketFrame.content().copy();
+            if (logger.isTraceEnabled()) {
+                logger.trace("WebSocket received ContinuationWebSocketFrame: {}", content);
+            }
+
+            if (frameByteBufCache == null) {
+                frameByteBufCache = Unpooled.compositeBuffer();
+            }
+            frameByteBufCache.addComponent(true, content);
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.info("WebSocket Client received close frame, endpoint:{}", ch.remoteAddress());
             ch.close();
             this.msgHandler.onDisconnect(ctx);
+            return;
         } else {
-            logger.warn("WebSocket received unknown frame");
+            logger.warn("WebSocket received unknown frame: {}", frame);
             ch.close();
+            return;
+        }
+
+        if (frame.isFinalFragment()) {
+            try {
+                Message message = new Message(frameByteBufCache);
+                if (this.msgHandleThreadPool == null) {
+                    this.msgHandler.onMessage(ctx, message);
+                } else {
+                    this.msgHandleThreadPool.execute(
+                            () -> WebSocketHandler.this.msgHandler.onMessage(ctx, message));
+                }
+            } catch (Exception e) {
+                logger.warn("channelRead0, e: ", e);
+            }
+
+            frameByteBufCache = null;
         }
     }
 }

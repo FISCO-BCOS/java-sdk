@@ -18,8 +18,35 @@ package org.fisco.bcos.sdk.client.protocol.response;
 import java.util.List;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
-public class SealerList extends JsonRpcResponse<List<String>> {
-    public List<String> getSealerList() {
+public class SealerList extends JsonRpcResponse<List<SealerList.Sealer>> {
+
+    public static class Sealer {
+        private String nodeID;
+        private int weight;
+
+        @Override
+        public String toString() {
+            return "Sealer{" + "nodeID='" + nodeID + '\'' + ", weight=" + weight + '}';
+        }
+
+        public String getNodeID() {
+            return nodeID;
+        }
+
+        public void setNodeID(String nodeID) {
+            this.nodeID = nodeID;
+        }
+
+        public int getWeight() {
+            return weight;
+        }
+
+        public void setWeight(int weight) {
+            this.weight = weight;
+        }
+    };
+
+    public List<Sealer> getSealerList() {
         return getResult();
     }
 }
