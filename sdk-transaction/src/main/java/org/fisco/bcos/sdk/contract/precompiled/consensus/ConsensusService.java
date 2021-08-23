@@ -17,6 +17,7 @@ package org.fisco.bcos.sdk.contract.precompiled.consensus;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
@@ -38,10 +39,15 @@ public class ConsensusService {
 
     public RetCode addSealer(String nodeId, BigInteger weight) throws ContractException {
         // check the node exists in the sealerList or not
-        List<String> sealerList = client.getSealerList().getResult();
-        if (sealerList.contains(nodeId)) {
-            throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST);
+        List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
+        if (sealerList != null) {
+            for (SealerList.Sealer sealer : sealerList) {
+                if (sealer.getNodeID().equals(nodeId)) {
+                    throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST);
+                }
+            }
         }
+
         return ReceiptParser.parseTransactionReceipt(
                 consensusPrecompiled.addSealer(nodeId, weight));
     }
@@ -55,9 +61,19 @@ public class ConsensusService {
     }
 
     public RetCode removeNode(String nodeId) throws ContractException {
-        List<String> sealerList = client.getSealerList().getResult();
+        List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
         List<String> observerList = client.getObserverList().getResult();
-        if (!sealerList.contains(nodeId) && !observerList.contains(nodeId)) {
+        boolean exist = false;
+        if (sealerList != null) {
+            for (SealerList.Sealer sealer : sealerList) {
+                if (sealer.getNodeID().equals(nodeId)) {
+                    exist = true;
+                    break;
+                }
+            }
+        }
+
+        if (!exist && !observerList.contains(nodeId)) {
             throw new ContractException(PrecompiledRetCode.ALREADY_REMOVED_FROM_THE_GROUP);
         }
         return ReceiptParser.parseTransactionReceipt(consensusPrecompiled.remove(nodeId));

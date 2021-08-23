@@ -28,6 +28,7 @@ import org.fisco.bcos.sdk.BcosSDKTest;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
+import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.contract.HelloWorld;
 import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
@@ -68,58 +69,58 @@ public class PrecompiledTest {
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             ConsensusService consensusService = new ConsensusService(client, cryptoKeyPair);
             // get the current sealerList
-            List<String> sealerList = client.getSealerList().getResult();
+            List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
 
             // select the node to operate
-            String selectedNode = sealerList.get(0);
+            SealerList.Sealer selectedNode = sealerList.get(0);
 
             // addSealer
             Assert.assertTrue(
                     PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST.equals(
-                            consensusService.addSealer(selectedNode, BigInteger.ONE)));
+                            consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE)));
 
             // add the sealer to the observerList
-            RetCode retCode = consensusService.addObserver(selectedNode);
+            RetCode retCode = consensusService.addObserver(selectedNode.getNodeID());
             // query the observerList
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 List<String> observerList = client.getObserverList().getResult();
-                Assert.assertTrue(observerList.contains(selectedNode));
+                Assert.assertTrue(observerList.contains(selectedNode.getNodeID()));
                 // query the sealerList
                 sealerList = client.getSealerList().getResult();
-                Assert.assertTrue(!sealerList.contains(selectedNode));
+                Assert.assertTrue(!sealerList.contains(selectedNode.getNodeID()));
                 // add the node to the observerList again
                 Assert.assertTrue(
                         consensusService
-                                .addObserver(selectedNode)
+                                .addObserver(selectedNode.getNodeID())
                                 .equals(PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST));
             }
             // add the node to the sealerList again
-            retCode = consensusService.addSealer(selectedNode, BigInteger.ONE);
+            retCode = consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
 
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
-                Assert.assertTrue(!client.getObserverList().getResult().contains(selectedNode));
+                Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode.getNodeID()));
+                Assert.assertTrue(!client.getObserverList().getResult().contains(selectedNode.getNodeID()));
             }
 
             // removeNode
-            retCode = consensusService.removeNode(selectedNode);
+            retCode = consensusService.removeNode(selectedNode.getNodeID());
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                Assert.assertTrue(!client.getObserverList().getResult().contains(selectedNode));
+                Assert.assertTrue(!client.getObserverList().getResult().contains(selectedNode.getNodeID()));
                 Assert.assertTrue(!client.getSealerList().getResult().contains(selectedNode));
             }
 
             // add the node to observerList again
-            retCode = consensusService.addObserver(selectedNode);
+            retCode = consensusService.addObserver(selectedNode.getNodeID());
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                Assert.assertTrue(client.getObserverList().getResult().contains(selectedNode));
-                Assert.assertTrue(!client.getSealerList().getResult().contains(selectedNode));
+                Assert.assertTrue(client.getObserverList().getResult().contains(selectedNode.getNodeID()));
+                Assert.assertTrue(!client.getSealerList().getResult().contains(selectedNode.getNodeID()));
             }
 
             // add the node to the sealerList again
-            retCode = consensusService.addSealer(selectedNode, BigInteger.ONE);
+            retCode = consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
-                Assert.assertTrue(!client.getObserverList().getResult().contains(selectedNode));
+                Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode.getNodeID()));
+                Assert.assertTrue(!client.getObserverList().getResult().contains(selectedNode.getNodeID()));
             }
         } catch (ClientException | ContractException e) {
             System.out.println(
