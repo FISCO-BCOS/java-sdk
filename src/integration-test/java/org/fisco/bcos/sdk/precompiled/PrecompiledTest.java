@@ -36,6 +36,7 @@ import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsService;
 import org.fisco.bcos.sdk.contract.precompiled.consensus.ConsensusService;
 import org.fisco.bcos.sdk.contract.precompiled.crud.TableCRUDService;
+import org.fisco.bcos.sdk.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -253,7 +254,8 @@ public class PrecompiledTest {
     public void test5CRUDService() throws ConfigException, ContractException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClientByGroupID("1");
+            Client client =
+                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             TableCRUDService tableCRUDService = new TableCRUDService(client, cryptoKeyPair);
             // create a user table
@@ -270,29 +272,35 @@ public class PrecompiledTest {
             for (int i = 0; i < valueFields.size(); i++) {
                 fieldNameToValue.put("field" + i, "value" + i);
             }
+            fieldNameToValue.put(key, "key1");
             Entry fieldNameToValueEntry = new Entry(fieldNameToValue);
-            tableCRUDService.insert(tableName, key, fieldNameToValueEntry);
+            tableCRUDService.insert(tableName, fieldNameToValueEntry);
             // select
-            List<Map<String, String>> result = tableCRUDService.select(tableName, key, null);
+            Condition condition = new Condition();
+            condition.EQ(key, "key1");
+            List<Map<String, String>> result = tableCRUDService.select(tableName, condition);
             // field value result + key result
             if (result.size() > 0) {
                 Assert.assertTrue(result.get(0).size() == fieldNameToValue.size() + 1);
             }
             System.out.println("tableCRUDService select result: " + result);
+            // FIXME: add condition
             // update
             fieldNameToValue.clear();
+            fieldNameToValue.put(key, "key1");
             fieldNameToValueEntry.setFieldNameToValue(fieldNameToValue);
-            tableCRUDService.update(tableName, key, fieldNameToValueEntry, null);
-            result = tableCRUDService.select(tableName, key, null);
+            tableCRUDService.update(tableName, fieldNameToValueEntry, null);
+            result = tableCRUDService.select(tableName, null);
             if (result.size() > 0) {
                 Assert.assertTrue(result.get(0).size() == valueFields.size() + 1);
             }
             System.out.println("tableCRUDService select result: " + result);
 
+            // FIXME: add condition
             // remove
-            tableCRUDService.remove(tableName, key, null);
-            result = tableCRUDService.select(tableName, key, null);
-            // Assert.assertTrue(result.size() == 0);
+            tableCRUDService.remove(tableName, condition);
+            result = tableCRUDService.select(tableName, condition);
+            Assert.assertTrue(result.size() == 0);
             System.out.println(
                     "testCRUDPrecompiled tableCRUDService.remove size : " + result.size());
 
@@ -308,7 +316,8 @@ public class PrecompiledTest {
     public void test51SyncCRUDService() throws ConfigException {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClientByGroupID("1");
+            Client client =
+                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
             String tableName = "test_sync";
@@ -337,17 +346,18 @@ public class PrecompiledTest {
                                     Map<String, String> value = new HashMap<>();
                                     value.put("field", "field" + index);
                                     String valueOfKey = "key_value" + index;
+                                    value.put("key", "key" + index);
                                     // insert
-                                    crudService.insert(tableName, valueOfKey, new Entry(value));
+                                    crudService.insert(tableName, new Entry(value));
                                     // select
-                                    crudService.select(tableName, valueOfKey, null);
+                                    crudService.select(tableName, null);
                                     // update
                                     value.clear();
                                     value.put("field", "field" + index + 100);
-                                    crudService.update(
-                                            tableName, valueOfKey, new Entry(value), null);
+                                    value.put("key", "key" + index);
+                                    crudService.update(tableName, new Entry(value), null);
                                     // remove
-                                    crudService.remove(tableName, valueOfKey, null);
+                                    crudService.remove(tableName, null);
                                 } catch (ContractException e) {
                                     System.out.println(
                                             "call crudService failed, error information: "
@@ -387,7 +397,8 @@ public class PrecompiledTest {
     public void test52AsyncCRUDService() {
         try {
             BcosSDK sdk = BcosSDK.build(configFile);
-            Client client = sdk.getClientByGroupID("1");
+            Client client =
+                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
             // create table
@@ -415,26 +426,23 @@ public class PrecompiledTest {
                                     Map<String, String> value = new HashMap<>();
                                     value.put("field", "field" + index);
                                     String valueOfKey = "key_value" + index;
+                                    value.put("key", "key" + index);
                                     // insert
                                     FakeTransactionCallback callback =
                                             new FakeTransactionCallback();
-                                    crudService.asyncInsert(
-                                            tableName, valueOfKey, new Entry(value), callback);
+                                    crudService.asyncInsert(tableName, new Entry(value), callback);
                                     // update
                                     value.clear();
                                     value.put("field", "field" + index + 100);
+                                    value.put("key", "key" + index);
                                     FakeTransactionCallback callback2 =
                                             new FakeTransactionCallback();
                                     crudService.asyncUpdate(
-                                            tableName,
-                                            valueOfKey,
-                                            new Entry(value),
-                                            null,
-                                            callback2);
+                                            tableName, new Entry(value), null, callback2);
                                     // remove
                                     FakeTransactionCallback callback3 =
                                             new FakeTransactionCallback();
-                                    crudService.asyncRemove(tableName, valueOfKey, null, callback3);
+                                    crudService.asyncRemove(tableName, null, callback3);
                                 } catch (ContractException e) {
                                     System.out.println(
                                             "call crudService failed, error information: "
