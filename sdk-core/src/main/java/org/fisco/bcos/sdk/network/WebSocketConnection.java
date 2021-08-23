@@ -14,6 +14,10 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.handler.ssl.SslContext;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,6 +31,7 @@ import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.ChannelHandshake;
 import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
 import org.fisco.bcos.sdk.channel.model.NodeInfo;
+import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.Message;
 import org.fisco.bcos.sdk.model.MsgType;
@@ -57,6 +62,8 @@ public class WebSocketConnection implements Connection {
     private final int connectInterval = 1000; // milliseconds
     private final ThreadPoolService threadPoolService;
     private final String endPoint;
+
+    private Timer timeoutHandler = new HashedWheelTimer();
 
     public WebSocketConnection(ConfigOption configOption, String endpoint) {
         this.endPoint = endpoint;
@@ -359,6 +366,13 @@ public class WebSocketConnection implements Connection {
     }
 
     public void asyncSendMessage(Message message, ResponseCallback callback) {
+        Options options = new Options();
+        options.setTimeout(10000);
+        asyncSendMessageWithTimeout(message, callback, options);
+    }
+
+    public void asyncSendMessageWithTimeout(
+            Message message, ResponseCallback callback, Options options) {
         // if connection is lost reconnect it and send
         ByteBuf byteBuf = Unpooled.buffer();
         message.encode(byteBuf);
@@ -366,6 +380,7 @@ public class WebSocketConnection implements Connection {
         Channel channel = this.channel.get();
         if (channel.isActive()) {
             this.channelMsgHandler.addSeq2CallBack(message.getSeq(), callback);
+            startTimer(callback, options, message.getSeq());
             channel.writeAndFlush(frame);
         } else {
             logger.warn("send message with seq {} failed ", message.getSeq());
@@ -379,5 +394,20 @@ public class WebSocketConnection implements Connection {
                 callback.onResponse(response);
             }
         }
+    }
+
+    private void startTimer(ResponseCallback callback, Options options, String seq) {
+        callback.setTimeout(
+                timeoutHandler.newTimeout(
+                        new TimerTask() {
+                            @Override
+                            public void run(Timeout timeout) {
+                                // handle timer
+                                callback.onTimeout();
+                                channelMsgHandler.getAndRemoveSeq(seq);
+                            }
+                        },
+                        options.getTimeout(),
+                        TimeUnit.MILLISECONDS));
     }
 }
