@@ -332,7 +332,7 @@ public class WebSocketConnection implements Connection {
      * @throws IOException
      */
     @Override
-    public String callMethod(String request) throws IOException {
+    public Response callMethod(String request) throws IOException {
         Callback callback = new Callback();
         Message message =
                 new Message(
@@ -345,7 +345,7 @@ public class WebSocketConnection implements Connection {
         if (callback.retResponse.getErrorCode() != 0) {
             throw new IOException(callback.retResponse.getErrorMessage());
         }
-        return callback.retResponse.getContent();
+        return callback.retResponse;
     }
 
     /**
@@ -367,12 +367,10 @@ public class WebSocketConnection implements Connection {
 
     public void asyncSendMessage(Message message, ResponseCallback callback) {
         Options options = new Options();
-        options.setTimeout(10000);
-        asyncSendMessageWithTimeout(message, callback, options);
-    }
-
-    public void asyncSendMessageWithTimeout(
-            Message message, ResponseCallback callback, Options options) {
+        // use default timeout value
+        if (callback.getTimeoutValue() == -1) {
+            callback.setTimeoutValue(30000);
+        }
         // if connection is lost reconnect it and send
         ByteBuf byteBuf = Unpooled.buffer();
         message.encode(byteBuf);
@@ -380,7 +378,7 @@ public class WebSocketConnection implements Connection {
         Channel channel = this.channel.get();
         if (channel.isActive()) {
             this.channelMsgHandler.addSeq2CallBack(message.getSeq(), callback);
-            startTimer(callback, options, message.getSeq());
+            startTimer(callback, message.getSeq());
             channel.writeAndFlush(frame);
         } else {
             logger.warn("send message with seq {} failed ", message.getSeq());
@@ -396,7 +394,11 @@ public class WebSocketConnection implements Connection {
         }
     }
 
-    private void startTimer(ResponseCallback callback, Options options, String seq) {
+    private void startTimer(ResponseCallback callback, String seq) {
+        // disable the timeout when perf test
+        if (callback.getTimeoutValue() == 0) {
+            return;
+        }
         callback.setTimeout(
                 timeoutHandler.newTimeout(
                         new TimerTask() {
@@ -407,7 +409,7 @@ public class WebSocketConnection implements Connection {
                                 channelMsgHandler.getAndRemoveSeq(seq);
                             }
                         },
-                        options.getTimeout(),
+                        callback.getTimeoutValue(),
                         TimeUnit.MILLISECONDS));
     }
 }

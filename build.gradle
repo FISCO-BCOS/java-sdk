@@ -190,7 +190,6 @@ dependencies {
     api("info.picocli:picocli:${picocliVersion}")
     api("com.webank:key-mini-toolkit:${keyMiniToolkit}")
     api("com.moandjiezana.toml:toml4j:${toml4jVersion}")
-    api("org.apache.httpcomponents:httpclient:4.5.13")
     api("com.google.googlejavaformat:google-java-format:1.10.0")
     api("com.tencent.tars:tars-core:1.7.2")
 

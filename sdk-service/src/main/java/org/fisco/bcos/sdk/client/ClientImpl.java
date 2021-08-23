@@ -123,7 +123,7 @@ public class ClientImpl implements Client {
     @Override
     public void sendTransactionAsync(
             String signedTransactionData, boolean withProof, TransactionCallback callback) {
-        this.asyncCallRemoteMethod(
+        this.asyncCallRemoteMethodWithTimeout(
                 new JsonRpcRequest(
                         JsonRpcMethods.SEND_TRANSACTION,
                         Arrays.asList(signedTransactionData, withProof)),
@@ -140,7 +140,8 @@ public class ClientImpl implements Client {
                         callback.onError(
                                 errorResponse.getErrorCode(), errorResponse.getErrorMessage());
                     }
-                });
+                },
+                callback.getTimeout());
     }
 
     @Override
@@ -459,34 +460,10 @@ public class ClientImpl implements Client {
         Thread.currentThread().interrupt();
     }
 
-    public <T extends JsonRpcResponse> void asyncSendTransactionToGroup(
-            JsonRpcRequest request, TransactionCallback callback, Class<T> responseType) {
-        try {
-            this.connection.asyncCallMethod(
-                    this.objectMapper.writeValueAsString(request),
-                    new ResponseCallback() {
-                        @Override
-                        public void onResponse(Response response) {
-                            try {
-                                // decode the transaction
-                                ClientImpl.this.parseResponseIntoJsonRpcResponse(
-                                        request, response.getContent(), responseType);
-                                // FIXME: call callback
-                            } catch (ClientException e) {
-                                // fake the transactionReceipt
-                                callback.onError(e.getErrorCode(), e.getErrorMessage());
-                            }
-                        }
-                    });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public <T extends JsonRpcResponse> T callRemoteMethod(
             JsonRpcRequest request, Class<T> responseType) {
 
-        String response = null;
+        Response response = null;
         try {
             response = this.connection.callMethod(this.objectMapper.writeValueAsString(request));
         } catch (IOException e) {
@@ -499,35 +476,69 @@ public class ClientImpl implements Client {
         return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
 
+    private <T extends JsonRpcResponse> ResponseCallback createResponseCallback(
+            JsonRpcRequest request, Class<T> responseType, RespCallback<T> callback) {
+        return new ResponseCallback() {
+            @Override
+            public void onResponse(Response response) {
+                try {
+                    // decode the transaction
+                    T jsonRpcResponse =
+                            ClientImpl.this.parseResponseIntoJsonRpcResponse(
+                                    request, response, responseType);
+                    callback.onResponse(jsonRpcResponse);
+                } catch (ClientException e) {
+                    callback.onError(response);
+                }
+            }
+        };
+    }
+
+    public <T extends JsonRpcResponse> void asyncCallRemoteMethodWithTimeout(
+            JsonRpcRequest request,
+            Class<T> responseType,
+            RespCallback<T> callback,
+            long timeoutValue) {
+        try {
+            ResponseCallback responseCallback =
+                    createResponseCallback(request, responseType, callback);
+            responseCallback.setTimeoutValue(timeoutValue);
+            this.connection.asyncCallMethod(
+                    this.objectMapper.writeValueAsString(request), responseCallback);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public <T extends JsonRpcResponse> void asyncCallRemoteMethod(
             JsonRpcRequest request, Class<T> responseType, RespCallback<T> callback) {
         try {
+            ResponseCallback responseCallback =
+                    createResponseCallback(request, responseType, callback);
             this.connection.asyncCallMethod(
-                    this.objectMapper.writeValueAsString(request),
-                    new ResponseCallback() {
-                        @Override
-                        public void onResponse(Response response) {
-                            try {
-                                // decode the transaction
-                                T jsonRpcResponse =
-                                        ClientImpl.this.parseResponseIntoJsonRpcResponse(
-                                                request, response.getContent(), responseType);
-                                callback.onResponse(jsonRpcResponse);
-                            } catch (ClientException e) {
-                                callback.onError(response);
-                            }
-                        }
-                    });
+                    this.objectMapper.writeValueAsString(request), responseCallback);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     protected <T extends JsonRpcResponse> T parseResponseIntoJsonRpcResponse(
-            JsonRpcRequest request, String response, Class<T> responseType) {
+            JsonRpcRequest request, Response response, Class<T> responseType) {
         try {
+            if (response.getErrorCode() != 0) {
+                throw new ClientException(
+                        response.getErrorCode(),
+                        response.getErrorMessage(),
+                        "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: "
+                                + request.getMethod()
+                                + " ,group: "
+                                + this.groupId
+                                + ",retErrorMessage: "
+                                + response.getErrorMessage());
+            }
+            String responseContent = response.getContent();
             // parse the response into JsonRPCResponse
-            T jsonRpcResponse = this.objectMapper.readValue(response, responseType);
+            T jsonRpcResponse = this.objectMapper.readValue(responseContent, responseType);
             if (jsonRpcResponse.getError() != null) {
                 logger.error(
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {},  retErrorMessage: {}, retErrorCode: {}",

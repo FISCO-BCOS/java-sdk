@@ -2,6 +2,7 @@ package org.fisco.bcos.sdk.network;
 
 import java.io.IOException;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
+import org.fisco.bcos.sdk.model.Response;
 
 public interface Connection {
     /** @description close connection */
@@ -20,7 +21,7 @@ public interface Connection {
      * @return response
      * @throws IOException
      */
-    String callMethod(String request) throws IOException;
+    Response callMethod(String request) throws IOException;
 
     String getUri();
 
