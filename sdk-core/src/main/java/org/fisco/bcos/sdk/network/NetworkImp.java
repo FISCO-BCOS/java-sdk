@@ -109,14 +109,6 @@ public class NetworkImp implements Network {
     private CheckCertExistenceResult checkCertExistence(boolean isSM) throws NetworkException {
         CheckCertExistenceResult result = new CheckCertExistenceResult();
         result.setCheckPassed(true);
-        if (!isSM
-                && configOption
-                        .getCryptoMaterialConfig()
-                        .getCryptoProvider()
-                        .equalsIgnoreCase(HSM)) {
-            result.setCheckPassed(false);
-            return result;
-        }
 
         String errorMessage = "";
         errorMessage = errorMessage + "Please make sure ";
@@ -130,21 +122,15 @@ public class NetworkImp implements Network {
             errorMessage =
                     errorMessage + configOption.getCryptoMaterialConfig().getSdkCertPath() + " ";
         }
-        if (configOption.getCryptoMaterialConfig().getCryptoProvider().equalsIgnoreCase(HSM)) {
-            if (configOption.getCryptoMaterialConfig().getSslKeyIndex() == null
-                    || configOption.getCryptoMaterialConfig().getEnSslKeyIndex() == null) {
-                result.setCheckPassed(false);
-                errorMessage = errorMessage + " sslKeyIndex , enSslKeyIndex ";
-            }
-        } else {
-            if (configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream() == null) {
-                result.setCheckPassed(false);
-                errorMessage =
-                        errorMessage
-                                + configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()
-                                + " ";
-            }
+
+        if (configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream() == null) {
+            result.setCheckPassed(false);
+            errorMessage =
+                    errorMessage
+                            + configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()
+                            + " ";
         }
+
         if (!isSM) {
             errorMessage = errorMessage + "exists!";
             result.setErrorMessage(errorMessage);

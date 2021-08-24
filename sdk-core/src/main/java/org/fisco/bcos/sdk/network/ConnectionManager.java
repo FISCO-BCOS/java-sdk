@@ -266,27 +266,12 @@ public class ConnectionManager {
         try {
             // Get file, file existence is already checked when check config file.
             // Init SslContext
-            logger.info(" build SM ssl context with configured certificates ");
-            if (configOption.getCryptoMaterialConfig().getCryptoProvider() != null
-                    && configOption
-                            .getCryptoMaterialConfig()
-                            .getCryptoProvider()
-                            .equalsIgnoreCase(HSM)) {
-                return SMSslClientContextFactory.build(
-                        configOption.getCryptoMaterialConfig().getCaInputStream(),
-                        configOption.getCryptoMaterialConfig().getEnSSLCertInputStream(),
-                        "sm2_" + configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
-                        configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
-                        "sm2_" + configOption.getCryptoMaterialConfig().getSslKeyIndex());
-            } else {
-                return SMSslClientContextFactory.build(
-                        configOption.getCryptoMaterialConfig().getCaInputStream(),
-                        configOption.getCryptoMaterialConfig().getEnSSLCertInputStream(),
-                        configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyInputStream(),
-                        configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
-                        configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream());
-            }
-
+            return SMSslClientContextFactory.build(
+                    configOption.getCryptoMaterialConfig().getCaInputStream(),
+                    configOption.getCryptoMaterialConfig().getEnSSLCertInputStream(),
+                    configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyInputStream(),
+                    configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
+                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream());
         } catch (Exception e) {
             if (configOption.getCryptoMaterialConfig().getCryptoProvider().equalsIgnoreCase(HSM)) {
                 logger.error(
