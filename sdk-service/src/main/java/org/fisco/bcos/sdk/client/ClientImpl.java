@@ -48,6 +48,7 @@ public class ClientImpl implements Client {
     private final CryptoSuite cryptoSuite;
     private final NodeInfoResponse nodeInfoResponse;
     private final Connection connection;
+    private long blockNumber;
 
     protected ClientImpl(Connection connection, ConfigOption configOption) {
         this.connection = connection;
@@ -67,8 +68,9 @@ public class ClientImpl implements Client {
             this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
             logger.info("create client for {}, sm_type: {}", connection.getEndPoint(), false);
         }
-        // send request to the group, and get the blockNumber information
-        this.getBlockLimit();
+
+        this.blockNumber = this.getBlockNumber().getBlockNumber().longValue();
+        logger.info("ClientImpl blockNumber: {}", this.blockNumber);
     }
 
     protected ClientImpl(Connection connection) {
@@ -330,7 +332,11 @@ public class ClientImpl implements Client {
 
     @Override
     public BigInteger getBlockLimit() {
-        return this.getBlockNumber().getBlockNumber().add(BigInteger.valueOf(500));
+        long blk = connection.getBlockNumber();
+        if (blk == 0) {
+            blk = blockNumber;
+        }
+        return BigInteger.valueOf(blk).add(BigInteger.valueOf(500));
     }
 
     @Override
