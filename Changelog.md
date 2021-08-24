@@ -1,9 +1,8 @@
 ## v2.8.0
 (2021-07-27)
 Added:
-* Add Hardware Secure Module(HSM), use hardware protect your private key, speed up crypto procedure.
+* Using Hardware Secure Module(HSM) to make cryptography operations.
 * Support use PCI crypto card or crypto machine to make SM2 SM3 calculation.
-* Support use HSM internal key to make TLS connection with FISCO BCOS nodes.
 * Support use HSM internal key to sign transaction.
 
 Update:
@@ -14,9 +13,8 @@ Update:
 
 ----
 添加:
-* 新增硬件加密模块，使用硬件保护您的私钥，提升密码运算速度。
-* 支持使用PCI加密卡/加密机进行SM2，SM3运算。
-* 支持使用密码卡/密码机内部密钥与FISCO BCOS节点建立连接。
+* 新增支持使用硬件加密模块进行密码计算。
+* 支持使用符合国密《GMT0018-2012密码设备应用接口规范》标准的PCI加密卡/加密机进行SM2，SM3运算。
 * 支持使用密码卡/密码机内部密钥进行交易签名。
 
 更新：
