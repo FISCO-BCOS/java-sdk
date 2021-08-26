@@ -40,6 +40,7 @@ import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.contract.HelloWorld;
 import org.fisco.bcos.sdk.contract.precompiled.bfs.BFSService;
+import org.fisco.bcos.sdk.contract.precompiled.bfs.FileInfo;
 import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsService;
@@ -540,9 +541,7 @@ public class PrecompiledTest {
                     sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             BFSService bfsService = new BFSService(client, cryptoKeyPair);
-            RetCode mkdir1 = bfsService.mkdir("/test/test1/temp");
-            RetCode mkdir2 = bfsService.mkdir("/test/test2/temp");
-            String list = bfsService.list("/test");
+            FileInfo list = bfsService.list("/");
             System.out.println(list);
         } catch (ClientException | ContractException e) {
             System.out.println(
