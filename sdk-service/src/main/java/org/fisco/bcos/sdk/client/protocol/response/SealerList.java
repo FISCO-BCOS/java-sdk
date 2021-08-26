@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 import java.util.List;
+import java.util.Objects;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 
 public class SealerList extends JsonRpcResponse<List<SealerList.Sealer>> {
@@ -44,7 +45,22 @@ public class SealerList extends JsonRpcResponse<List<SealerList.Sealer>> {
         public void setWeight(int weight) {
             this.weight = weight;
         }
-    };
+
+        @Override
+        public int hashCode() {
+            return this.getNodeID().hashCode() + this.getWeight();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Sealer) {
+                Sealer sealer = (Sealer) obj;
+                return Objects.equals(this.nodeID, sealer.getNodeID())
+                        && Objects.equals(this.weight, sealer.getWeight());
+            }
+            return super.equals(obj);
+        }
+    }
 
     public List<Sealer> getSealerList() {
         return getResult();
