@@ -1,11 +1,13 @@
 package org.fisco.bcos.sdk.contract.precompiled.bfs;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 public class BFSService {
     private final BFSPrecompiled bfsPrecompiled;
@@ -21,9 +23,14 @@ public class BFSService {
         return ReceiptParser.parseTransactionReceipt(bfsPrecompiled.mkdir(path));
     }
 
-    public String list(String path) throws ContractException {
+    public FileInfo list(String path) throws ContractException {
         try {
-            return bfsPrecompiled.list(path);
+            String list = bfsPrecompiled.list(path);
+            return ObjectMapperFactory.getObjectMapper().readValue(list, FileInfo.class);
+        } catch (JsonProcessingException e) {
+            throw new ContractException(
+                    "CnsService: failed to call selectByName interface, error message: "
+                            + e.getMessage());
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);
         }

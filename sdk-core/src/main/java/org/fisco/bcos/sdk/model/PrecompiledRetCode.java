@@ -19,6 +19,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PrecompiledRetCode {
+    // FileSystemPrecompiled -53099 ~ -53000
+    public static final RetCode CODE_FILE_SET_WASM_FAILED =
+            new RetCode(-53004, "Deploy WASM contract failed");
+    public static final RetCode CODE_FILE_BUILD_DIR_FAILED =
+            new RetCode(-53003, "Make directory failed");
+    public static final RetCode CODE_FILE_ALREADY_EXIST =
+            new RetCode(-53002, "File already existed");
+    public static final RetCode CODE_FILE_NOT_EXIST = new RetCode(-53001, "Path of file not exist");
+
     // ChainGovernancePrecompiled -52099 ~ -52000
     public static final RetCode CODE_CURRENT_VALUE_IS_EXPECTED_VALUE =
             new RetCode(-52012, "The current value is expected");
@@ -80,6 +89,12 @@ public class PrecompiledRetCode {
             new RetCode(-51600, "Execute PaillierAdd failed");
 
     // CRUDPrecompiled -51599 ~ -51500
+    public static final RetCode CODE_INSERT_KEY_EXIST =
+            new RetCode(-51506, "Don't update the table key");
+    public static final RetCode CODE_KEY_NOT_EXIST_IN_COND =
+            new RetCode(-51505, "Add specific table key EQ syntax in condition");
+    public static final RetCode CODE_KEY_NOT_EXIST_IN_ENTRY =
+            new RetCode(-51504, "Add specific table key in entry");
     public static final RetCode CODE_INVALID_UPDATE_TABLE_KEY =
             new RetCode(-51503, "Don't update the table key");
     public static final RetCode CODE_CONDITION_OPERATION_UNDEFINED =
@@ -100,6 +115,8 @@ public class PrecompiledRetCode {
             new RetCode(-51200, "The contract name and version already exist");
 
     // ConsensusPrecompiled -51199 ~ -51100
+    public static final RetCode CODE_NODE_NOT_EXIST = new RetCode(-51103, "The node is not exist");
+    public static final RetCode CODE_INVALID_WEIGHT = new RetCode(-51102, "The weight is invalid");
     public static final RetCode CODE_LAST_SEALER =
             new RetCode(-51101, "The last sealer cannot be removed");
     public static final RetCode CODE_INVALID_NODEID = new RetCode(-51100, "Invalid node ID");
