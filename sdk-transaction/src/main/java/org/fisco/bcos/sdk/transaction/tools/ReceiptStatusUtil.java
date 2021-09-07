@@ -16,11 +16,11 @@ package org.fisco.bcos.sdk.transaction.tools;
 
 import java.util.Collections;
 import java.util.List;
-import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
-import org.fisco.bcos.sdk.abi.TypeReference;
-import org.fisco.bcos.sdk.abi.datatypes.Function;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
+import org.fisco.bcos.sdk.codec.abi.FunctionReturnDecoder;
+import org.fisco.bcos.sdk.codec.datatypes.Function;
+import org.fisco.bcos.sdk.codec.datatypes.Type;
+import org.fisco.bcos.sdk.codec.datatypes.TypeReference;
+import org.fisco.bcos.sdk.codec.datatypes.Utf8String;
 
 /**
  * ReceiptStatusUtil @Description: ReceiptStatusUtil
@@ -44,8 +44,10 @@ public class ReceiptStatusUtil {
                             "Error",
                             Collections.emptyList(),
                             Collections.singletonList(new TypeReference<Utf8String>() {}));
+            // I AM LAZY!
+            FunctionReturnDecoder functionReturnDecoder = new FunctionReturnDecoder();
             List<Type> r =
-                    FunctionReturnDecoder.decode(
+                    functionReturnDecoder.decode(
                             output.substring(10), function.getOutputParameters());
             return ((Type) r.get(0)).toString();
         }

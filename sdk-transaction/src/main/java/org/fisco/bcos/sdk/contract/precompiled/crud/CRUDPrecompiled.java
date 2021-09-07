@@ -4,17 +4,13 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
-import org.fisco.bcos.sdk.abi.TypeReference;
-import org.fisco.bcos.sdk.abi.datatypes.Function;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
-import org.fisco.bcos.sdk.abi.datatypes.generated.Int256;
-import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple1;
-import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
-import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple3;
-import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple4;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.codec.datatypes.Function;
+import org.fisco.bcos.sdk.codec.datatypes.Type;
+import org.fisco.bcos.sdk.codec.datatypes.TypeReference;
+import org.fisco.bcos.sdk.codec.datatypes.Utf8String;
+import org.fisco.bcos.sdk.codec.datatypes.generated.Int256;
+import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.*;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -119,7 +115,9 @@ public class CRUDPrecompiled extends Contract {
                                 new TypeReference<Utf8String>() {},
                                 new TypeReference<Utf8String>() {},
                                 new TypeReference<Utf8String>() {}));
-        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple3<String, String, String>(
                 (String) results.get(0).getValue(),
                 (String) results.get(1).getValue(),
@@ -133,7 +131,8 @@ public class CRUDPrecompiled extends Contract {
                         FUNC_INSERT,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
-        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
@@ -208,7 +207,8 @@ public class CRUDPrecompiled extends Contract {
                                 new TypeReference<Utf8String>() {},
                                 new TypeReference<Utf8String>() {},
                                 new TypeReference<Utf8String>() {}));
-        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple4<String, String, String, String>(
                 (String) results.get(0).getValue(),
                 (String) results.get(1).getValue(),
@@ -223,7 +223,8 @@ public class CRUDPrecompiled extends Contract {
                         FUNC_UPDATE,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
-        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
@@ -274,7 +275,8 @@ public class CRUDPrecompiled extends Contract {
                                 new TypeReference<Utf8String>() {},
                                 new TypeReference<Utf8String>() {},
                                 new TypeReference<Utf8String>() {}));
-        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple3<String, String, String>(
                 (String) results.get(0).getValue(),
                 (String) results.get(1).getValue(),
@@ -288,7 +290,8 @@ public class CRUDPrecompiled extends Contract {
                         FUNC_REMOVE,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
-        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
@@ -304,6 +307,8 @@ public class CRUDPrecompiled extends Contract {
                 client,
                 credential,
                 getBinary(client.getCryptoSuite()),
+                null,
+                null,
                 null);
     }
 }

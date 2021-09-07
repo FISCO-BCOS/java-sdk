@@ -76,8 +76,7 @@ public class CodeGenMain {
         @Override
         public void run() {
             try {
-                new SolidityContractGenerator(
-                                binFile, smBinFile, abiFile, destinationFileDir, packageName)
+                new ContractGenerator(binFile, smBinFile, abiFile, destinationFileDir, packageName)
                         .generateJavaFiles();
             } catch (Exception e) {
                 CodeGenUtils.exitError(e);

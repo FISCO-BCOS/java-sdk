@@ -4,6 +4,7 @@ log/
 build/
 dist/
 bin/
+.vscode/
 .settings/**
 java-sdk.iml
 
@@ -28,4 +29,3 @@ gmsm2.param
 integrationTestEnv.sh
 gradle.properties
 gpg.gpg
-

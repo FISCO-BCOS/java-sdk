@@ -40,7 +40,7 @@ public class ResponseTest {
                         + "  \"jsonrpc\": \"2.0\",\n"
                         + "  \"result\": {\n"
                         + "    \"dbHash\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "    \"extraData\": [],\n"
+                        + "    \"extraData\": \"\",\n"
                         + "    \"gasLimit\": \"0x100\",\n"
                         + "    \"gasUsed\": \"0x200\",\n"
                         + "    \"hash\": \"0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82\",\n"

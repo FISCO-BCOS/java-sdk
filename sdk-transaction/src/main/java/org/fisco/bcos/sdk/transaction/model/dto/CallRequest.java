@@ -14,7 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.model.dto;
 
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.codec.abi.wrapper.ABIDefinition;
 
 /**
  * CallRequest @Description: CallRequest

@@ -18,6 +18,7 @@
 package org.fisco.bcos.sdk;
 
 import java.math.BigInteger;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.channel.model.NodeInfo;
@@ -25,7 +26,6 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.contract.HelloWorld;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
@@ -228,7 +228,7 @@ public class BcosSDKTest {
     }
 
     @Test
-    public void testHelloWorld() {
+    public void testHelloWorldInSolidity() {
         BcosSDK sdk = BcosSDK.build(configFile);
         // get the client
         Client client =
@@ -237,9 +237,9 @@ public class BcosSDKTest {
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
         BigInteger blockLimit = client.getBlockLimit();
         System.out.println("blockLimit:" + blockLimit);
-        HelloWorld helloWorld = null;
+        org.fisco.bcos.sdk.contract.solidity.HelloWorld helloWorld = null;
         try {
-            helloWorld = HelloWorld.deploy(client, keyPair);
+            helloWorld = org.fisco.bcos.sdk.contract.solidity.HelloWorld.deploy(client, keyPair);
         } catch (ContractException e) {
             e.printStackTrace();
         }
@@ -276,6 +276,87 @@ public class BcosSDKTest {
 
             blockLimit = client.getBlockLimit();
             System.out.println("blockLimit:" + blockLimit);
+        } catch (ContractException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testHelloWorldInLiquid() {
+        BcosSDK sdk = BcosSDK.build(configFile);
+        // get the client
+        Client client =
+                sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+        CryptoSuite cryptoSuite = client.getCryptoSuite();
+        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        BigInteger blockLimit = client.getBlockLimit();
+        System.out.println("blockLimit:" + blockLimit);
+        org.fisco.bcos.sdk.contract.liquid.HelloWorld helloWorld = null;
+        Random random = new Random();
+        try {
+            helloWorld =
+                    org.fisco.bcos.sdk.contract.liquid.HelloWorld.deploy(
+                            client,
+                            keyPair,
+                            "/usr/bin/HelloWorld" + Math.abs(random.nextInt()),
+                            "alice");
+        } catch (ContractException e) {
+            e.printStackTrace();
+        }
+        System.out.println("helloworld address :" + helloWorld.getContractAddress());
+        BlockNumber blockNumber = client.getBlockNumber();
+        BcosBlock block1 = client.getBlockByNumber(blockNumber.getBlockNumber(), false, false);
+        System.out.println("block=" + block1.getBlock());
+        try {
+            String s = helloWorld.get();
+            System.out.println("helloworld get :" + s);
+            TransactionReceipt receipt = helloWorld.set("fisco hello");
+            System.out.println("helloworld set : fisco hello, status=" + receipt.getStatus());
+            System.out.println(receipt);
+            // get 2nd block
+            block1 =
+                    client.getBlockByNumber(
+                            blockNumber.getBlockNumber().add(BigInteger.ONE), false, false);
+            System.out.println("1st header=" + block1.getBlock());
+            // getTransaction
+            BcosTransaction transaction = client.getTransaction(receipt.getTransactionHash(), true);
+            Assert.assertTrue(transaction.getTransaction().isPresent());
+            System.out.println("getTransaction :" + transaction.getTransaction());
+            // getTransactionReceipt
+            BcosTransactionReceipt receipt1 =
+                    client.getTransactionReceipt(receipt.getTransactionHash(), true);
+            Assert.assertTrue(receipt1.getTransactionReceipt().isPresent());
+            System.out.println("getTransactionReceipt :" + receipt1.getTransactionReceipt());
+            // getCode
+            Code code = client.getCode(helloWorld.getContractAddress());
+            Assert.assertNotNull(code.getResult());
+            System.out.println("getCode :" + code.getCode());
+            s = helloWorld.get();
+            System.out.println("helloworld get :" + s);
+
+            blockLimit = client.getBlockLimit();
+            System.out.println("blockLimit:" + blockLimit);
+        } catch (ContractException e) {
+            e.printStackTrace();
+        }
+
+        org.fisco.bcos.sdk.contract.liquid.HelloWorld2 helloWorld2 = null;
+        try {
+            helloWorld2 =
+                    org.fisco.bcos.sdk.contract.liquid.HelloWorld2.deploy(
+                            client,
+                            keyPair,
+                            "/usr/bin/HelloWorld2_" + Math.abs(random.nextInt()),
+                            helloWorld.getContractAddress());
+            String s = helloWorld2.get();
+            System.out.println("helloworld2 get :" + s);
+            TransactionReceipt receipt = helloWorld2.set("fisco bye");
+            System.out.println("helloworld2 set : fisco hello, status=" + receipt.getStatus());
+            System.out.println(receipt);
+            s = helloWorld2.get();
+            System.out.println("helloworld2 get :" + s);
+            s = helloWorld.get();
+            System.out.println("helloworld get :" + s);
         } catch (ContractException e) {
             e.printStackTrace();
         }

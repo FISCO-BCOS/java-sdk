@@ -4,15 +4,14 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
-import org.fisco.bcos.sdk.abi.TypeReference;
-import org.fisco.bcos.sdk.abi.datatypes.Function;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
-import org.fisco.bcos.sdk.abi.datatypes.generated.Int256;
-import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple1;
-import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.codec.datatypes.Function;
+import org.fisco.bcos.sdk.codec.datatypes.Type;
+import org.fisco.bcos.sdk.codec.datatypes.TypeReference;
+import org.fisco.bcos.sdk.codec.datatypes.Utf8String;
+import org.fisco.bcos.sdk.codec.datatypes.generated.Int256;
+import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple1;
+import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -54,9 +53,7 @@ public class SystemConfigPrecompiled extends Contract {
         final Function function =
                 new Function(
                         FUNC_SETVALUEBYKEY,
-                        Arrays.<Type>asList(
-                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(key),
-                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(value)),
+                        Arrays.<Type>asList(new Utf8String(key), new Utf8String(value)),
                         Collections.<TypeReference<?>>emptyList());
         return executeTransaction(function);
     }
@@ -65,9 +62,7 @@ public class SystemConfigPrecompiled extends Contract {
         final Function function =
                 new Function(
                         FUNC_SETVALUEBYKEY,
-                        Arrays.<Type>asList(
-                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(key),
-                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(value)),
+                        Arrays.<Type>asList(new Utf8String(key), new Utf8String(value)),
                         Collections.<TypeReference<?>>emptyList());
         asyncExecuteTransaction(function, callback);
     }
@@ -76,9 +71,7 @@ public class SystemConfigPrecompiled extends Contract {
         final Function function =
                 new Function(
                         FUNC_SETVALUEBYKEY,
-                        Arrays.<Type>asList(
-                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(key),
-                                new org.fisco.bcos.sdk.abi.datatypes.Utf8String(value)),
+                        Arrays.<Type>asList(new Utf8String(key), new Utf8String(value)),
                         Collections.<TypeReference<?>>emptyList());
         return createSignedTransaction(function);
     }
@@ -92,7 +85,8 @@ public class SystemConfigPrecompiled extends Contract {
                         Arrays.<TypeReference<?>>asList(
                                 new TypeReference<Utf8String>() {},
                                 new TypeReference<Utf8String>() {}));
-        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple2<String, String>(
                 (String) results.get(0).getValue(), (String) results.get(1).getValue());
     }
@@ -104,7 +98,8 @@ public class SystemConfigPrecompiled extends Contract {
                         FUNC_SETVALUEBYKEY,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
-        List<Type> results = FunctionReturnDecoder.decode(data, function.getOutputParameters());
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
@@ -120,6 +115,8 @@ public class SystemConfigPrecompiled extends Contract {
                 client,
                 credential,
                 getBinary(client.getCryptoSuite()),
+                null,
+                null,
                 null);
     }
 }
