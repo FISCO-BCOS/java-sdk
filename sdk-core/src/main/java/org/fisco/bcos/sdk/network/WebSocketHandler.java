@@ -140,6 +140,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         if (frame.isFinalFragment()) {
             try {
                 Message message = new Message(frameByteBufCache);
+                frameByteBufCache.release();
                 if (this.msgHandleThreadPool == null) {
                     this.msgHandler.onMessage(ctx, message);
                 } else {
