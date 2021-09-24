@@ -22,7 +22,6 @@ import io.netty.channel.*;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
-import io.netty.util.CharsetUtil;
 import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.model.Message;
 import org.slf4j.Logger;
@@ -83,14 +82,11 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
             return;
         }
 
-        if (msg instanceof FullHttpResponse) {
-            FullHttpResponse response = (FullHttpResponse) msg;
-            throw new IllegalStateException(
-                    "Unexpected FullHttpResponse (getStatus="
-                            + response.getStatus()
-                            + ", content="
-                            + response.content().toString(CharsetUtil.UTF_8)
-                            + ')');
+        if (!(msg instanceof WebSocketFrame)) {
+            // message not websocket frame, why???
+            logger.error("Client received not websocket message: {}", msg);
+            ch.close();
+            return;
         }
 
         WebSocketFrame frame = (WebSocketFrame) msg;
