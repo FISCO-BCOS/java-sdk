@@ -46,7 +46,8 @@ public class SDFSM2KeyPair extends CryptoKeyPair {
         initSM2KeyPairObject();
         this.keyIndex = keyIndex;
         this.password = password;
-        SDFCryptoResult pkResult = SDF.ExportInternalPublicKey(keyIndex, AlgorithmType.SM2);
+        SDFCryptoResult pkResult =
+                SDF.ExportInternalPublicKey((keyIndex + 1) / 2, AlgorithmType.SM2);
         if (pkResult.getSdfErrorMessage() != null && !pkResult.getSdfErrorMessage().equals("")) {
             throw new KeyPairException(
                     "get sdf sm2 internal key public key failed:" + pkResult.getSdfErrorMessage());

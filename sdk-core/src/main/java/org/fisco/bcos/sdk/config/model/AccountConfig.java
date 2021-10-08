@@ -52,15 +52,17 @@ public class AccountConfig {
     }
 
     private void checkAccountConfig(ConfigProperty configProperty) throws ConfigException {
-        Map<String, Object> cryptoProvider = configProperty.getCryptoProvider();
-        if (cryptoProvider != null) {
-            String cryptoType = ConfigProperty.getValue(cryptoProvider, "type", SSM);
-            if (cryptoType != null && cryptoType.equals(HSM)) {
-                if (!this.accountKeyIndex.equals("") && this.accountPassword.equals("")) {
-                    throw new ConfigException(
-                            "cannot load hsm inner key, please config the password");
-                }
+        Map<String, Object> cryptoMaterial = configProperty.getCryptoMaterial();
+        String cryptoType = SSM;
+        if (cryptoMaterial != null) {
+            cryptoType = ConfigProperty.getValue(cryptoMaterial, "cryptoProvider", SSM);
+        }
+        if (cryptoType.equalsIgnoreCase(HSM)) {
+            if (accountKeyIndex == null) {
+                throw new ConfigException(
+                        "load account failed, you are using hardware secure moduele(HSM), please config accountKeyIndex.");
             }
+            return;
         }
         if (this.accountAddress.equals("")) {
             return;

@@ -47,7 +47,7 @@ public class ContractLoader {
     private Map<String, String> contractAbiMap = new HashMap<>();
 
     /**
-     * create ContractLoader, which load abi & binary files from configured file path
+     * create ContractLoader, which load abi and binary files from configured file path
      *
      * @param abiFilePath abi files path which are compiled by solc from solidity files. Don't
      *     support recursive directories.

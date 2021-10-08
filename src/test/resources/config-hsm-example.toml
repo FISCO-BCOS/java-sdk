@@ -16,10 +16,9 @@ certPath = "conf"                           # The certification path
 
 # enSslKey = "conf/gm/gmensdk.key"          # GM ssl cert file path
 # default load the GM SSL encryption privateKey from ${certPath}/gm/gmensdk.key
-
-[cryptoProvider]
-type = "hsm"                                # hsm: hard ware crypto device, by default sm algorithms use sdf standard, others use pkcs11 stantdard
-                                            # server: crypto server
+cryptoProvider = "hsm"
+sslKeyIndex = "53"
+enSslKeyIndex = "54"
 
 [network]
 peers=["127.0.0.1:20200", "127.0.0.1:20201"]    # The peer list to connect
@@ -51,7 +50,7 @@ peers=["127.0.0.1:20200", "127.0.0.1:20201"]    # The peer list to connect
 # The randomly generated account is stored in the path specified by the keyStoreDir
 
 # password = ""                 # The password used to load the account file
-accountKeyIndex = "2"           # If use hardware inner key, please config the key index and password
+accountKeyIndex = "53"           # If use hardware inner key, please config the key index and password
 password = "123456"               # If use hardware inner key, please config the key index and password
 
 [threadPool]

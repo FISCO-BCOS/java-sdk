@@ -47,7 +47,7 @@ public class SDFSM2Signature implements Signature {
             if (sdfKeyPair.isInternalKey()) {
                 signatureResult =
                         SDF.SignWithInternalKey(
-                                sdfKeyPair.getKeyIndex(),
+                                (sdfKeyPair.getKeyIndex() + 1) / 2,
                                 sdfKeyPair.getPassword(),
                                 AlgorithmType.SM2,
                                 hashResult.hash);
