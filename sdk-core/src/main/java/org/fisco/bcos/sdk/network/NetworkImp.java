@@ -15,6 +15,8 @@
 
 package org.fisco.bcos.sdk.network;
 
+import static org.fisco.bcos.sdk.model.CryptoProviderType.HSM;
+
 import io.netty.channel.ChannelHandlerContext;
 import java.io.File;
 import java.util.List;
@@ -104,10 +106,10 @@ public class NetworkImp implements Network {
         }
     }
 
-    private CheckCertExistenceResult checkCertExistence(boolean isSM) {
-
+    private CheckCertExistenceResult checkCertExistence(boolean isSM) throws NetworkException {
         CheckCertExistenceResult result = new CheckCertExistenceResult();
         result.setCheckPassed(true);
+
         String errorMessage = "";
         errorMessage = errorMessage + "Please make sure ";
         if (configOption.getCryptoMaterialConfig().getCaInputStream() == null) {
@@ -120,6 +122,7 @@ public class NetworkImp implements Network {
             errorMessage =
                     errorMessage + configOption.getCryptoMaterialConfig().getSdkCertPath() + " ";
         }
+
         if (configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream() == null) {
             result.setCheckPassed(false);
             errorMessage =
@@ -127,22 +130,27 @@ public class NetworkImp implements Network {
                             + configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()
                             + " ";
         }
+
         if (!isSM) {
             errorMessage = errorMessage + "exists!";
             result.setErrorMessage(errorMessage);
             return result;
         }
-        if (configOption.getCryptoMaterialConfig().getEnSSLCertInputStream() == null) {
-            errorMessage =
-                    errorMessage + configOption.getCryptoMaterialConfig().getEnSSLCertPath() + " ";
-            result.setCheckPassed(false);
-        }
-        if (configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyInputStream() == null) {
-            errorMessage =
-                    errorMessage
-                            + configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()
-                            + " ";
-            result.setCheckPassed(false);
+        if (!configOption.getCryptoMaterialConfig().getCryptoProvider().equalsIgnoreCase(HSM)) {
+            if (configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyInputStream() == null) {
+                errorMessage =
+                        errorMessage
+                                + configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath()
+                                + " ";
+                result.setCheckPassed(false);
+            }
+            if (configOption.getCryptoMaterialConfig().getEnSSLCertInputStream() == null) {
+                errorMessage =
+                        errorMessage
+                                + configOption.getCryptoMaterialConfig().getEnSSLCertPath()
+                                + " ";
+                result.setCheckPassed(false);
+            }
         }
         errorMessage = errorMessage + "exist!";
         result.setErrorMessage(errorMessage);
@@ -158,6 +166,7 @@ public class NetworkImp implements Network {
         try {
             try {
                 result = checkCertExistence(false);
+
                 if (result.isCheckPassed()) {
                     logger.debug("start connManager with ECDSA sslContext");
                     connManager.startConnect(configOption);
@@ -175,7 +184,7 @@ public class NetworkImp implements Network {
                 if (e.getErrorCode() == NetworkException.CONNECT_FAILED) {
                     String errorMessage = e.getMessage();
                     errorMessage +=
-                            "\n* If your blockchain is NON-SM, please provide the NON-SM certificates: "
+                            "\n* If your blockchain is NON-SM,please provide the NON-SM certificates: "
                                     + ecdsaCryptoInfo
                                     + ".\n";
                     errorMessage +=

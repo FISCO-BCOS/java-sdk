@@ -30,7 +30,7 @@ public interface TransactionEncoderInterface {
      *
      * @param rawTransaction data to be encoded
      * @param signature signature result
-     * @return encoded & signed transaction byte array
+     * @return encoded and signed transaction byte array
      */
     byte[] encode(RawTransaction rawTransaction, SignatureResult signature);
 
@@ -39,7 +39,7 @@ public interface TransactionEncoderInterface {
      *
      * @param rawTransaction data to be encoded
      * @param cryptoKeyPair keypair
-     * @return encoded & signed transaction byte array
+     * @return encoded and signed transaction byte array
      */
     byte[] encodeAndSignBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair);
 
@@ -48,7 +48,7 @@ public interface TransactionEncoderInterface {
      *
      * @param rawTransaction data to be encoded
      * @param cryptoKeyPair keypair
-     * @return encoded & signed transaction hexed String
+     * @return encoded and signed transaction hexed String
      */
     String encodeAndSign(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair);
 
@@ -57,7 +57,7 @@ public interface TransactionEncoderInterface {
      *
      * @param rawTransaction data to be encoded
      * @param cryptoKeyPair keypair
-     * @return encoded & hashed transaction byte array
+     * @return encoded and hashed transaction byte array
      */
     byte[] encodeAndHashBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair);
 }

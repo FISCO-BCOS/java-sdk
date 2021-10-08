@@ -1,3 +1,28 @@
+## v2.8.0
+(2021-07-27)
+Added:
+* Using Hardware Secure Module(HSM) to make cryptography operations.
+* Support use PCI crypto card or crypto machine to make SM2 SM3 calculation.
+* Support use HSM internal key to sign transaction.
+
+Update:
+* Update crypto dependency version of sdk-crypto module.
+* Support to read the certificate from the jar package.
+* The interface that sent the transaction returns the transaction hash.
+* Add VRF random number generation and random number verification interface.
+
+----
+添加:
+* 新增支持使用硬件加密模块进行密码计算。
+* 支持使用符合国密《GMT0018-2012密码设备应用接口规范》标准的PCI加密卡/加密机进行SM2，SM3运算。
+* 支持使用密码卡/密码机内部密钥进行交易签名。
+
+更新：
+* 更新sdk-crypto模块所使用的密码算法库版本。
+* 支持从jar包中读取证书。
+* 发送交易的接口返回交易哈希。
+* 添加VRF随机数生成和随机数验证接口。
+
 ## v2.7.2
 (2021-03-24)
 Please read documentation of Java SDK.
