@@ -103,8 +103,9 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse deployAndGetResponse(String abi, String signedData) {
         TransactionReceipt receipt = transactionPusher.push(signedData);
+        String code = client.getCode(receipt.getContractAddress()).getCode();
         try {
-            return transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
+            return transactionDecoder.decodeReceiptWithoutOutputValues(abi, receipt, code);
         } catch (TransactionException | IOException | ABICodecException e) {
             log.error("deploy exception: {}", e.getMessage());
             return new TransactionResponse(

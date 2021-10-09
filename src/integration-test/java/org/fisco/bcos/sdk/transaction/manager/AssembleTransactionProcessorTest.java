@@ -101,6 +101,8 @@ public class AssembleTransactionProcessorTest {
                 transactionProcessor.sendTransactionAndGetResponseByContractLoader(
                         "HelloWorld", helloWorldAddrss, "set", params);
         Assert.assertEquals("0x0", res.getTransactionReceipt().getStatus());
+        Assert.assertEquals("test", res.getInputObject().get(0));
+        // System.out.println(JsonUtils.toJson(res));
 
         // test call by contract loader
         CallResponse callResponse2 =
@@ -293,7 +295,6 @@ public class AssembleTransactionProcessorTest {
                                             abi,
                                             "getUint256",
                                             Lists.newArrayList());
-                            // System.out.println(JsonUtils.toJson(callResponse3));
                             Assert.assertEquals("Success", callResponse3.getReturnMessage());
                         } catch (TransactionBaseException | ABICodecException e) {
                             System.out.println(e.getMessage());
@@ -313,6 +314,7 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
+        // System.out.println(JsonUtils.toJson(response));
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             return;
         }
@@ -322,14 +324,14 @@ public class AssembleTransactionProcessorTest {
         String[] o = {"0x1", "0x2", "0x3"};
         List<String> a = Arrays.asList(o);
         paramsSetValues.add(a);
-        paramsSetValues.add("set values 字符串");
+        paramsSetValues.add("set values 字符");
         TransactionResponse transactionResponse =
                 transactionProcessor.sendTransactionAndGetResponse(
                         contractAddress, abi, "setValues", paramsSetValues);
         // System.out.println(JsonUtils.toJson(transactionResponse));
         Map<String, List<List<Object>>> eventsMap = transactionResponse.getEventResultMap();
         Assert.assertEquals(1, eventsMap.size());
-        Assert.assertEquals("set values 字符串", eventsMap.get("LogSetValues").get(0).get(2));
+        Assert.assertEquals("set values 字符", eventsMap.get("LogSetValues").get(0).get(2));
     }
 
     @Test
@@ -400,5 +402,32 @@ public class AssembleTransactionProcessorTest {
                 r -> {
                     Assert.assertEquals("0x0", response.getTransactionReceipt().getStatus());
                 });
+    }
+
+    @Test
+    public void test9ComplexIncrementInputParser() throws Exception {
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
+                        client, cryptoKeyPair, abiFile, binFile);
+        // deploy
+        List<Object> params = Lists.newArrayList();
+        params.add(1);
+        params.add("test2");
+        TransactionResponse response =
+                transactionProcessor.deployByContractLoader("ComplexSol", params);
+        Assert.assertEquals(2, response.getInputABIObject().size());
+        Assert.assertEquals("test2", response.getInputObject().get(1));
+        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
+            return;
+        }
+        String contractAddress = response.getContractAddress();
+        // increment v
+        TransactionResponse transactionResponse =
+                transactionProcessor.sendTransactionAndGetResponse(
+                        contractAddress,
+                        abi,
+                        "incrementUint256",
+                        Lists.newArrayList(BigInteger.valueOf(10)));
+        Assert.assertEquals(BigInteger.valueOf(10), transactionResponse.getInputObject().get(0));
     }
 }

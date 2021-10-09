@@ -111,6 +111,24 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     }
 
     @Override
+    public TransactionResponse decodeReceiptWithoutOutputValues(
+            String abi, TransactionReceipt transactionReceipt, String constructorCode)
+            throws TransactionException, IOException, ABICodecException {
+        TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
+        // parse the input
+        if (transactionReceipt.getInput() != null) {
+            Pair<List<Object>, List<ABIObject>> inputObject =
+                    abiCodec.decodeMethodInput(
+                            abi, transactionReceipt.getInput(), "constructor", constructorCode);
+            String inputValues = JsonUtils.toJson(inputObject.getLeft());
+            response.setInputData(inputValues);
+            response.setInputObject(inputObject.getLeft());
+            response.setInputABIObject(inputObject.getRight());
+        }
+        return response;
+    }
+
+    @Override
     public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt) {
         TransactionResponse response = new TransactionResponse();
         try {
