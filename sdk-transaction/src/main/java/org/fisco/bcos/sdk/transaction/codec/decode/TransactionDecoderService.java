@@ -116,7 +116,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
             throws TransactionException, IOException, ABICodecException {
         TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
         // parse the input
-        if (transactionReceipt.getInput() != null) {
+        if (transactionReceipt.getInput() != null && transactionReceipt.isStatusOK()) {
             Pair<List<Object>, List<ABIObject>> inputObject =
                     abiCodec.decodeMethodInput(
                             abi, transactionReceipt.getInput(), "constructor", constructorCode);

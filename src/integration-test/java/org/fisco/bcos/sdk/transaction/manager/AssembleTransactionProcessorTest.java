@@ -415,11 +415,11 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        Assert.assertEquals(2, response.getInputABIObject().size());
-        Assert.assertEquals("test2", response.getInputObject().get(1));
         if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
             return;
         }
+        Assert.assertEquals(2, response.getInputABIObject().size());
+        Assert.assertEquals("test2", response.getInputObject().get(1));
         String contractAddress = response.getContractAddress();
         // increment v
         TransactionResponse transactionResponse =

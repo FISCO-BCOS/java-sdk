@@ -21,7 +21,7 @@ public class RemoteSignCallbackMock implements RemoteSignCallbackInterface {
     }
 
     /**
-     * 签名结果回调的实现
+     * callback of sign transaction
      *
      * @param signatureStr 签名服务回调返回的签名结果串
      * @return *
@@ -29,7 +29,7 @@ public class RemoteSignCallbackMock implements RemoteSignCallbackInterface {
     @Override
     public int handleSignedTransaction(SignatureResult signatureStr) {
         System.out.println(System.currentTimeMillis() + " SignatureResult: " + signatureStr);
-        // 完成了交易签名后，将其发送出去
+        // after sign, send it
         TransactionReceipt tr =
                 assembleTransactionWithRemoteSignProcessor.signAndPush(
                         rawTransaction, signatureStr.convertToString());
