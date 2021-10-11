@@ -65,6 +65,8 @@ public class TransactionDecoderServiceTest {
             return;
         }
         String contractAddress = response.getContractAddress();
+        Assert.assertEquals(2, response.getInputObject().size());
+        // System.out.println(JsonUtils.toJson(response));
 
         // increment
         TransactionReceipt transactionReceipt =

@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.abi;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.wrapper.ABICodecJsonWrapper;
 import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
@@ -321,6 +322,36 @@ public class ABICodec {
         String inputWithPrefix = addHexPrefixToString(input);
         String methodId = inputWithPrefix.substring(0, 10);
         return decodeDataByMethodId(ABI, methodId, input.substring(10), false);
+    }
+
+    public Pair<List<Object>, List<ABIObject>> decodeMethodInput(
+            String ABI, String input, String methodName, String code) throws ABICodecException {
+        ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
+        List<ABIDefinition> methods;
+        ABICodecObject abiCodecObject = new ABICodecObject();
+        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
+        if (StringUtils.equals(methodName, "constructor")) {
+            String lastCode = StringUtils.substring(code, code.length() - 32, code.length());
+            String paramsInput = StringUtils.substringAfter(input, lastCode);
+            // remove methodId of input
+            return abiCodecObject.decodeJavaObjectAndOutputObject(
+                    abiObjectFactory.createInputObject(contractABIDefinition.getConstructor()),
+                    paramsInput);
+        } else {
+            methods = contractABIDefinition.getFunctions().get(methodName);
+        }
+        for (ABIDefinition abiDefinition : methods) {
+            ABIObject outputABIObject = abiObjectFactory.createInputObject(abiDefinition);
+            try {
+                return abiCodecObject.decodeJavaObjectAndOutputObject(
+                        outputABIObject, input.substring(10));
+            } catch (Exception e) {
+                logger.warn(" exception in decodeMethodInput : {}", e.getMessage());
+            }
+        }
+        String errorMsg = " cannot decode in decodeMethodInput with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ABICodecException(errorMsg);
     }
 
     public Pair<List<Object>, List<ABIObject>> decodeDataByMethodId(
