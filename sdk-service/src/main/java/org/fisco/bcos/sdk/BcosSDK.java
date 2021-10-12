@@ -74,11 +74,15 @@ public class BcosSDK {
     }
 
     private boolean updateEndPointToClient(Client client) {
+        // TODO:
+        /*
         if (this.endPointToClient.containsKey(client.getConnection().getEndPoint()) == false) {
             endPointToClient.put(client.getConnection().getEndPoint(), client);
             return true;
         }
         return false;
+        */
+        return true;
     }
 
     public Enumeration<String> getAllConnections() {

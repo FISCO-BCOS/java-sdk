@@ -15,7 +15,6 @@ package org.fisco.bcos.sdk.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
@@ -33,7 +32,6 @@ import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.network.Connection;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +45,9 @@ public class ClientImpl implements Client {
     private final Boolean smCrypto;
     private final CryptoSuite cryptoSuite;
     private final NodeInfoResponse nodeInfoResponse;
-    private final Connection connection;
     private long blockNumber;
 
-    protected ClientImpl(Connection connection, ConfigOption configOption) {
-        this.connection = connection;
+    protected ClientImpl(ConfigOption configOption) {
         // get node info by call getNodeInfo
         this.nodeInfoResponse =
                 this.callRemoteMethod(
@@ -63,10 +59,10 @@ public class ClientImpl implements Client {
         this.smCrypto = this.nodeInfoResponse.getNodeInfo().getSmCrypto();
         if (configOption.getCryptoMaterialConfig().getUseSmCrypto()) {
             this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
-            logger.info("create client for {}, sm_type: {}", connection.getEndPoint(), true);
+            logger.info("create client for sm_type: {}", true);
         } else {
             this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
-            logger.info("create client for {}, sm_type: {}", connection.getEndPoint(), false);
+            logger.info("create client for sm_type: {}", false);
         }
 
         this.blockNumber = this.getBlockNumber().getBlockNumber().longValue();
@@ -78,14 +74,8 @@ public class ClientImpl implements Client {
         this.chainId = null;
         this.cryptoSuite = null;
         this.nodeInfoResponse = null;
-        this.connection = null;
         this.wasm = false;
         this.smCrypto = null;
-    }
-
-    @Override
-    public Connection getConnection() {
-        return this.connection;
     }
 
     @Override
@@ -332,11 +322,15 @@ public class ClientImpl implements Client {
 
     @Override
     public BigInteger getBlockLimit() {
+        // TODO:
+        /*
         long blk = connection.getBlockNumber();
         if (blk == 0) {
             blk = blockNumber;
         }
         return BigInteger.valueOf(blk).add(BigInteger.valueOf(500));
+        */
+        return BigInteger.ZERO;
     }
 
     @Override
@@ -470,12 +464,15 @@ public class ClientImpl implements Client {
             JsonRpcRequest request, Class<T> responseType) {
 
         Response response = null;
+        // TODO:
+        /*
         try {
             response = this.connection.callMethod(this.objectMapper.writeValueAsString(request));
         } catch (IOException e) {
             logger.warn("callRemoteMethod failed, " + e.getMessage());
             throw new ClientException("RPC call failed" + e.getMessage());
         }
+        */
         if (response == null) {
             throw new ClientException("RPC call failed, please try again");
         }
@@ -509,9 +506,12 @@ public class ClientImpl implements Client {
             ResponseCallback responseCallback =
                     createResponseCallback(request, responseType, callback);
             responseCallback.setTimeoutValue(timeoutValue);
+            // TODO:
+            /*
             this.connection.asyncCallMethod(
                     this.objectMapper.writeValueAsString(request), responseCallback);
-        } catch (IOException e) {
+            */
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -521,9 +521,12 @@ public class ClientImpl implements Client {
         try {
             ResponseCallback responseCallback =
                     createResponseCallback(request, responseType, callback);
+            // TODO:
+            /*
             this.connection.asyncCallMethod(
                     this.objectMapper.writeValueAsString(request), responseCallback);
-        } catch (IOException e) {
+            */
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
