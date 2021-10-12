@@ -150,6 +150,7 @@ sourceSets {
             srcDir "sdk-core/src/main/java"
             srcDir "sdk-crypto/src/main/java"
             srcDir "sdk-codec/src/main/java"
+            srcDir "sdk-amop/src/main/java"
             srcDir "sdk-service/src/main/java"
             srcDir "sdk-transaction/src/main/java"
             srcDir "sdk-codegen/src/main/java"
@@ -180,6 +181,9 @@ googleJavaFormat {
     include '**/*.java'
 }
 dependencies {
+
+    api("org.fisco-bcos:java-sdk-jni:3.0.0-SNAPSHOT")
+
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("io.netty:netty-all:${nettyVersion}")

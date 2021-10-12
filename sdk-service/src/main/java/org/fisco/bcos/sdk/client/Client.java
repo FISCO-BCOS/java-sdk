@@ -85,7 +85,7 @@ public interface Client {
      *
      * @return the groupId
      */
-    String getGroupId();
+    String getGroup();
 
     /**
      * get groupId of the client

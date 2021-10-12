@@ -33,13 +33,13 @@ public class TransactionProcessorFactory {
 
         // get chainId
         String chainId = client.getChainId();
-        // get groupId
-        String groupId = client.getGroupId();
+        // get group
+        String group = client.getGroup();
         logger.debug(
                 "createTransactionManager for >=rc2 node, chainId: {}, groupId: {}",
                 chainId,
-                groupId);
-        return Pair.of(chainId, groupId);
+                group);
+        return Pair.of(chainId, group);
     }
 
     public static TransactionProcessor createTransactionProcessor(

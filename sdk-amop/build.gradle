@@ -3,15 +3,10 @@ plugins {
     id 'java'
 }
 dependencies {
-    implementation project(':sdk-amop')
-    implementation project(':sdk-codec')
-    implementation project(':sdk-core')
+     project(':sdk-core')
     implementation project(':sdk-crypto')
-    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
-    api("io.netty:netty-all:${nettyVersion}")
-    api("com.tencent.tars:tars-core:1.7.2")
+    implementation ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
 }
-
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
     archiveClassifier = 'sources'
@@ -74,5 +69,4 @@ publishing {
     signing {
         sign publishing.publications.mavenJava
     }
-}
-*/
+}*/

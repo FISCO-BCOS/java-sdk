@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class ClientImpl implements Client {
     protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(ClientImpl.class);
-    private final String groupId;
+    private final String group;
     private final String chainId;
     private final Boolean wasm;
     private final Boolean smCrypto;
@@ -58,7 +58,7 @@ public class ClientImpl implements Client {
                         new JsonRpcRequest(JsonRpcMethods.GET_NODE_INFO, Arrays.asList()),
                         NodeInfoResponse.class);
         this.chainId = this.nodeInfoResponse.getNodeInfo().getChainId();
-        this.groupId = this.nodeInfoResponse.getNodeInfo().getGroupId();
+        this.group = this.nodeInfoResponse.getNodeInfo().getGroupId();
         this.wasm = this.nodeInfoResponse.getNodeInfo().getWasm();
         this.smCrypto = this.nodeInfoResponse.getNodeInfo().getSmCrypto();
         if (configOption.getCryptoMaterialConfig().getUseSmCrypto()) {
@@ -73,8 +73,8 @@ public class ClientImpl implements Client {
         logger.info("ClientImpl blockNumber: {}", this.blockNumber);
     }
 
-    protected ClientImpl(Connection connection) {
-        this.groupId = null;
+    protected ClientImpl() {
+        this.group = null;
         this.chainId = null;
         this.cryptoSuite = null;
         this.nodeInfoResponse = null;
@@ -104,8 +104,8 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public String getGroupId() {
-        return this.groupId;
+    public String getGroup() {
+        return this.group;
     }
 
     @Override
@@ -538,7 +538,7 @@ public class ClientImpl implements Client {
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: "
                                 + request.getMethod()
                                 + " ,group: "
-                                + this.groupId
+                                + this.group
                                 + ",retErrorMessage: "
                                 + response.getErrorMessage());
             }
@@ -549,7 +549,7 @@ public class ClientImpl implements Client {
                 logger.error(
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {},  retErrorMessage: {}, retErrorCode: {}",
                         request.getMethod(),
-                        this.groupId,
+                        this.group,
                         jsonRpcResponse.getError().getMessage(),
                         jsonRpcResponse.getError().getCode());
                 throw new ClientException(
@@ -558,7 +558,7 @@ public class ClientImpl implements Client {
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: "
                                 + request.getMethod()
                                 + " ,group: "
-                                + this.groupId
+                                + this.group
                                 + ",retErrorMessage: "
                                 + jsonRpcResponse.getError().getMessage());
             }
@@ -567,7 +567,7 @@ public class ClientImpl implements Client {
             logger.error(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}, groupId: {}",
                     e.getMessage(),
-                    this.groupId);
+                    this.group);
             throw new ClientException(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exceptioned, error message:"
                             + e.getMessage(),
