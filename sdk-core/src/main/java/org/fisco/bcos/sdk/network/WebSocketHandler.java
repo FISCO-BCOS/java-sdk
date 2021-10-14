@@ -127,6 +127,14 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
             ch.close();
             this.msgHandler.onDisconnect(ctx);
             return;
+        } else if (frame instanceof PingWebSocketFrame) {
+            frame.content().retain();
+            ch.writeAndFlush(new PongWebSocketFrame(frame.content()));
+            logger.info("WebSocket Client received ping frame, endpoint:{}", ch.remoteAddress());
+            return;
+        } else if (frame instanceof PongWebSocketFrame) {
+            logger.info("WebSocket Client received pong frame, endpoint:{}", ch.remoteAddress());
+            return;
         } else {
             logger.warn("WebSocket received unknown frame: {}", frame);
             ch.close();
