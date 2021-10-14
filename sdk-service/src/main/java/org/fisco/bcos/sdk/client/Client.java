@@ -22,9 +22,7 @@ import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.network.Connection;
 import org.fisco.bcos.sdk.network.NetworkException;
-import org.fisco.bcos.sdk.network.WebSocketConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,23 +37,12 @@ public interface Client {
     /**
      * Build a client instance GroupId is identified, all interfaces are available
      *
-     * @param endpoint the connection info
+     * @param groupID the group info
      * @return a client instance
      */
-    static Client build(String endpoint, ConfigOption configOption) throws NetworkException {
-        WebSocketConnection connection = new WebSocketConnection(configOption, endpoint);
-        if (!connection.connect()) {
-            throw new NetworkException("try connect to " + endpoint + " failed");
-        }
-        return new ClientImpl(connection, configOption);
+    static Client build(String groupID, ConfigOption configOption) throws NetworkException {
+        return new ClientImpl(configOption);
     }
-
-    /**
-     * Get group manager serveice
-     *
-     * @return the instance of GroupManagerService
-     */
-    Connection getConnection();
 
     /**
      * Get CryptoSuite
@@ -85,7 +72,7 @@ public interface Client {
      *
      * @return the groupId
      */
-    String getGroupId();
+    String getGroup();
 
     /**
      * get groupId of the client

@@ -13,16 +13,18 @@
  *
  */
 
-package org.fisco.bcos.sdk.network;
+package org.fisco.bcos.sdk.amop.exception;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
-import org.fisco.bcos.sdk.model.Message;
+public class AmopException extends Exception {
+    public AmopException(String message) {
+        super(message);
+    }
 
-public class MessageEncoder extends MessageToByteEncoder<Message> {
-    @Override
-    protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
-        msg.encode(out);
+    public AmopException(Throwable cause) {
+        super(cause);
+    }
+
+    public AmopException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

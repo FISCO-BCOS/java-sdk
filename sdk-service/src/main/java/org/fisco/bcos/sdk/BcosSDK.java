@@ -74,11 +74,15 @@ public class BcosSDK {
     }
 
     private boolean updateEndPointToClient(Client client) {
+        // TODO:
+        /*
         if (this.endPointToClient.containsKey(client.getConnection().getEndPoint()) == false) {
             endPointToClient.put(client.getConnection().getEndPoint(), client);
             return true;
         }
         return false;
+        */
+        return true;
     }
 
     public Enumeration<String> getAllConnections() {
@@ -94,7 +98,7 @@ public class BcosSDK {
     public Client getClientByGroupID(String groupId) {
         for (String endPoint : this.endPointToClient.keySet()) {
             Client client = this.endPointToClient.get(endPoint);
-            if (client.getGroupId().equals(groupId)) {
+            if (client.getGroup().equals(groupId)) {
                 return client;
             }
         }

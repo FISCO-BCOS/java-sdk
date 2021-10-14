@@ -15,20 +15,8 @@
 
 package org.fisco.bcos.sdk.client.handler;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.AttributeKey;
-import java.util.function.Consumer;
-import org.fisco.bcos.sdk.channel.ChannelVersionNegotiation;
-import org.fisco.bcos.sdk.channel.model.ChannelProtocol;
-import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
-import org.fisco.bcos.sdk.channel.model.EnumSocketChannelAttributeKey;
-import org.fisco.bcos.sdk.model.AmopMsg;
-import org.fisco.bcos.sdk.model.Message;
-import org.fisco.bcos.sdk.model.MsgType;
-import org.fisco.bcos.sdk.network.MsgHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+// TODO:
+/*
 public class BlockNumberNotifyHandler implements MsgHandler {
     private static Logger logger = LoggerFactory.getLogger(BlockNumberNotifyHandler.class);
     private final OnReceiveBlockNotifyFunc blockNumberUpdater;
@@ -98,3 +86,4 @@ public class BlockNumberNotifyHandler implements MsgHandler {
         logger.debug("onDisconnect, endpoint: {}", peerIpAndPort);
     }
 }
+*/

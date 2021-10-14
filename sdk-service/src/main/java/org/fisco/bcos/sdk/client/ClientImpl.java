@@ -15,7 +15,6 @@ package org.fisco.bcos.sdk.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
@@ -33,7 +32,6 @@ import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.network.Connection;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,51 +39,43 @@ import org.slf4j.LoggerFactory;
 public class ClientImpl implements Client {
     protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(ClientImpl.class);
-    private final String groupId;
+    private final String group;
     private final String chainId;
     private final Boolean wasm;
     private final Boolean smCrypto;
     private final CryptoSuite cryptoSuite;
     private final NodeInfoResponse nodeInfoResponse;
-    private final Connection connection;
     private long blockNumber;
 
-    protected ClientImpl(Connection connection, ConfigOption configOption) {
-        this.connection = connection;
+    protected ClientImpl(ConfigOption configOption) {
         // get node info by call getNodeInfo
         this.nodeInfoResponse =
                 this.callRemoteMethod(
                         new JsonRpcRequest(JsonRpcMethods.GET_NODE_INFO, Arrays.asList()),
                         NodeInfoResponse.class);
         this.chainId = this.nodeInfoResponse.getNodeInfo().getChainId();
-        this.groupId = this.nodeInfoResponse.getNodeInfo().getGroupId();
+        this.group = this.nodeInfoResponse.getNodeInfo().getGroupId();
         this.wasm = this.nodeInfoResponse.getNodeInfo().getWasm();
         this.smCrypto = this.nodeInfoResponse.getNodeInfo().getSmCrypto();
         if (configOption.getCryptoMaterialConfig().getUseSmCrypto()) {
             this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
-            logger.info("create client for {}, sm_type: {}", connection.getEndPoint(), true);
+            logger.info("create client for sm_type: {}", true);
         } else {
             this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
-            logger.info("create client for {}, sm_type: {}", connection.getEndPoint(), false);
+            logger.info("create client for sm_type: {}", false);
         }
 
         this.blockNumber = this.getBlockNumber().getBlockNumber().longValue();
         logger.info("ClientImpl blockNumber: {}", this.blockNumber);
     }
 
-    protected ClientImpl(Connection connection) {
-        this.groupId = null;
+    protected ClientImpl() {
+        this.group = null;
         this.chainId = null;
         this.cryptoSuite = null;
         this.nodeInfoResponse = null;
-        this.connection = null;
         this.wasm = false;
         this.smCrypto = null;
-    }
-
-    @Override
-    public Connection getConnection() {
-        return this.connection;
     }
 
     @Override
@@ -104,8 +94,8 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public String getGroupId() {
-        return this.groupId;
+    public String getGroup() {
+        return this.group;
     }
 
     @Override
@@ -332,11 +322,15 @@ public class ClientImpl implements Client {
 
     @Override
     public BigInteger getBlockLimit() {
+        // TODO:
+        /*
         long blk = connection.getBlockNumber();
         if (blk == 0) {
             blk = blockNumber;
         }
         return BigInteger.valueOf(blk).add(BigInteger.valueOf(500));
+        */
+        return BigInteger.ZERO;
     }
 
     @Override
@@ -470,12 +464,15 @@ public class ClientImpl implements Client {
             JsonRpcRequest request, Class<T> responseType) {
 
         Response response = null;
+        // TODO:
+        /*
         try {
             response = this.connection.callMethod(this.objectMapper.writeValueAsString(request));
         } catch (IOException e) {
             logger.warn("callRemoteMethod failed, " + e.getMessage());
             throw new ClientException("RPC call failed" + e.getMessage());
         }
+        */
         if (response == null) {
             throw new ClientException("RPC call failed, please try again");
         }
@@ -509,9 +506,12 @@ public class ClientImpl implements Client {
             ResponseCallback responseCallback =
                     createResponseCallback(request, responseType, callback);
             responseCallback.setTimeoutValue(timeoutValue);
+            // TODO:
+            /*
             this.connection.asyncCallMethod(
                     this.objectMapper.writeValueAsString(request), responseCallback);
-        } catch (IOException e) {
+            */
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -521,9 +521,12 @@ public class ClientImpl implements Client {
         try {
             ResponseCallback responseCallback =
                     createResponseCallback(request, responseType, callback);
+            // TODO:
+            /*
             this.connection.asyncCallMethod(
                     this.objectMapper.writeValueAsString(request), responseCallback);
-        } catch (IOException e) {
+            */
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -538,7 +541,7 @@ public class ClientImpl implements Client {
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: "
                                 + request.getMethod()
                                 + " ,group: "
-                                + this.groupId
+                                + this.group
                                 + ",retErrorMessage: "
                                 + response.getErrorMessage());
             }
@@ -549,7 +552,7 @@ public class ClientImpl implements Client {
                 logger.error(
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {},  retErrorMessage: {}, retErrorCode: {}",
                         request.getMethod(),
-                        this.groupId,
+                        this.group,
                         jsonRpcResponse.getError().getMessage(),
                         jsonRpcResponse.getError().getCode());
                 throw new ClientException(
@@ -558,7 +561,7 @@ public class ClientImpl implements Client {
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: "
                                 + request.getMethod()
                                 + " ,group: "
-                                + this.groupId
+                                + this.group
                                 + ",retErrorMessage: "
                                 + jsonRpcResponse.getError().getMessage());
             }
@@ -567,7 +570,7 @@ public class ClientImpl implements Client {
             logger.error(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}, groupId: {}",
                     e.getMessage(),
-                    this.groupId);
+                    this.group);
             throw new ClientException(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exceptioned, error message:"
                             + e.getMessage(),

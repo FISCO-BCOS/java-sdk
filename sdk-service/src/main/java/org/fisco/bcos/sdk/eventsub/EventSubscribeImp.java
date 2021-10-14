@@ -13,19 +13,29 @@
  *
  */
 
-package org.fisco.bcos.sdk.network;
+package org.fisco.bcos.sdk.eventsub;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
-import java.util.List;
-import org.fisco.bcos.sdk.model.Message;
+import java.util.Set;
 
-public class MessageDecoder extends ByteToMessageDecoder {
+public class EventSubscribeImp implements EventSubscribe {
+    public EventSubscribeImp(String group) {}
+
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)
-            throws Exception {
-        Message msg = new Message(in);
-        out.add(msg);
+    public String subscribeEvent(EventLogParams params, EventCallback callback) {
+        return "";
     }
+
+    @Override
+    public void unsubscribeEvent(String registerID, EventCallback callback) {}
+
+    @Override
+    public Set<String> getAllSubscribedEvents() {
+        return null;
+    }
+
+    @Override
+    public void start() {}
+
+    @Override
+    public void stop() {}
 }
