@@ -15,7 +15,7 @@
 package org.fisco.bcos.sdk.transaction.builder;
 
 import java.math.BigInteger;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
+import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 
 /**
  * TransactionBuilderInterface @Description: TransactionBuilderInterface

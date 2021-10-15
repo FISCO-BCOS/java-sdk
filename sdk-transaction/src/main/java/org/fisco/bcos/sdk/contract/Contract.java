@@ -27,7 +27,6 @@ import org.fisco.bcos.sdk.codec.FunctionEncoderInterface;
 import org.fisco.bcos.sdk.codec.FunctionReturnDecoderInterface;
 import org.fisco.bcos.sdk.codec.abi.*;
 import org.fisco.bcos.sdk.codec.datatypes.*;
-import org.fisco.bcos.sdk.contract.precompiled.wasm.DeployWasmService;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.RetCode;
@@ -184,17 +183,8 @@ public class Contract {
         }
 
         TransactionReceipt transactionReceipt;
-        if (contract.client.isWASM()) {
-            DeployWasmService deployWasmService =
-                    new DeployWasmService(contract.client, contract.credential);
-            RetCode retCode =
-                    deployWasmService.deployWasm(
-                            outputStream.toByteArray(), encodedConstructor, path, ABI);
-            transactionReceipt = retCode.getTransactionReceipt();
-        } else {
-            transactionReceipt =
-                    contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
-        }
+        // FIXME: add deploy wasm logic
+        transactionReceipt = contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
 
         try {
             if (encodedConstructor != null) {
@@ -391,7 +381,7 @@ public class Contract {
 
     protected List<EventValues> extractEventParameters(
             Event event, TransactionReceipt transactionReceipt) {
-        return transactionReceipt.getLogs().stream()
+        return transactionReceipt.getLogEntries().stream()
                 .map(log -> this.extractEventParameters(event, log))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -405,7 +395,7 @@ public class Contract {
 
     protected List<EventValuesWithLog> extractEventParametersWithLog(
             Event event, TransactionReceipt transactionReceipt) {
-        return transactionReceipt.getLogs().stream()
+        return transactionReceipt.getLogEntries().stream()
                 .map(log -> this.extractEventParametersWithLog(event, log))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());

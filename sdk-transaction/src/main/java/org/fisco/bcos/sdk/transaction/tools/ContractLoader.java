@@ -54,7 +54,7 @@ public class ContractLoader {
      * @param binaryFilePath binary files path which are compiled by solc from solidity files. Don't
      *     support recursive directories
      */
-    public ContractLoader(String abiFilePath, String binaryFilePath) throws Exception {
+    public ContractLoader(String abiFilePath, String binaryFilePath) throws IOException {
         this.binInfo(binaryFilePath);
         this.abiInfo(abiFilePath);
     }
@@ -175,7 +175,7 @@ public class ContractLoader {
      *     contract.
      * @return BinInfo, cached binary map.
      */
-    public AbiInfo abiInfo(String abiFilePath) throws Exception {
+    public AbiInfo abiInfo(String abiFilePath) throws IOException {
         String[] s = {"abi"};
         Collection<File> fileCollection = FileUtils.listFiles(new File(abiFilePath), s, false);
         for (File file : fileCollection) {

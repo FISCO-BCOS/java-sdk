@@ -16,8 +16,8 @@ package org.fisco.bcos.sdk.transaction.codec.encode;
 
 import com.qq.tars.protocol.tars.TarsOutputStream;
 import java.util.Base64;
-import org.fisco.bcos.sdk.client.protocol.model.Transaction;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
+import org.fisco.bcos.sdk.client.protocol.model.tars.Transaction;
+import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.Signature;

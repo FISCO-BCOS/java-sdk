@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.model;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import org.fisco.bcos.sdk.utils.Numeric;
 
 public class TransactionReceiptStatus {
     public static final RetCode Success = new RetCode(0, "Success");
@@ -72,11 +71,10 @@ public class TransactionReceiptStatus {
         }
     }
 
-    public static RetCode getStatusMessage(String status, String message) {
-        int statusCode = Numeric.decodeQuantity(status).intValue();
-        if (codeToRetCode.containsKey(statusCode)) {
-            return codeToRetCode.get(statusCode);
+    public static RetCode getStatusMessage(Integer status, String message) {
+        if (codeToRetCode.containsKey(status)) {
+            return codeToRetCode.get(status);
         }
-        return new RetCode(statusCode, message);
+        return new RetCode(status, message);
     }
 }

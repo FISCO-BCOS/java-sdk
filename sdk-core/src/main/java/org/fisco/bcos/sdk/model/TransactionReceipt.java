@@ -14,21 +14,26 @@
  */
 package org.fisco.bcos.sdk.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
 
 public class TransactionReceipt {
-    private String transactionHash;
     private String version;
+    private String contractAddress;
+    private String gasUsed;
+    private Integer status;
     private String blockNumber;
+    private String output;
+    private String transactionHash;
+
+    @JsonProperty("hash")
+    private String receiptHash;
+
+    private List<Logs> logEntries;
+    private String input;
     private String from;
     private String to;
-    private String gasUsed;
-    private String contractAddress;
-    private List<Logs> logEntries;
-    private Integer status;
-    private String input;
-    private String output;
     private List<MerkleProofUnit> transactionProof;
     private List<MerkleProofUnit> receiptProof;
     private String message;
@@ -38,9 +43,15 @@ public class TransactionReceipt {
     }
 
     public static class Logs {
+        @JsonProperty("address")
         private String address;
+
+        @JsonProperty("topic")
         private List<String> topics;
+
+        @JsonProperty("data")
         private String data;
+
         private String blockNumber;
 
         public String getAddress() {
@@ -130,12 +141,20 @@ public class TransactionReceipt {
         this.transactionHash = transactionHash;
     }
 
-    public String getTransactionIndex() {
-        return this.version;
+    public String getVersion() {
+        return version;
     }
 
-    public void setTransactionIndex(String transactionIndex) {
-        this.version = this.version;
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getReceiptHash() {
+        return receiptHash;
+    }
+
+    public void setReceiptHash(String receiptHash) {
+        this.receiptHash = receiptHash;
     }
 
     public String getBlockNumber() {
@@ -178,12 +197,12 @@ public class TransactionReceipt {
         this.contractAddress = contractAddress;
     }
 
-    public List<Logs> getLogs() {
-        return this.logEntries;
+    public void setLogEntries(List<Logs> logEntries) {
+        this.logEntries = logEntries;
     }
 
-    public void setLogs(List<Logs> logs) {
-        this.logEntries = logs;
+    public List<Logs> getLogEntries() {
+        return this.logEntries;
     }
 
     public Integer getStatus() {

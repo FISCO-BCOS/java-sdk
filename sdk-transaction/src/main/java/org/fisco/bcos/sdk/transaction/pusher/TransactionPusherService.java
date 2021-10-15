@@ -58,9 +58,7 @@ public class TransactionPusherService implements TransactionPusherInterface {
 
     @Override
     public CompletableFuture<TransactionReceipt> pushAsync(String signedTransaction) {
-        CompletableFuture<TransactionReceipt> future =
-                CompletableFuture.supplyAsync(() -> this.push(signedTransaction));
-        return future;
+        return CompletableFuture.supplyAsync(() -> this.push(signedTransaction));
     }
 
     /** @return the client */

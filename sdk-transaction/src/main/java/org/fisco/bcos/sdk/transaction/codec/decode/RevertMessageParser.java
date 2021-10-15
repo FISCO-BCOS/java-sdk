@@ -73,12 +73,12 @@ public class RevertMessageParser {
      * @param output the output of the receipt
      * @return true/false
      */
-    public static boolean hasRevertMessage(String status, String output) {
-        if (StringUtils.isEmpty(status) || StringUtils.isEmpty(output)) {
+    public static boolean hasRevertMessage(Integer status, String output) {
+        if (StringUtils.isEmpty(output)) {
             return false;
         }
         try {
-            BigInteger statusQuantity = Numeric.decodeQuantity(status);
+            BigInteger statusQuantity = BigInteger.valueOf(status);
             return !BigInteger.ZERO.equals(statusQuantity) && isOutputStartWithRevertMethod(output);
         } catch (Exception e) {
             return false;
@@ -90,7 +90,7 @@ public class RevertMessageParser {
      * @param output the output of the transaction receipt
      * @return the resolved revert message information
      */
-    public static Tuple2<Boolean, String> tryResolveRevertMessage(String status, String output) {
+    public static Tuple2<Boolean, String> tryResolveRevertMessage(Integer status, String output) {
         if (!hasRevertMessage(status, output)) {
             return new Tuple2<>(false, null);
         }
@@ -100,7 +100,6 @@ public class RevertMessageParser {
                     Numeric.containsHexPrefix(output)
                             ? output.substring(RevertMethodWithHexPrefix.length())
                             : output.substring(RevertMethod.length());
-            // I AM LAZY!
             FunctionReturnDecoder functionReturnDecoder = new FunctionReturnDecoder();
             List<Type> result =
                     functionReturnDecoder.decode(rawOutput, revertFunction.getOutputParameters());
@@ -125,6 +124,6 @@ public class RevertMessageParser {
      * @return the resolved revert message information
      */
     public static Tuple2<Boolean, String> tryResolveRevertMessage(TransactionReceipt receipt) {
-        return tryResolveRevertMessage(receipt.getStatus().toString(), receipt.getOutput());
+        return tryResolveRevertMessage(receipt.getStatus(), receipt.getOutput());
     }
 }

@@ -3,7 +3,7 @@
 // TARS version 1.7.2.
 // **********************************************************************
 
-package org.fisco.bcos.sdk.client.protocol.model;
+package org.fisco.bcos.sdk.client.protocol.model.tars;
 
 import com.qq.tars.protocol.tars.TarsInputStream;
 import com.qq.tars.protocol.tars.TarsOutputStream;

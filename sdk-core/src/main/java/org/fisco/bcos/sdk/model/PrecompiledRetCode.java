@@ -20,6 +20,7 @@ import java.util.Map;
 
 public class PrecompiledRetCode {
     // FileSystemPrecompiled -53099 ~ -53000
+    public static final RetCode CODE_FILE_INVALID_PATH = new RetCode(-53005, "Invalid path");
     public static final RetCode CODE_FILE_SET_WASM_FAILED =
             new RetCode(-53004, "Deploy WASM contract failed");
     public static final RetCode CODE_FILE_BUILD_DIR_FAILED =
@@ -89,8 +90,10 @@ public class PrecompiledRetCode {
             new RetCode(-51600, "Execute PaillierAdd failed");
 
     // CRUDPrecompiled -51599 ~ -51500
+    public static final RetCode CODE_UPDATE_KEY_NOT_EXIST =
+            new RetCode(-51507, "Key not exist in table, use insert method");
     public static final RetCode CODE_INSERT_KEY_EXIST =
-            new RetCode(-51506, "Don't update the table key");
+            new RetCode(-51506, "Don't insert the key already existed");
     public static final RetCode CODE_KEY_NOT_EXIST_IN_COND =
             new RetCode(-51505, "Add specific table key EQ syntax in condition");
     public static final RetCode CODE_KEY_NOT_EXIST_IN_ENTRY =
@@ -130,12 +133,16 @@ public class PrecompiledRetCode {
             new RetCode(-51003, "The contract doesn't exist");
     public static final RetCode CODE_TABLE_NAME_OVERFLOW =
             new RetCode(-51002, "The table name string length exceeds the maximum limit");
-    public static final RetCode CODE_TABLE_AND_ADDRESS_NOT_EXIST =
-            new RetCode(-51001, "The table name and address not exist");
-    public static final RetCode CODE_TABLE_AND_ADDRESS_EXIST =
-            new RetCode(-51000, "The table name and address already exist");
+    public static final RetCode CODE_TABLE_AUTH_ROW_NOT_EXIST =
+            new RetCode(-51001, "The table auth not exist");
+    public static final RetCode CODE_TABLE_AGENT_ROW_NOT_EXIST =
+            new RetCode(-51000, "The table agent not exist");
 
     // Common error code among all precompiled contracts -50199 ~ -50100
+    public static final RetCode CODE_TABLE_OPEN_ERROR = new RetCode(-50105, "Open table error");
+    public static final RetCode CODE_TABLE_CREATE_ERROR = new RetCode(-50104, "Create table error");
+    public static final RetCode CODE_TABLE_SET_ROW_ERROR =
+            new RetCode(-50103, "Table set row error");
     public static final RetCode CODE_ADDRESS_INVALID =
             new RetCode(-50102, "Invalid address format");
     public static final RetCode CODE_UNKNOWN_FUNCTION_CALL =

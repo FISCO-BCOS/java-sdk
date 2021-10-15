@@ -7,12 +7,26 @@ env:
   CCACHE_DIR: ${{ github.workspace }}/ccache
 
 jobs:
-  build:
-    name: build
+  build-ubuntu18:
+    name: build-ubuntu18.04
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-16.04, macos-latest]
+        os: [ubuntu-18.04]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 5
+      - name: install Ubuntu dependencies
+        run: sudo apt-get update && sudo apt install -y git curl libssl-dev default-jdk build-essential
+      - name: run integration testing
+        run: /bin/bash .ci/ci_check.sh
+  build-macos:
+    name: build-macos
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -20,8 +34,19 @@ jobs:
       - name: install macOS dependencies
         if: runner.os == 'macOS'
         run: brew install openssl@1.1 openjdk
+      - name: run integration testing
+        run: /bin/bash .ci/ci_check.sh
+  build-ubuntu16:
+    name: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-16.04]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 5
       - name: install Ubuntu dependencies
-        if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt install -y git curl libssl-dev default-jdk build-essential
       - name: run integration testing
         run: /bin/bash .ci/ci_check.sh

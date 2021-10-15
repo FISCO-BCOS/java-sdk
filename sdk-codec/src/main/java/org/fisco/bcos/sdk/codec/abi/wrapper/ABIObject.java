@@ -250,7 +250,6 @@ public class ABIObject {
                         default:
                             return false;
                     }
-                    // break;
                 }
             case LIST:
                 {

@@ -14,7 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.encode;
 
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
+import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 
@@ -26,7 +26,7 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 public interface TransactionEncoderInterface {
 
     /**
-     * Rlp encode and sign based on TransactionData
+     * Tars encode and sign based on TransactionData
      *
      * @param rawTransaction data to be encoded
      * @param cryptoKeyPair keypair
@@ -35,7 +35,7 @@ public interface TransactionEncoderInterface {
     byte[] encodeAndSignBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);
 
     /**
-     * Rlp encode and sign based on TransactionData
+     * Tars encode and sign based on TransactionData
      *
      * @param rawTransaction data to be encoded
      * @param cryptoKeyPair keypair
@@ -44,7 +44,7 @@ public interface TransactionEncoderInterface {
     String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);
 
     /**
-     * Rlp encode and hash based on TransactionData
+     * Tars encode and hash based on TransactionData
      *
      * @param rawTransaction data to be encoded
      * @return encoded & hashed transaction byte array
@@ -52,7 +52,7 @@ public interface TransactionEncoderInterface {
     byte[] encodeAndHashBytes(TransactionData rawTransaction);
 
     /**
-     * Encode rawTransaction to Transaction bytes
+     * Tars encode rawTransaction to Transaction bytes
      *
      * @param rawTransaction
      * @param hash

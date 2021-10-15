@@ -12,7 +12,7 @@ public class TopicTools {
     public static final int MAX_NUM_TOPIC_EVENT_LOG = 4;
     public static final String LATEST = "latest";
 
-    private CryptoSuite cryptoSuite;
+    private final CryptoSuite cryptoSuite;
 
     public TopicTools(CryptoSuite cryptoSuite) {
         this.cryptoSuite = cryptoSuite;
@@ -39,13 +39,11 @@ public class TopicTools {
     }
 
     public byte[] stringToTopic(String s) {
-        byte[] hash = this.cryptoSuite.hash(s.getBytes());
-        return hash;
+        return this.cryptoSuite.hash(s.getBytes());
     }
 
     public byte[] bytesToTopic(byte[] b) {
-        byte[] hash = this.cryptoSuite.hash(b);
-        return hash;
+        return this.cryptoSuite.hash(b);
     }
 
     public byte[] byteNToTopic(byte[] b) {
