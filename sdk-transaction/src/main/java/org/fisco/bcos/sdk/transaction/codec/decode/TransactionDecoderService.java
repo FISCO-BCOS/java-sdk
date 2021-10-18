@@ -20,17 +20,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
+import org.fisco.bcos.sdk.codec.ABICodec;
+import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.codec.EventEncoder;
-import org.fisco.bcos.sdk.codec.abi.ABICodec;
-import org.fisco.bcos.sdk.codec.abi.ABICodecException;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABICodecObject;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIDefinition;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIDefinition.NamedType;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIDefinitionFactory;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIObject;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIObjectFactory;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.codec.datatypes.Type;
+import org.fisco.bcos.sdk.codec.wrapper.ABICodecObject;
+import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition.NamedType;
+import org.fisco.bcos.sdk.codec.wrapper.ABIDefinitionFactory;
+import org.fisco.bcos.sdk.codec.wrapper.ABIObject;
+import org.fisco.bcos.sdk.codec.wrapper.ABIObjectFactory;
+import org.fisco.bcos.sdk.codec.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -54,11 +54,12 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
      * create TransactionDecoderService
      *
      * @param cryptoSuite the cryptoSuite used to calculate hash and signatures
+     * @param isWasm whether the invoked contract is a Wasm contract
      */
-    public TransactionDecoderService(CryptoSuite cryptoSuite) {
+    public TransactionDecoderService(CryptoSuite cryptoSuite, boolean isWasm) {
         super();
         this.cryptoSuite = cryptoSuite;
-        this.abiCodec = new ABICodec(cryptoSuite);
+        this.abiCodec = new ABICodec(cryptoSuite, isWasm);
         this.eventEncoder = new EventEncoder(cryptoSuite);
     }
 
@@ -74,13 +75,10 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
         // only successful tx has return values.
         if (transactionReceipt.getStatus() == 0) {
-            Pair<List<Object>, List<ABIObject>> returnObject =
+            List<Type> results =
                     abiCodec.decodeMethodAndGetOutputObject(
                             abi, functionName, transactionReceipt.getOutput());
-            String values = JsonUtils.toJson(returnObject.getLeft());
-            response.setReturnObject(returnObject.getLeft());
-            response.setReturnABIObject(returnObject.getRight());
-            response.setValues(values);
+            response.setResults(results);
         }
         return response;
     }

@@ -27,6 +27,7 @@ import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderService;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +74,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
 
     @Override
     public Call executeCall(String from, String to, byte[] encodedFunction) {
+        log.info("encoded function: {}", Hex.toHexString(encodedFunction));
         return this.client.call(new Transaction(from, to, encodedFunction));
     }
 

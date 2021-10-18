@@ -17,7 +17,7 @@ package org.fisco.bcos.sdk.transaction.codec.decode;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import org.fisco.bcos.sdk.codec.abi.ABICodecException;
+import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;

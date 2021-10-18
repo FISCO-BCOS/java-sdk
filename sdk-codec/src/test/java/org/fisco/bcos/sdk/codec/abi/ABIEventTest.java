@@ -6,6 +6,7 @@ import java.util.List;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.junit.Assert;
 import org.junit.Test;
+import org.fisco.bcos.sdk.codec.*;
 
 public class ABIEventTest {
     private static final String abi =
@@ -15,7 +16,7 @@ public class ABIEventTest {
 
     @Test
     public void testDecode() {
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite());
+        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
         try {
             EventLog log = new EventLog(encoded, new ArrayList<>());
             List<Object> list = abiCodec.decodeEvent(abi, "LogSetValues", log);

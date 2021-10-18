@@ -15,8 +15,8 @@
 
 package org.fisco.bcos.sdk.codec.abi;
 
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIDefinitionFactory;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.codec.wrapper.ABIDefinitionFactory;
+import org.fisco.bcos.sdk.codec.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.CryptoType;
 

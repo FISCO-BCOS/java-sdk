@@ -1,19 +1,16 @@
-package org.fisco.bcos.sdk.codec.abi.wrapper;
+package org.fisco.bcos.sdk.codec.wrapper;
 
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIObject.ListType;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Uint256;
+import org.fisco.bcos.sdk.codec.wrapper.ABIObject.ListType;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,14 +40,12 @@ public class ABICodecObject {
                     abiObject.getType().toString());
         }
 
-        List<Object> list = new ArrayList<Object>();
+        List<Object> list = new ArrayList<>();
         if (value instanceof List) {
             list = (List<Object>) value;
         } else {
             Object[] objs = (Object[]) value;
-            for (Object obj : objs) {
-                list.add(obj);
-            }
+            Collections.addAll(list, objs);
         }
         if ((abiObject.getListType() == ListType.FIXED)
                 && (list.size() != abiObject.getListLength())) {
@@ -60,22 +55,22 @@ public class ABICodecObject {
                     String.valueOf(list.size()));
         }
 
-        for (int i = 0; i < list.size(); i++) {
+        for (Object obj : list) {
             ABIObject nodeObject = abiObject.getListValueType().newObject();
             switch (nodeObject.getType()) {
                 case VALUE:
                     {
-                        nodeObject = encodeValue(nodeObject, list.get(i));
+                        nodeObject = encodeValue(nodeObject, obj);
                         break;
                     }
                 case STRUCT:
                     {
-                        nodeObject = encodeStruct(nodeObject, list.get(i));
+                        nodeObject = encodeStruct(nodeObject, obj);
                         break;
                     }
                 case LIST:
                     {
-                        nodeObject = encodeList(nodeObject, list.get(i));
+                        nodeObject = encodeList(nodeObject, obj);
                         break;
                     }
                 default:

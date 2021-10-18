@@ -1,7 +1,8 @@
-package org.fisco.bcos.sdk.codec.abi;
+package org.fisco.bcos.sdk.codec;
 
-import org.fisco.bcos.sdk.codec.abi.wrapper.*;
+import org.fisco.bcos.sdk.codec.abi.TestUtils;
 import org.fisco.bcos.sdk.utils.Hex;
+import org.fisco.bcos.sdk.codec.wrapper.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -310,7 +311,7 @@ public class ABICodecTest {
         argsObjects.add(listParams);
         argsObjects.add("Hello world!");
 
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite());
+        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
         try {
             // Method
             // encode
@@ -350,7 +351,7 @@ public class ABICodecTest {
     @Test
     public void testEncodeFromStringWithInvalidParams() {
         List<String> args = new ArrayList<String>();
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite());
+        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
         try {
             abiCodec.encodeMethodFromString(this.abiDesc, "test", args);
             Assert.fail();
@@ -362,9 +363,9 @@ public class ABICodecTest {
     @Test
     public void testEncodeConsctructor() {
         List<String> args = new ArrayList<String>();
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite());
+        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
         try {
-            abiCodec.encodeConstructorFromString(this.abiDesc, "0xaaaaaaaa", args);
+            abiCodec.encodeConstructorFromString(this.abiDesc, "0xaaaaaaaa", args, null);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -374,9 +375,9 @@ public class ABICodecTest {
     public void testEncodeConsctructorWithInvalidParams() {
         List<String> args = new ArrayList<String>();
         args.add("invalid");
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite());
+        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
         try {
-            abiCodec.encodeConstructorFromString(this.abiDesc, "BIN", args);
+            abiCodec.encodeConstructorFromString(this.abiDesc, "BIN", args, null);
             Assert.fail();
         } catch (Exception e) {
             Assert.assertTrue(e instanceof ABICodecException);
@@ -385,7 +386,7 @@ public class ABICodecTest {
 
     @Test
     public void testEncodeByInterface() {
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite());
+        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
         List<Object> argsObjects = new ArrayList<Object>();
         List<BigInteger> b1 = new ArrayList<BigInteger>();
         b1.add(new BigInteger("100"));

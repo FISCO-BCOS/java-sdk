@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.codec.abi.wrapper;
+package org.fisco.bcos.sdk.codec.wrapper;
 
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;

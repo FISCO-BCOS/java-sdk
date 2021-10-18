@@ -18,7 +18,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
-import org.fisco.bcos.sdk.codec.abi.ABICodecException;
+import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
@@ -74,7 +74,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param params contract construct string parameters
      */
     public TransactionResponse deployAndGetResponseWithStringParams(
-            String abi, String bin, List<String> params) throws ABICodecException;
+            String abi, String bin, List<String> params, String path) throws ABICodecException;
 
     /**
      * deploy contract to fisco bcos node asynchronously.

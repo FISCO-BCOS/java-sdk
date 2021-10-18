@@ -37,7 +37,7 @@ public class TypeEncoder {
         byte[] byteArray = new byte[bitSize >> 3];
         BigInteger value = numericType.getValue();
         byte[] byteValue = value.toByteArray();
-        for (int i = 0; i < byteArray.length; ++i) {
+        for (int i = 0; i < byteValue.length; ++i) {
             byteArray[i] = byteValue[byteValue.length - i - 1];
         }
         writer.writeByteArray(byteArray);
