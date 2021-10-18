@@ -48,7 +48,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
 
     private CryptoSuite cryptoSuite;
     private final ABICodec abiCodec;
-    private EventEncoder eventEncoder;
+    private final EventEncoder eventEncoder;
 
     /**
      * create TransactionDecoderService
@@ -73,7 +73,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
             throws IOException, ABICodecException, TransactionException {
         TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
         // only successful tx has return values.
-        if (transactionReceipt.getStatus().equals("0x0")) {
+        if (transactionReceipt.getStatus() == 0) {
             Pair<List<Object>, List<ABIObject>> returnObject =
                     abiCodec.decodeMethodAndGetOutputObject(
                             abi, functionName, transactionReceipt.getOutput());
@@ -93,10 +93,10 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         response.setTransactionReceipt(transactionReceipt);
         response.setContractAddress(transactionReceipt.getContractAddress());
         // the exception transaction
-        if (!transactionReceipt.getStatus().equals("0x0")) {
+        if (transactionReceipt.getStatus() != 0) {
             return response;
         }
-        String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogs()));
+        String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogEntries()));
         response.setEvents(events);
         return response;
     }
@@ -117,7 +117,6 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         return response;
     }
 
-    @SuppressWarnings("static-access")
     @Override
     public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
             throws ABICodecException {
@@ -128,9 +127,8 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         eventsMap.forEach(
                 (name, events) -> {
                     for (ABIDefinition abiDefinition : events) {
-                        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
                         ABIObject outputObject =
-                                abiObjectFactory.createEventInputObject(abiDefinition);
+                                ABIObjectFactory.createEventInputObject(abiDefinition);
                         ABICodecObject abiCodecObject = new ABICodecObject();
                         for (Logs log : logs) {
                             String eventSignature =
@@ -161,10 +159,10 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         return result;
     }
 
-    private String decodeMethodSign(ABIDefinition ABIDefinition) {
-        List<NamedType> inputTypes = ABIDefinition.getInputs();
+    private String decodeMethodSign(ABIDefinition abiDefinition) {
+        List<NamedType> inputTypes = abiDefinition.getInputs();
         StringBuilder methodSign = new StringBuilder();
-        methodSign.append(ABIDefinition.getName());
+        methodSign.append(abiDefinition.getName());
         methodSign.append("(");
         String params =
                 inputTypes.stream().map(NamedType::getType).collect(Collectors.joining(","));

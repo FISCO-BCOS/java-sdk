@@ -40,10 +40,10 @@ public class ContractAbiUtil {
         List<ABIDefinition> result = new ArrayList<>();
         try {
             ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-            ABIDefinition[] ABIDefinitions =
+            ABIDefinition[] abiDefinitions =
                     objectMapper.readValue(contractAbi, ABIDefinition[].class);
 
-            for (ABIDefinition ABIDefinition : ABIDefinitions) {
+            for (ABIDefinition ABIDefinition : abiDefinitions) {
                 if (TYPE_FUNCTION.equals(ABIDefinition.getType())
                         || TYPE_CONSTRUCTOR.equals(ABIDefinition.getType())) {
                     result.add(ABIDefinition);

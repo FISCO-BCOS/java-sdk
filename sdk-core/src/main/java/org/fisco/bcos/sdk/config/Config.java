@@ -36,8 +36,7 @@ public class Config {
         File configFile = new File(tomlConfigFile);
         try {
             ConfigProperty configProperty = new Toml().read(configFile).to(ConfigProperty.class);
-            ConfigOption configOption = new ConfigOption(configProperty);
-            return configOption;
+            return new ConfigOption(configProperty);
         } catch (Exception e) {
             throw new ConfigException(
                     "parse Config " + tomlConfigFile + " failed, error info: " + e.getMessage(), e);

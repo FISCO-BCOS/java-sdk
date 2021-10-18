@@ -15,18 +15,16 @@ package org.fisco.bcos.sdk.client.protocol.request;
 
 public class JsonRpcMethods {
     /** define the method name for all jsonRPC interfaces */
-    // the interface related to the group
     public static final String GET_BLOCK_NUMBER = "getBlockNumber";
 
     public static final String GET_PBFT_VIEW = "getPbftView";
+    public static final String GET_CONSENSUS_STATUS = "getConsensusStatus";
     public static final String GET_SEALER_LIST = "getSealerList";
     public static final String GET_SYSTEM_CONFIG_BY_KEY = "getSystemConfigByKey";
     public static final String GET_OBSERVER_LIST = "getObserverList";
     public static final String GET_SYNC_STATUS = "getSyncStatus";
     public static final String GET_BLOCK_BY_HASH = "getBlockByHash";
-    public static final String GET_BLOCKHEADER_BY_HASH = "getBlockHeaderByHash";
     public static final String GET_BLOCK_BY_NUMBER = "getBlockByNumber";
-    public static final String GET_BLOCKHEADER_BY_NUMBER = "getBlockHeaderByNumber";
     public static final String GET_BLOCKHASH_BY_NUMBER = "getBlockHashByNumber";
     public static final String GET_TRANSACTION_BY_HASH = "getTransaction";
     public static final String GET_TRANSACTIONRECEIPT = "getTransactionReceipt";
@@ -39,6 +37,19 @@ public class JsonRpcMethods {
     // the interface related to the node
     public static final String GET_NODE_INFO = "getNodeInfo";
     public static final String GET_PEERS = "getPeers";
+
+    // the interface related to the group
+    public static final String CREATE_GROUP = "createGroup";
+    public static final String EXPAND_GROUP_NODE = "expandGroupNode";
+    public static final String REMOVE_GROUP = "removeGroup";
+    public static final String REMOVE_GROUP_NODE = "removeGroupNode";
+    public static final String RECOVER_GROUP = "recoverGroup";
+    public static final String RECOVER_GROUP_NODE = "recoverGroupNode";
+    public static final String START_NODE = "startNode";
+    public static final String STOP_NODE = "stopNode";
+    public static final String GET_GROUP_LIST = "getGroupList";
+    public static final String GET_GROUP_INFO = "getGroupInfo";
+    public static final String GET_GROUP_NODE_INFO = "getGroupNodeInfo";
 
     private JsonRpcMethods() {}
 }

@@ -268,28 +268,27 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         // calculate hash for the block or the block header
         public String calculateHash(CryptoSuite cryptoSuite) {
             try {
-                // TODO: use custom serializer and deserializer to implement BlockHeader
                 List<byte[]> sealerList = new ArrayList<>();
                 for (String sealer : this.sealerList) {
                     sealerList.add(Hex.decode(sealer));
                 }
-                List<org.fisco.bcos.sdk.client.protocol.model.Signature> signatureList =
+                List<org.fisco.bcos.sdk.client.protocol.model.tars.Signature> signatureList =
                         new ArrayList<>();
                 for (Signature signature : this.signatureList) {
                     signatureList.add(
-                            new org.fisco.bcos.sdk.client.protocol.model.Signature(
+                            new org.fisco.bcos.sdk.client.protocol.model.tars.Signature(
                                     signature.getIndex(), Hex.decode(signature.getSignature())));
                 }
-                List<org.fisco.bcos.sdk.client.protocol.model.ParentInfo> parentInfoList =
+                List<org.fisco.bcos.sdk.client.protocol.model.tars.ParentInfo> parentInfoList =
                         new ArrayList<>();
                 for (ParentInfo parentInfo : this.parentInfo) {
                     signatureList.add(
-                            new org.fisco.bcos.sdk.client.protocol.model.Signature(
+                            new org.fisco.bcos.sdk.client.protocol.model.tars.Signature(
                                     parentInfo.getBlockNumber(),
                                     Hex.decode(parentInfo.getBlockHash())));
                 }
-                org.fisco.bcos.sdk.client.protocol.model.BlockHeader blockHeader =
-                        new org.fisco.bcos.sdk.client.protocol.model.BlockHeader(
+                org.fisco.bcos.sdk.client.protocol.model.tars.BlockHeader blockHeader =
+                        new org.fisco.bcos.sdk.client.protocol.model.tars.BlockHeader(
                                 0,
                                 parentInfoList,
                                 Hex.decode(this.transactionsRoot),

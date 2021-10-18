@@ -78,26 +78,8 @@ public class ContractGenerator {
         byte[] wasmMagic = {0, 'a', 's', 'm'};
         boolean isWasm = Arrays.equals(prefix, wasmMagic);
         if (isWasm) {
-            ByteArrayOutputStream builder = new ByteArrayOutputStream();
-            for (int i = 0; i < binary.length; ++i) {
-                int singleByte = binary[i] & 0xff;
-                byte[] bytes = Integer.toHexString(singleByte).getBytes(StandardCharsets.UTF_8);
-                if (bytes.length == 1) {
-                    builder.write(Integer.toHexString((byte) 0).getBytes(StandardCharsets.UTF_8));
-                }
-                builder.write(bytes);
-            }
-            binary = builder.toByteArray();
-            builder.reset();
-            for (int i = 0; i < smBinary.length; ++i) {
-                int singleByte = smBinary[i] & 0xff;
-                byte[] bytes = Integer.toHexString(singleByte).getBytes(StandardCharsets.UTF_8);
-                if (bytes.length == 1) {
-                    builder.write(Integer.toHexString((byte) 0).getBytes(StandardCharsets.UTF_8));
-                }
-                builder.write(bytes);
-            }
-            smBinary = builder.toByteArray();
+            binary = calculateWasmBytes(binary);
+            smBinary = calculateWasmBytes(smBinary);
         }
         new ContractWrapper(isWasm)
                 .generateJavaFiles(
@@ -107,5 +89,18 @@ public class ContractGenerator {
                         new String(abiBytes),
                         destinationDir.toString(),
                         basePackageName);
+    }
+
+    private byte[] calculateWasmBytes(byte[] binary) throws IOException {
+        ByteArrayOutputStream builder = new ByteArrayOutputStream();
+        for (byte b : binary) {
+            int singleByte = b & 0xff;
+            byte[] bytes = Integer.toHexString(singleByte).getBytes(StandardCharsets.UTF_8);
+            if (bytes.length == 1) {
+                builder.write(Integer.toHexString((byte) 0).getBytes(StandardCharsets.UTF_8));
+            }
+            builder.write(bytes);
+        }
+        return builder.toByteArray();
     }
 }

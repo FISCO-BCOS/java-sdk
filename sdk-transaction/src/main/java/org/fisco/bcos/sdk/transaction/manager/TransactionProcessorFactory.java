@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.io.IOException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -49,7 +50,7 @@ public class TransactionProcessorFactory {
     }
 
     public static AssembleTransactionProcessor createAssembleTransactionProcessor(
-            Client client, CryptoKeyPair cryptoKeyPair) throws Exception {
+            Client client, CryptoKeyPair cryptoKeyPair) {
         Pair<String, String> pair = getChainIdAndGroupId(client);
         return new AssembleTransactionProcessor(
                 client, cryptoKeyPair, pair.getRight(), pair.getLeft(), null);
@@ -57,7 +58,7 @@ public class TransactionProcessorFactory {
 
     public static AssembleTransactionProcessor createAssembleTransactionProcessor(
             Client client, CryptoKeyPair cryptoKeyPair, String abiFilePath, String binFilePath)
-            throws Exception {
+            throws IOException {
         Pair<String, String> pair = getChainIdAndGroupId(client);
         ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
         return new AssembleTransactionProcessor(
@@ -98,7 +99,7 @@ public class TransactionProcessorFactory {
                     String abiFilePath,
                     String binFilePath,
                     RemoteSignProviderInterface transactionSignProvider)
-                    throws Exception {
+                    throws IOException {
         Pair<String, String> pair = getChainIdAndGroupId(client);
         ContractLoader contractLoader = new ContractLoader(abiFilePath, binFilePath);
         return new AssembleTransactionWithRemoteSignProcessor(

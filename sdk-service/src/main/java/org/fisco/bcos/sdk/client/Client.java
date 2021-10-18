@@ -52,9 +52,9 @@ public interface Client {
     CryptoSuite getCryptoSuite();
 
     /**
-     * Get connected ClientNodeVersion
+     * Get connected node info
      *
-     * @return the NodeVersion of the connected node
+     * @return the info of the connected node
      */
     NodeInfo getNodeInfo();
 
@@ -65,6 +65,11 @@ public interface Client {
      */
     Integer getCryptoType();
 
+    /**
+     * Whether is wasm exec env
+     *
+     * @return true when wasm exec env
+     */
     Boolean isWASM();
 
     /**
@@ -356,6 +361,70 @@ public interface Client {
      * @param callback the callback instance
      */
     void getSyncStatus(RespCallback<SyncStatus> callback);
+
+    // TODO: getConsensusStatus
+
+    // TODO: createGroup
+    //  描述：创建群组
+    //  参数
+    //	    groupInfo: 群组信息，字符串类型
+
+    // TODO: expandGroupNode
+    //  描述：在群组中新建节点
+    //  参数
+    //	    groupID: 群组，字符串类型
+    //	    nodeInfo: 节点信息，字符串类型
+    //
+    // TODO: removeGroup
+    //  描述：删除群组
+    //  参数
+    //	    groupID: 群组，字符串类型
+    // TODO: removeGroupNode
+    //  描述：删除群组节点
+    //  参数
+    //	    groupID: 群组，字符串类型
+    //	    nodeName: 节点，字符串类型
+    //
+    // TODO: recoverGroup
+    //  描述：恢复群组
+    //  参数
+    //	    groupID: 群组，字符串类型
+    //
+    // TODO: recoverGroupNode
+    //  描述：恢复群组节点
+    //  参数
+    //	    groupID: 群组，字符串类型
+    //	    nodeName: 节点，字符串类型
+    //
+    // TODO: startNode
+    //  描述：启动节点
+    //  参数
+    //	    groupID: 群组，字符串类型
+    //	    nodeName: 节点，字符串类型
+    //
+    // TODO: stopNode
+    //  描述：停止节点
+    //  参数
+    //	    groupID: 群组，字符串类型
+    //	    nodeName: 节点，字符串类型
+    //
+    // TODO: getGroupList
+    //  描述：获取群组列表
+    //  参数：空
+    //  返回
+    //
+    // TODO: getGroupInfo
+    //  描述：获取群组信息
+    //  参数：
+    //	    groupID: 群组，字符串类型
+    //  返回
+    //
+    // TODO: getGroupNodeInfo
+    //  描述：获取群组节点的信息
+    //  参数
+    //	    groupID: 群组，字符串类型
+    //	    nodeName: 节点，字符串类型
+    //  返回
 
     void stop();
 }

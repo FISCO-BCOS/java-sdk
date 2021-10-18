@@ -36,7 +36,6 @@ public class ABICodec {
     private final CryptoSuite cryptoSuite;
     public static final String TYPE_CONSTRUCTOR = "constructor";
     private final ABIDefinitionFactory abiDefinitionFactory;
-    private final ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
     private final ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
 
     public ABICodec(CryptoSuite cryptoSuite) {

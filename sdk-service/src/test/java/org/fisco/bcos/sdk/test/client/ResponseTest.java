@@ -371,9 +371,9 @@ public class ResponseTest {
                         + "    \"id\": 102,\n"
                         + "    \"jsonrpc\": \"3.0\",\n"
                         + "    \"result\": {\n"
-                        + "        \"currentBlockNumber\": \"0xb\",\n"
+                        + "        \"blockNumber\": \"11\",\n"
                         + "        \"output\": \"0x\",\n"
-                        + "        \"status\": \"0x0\"\n"
+                        + "        \"status\": \"0\"\n"
                         + "    }\n"
                         + "}";
         Call callResult = objectMapper.readValue(callString.getBytes(), Call.class);
@@ -381,9 +381,9 @@ public class ResponseTest {
         Assert.assertEquals(102, callResult.getId());
         // check callResult
         Call.CallOutput callOutput = callResult.getCallResult();
-        Assert.assertEquals(BigInteger.valueOf(0xb), callOutput.getBlockNumber());
+        Assert.assertEquals(Long.valueOf(11), callOutput.getBlockNumber());
         Assert.assertEquals("0x", callOutput.getOutput());
-        Assert.assertEquals("0x0", callOutput.getStatus());
+        Assert.assertEquals(Integer.valueOf(0), callOutput.getStatus());
 
         // encode the callResult
         byte[] encodedData = objectMapper.writeValueAsBytes(callResult);
@@ -696,7 +696,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 "0xb602109a000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000203078313030303030303030303030303030303030303030303030303030303030000000000000000000000000000000000000000000000000000000000000000832303139303733300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002616100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000026262000000000000000000000000000000000000000000000000000000000000",
                 transactionReceipt.getTransactionReceipt().get().getInput());
-        Assert.assertEquals(0, transactionReceipt.getTransactionReceipt().get().getLogs().size());
+        Assert.assertEquals(0, transactionReceipt.getTransactionReceipt().get().getLogEntries().size());
         Assert.assertEquals(
                 "0x0000000000000000000000000000000000000000000000000000000000000000",
                 transactionReceipt.getTransactionReceipt().get().getOutput());

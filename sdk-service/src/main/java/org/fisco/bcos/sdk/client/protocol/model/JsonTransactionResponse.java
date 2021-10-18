@@ -19,6 +19,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
+import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.MerkleProofUnit;
 import org.fisco.bcos.sdk.utils.Hex;

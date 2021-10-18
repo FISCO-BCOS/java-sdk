@@ -15,7 +15,7 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
+import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -80,7 +80,6 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     public String createSignedTransaction(String to, byte[] data, CryptoKeyPair cryptoKeyPair) {
         TransactionData rawTransaction =
                 this.transactionBuilder.createTransaction(to, data, this.chainId, this.groupId);
-        // TODO: delete thi print
         return this.transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
     }
 }

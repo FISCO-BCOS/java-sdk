@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.bouncycastle.util.encoders.Hex;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
+import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.codec.abi.ABICodecException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
@@ -156,10 +156,9 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             TransactionData rawTransaction, byte[] rawTxHash) {
         CompletableFuture<SignatureResult> future =
                 CompletableFuture.supplyAsync(
-                        () -> {
-                            return this.transactionSignProvider.requestForSign(
-                                    rawTxHash, this.cryptoSuite.getCryptoTypeConfig());
-                        });
+                        () ->
+                                this.transactionSignProvider.requestForSign(
+                                        rawTxHash, this.cryptoSuite.getCryptoTypeConfig()));
         future.exceptionally(
                 e -> {
                     AssembleTransactionProcessor.log.error(
