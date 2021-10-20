@@ -202,8 +202,9 @@ dependencies {
     integrationTestImplementation project
 }
 
-configurations {
-    all*.exclude group:'ch.qos.logback', module: 'logback-classic'
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 30, 'seconds'
+    exclude group:'ch.qos.logback', module: 'logback-classic'
 }
 
 configurations {
