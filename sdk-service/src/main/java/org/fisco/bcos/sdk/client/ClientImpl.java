@@ -17,7 +17,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
@@ -26,11 +27,15 @@ import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.model.NetworkConfig;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.jni.common.Error;
+import org.fisco.bcos.sdk.jni.common.JniConfig;
+import org.fisco.bcos.sdk.jni.rpc.Rpc;
+import org.fisco.bcos.sdk.jni.rpc.RpcCallback;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Response;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
@@ -45,9 +50,16 @@ public class ClientImpl implements Client {
     private final Boolean smCrypto;
     private final CryptoSuite cryptoSuite;
     private final NodeInfoResponse nodeInfoResponse;
+    private Rpc jniRpcImpl = null;
     private long blockNumber;
 
-    protected ClientImpl(ConfigOption configOption) {
+    protected ClientImpl(String groupID, ConfigOption configOption) {
+        NetworkConfig networkConfig = configOption.getNetworkConfig();
+        JniConfig jniConfig = new JniConfig();
+        jniConfig.setPeers(networkConfig.getPeers());
+        jniRpcImpl = Rpc.build(groupID, jniConfig);
+        jniRpcImpl.start();
+
         // get node info by call getNodeInfo
         this.nodeInfoResponse =
                 this.callRemoteMethod(
@@ -57,6 +69,7 @@ public class ClientImpl implements Client {
         this.group = this.nodeInfoResponse.getNodeInfo().getGroupId();
         this.wasm = this.nodeInfoResponse.getNodeInfo().getWasm();
         this.smCrypto = this.nodeInfoResponse.getNodeInfo().getSmCrypto();
+
         if (configOption.getCryptoMaterialConfig().getUseSmCrypto()) {
             this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
             logger.info("create client for sm_type: {}", true);
@@ -67,15 +80,6 @@ public class ClientImpl implements Client {
 
         this.blockNumber = this.getBlockNumber().getBlockNumber().longValue();
         logger.info("ClientImpl blockNumber: {}", this.blockNumber);
-    }
-
-    protected ClientImpl() {
-        this.group = null;
-        this.chainId = null;
-        this.cryptoSuite = null;
-        this.nodeInfoResponse = null;
-        this.wasm = false;
-        this.smCrypto = null;
     }
 
     @Override
@@ -439,32 +443,6 @@ public class ClientImpl implements Client {
         return this.smCrypto;
     }
 
-    class SynchronousTransactionCallback extends TransactionCallback {
-        public TransactionReceipt receipt;
-        public Semaphore semaphore = new Semaphore(1, true);
-
-        SynchronousTransactionCallback() {
-            try {
-                this.semaphore.acquire(1);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        @Override
-        public void onTimeout() {
-            super.onTimeout();
-            this.semaphore.release();
-        }
-
-        // wait until get the transactionReceipt
-        @Override
-        public void onResponse(TransactionReceipt receipt) {
-            this.receipt = receipt;
-            this.semaphore.release();
-        }
-    }
-
     @Override
     public void stop() {
         Thread.currentThread().interrupt();
@@ -472,21 +450,31 @@ public class ClientImpl implements Client {
 
     public <T extends JsonRpcResponse> T callRemoteMethod(
             JsonRpcRequest request, Class<T> responseType) {
-
-        Response response = null;
-        // TODO:
-        /*
         try {
-            response = this.connection.callMethod(this.objectMapper.writeValueAsString(request));
-        } catch (IOException e) {
-            logger.warn("callRemoteMethod failed, " + e.getMessage());
-            throw new ClientException("RPC call failed" + e.getMessage());
+            CompletableFuture<Response> future = new CompletableFuture<>();
+            Response response = null;
+            this.jniRpcImpl.genericMethod(
+                    this.objectMapper.writeValueAsString(request),
+                    new RpcCallback() {
+                        @Override
+                        public void onResponse(Error error, byte[] content) {
+                            Response response = new Response();
+                            response.setErrorCode(error.getErrorCode());
+                            response.setErrorMessage(error.getErrorMessage());
+                            response.setContent(content);
+
+                            future.complete(response);
+                        }
+                    });
+            response = future.get();
+            return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
+        } catch (JsonProcessingException | InterruptedException | ExecutionException e) {
+            logger.error("e: ", e);
+            throw new ClientException(
+                    "callRemoteMethod failed for decode the message exception, error message:"
+                            + e.getMessage(),
+                    e);
         }
-        */
-        if (response == null) {
-            throw new ClientException("RPC call failed, please try again");
-        }
-        return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
     }
 
     private <T extends JsonRpcResponse> ResponseCallback createResponseCallback(
@@ -516,11 +504,22 @@ public class ClientImpl implements Client {
             ResponseCallback responseCallback =
                     createResponseCallback(request, responseType, callback);
             responseCallback.setTimeoutValue(timeoutValue);
-            // TODO:
-            /*
-            this.connection.asyncCallMethod(
-                    this.objectMapper.writeValueAsString(request), responseCallback);
-            */
+
+            this.jniRpcImpl.genericMethod(
+                    this.objectMapper.writeValueAsString(request),
+                    new RpcCallback() {
+                        @Override
+                        public void onResponse(Error error, byte[] msg) {
+                            Response response = new Response();
+                            response.setErrorCode(error.getErrorCode());
+                            response.setErrorMessage(error.getErrorMessage());
+                            response.setContent(msg);
+
+                            ResponseCallback responseCallback =
+                                    createResponseCallback(request, responseType, callback);
+                            responseCallback.onResponse(response);
+                        }
+                    });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -528,15 +527,24 @@ public class ClientImpl implements Client {
 
     public <T extends JsonRpcResponse> void asyncCallRemoteMethod(
             JsonRpcRequest request, Class<T> responseType, RespCallback<T> callback) {
+
         try {
-            ResponseCallback responseCallback =
-                    createResponseCallback(request, responseType, callback);
-            // TODO:
-            /*
-            this.connection.asyncCallMethod(
-                    this.objectMapper.writeValueAsString(request), responseCallback);
-            */
-        } catch (Exception e) {
+            this.jniRpcImpl.genericMethod(
+                    this.objectMapper.writeValueAsString(request),
+                    new RpcCallback() {
+                        @Override
+                        public void onResponse(Error error, byte[] msg) {
+                            Response response = new Response();
+                            response.setErrorCode(error.getErrorCode());
+                            response.setErrorMessage(error.getErrorMessage());
+                            response.setContent(msg);
+
+                            ResponseCallback responseCallback =
+                                    createResponseCallback(request, responseType, callback);
+                            responseCallback.onResponse(response);
+                        }
+                    });
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
     }
@@ -555,9 +563,9 @@ public class ClientImpl implements Client {
                                 + ",retErrorMessage: "
                                 + response.getErrorMessage());
             }
-            String responseContent = response.getContent();
+            byte[] content = response.getContent();
             // parse the response into JsonRPCResponse
-            T jsonRpcResponse = this.objectMapper.readValue(responseContent, responseType);
+            T jsonRpcResponse = this.objectMapper.readValue(content, responseType);
             if (jsonRpcResponse.getError() != null) {
                 logger.error(
                         "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {},  retErrorMessage: {}, retErrorCode: {}",
@@ -576,7 +584,7 @@ public class ClientImpl implements Client {
                                 + jsonRpcResponse.getError().getMessage());
             }
             return jsonRpcResponse;
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             logger.error(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}, groupId: {}",
                     e.getMessage(),

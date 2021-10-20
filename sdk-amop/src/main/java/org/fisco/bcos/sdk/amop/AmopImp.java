@@ -21,6 +21,7 @@ import org.fisco.bcos.sdk.jni.amop.AmopResponseCallback;
 import org.fisco.bcos.sdk.jni.common.JniConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.fisco.bcos.sdk.config.ConfigOption;
 
 /** */
 public class AmopImp implements Amop {
@@ -28,9 +29,10 @@ public class AmopImp implements Amop {
 
     private org.fisco.bcos.sdk.jni.amop.Amop amopJni;
 
-    public AmopImp(JniConfig config) {
+    public AmopImp(ConfigOption config) {
         logger.info("newAmop, config: {}", config);
-        this.amopJni = org.fisco.bcos.sdk.jni.amop.Amop.build(config);
+        JniConfig jniConfig = new JniConfig();
+        this.amopJni = org.fisco.bcos.sdk.jni.amop.Amop.build(jniConfig);
     }
 
     @Override

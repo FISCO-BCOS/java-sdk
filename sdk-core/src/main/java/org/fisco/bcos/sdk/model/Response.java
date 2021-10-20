@@ -15,12 +15,9 @@
 
 package org.fisco.bcos.sdk.model;
 
-import java.nio.charset.StandardCharsets;
-
 public class Response {
     private Integer errorCode;
     private String errorMessage;
-    private String messageID;
     private byte[] content;
 
     public Integer getErrorCode() {
@@ -39,30 +36,11 @@ public class Response {
         this.errorMessage = errorMessage;
     }
 
-    public String getMessageID() {
-        return messageID;
+    public byte[] getContent() {
+        return content;
     }
 
-    public void setMessageID(String messageID) {
-        this.messageID = messageID;
-    }
-
-    public String getContent() {
-        if (content != null) {
-            return new String(content, StandardCharsets.UTF_8);
-        }
-        return null;
-    }
-
-    public void setContent(String content) {
-        this.content = content.getBytes();
-    }
-
-    public void setContentBytes(byte[] content) {
+    public void setContent(byte[] content) {
         this.content = content;
-    }
-
-    public byte[] getContentBytes() {
-        return this.content;
     }
 }

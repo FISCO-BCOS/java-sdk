@@ -34,17 +34,6 @@ public abstract class ResponseCallback {
      */
     public abstract void onResponse(Response response);
 
-    public void onTimeout() {
-        logger.error("Processing message timeout:{}");
-        Response response = new Response();
-        response.setErrorCode(ChannelMessageError.MESSAGE_TIMEOUT.getError());
-        response.setErrorMessage("Processing message timeout");
-
-        response.setContent("");
-
-        onResponse(response);
-    }
-
     public void onError(String errorMessage) {
         Response response = new Response();
         response.setErrorCode(ChannelMessageError.INTERNAL_MESSAGE_HANDLE_FAILED.getError());
