@@ -3,7 +3,7 @@ plugins {
     id 'java'
 }
 dependencies {
-     project(':sdk-core')
+    project(':sdk-core')
     implementation project(':sdk-crypto')
     implementation ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
 }
