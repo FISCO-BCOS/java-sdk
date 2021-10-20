@@ -25,7 +25,6 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
-import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.BcosSDKTest;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
@@ -37,6 +36,8 @@ import org.fisco.bcos.sdk.codec.datatypes.Type;
 import org.fisco.bcos.sdk.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple2;
+import org.fisco.bcos.sdk.config.Config;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.contract.precompiled.bfs.BFSService;
 import org.fisco.bcos.sdk.contract.precompiled.bfs.FileInfo;
@@ -79,9 +80,10 @@ public class PrecompiledTest {
     @Test
     public void test1ConsensusService() throws ConfigException, ContractException {
         try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client =
-                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+            String group = "";
+            ConfigOption configOption = Config.load(configFile);
+            Client client = Client.build(group, configOption);
+
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             ConsensusService consensusService = new ConsensusService(client, cryptoKeyPair);
             // get the current sealerList
@@ -154,9 +156,10 @@ public class PrecompiledTest {
     @Test
     public void test2CnsService() throws ConfigException {
         try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client =
-                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+            String group = "";
+            ConfigOption configOption = Config.load(configFile);
+            Client client = Client.build(group, configOption);
+
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
             String contractAddress = helloWorld.getContractAddress().toLowerCase();
@@ -243,9 +246,10 @@ public class PrecompiledTest {
     @Test
     public void test3SystemConfigService() throws ConfigException, ContractException {
         try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client =
-                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+            String group = "";
+            ConfigOption configOption = Config.load(configFile);
+            Client client = Client.build(group, configOption);
+
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             SystemConfigService systemConfigService =
                     new SystemConfigService(client, cryptoKeyPair);
@@ -277,9 +281,10 @@ public class PrecompiledTest {
     @Test
     public void test5CRUDService() throws ConfigException, ContractException {
         try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client =
-                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+            String group = "";
+            ConfigOption configOption = Config.load(configFile);
+            Client client = Client.build(group, configOption);
+
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             TableCRUDService tableCRUDService = new TableCRUDService(client, cryptoKeyPair);
             // create a user table
@@ -336,9 +341,10 @@ public class PrecompiledTest {
     @Test
     public void test51SyncCRUDService() throws ConfigException {
         try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client =
-                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+            String group = "";
+            ConfigOption configOption = Config.load(configFile);
+            Client client = Client.build(group, configOption);
+
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
             Random random = new Random();
@@ -414,9 +420,10 @@ public class PrecompiledTest {
     @Test
     public void test52AsyncCRUDService() {
         try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client =
-                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+            String group = "";
+            ConfigOption configOption = Config.load(configFile);
+            Client client = Client.build(group, configOption);
+
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
             // create table
@@ -500,9 +507,10 @@ public class PrecompiledTest {
     @Test
     public void test6DeployWasm() throws ConfigException, ContractException {
         try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client =
-                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+            String group = "";
+            ConfigOption configOption = Config.load(configFile);
+            Client client = Client.build(group, configOption);
+
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             DeployWasmService deployWasmService = new DeployWasmService(client, cryptoKeyPair);
             String helloBin =
@@ -536,9 +544,10 @@ public class PrecompiledTest {
     @Test
     public void test7BFSPrecompiled() throws ConfigException, ContractException {
         try {
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Client client =
-                    sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+            String group = "";
+            ConfigOption configOption = Config.load(configFile);
+            Client client = Client.build(group, configOption);
+
             CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
             BFSService bfsService = new BFSService(client, cryptoKeyPair);
             FileInfo list = bfsService.list("/");
