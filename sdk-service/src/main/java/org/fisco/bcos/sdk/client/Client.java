@@ -41,7 +41,7 @@ public interface Client {
      * @return a client instance
      */
     static Client build(String groupID, ConfigOption configOption) throws NetworkException {
-        return new ClientImpl(configOption);
+        return new ClientImpl(groupID, configOption);
     }
 
     /**

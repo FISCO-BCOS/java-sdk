@@ -52,6 +52,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     private BcosSDK sdk = BcosSDK.build(configFile);
     // set the group number 1
     private Client client = this.sdk.getClientByGroupID("1");
+
     // create new keypair
     private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
     // mock remote sign service

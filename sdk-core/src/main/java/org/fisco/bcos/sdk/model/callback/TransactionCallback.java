@@ -15,7 +15,6 @@
 
 package org.fisco.bcos.sdk.model.callback;
 
-import io.netty.util.Timeout;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceiptStatus;
 import org.slf4j.Logger;
@@ -23,14 +22,12 @@ import org.slf4j.LoggerFactory;
 
 public abstract class TransactionCallback {
     private static Logger logger = LoggerFactory.getLogger(TransactionCallback.class);
-    private Timeout timeoutHandler;
     public static Integer DEFAULT_TRANS_TIMEOUT = 30 * 1000;
     private Integer timeout = DEFAULT_TRANS_TIMEOUT;
 
     public abstract void onResponse(TransactionReceipt receipt);
 
     public void onError(int errorCode, String errorMessage) {
-        this.cancelTimeout();
         logger.error(
                 "transaction exception, errorCode: {}, errorMessage: {}", errorCode, errorMessage);
         TransactionReceipt receipt = new TransactionReceipt();
@@ -39,27 +36,12 @@ public abstract class TransactionCallback {
         this.onResponse(receipt);
     }
 
-    public void cancelTimeout() {
-        if (this.getTimeoutHandler() != null && !this.getTimeoutHandler().isCancelled()) {
-            this.getTimeoutHandler().cancel();
-        }
-    }
-
     public void onTimeout() {
-        this.cancelTimeout();
         logger.warn("transactionSuc timeout");
         TransactionReceipt receipt = new TransactionReceipt();
         receipt.setStatus(TransactionReceiptStatus.TimeOut.getCode());
         receipt.setMessage(TransactionReceiptStatus.TimeOut.getMessage());
         this.onResponse(receipt);
-    }
-
-    public Timeout getTimeoutHandler() {
-        return this.timeoutHandler;
-    }
-
-    public void setTimeoutHandler(Timeout timeoutHandler) {
-        this.timeoutHandler = timeoutHandler;
     }
 
     public void setTimeout(Integer timeout) {

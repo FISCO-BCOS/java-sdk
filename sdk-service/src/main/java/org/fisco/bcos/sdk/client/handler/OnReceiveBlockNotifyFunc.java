@@ -14,7 +14,6 @@
 package org.fisco.bcos.sdk.client.handler;
 
 import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
-import org.fisco.bcos.sdk.model.Message;
 
 @FunctionalInterface
 public interface OnReceiveBlockNotifyFunc {
@@ -26,5 +25,5 @@ public interface OnReceiveBlockNotifyFunc {
      * @param message
      */
     void OnReceiveBlockNotify(
-            EnumChannelProtocolVersion version, String peerIpAndPort, Message message);
+            EnumChannelProtocolVersion version, String peerIpAndPort, String message);
 }

@@ -18,7 +18,7 @@ package org.fisco.bcos.sdk.amop;
 import java.util.Set;
 import org.fisco.bcos.sdk.jni.amop.AmopCallback;
 import org.fisco.bcos.sdk.jni.amop.AmopResponseCallback;
-import org.fisco.bcos.sdk.jni.common.ConfigOption;
+import org.fisco.bcos.sdk.config.ConfigOption;
 
 /**
  * AMOP module interface.
@@ -57,14 +57,14 @@ public interface Amop {
      * @param content the sent message
      * @param callback the callback that will be called when receive the AMOP response
      */
-    void sendAmopMsg(byte[] content, AmopResponseCallback callback);
+    void sendAmopMsg(String topic, byte[] content, int timeout, AmopResponseCallback callback);
 
     /**
      * Send amop msg
      *
      * @param content the broadcasted AMOP message
      */
-    void broadcastAmopMsg(byte[] content);
+    void broadcastAmopMsg(String topic, byte[] content);
 
     /**
      * Get all subscribe topics.

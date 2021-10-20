@@ -25,6 +25,8 @@ import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.RespCallback;
 import org.fisco.bcos.sdk.client.protocol.response.*;
+import org.fisco.bcos.sdk.config.Config;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -44,10 +46,9 @@ public class BcosSDKTest {
 
     @Test
     public void testClient() throws ConfigException {
-        BcosSDK sdk = BcosSDK.build(configFile);
-        // get the client
-        Client client =
-                sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+        String group = "";
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(group, configOption);
 
         // test getBlockNumber
         BlockNumber blockNumber = client.getBlockNumber();
@@ -104,10 +105,9 @@ public class BcosSDKTest {
 
     @Test
     public void testClientAsync() throws ConfigException {
-        BcosSDK sdk = BcosSDK.build(configFile);
-        // get the client
-        Client client =
-                sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+        String group = "";
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(group, configOption);
 
         // test getBlockByNumber only header
         String[] genesisHash = {null};
@@ -228,11 +228,11 @@ public class BcosSDKTest {
     }
 
     @Test
-    public void testHelloWorldInSolidity() {
-        BcosSDK sdk = BcosSDK.build(configFile);
-        // get the client
-        Client client =
-                sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+    public void testHelloWorldInSolidity() throws ConfigException {
+        String group = "";
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(group, configOption);
+
         CryptoSuite cryptoSuite = client.getCryptoSuite();
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
         BigInteger blockLimit = client.getBlockLimit();
@@ -282,11 +282,11 @@ public class BcosSDKTest {
     }
 
     @Test
-    public void testHelloWorldInLiquid() {
-        BcosSDK sdk = BcosSDK.build(configFile);
-        // get the client
-        Client client =
-                sdk.getClientByEndpoint(sdk.getConfig().getNetworkConfig().getPeers().get(0));
+    public void testHelloWorldInLiquid() throws ConfigException {
+        String group = "";
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(group, configOption);
+
         CryptoSuite cryptoSuite = client.getCryptoSuite();
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
         BigInteger blockLimit = client.getBlockLimit();
