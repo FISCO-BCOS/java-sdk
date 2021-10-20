@@ -182,8 +182,10 @@ googleJavaFormat {
     include '**/*.java'
 }
 dependencies {
+    api("org.fisco-bcos:java-sdk-jni:${javaSdkJniVersion}")
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    api("io.netty:netty-all:${nettyVersion}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     api("commons-io:commons-io:${commonsIOVersion}")
     api("com.squareup:javapoet:${javapoetVersion}")
