@@ -18,19 +18,19 @@ package org.fisco.bcos.sdk.amop;
 import java.util.Set;
 import org.fisco.bcos.sdk.jni.amop.AmopCallback;
 import org.fisco.bcos.sdk.jni.amop.AmopResponseCallback;
-import org.fisco.bcos.sdk.jni.common.ConfigOption;
+import org.fisco.bcos.sdk.jni.common.JniConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** */
 public class AmopImp implements Amop {
-    private static Logger logger = LoggerFactory.getLogger(AmopImp.class);
+    private static final Logger logger = LoggerFactory.getLogger(AmopImp.class);
 
     private org.fisco.bcos.sdk.jni.amop.Amop amopJni;
 
-    public AmopImp(ConfigOption config) {
-        // TODO:
-        // this.amopJni = new org.fisco.bcos.sdk.jni.amop.Amop(config);
+    public AmopImp(JniConfig config) {
+        logger.info("newAmop, config: {}", config);
+        this.amopJni = org.fisco.bcos.sdk.jni.amop.Amop.build(config);
     }
 
     @Override
@@ -44,13 +44,14 @@ public class AmopImp implements Amop {
     }
 
     @Override
-    public void sendAmopMsg(byte[] content, AmopResponseCallback callback) {
-        amopJni.sendAmopMsg(content, callback);
+    public void sendAmopMsg(String topic, byte[] content, int timeout, AmopResponseCallback callback) {
+        // TODO: add timeout params
+        amopJni.sendAmopMsg(topic, content, callback);
     }
 
     @Override
-    public void broadcastAmopMsg(byte[] content) {
-        amopJni.broadcastAmopMsg(content);
+    public void broadcastAmopMsg(String topic, byte[] content) {
+        amopJni.broadcastAmopMsg(topic, content);
     }
 
     @Override
