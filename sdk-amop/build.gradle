@@ -3,9 +3,10 @@ plugins {
     id 'java'
 }
 dependencies {
-    project(':sdk-core')
+    implementation project(':sdk-core')
     implementation project(':sdk-crypto')
     implementation ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    implementation("org.fisco-bcos:java-sdk-jni:${javaSdkJniVersion}")
 }
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava

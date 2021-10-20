@@ -15,7 +15,6 @@
 
 package org.fisco.bcos.sdk.channel;
 
-import io.netty.util.Timeout;
 import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
 import org.fisco.bcos.sdk.model.Response;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ public abstract class ResponseCallback {
 
     private static Logger logger = LoggerFactory.getLogger(ResponseCallback.class);
 
-    private Timeout timeout;
     private long timeoutValue = -1;
 
     /**
@@ -38,7 +36,6 @@ public abstract class ResponseCallback {
 
     public void onTimeout() {
         logger.error("Processing message timeout:{}");
-        cancelTimeout();
         Response response = new Response();
         response.setErrorCode(ChannelMessageError.MESSAGE_TIMEOUT.getError());
         response.setErrorMessage("Processing message timeout");
@@ -48,26 +45,11 @@ public abstract class ResponseCallback {
         onResponse(response);
     }
 
-    public void cancelTimeout() {
-        if (getTimeout() != null && !getTimeout().isCancelled()) {
-            getTimeout().cancel();
-        }
-    }
-
     public void onError(String errorMessage) {
-        cancelTimeout();
         Response response = new Response();
         response.setErrorCode(ChannelMessageError.INTERNAL_MESSAGE_HANDLE_FAILED.getError());
         response.setErrorMessage(errorMessage);
         onResponse(response);
-    }
-
-    public Timeout getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(Timeout timeout) {
-        this.timeout = timeout;
     }
 
     public void setTimeoutValue(long timeoutValue) {

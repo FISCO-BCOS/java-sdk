@@ -15,11 +15,9 @@
 
 package org.fisco.bcos.sdk.config.model;
 
-import io.netty.util.NetUtil;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.utils.Host;
 
 /** Network configuration, include the peers */
 public class NetworkConfig {
@@ -38,6 +36,7 @@ public class NetworkConfig {
             throw new ConfigException(
                     "Invalid configuration, peers not configured, please config peers in yaml config file.");
         }
+        /*
         for (String peer : peers) {
             int index = peer.lastIndexOf(':');
             if (index == -1) {
@@ -58,6 +57,7 @@ public class NetworkConfig {
                         " Invalid configuration, tcp port should from 1 to 65535, value: " + port);
             }
         }
+        */
     }
 
     public List<String> getPeers() {
