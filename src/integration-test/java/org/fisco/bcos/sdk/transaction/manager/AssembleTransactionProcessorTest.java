@@ -56,9 +56,9 @@ public class AssembleTransactionProcessorTest {
     private final String abi =
             "[{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_addrDArray\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_addr\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"getUint256\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"v\",\"type\":\"uint256\"}],\"name\":\"incrementUint256\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_bytesV\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_s\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"getSArray\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256[2]\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"bytesArray\",\"type\":\"bytes1[]\"}],\"name\":\"setBytesMapping\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"setBytes\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"i\",\"type\":\"int256\"},{\"name\":\"a\",\"type\":\"address[]\"},{\"name\":\"s\",\"type\":\"string\"}],\"name\":\"setValues\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"b\",\"type\":\"bytes1\"}],\"name\":\"getByBytes\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes1[]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_intV\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"emptyArgs\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"i\",\"type\":\"int256\"},{\"name\":\"s\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogIncrement\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogInit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"i\",\"type\":\"int256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"address[]\"},{\"indexed\":false,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogSetValues\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"o\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"LogSetBytes\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"o\",\"type\":\"uint256[2]\"},{\"indexed\":false,\"name\":\"n\",\"type\":\"uint256[2]\"}],\"name\":\"LogSetSArray\",\"type\":\"event\"}]";
     // init the sdk, and set the config options.
-    private BcosSDK sdk = BcosSDK.build(configFile);
-    // group 1
-    private Client client = this.sdk.getClientByGroupID("1");
+    private BcosSDK sdk = BcosSDK.build("group", configFile);
+    // group
+    private Client client = this.sdk.getClient();
     private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
 
     @Test
@@ -70,21 +70,19 @@ public class AssembleTransactionProcessorTest {
         // test sync deploy contract `HelloWorld`, which has no constructed parameter.
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("HelloWorld", new ArrayList<>());
-        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
-            return;
-        }
-        Assert.assertTrue(response.getReturnCode() == 0);
-        Assert.assertEquals("0x0", response.getTransactionReceipt().getStatus());
-        String helloWorldAddrss = response.getContractAddress();
+        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getReturnCode(), 0);
+        Assert.assertEquals(0, response.getTransactionReceipt().getStatus().intValue());
+        String helloWorldAddress = response.getContractAddress();
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
-                                helloWorldAddrss,
+                                helloWorldAddress,
                                 "0x0000000000000000000000000000000000000000000000000000000000000000"));
         // test call, which would be queried off-chain.
         CallResponse callResponse1 =
                 transactionProcessor.sendCallByContractLoader(
-                        "HelloWorld", helloWorldAddrss, "name", new ArrayList<>());
+                        "HelloWorld", helloWorldAddress, "get", new ArrayList<>());
         List<Object> l = JsonUtils.fromJsonList(callResponse1.getValues(), Object.class);
         Assert.assertEquals(l.size(), 1);
         Assert.assertEquals(l.get(0), "Hello, World!");
@@ -95,27 +93,25 @@ public class AssembleTransactionProcessorTest {
         // The contract loader would find abi and binary in the config file path by contract name.
         TransactionReceipt tr =
                 transactionProcessor.sendTransactionAndGetReceiptByContractLoader(
-                        "HelloWorld", helloWorldAddrss, "set", params);
-        Assert.assertEquals("0x0", tr.getStatus());
+                        "HelloWorld", helloWorldAddress, "set", params);
+        Assert.assertEquals(0, tr.getStatus().intValue());
         TransactionResponse res =
                 transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                        "HelloWorld", helloWorldAddrss, "set", params);
-        Assert.assertEquals("0x0", res.getTransactionReceipt().getStatus());
+                        "HelloWorld", helloWorldAddress, "set", params);
+        Assert.assertEquals(0, res.getTransactionReceipt().getStatus().intValue());
 
         // test call by contract loader
         CallResponse callResponse2 =
                 transactionProcessor.sendCallByContractLoader(
-                        "HelloWorld", helloWorldAddrss, "name", new ArrayList<>());
+                        "HelloWorld", helloWorldAddress, "get", new ArrayList<>());
         l = JsonUtils.fromJsonList(callResponse2.getValues(), Object.class);
         Assert.assertEquals(l.size(), 1);
         Assert.assertEquals(l.get(0), "test");
 
         // test deploy by contract loader
         response = transactionProcessor.deployByContractLoader("HelloWorld", new ArrayList<>());
-        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
-            return;
-        }
-        Assert.assertTrue(response.getReturnCode() == 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(0, response.getReturnCode());
         System.out.println("### AssembleTransactionProcessorTest test1HelloWorld passed");
     }
 
@@ -133,14 +129,14 @@ public class AssembleTransactionProcessorTest {
         TransactionCallbackMock callbackMock = new TransactionCallbackMock();
         transactionProcessor.deployByContractLoaderAsync(
                 "HelloWorld", new ArrayList<>(), callbackMock);
-        // Assert.assertEquals("0x0", callbackMock.getResult().getStatus());
+        Assert.assertEquals(0, callbackMock.getResult().getStatus().intValue());
 
         // send tx with callback
         String to = callbackMock.getResult().getContractAddress();
         System.out.println("contract address is " + to);
         List<Object> params = Lists.newArrayList("test");
         transactionProcessor.sendTransactionAsync(to, abi, "set", params, callbackMock);
-        // Assert.assertEquals("0x0", callbackMock.getResult().getStatus());
+        Assert.assertEquals(0, callbackMock.getResult().getStatus().intValue());
 
         // deploy with future
         CompletableFuture<TransactionReceipt> future =
@@ -149,7 +145,7 @@ public class AssembleTransactionProcessorTest {
         future.thenAccept(
                 tr -> {
                     System.out.println("deploy succeed time " + System.currentTimeMillis());
-                    // Assert.assertEquals("0x0", tr.getStatus());
+                    Assert.assertEquals(0, tr.getStatus().intValue());
                 });
         // handle exception.
         future.exceptionally(
@@ -174,22 +170,22 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        // System.out.println(JsonUtils.toJson(response));
-        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
+        System.out.println(JsonUtils.toJson(response));
+        if (!response.getTransactionReceipt().getStatus().equals(0)) {
             System.out.println(response.getReturnMessage());
             return;
         }
-        Assert.assertTrue(response.getReturnCode() == 0);
-        Assert.assertEquals("0x0", response.getTransactionReceipt().getStatus());
+        Assert.assertEquals(0, response.getReturnCode());
+        Assert.assertEquals(0, response.getTransactionReceipt().getStatus().intValue());
         String contractAddress = response.getContractAddress();
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
                                 contractAddress,
                                 "0x0000000000000000000000000000000000000000000000000000000000000000"));
-        // System.out.println(JsonUtils.toJson(response));
         Map<String, List<List<Object>>> map = response.getEventResultMap();
-        Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
+        // FIXME: event is not supported now
+        // Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
     }
 
     @Test
@@ -204,7 +200,7 @@ public class AssembleTransactionProcessorTest {
             params.add("test2");
             TransactionResponse response =
                     transactionProcessor.deployByContractLoader("ComplexSol", params);
-            if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
+            if (!response.getTransactionReceipt().getStatus().equals(0)) {
                 return;
             }
             String contractAddress = response.getContractAddress();
@@ -212,8 +208,8 @@ public class AssembleTransactionProcessorTest {
             CallResponse callResponse1 =
                     transactionProcessor.sendCallByContractLoader(
                             "ComplexSol", contractAddress, "_intV", new ArrayList<>());
-            // System.out.println(JsonUtils.toJson(callResponse1));
-            // System.out.println("callResponse1 : " + callResponse1.getReturnMessage());
+            System.out.println(JsonUtils.toJson(callResponse1));
+            System.out.println("callResponse1 : " + callResponse1.getReturnMessage());
             if (callResponse1.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 List<Object> entities =
                         JsonUtils.fromJsonList(callResponse1.getValues(), Object.class);
@@ -223,9 +219,9 @@ public class AssembleTransactionProcessorTest {
             CallResponse callResponse2 =
                     transactionProcessor.sendCallByContractLoader(
                             "ComplexSol", contractAddress, "_s", new ArrayList<>());
-            // System.out.println("callResponse2 : " + callResponse2.getReturnMessage());
+            System.out.println("callResponse2 : " + callResponse2.getReturnMessage());
             if (callResponse2.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                // System.out.println(JsonUtils.toJson(callResponse2));
+                System.out.println(JsonUtils.toJson(callResponse2));
                 List<Object> entities2 =
                         JsonUtils.fromJsonList(callResponse2.getValues(), Object.class);
                 Assert.assertEquals(entities2.size(), 1);
@@ -247,15 +243,13 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
-            return;
-        }
+        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
         String contractAddress = response.getContractAddress();
         // send empty tx
         TransactionReceipt tr =
                 transactionProcessor.sendTransactionAndGetReceiptByContractLoader(
                         "ComplexSol", contractAddress, "emptyArgs", ListUtils.emptyIfNull(null));
-        Assert.assertEquals("0x0", tr.getStatus());
+        Assert.assertEquals(0, tr.getStatus().intValue());
     }
 
     @Test
@@ -269,9 +263,7 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
-            return;
-        }
+        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
         String contractAddress = response.getContractAddress();
         // increment v
         transactionProcessor.sendTransactionAsync(
@@ -282,7 +274,7 @@ public class AssembleTransactionProcessorTest {
                 new TransactionCallback() {
                     @Override
                     public void onResponse(TransactionReceipt receipt) {
-                        Assert.assertEquals("0x0", receipt.getStatus());
+                        Assert.assertEquals(0, receipt.getStatus().intValue());
                         // getV
                         CallResponse callResponse3;
                         try {
@@ -294,7 +286,7 @@ public class AssembleTransactionProcessorTest {
                                             AssembleTransactionProcessorTest.this.abi,
                                             "getUint256",
                                             Lists.newArrayList());
-                            // System.out.println(JsonUtils.toJson(callResponse3));
+                            System.out.println(JsonUtils.toJson(callResponse3));
                             Assert.assertEquals("Success", callResponse3.getReturnMessage());
                         } catch (TransactionBaseException | ABICodecException e) {
                             System.out.println(e.getMessage());
@@ -314,9 +306,7 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
-            return;
-        }
+        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
         String contractAddress = response.getContractAddress();
         // set values
         List<Object> paramsSetValues = Lists.newArrayList(20);
@@ -327,10 +317,11 @@ public class AssembleTransactionProcessorTest {
         TransactionResponse transactionResponse =
                 transactionProcessor.sendTransactionAndGetResponse(
                         contractAddress, this.abi, "setValues", paramsSetValues);
-        // System.out.println(JsonUtils.toJson(transactionResponse));
+        System.out.println(JsonUtils.toJson(transactionResponse));
         Map<String, List<List<Object>>> eventsMap = transactionResponse.getEventResultMap();
-        Assert.assertEquals(1, eventsMap.size());
-        Assert.assertEquals("set values 字符串", eventsMap.get("LogSetValues").get(0).get(2));
+        // FIXME: event is not supported now
+        // Assert.assertEquals(1, eventsMap.size());
+        // Assert.assertEquals("set values 字符串", eventsMap.get("LogSetValues").get(0).get(2));
     }
 
     @Test
@@ -344,23 +335,22 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
-            return;
-        }
+        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
         String contractAddress = response.getContractAddress();
         // setBytes
         List<String> paramsSetBytes = Lists.newArrayList(new String("set bytes test".getBytes()));
         TransactionResponse transactionResponse3 =
                 transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                         contractAddress, this.abi, "setBytes", paramsSetBytes);
-        // System.out.println(JsonUtils.toJson(transactionResponse3));
+        System.out.println(JsonUtils.toJson(transactionResponse3));
         Assert.assertEquals(transactionResponse3.getValuesList().size(), 1);
         Assert.assertEquals(transactionResponse3.getValuesList().get(0), "set bytes test");
 
         Map<String, List<List<Object>>> eventsMap3 = transactionResponse3.getEventResultMap();
         System.out.println(JsonUtils.toJson(eventsMap3));
-        Assert.assertEquals(1, eventsMap3.size());
-        Assert.assertEquals("set bytes test", eventsMap3.get("LogSetBytes").get(0).get(1));
+        // FIXME: event not supported now
+        // Assert.assertEquals(1, eventsMap3.size());
+        // Assert.assertEquals("set bytes test", eventsMap3.get("LogSetBytes").get(0).get(1));
 
         // getBytes
         CallResponse callResponse4 =
@@ -387,9 +377,7 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
-            return;
-        }
+        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
         String contractAddress = response.getContractAddress();
         List<Object> paramsSetBytes = Lists.newArrayList("2".getBytes());
         byte[] data = transactionProcessor.encodeFunction(this.abi, "setBytes", paramsSetBytes);
@@ -400,7 +388,7 @@ public class AssembleTransactionProcessorTest {
                 transactionProcessor.sendTransactionAsync(signedData);
         future.thenAccept(
                 r -> {
-                    Assert.assertEquals("0x0", response.getTransactionReceipt().getStatus());
+                    Assert.assertEquals(0, response.getTransactionReceipt().getStatus().intValue());
                 });
     }
 }

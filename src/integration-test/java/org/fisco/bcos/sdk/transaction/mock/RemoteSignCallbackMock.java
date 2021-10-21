@@ -1,7 +1,6 @@
 package org.fisco.bcos.sdk.transaction.mock;
 
-import java.util.concurrent.ExecutionException;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
+import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionWithRemoteSignProcessor;
@@ -31,17 +30,9 @@ public class RemoteSignCallbackMock implements RemoteSignCallbackInterface {
     public int handleSignedTransaction(SignatureResult signatureStr) {
         System.out.println(System.currentTimeMillis() + " SignatureResult: " + signatureStr);
         // 完成了交易签名后，将其发送出去
-        TransactionReceipt tr = null;
-        try {
-            tr =
-                    assembleTransactionWithRemoteSignProcessor
-                            .signAndPush(rawTransaction, signatureStr.getSignatureBytes())
-                            .get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        TransactionReceipt tr =
+                assembleTransactionWithRemoteSignProcessor.encodeAndPush(
+                        rawTransaction, signatureStr.convertToString());
         System.out.println(
                 "handleSignedTransaction transactionReceipt is: " + JsonUtils.toJson(tr));
         return 0;

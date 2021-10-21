@@ -44,6 +44,11 @@ public class SM2SignatureResult extends SignatureResult {
     }
 
     @Override
+    public String toString() {
+        return convertToString();
+    }
+
+    @Override
     public byte[] encode() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 

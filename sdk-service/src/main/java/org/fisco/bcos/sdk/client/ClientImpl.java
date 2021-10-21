@@ -29,10 +29,8 @@ import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.NetworkConfig;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.jni.common.Error;
 import org.fisco.bcos.sdk.jni.common.JniConfig;
 import org.fisco.bcos.sdk.jni.rpc.Rpc;
-import org.fisco.bcos.sdk.jni.rpc.RpcCallback;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Response;
@@ -52,7 +50,7 @@ public class ClientImpl implements Client {
     private final Boolean smCrypto;
     private final CryptoSuite cryptoSuite;
     private final NodeInfoResponse nodeInfoResponse;
-    private Rpc jniRpcImpl;
+    private final Rpc jniRpcImpl;
     private long blockNumber;
 
     protected ClientImpl(String groupID, ConfigOption configOption) {
@@ -162,7 +160,8 @@ public class ClientImpl implements Client {
     @Override
     public void callAsync(Transaction transaction, RespCallback<Call> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.CALL, Arrays.asList(this.group, transaction)),
+                new JsonRpcRequest(
+                        JsonRpcMethods.CALL, Arrays.asList(this.group, this.node, transaction)),
                 Call.class,
                 callback);
     }
@@ -355,28 +354,24 @@ public class ClientImpl implements Client {
 
     @Override
     public BigInteger getBlockLimit() {
-        // TODO:
-        /*
-        long blk = connection.getBlockNumber();
+        long blk = getBlockNumber().getBlockNumber().longValue();
         if (blk == 0) {
             blk = blockNumber;
         }
         return BigInteger.valueOf(blk).add(BigInteger.valueOf(500));
-        */
-        return BigInteger.ZERO;
     }
 
     @Override
     public Peers getPeers() {
         return this.callRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(this.group)),
+                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(this.group, this.node)),
                 Peers.class);
     }
 
     @Override
     public void getPeersAsync(RespCallback<Peers> callback) {
         this.asyncCallRemoteMethod(
-                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(this.group)),
+                new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(this.group, this.node)),
                 Peers.class,
                 callback);
     }
@@ -478,6 +473,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void stop() {
+        jniRpcImpl.stop();
         Thread.currentThread().interrupt();
     }
 
@@ -488,24 +484,21 @@ public class ClientImpl implements Client {
             String data = this.objectMapper.writeValueAsString(request);
             this.jniRpcImpl.genericMethod(
                     data,
-                    new RpcCallback() {
-                        @Override
-                        public void onResponse(Error error, byte[] msg) {
-                            Response response = new Response();
-                            response.setErrorCode(error.getErrorCode());
-                            response.setErrorMessage(error.getErrorMessage());
-                            response.setContent(msg);
+                    (error, msg) -> {
+                        Response response = new Response();
+                        response.setErrorCode(error.getErrorCode());
+                        response.setErrorMessage(error.getErrorMessage());
+                        response.setContent(msg);
 
-                            if (logger.isTraceEnabled()) {
-                                logger.trace(
-                                        " ===>>> request: {}, error: {}, msg: {}",
-                                        request,
-                                        error,
-                                        new String(msg));
-                            }
-
-                            future.complete(response);
+                        if (logger.isTraceEnabled()) {
+                            logger.trace(
+                                    " ===>>> request: {}, error: {}, msg: {}",
+                                    request,
+                                    error,
+                                    new String(msg));
                         }
+
+                        future.complete(response);
                     });
             Response response = future.get();
             return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
@@ -548,18 +541,15 @@ public class ClientImpl implements Client {
 
             this.jniRpcImpl.genericMethod(
                     this.objectMapper.writeValueAsString(request),
-                    new RpcCallback() {
-                        @Override
-                        public void onResponse(Error error, byte[] msg) {
-                            Response response = new Response();
-                            response.setErrorCode(error.getErrorCode());
-                            response.setErrorMessage(error.getErrorMessage());
-                            response.setContent(msg);
+                    (error, msg) -> {
+                        Response response = new Response();
+                        response.setErrorCode(error.getErrorCode());
+                        response.setErrorMessage(error.getErrorMessage());
+                        response.setContent(msg);
 
-                            ResponseCallback responseCallback =
-                                    createResponseCallback(request, responseType, callback);
-                            responseCallback.onResponse(response);
-                        }
+                        ResponseCallback responseCallback1 =
+                                createResponseCallback(request, responseType, callback);
+                        responseCallback1.onResponse(response);
                     });
         } catch (Exception e) {
             e.printStackTrace();
@@ -572,18 +562,15 @@ public class ClientImpl implements Client {
         try {
             this.jniRpcImpl.genericMethod(
                     this.objectMapper.writeValueAsString(request),
-                    new RpcCallback() {
-                        @Override
-                        public void onResponse(Error error, byte[] msg) {
-                            Response response = new Response();
-                            response.setErrorCode(error.getErrorCode());
-                            response.setErrorMessage(error.getErrorMessage());
-                            response.setContent(msg);
+                    (error, msg) -> {
+                        Response response = new Response();
+                        response.setErrorCode(error.getErrorCode());
+                        response.setErrorMessage(error.getErrorMessage());
+                        response.setContent(msg);
 
-                            ResponseCallback responseCallback =
-                                    createResponseCallback(request, responseType, callback);
-                            responseCallback.onResponse(response);
-                        }
+                        ResponseCallback responseCallback =
+                                createResponseCallback(request, responseType, callback);
+                        responseCallback.onResponse(response);
                     });
         } catch (JsonProcessingException e) {
             e.printStackTrace();

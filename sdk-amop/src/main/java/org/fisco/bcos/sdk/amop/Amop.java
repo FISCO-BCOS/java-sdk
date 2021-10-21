@@ -16,9 +16,9 @@
 package org.fisco.bcos.sdk.amop;
 
 import java.util.Set;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.jni.amop.AmopCallback;
 import org.fisco.bcos.sdk.jni.amop.AmopResponseCallback;
-import org.fisco.bcos.sdk.config.ConfigOption;
 
 /**
  * AMOP module interface.

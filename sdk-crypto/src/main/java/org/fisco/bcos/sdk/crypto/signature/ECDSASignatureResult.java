@@ -54,6 +54,11 @@ public class ECDSASignatureResult extends SignatureResult {
     }
 
     @Override
+    public String toString() {
+        return convertToString();
+    }
+
+    @Override
     public byte[] encode() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {

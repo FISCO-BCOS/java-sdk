@@ -33,6 +33,7 @@ import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.network.NetworkException;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,12 +44,13 @@ public class BcosSDKTest {
                     .getClassLoader()
                     .getResource(ConstantConfig.CONFIG_FILE_NAME)
                     .getPath();
+    private static final String GROUP = "group";
 
     @Test
-    public void testClient() throws ConfigException {
-        String group = "";
+    public void testClient() throws ConfigException, NetworkException {
+
         ConfigOption configOption = Config.load(configFile);
-        Client client = Client.build(group, configOption);
+        Client client = Client.build(GROUP, configOption);
 
         // test getBlockNumber
         BlockNumber blockNumber = client.getBlockNumber();
@@ -104,10 +106,10 @@ public class BcosSDKTest {
     }
 
     @Test
-    public void testClientAsync() throws ConfigException {
-        String group = "";
+    public void testClientAsync() throws ConfigException, NetworkException {
+
         ConfigOption configOption = Config.load(configFile);
-        Client client = Client.build(group, configOption);
+        Client client = Client.build(GROUP, configOption);
 
         // test getBlockByNumber only header
         String[] genesisHash = {null};
@@ -228,10 +230,10 @@ public class BcosSDKTest {
     }
 
     @Test
-    public void testHelloWorldInSolidity() throws ConfigException {
-        String group = "";
+    public void testHelloWorldInSolidity() throws ConfigException, NetworkException {
+
         ConfigOption configOption = Config.load(configFile);
-        Client client = Client.build(group, configOption);
+        Client client = Client.build(GROUP, configOption);
 
         CryptoSuite cryptoSuite = client.getCryptoSuite();
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
@@ -282,10 +284,10 @@ public class BcosSDKTest {
     }
 
     @Test
-    public void testHelloWorldInLiquid() throws ConfigException {
-        String group = "";
+    public void testHelloWorldInLiquid() throws ConfigException, NetworkException {
+
         ConfigOption configOption = Config.load(configFile);
-        Client client = Client.build(group, configOption);
+        Client client = Client.build(GROUP, configOption);
 
         CryptoSuite cryptoSuite = client.getCryptoSuite();
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();

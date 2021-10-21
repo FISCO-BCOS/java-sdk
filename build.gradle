@@ -149,6 +149,7 @@ subprojects {
 sourceSets {
     main {
         java {
+            srcDir "sdk-amop/src/main/java"
             srcDir "sdk-core/src/main/java"
             srcDir "sdk-crypto/src/main/java"
             srcDir "sdk-codec/src/main/java"
@@ -203,7 +204,7 @@ dependencies {
 }
 
 configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 30, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     exclude group:'ch.qos.logback', module: 'logback-classic'
 }
 

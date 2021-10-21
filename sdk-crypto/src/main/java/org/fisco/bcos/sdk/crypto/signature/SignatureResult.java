@@ -83,6 +83,11 @@ public abstract class SignatureResult {
      */
     public abstract String convertToString();
 
+    @Override
+    public String toString() {
+        return convertToString();
+    }
+
     /**
      * encode the signatureResult into rlp-list
      *
