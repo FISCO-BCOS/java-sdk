@@ -22,9 +22,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
-import org.fisco.bcos.sdk.codec.abi.ABICodec;
-import org.fisco.bcos.sdk.codec.abi.ABICodecException;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIObject;
+import org.fisco.bcos.sdk.codec.ABICodec;
+import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.datatypes.Type;
+import org.fisco.bcos.sdk.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
@@ -44,6 +45,7 @@ import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherInterface;
 import org.fisco.bcos.sdk.transaction.pusher.TransactionPusherService;
 import org.fisco.bcos.sdk.transaction.tools.ContractLoader;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,9 +69,9 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String chainId,
             ContractLoader contractLoader) {
         super(client, cryptoKeyPair, groupId, chainId);
-        this.transactionDecoder = new TransactionDecoderService(this.cryptoSuite);
+        this.transactionDecoder = new TransactionDecoderService(this.cryptoSuite, client.isWASM());
         this.transactionPusher = new TransactionPusherService(client);
-        this.abiCodec = new ABICodec(this.cryptoSuite);
+        this.abiCodec = new ABICodec(this.cryptoSuite, client.isWASM());
         this.contractLoader = contractLoader;
     }
 
@@ -82,9 +84,9 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String abi,
             String bin) {
         super(client, cryptoKeyPair, groupId, chainId);
-        this.transactionDecoder = new TransactionDecoderService(this.cryptoSuite);
+        this.transactionDecoder = new TransactionDecoderService(this.cryptoSuite, client.isWASM());
         this.transactionPusher = new TransactionPusherService(client);
-        this.abiCodec = new ABICodec(this.cryptoSuite);
+        this.abiCodec = new ABICodec(this.cryptoSuite, client.isWASM());
         this.contractLoader = new ContractLoader(contractName, abi, bin);
     }
 
@@ -119,12 +121,12 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionResponse deployAndGetResponseWithStringParams(
-            String abi, String bin, List<String> params) throws ABICodecException {
+            String abi, String bin, List<String> params, String path) throws ABICodecException {
         return this.deployAndGetResponse(
                 abi,
                 this.createSignedTransaction(
                         null,
-                        this.abiCodec.encodeConstructorFromString(abi, bin, params),
+                        this.abiCodec.encodeConstructorFromString(abi, bin, params, path),
                         this.cryptoKeyPair));
     }
 
@@ -178,8 +180,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
-            String to, String abi, String functionName, byte[] data)
-            throws TransactionBaseException, ABICodecException {
+            String to, String abi, String functionName, byte[] data) throws ABICodecException {
         String signedData = this.createSignedTransaction(to, data, this.cryptoKeyPair);
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
@@ -204,6 +205,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String to, String abi, String functionName, List<String> params)
             throws ABICodecException, TransactionBaseException {
         byte[] data = this.abiCodec.encodeMethodFromString(abi, functionName, params);
+        log.info("encoded data: {}", Hex.toHexString(data));
         return this.sendTransactionAndGetResponse(to, abi, functionName, data);
     }
 
@@ -306,6 +308,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String from, String to, String abi, String functionName, List<String> paramsList)
             throws TransactionBaseException, ABICodecException {
         byte[] data = this.abiCodec.encodeMethodFromString(abi, functionName, paramsList);
+        log.info("encoded data: {}", Hex.toHexString(data));
         return this.callAndGetResponse(from, to, abi, functionName, data);
     }
 
@@ -314,12 +317,10 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws ABICodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
-        Pair<List<Object>, List<ABIObject>> results =
+        List<Type> decodedResult =
                 this.abiCodec.decodeMethodAndGetOutputObject(
                         abi, functionName, call.getCallResult().getOutput());
-        callResponse.setValues(JsonUtils.toJson(results.getLeft()));
-        callResponse.setReturnObject(results.getLeft());
-        callResponse.setReturnABIObject(results.getRight());
+        callResponse.setResults(decodedResult);
         return callResponse;
     }
 

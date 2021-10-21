@@ -56,21 +56,19 @@ public class FunctionReturnDecoder implements FunctionReturnDecoderInterface {
      */
     public static <T extends Type> Type decodeIndexedValue(
             String rawInput, TypeReference<T> typeReference) {
-        String input = Numeric.cleanHexPrefix(rawInput);
-
         try {
             Class<T> type = typeReference.getClassType();
+            ScaleCodecReader reader = new ScaleCodecReader(Hex.decode(rawInput));
 
             if (Bytes.class.isAssignableFrom(type)) {
-                return org.fisco.bcos.sdk.codec.abi.TypeDecoder.decodeBytes(
-                        Hex.decode(input), (Class<Bytes>) Class.forName(type.getName()));
+                return TypeDecoder.decodeBytes(
+                        reader, (Class<Bytes>) Class.forName(type.getName()));
             } else if (Array.class.isAssignableFrom(type)
                     || BytesType.class.isAssignableFrom(type)
                     || Utf8String.class.isAssignableFrom(type)) {
-                return org.fisco.bcos.sdk.codec.abi.TypeDecoder.decodeBytes(
-                        Hex.decode(input), Bytes32.class);
+                return TypeDecoder.decodeBytes(reader, Bytes32.class);
             } else {
-                return org.fisco.bcos.sdk.codec.abi.TypeDecoder.decode(Hex.decode(input), 0, type);
+                return TypeDecoder.decode(reader, type);
             }
         } catch (ClassNotFoundException e) {
             throw new UnsupportedOperationException("Invalid class reference provided", e);

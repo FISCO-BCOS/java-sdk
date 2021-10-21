@@ -25,7 +25,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.codec.abi.ABICodecException;
+import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;

@@ -5,10 +5,10 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABICodecJsonWrapper;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIObject;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIObjectFactory;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.codec.wrapper.ABICodecJsonWrapper;
+import org.fisco.bcos.sdk.codec.wrapper.ABIObject;
+import org.fisco.bcos.sdk.codec.wrapper.ABIObjectFactory;
+import org.fisco.bcos.sdk.codec.wrapper.ContractABIDefinition;
 import org.junit.Assert;
 import org.junit.Test;
 

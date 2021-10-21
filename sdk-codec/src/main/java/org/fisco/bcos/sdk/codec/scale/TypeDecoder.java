@@ -4,6 +4,7 @@ import static org.fisco.bcos.sdk.codec.Utils.getSimpleTypeName;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,8 +41,30 @@ public class TypeDecoder {
     }
 
     public static <T extends NumericType> T decodeNumeric(ScaleCodecReader reader, Class<T> type) {
+
         try {
-            int bitSize = (int) type.getMethod("getBitSize", NumericType.class).invoke(type);
+            int bitSize = 256;
+            if (IntType.class.isAssignableFrom(type)) {
+                String regex =
+                        "(" + Uint.class.getSimpleName() + "|" + Int.class.getSimpleName() + ")";
+                String[] splitName = type.getSimpleName().split(regex);
+                if (splitName.length == 2) {
+                    bitSize = Integer.parseInt(splitName[1]);
+                }
+            } else if (FixedPointType.class.isAssignableFrom(type)) {
+                String regex =
+                        "("
+                                + Ufixed.class.getSimpleName()
+                                + "|"
+                                + Fixed.class.getSimpleName()
+                                + ")";
+                String[] splitName = type.getSimpleName().split(regex);
+                if (splitName.length == 2) {
+                    String[] bitsCounts = splitName[1].split("x");
+                    bitSize = Integer.parseInt(bitsCounts[0]) + Integer.parseInt(bitsCounts[1]);
+                }
+            }
+
             byte[] resultBytes = reader.readByteArray(bitSize >> 3);
             ArrayUtils.reverse(resultBytes);
             BigInteger numericValue = new BigInteger(resultBytes);
@@ -53,7 +76,7 @@ public class TypeDecoder {
                 | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new UnsupportedOperationException(
-                    "Unable to create instance of " + type.getName(), e);
+                    "Unable to create instance of " + type.getName() + ": " + e.getMessage(), e);
         }
     }
 
@@ -86,8 +109,9 @@ public class TypeDecoder {
     public static <T extends Type> T decodeArray(
             ScaleCodecReader reader,
             TypeReference<T> typeReference,
-            BiFunction<List<T>, String, T> consumer) {
-        int len = reader.readCompact();
+            BiFunction<List<T>, String, T> consumer,
+            Integer length) {
+        int len = length == null ? reader.readCompact() : length;
         if (len == 0) {
             throw new UnsupportedOperationException("Zero length fixed array is invalid type");
         }
@@ -130,7 +154,14 @@ public class TypeDecoder {
                         }
                     }
                 };
-        return decodeArray(reader, typeReference, function);
+        int length =
+                Integer.parseInt(
+                        ((ParameterizedType) typeReference.getType())
+                                .getRawType()
+                                .getClass()
+                                .getSimpleName()
+                                .substring(StaticArray.class.getSimpleName().length()));
+        return decodeArray(reader, typeReference, function, length);
     }
 
     @SuppressWarnings("unchecked")
@@ -138,7 +169,7 @@ public class TypeDecoder {
             ScaleCodecReader reader, TypeReference<T> typeReference) {
         BiFunction<List<T>, String, T> function =
                 (elements, typName) -> (T) new DynamicArray(AbiTypes.getType(typName), elements);
-        return decodeArray(reader, typeReference, function);
+        return decodeArray(reader, typeReference, function, null);
     }
 
     public static <T extends Type> T decodeStruct(

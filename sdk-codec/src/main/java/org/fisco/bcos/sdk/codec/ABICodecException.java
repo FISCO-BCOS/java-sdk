@@ -13,7 +13,7 @@
  *
  */
 
-package org.fisco.bcos.sdk.codec.abi;
+package org.fisco.bcos.sdk.codec;
 
 public class ABICodecException extends Exception {
 

@@ -20,8 +20,8 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
-import org.fisco.bcos.sdk.codec.abi.ABICodec;
-import org.fisco.bcos.sdk.codec.abi.ABICodecException;
+import org.fisco.bcos.sdk.codec.ABICodec;
+import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 
@@ -44,11 +44,12 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
      * @param cryptoSuite @See CryptoSuite
      * @param groupId the group that need create transaction
      * @param chainId default 1
-     * @param blockLimit, cached limited block number
-     * @param abi, compiled contract abi
+     * @param blockLimit cached limited block number
+     * @param abi compiled contract abi
      * @param to target address
      * @param functionName function name
-     * @param params object list of function paramater
+     * @param params object list of function parameter
+     * @param isWasm whether the invoked contract is a Wasm contract
      * @return TransactionData the signed transaction hexed string
      */
     public static String createSignedTransaction(
@@ -59,9 +60,10 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
             String abi,
             String to,
             String functionName,
-            List<Object> params)
+            List<Object> params,
+            boolean isWasm)
             throws ABICodecException {
-        ABICodec abiCodec = new ABICodec(cryptoSuite);
+        ABICodec abiCodec = new ABICodec(cryptoSuite, isWasm);
         byte[] data = abiCodec.encodeMethod(abi, functionName, params);
         Random r = ThreadLocalRandom.current();
         BigInteger randomId = new BigInteger(250, r);

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.codec.abi.ABICodec;
+import org.fisco.bcos.sdk.codec.ABICodec;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.fisco.bcos.sdk.model.TransactionReceipt;

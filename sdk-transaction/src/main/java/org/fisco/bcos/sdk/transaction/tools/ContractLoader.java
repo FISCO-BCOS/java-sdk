@@ -25,7 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.codec.abi.tools.ContractAbiUtil;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.transaction.model.CommonConstant;
 import org.fisco.bcos.sdk.transaction.model.bo.AbiInfo;
 import org.fisco.bcos.sdk.transaction.model.bo.BinInfo;

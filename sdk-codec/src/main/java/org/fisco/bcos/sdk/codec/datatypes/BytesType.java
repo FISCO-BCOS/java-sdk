@@ -46,4 +46,11 @@ public abstract class BytesType implements Type<byte[]> {
         result = 31 * result + type.hashCode();
         return result;
     }
+
+    @Override
+    public int bytes32PaddedLength() {
+        return value.length <= 32
+                ? MAX_BYTE_LENGTH
+                : (value.length / MAX_BYTE_LENGTH + 1) * MAX_BYTE_LENGTH;
+    }
 }

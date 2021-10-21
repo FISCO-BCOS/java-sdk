@@ -8,8 +8,6 @@ import org.fisco.bcos.sdk.codec.datatypes.Type;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 
 public abstract class FunctionEncoderInterface extends Encoder {
-    private CryptoSuite cryptoSuite;
-
     public FunctionEncoderInterface(CryptoSuite cryptoSuite) {
         super(cryptoSuite);
     }

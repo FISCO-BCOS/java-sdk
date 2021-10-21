@@ -165,6 +165,18 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.signatureList = signatureList;
         }
 
+        public void setParentInfo(List<ParentInfo> parentInfo) {
+            this.parentInfo = parentInfo;
+        }
+
+        public void setConsensusWeights(List<Long> consensusWeights) {
+            this.consensusWeights = consensusWeights;
+        }
+
+        public void setVersion(Integer version) {
+            this.version = version;
+        }
+
         public List<Signature> getSignatureList() {
             return this.signatureList;
         }
@@ -189,7 +201,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.transactionsRoot = transactionsRoot;
         }
 
-        public void setReceiptRoot(String receiptsRoot) {
+        public void setReceiptsRoot(String receiptsRoot) {
             this.receiptsRoot = receiptsRoot;
         }
 
@@ -237,12 +249,24 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             return this.transactionsRoot;
         }
 
-        public String getReceiptRoot() {
+        public String getReceiptsRoot() {
             return this.receiptsRoot;
         }
 
         public String getStateRoot() {
             return this.stateRoot;
+        }
+
+        public List<ParentInfo> getParentInfo() {
+            return parentInfo;
+        }
+
+        public List<Long> getConsensusWeights() {
+            return consensusWeights;
+        }
+
+        public Integer getVersion() {
+            return version;
         }
 
         public Integer getSealer() {

@@ -20,7 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import org.fisco.bcos.sdk.codec.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.codegen.exceptions.CodeGenException;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 

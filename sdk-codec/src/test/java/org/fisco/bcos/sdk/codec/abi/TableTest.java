@@ -1,6 +1,6 @@
 package org.fisco.bcos.sdk.codec.abi;
 
-import org.fisco.bcos.sdk.codec.abi.wrapper.*;
+import org.fisco.bcos.sdk.codec.wrapper.*;
 import org.fisco.bcos.sdk.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.utils.Hex;

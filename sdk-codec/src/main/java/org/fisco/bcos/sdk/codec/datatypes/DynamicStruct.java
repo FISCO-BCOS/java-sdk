@@ -14,6 +14,14 @@ public class DynamicStruct extends DynamicArray<Type> implements StructType {
         }
     }
 
+    public DynamicStruct(List<Type> values) {
+        super(Type.class, values);
+        for (Type value : values) {
+            itemTypes.add((Class<Type>) value.getClass());
+            componentTypes.add(value);
+        }
+    }
+
     @SafeVarargs
     public DynamicStruct(Class<Type> type, Type... values) {
         this(type, Arrays.asList(values));
@@ -28,7 +36,7 @@ public class DynamicStruct extends DynamicArray<Type> implements StructType {
         final StringBuilder type = new StringBuilder("(");
         for (int i = 0; i < itemTypes.size(); ++i) {
             final Class<Type> cls = itemTypes.get(i);
-            if (StructType.class.isAssignableFrom(cls)) {
+            if (StructType.class.isAssignableFrom(cls) || Array.class.isAssignableFrom(cls)) {
                 type.append(getValue().get(i).getTypeAsString());
             } else {
                 type.append(AbiTypes.getTypeAString(cls));
@@ -44,5 +52,10 @@ public class DynamicStruct extends DynamicArray<Type> implements StructType {
     @Override
     public List<Type> getComponentTypes() {
         return componentTypes;
+    }
+
+    @Override
+    public int bytes32PaddedLength() {
+        return super.bytes32PaddedLength() + 32;
     }
 }

@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.codec.abi.wrapper;
+package org.fisco.bcos.sdk.codec.wrapper;
 
 import java.math.BigInteger;
 import java.util.List;

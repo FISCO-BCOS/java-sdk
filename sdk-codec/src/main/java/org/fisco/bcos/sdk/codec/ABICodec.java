@@ -13,18 +13,27 @@
  *
  */
 
-package org.fisco.bcos.sdk.codec.abi;
+package org.fisco.bcos.sdk.codec;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.fisco.bcos.sdk.codec.abi.wrapper.*;
+import org.fisco.bcos.sdk.codec.abi.Constant;
+import org.fisco.bcos.sdk.codec.datatypes.*;
+import org.fisco.bcos.sdk.codec.wrapper.*;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +43,26 @@ public class ABICodec {
     private static final Logger logger = LoggerFactory.getLogger(ABICodec.class);
 
     private final CryptoSuite cryptoSuite;
-    public static final String TYPE_CONSTRUCTOR = "constructor";
+    private final boolean isWasm;
+    private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+    private org.fisco.bcos.sdk.codec.scale.FunctionEncoder scaleFunctionEncoder = null;
+    private org.fisco.bcos.sdk.codec.abi.FunctionEncoder abiFunctionEncoder = null;
+    private FunctionReturnDecoderInterface functionReturnDecoder = null;
     private final ABIDefinitionFactory abiDefinitionFactory;
     private final ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
 
-    public ABICodec(CryptoSuite cryptoSuite) {
+    public ABICodec(CryptoSuite cryptoSuite, boolean isWasm) {
         super();
         this.cryptoSuite = cryptoSuite;
+        this.isWasm = isWasm;
+        if (isWasm) {
+            this.scaleFunctionEncoder =
+                    new org.fisco.bcos.sdk.codec.scale.FunctionEncoder(cryptoSuite);
+            this.functionReturnDecoder = new org.fisco.bcos.sdk.codec.scale.FunctionReturnDecoder();
+        } else {
+            this.abiFunctionEncoder = new org.fisco.bcos.sdk.codec.abi.FunctionEncoder(cryptoSuite);
+            this.functionReturnDecoder = new org.fisco.bcos.sdk.codec.abi.FunctionReturnDecoder();
+        }
         this.abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
     }
 
@@ -48,16 +70,16 @@ public class ABICodec {
         return this.cryptoSuite;
     }
 
-    public byte[] encodeConstructor(String ABI, String BIN, List<Object> params)
+    public byte[] encodeConstructor(String abi, String bin, List<Object> params)
             throws ABICodecException {
 
-        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(ABI);
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
         ABIObject inputABIObject = ABIObjectFactory.createInputObject(abiDefinition);
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            outputStream.write(Hex.decode(BIN));
+            outputStream.write(Hex.decode(bin));
             outputStream.write(abiCodecObject.encodeValue(inputABIObject, params).encode());
             return outputStream.toByteArray();
         } catch (Exception e) {
@@ -68,16 +90,238 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public byte[] encodeConstructorFromString(String ABI, String BIN, List<String> params)
-            throws ABICodecException {
-        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(ABI);
+    private Type buildType(ABIDefinition.NamedType namedType, String param)
+            throws ABICodecException, JsonProcessingException {
+        String typeStr = namedType.getType();
+        ABIDefinition.Type paramType = new ABIDefinition.Type(typeStr);
+        Type type = null;
+        if (paramType.isList()) {
+            List elements = new ArrayList();
+            JsonNode jsonNode = this.objectMapper.readTree(param);
+            assert jsonNode.isArray();
+
+            ABIDefinition.NamedType subType = new ABIDefinition.NamedType();
+            subType.setType(paramType.reduceDimensionAndGetType().getType());
+            subType.setComponents(namedType.getComponents());
+
+            for (JsonNode subNode : jsonNode) {
+                String subNodeStr =
+                        subNode.isTextual()
+                                ? subNode.asText()
+                                : this.objectMapper.writeValueAsString(subNode);
+                Type element = buildType(subType, subNodeStr);
+                elements.add(element);
+            }
+            type = paramType.isFixedList() ? new StaticArray(elements) : new DynamicArray(elements);
+            return type;
+        } else if (typeStr.equals("tuple")) {
+            List<Type> components = new ArrayList<>();
+            JsonNode jsonNode = this.objectMapper.readTree(param);
+            assert jsonNode.isObject();
+            for (ABIDefinition.NamedType component : namedType.getComponents()) {
+                JsonNode subNode = jsonNode.get(component.getName());
+                String subNodeStr =
+                        subNode.isTextual()
+                                ? subNode.asText()
+                                : this.objectMapper.writeValueAsString(subNode);
+                components.add(buildType(component, subNodeStr));
+            }
+            type =
+                    namedType.isDynamic()
+                            ? new DynamicStruct(components)
+                            : new StaticStruct(components);
+            return type;
+        } else {
+            if (typeStr.startsWith("uint")) {
+                int bitSize = 256;
+                if (!typeStr.equals("uint")) {
+                    String bitSizeStr = typeStr.substring("uint".length());
+                    try {
+                        bitSize = Integer.parseInt(bitSizeStr);
+                    } catch (NumberFormatException e) {
+                        String errorMsg = " unrecognized uint type: " + typeStr;
+                        logger.error(errorMsg);
+                        throw new ABICodecException(errorMsg);
+                    }
+                }
+
+                try {
+                    Class<?> uintClass =
+                            Class.forName(
+                                    "org.fisco.bcos.sdk.codec.datatypes.generated.Uint" + bitSize);
+                    type =
+                            (Type)
+                                    uintClass
+                                            .getDeclaredConstructor(BigInteger.class)
+                                            .newInstance(new BigInteger(param));
+                } catch (ClassNotFoundException
+                        | NoSuchMethodException
+                        | InstantiationException
+                        | IllegalAccessException
+                        | InvocationTargetException e) {
+                    String errorMsg = "unrecognized uint type: " + typeStr;
+                    logger.error(errorMsg);
+                    throw new ABICodecException(errorMsg);
+                }
+
+                return type;
+            }
+
+            if (typeStr.startsWith("int")) {
+                int bitSize = 256;
+                if (!typeStr.equals("int")) {
+                    String bitSizeStr = typeStr.substring("int".length());
+                    try {
+                        bitSize = Integer.parseInt(bitSizeStr);
+                    } catch (NumberFormatException e) {
+                        String errorMsg = "unrecognized int type: " + typeStr;
+                        logger.error(errorMsg);
+                        throw new ABICodecException(errorMsg);
+                    }
+                }
+
+                try {
+                    Class<?> uintClass =
+                            Class.forName(
+                                    "org.fisco.bcos.sdk.codec.datatypes.generated.Int" + bitSize);
+                    type =
+                            (Type)
+                                    uintClass
+                                            .getDeclaredConstructor(BigInteger.class)
+                                            .newInstance(new BigInteger(param));
+                } catch (ClassNotFoundException
+                        | NoSuchMethodException
+                        | InstantiationException
+                        | IllegalAccessException
+                        | InvocationTargetException e) {
+                    String errorMsg = "unrecognized uint type: " + typeStr;
+                    logger.error(errorMsg);
+                    throw new ABICodecException(errorMsg);
+                }
+
+                return type;
+            }
+
+            if (typeStr.equals("bool")) {
+                type = new Bool(Boolean.parseBoolean(param));
+                return type;
+            }
+
+            if (typeStr.equals("string")) {
+                type = new Utf8String(param);
+                return type;
+            }
+
+            if (typeStr.equals("bytes")) {
+                JsonNode jsonNode = this.objectMapper.readTree(param);
+                assert jsonNode.isArray();
+                byte[] bytes = new byte[jsonNode.size()];
+                for (int i = 0; i < jsonNode.size(); ++i) {
+                    bytes[i] = ((byte) jsonNode.get(i).asInt());
+                }
+                type = new DynamicBytes(bytes);
+                return type;
+            }
+
+            if (typeStr.startsWith("bytes")) {
+                String lengthStr = typeStr.substring("bytes".length());
+                int length;
+                try {
+                    length = Integer.parseInt(lengthStr);
+                } catch (NumberFormatException e) {
+                    String errorMsg = "unrecognized static byte array type: " + typeStr;
+                    logger.error(errorMsg);
+                    throw new ABICodecException(errorMsg);
+                }
+
+                if (length > 32) {
+                    String errorMsg = "the length of static byte array exceeds 32: " + typeStr;
+                    logger.error(errorMsg);
+                    throw new ABICodecException(errorMsg);
+                }
+
+                JsonNode jsonNode = this.objectMapper.readTree(param);
+                assert jsonNode.isArray();
+                if (jsonNode.size() != length) {
+                    String errorMsg =
+                            String.format(
+                                    "expected byte array at length %d but length of provided in data is %d",
+                                    length, jsonNode.size());
+                    logger.error(errorMsg);
+                    throw new ABICodecException(errorMsg);
+                }
+
+                byte[] bytes = new byte[jsonNode.size()];
+                for (int i = 0; i < jsonNode.size(); ++i) {
+                    bytes[i] = ((byte) jsonNode.get(i).asInt());
+                }
+                try {
+                    Class<?> bytesClass =
+                            Class.forName(
+                                    "org.fisco.bcos.sdk.codec.datatypes.generated.Bytes" + length);
+                    type =
+                            (Type)
+                                    bytesClass
+                                            .getDeclaredConstructor(byte[].class)
+                                            .newInstance(bytes);
+                } catch (ClassNotFoundException
+                        | NoSuchMethodException
+                        | InstantiationException
+                        | IllegalAccessException
+                        | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+                return type;
+            }
+        }
+        String errorMsg = "unrecognized type: " + typeStr;
+        logger.error(errorMsg);
+        throw new ABICodecException(errorMsg);
+    }
+
+    public byte[] encodeConstructorFromString(
+            String abi, String bin, List<String> params, String path) throws ABICodecException {
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
-        ABIObject inputABIObject = ABIObjectFactory.createInputObject(abiDefinition);
-        Throwable cause = null;
+        List<ABIDefinition.NamedType> inputTypes = abiDefinition.getInputs();
+        if (inputTypes.size() != params.size()) {
+            String errorMsg =
+                    String.format(
+                            " expected %d parameters but provided %d parameters",
+                            inputTypes.size(), params.size());
+            logger.error(errorMsg);
+            throw new ABICodecException(errorMsg);
+        }
+
+        Throwable cause;
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            outputStream.write(Hex.decode(BIN));
-            outputStream.write(this.abiCodecJsonWrapper.encode(inputABIObject, params).encode());
+            List<Type> types = new ArrayList<>();
+            for (int i = 0; i < inputTypes.size(); ++i) {
+                types.add(buildType(inputTypes.get(i), params.get(i)));
+            }
+
+            if (!this.isWasm) {
+                outputStream.write(Hex.decode(bin));
+                outputStream.write(
+                        org.fisco.bcos.sdk.codec.abi.FunctionEncoder.encodeConstructor(types));
+            } else {
+                assert path != null;
+                List<Type> deployParams = new ArrayList<>();
+                deployParams.add(new DynamicBytes(Hex.decode(bin)));
+                deployParams.add(
+                        new DynamicBytes(
+                                org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeConstructor(
+                                        types)));
+                deployParams.add(new Utf8String(path));
+                deployParams.add(new Utf8String(abi));
+                byte[] input = "deployWasm(bytes,bytes,string,string)".getBytes();
+                byte[] hash = this.cryptoSuite.hash(input);
+                byte[] methodID = Arrays.copyOfRange(hash, 0, 4);
+                outputStream.write(
+                        org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeParameters(
+                                deployParams, methodID));
+            }
             return outputStream.toByteArray();
         } catch (Exception e) {
             cause = e;
@@ -191,9 +435,9 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public byte[] encodeMethodFromString(String ABI, String methodName, List<String> params)
+    public byte[] encodeMethodFromString(String abi, String methodName, List<String> params)
             throws ABICodecException {
-        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(ABI);
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
         if (methods == null) {
             logger.debug(
@@ -206,16 +450,32 @@ public class ABICodec {
                             + " , supported functions are: "
                             + contractABIDefinition.getFunctions().keySet());
         }
+
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
-                ABIObject inputABIObject = ABIObjectFactory.createInputObject(abiDefinition);
-                ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+                List<ABIDefinition.NamedType> inputs = abiDefinition.getInputs();
+                List<Type> inputTypes = new ArrayList<>();
                 try {
+                    for (int i = 0; i < inputs.size(); ++i) {
+                        inputTypes.add(buildType(inputs.get(i), params.get(i)));
+                    }
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    outputStream.write(abiDefinition.getMethodId(this.cryptoSuite));
-                    outputStream.write(abiCodecJsonWrapper.encode(inputABIObject, params).encode());
+                    String signature =
+                            FunctionEncoderInterface.buildMethodSignature(
+                                    abiDefinition.getName(), inputTypes);
+                    if (this.isWasm) {
+                        byte[] methodID = this.scaleFunctionEncoder.buildMethodId(signature);
+                        outputStream.write(
+                                org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeParameters(
+                                        inputTypes, methodID));
+                    } else {
+                        byte[] methodID = this.abiFunctionEncoder.buildMethodId(signature);
+                        outputStream.write(
+                                org.fisco.bcos.sdk.codec.abi.FunctionEncoder.encodeParameters(
+                                        inputTypes, methodID));
+                    }
                     return outputStream.toByteArray();
-                } catch (Exception e) {
+                } catch (IOException e) {
                     logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
                 }
             }
@@ -289,21 +549,28 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public Pair<List<Object>, List<ABIObject>> decodeMethodAndGetOutputObject(
-            String ABI, String methodName, String output) throws ABICodecException {
-        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(ABI);
+    public List<Type> decodeMethodAndGetOutputObject(String abi, String methodName, String output)
+            throws ABICodecException {
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
         for (ABIDefinition abiDefinition : methods) {
-            ABIObject outputABIObject = ABIObjectFactory.createOutputObject(abiDefinition);
-            ABICodecObject abiCodecObject = new ABICodecObject();
+            List<ABIDefinition.NamedType> outputs = abiDefinition.getOutputs();
+            List<TypeReference<Type>> outputTypes = new ArrayList<>();
             try {
-                return abiCodecObject.decodeJavaObjectAndOutputObject(outputABIObject, output);
+                for (ABIDefinition.NamedType namedType : outputs) {
+                    outputTypes.add(TypeReference.makeTypeReference(namedType.getType(), false));
+                }
+                List<Type> decodedOutputs = this.functionReturnDecoder.decode(output, outputTypes);
+                return decodedOutputs;
             } catch (Exception e) {
-                logger.error(" exception in decodeMethodToObject : {}", e.getMessage());
+                logger.error("exception in decodeMethodToObject: {}", e.getMessage());
             }
         }
 
-        String errorMsg = " cannot decode in decodeMethodToObject with appropriate interface ABI";
+        String errorMsg =
+                String.format(
+                        "cannot decode in decodeMethodToObject with appropriate interface ABI: methodName = %s",
+                        methodName);
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
@@ -313,9 +580,9 @@ public class ABICodec {
         return this.decodeMethodAndGetOutputObject(abiDefinition, output).getLeft();
     }
 
-    public List<Object> decodeMethod(String ABI, String methodName, String output)
+    public List<Type> decodeMethod(String ABI, String methodName, String output)
             throws ABICodecException {
-        return this.decodeMethodAndGetOutputObject(ABI, methodName, output).getLeft();
+        return this.decodeMethodAndGetOutputObject(ABI, methodName, output);
     }
 
     public List<Object> decodeMethodById(String ABI, byte[] methodId, byte[] output)
@@ -342,7 +609,8 @@ public class ABICodec {
 
     public List<Object> decodeMethodByInterface(String ABI, String methodInterface, byte[] output)
             throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(this.cryptoSuite);
+        org.fisco.bcos.sdk.codec.abi.FunctionEncoder functionEncoder =
+                new org.fisco.bcos.sdk.codec.abi.FunctionEncoder(this.cryptoSuite);
         byte[] methodId = functionEncoder.buildMethodId(methodInterface);
         return this.decodeMethodById(ABI, methodId, output);
     }
@@ -398,7 +666,8 @@ public class ABICodec {
 
     public List<String> decodeMethodByInterfaceToString(
             String ABI, String methodInterface, byte[] output) throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(this.cryptoSuite);
+        org.fisco.bcos.sdk.codec.abi.FunctionEncoder functionEncoder =
+                new org.fisco.bcos.sdk.codec.abi.FunctionEncoder(this.cryptoSuite);
         byte[] methodId = functionEncoder.buildMethodId(methodInterface);
         return this.decodeMethodByIdToString(ABI, methodId, output);
     }
@@ -460,7 +729,8 @@ public class ABICodec {
 
     public List<Object> decodeEventByInterface(String ABI, String eventSignature, EventLog log)
             throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(this.cryptoSuite);
+        org.fisco.bcos.sdk.codec.abi.FunctionEncoder functionEncoder =
+                new org.fisco.bcos.sdk.codec.abi.FunctionEncoder(this.cryptoSuite);
         byte[] methodId = functionEncoder.buildMethodId(eventSignature);
         return this.decodeEventByTopic(ABI, Numeric.toHexString(methodId), log);
     }
@@ -522,7 +792,8 @@ public class ABICodec {
 
     public List<String> decodeEventByInterfaceToString(
             String ABI, String eventSignature, EventLog log) throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(this.cryptoSuite);
+        org.fisco.bcos.sdk.codec.abi.FunctionEncoder functionEncoder =
+                new org.fisco.bcos.sdk.codec.abi.FunctionEncoder(this.cryptoSuite);
         byte[] methodId = functionEncoder.buildMethodId(eventSignature);
         return this.decodeEventByTopicToString(ABI, Numeric.toHexString(methodId), log);
     }

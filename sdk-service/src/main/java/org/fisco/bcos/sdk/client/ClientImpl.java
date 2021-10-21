@@ -37,6 +37,7 @@ import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,6 +150,7 @@ public class ClientImpl implements Client {
 
     @Override
     public Call call(Transaction transaction) {
+        logger.info("call remote method {}", Hex.toHexString(transaction.getData()));
         return this.callRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.CALL,
