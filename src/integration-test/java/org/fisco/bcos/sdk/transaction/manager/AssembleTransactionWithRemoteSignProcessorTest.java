@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.protocol.model.TransactionData;
+import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -49,9 +49,9 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     private static final String binFile = "src/integration-test/resources/bin/";
     private List<Object> params = Lists.newArrayList("test");
     // prepare sdk， read from the config file
-    private BcosSDK sdk = BcosSDK.build(configFile);
+    private BcosSDK sdk = BcosSDK.build("group", configFile);
     // set the group number 1
-    private Client client = this.sdk.getClientByGroupID("1");
+    private Client client = this.sdk.getClient();
 
     // create new keypair
     private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
@@ -78,27 +78,26 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                 assembleTransactionWithRemoteSignProcessor.deployByContractLoader(
                         "HelloWorld", new ArrayList<>());
         System.out.println("--- finish deploy with  sync ---");
-        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
-            return;
-        }
-        Assert.assertTrue(response.getReturnCode() == 0);
-        Assert.assertEquals("0x0", response.getTransactionReceipt().getStatus());
-        String helloWorldAddrss = response.getContractAddress();
+        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(0, response.getReturnCode());
+        Assert.assertEquals(0, response.getTransactionReceipt().getStatus().intValue());
+        String helloWorldAddress = response.getContractAddress();
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
-                                helloWorldAddrss,
+                                helloWorldAddress,
                                 "0x0000000000000000000000000000000000000000000000000000000000000000"));
 
         // function2: send transaction `HelloWorld.set("test")` sync
-        assembleTransactionWithRemoteSignProcessor.sendTransactionAndGetResponse(
-                helloWorldAddrss, abi, "set", this.params);
-        // Assert.assertEquals("0x0", transactionResponse2.getTransactionReceipt().getStatus());
+        TransactionResponse transactionResponse2 =
+                assembleTransactionWithRemoteSignProcessor.sendTransactionAndGetResponse(
+                        helloWorldAddress, abi, "set", this.params);
+        Assert.assertEquals(0, transactionResponse2.getTransactionReceipt().getStatus().intValue());
 
         // function3:  call, which only support sync mode.
         CallResponse callResponse1 =
                 assembleTransactionWithRemoteSignProcessor.sendCallByContractLoader(
-                        "HelloWorld", helloWorldAddrss, "name", new ArrayList<>());
+                        "HelloWorld", helloWorldAddress, "get", new ArrayList<>());
         Assert.assertEquals("test", callResponse1.getReturnObject().get(0));
     }
 
@@ -125,9 +124,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                 assembleTransactionWithRemoteSignProcessor.deployByContractLoader(
                         "HelloWorld", new ArrayList<>());
         System.out.println("--- finish deploy with  sync ---");
-        if (!response.getTransactionReceipt().getStatus().equals("0x0")) {
-            return;
-        }
+        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
         String helloWorldAddrss = response.getContractAddress();
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
@@ -154,8 +151,8 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         // if normal.
         future.thenAccept(
                 tr -> {
-                    // System.out.println("deploy succeed time " + System.currentTimeMillis());
-                    // Assert.assertEquals("0x0", tr.getStatus());
+                    System.out.println("deploy succeed time " + System.currentTimeMillis());
+                    Assert.assertEquals(0, tr.getStatus().intValue());
                 });
         // if exceptional.
         future.exceptionally(
@@ -177,7 +174,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         assembleTransactionWithRemoteSignProcessor.sendTransactionAsync(
                 helloWorldAddrss, abi, "set", this.params, callbackMock2);
 
-        // function5: deploy async with CompletableFuture
+        // function5: async send with CompletableFuture
         CompletableFuture<TransactionReceipt> future2 =
                 assembleTransactionWithRemoteSignProcessor.sendTransactionAsync(
                         helloWorldAddrss, abi, "set", this.params);

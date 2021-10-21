@@ -13,7 +13,7 @@
  *
  */
 
-package org.fisco.bcos.sdk.config;
+package org.fisco.bcos.sdk.test.config;
 
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.junit.Assert;

@@ -114,7 +114,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     }
 
     @Override
-    public CompletableFuture<TransactionReceipt> sendTransactionAsync(
+    public void sendTransactionAsync(
             String to,
             String abi,
             String functionName,
@@ -125,7 +125,6 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
         this.transactionSignProvider.requestForSignAsync(
                 rawTxHash, this.cryptoSuite.getCryptoTypeConfig(), remoteSignCallbackInterface);
-        return this.signAndPush(rawTransaction, rawTxHash);
     }
 
     @Override
@@ -138,13 +137,13 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     }
 
     @Override
-    public TransactionReceipt encodeAndPush(
-            TransactionData rawTransaction, byte[] rawTxHash, String signatureStr) {
+    public TransactionReceipt encodeAndPush(TransactionData rawTransaction, String signatureStr) {
         SignatureResult signatureResult =
                 TransactionSignerServcie.decodeSignatureString(
                         signatureStr,
                         this.cryptoSuite.getCryptoTypeConfig(),
                         this.cryptoSuite.createKeyPair().getHexPublicKey());
+        byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
         byte[] signedTransaction =
                 this.transactionEncoder.encodeToTransactionBytes(
                         rawTransaction, rawTxHash, signatureResult);
@@ -173,8 +172,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
                                         "Request remote signature is null");
                                 return null;
                             }
-                            return this.encodeAndPush(
-                                    rawTransaction, rawTxHash, s.convertToString());
+                            return this.encodeAndPush(rawTransaction, s.convertToString());
                         });
         AssembleTransactionProcessor.log.info("Sign and push over, wait for callback...");
         return cr;

@@ -79,7 +79,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param remoteSignCallbackInterface after signed, callback function hook
      * @return
      */
-    public CompletableFuture<TransactionReceipt> sendTransactionAsync(
+    public void sendTransactionAsync(
             String to,
             String abi,
             String functionName,
@@ -108,8 +108,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param signatureStr signature string.
      * @return TransactionReceipt
      */
-    TransactionReceipt encodeAndPush(
-            TransactionData rawTransaction, byte[] rawTxHash, String signatureStr);
+    TransactionReceipt encodeAndPush(TransactionData rawTransaction, String signatureStr);
 
     /**
      * sign based on raw transaction and send to fisco bcos node.

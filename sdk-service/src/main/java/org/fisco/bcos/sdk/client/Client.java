@@ -362,5 +362,29 @@ public interface Client {
      */
     void getSyncStatus(RespCallback<SyncStatus> callback);
 
+    // TODO: getConsensusStatus
+
+    // TODO: createGroup
+
+    // TODO: expandGroupNode
+
+    // TODO: removeGroup
+
+    // TODO: removeGroupNode
+    //
+    // TODO: recoverGroup
+    //
+    // TODO: recoverGroupNode
+    //
+    // TODO: startNode
+    //
+    // TODO: stopNode
+    //
+    // TODO: getGroupList
+    //
+    // TODO: getGroupInfo
+    //
+    // TODO: getGroupNodeInfo
+
     void stop();
 }

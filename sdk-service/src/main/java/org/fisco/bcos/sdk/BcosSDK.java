@@ -13,8 +13,6 @@
  */
 package org.fisco.bcos.sdk;
 
-import java.util.Enumeration;
-import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
@@ -28,7 +26,8 @@ public class BcosSDK {
     public static final String SM_TYPE_STR = "sm";
 
     private final ConfigOption config;
-    private ConcurrentHashMap<String, Client> endPointToClient = new ConcurrentHashMap<>();
+    private Client client;
+
     /**
      * Build BcosSDK instance
      *
@@ -36,11 +35,11 @@ public class BcosSDK {
      * @return BcosSDK instance
      * @throws BcosSDKException
      */
-    public static BcosSDK build(String tomlConfigFilePath) throws BcosSDKException {
+    public static BcosSDK build(String groupID, String tomlConfigFilePath) throws BcosSDKException {
         try {
             ConfigOption configOption = Config.load(tomlConfigFilePath);
             logger.info("create BcosSDK, configPath: {}", tomlConfigFilePath);
-            return new BcosSDK(configOption);
+            return new BcosSDK(groupID, configOption);
         } catch (ConfigException e) {
             throw new BcosSDKException("create BcosSDK failed, error info: " + e.getMessage(), e);
         }
@@ -52,70 +51,20 @@ public class BcosSDK {
      * @param configOption the ConfigOption
      * @throws BcosSDKException
      */
-    public BcosSDK(ConfigOption configOption) throws BcosSDKException {
+    public BcosSDK(String groupID, ConfigOption configOption) throws BcosSDKException {
         this.config = configOption;
-        for (String endpoint : this.config.getNetworkConfig().getPeers()) {
-            try {
-                // create all clients
-                Client client = Client.build(endpoint, this.config);
-                updateEndPointToClient(client);
-            } catch (Exception e) {
-                logger.warn(
-                        "create client for {} failed, error info: {}", endpoint, e.getMessage());
-            }
+        try {
+            // create group client
+            this.client = Client.build(groupID, configOption);
+        } catch (Exception e) {
+            logger.warn(
+                    "create client for group {} failed, error info: {}", groupID, e.getMessage());
         }
-        if (this.endPointToClient.size() > 0) {
-            logger.info(
-                    "create BcosSDK, create connection success, connection size: {}",
-                    this.endPointToClient.size());
+        if (this.client != null) {
+            logger.info("create BcosSDK, create connection success, group id: {}", groupID);
             return;
         }
         throw new BcosSDKException("create BcosSDK failed for all connect failed");
-    }
-
-    private boolean updateEndPointToClient(Client client) {
-        // TODO:
-        /*
-        if (this.endPointToClient.containsKey(client.getConnection().getEndPoint()) == false) {
-            endPointToClient.put(client.getConnection().getEndPoint(), client);
-            return true;
-        }
-        return false;
-        */
-        return true;
-    }
-
-    public Enumeration<String> getAllConnections() {
-        return this.endPointToClient.keys();
-    }
-
-    /**
-     * Get a Client instance of a specific group
-     *
-     * @param groupId the group id
-     * @return Client
-     */
-    public Client getClientByGroupID(String groupId) {
-        for (String endPoint : this.endPointToClient.keySet()) {
-            Client client = this.endPointToClient.get(endPoint);
-            if (client.getGroup().equals(groupId)) {
-                return client;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get a Client instance of a specific group
-     *
-     * @param endPoint
-     * @return Client
-     */
-    public Client getClientByEndpoint(String endPoint) {
-        if (this.endPointToClient.containsKey(endPoint)) {
-            return this.endPointToClient.get(endPoint);
-        }
-        return null;
     }
 
     /**
@@ -127,11 +76,13 @@ public class BcosSDK {
         return this.config;
     }
 
+    public Client getClient() {
+        return client;
+    }
+
     /** Stop all module of BcosSDK */
     public void stopAll() {
         // stop the client
-        for (String endPoint : this.endPointToClient.keySet()) {
-            this.endPointToClient.get(endPoint).stop();
-        }
+        this.client.stop();
     }
 }
