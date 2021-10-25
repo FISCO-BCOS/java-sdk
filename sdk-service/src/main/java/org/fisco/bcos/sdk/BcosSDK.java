@@ -13,10 +13,12 @@
  */
 package org.fisco.bcos.sdk;
 
+import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.network.NetworkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +28,7 @@ public class BcosSDK {
     public static final String SM_TYPE_STR = "sm";
 
     private final ConfigOption config;
-    private Client client;
+    private ConcurrentHashMap<String, Client> groupToClient = new ConcurrentHashMap<>();
 
     /**
      * Build BcosSDK instance
@@ -35,11 +37,11 @@ public class BcosSDK {
      * @return BcosSDK instance
      * @throws BcosSDKException
      */
-    public static BcosSDK build(String groupID, String tomlConfigFilePath) throws BcosSDKException {
+    public static BcosSDK build(String tomlConfigFilePath) throws BcosSDKException {
         try {
             ConfigOption configOption = Config.load(tomlConfigFilePath);
             logger.info("create BcosSDK, configPath: {}", tomlConfigFilePath);
-            return new BcosSDK(groupID, configOption);
+            return new BcosSDK(configOption);
         } catch (ConfigException e) {
             throw new BcosSDKException("create BcosSDK failed, error info: " + e.getMessage(), e);
         }
@@ -51,18 +53,13 @@ public class BcosSDK {
      * @param configOption the ConfigOption
      * @throws BcosSDKException
      */
-    public BcosSDK(String groupID, ConfigOption configOption) throws BcosSDKException {
+    public BcosSDK(ConfigOption configOption) throws BcosSDKException {
         this.config = configOption;
         try {
-            // create group client
-            this.client = Client.build(groupID, configOption);
-        } catch (Exception e) {
-            logger.warn(
-                    "create client for group {} failed, error info: {}", groupID, e.getMessage());
-        }
-        if (this.client != null) {
-            logger.info("create BcosSDK, create connection success, group id: {}", groupID);
+            // create sdk
             return;
+        } catch (Exception e) {
+            logger.warn("create client for failed, error info: {}", e.getMessage());
         }
         throw new BcosSDKException("create BcosSDK failed for all connect failed");
     }
@@ -76,13 +73,48 @@ public class BcosSDK {
         return this.config;
     }
 
-    public Client getClient() {
-        return client;
+    /**
+     * Check whether group id in valid
+     *
+     * @param groupId the target group id
+     */
+    private void checkGroupId(String groupId) {
+        // check group string
+        String regex = "[A-Za-z0-9_\\-\\\\\\\\u4e00-\\\\\\\\u9fa5]+";
+        if (!groupId.matches(regex)) {
+
+            throw new BcosSDKException(
+                    "create client for group "
+                            + groupId
+                            + " failed for invalid group name! The string regex must match "
+                            + regex);
+        }
+    }
+
+    /**
+     * Get a Client instance of a specific group
+     *
+     * @param groupId the group id
+     * @return Client
+     */
+    public Client getClient(String groupId) throws NetworkException {
+        checkGroupId(groupId);
+        if (!groupToClient.containsKey(groupId)) {
+            // create a new client for the specified group
+            Client client = Client.build(groupId, this.config);
+            groupToClient.put(groupId, client);
+            logger.info("create client for group {} success", groupId);
+        }
+        return groupToClient.get(groupId);
     }
 
     /** Stop all module of BcosSDK */
     public void stopAll() {
-        // stop the client
-        this.client.stop();
+        // stop all client
+        groupToClient.forEach(
+                (String groupId, Client client) -> {
+                    logger.info("Stopping client for group {}.", groupId);
+                    client.stop();
+                });
     }
 }

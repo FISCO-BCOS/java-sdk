@@ -56,6 +56,10 @@ public class ConsensusPrecompiled extends Contract {
         return (cryptoSuite.getCryptoTypeConfig() == CryptoType.ECDSA_TYPE ? BINARY : SM_BINARY);
     }
 
+    public static String getABI() {
+        return ABI;
+    }
+
     public TransactionReceipt addObserver(String param0) {
         final Function function =
                 new Function(

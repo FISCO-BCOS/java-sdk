@@ -15,6 +15,8 @@
 
 package org.fisco.bcos.sdk.test.config;
 
+import org.fisco.bcos.sdk.config.Config;
+import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,14 +1,15 @@
 package org.fisco.bcos.sdk.contract.precompiled.bfs;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.util.List;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FileInfo {
     private String name;
     private String type;
-    private List<FileInfo> subdirectories;
+    private String extra;
+    private String gid;
+    private String uid;
 
     public String getName() {
         return name;
@@ -26,27 +27,45 @@ public class FileInfo {
         this.type = type;
     }
 
-    public List<FileInfo> getSubdirectories() {
-        return subdirectories;
+    public String getExtra() {
+        return extra;
     }
 
-    public void setSubdirectories(List<FileInfo> subdirectories) {
-        this.subdirectories = subdirectories;
+    public void setExtra(String extra) {
+        this.extra = extra;
+    }
+
+    public String getGid() {
+        return gid;
+    }
+
+    public void setGid(String gid) {
+        this.gid = gid;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FileInfo)) return false;
+        FileInfo fileInfo = (FileInfo) o;
+        return Objects.equals(name, fileInfo.name)
+                && Objects.equals(type, fileInfo.type)
+                && Objects.equals(extra, fileInfo.extra)
+                && Objects.equals(gid, fileInfo.gid)
+                && Objects.equals(uid, fileInfo.uid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, type, subdirectories);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof FileInfo) {
-            FileInfo fileInfo = (FileInfo) obj;
-            return Objects.equals(name, fileInfo.name)
-                    && Objects.equals(type, fileInfo.type)
-                    && Objects.equals(subdirectories, fileInfo.subdirectories);
-        } else return false;
+        return Objects.hash(name, type, extra, gid, uid);
     }
 
     @Override
@@ -58,8 +77,15 @@ public class FileInfo {
                 + ", type='"
                 + type
                 + '\''
-                + ", subDir="
-                + subdirectories
+                + ", extra='"
+                + extra
+                + '\''
+                + ", gid='"
+                + gid
+                + '\''
+                + ", uid='"
+                + uid
+                + '\''
                 + '}';
     }
 }
