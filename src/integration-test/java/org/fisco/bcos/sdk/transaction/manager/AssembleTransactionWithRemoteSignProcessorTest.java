@@ -25,6 +25,7 @@ import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.network.NetworkException;
 import org.fisco.bcos.sdk.transaction.mock.RemoteSignCallbackMock;
 import org.fisco.bcos.sdk.transaction.mock.RemoteSignProviderMock;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
@@ -49,15 +50,17 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     private static final String binFile = "src/integration-test/resources/bin/";
     private List<Object> params = Lists.newArrayList("test");
     // prepare sdk， read from the config file
-    private BcosSDK sdk = BcosSDK.build("group", configFile);
+    private BcosSDK sdk = BcosSDK.build(configFile);
     // set the group number 1
-    private Client client = this.sdk.getClient();
+    private Client client = this.sdk.getClient("group");
 
     // create new keypair
     private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
     // mock remote sign service
     private RemoteSignProviderInterface remoteSignProviderMock =
             new RemoteSignProviderMock(this.client.getCryptoSuite());
+
+    public AssembleTransactionWithRemoteSignProcessorTest() throws NetworkException {}
 
     @Test
     public void test1HelloWorldSync() throws Exception {

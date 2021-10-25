@@ -46,7 +46,7 @@ public class ClientImpl implements Client {
     private final String group;
     private final String chainId;
     private final Boolean wasm;
-    private final String node = "node";
+    private final String node = "";
     private final Boolean smCrypto;
     private final CryptoSuite cryptoSuite;
     private final NodeInfoResponse nodeInfoResponse;

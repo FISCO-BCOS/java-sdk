@@ -52,7 +52,6 @@ public class ABICodec {
     private final ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
 
     public ABICodec(CryptoSuite cryptoSuite, boolean isWasm) {
-        super();
         this.cryptoSuite = cryptoSuite;
         this.isWasm = isWasm;
         if (isWasm) {
@@ -338,7 +337,7 @@ public class ABICodec {
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
-        if (methods == null || methods.size() == 0) {
+        if (methods == null || methods.isEmpty()) {
             throw new ABICodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
         }
         for (ABIDefinition abiDefinition : methods) {

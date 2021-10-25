@@ -48,10 +48,10 @@ public class TransactionDecoderServiceTest {
 
     @Test
     public void testDecode() throws Exception {
-        BcosSDK sdk = BcosSDK.build("group", configFile);
-        Client client = sdk.getClient();
+        BcosSDK sdk = BcosSDK.build(configFile);
+        Client client = sdk.getClient("group");
         TransactionDecoderInterface decoder =
-                new TransactionDecoderService(client.getCryptoSuite());
+                new TransactionDecoderService(client.getCryptoSuite(), client.isWASM());
         ContractLoader contractLoader = new ContractLoader(abiFile, binFile);
         String abi = contractLoader.getABIByContractName(contractName);
         AssembleTransactionProcessor manager =

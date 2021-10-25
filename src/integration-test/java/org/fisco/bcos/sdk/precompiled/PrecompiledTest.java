@@ -26,7 +26,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import org.fisco.bcos.sdk.BcosSDKTest;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.config.Config;
@@ -69,187 +68,164 @@ public class PrecompiledTest {
     private static final String GROUP = "group";
 
     @Test
-    public void test1ConsensusService() throws ConfigException, ContractException {
-        try {
+    public void test1ConsensusService()
+            throws ConfigException, ContractException, NetworkException {
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(GROUP, configOption);
 
-            ConfigOption configOption = Config.load(configFile);
-            Client client = Client.build(GROUP, configOption);
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        ConsensusService consensusService = new ConsensusService(client, cryptoKeyPair);
+        // get the current sealerList
+        List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
 
-            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
-            ConsensusService consensusService = new ConsensusService(client, cryptoKeyPair);
-            // get the current sealerList
-            List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
+        // select the node to operate
+        SealerList.Sealer selectedNode = sealerList.get(0);
 
-            // select the node to operate
-            SealerList.Sealer selectedNode = sealerList.get(0);
+        // addSealer
+        //        Assert.assertThrows(
+        //                ContractException.class,
+        //                () -> {
+        //                    consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
+        //                });
 
-            // addSealer
+        // add the sealer to the observerList
+        RetCode retCode = consensusService.addObserver(selectedNode.getNodeID());
+        // query the observerList
+        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            List<String> observerList = client.getObserverList().getResult();
+            Assert.assertTrue(observerList.contains(selectedNode.getNodeID()));
+            // query the sealerList
+            sealerList = client.getSealerList().getResult();
+            Assert.assertFalse(sealerList.contains(selectedNode));
+            // add the node to the observerList again
             Assert.assertThrows(
                     ContractException.class,
-                    () -> {
-                        consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
-                    });
-
-            // add the sealer to the observerList
-            RetCode retCode = consensusService.addObserver(selectedNode.getNodeID());
-            // query the observerList
-            if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                List<String> observerList = client.getObserverList().getResult();
-                Assert.assertTrue(observerList.contains(selectedNode.getNodeID()));
-                // query the sealerList
-                sealerList = client.getSealerList().getResult();
-                Assert.assertFalse(sealerList.contains(selectedNode));
-                // add the node to the observerList again
-                Assert.assertThrows(
-                        ContractException.class,
-                        () -> {
-                            consensusService.addObserver(selectedNode.getNodeID());
-                        });
-            }
-            // add the node to the sealerList again
-            retCode = consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
-
-            if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
-                Assert.assertFalse(
-                        client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-            }
-
-            // removeNode
-            retCode = consensusService.removeNode(selectedNode.getNodeID());
-            if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                Assert.assertFalse(
-                        client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-                Assert.assertFalse(client.getSealerList().getResult().contains(selectedNode));
-            }
-
-            // add the node to observerList again
-            retCode = consensusService.addObserver(selectedNode.getNodeID());
-            if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                Assert.assertTrue(
-                        client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-                Assert.assertFalse(client.getSealerList().getResult().contains(selectedNode));
-            }
-
-            // add the node to the sealerList again
-            retCode = consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
-            if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
-                Assert.assertFalse(
-                        client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-            }
-        } catch (ClientException | ContractException | NetworkException e) {
-            System.out.println(
-                    "testConsensusPrecompiled exceptioned, error info:" + e.getMessage());
+                    () -> consensusService.addObserver(selectedNode.getNodeID()));
         }
-    }
+        // add the node to the sealerList again
+        retCode = consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
 
-    @Test
-    public void test2CnsService() throws ConfigException {
-        try {
+        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
+            Assert.assertFalse(
+                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
+        }
 
-            ConfigOption configOption = Config.load(configFile);
-            Client client = Client.build(GROUP, configOption);
+        // removeNode
+        retCode = consensusService.removeNode(selectedNode.getNodeID());
+        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            Assert.assertFalse(
+                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
+            Assert.assertFalse(client.getSealerList().getResult().contains(selectedNode));
+        }
 
-            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
-            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
-            String contractAddress = helloWorld.getContractAddress().toLowerCase();
-            String contractName = "HelloWorld";
-            String contractVersion = String.valueOf(Math.random());
-            CnsService cnsService = new CnsService(client, cryptoKeyPair);
-            RetCode retCode =
-                    cnsService.registerCNS(contractName, contractVersion, contractAddress, "");
-            // query the cns information
-            List<CnsInfo> cnsInfos = cnsService.selectByName(contractName);
-            if (!cnsInfos.isEmpty()) {
-                boolean containContractAddress = false;
-                for (CnsInfo cnsInfo : cnsInfos) {
-                    if (cnsInfo.getAddress().equals(contractAddress)) {
-                        containContractAddress = true;
-                        break;
-                    }
-                }
-                Assert.assertTrue(containContractAddress);
-            }
-
-            Tuple2<String, String> cnsTuple =
-                    cnsService.selectByNameAndVersion(contractName, contractVersion);
+        // add the node to observerList again
+        retCode = consensusService.addObserver(selectedNode.getNodeID());
+        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
             Assert.assertTrue(
-                    Numeric.cleanHexPrefix(cnsTuple.getValue1())
-                            .equals(contractAddress)); // address
-            Assert.assertTrue(cnsTuple.getValue2().equals("")); // abi
+                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
+            Assert.assertFalse(client.getSealerList().getResult().contains(selectedNode));
+        }
 
-            if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                boolean containContractAddress = false;
-                for (CnsInfo cnsInfo : cnsInfos) {
-                    if (cnsInfo.getAddress().equals(contractAddress)) {
-                        containContractAddress = true;
-                    }
-                }
-                Assert.assertTrue(containContractAddress);
-            }
-            Assert.assertTrue(cnsInfos.get(0).getName().equals(contractName));
-
-            // query contractAddress
-            cnsService.getContractAddress(contractName, contractVersion);
-            // insert another cns info
-            String contractVersion2 = String.valueOf(Math.random());
-            retCode = cnsService.registerCNS(contractName, contractVersion2, contractAddress, "");
-
-            if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                List<CnsInfo> cnsInfos2 = cnsService.selectByName(contractName);
-                Assert.assertTrue(cnsInfos2.size() == cnsInfos.size() + 1);
-                Assert.assertTrue(
-                        Numeric.cleanHexPrefix(
-                                        cnsService.getContractAddress(
-                                                contractName, contractVersion))
-                                .equals(contractAddress));
-                Assert.assertTrue(
-                        Numeric.cleanHexPrefix(
-                                        cnsService.getContractAddress(
-                                                contractName, contractVersion2))
-                                .equals(contractAddress));
-            }
-            // insert anther cns for other contract
-            HelloWorld helloWorld2 = HelloWorld.deploy(client, cryptoKeyPair);
-            String contractAddress2 = helloWorld2.getContractAddress().toLowerCase();
-            String contractName2 = "hello";
-            retCode = cnsService.registerCNS(contractName2, contractVersion, contractAddress2, "");
-            if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                String abc = cnsService.getContractAddress(contractName, "abc");
-                Assert.assertTrue(abc.equals("0x0000000000000000000000000000000000000000"));
-                Assert.assertTrue(
-                        Numeric.cleanHexPrefix(
-                                        cnsService.getContractAddress(
-                                                contractName2, contractVersion))
-                                .equals(contractAddress2));
-                Assert.assertTrue(
-                        Numeric.cleanHexPrefix(
-                                        cnsService.getContractAddress(
-                                                contractName, contractVersion))
-                                .equals(contractAddress));
-            }
-        } catch (ContractException | NetworkException e) {
-            System.out.println("testCnsPrecompiled failed for " + e.getMessage());
+        // add the node to the sealerList again
+        retCode = consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
+        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
+            Assert.assertFalse(
+                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
         }
     }
 
     @Test
-    public void test3SystemConfigService() throws ConfigException, ContractException {
-        try {
+    public void test2CnsService() throws ConfigException, NetworkException, ContractException {
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(GROUP, configOption);
 
-            ConfigOption configOption = Config.load(configFile);
-            Client client = Client.build(GROUP, configOption);
-
-            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
-            SystemConfigService systemConfigService =
-                    new SystemConfigService(client, cryptoKeyPair);
-            this.testSystemConfigService(client, systemConfigService, "tx_count_limit");
-            this.testSystemConfigService(client, systemConfigService, "tx_gas_limit");
-        } catch (ClientException | ContractException | NetworkException e) {
-            System.out.println(
-                    "testSystemConfigPrecompiled exceptioned, error inforamtion:" + e.getMessage());
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
+        String contractAddress = helloWorld.getContractAddress().toLowerCase();
+        String contractName = "HelloWorld";
+        String contractVersion = String.valueOf(Math.random());
+        CnsService cnsService = new CnsService(client, cryptoKeyPair);
+        RetCode retCode =
+                cnsService.registerCNS(contractName, contractVersion, contractAddress, "");
+        // query the cns information
+        List<CnsInfo> cnsInfos = cnsService.selectByName(contractName);
+        if (!cnsInfos.isEmpty()) {
+            boolean containContractAddress = false;
+            for (CnsInfo cnsInfo : cnsInfos) {
+                if (cnsInfo.getAddress().equals(contractAddress)) {
+                    containContractAddress = true;
+                    break;
+                }
+            }
+            Assert.assertTrue(containContractAddress);
         }
+
+        Tuple2<String, String> cnsTuple =
+                cnsService.selectByNameAndVersion(contractName, contractVersion);
+        Assert.assertTrue(
+                Numeric.cleanHexPrefix(cnsTuple.getValue1()).equals(contractAddress)); // address
+        Assert.assertTrue(cnsTuple.getValue2().equals("")); // abi
+
+        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            boolean containContractAddress = false;
+            for (CnsInfo cnsInfo : cnsInfos) {
+                if (cnsInfo.getAddress().equals(contractAddress)) {
+                    containContractAddress = true;
+                }
+            }
+            Assert.assertTrue(containContractAddress);
+        }
+        Assert.assertTrue(cnsInfos.get(0).getName().equals(contractName));
+
+        // query contractAddress
+        cnsService.getContractAddress(contractName, contractVersion);
+        // insert another cns info
+        String contractVersion2 = String.valueOf(Math.random());
+        retCode = cnsService.registerCNS(contractName, contractVersion2, contractAddress, "");
+
+        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            List<CnsInfo> cnsInfos2 = cnsService.selectByName(contractName);
+            Assert.assertTrue(cnsInfos2.size() == cnsInfos.size() + 1);
+            Assert.assertTrue(
+                    Numeric.cleanHexPrefix(
+                                    cnsService.getContractAddress(contractName, contractVersion))
+                            .equals(contractAddress));
+            Assert.assertTrue(
+                    Numeric.cleanHexPrefix(
+                                    cnsService.getContractAddress(contractName, contractVersion2))
+                            .equals(contractAddress));
+        }
+        // insert anther cns for other contract
+        HelloWorld helloWorld2 = HelloWorld.deploy(client, cryptoKeyPair);
+        String contractAddress2 = helloWorld2.getContractAddress().toLowerCase();
+        String contractName2 = "hello";
+        retCode = cnsService.registerCNS(contractName2, contractVersion, contractAddress2, "");
+        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
+            String abc = cnsService.getContractAddress(contractName, "abc");
+            Assert.assertTrue(abc.equals("0x0000000000000000000000000000000000000000"));
+            Assert.assertTrue(
+                    Numeric.cleanHexPrefix(
+                                    cnsService.getContractAddress(contractName2, contractVersion))
+                            .equals(contractAddress2));
+            Assert.assertTrue(
+                    Numeric.cleanHexPrefix(
+                                    cnsService.getContractAddress(contractName, contractVersion))
+                            .equals(contractAddress));
+        }
+    }
+
+    @Test
+    public void test3SystemConfigService()
+            throws ConfigException, ContractException, NetworkException {
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(GROUP, configOption);
+
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        SystemConfigService systemConfigService = new SystemConfigService(client, cryptoKeyPair);
+        this.testSystemConfigService(client, systemConfigService, "tx_count_limit");
+        this.testSystemConfigService(client, systemConfigService, "tx_gas_limit");
     }
 
     private void testSystemConfigService(
@@ -268,64 +244,59 @@ public class PrecompiledTest {
         // Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(1000))));
     }
 
-    // Note: Please make sure that the ut is before the permission-related ut
     @Test
-    public void test5CRUDService() throws ConfigException, ContractException {
-        try {
+    public void test5CRUDService() throws ConfigException, ContractException, NetworkException {
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(GROUP, configOption);
 
-            ConfigOption configOption = Config.load(configFile);
-            Client client = Client.build(GROUP, configOption);
-
-            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
-            TableCRUDService tableCRUDService = new TableCRUDService(client, cryptoKeyPair);
-            // create a user table
-            String tableName = "test" + (int) (Math.random() * 1000);
-            String key = "key";
-            List<String> valueFields = new ArrayList<>(5);
-            for (int i = 0; i < 5; i++) {
-                valueFields.add(i, "field" + i);
-            }
-            tableCRUDService.createTable(tableName, key, valueFields);
-            // desc
-            List<Map<String, String>> desc = tableCRUDService.desc(tableName);
-
-            // insert
-            Map<String, String> fieldNameToValue = new HashMap<>();
-            for (int i = 0; i < valueFields.size(); i++) {
-                fieldNameToValue.put("field" + i, "value" + i);
-            }
-            fieldNameToValue.put(key, "key1");
-            Entry fieldNameToValueEntry = new Entry(fieldNameToValue);
-            tableCRUDService.insert(tableName, fieldNameToValueEntry);
-            // select
-            Condition condition = new Condition();
-            condition.EQ(key, "key1");
-            List<Map<String, String>> result = tableCRUDService.select(tableName, condition);
-            // field value result + key result
-            if (result.size() > 0) {
-                Assert.assertEquals(result.get(0).size(), fieldNameToValue.size());
-            }
-            System.out.println("tableCRUDService select result: " + result);
-            // update
-            fieldNameToValue.clear();
-            fieldNameToValue.put(key, "key1");
-            fieldNameToValueEntry.setFieldNameToValue(fieldNameToValue);
-            tableCRUDService.update(tableName, fieldNameToValueEntry, null);
-            result = tableCRUDService.select(tableName, condition);
-            if (result.size() > 0) {
-                Assert.assertTrue(result.get(0).size() == valueFields.size() + 1);
-            }
-            System.out.println("tableCRUDService select result: " + result);
-
-            // remove
-            tableCRUDService.remove(tableName, condition);
-            result = tableCRUDService.select(tableName, condition);
-            Assert.assertTrue(result.size() == 0);
-            System.out.println(
-                    "testCRUDPrecompiled tableCRUDService.remove size : " + result.size());
-        } catch (ContractException | NetworkException e) {
-            System.out.println("testCRUDPrecompiled exceptioned, error info: " + e.getMessage());
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        TableCRUDService tableCRUDService = new TableCRUDService(client, cryptoKeyPair);
+        // create a user table
+        String tableName = "test" + (int) (Math.random() * 1000);
+        String key = "key";
+        List<String> valueFields = new ArrayList<>(5);
+        for (int i = 0; i < 5; i++) {
+            valueFields.add(i, "field" + i);
         }
+        RetCode code = tableCRUDService.createTable(tableName, key, valueFields);
+        Assert.assertEquals(0, code.getCode());
+        // desc
+        List<Map<String, String>> desc = tableCRUDService.desc(tableName);
+        Assert.assertEquals(desc.get(0).get("value_field"), "field0,field1,field2,field3,field4");
+
+        // insert
+        Map<String, String> fieldNameToValue = new HashMap<>();
+        for (int i = 0; i < valueFields.size(); i++) {
+            fieldNameToValue.put("field" + i, "value" + i);
+        }
+        fieldNameToValue.put(key, "key1");
+        Entry fieldNameToValueEntry = new Entry(fieldNameToValue);
+        tableCRUDService.insert(tableName, fieldNameToValueEntry);
+        // select
+        Condition condition = new Condition();
+        condition.EQ(key, "key1");
+        List<Map<String, String>> result = tableCRUDService.select(tableName, condition);
+        // field value result + key result
+        if (result.size() > 0) {
+            Assert.assertEquals(result.get(0).size(), fieldNameToValue.size());
+        }
+        System.out.println("tableCRUDService select result: " + result);
+        // update
+        fieldNameToValue.clear();
+        fieldNameToValue.put(key, "key1");
+        fieldNameToValueEntry.setFieldNameToValue(fieldNameToValue);
+        tableCRUDService.update(tableName, fieldNameToValueEntry, null);
+        result = tableCRUDService.select(tableName, condition);
+        if (result.size() > 0) {
+            Assert.assertTrue(result.get(0).size() == valueFields.size() + 1);
+        }
+        System.out.println("tableCRUDService select result: " + result);
+
+        // remove
+        tableCRUDService.remove(tableName, condition);
+        result = tableCRUDService.select(tableName, condition);
+        Assert.assertTrue(result.size() == 0);
+        System.out.println("testCRUDPrecompiled tableCRUDService.remove size : " + result.size());
     }
 
     // Note: Please make sure that the ut is before the permission-related ut
@@ -338,11 +309,11 @@ public class PrecompiledTest {
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
-        Random random = new Random();
-        String tableName = "test_sync" + random.nextInt(1);
+        String tableName = "test_sync" + new Random().nextInt(100);
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         RetCode retCode = crudService.createTable(tableName, "key", valueFiled);
+        System.out.println("tableName" + tableName);
         System.out.println(
                 "createResult: " + retCode.getCode() + ", message: " + retCode.getMessage());
         // create a thread pool to parallel insert and select
@@ -356,30 +327,27 @@ public class PrecompiledTest {
         for (int i = 0; i < 100; i++) {
             Integer index = i;
             threadPool.execute(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Map<String, String> value = new HashMap<>();
-                                value.put("field", "field" + index);
-                                value.put("key", "key" + index);
-                                // insert
-                                crudService.insert(tableName, new Entry(value));
-                                // select
-                                Condition condition = new Condition();
-                                condition.EQ("key", "key" + index);
-                                crudService.select(tableName, condition);
-                                // update
-                                value.clear();
-                                value.put("field", "field" + index + 100);
-                                crudService.update(tableName, new Entry(value), condition);
-                                // remove
-                                crudService.remove(tableName, condition);
-                            } catch (ContractException e) {
-                                System.out.println(
-                                        "call crudService failed, error information: "
-                                                + e.getMessage());
-                            }
+                    () -> {
+                        try {
+                            Map<String, String> value = new HashMap<>();
+                            value.put("field", "field" + index);
+                            value.put("key", "key" + index);
+                            // insert
+                            crudService.insert(tableName, new Entry(value));
+                            // select
+                            Condition condition = new Condition();
+                            condition.EQ("key", "key" + index);
+                            crudService.select(tableName, condition);
+                            // update
+                            value.clear();
+                            value.put("field", "field" + index + 100);
+                            crudService.update(tableName, new Entry(value), condition);
+                            // remove
+                            crudService.remove(tableName, condition);
+                        } catch (ContractException e) {
+                            System.out.println(
+                                    "call crudService failed, error information: "
+                                            + e.getMessage());
                         }
                     });
         }
@@ -414,7 +382,7 @@ public class PrecompiledTest {
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
         // create table
-        String tableName = "send_async" + new Random().nextInt(1);
+        String tableName = "send_async" + new Random().nextInt(100);
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         String key = "key";
@@ -495,7 +463,7 @@ public class PrecompiledTest {
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         BFSService bfsService = new BFSService(client, cryptoKeyPair);
-        FileInfo list = bfsService.list("/");
+        List<FileInfo> list = bfsService.list("/");
         System.out.println(list);
     }
 

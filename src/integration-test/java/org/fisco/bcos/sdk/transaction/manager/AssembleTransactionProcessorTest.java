@@ -26,11 +26,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.datatypes.Type;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.network.NetworkException;
 import org.fisco.bcos.sdk.transaction.mock.TransactionCallbackMock;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
@@ -49,24 +51,30 @@ import org.junit.runners.MethodSorters;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AssembleTransactionProcessorTest {
-    private static final String configFile =
+    private static final String CONFIG_FILE =
             "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
-    private static final String abiFile = "src/integration-test/resources/abi/";
-    private static final String binFile = "src/integration-test/resources/bin/";
-    private final String abi =
-            "[{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_addrDArray\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_addr\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"getUint256\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"v\",\"type\":\"uint256\"}],\"name\":\"incrementUint256\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_bytesV\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_s\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"getSArray\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256[2]\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"bytesArray\",\"type\":\"bytes1[]\"}],\"name\":\"setBytesMapping\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"setBytes\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"i\",\"type\":\"int256\"},{\"name\":\"a\",\"type\":\"address[]\"},{\"name\":\"s\",\"type\":\"string\"}],\"name\":\"setValues\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"b\",\"type\":\"bytes1\"}],\"name\":\"getByBytes\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes1[]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_intV\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"emptyArgs\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"i\",\"type\":\"int256\"},{\"name\":\"s\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogIncrement\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogInit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"i\",\"type\":\"int256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"address[]\"},{\"indexed\":false,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogSetValues\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"o\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"LogSetBytes\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"o\",\"type\":\"uint256[2]\"},{\"indexed\":false,\"name\":\"n\",\"type\":\"uint256[2]\"}],\"name\":\"LogSetSArray\",\"type\":\"event\"}]";
+    private static final String ABI_FILE = "src/integration-test/resources/abi/";
+    private static final String BIN_FILE = "src/integration-test/resources/bin/";
+    private static final String ABI =
+            "[{\"constant\":true,\"inputs\":[{\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"getByBytes\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes[]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"bytesArray\",\"type\":\"bytes[]\"}],\"name\":\"setBytesMapping\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_addrDArray\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_addr\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"getUint256\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"v\",\"type\":\"uint256\"}],\"name\":\"incrementUint256\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_bytesV\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_s\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"getSArray\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256[2]\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"setBytes\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"i\",\"type\":\"int256\"},{\"name\":\"a\",\"type\":\"address[]\"},{\"name\":\"s\",\"type\":\"string\"}],\"name\":\"setValues\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_intV\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"emptyArgs\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"i\",\"type\":\"int256\"},{\"name\":\"s\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogIncrement\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogInit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"i\",\"type\":\"int256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"address[]\"},{\"indexed\":false,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogSetValues\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"o\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"LogSetBytes\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"o\",\"type\":\"uint256[2]\"},{\"indexed\":false,\"name\":\"n\",\"type\":\"uint256[2]\"}],\"name\":\"LogSetSArray\",\"type\":\"event\"}]";
     // init the sdk, and set the config options.
-    private BcosSDK sdk = BcosSDK.build("group", configFile);
+    private final BcosSDK sdk;
     // group
-    private Client client = this.sdk.getClient();
-    private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
+    private final Client client;
+    private final CryptoKeyPair cryptoKeyPair;
+
+    public AssembleTransactionProcessorTest() throws NetworkException {
+        sdk = BcosSDK.build(CONFIG_FILE);
+        client = this.sdk.getClient("group");
+        cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
+    }
 
     @Test
     public void test1HelloWorld() throws Exception {
         // create an instance of processor.
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        this.client, this.cryptoKeyPair, abiFile, binFile);
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
         // test sync deploy contract `HelloWorld`, which has no constructed parameter.
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("HelloWorld", new ArrayList<>());
@@ -83,9 +91,9 @@ public class AssembleTransactionProcessorTest {
         CallResponse callResponse1 =
                 transactionProcessor.sendCallByContractLoader(
                         "HelloWorld", helloWorldAddress, "get", new ArrayList<>());
-        List<Object> l = JsonUtils.fromJsonList(callResponse1.getValues(), Object.class);
+        List<Type> l = callResponse1.getResults();
         Assert.assertEquals(l.size(), 1);
-        Assert.assertEquals(l.get(0), "Hello, World!");
+        Assert.assertEquals(l.get(0).getValue(), "Hello, World!");
 
         // test send transaction
         List<Object> params = new ArrayList<>();
@@ -104,9 +112,9 @@ public class AssembleTransactionProcessorTest {
         CallResponse callResponse2 =
                 transactionProcessor.sendCallByContractLoader(
                         "HelloWorld", helloWorldAddress, "get", new ArrayList<>());
-        l = JsonUtils.fromJsonList(callResponse2.getValues(), Object.class);
+        l = callResponse2.getResults();
         Assert.assertEquals(l.size(), 1);
-        Assert.assertEquals(l.get(0), "test");
+        Assert.assertEquals(l.get(0).getValue(), "test");
 
         // test deploy by contract loader
         response = transactionProcessor.deployByContractLoader("HelloWorld", new ArrayList<>());
@@ -120,7 +128,7 @@ public class AssembleTransactionProcessorTest {
         // create the instance of processor
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        this.client, this.cryptoKeyPair, abiFile, binFile);
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
         // get the string of abi & bin
         String abi = transactionProcessor.contractLoader.getABIByContractName("HelloWorld");
         String bin = transactionProcessor.contractLoader.getBinaryByContractName("HelloWorld");
@@ -163,7 +171,7 @@ public class AssembleTransactionProcessorTest {
     public void test2ComplexDeploy() throws Exception {
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        this.client, this.cryptoKeyPair, abiFile, binFile);
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -193,7 +201,7 @@ public class AssembleTransactionProcessorTest {
         try {
             AssembleTransactionProcessor transactionProcessor =
                     TransactionProcessorFactory.createAssembleTransactionProcessor(
-                            this.client, this.cryptoKeyPair, abiFile, binFile);
+                            this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
             // deploy
             List<Object> params = Lists.newArrayList();
             params.add(1);
@@ -211,10 +219,9 @@ public class AssembleTransactionProcessorTest {
             System.out.println(JsonUtils.toJson(callResponse1));
             System.out.println("callResponse1 : " + callResponse1.getReturnMessage());
             if (callResponse1.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-                List<Object> entities =
-                        JsonUtils.fromJsonList(callResponse1.getValues(), Object.class);
+                List<Type> entities = callResponse1.getResults();
                 Assert.assertEquals(entities.size(), 1);
-                Assert.assertEquals(entities.get(0), 1);
+                Assert.assertEquals(entities.get(0).getValue(), BigInteger.valueOf(1));
             }
             CallResponse callResponse2 =
                     transactionProcessor.sendCallByContractLoader(
@@ -222,10 +229,9 @@ public class AssembleTransactionProcessorTest {
             System.out.println("callResponse2 : " + callResponse2.getReturnMessage());
             if (callResponse2.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 System.out.println(JsonUtils.toJson(callResponse2));
-                List<Object> entities2 =
-                        JsonUtils.fromJsonList(callResponse2.getValues(), Object.class);
+                List<Type> entities2 = callResponse2.getResults();
                 Assert.assertEquals(entities2.size(), 1);
-                Assert.assertEquals(entities2.get(0), "test2");
+                Assert.assertEquals(entities2.get(0).getValue(), "test2");
             }
         } catch (TransactionBaseException e) {
             System.out.println("test3ComplexQuery exception, RetCode: " + e.getRetCode());
@@ -236,7 +242,7 @@ public class AssembleTransactionProcessorTest {
     public void test4ComplexEmptyTx() throws Exception {
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        this.client, this.cryptoKeyPair, abiFile, binFile);
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -256,7 +262,7 @@ public class AssembleTransactionProcessorTest {
     public void test5ComplexIncrement() throws Exception {
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        this.client, this.cryptoKeyPair, abiFile, binFile);
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -268,7 +274,7 @@ public class AssembleTransactionProcessorTest {
         // increment v
         transactionProcessor.sendTransactionAsync(
                 contractAddress,
-                this.abi,
+                this.ABI,
                 "incrementUint256",
                 Lists.newArrayList(BigInteger.valueOf(10)),
                 new TransactionCallback() {
@@ -283,7 +289,7 @@ public class AssembleTransactionProcessorTest {
                                             AssembleTransactionProcessorTest.this.cryptoKeyPair
                                                     .getAddress(),
                                             contractAddress,
-                                            AssembleTransactionProcessorTest.this.abi,
+                                            AssembleTransactionProcessorTest.this.ABI,
                                             "getUint256",
                                             Lists.newArrayList());
                             System.out.println(JsonUtils.toJson(callResponse3));
@@ -299,7 +305,7 @@ public class AssembleTransactionProcessorTest {
     public void test6ComplexSetValues() throws Exception {
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        this.client, this.cryptoKeyPair, abiFile, binFile);
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -316,7 +322,7 @@ public class AssembleTransactionProcessorTest {
         paramsSetValues.add("set values 字符串");
         TransactionResponse transactionResponse =
                 transactionProcessor.sendTransactionAndGetResponse(
-                        contractAddress, this.abi, "setValues", paramsSetValues);
+                        contractAddress, ABI, "setValues", paramsSetValues);
         System.out.println(JsonUtils.toJson(transactionResponse));
         Map<String, List<List<Object>>> eventsMap = transactionResponse.getEventResultMap();
         // FIXME: event is not supported now
@@ -328,7 +334,7 @@ public class AssembleTransactionProcessorTest {
     public void test7ComplexSetBytes() throws Exception {
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        this.client, this.cryptoKeyPair, abiFile, binFile);
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -338,10 +344,10 @@ public class AssembleTransactionProcessorTest {
         Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
         String contractAddress = response.getContractAddress();
         // setBytes
-        List<String> paramsSetBytes = Lists.newArrayList(new String("set bytes test".getBytes()));
+        List<String> paramsSetBytes = Lists.newArrayList(new String("123".getBytes()));
         TransactionResponse transactionResponse3 =
                 transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
-                        contractAddress, this.abi, "setBytes", paramsSetBytes);
+                        contractAddress, ABI, "setBytes", paramsSetBytes);
         System.out.println(JsonUtils.toJson(transactionResponse3));
         Assert.assertEquals(transactionResponse3.getValuesList().size(), 1);
         Assert.assertEquals(transactionResponse3.getValuesList().get(0), "set bytes test");
@@ -357,7 +363,7 @@ public class AssembleTransactionProcessorTest {
                 transactionProcessor.sendCall(
                         this.cryptoKeyPair.getAddress(),
                         contractAddress,
-                        this.abi,
+                        ABI,
                         "_bytesV",
                         Lists.newArrayList());
         Assert.assertEquals(0, callResponse4.getReturnCode());
@@ -370,7 +376,7 @@ public class AssembleTransactionProcessorTest {
     public void test8ComplexSetBytesFuture() throws Exception {
         AssembleTransactionProcessor transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        this.client, this.cryptoKeyPair, abiFile, binFile);
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -380,7 +386,7 @@ public class AssembleTransactionProcessorTest {
         Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
         String contractAddress = response.getContractAddress();
         List<Object> paramsSetBytes = Lists.newArrayList("2".getBytes());
-        byte[] data = transactionProcessor.encodeFunction(this.abi, "setBytes", paramsSetBytes);
+        byte[] data = transactionProcessor.encodeFunction(ABI, "setBytes", paramsSetBytes);
         String signedData =
                 transactionProcessor.createSignedTransaction(
                         contractAddress, data, this.cryptoKeyPair);
