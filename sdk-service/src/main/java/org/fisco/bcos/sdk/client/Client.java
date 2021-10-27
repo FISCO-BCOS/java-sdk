@@ -16,7 +16,6 @@
 package org.fisco.bcos.sdk.client;
 
 import java.math.BigInteger;
-import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
@@ -52,13 +51,6 @@ public interface Client {
     CryptoSuite getCryptoSuite();
 
     /**
-     * Get connected node info
-     *
-     * @return the info of the connected node
-     */
-    NodeInfo getNodeInfo();
-
-    /**
      * Get crypto type
      *
      * @return the CryptoType, e.g. ECDSA_TYPE
@@ -85,6 +77,8 @@ public interface Client {
      * @return the groupId
      */
     String getChainId();
+
+    // ------------------------- rpc interface begin ------------------------------------------
 
     /**
      * Ledger operation: send transaction
@@ -360,31 +354,47 @@ public interface Client {
      *
      * @param callback the callback instance
      */
-    void getSyncStatus(RespCallback<SyncStatus> callback);
+    void getSyncStatusAsync(RespCallback<SyncStatus> callback);
 
     // TODO: getConsensusStatus
 
-    // TODO: createGroup
+    /**
+     * get group list
+     *
+     * @return
+     */
+    BcosGroupList getGroupList();
 
-    // TODO: expandGroupNode
+    void getGroupListAsync(RespCallback<BcosGroupList> callback);
 
-    // TODO: removeGroup
+    /**
+     * get group info
+     *
+     * @return
+     */
+    BcosGroupInfo getGroupInfo();
 
-    // TODO: removeGroupNode
-    //
-    // TODO: recoverGroup
-    //
-    // TODO: recoverGroupNode
-    //
-    // TODO: startNode
-    //
-    // TODO: stopNode
-    //
-    // TODO: getGroupList
-    //
-    // TODO: getGroupInfo
-    //
-    // TODO: getGroupNodeInfo
+    void getGroupInfoAsync(RespCallback<BcosGroupInfo> callback);
+
+    /**
+     * get group info list
+     *
+     * @return
+     */
+    BcosGroupInfoList getGroupInfoList();
+
+    void getGroupInfoListAsync(RespCallback<BcosGroupInfoList> callback);
+
+    /**
+     * get group node info
+     *
+     * @return
+     */
+    BcosGroupNodeInfo getGroupNodeInfo(String node);
+
+    void getGroupNodeInfoAsync(String node, RespCallback<BcosGroupNodeInfo> callback);
+
+    // ------------------------- rpc interface end ------------------------------------------
 
     void stop();
 }

@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
-import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcMethods;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
@@ -43,13 +42,13 @@ import org.slf4j.LoggerFactory;
 public class ClientImpl implements Client {
     protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(ClientImpl.class);
-    private final String group;
-    private final String chainId;
-    private final Boolean wasm;
+    private final String group = "";
+    private final String chainId = "";
+    private final Boolean wasm = false;
     private final String node = "";
-    private final Boolean smCrypto;
+    private final Boolean smCrypto = false;
+    private BcosGroupInfo.GroupInfo groupInfo;
     private final CryptoSuite cryptoSuite;
-    private final NodeInfoResponse nodeInfoResponse;
     private final Rpc jniRpcImpl;
     private long blockNumber;
 
@@ -60,15 +59,20 @@ public class ClientImpl implements Client {
         jniRpcImpl = Rpc.build(groupID, jniConfig);
         jniRpcImpl.start();
 
+        // TODO:
+        /*
         // get node info by call getNodeInfo
         this.nodeInfoResponse =
                 this.callRemoteMethod(
                         new JsonRpcRequest(JsonRpcMethods.GET_NODE_INFO, Arrays.asList()),
                         NodeInfoResponse.class);
+
+
         this.chainId = this.nodeInfoResponse.getNodeInfo().getChainId();
         this.group = this.nodeInfoResponse.getNodeInfo().getGroupId();
         this.wasm = this.nodeInfoResponse.getNodeInfo().getWasm();
         this.smCrypto = this.nodeInfoResponse.getNodeInfo().getSmCrypto();
+        */
 
         if (configOption.getCryptoMaterialConfig().getUseSmCrypto()) {
             this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
@@ -82,14 +86,17 @@ public class ClientImpl implements Client {
         logger.info("ClientImpl blockNumber: {}", this.blockNumber);
     }
 
-    @Override
-    public CryptoSuite getCryptoSuite() {
-        return this.cryptoSuite;
+    public Boolean getWasm() {
+        return this.wasm;
+    }
+
+    public Boolean getSmCrypto() {
+        return this.smCrypto;
     }
 
     @Override
-    public NodeInfo getNodeInfo() {
-        return this.nodeInfoResponse.getNodeInfo();
+    public CryptoSuite getCryptoSuite() {
+        return this.cryptoSuite;
     }
 
     @Override
@@ -455,7 +462,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void getSyncStatus(RespCallback<SyncStatus> callback) {
+    public void getSyncStatusAsync(RespCallback<SyncStatus> callback) {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_SYNC_STATUS, Arrays.asList(this.group, this.node)),
@@ -463,17 +470,71 @@ public class ClientImpl implements Client {
                 callback);
     }
 
-    public Boolean getWasm() {
-        return this.wasm;
+    @Override
+    public BcosGroupList getGroupList() {
+        return this.callRemoteMethod(
+                new JsonRpcRequest(JsonRpcMethods.GET_GROUP_LIST, Arrays.asList()),
+                BcosGroupList.class);
     }
 
-    public Boolean getSmCrypto() {
-        return this.smCrypto;
+    @Override
+    public void getGroupListAsync(RespCallback<BcosGroupList> callback) {
+        this.asyncCallRemoteMethod(
+                new JsonRpcRequest(JsonRpcMethods.GET_GROUP_LIST, Arrays.asList()),
+                BcosGroupList.class,
+                callback);
+    }
+
+    @Override
+    public BcosGroupInfo getGroupInfo() {
+        return this.callRemoteMethod(
+                new JsonRpcRequest(JsonRpcMethods.GET_GROUP_INFO, Arrays.asList(group)),
+                BcosGroupInfo.class);
+    }
+
+    @Override
+    public void getGroupInfoAsync(RespCallback<BcosGroupInfo> callback) {
+        this.asyncCallRemoteMethod(
+                new JsonRpcRequest(JsonRpcMethods.GET_GROUP_INFO, Arrays.asList(group)),
+                BcosGroupInfo.class,
+                callback);
+    }
+
+    @Override
+    public BcosGroupInfoList getGroupInfoList() {
+        return this.callRemoteMethod(
+                new JsonRpcRequest(JsonRpcMethods.GET_GROUP_INFO_LIST, Arrays.asList()),
+                BcosGroupInfoList.class);
+    }
+
+    @Override
+    public void getGroupInfoListAsync(RespCallback<BcosGroupInfoList> callback) {
+        this.asyncCallRemoteMethod(
+                new JsonRpcRequest(JsonRpcMethods.GET_GROUP_INFO_LIST, Arrays.asList()),
+                BcosGroupInfoList.class,
+                callback);
+    }
+
+    @Override
+    public BcosGroupNodeInfo getGroupNodeInfo(String node) {
+        return this.callRemoteMethod(
+                new JsonRpcRequest(JsonRpcMethods.GET_GROUP_NODE_INFO, Arrays.asList(group, node)),
+                BcosGroupNodeInfo.class);
+    }
+
+    @Override
+    public void getGroupNodeInfoAsync(String node, RespCallback<BcosGroupNodeInfo> callback) {
+        this.asyncCallRemoteMethod(
+                new JsonRpcRequest(JsonRpcMethods.GET_GROUP_NODE_INFO, Arrays.asList(group, node)),
+                BcosGroupNodeInfo.class,
+                callback);
     }
 
     @Override
     public void stop() {
-        jniRpcImpl.stop();
+        if (jniRpcImpl != null) {
+            jniRpcImpl.stop();
+        }
         Thread.currentThread().interrupt();
     }
 

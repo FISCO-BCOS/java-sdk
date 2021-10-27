@@ -27,11 +27,6 @@ public class TransactionProcessorFactory {
     private static final Logger logger = LoggerFactory.getLogger(TransactionProcessorFactory.class);
 
     public static Pair<String, String> getChainIdAndGroupId(Client client) {
-        String binaryVersion = client.getNodeInfo().getVersion();
-        logger.debug(
-                "getNodeVersion before createTransactionManager, binaryVerison: {}", binaryVersion);
-        // transaction manager for rc1 transaction (without groupId and chainId)
-
         // get chainId
         String chainId = client.getChainId();
         // get group
