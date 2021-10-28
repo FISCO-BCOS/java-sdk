@@ -17,7 +17,7 @@ package org.fisco.bcos.sdk.amop;
 
 import java.util.Set;
 import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.jni.amop.AmopRequestCallback;
+import org.fisco.bcos.sdk.jni.amop.AmopCallback;
 import org.fisco.bcos.sdk.jni.amop.AmopResponseCallback;
 import org.fisco.bcos.sdk.jni.common.JniConfig;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class AmopImp implements Amop {
     }
 
     @Override
-    public void subscribeTopic(String topicName, AmopRequestCallback callback) {
+    public void subscribeTopic(String topicName, AmopCallback callback) {
         amopJni.subscribeTopic(topicName, callback);
     }
 
@@ -48,7 +48,8 @@ public class AmopImp implements Amop {
     @Override
     public void sendAmopMsg(
             String topic, byte[] content, int timeout, AmopResponseCallback callback) {
-        amopJni.sendAmopMsg(topic, content, timeout, callback);
+        // TODO: add timeout params
+        amopJni.sendAmopMsg(topic, content, callback);
     }
 
     @Override
@@ -62,7 +63,7 @@ public class AmopImp implements Amop {
     }
 
     @Override
-    public void setCallback(AmopRequestCallback cb) {
+    public void setCallback(AmopCallback cb) {
         amopJni.setCallback(cb);
     }
 

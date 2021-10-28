@@ -28,10 +28,12 @@ import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 public class CnsService {
     private final CNSPrecompiled cnsPrecompiled;
+    private String currentVersion;
 
     public CnsService(Client client, CryptoKeyPair credential) {
         this.cnsPrecompiled =
                 CNSPrecompiled.load(PrecompiledAddress.CNS_PRECOMPILED_ADDRESS, client, credential);
+        this.currentVersion = client.getNodeInfo().getSupportedVersion();
     }
 
     public RetCode registerCNS(

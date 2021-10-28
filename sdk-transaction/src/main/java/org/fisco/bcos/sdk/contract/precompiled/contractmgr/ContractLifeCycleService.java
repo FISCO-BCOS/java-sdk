@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 public class ContractLifeCycleService {
     private static Logger logger = LoggerFactory.getLogger(ContractLifeCycleService.class);
     private final ContractLifeCyclePrecompiled contractLifeCyclePrecompiled;
+    private final String currentVersion;
 
     public ContractLifeCycleService(Client client, CryptoKeyPair credential) {
         this.contractLifeCyclePrecompiled =
@@ -37,6 +38,7 @@ public class ContractLifeCycleService {
                         PrecompiledAddress.CONTRACT_LIFECYCLE_PRECOMPILED_ADDRESS,
                         client,
                         credential);
+        this.currentVersion = client.getNodeInfo().getSupportedVersion();
     }
 
     public RetCode freeze(String contractAddress) throws ContractException {

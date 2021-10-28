@@ -279,7 +279,7 @@ public class ResponseTest {
         // check the BcosBlock object
         Assert.assertEquals("3.0", bcosBlock.getJsonrpc());
         Assert.assertEquals(10001, bcosBlock.getId());
-        Assert.assertEquals(Long.valueOf("256"), bcosBlock.getBlock().getNumber());
+        Assert.assertEquals(new Long("256"), bcosBlock.getBlock().getNumber());
         Assert.assertEquals(
                 "0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82",
                 bcosBlock.getBlock().getHash());
@@ -293,8 +293,8 @@ public class ResponseTest {
         Assert.assertEquals(
                 "11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f",
                 bcosBlock.getBlock().getSealerList().get(0));
-        Assert.assertEquals(4L, bcosBlock.getBlock().getSealer());
-        Assert.assertEquals(1633953720L, bcosBlock.getBlock().getTimestamp());
+        Assert.assertEquals(new Integer(4), bcosBlock.getBlock().getSealer());
+        Assert.assertEquals(new Long(1633953720), bcosBlock.getBlock().getTimestamp());
         Assert.assertEquals(0, bcosBlock.getBlock().getExtraData().length());
     }
 
@@ -381,7 +381,7 @@ public class ResponseTest {
         Assert.assertEquals(102, callResult.getId());
         // check callResult
         Call.CallOutput callOutput = callResult.getCallResult();
-        Assert.assertEquals(11L, callOutput.getBlockNumber());
+        Assert.assertEquals(new Long(11), callOutput.getBlockNumber());
         Assert.assertEquals("0x", callOutput.getOutput());
         Assert.assertEquals(0, callOutput.getStatus());
 
@@ -614,7 +614,7 @@ public class ResponseTest {
                 "0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2",
                 syncStatus.getSyncStatus().getGenesisHash());
         Assert.assertEquals(false, syncStatus.getSyncStatus().getIsSyncing());
-        Assert.assertEquals(0, syncStatus.getSyncStatus().getKnownHighestNumber());
+        Assert.assertEquals(new Integer(0), syncStatus.getSyncStatus().getKnownHighestNumber());
         Assert.assertEquals(
                 "0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2",
                 syncStatus.getSyncStatus().getKnownLatestHash());
@@ -628,7 +628,7 @@ public class ResponseTest {
         Assert.assertEquals("0", syncStatus.getSyncStatus().getTxPoolSize());
         // check peers
         Assert.assertEquals(3, syncStatus.getSyncStatus().getPeers().size());
-        Assert.assertEquals(0L, syncStatus.getSyncStatus().getPeers().get(2).getBlockNumber());
+        Assert.assertEquals(new Long(0), syncStatus.getSyncStatus().getPeers().get(2).getBlockNumber());
         Assert.assertEquals(
                 "0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2",
                 syncStatus.getSyncStatus().getPeers().get(2).getGenesisHash());
@@ -715,7 +715,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 "0x0000000000000000000000000000000000000000000000000000000000000000",
                 transactionReceipt.getTransactionReceipt().get().getOutput());
-        Assert.assertEquals(12, transactionReceipt.getTransactionReceipt().get().getStatus());
+        Assert.assertEquals(new Integer(12), transactionReceipt.getTransactionReceipt().get().getStatus());
         Assert.assertEquals(
                 "0x15538acd403ac1b2ff09083c70d04856b8c0bdfd",
                 transactionReceipt.getTransactionReceipt().get().getTo());
@@ -859,7 +859,7 @@ public class ResponseTest {
                 "0x21dc1b",
                 receiptWithProof.getTransactionReceipt().get().getGasUsed());
         Assert.assertEquals(
-                0, receiptWithProof.getTransactionReceipt().get().getStatus());
+                new Integer(0), receiptWithProof.getTransactionReceipt().get().getStatus());
         Assert.assertEquals(
                 "0xd6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f",
                 receiptWithProof.getTransactionReceipt().get().getTo());

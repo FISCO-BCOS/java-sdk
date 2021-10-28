@@ -198,8 +198,8 @@ public class BcosSDKTest {
         System.out.println(peers.getPeers());
 
         // get NodeInfo
-        //        NodeInfo NodeInfo = client.getNodeInfo();
-        //        System.out.println(NodeInfo);
+        NodeInfo NodeInfo = client.getNodeInfo();
+        System.out.println(NodeInfo);
 
         // get getSyncStatus
         SyncStatus syncStatus = client.getSyncStatus();
