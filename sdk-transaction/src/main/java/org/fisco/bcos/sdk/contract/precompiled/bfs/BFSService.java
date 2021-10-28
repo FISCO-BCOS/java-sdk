@@ -13,10 +13,12 @@ import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 public class BFSService {
     private final BFSPrecompiled bfsPrecompiled;
+    private String currentVersion;
 
     public BFSService(Client client, CryptoKeyPair credential) {
         this.bfsPrecompiled =
                 BFSPrecompiled.load(PrecompiledAddress.BFS_PRECOMPILED_ADDRESS, client, credential);
+        this.currentVersion = client.getNodeInfo().getSupportedVersion();
     }
 
     public RetCode mkdir(String path) throws ContractException {

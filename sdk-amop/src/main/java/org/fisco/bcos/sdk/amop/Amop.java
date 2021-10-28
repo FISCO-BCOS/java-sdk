@@ -17,7 +17,7 @@ package org.fisco.bcos.sdk.amop;
 
 import java.util.Set;
 import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.jni.amop.AmopRequestCallback;
+import org.fisco.bcos.sdk.jni.amop.AmopCallback;
 import org.fisco.bcos.sdk.jni.amop.AmopResponseCallback;
 
 /**
@@ -42,7 +42,7 @@ public interface Amop {
      * @param topicName the topic name
      * @param callback callback is called when receive a msg relate to this topic
      */
-    void subscribeTopic(String topicName, AmopRequestCallback callback);
+    void subscribeTopic(String topicName, AmopCallback callback);
 
     /**
      * Unsubscribe a topic.
@@ -78,7 +78,7 @@ public interface Amop {
      *
      * @param cb the amop callback
      */
-    void setCallback(AmopRequestCallback cb);
+    void setCallback(AmopCallback cb);
 
     /** Start. */
     void start();

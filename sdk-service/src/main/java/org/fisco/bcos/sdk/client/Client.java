@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.client;
 
 import java.math.BigInteger;
+import org.fisco.bcos.sdk.channel.model.NodeInfo;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
@@ -51,6 +52,13 @@ public interface Client {
     CryptoSuite getCryptoSuite();
 
     /**
+     * Get connected node info
+     *
+     * @return the info of the connected node
+     */
+    NodeInfo getNodeInfo();
+
+    /**
      * Get crypto type
      *
      * @return the CryptoType, e.g. ECDSA_TYPE
@@ -77,8 +85,6 @@ public interface Client {
      * @return the groupId
      */
     String getChainId();
-
-    // ------------------------- rpc interface begin ------------------------------------------
 
     /**
      * Ledger operation: send transaction
@@ -254,20 +260,6 @@ public interface Client {
      *
      * @return PendingTxSize
      */
-    PendingTxSize getPendingTxSize(String node);
-
-    /**
-     * Ledger operation: async get pending transaction size
-     *
-     * @param callback the callback that will be called when receive the response
-     */
-    void getPendingTxSizeAsync(String node, RespCallback<PendingTxSize> callback);
-
-    /**
-     * Ledger operation: get pending transaction size
-     *
-     * @return PendingTxSize
-     */
     PendingTxSize getPendingTxSize();
 
     /**
@@ -361,20 +353,6 @@ public interface Client {
      *
      * @return sync status
      */
-    SyncStatus getSyncStatus(String node);
-
-    /**
-     * Peer operation: async get sync status
-     *
-     * @param callback the callback instance
-     */
-    void getSyncStatusAsync(String node, RespCallback<SyncStatus> callback);
-
-    /**
-     * Peer operation: get sync status
-     *
-     * @return sync status
-     */
     SyncStatus getSyncStatus();
 
     /**
@@ -382,47 +360,31 @@ public interface Client {
      *
      * @param callback the callback instance
      */
-    void getSyncStatusAsync(RespCallback<SyncStatus> callback);
+    void getSyncStatus(RespCallback<SyncStatus> callback);
 
     // TODO: getConsensusStatus
 
-    /**
-     * get group list
-     *
-     * @return
-     */
-    BcosGroupList getGroupList();
+    // TODO: createGroup
 
-    void getGroupListAsync(RespCallback<BcosGroupList> callback);
+    // TODO: expandGroupNode
 
-    /**
-     * get group info
-     *
-     * @return
-     */
-    BcosGroupInfo getGroupInfo();
+    // TODO: removeGroup
 
-    void getGroupInfoAsync(RespCallback<BcosGroupInfo> callback);
-
-    /**
-     * get group info list
-     *
-     * @return
-     */
-    BcosGroupInfoList getGroupInfoList();
-
-    void getGroupInfoListAsync(RespCallback<BcosGroupInfoList> callback);
-
-    /**
-     * get group node info
-     *
-     * @return
-     */
-    BcosGroupNodeInfo getGroupNodeInfo(String node);
-
-    void getGroupNodeInfoAsync(String node, RespCallback<BcosGroupNodeInfo> callback);
-
-    // ------------------------- rpc interface end ------------------------------------------
+    // TODO: removeGroupNode
+    //
+    // TODO: recoverGroup
+    //
+    // TODO: recoverGroupNode
+    //
+    // TODO: startNode
+    //
+    // TODO: stopNode
+    //
+    // TODO: getGroupList
+    //
+    // TODO: getGroupInfo
+    //
+    // TODO: getGroupNodeInfo
 
     void stop();
 }
