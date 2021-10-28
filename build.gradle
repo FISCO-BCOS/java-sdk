@@ -34,14 +34,15 @@ ext {
     guavaVersion = '30.1.1-jre'
     tarsCoreVersion = "1.7.2"
 
-    javaSdkJniVersion = "3.0.0-SNAPSHOT"
+    config2Version = '2.7'
+    javaSdkJniVersion = "3.0.0-102700-SNAPSHOT"
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.0.0-SNAPSHOT'
+    version = '3.0.0-102700-SNAPSHOT'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
@@ -182,6 +183,7 @@ googleJavaFormat {
     source = sourceSets*.allJava
     include '**/*.java'
 }
+
 dependencies {
     api("org.fisco-bcos:java-sdk-jni:${javaSdkJniVersion}")
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
@@ -195,6 +197,7 @@ dependencies {
     api("com.moandjiezana.toml:toml4j:${toml4jVersion}")
     api("com.google.googlejavaformat:google-java-format:1.10.0")
     api("com.tencent.tars:tars-core:1.7.2")
+    api("org.apache.commons:commons-configuration2:${config2Version}")
 
     testImplementation("junit:junit:${junitVersion}")
     testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
@@ -328,6 +331,7 @@ jar {
         }
         copy {
             from file('src/test/resources/config-example.toml')
+            from file('src/test/resources/clog.ini')
             from file('src/test/resources/applicationContext-sample.xml')
             from file('src/test/resources/log4j.properties')
             into 'dist/conf'

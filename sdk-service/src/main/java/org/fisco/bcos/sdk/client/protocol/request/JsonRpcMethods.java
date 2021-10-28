@@ -33,22 +33,12 @@ public class JsonRpcMethods {
     public static final String SEND_TRANSACTION = "sendTransaction";
     public static final String GET_CODE = "getCode";
     public static final String GET_TOTAL_TRANSACTION_COUNT = "getTotalTransactionCount";
-
-    // the interface related to the node
     public static final String GET_NODE_INFO = "getNodeInfo";
     public static final String GET_PEERS = "getPeers";
 
-    // the interface related to the group
-    public static final String CREATE_GROUP = "createGroup";
-    public static final String EXPAND_GROUP_NODE = "expandGroupNode";
-    public static final String REMOVE_GROUP = "removeGroup";
-    public static final String REMOVE_GROUP_NODE = "removeGroupNode";
-    public static final String RECOVER_GROUP = "recoverGroup";
-    public static final String RECOVER_GROUP_NODE = "recoverGroupNode";
-    public static final String START_NODE = "startNode";
-    public static final String STOP_NODE = "stopNode";
     public static final String GET_GROUP_LIST = "getGroupList";
     public static final String GET_GROUP_INFO = "getGroupInfo";
+    public static final String GET_GROUP_INFO_LIST = "getGroupInfoList";
     public static final String GET_GROUP_NODE_INFO = "getGroupNodeInfo";
 
     private JsonRpcMethods() {}
