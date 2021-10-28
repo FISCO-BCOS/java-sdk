@@ -35,14 +35,14 @@ ext {
     tarsCoreVersion = "1.7.2"
 
     config2Version = '2.7'
-    javaSdkJniVersion = "3.0.0-10271-SNAPSHOT"
+    javaSdkJniVersion = "3.0.0-102700-SNAPSHOT"
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.0.0-SNAPSHOT'
+    version = '3.0.0-102700-SNAPSHOT'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
@@ -331,6 +331,7 @@ jar {
         }
         copy {
             from file('src/test/resources/config-example.toml')
+            from file('src/test/resources/clog.ini')
             from file('src/test/resources/applicationContext-sample.xml')
             from file('src/test/resources/log4j.properties')
             into 'dist/conf'

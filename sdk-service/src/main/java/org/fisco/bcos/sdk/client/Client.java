@@ -69,14 +69,14 @@ public interface Client {
      *
      * @return the groupId
      */
-    String getGroupID();
+    String getGroup();
 
     /**
      * get groupId of the client
      *
      * @return the groupId
      */
-    String getChainID();
+    String getChainId();
 
     // ------------------------- rpc interface begin ------------------------------------------
 
@@ -264,6 +264,20 @@ public interface Client {
     void getPendingTxSizeAsync(String node, RespCallback<PendingTxSize> callback);
 
     /**
+     * Ledger operation: get pending transaction size
+     *
+     * @return PendingTxSize
+     */
+    PendingTxSize getPendingTxSize();
+
+    /**
+     * Ledger operation: async get pending transaction size
+     *
+     * @param callback the callback that will be called when receive the response
+     */
+    void getPendingTxSizeAsync(RespCallback<PendingTxSize> callback);
+
+    /**
      * Get cached block height
      *
      * @return block number
@@ -355,6 +369,20 @@ public interface Client {
      * @param callback the callback instance
      */
     void getSyncStatusAsync(String node, RespCallback<SyncStatus> callback);
+
+    /**
+     * Peer operation: get sync status
+     *
+     * @return sync status
+     */
+    SyncStatus getSyncStatus();
+
+    /**
+     * Peer operation: async get sync status
+     *
+     * @param callback the callback instance
+     */
+    void getSyncStatusAsync(RespCallback<SyncStatus> callback);
 
     // TODO: getConsensusStatus
 

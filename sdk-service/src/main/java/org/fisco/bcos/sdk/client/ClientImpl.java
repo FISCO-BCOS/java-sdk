@@ -119,12 +119,12 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public String getGroupID() {
+    public String getGroup() {
         return this.groupID;
     }
 
     @Override
-    public String getChainID() {
+    public String getChainId() {
         return this.chainID;
     }
 
@@ -410,6 +410,25 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public PendingTxSize getPendingTxSize() {
+        return this.callRemoteMethod(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_PENDING_TX_SIZE,
+                        Arrays.asList(this.groupID, this.defaultNode)),
+                PendingTxSize.class);
+    }
+
+    @Override
+    public void getPendingTxSizeAsync(RespCallback<PendingTxSize> callback) {
+        this.asyncCallRemoteMethod(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_PENDING_TX_SIZE,
+                        Arrays.asList(this.groupID, this.defaultNode)),
+                PendingTxSize.class,
+                callback);
+    }
+
+    @Override
     public BigInteger getBlockLimit() {
         /*
         // TODO: add impl in cpp-sdk
@@ -528,6 +547,25 @@ public class ClientImpl implements Client {
         this.asyncCallRemoteMethod(
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_SYNC_STATUS, Arrays.asList(this.groupID, node)),
+                SyncStatus.class,
+                callback);
+    }
+
+    @Override
+    public SyncStatus getSyncStatus() {
+        return this.callRemoteMethod(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_SYNC_STATUS,
+                        Arrays.asList(this.groupID, this.defaultNode)),
+                SyncStatus.class);
+    }
+
+    @Override
+    public void getSyncStatusAsync(RespCallback<SyncStatus> callback) {
+        this.asyncCallRemoteMethod(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_SYNC_STATUS,
+                        Arrays.asList(this.groupID, this.defaultNode)),
                 SyncStatus.class,
                 callback);
     }
