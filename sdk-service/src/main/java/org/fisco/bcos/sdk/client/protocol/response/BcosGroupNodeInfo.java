@@ -21,6 +21,38 @@ public class BcosGroupNodeInfo extends JsonRpcResponse<BcosGroupNodeInfo.GroupNo
         private String name;
         private List<ServiceInfo> serviceInfoList;
 
+        public int getType() {
+            return type;
+        }
+
+        public void setType(int type) {
+            this.type = type;
+        }
+
+        public String getIniConfig() {
+            return iniConfig;
+        }
+
+        public void setIniConfig(String iniConfig) {
+            this.iniConfig = iniConfig;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public List<ServiceInfo> getServiceInfoList() {
+            return serviceInfoList;
+        }
+
+        public void setServiceInfoList(List<ServiceInfo> serviceInfoList) {
+            this.serviceInfoList = serviceInfoList;
+        }
+
         static class ServiceInfo {
             private String serviceName;
             private int type;

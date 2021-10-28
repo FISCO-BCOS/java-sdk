@@ -17,7 +17,16 @@ public class BcosGroupList extends JsonRpcResponse<BcosGroupList.GroupList> {
 
     public static class GroupList {
         private int code;
+        private String msg;
         private List<String> groupList;
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public void setMsg(String msg) {
+            this.msg = msg;
+        }
 
         public int getCode() {
             return code;
@@ -37,7 +46,11 @@ public class BcosGroupList extends JsonRpcResponse<BcosGroupList.GroupList> {
 
         @Override
         public String toString() {
-            return "GroupList{" + "code=" + code + ", groupList=" + groupList + '}';
+            return "GroupList{" +
+                    "code=" + code +
+                    ", msg='" + msg + '\'' +
+                    ", groupList=" + groupList +
+                    '}';
         }
     };
 }
