@@ -28,9 +28,9 @@ public class TransactionProcessorFactory {
 
     public static Pair<String, String> getChainIdAndGroupId(Client client) {
         // get chainId
-        String chainId = client.getChainId();
+        String chainId = client.getChainID();
         // get group
-        String group = client.getGroup();
+        String group = client.getGroupID();
         logger.debug(
                 "createTransactionManager for >=rc2 node, chainId: {}, groupId: {}",
                 chainId,

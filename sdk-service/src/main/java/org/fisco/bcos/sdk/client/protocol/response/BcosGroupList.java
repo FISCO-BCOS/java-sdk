@@ -46,11 +46,15 @@ public class BcosGroupList extends JsonRpcResponse<BcosGroupList.GroupList> {
 
         @Override
         public String toString() {
-            return "GroupList{" +
-                    "code=" + code +
-                    ", msg='" + msg + '\'' +
-                    ", groupList=" + groupList +
-                    '}';
+            return "GroupList{"
+                    + "code="
+                    + code
+                    + ", msg='"
+                    + msg
+                    + '\''
+                    + ", groupList="
+                    + groupList
+                    + '}';
         }
     };
 }
