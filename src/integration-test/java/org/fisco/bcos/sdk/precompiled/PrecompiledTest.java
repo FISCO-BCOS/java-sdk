@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -382,7 +383,7 @@ public class PrecompiledTest {
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
         TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
         // create table
-        String tableName = "send_async" + new Random().nextInt(100);
+        String tableName = "send_async" + new Random().nextInt(1000);
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         String key = "key";
@@ -438,7 +439,7 @@ public class PrecompiledTest {
 
     public static byte[] hexStringToBytes(String hexString) {
         if (StringUtils.isEmpty(hexString)) {
-            return null;
+            return new byte[0];
         }
         hexString = hexString.toLowerCase();
         final byte[] byteArray = new byte[hexString.length() >> 1];
@@ -465,6 +466,20 @@ public class PrecompiledTest {
         BFSService bfsService = new BFSService(client, cryptoKeyPair);
         List<FileInfo> list = bfsService.list("/");
         System.out.println(list);
+
+        String newDir = "local" + new Random().nextInt(1000);
+        RetCode mkdir = bfsService.mkdir("/usr/" + newDir);
+        Assert.assertEquals(mkdir.code, 0);
+        List<FileInfo> list2 = bfsService.list("/usr");
+        System.out.println(list2);
+        boolean flag = false;
+        for (FileInfo fileInfo : list2) {
+            if (Objects.equals(fileInfo.getName(), newDir)) {
+                flag = true;
+                break;
+            }
+        }
+        Assert.assertTrue(flag);
     }
 
     //    @Test

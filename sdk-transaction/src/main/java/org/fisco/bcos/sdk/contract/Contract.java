@@ -181,11 +181,6 @@ public class Contract {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        TransactionReceipt transactionReceipt;
-        // FIXME: add deploy wasm logic
-        transactionReceipt = contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
-
         try {
             if (encodedConstructor != null) {
                 outputStream.write(encodedConstructor);
@@ -193,6 +188,9 @@ public class Contract {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        TransactionReceipt transactionReceipt;
+        // FIXME: add deploy wasm logic
+        transactionReceipt = contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
 
         String contractAddress = transactionReceipt.getContractAddress();
         if (contractAddress == null) {

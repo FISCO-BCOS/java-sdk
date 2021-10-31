@@ -101,7 +101,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         CallResponse callResponse1 =
                 assembleTransactionWithRemoteSignProcessor.sendCallByContractLoader(
                         "HelloWorld", helloWorldAddress, "get", new ArrayList<>());
-        Assert.assertEquals("test", callResponse1.getReturnObject().get(0));
+        Assert.assertEquals("test", callResponse1.getResults().get(0).getValue());
     }
 
     @Test
