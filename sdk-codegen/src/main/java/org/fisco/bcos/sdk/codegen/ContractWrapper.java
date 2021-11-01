@@ -613,7 +613,7 @@ public class ContractWrapper {
                 ContractWrapper.CREDENTIAL,
                 getBinaryFuncDefinition(),
                 isWasm ? getABIFuncDefinition() : "null",
-                isWasm ? "path" : "null");
+                isWasm ? PATH : "null");
         return methodBuilder.build();
     }
 
