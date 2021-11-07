@@ -18,6 +18,9 @@ package org.fisco.bcos.sdk.config;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.config.model.*;
+import org.fisco.bcos.sdk.jni.common.JniConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ConfigOption is the java object of the config file.
@@ -26,12 +29,26 @@ import org.fisco.bcos.sdk.config.model.*;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigOption {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConfigOption.class);
+    /** if disable ssl connection */
+    private static boolean DISABLE_SSL = false;
+
+    static {
+        String value = System.getProperty("org.fisco.bcos.jni.disableSsl");
+        if (value != null) {
+            DISABLE_SSL = "true".equals(value);
+            logger.info("-Dorg.fisco.bcos.jni.disableSsl is set, value: {}", value);
+        }
+    }
+
     private CryptoMaterialConfig cryptoMaterialConfig;
     private AccountConfig accountConfig;
     private AmopConfig amopConfig;
     private NetworkConfig networkConfig;
     private ThreadPoolConfig threadPoolConfig;
     private ConfigProperty configProperty;
+    private JniConfig jniConfig;
 
     public ConfigOption(ConfigProperty configProperty) throws ConfigException {
         // load cryptoMaterialConfig
@@ -44,12 +61,53 @@ public class ConfigOption {
         this.networkConfig = new NetworkConfig(configProperty);
         // load threadPoolConfig
         this.threadPoolConfig = new ThreadPoolConfig(configProperty);
+        // generate jni config
+        this.jniConfig = generateJniConfig();
         // init configProperty
         this.configProperty = configProperty;
     }
 
     public void reloadConfig(int cryptoType) throws ConfigException {
         this.cryptoMaterialConfig = new CryptoMaterialConfig(this.configProperty);
+    }
+
+    public JniConfig generateJniConfig() {
+        // init jni config
+        JniConfig jniConfig = new JniConfig();
+        jniConfig.setPeers(networkConfig.getPeers());
+
+        boolean disableSsl = DISABLE_SSL;
+        // if disable ssl, default false
+        jniConfig.setDisableSsl(disableSsl);
+        jniConfig.setThreadPoolSize(threadPoolConfig.getThreadPoolSize());
+
+        if (disableSsl) {
+            logger.info(" ==>> java sdk work in disable ssl model !!!");
+            return jniConfig;
+        }
+
+        if (cryptoMaterialConfig.getUseSmCrypto()) {
+            JniConfig.SMCertConfig smCertConfig = new JniConfig.SMCertConfig();
+
+            smCertConfig.setCaCert(cryptoMaterialConfig.getCaCert());
+            smCertConfig.setNodeCert(cryptoMaterialConfig.getSdkCert());
+            smCertConfig.setNodeKey(cryptoMaterialConfig.getSdkPrivateKey());
+            smCertConfig.setEnNodeCert(cryptoMaterialConfig.getEnSdkCert());
+            smCertConfig.setEnNodeKey(cryptoMaterialConfig.getEnSdkPrivateKey());
+
+            jniConfig.setSslType("sm_ssl");
+            jniConfig.setSmCertConfig(smCertConfig);
+        } else { // ssl cert config items
+            JniConfig.CertConfig certConfig = new JniConfig.CertConfig();
+            certConfig.setCaCert(cryptoMaterialConfig.getCaCert());
+            certConfig.setNodeCert(cryptoMaterialConfig.getSdkCert());
+            certConfig.setNodeKey(cryptoMaterialConfig.getSdkPrivateKey());
+
+            jniConfig.setCertConfig(certConfig);
+            jniConfig.setSslType("ssl");
+        }
+
+        return jniConfig;
     }
 
     public CryptoMaterialConfig getCryptoMaterialConfig() {
@@ -90,5 +148,13 @@ public class ConfigOption {
 
     public void setThreadPoolConfig(ThreadPoolConfig threadPoolConfig) {
         this.threadPoolConfig = threadPoolConfig;
+    }
+
+    public JniConfig getJniConfig() {
+        return jniConfig;
+    }
+
+    public void setJniConfig(JniConfig jniConfig) {
+        this.jniConfig = jniConfig;
     }
 }

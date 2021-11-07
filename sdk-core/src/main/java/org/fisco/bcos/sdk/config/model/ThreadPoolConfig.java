@@ -22,63 +22,23 @@ import org.slf4j.LoggerFactory;
 /** Tread pool configuration */
 public class ThreadPoolConfig {
     private static final Logger logger = LoggerFactory.getLogger(ThreadPoolConfig.class);
-    public static String DEFAULT_MAX_BLOCKING_QUEUE_SIZE = "102400";
-    private Integer channelProcessorThreadSize;
-    private Integer receiptProcessorThreadSize;
-    private Integer maxBlockingQueueSize;
+
+    private int threadPoolSize;
+
+    public int getThreadPoolSize() {
+        return threadPoolSize;
+    }
+
+    public void setThreadPoolSize(int threadPoolSize) {
+        this.threadPoolSize = threadPoolSize;
+    }
 
     public ThreadPoolConfig(ConfigProperty configProperty) {
         Map<String, Object> threadPoolConfig = configProperty.getThreadPool();
         String cpuNum = String.valueOf(Runtime.getRuntime().availableProcessors());
-        String channelProcessorThread =
-                ConfigProperty.getValue(threadPoolConfig, "channelProcessorThreadSize", cpuNum);
-        String receiptProcessorThread =
-                ConfigProperty.getValue(threadPoolConfig, "receiptProcessorThreadSize", cpuNum);
-        channelProcessorThreadSize = Integer.valueOf(channelProcessorThread);
-        receiptProcessorThreadSize = Integer.valueOf(receiptProcessorThread);
-        if (channelProcessorThreadSize.intValue() <= 0) {
-            channelProcessorThreadSize = Runtime.getRuntime().availableProcessors();
-        }
-        if (receiptProcessorThreadSize.intValue() <= 0) {
-            receiptProcessorThreadSize = Runtime.getRuntime().availableProcessors();
-        }
-        maxBlockingQueueSize =
-                Integer.valueOf(
-                        ConfigProperty.getValue(
-                                threadPoolConfig,
-                                "maxBlockingQueueSize",
-                                DEFAULT_MAX_BLOCKING_QUEUE_SIZE));
-        if (maxBlockingQueueSize.intValue() <= 0) {
-            maxBlockingQueueSize = Integer.valueOf(DEFAULT_MAX_BLOCKING_QUEUE_SIZE);
-        }
-        logger.debug(
-                "Init ThreadPoolConfig, channelProcessorThreadSize: {}, receiptProcessorThreadSize: {}, maxBlockingQueueSize: {}",
-                channelProcessorThreadSize,
-                receiptProcessorThreadSize,
-                maxBlockingQueueSize);
-    }
+        String value = ConfigProperty.getValue(threadPoolConfig, "threadPoolSize", cpuNum);
 
-    public Integer getChannelProcessorThreadSize() {
-        return channelProcessorThreadSize;
-    }
-
-    public void setChannelProcessorThreadSize(Integer channelProcessorThreadSize) {
-        this.channelProcessorThreadSize = channelProcessorThreadSize;
-    }
-
-    public Integer getReceiptProcessorThreadSize() {
-        return receiptProcessorThreadSize;
-    }
-
-    public void setReceiptProcessorThreadSize(Integer receiptProcessorThreadSize) {
-        this.receiptProcessorThreadSize = receiptProcessorThreadSize;
-    }
-
-    public Integer getMaxBlockingQueueSize() {
-        return maxBlockingQueueSize;
-    }
-
-    public void setMaxBlockingQueueSize(Integer maxBlockingQueueSize) {
-        this.maxBlockingQueueSize = maxBlockingQueueSize;
+        this.threadPoolSize = Integer.valueOf(value);
+        logger.debug("Init ThreadPoolConfig, threadPoolSize: {}", this.threadPoolSize);
     }
 }

@@ -16,9 +16,12 @@
 package org.fisco.bcos.sdk.eventsub;
 
 import java.util.Set;
+import org.fisco.bcos.sdk.config.ConfigOption;
 
 public class EventSubscribeImp implements EventSubscribe {
-    public EventSubscribeImp(String group) {}
+    public EventSubscribeImp(String group, ConfigOption configOption) {
+        // TODO:
+    }
 
     @Override
     public String subscribeEvent(EventLogParams params, EventCallback callback) {

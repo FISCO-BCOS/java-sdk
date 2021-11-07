@@ -30,7 +30,7 @@ import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.NetworkConfig;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.jni.common.JniConfig;
+import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.rpc.Rpc;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
@@ -65,11 +65,7 @@ public class ClientImpl implements Client {
 
     protected void initGroupInfo() {
         this.groupInfo = getGroupInfo().getResult();
-        logger.info(" => getGroupInfo, group: {}, group info: {}", groupInfo);
-        if (groupInfo.getNodeList() == null || groupInfo.getNodeList().isEmpty()) {
-            // TODO:
-            throw new RuntimeException("");
-        }
+
         BcosGroupNodeInfo.GroupNodeInfo groupNodeInfo = groupInfo.getNodeList().get(0);
         String nodeIniConfig = groupNodeInfo.getIniConfig();
 
@@ -77,12 +73,10 @@ public class ClientImpl implements Client {
         this.chainID = groupNodeIniConfig.getChain().getChainID();
         this.wasm = groupNodeIniConfig.getExecutor().isWasm();
         this.smCrypto = groupNodeIniConfig.getChain().isSmCrypto();
-
         this.blockNumber = this.getBlockNumber().getBlockNumber().longValue();
-        logger.info("ClientImpl blockNumber: {}", this.blockNumber);
 
         logger.info(
-                "chainID: {}, smCrypto: {}, wasm: {}, blockNumber: {}, GroupNodeIniConfig: {}",
+                "init rpc, chainID: {}, smCrypto: {}, wasm: {}, blockNumber: {}, GroupNodeIniConfig: {}",
                 chainID,
                 smCrypto,
                 wasm,
@@ -90,18 +84,15 @@ public class ClientImpl implements Client {
                 groupNodeIniConfig);
     }
 
-    protected ClientImpl(String groupID, ConfigOption configOption) {
+    protected ClientImpl(String groupID, ConfigOption configOption) throws JniException {
 
         NetworkConfig networkConfig = configOption.getNetworkConfig();
         List<String> peers = networkConfig.getPeers();
 
         // init jni sdk
-        JniConfig jniConfig = new JniConfig();
-        jniConfig.setPeers(peers);
-        jniRpcImpl = Rpc.build(groupID, jniConfig);
-
-        // TODO: start or user to start
-        jniRpcImpl.start();
+        jniRpcImpl = Rpc.build(configOption.getJniConfig());
+        // start rpc
+        start();
 
         // set group id
         this.groupID = groupID;
@@ -116,6 +107,8 @@ public class ClientImpl implements Client {
         } else {
             this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
         }
+
+        logger.info("new ClientImpl end");
     }
 
     @Override
@@ -431,7 +424,7 @@ public class ClientImpl implements Client {
     @Override
     public BigInteger getBlockLimit() {
         /*
-        // TODO: add impl in cpp-sdk
+        // Notice: add impl in cpp-sdk
         */
         long blk = getBlockNumber().getBlockNumber().longValue();
         if (blk == 0) {
@@ -630,6 +623,13 @@ public class ClientImpl implements Client {
                         JsonRpcMethods.GET_GROUP_NODE_INFO, Arrays.asList(groupID, node)),
                 BcosGroupNodeInfo.class,
                 callback);
+    }
+
+    @Override
+    public void start() {
+        if (jniRpcImpl != null) {
+            jniRpcImpl.start();
+        }
     }
 
     @Override
