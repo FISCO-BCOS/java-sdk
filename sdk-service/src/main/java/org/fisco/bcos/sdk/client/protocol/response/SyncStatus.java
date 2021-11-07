@@ -49,7 +49,7 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         private String nodeId;
 
         private String genesisHash;
-        private Long blockNumber;
+        private long blockNumber;
         private String latestHash;
 
         public String getNodeId() {
@@ -68,11 +68,11 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
             this.genesisHash = genesisHash;
         }
 
-        public Long getBlockNumber() {
+        public long getBlockNumber() {
             return this.blockNumber;
         }
 
-        public void setBlockNumber(Long blockNumber) {
+        public void setBlockNumber(long blockNumber) {
             this.blockNumber = blockNumber;
         }
 
@@ -128,9 +128,9 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
         @JsonProperty("nodeID")
         private String nodeId;
 
-        private Long blockNumber;
+        private long blockNumber;
         private String latestHash;
-        private Integer knownHighestNumber;
+        private int knownHighestNumber;
         private String txPoolSize;
         private List<PeersInfo> peers;
         private String knownLatestHash;
@@ -175,11 +175,11 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
             this.nodeId = nodeId;
         }
 
-        public Long getBlockNumber() {
+        public long getBlockNumber() {
             return this.blockNumber;
         }
 
-        public void setBlockNumber(Long blockNumber) {
+        public void setBlockNumber(long blockNumber) {
             this.blockNumber = blockNumber;
         }
 
@@ -191,11 +191,11 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
             this.latestHash = latestHash;
         }
 
-        public Integer getKnownHighestNumber() {
+        public int getKnownHighestNumber() {
             return this.knownHighestNumber;
         }
 
-        public void setKnownHighestNumber(Integer knownHighestNumber) {
+        public void setKnownHighestNumber(int knownHighestNumber) {
             this.knownHighestNumber = knownHighestNumber;
         }
 

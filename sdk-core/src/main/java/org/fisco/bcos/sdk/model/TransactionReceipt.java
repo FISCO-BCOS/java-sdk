@@ -22,7 +22,7 @@ public class TransactionReceipt {
     private String version;
     private String contractAddress;
     private String gasUsed;
-    private Integer status;
+    private int status;
     private String blockNumber;
     private String output;
     private String transactionHash;
@@ -205,11 +205,11 @@ public class TransactionReceipt {
         return this.logEntries;
     }
 
-    public Integer getStatus() {
+    public int getStatus() {
         return this.status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

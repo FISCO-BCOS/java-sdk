@@ -25,23 +25,23 @@ import org.fisco.bcos.sdk.model.JsonRpcResponse;
  */
 public class Call extends JsonRpcResponse<Call.CallOutput> {
     public static class CallOutput {
-        private Long blockNumber;
+        private long blockNumber;
         private String output;
-        private Integer status;
+        private int status;
 
-        public Long getBlockNumber() {
+        public long getBlockNumber() {
             return this.blockNumber;
         }
 
-        public void setBlockNumber(Long blockNumber) {
+        public void setBlockNumber(long blockNumber) {
             this.blockNumber = blockNumber;
         }
 
-        public Integer getStatus() {
+        public int getStatus() {
             return this.status;
         }
 
-        public void setStatus(Integer status) {
+        public void setStatus(int status) {
             this.status = status;
         }
 

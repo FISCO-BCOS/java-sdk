@@ -141,8 +141,8 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
     }
 
     public static class BlockHeader {
-        protected Long number;
-        protected Integer version;
+        protected long number;
+        protected int version;
         protected String hash;
         protected String parentHash;
         protected String logsBloom;
@@ -152,11 +152,11 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
 
         protected String receiptsRoot;
         protected String stateRoot;
-        protected Integer sealer;
+        protected int sealer;
         protected List<String> sealerList;
         protected String extraData;
         protected String gasUsed;
-        protected Long timestamp;
+        protected long timestamp;
         protected List<ParentInfo> parentInfo;
         protected List<Signature> signatureList;
         protected List<Long> consensusWeights;
@@ -173,7 +173,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.consensusWeights = consensusWeights;
         }
 
-        public void setVersion(Integer version) {
+        public void setVersion(int version) {
             this.version = version;
         }
 
@@ -181,7 +181,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             return this.signatureList;
         }
 
-        public void setNumber(Long number) {
+        public void setNumber(long number) {
             this.number = number;
         }
 
@@ -209,7 +209,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.stateRoot = stateRoot;
         }
 
-        public void setSealer(Integer sealer) {
+        public void setSealer(int sealer) {
             this.sealer = sealer;
         }
 
@@ -225,11 +225,11 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.gasUsed = gasUsed;
         }
 
-        public void setTimestamp(Long timestamp) {
+        public void setTimestamp(long timestamp) {
             this.timestamp = timestamp;
         }
 
-        public Long getNumber() {
+        public long getNumber() {
             return this.number;
         }
 
@@ -265,11 +265,11 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             return consensusWeights;
         }
 
-        public Integer getVersion() {
+        public int getVersion() {
             return version;
         }
 
-        public Integer getSealer() {
+        public int getSealer() {
             return this.sealer;
         }
 
@@ -285,7 +285,7 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             return this.gasUsed;
         }
 
-        public Long getTimestamp() {
+        public long getTimestamp() {
             return this.timestamp;
         }
 
