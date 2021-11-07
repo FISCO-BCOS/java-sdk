@@ -109,7 +109,7 @@ public class ReceiptParser {
      * @return return code @see RetCode
      */
     public static RetCode parseCallOutput(Call.CallOutput callResult, String message) {
-        if (!callResult.getStatus().equals(0)) {
+        if (callResult.getStatus() != 0) {
             Tuple2<Boolean, String> errorOutput =
                     RevertMessageParser.tryResolveRevertMessage(
                             callResult.getStatus(), callResult.getOutput());

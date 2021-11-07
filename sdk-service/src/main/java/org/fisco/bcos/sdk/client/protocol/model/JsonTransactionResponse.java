@@ -33,14 +33,14 @@ public class JsonTransactionResponse {
     private Integer version;
     private String hash;
     private String nonce;
-    private Long blockLimit;
+    private long blockLimit;
     private String to;
     private String from;
     private String input;
     private String chainID;
     private String groupID;
     private String signature;
-    private Long importTime;
+    private long importTime;
     private List<MerkleProofUnit> transactionProof;
 
     public JsonTransactionResponse() {}
@@ -101,11 +101,11 @@ public class JsonTransactionResponse {
         this.to = to;
     }
 
-    public Long getBlockLimit() {
+    public long getBlockLimit() {
         return this.blockLimit;
     }
 
-    public void setBlockLimit(Long blockLimit) {
+    public void setBlockLimit(long blockLimit) {
         this.blockLimit = blockLimit;
     }
 
@@ -232,11 +232,11 @@ public class JsonTransactionResponse {
                 + '}';
     }
 
-    public Long getImportTime() {
+    public long getImportTime() {
         return this.importTime;
     }
 
-    public void setImportTime(Long importTime) {
+    public void setImportTime(long importTime) {
         this.importTime = importTime;
     }
 }
