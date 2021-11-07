@@ -19,6 +19,7 @@ import java.util.Set;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.jni.amop.AmopRequestCallback;
 import org.fisco.bcos.sdk.jni.amop.AmopResponseCallback;
+import org.fisco.bcos.sdk.jni.common.JniException;
 
 /**
  * AMOP module interface.
@@ -32,7 +33,7 @@ public interface Amop {
      * @param config the config object
      * @return Amop instance
      */
-    static Amop build(ConfigOption config) {
+    static Amop build(ConfigOption config) throws JniException {
         return new AmopImp(config);
     }
 

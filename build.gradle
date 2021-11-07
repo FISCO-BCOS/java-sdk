@@ -20,6 +20,7 @@ ext {
     jacksonVersion = '2.12.4'
     commonsIOVersion = '2.4'
     commonsLang3Version = '3.12.0'
+    commonIOVersion = '2.4'
     javapoetVersion = '1.13.0'
     picocliVersion = '4.6.1'
     nettyVersion = '4.1.66.Final'
@@ -35,14 +36,14 @@ ext {
     tarsCoreVersion = "1.7.2"
 
     config2Version = '2.7'
-    javaSdkJniVersion = "3.1.0-SNAPSHOT"
+    javaSdkJniVersion = "3.1.0-11071-SNAPSHOT"
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.1.0-SNAPSHOT'
+    version = '3.1.0-11071-SNAPSHOT'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'

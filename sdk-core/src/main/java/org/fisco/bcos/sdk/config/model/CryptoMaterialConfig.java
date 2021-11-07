@@ -25,89 +25,117 @@ import org.slf4j.LoggerFactory;
 /** Crypto material configuration, include certs and keys */
 public class CryptoMaterialConfig {
     private static Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
+
+    private boolean useSmCrypto = false;
     private String certPath = "conf";
+
     private String caCertPath;
     private String sdkCertPath;
     private String sdkPrivateKeyPath;
-    private String enSSLCertPath;
-    private String enSSLPrivateKeyPath;
-    private Boolean useSmCrypto;
+    private String enSdkCertPath;
+    private String enSdkPrivateKeyPath;
+
+    private String caCert;
+    private String sdkCert;
+    private String sdkPrivateKey;
+    private String enSdkCert;
+    private String enSdkPrivateKey;
 
     protected CryptoMaterialConfig() {}
 
     public CryptoMaterialConfig(ConfigProperty configProperty) throws ConfigException {
 
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
-        this.useSmCrypto = (Boolean) cryptoMaterialProperty.get("useSMCrypto");
-        if (this.useSmCrypto == null) {
-            // TODO: if we require user to specific use sm crypto?
-            this.useSmCrypto = false;
-        }
+        this.useSmCrypto = (boolean) cryptoMaterialProperty.get("useSMCrypto");
+
         int cryptoType = this.useSmCrypto ? CryptoType.SM_TYPE : CryptoType.ECDSA_TYPE;
         this.certPath =
                 ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(cryptoMaterialProperty, "certPath", this.certPath));
         CryptoMaterialConfig defaultCryptoMaterialConfig =
                 this.getDefaultCaCertPath(cryptoType, this.certPath);
-        this.caCertPath =
-                ConfigProperty.getConfigFilePath(
-                        ConfigProperty.getValue(
-                                cryptoMaterialProperty,
-                                "caCert",
-                                defaultCryptoMaterialConfig.getCaCertPath()));
-        this.sdkCertPath =
-                ConfigProperty.getConfigFilePath(
-                        ConfigProperty.getValue(
-                                cryptoMaterialProperty,
-                                "sslCert",
-                                defaultCryptoMaterialConfig.getSdkCertPath()));
-        this.sdkPrivateKeyPath =
-                ConfigProperty.getConfigFilePath(
-                        ConfigProperty.getValue(
-                                cryptoMaterialProperty,
-                                "sslKey",
-                                defaultCryptoMaterialConfig.getSdkPrivateKeyPath()));
-        this.enSSLCertPath =
-                ConfigProperty.getConfigFilePath(
-                        ConfigProperty.getValue(
-                                cryptoMaterialProperty,
-                                "enSslCert",
-                                defaultCryptoMaterialConfig.getEnSSLCertPath()));
-        this.enSSLPrivateKeyPath =
-                ConfigProperty.getConfigFilePath(
-                        ConfigProperty.getValue(
-                                cryptoMaterialProperty,
-                                "enSslKey",
-                                defaultCryptoMaterialConfig.getEnSSLPrivateKeyPath()));
+
+        if (cryptoType == CryptoType.ECDSA_TYPE) {
+            this.caCert =
+                    ConfigProperty.getConfigFileContent(
+                            ConfigProperty.getValue(
+                                    cryptoMaterialProperty,
+                                    "caCert",
+                                    defaultCryptoMaterialConfig.getCaCertPath()));
+            this.sdkCert =
+                    ConfigProperty.getConfigFileContent(
+                            ConfigProperty.getValue(
+                                    cryptoMaterialProperty,
+                                    "sslCert",
+                                    defaultCryptoMaterialConfig.getSdkCertPath()));
+            this.sdkPrivateKey =
+                    ConfigProperty.getConfigFileContent(
+                            ConfigProperty.getValue(
+                                    cryptoMaterialProperty,
+                                    "sslKey",
+                                    defaultCryptoMaterialConfig.getSdkPrivateKeyPath()));
+        } else {
+            this.caCert =
+                    ConfigProperty.getConfigFileContent(
+                            ConfigProperty.getValue(
+                                    cryptoMaterialProperty,
+                                    "caCert",
+                                    defaultCryptoMaterialConfig.getCaCertPath()));
+            this.sdkCert =
+                    ConfigProperty.getConfigFileContent(
+                            ConfigProperty.getValue(
+                                    cryptoMaterialProperty,
+                                    "sslCert",
+                                    defaultCryptoMaterialConfig.getSdkCertPath()));
+            this.sdkPrivateKey =
+                    ConfigProperty.getConfigFileContent(
+                            ConfigProperty.getValue(
+                                    cryptoMaterialProperty,
+                                    "sslKey",
+                                    defaultCryptoMaterialConfig.getSdkPrivateKeyPath()));
+            this.enSdkCert =
+                    ConfigProperty.getConfigFileContent(
+                            ConfigProperty.getValue(
+                                    cryptoMaterialProperty,
+                                    "enSslCert",
+                                    defaultCryptoMaterialConfig.getEnSdkCertPath()));
+            this.enSdkPrivateKey =
+                    ConfigProperty.getConfigFileContent(
+                            ConfigProperty.getValue(
+                                    cryptoMaterialProperty,
+                                    "enSslKey",
+                                    defaultCryptoMaterialConfig.getEnSdkPrivateKeyPath()));
+        }
+
         logger.debug(
-                "Load cryptoMaterial, caCertPath: {}, sdkCertPath: {}, sdkPrivateKeyPath:{}, enSSLCertPath: {}, enSSLPrivateKeyPath:{}",
+                "Load cryptoMaterial, useSmCrypto: {}, caCertPath: {}, sdkCertPath: {}, sdkPrivateKeyPath:{}, enSSLCertPath: {}, enSSLPrivateKeyPath:{}",
+                this.useSmCrypto,
                 this.getCaCertPath(),
                 this.getSdkCertPath(),
                 this.getSdkPrivateKeyPath(),
-                this.getEnSSLCertPath(),
-                this.getEnSSLPrivateKeyPath());
+                this.getEnSdkCertPath(),
+                this.getEnSdkPrivateKeyPath());
     }
 
     public CryptoMaterialConfig getDefaultCaCertPath(int cryptoType, String certPath)
             throws ConfigException {
         CryptoMaterialConfig cryptoMaterialConfig = new CryptoMaterialConfig();
         cryptoMaterialConfig.setCertPath(certPath);
-        String smDir = "gm";
         if (cryptoType == CryptoType.ECDSA_TYPE) {
             cryptoMaterialConfig.setCaCertPath(certPath + File.separator + "ca.crt");
             cryptoMaterialConfig.setSdkCertPath(certPath + File.separator + "sdk.crt");
             cryptoMaterialConfig.setSdkPrivateKeyPath(certPath + File.separator + "sdk.key");
         } else if (cryptoType == CryptoType.SM_TYPE) {
             cryptoMaterialConfig.setCaCertPath(
-                    certPath + File.separator + smDir + File.separator + "gmca.crt");
+                    certPath + File.separator + File.separator + "sm_ca.crt");
             cryptoMaterialConfig.setSdkCertPath(
-                    certPath + File.separator + smDir + File.separator + "gmsdk.crt");
+                    certPath + File.separator + File.separator + "sm_sdk.crt");
             cryptoMaterialConfig.setSdkPrivateKeyPath(
-                    certPath + File.separator + smDir + File.separator + "gmsdk.key");
-            cryptoMaterialConfig.setEnSSLCertPath(
-                    certPath + File.separator + smDir + File.separator + "gmensdk.crt");
-            cryptoMaterialConfig.setEnSSLPrivateKeyPath(
-                    certPath + File.separator + smDir + File.separator + "gmensdk.key");
+                    certPath + File.separator + File.separator + "sm_sdk.key");
+            cryptoMaterialConfig.setEnSdkCertPath(
+                    certPath + File.separator + File.separator + "sm_ensdk.crt");
+            cryptoMaterialConfig.setEnSdkPrivateKeyPath(
+                    certPath + File.separator + File.separator + "sm_ensdk.key");
         } else {
             throw new ConfigException(
                     "load CryptoMaterialConfig failed, only support ecdsa and sm now, expected 0 or 1, but provided "
@@ -124,51 +152,51 @@ public class CryptoMaterialConfig {
         this.certPath = certPath;
     }
 
-    public String getCaCertPath() {
-        return this.caCertPath;
+    public String getCaCert() {
+        return this.caCert;
     }
 
-    public void setCaCertPath(String caCertPath) {
-        this.caCertPath = caCertPath;
+    public void setCaCert(String caCert) {
+        this.caCert = caCert;
     }
 
-    public String getSdkCertPath() {
-        return this.sdkCertPath;
+    public String getSdkCert() {
+        return this.sdkCert;
     }
 
-    public void setSdkCertPath(String sdkCertPath) {
-        this.sdkCertPath = sdkCertPath;
+    public void setSdkCert(String sdkCert) {
+        this.sdkCert = sdkCert;
     }
 
-    public String getSdkPrivateKeyPath() {
-        return this.sdkPrivateKeyPath;
+    public String getSdkPrivateKey() {
+        return this.sdkPrivateKey;
     }
 
-    public void setSdkPrivateKeyPath(String sdkPrivateKeyPath) {
-        this.sdkPrivateKeyPath = sdkPrivateKeyPath;
+    public void setSdkPrivateKey(String sdkPrivateKey) {
+        this.sdkPrivateKey = sdkPrivateKey;
     }
 
-    public String getEnSSLCertPath() {
-        return this.enSSLCertPath;
+    public String getEnSdkCert() {
+        return this.enSdkCert;
     }
 
-    public void setEnSSLCertPath(String enSSLCertPath) {
-        this.enSSLCertPath = enSSLCertPath;
+    public void setEnSdkCert(String enSdkCert) {
+        this.enSdkCert = enSdkCert;
     }
 
-    public String getEnSSLPrivateKeyPath() {
-        return this.enSSLPrivateKeyPath;
+    public String getEnSdkPrivateKey() {
+        return this.enSdkPrivateKey;
     }
 
-    public void setEnSSLPrivateKeyPath(String enSSLPrivateKeyPath) {
-        this.enSSLPrivateKeyPath = enSSLPrivateKeyPath;
+    public void setEnSdkPrivateKey(String enSdkPrivateKey) {
+        this.enSdkPrivateKey = enSdkPrivateKey;
     }
 
-    public Boolean getUseSmCrypto() {
+    public boolean getUseSmCrypto() {
         return this.useSmCrypto;
     }
 
-    public void setUseSmCrypto(Boolean useSmCrypto) {
+    public void setUseSmCrypto(boolean useSmCrypto) {
         this.useSmCrypto = useSmCrypto;
     }
 
@@ -176,29 +204,73 @@ public class CryptoMaterialConfig {
         return this.useSmCrypto ? CryptoType.SM_TYPE : CryptoType.ECDSA_TYPE;
     }
 
+    public boolean isUseSmCrypto() {
+        return useSmCrypto;
+    }
+
+    public String getCaCertPath() {
+        return caCertPath;
+    }
+
+    public void setCaCertPath(String caCertPath) {
+        this.caCertPath = caCertPath;
+    }
+
+    public String getSdkCertPath() {
+        return sdkCertPath;
+    }
+
+    public void setSdkCertPath(String sdkCertPath) {
+        this.sdkCertPath = sdkCertPath;
+    }
+
+    public String getSdkPrivateKeyPath() {
+        return sdkPrivateKeyPath;
+    }
+
+    public void setSdkPrivateKeyPath(String sdkPrivateKeyPath) {
+        this.sdkPrivateKeyPath = sdkPrivateKeyPath;
+    }
+
+    public String getEnSdkCertPath() {
+        return enSdkCertPath;
+    }
+
+    public void setEnSdkCertPath(String enSdkCertPath) {
+        this.enSdkCertPath = enSdkCertPath;
+    }
+
+    public String getEnSdkPrivateKeyPath() {
+        return enSdkPrivateKeyPath;
+    }
+
+    public void setEnSdkPrivateKeyPath(String enSdkPrivateKeyPath) {
+        this.enSdkPrivateKeyPath = enSdkPrivateKeyPath;
+    }
+
     @Override
     public String toString() {
         return "CryptoMaterialConfig{"
-                + "certPath='"
-                + this.certPath
+                + "useSmCrypto="
+                + useSmCrypto
+                + ", certPath='"
+                + certPath
                 + '\''
                 + ", caCertPath='"
-                + this.caCertPath
+                + caCertPath
                 + '\''
                 + ", sdkCertPath='"
-                + this.sdkCertPath
+                + sdkCertPath
                 + '\''
                 + ", sdkPrivateKeyPath='"
-                + this.sdkPrivateKeyPath
+                + sdkPrivateKeyPath
                 + '\''
-                + ", enSSLCertPath='"
-                + this.enSSLCertPath
+                + ", enSdkCertPath='"
+                + enSdkCertPath
                 + '\''
-                + ", enSSLPrivateKeyPath='"
-                + this.enSSLPrivateKeyPath
+                + ", enSdkPrivateKeyPath='"
+                + enSdkPrivateKeyPath
                 + '\''
-                + ", useSmCrypto="
-                + this.useSmCrypto
                 + '}';
     }
 }

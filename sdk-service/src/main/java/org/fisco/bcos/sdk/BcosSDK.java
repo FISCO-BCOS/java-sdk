@@ -13,12 +13,11 @@
  */
 package org.fisco.bcos.sdk;
 
-import java.util.concurrent.ConcurrentHashMap;
+import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.network.NetworkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,19 @@ public class BcosSDK {
     public static final String SM_TYPE_STR = "sm";
 
     private final ConfigOption config;
-    private ConcurrentHashMap<String, Client> groupToClient = new ConcurrentHashMap<>();
+    private org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk;
+
+    public ConfigOption getConfig() {
+        return config;
+    }
+
+    public org.fisco.bcos.sdk.jni.BcosSDK getJniBcosSdk() {
+        return jniBcosSdk;
+    }
+
+    public void setJniBcosSdk(org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk) {
+        this.jniBcosSdk = jniBcosSdk;
+    }
 
     /**
      * Build BcosSDK instance
@@ -56,38 +67,10 @@ public class BcosSDK {
     public BcosSDK(ConfigOption configOption) throws BcosSDKException {
         this.config = configOption;
         try {
-            // create sdk
-            return;
+            this.jniBcosSdk = org.fisco.bcos.sdk.jni.BcosSDK.build(configOption.getJniConfig());
         } catch (Exception e) {
-            logger.warn("create client for failed, error info: {}", e.getMessage());
-        }
-        throw new BcosSDKException("create BcosSDK failed for all connect failed");
-    }
-
-    /**
-     * Get configuration
-     *
-     * @return ConfigOption
-     */
-    public ConfigOption getConfig() {
-        return this.config;
-    }
-
-    /**
-     * Check whether group id in valid
-     *
-     * @param groupId the target group id
-     */
-    private void checkGroupId(String groupId) {
-        // check group string
-        String regex = "[A-Za-z0-9_\\-\\\\\\\\u4e00-\\\\\\\\u9fa5]+";
-        if (!groupId.matches(regex)) {
-
-            throw new BcosSDKException(
-                    "create client for group "
-                            + groupId
-                            + " failed for invalid group name! The string regex must match "
-                            + regex);
+            logger.warn("error: {}", e);
+            throw new BcosSDKException("create BcosSDK failed, error: " + e.getMessage());
         }
     }
 
@@ -97,24 +80,30 @@ public class BcosSDK {
      * @param groupId the group id
      * @return Client
      */
-    public Client getClient(String groupId) throws NetworkException {
-        checkGroupId(groupId);
-        if (!groupToClient.containsKey(groupId)) {
-            // create a new client for the specified group
-            Client client = Client.build(groupId, this.config);
-            groupToClient.put(groupId, client);
-            logger.info("create client for group {} success", groupId);
+    public Client getClient(String groupId) throws BcosSDKException {
+        try {
+            return Client.build(groupId, config);
+        } catch (Exception e) {
+            logger.warn("create client for failed, error: {}", e);
+            throw new BcosSDKException("get Client failed, e: " + e.getMessage());
         }
-        return groupToClient.get(groupId);
+    }
+
+    /**
+     * Get a amop instance of a specific group
+     *
+     * @return Client
+     */
+    public Amop getAmop() throws BcosSDKException {
+        try {
+            Amop amop = Amop.build(config);
+            return amop;
+        } catch (Exception e) {
+            logger.warn("create amop for failed, error: {}", e);
+            throw new BcosSDKException("get amop failed, e: " + e.getMessage());
+        }
     }
 
     /** Stop all module of BcosSDK */
-    public void stopAll() {
-        // stop all client
-        groupToClient.forEach(
-                (String groupId, Client client) -> {
-                    logger.info("Stopping client for group {}.", groupId);
-                    client.stop();
-                });
-    }
+    public void stopAll() {}
 }

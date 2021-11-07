@@ -20,8 +20,8 @@ import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.network.NetworkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public interface Client {
      * @param groupID the group info
      * @return a client instance
      */
-    static Client build(String groupID, ConfigOption configOption) throws NetworkException {
+    static Client build(String groupID, ConfigOption configOption) throws JniException {
         return new ClientImpl(groupID, configOption);
     }
 
@@ -423,6 +423,8 @@ public interface Client {
     void getGroupNodeInfoAsync(String node, RespCallback<BcosGroupNodeInfo> callback);
 
     // ------------------------- rpc interface end ------------------------------------------
+
+    void start();
 
     void stop();
 }

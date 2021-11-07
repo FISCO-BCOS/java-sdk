@@ -19,7 +19,7 @@ import java.util.Set;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.jni.amop.AmopRequestCallback;
 import org.fisco.bcos.sdk.jni.amop.AmopResponseCallback;
-import org.fisco.bcos.sdk.jni.common.JniConfig;
+import org.fisco.bcos.sdk.jni.common.JniException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +29,10 @@ public class AmopImp implements Amop {
 
     private org.fisco.bcos.sdk.jni.amop.Amop amopJni;
 
-    public AmopImp(ConfigOption config) {
+    public AmopImp(ConfigOption config) throws JniException {
         logger.info("newAmop, config: {}", config);
-        JniConfig jniConfig = new JniConfig();
-        this.amopJni = org.fisco.bcos.sdk.jni.amop.Amop.build(jniConfig);
+        this.amopJni = org.fisco.bcos.sdk.jni.amop.Amop.build(config.getJniConfig());
+        start();
     }
 
     @Override
@@ -68,11 +68,15 @@ public class AmopImp implements Amop {
 
     @Override
     public void start() {
-        amopJni.start();
+        if (amopJni != null) {
+            amopJni.start();
+        }
     }
 
     @Override
     public void stop() {
-        amopJni.stop();
+        if (amopJni != null) {
+            amopJni.stop();
+        }
     }
 }

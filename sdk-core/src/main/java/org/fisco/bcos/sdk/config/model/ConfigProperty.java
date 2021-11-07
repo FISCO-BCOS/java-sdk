@@ -17,12 +17,20 @@ package org.fisco.bcos.sdk.config.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.File;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ConfigOption is the java object of the config file.
@@ -31,6 +39,9 @@ import org.fisco.bcos.sdk.config.exceptions.ConfigException;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigProperty {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConfigProperty.class);
+
     public Map<String, Object> cryptoMaterial;
     public Map<String, Object> network;
     public List<AmopTopic> amop;
@@ -106,6 +117,29 @@ public class ConfigProperty {
             return configFilePath;
         } catch (UnsupportedEncodingException e) {
             throw new ConfigException(e);
+        }
+    }
+
+    public static String getConfigFileContent(String configFilePath) throws ConfigException {
+        try {
+            // try to read from file system
+            File file = new File(configFilePath);
+            if (file.exists()) {
+                Path path = Paths.get(configFilePath);
+                return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            }
+
+            // try to read from jar
+            try (InputStream in =
+                    Thread.currentThread()
+                            .getContextClassLoader()
+                            .getResourceAsStream(configFilePath)) {
+                String contents = IOUtils.toString(in, StandardCharsets.UTF_8);
+                return contents;
+            }
+        } catch (Exception e) {
+            logger.warn("e: ", e);
+            throw new ConfigException("File not found, path: " + configFilePath);
         }
     }
 }
