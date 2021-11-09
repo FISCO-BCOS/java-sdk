@@ -52,7 +52,7 @@ public class SignatureTest {
     public void testCryptoSuiteForECDSA() {
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         // generate keyPair
-        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
         CryptoSuite cryptoSuite2 = new CryptoSuite(CryptoType.ECDSA_TYPE, keyPair);
         Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
         Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
@@ -88,7 +88,7 @@ public class SignatureTest {
     public void testCryptoSuiteForSM2() {
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
         // generate keyPair
-        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
 
         CryptoSuite cryptoSuite2 = new CryptoSuite(CryptoType.SM_TYPE, keyPair);
         Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
@@ -137,7 +137,7 @@ public class SignatureTest {
 
         // create keyPair with cryptoSuite
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
-        keyPair = cryptoSuite.createKeyPair();
+        keyPair = cryptoSuite.getCryptoKeyPair();
         this.testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2, false);
 
@@ -159,7 +159,7 @@ public class SignatureTest {
 
         // create keyPair with cryptoSuite
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
-        keyPair = cryptoSuite.createKeyPair();
+        keyPair = cryptoSuite.getCryptoKeyPair();
         this.testValidGetAddressForKeyPair(
                 keyPair, hexPublicKey, expectedHash, hexPublicKey2, expectedHash2, true);
 
@@ -261,14 +261,14 @@ public class SignatureTest {
     @Test(expected = KeyPairException.class)
     public void testInvalidCaseForECDSACryptoSuite() {
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
-        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
         this.testInvalidPublicKey(keyPair);
     }
 
     @Test(expected = KeyPairException.class)
     public void testInvalidCaseForSM2CryptoSuite() {
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
-        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
         this.testInvalidPublicKey(keyPair);
     }
 
@@ -465,7 +465,7 @@ public class SignatureTest {
                 this.getKeyStoreFilePath(cryptoSuite, configOption, CryptoKeyPair.PEM_FILE_POSTFIX);
         // load pem file
         KeyTool pemManager = new PEMKeyStore(pemFilePath);
-        CryptoKeyPair decodedCryptoKeyPair = cryptoSuite.createKeyPair(pemManager.getKeyPair());
+        CryptoKeyPair decodedCryptoKeyPair = cryptoSuite.loadKeyPair(pemManager.getKeyPair());
 
         System.out.println("PEM   orgKeyPair   pub: " + orgKeyPair.getHexPublicKey());
         System.out.println("PEM decodedKeyPair pub: " + decodedCryptoKeyPair.getHexPublicKey());
@@ -494,7 +494,7 @@ public class SignatureTest {
                 this.getKeyStoreFilePath(cryptoSuite, configOption, CryptoKeyPair.P12_FILE_POSTFIX);
         // load p12 file
         KeyTool p12Manager = new P12KeyStore(p12FilePath, password);
-        CryptoKeyPair decodedCryptoKeyPair = cryptoSuite.createKeyPair(p12Manager.getKeyPair());
+        CryptoKeyPair decodedCryptoKeyPair = cryptoSuite.loadKeyPair(p12Manager.getKeyPair());
         // check the keyPair
         System.out.println("P12   orgKeyPair   pub: " + orgKeyPair.getHexPublicKey());
         System.out.println("P12 decodedKeyPair pub: " + decodedCryptoKeyPair.getHexPublicKey());

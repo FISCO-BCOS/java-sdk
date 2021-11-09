@@ -384,7 +384,19 @@ public interface Client {
      */
     void getSyncStatusAsync(RespCallback<SyncStatus> callback);
 
-    // TODO: getConsensusStatus
+    /**
+     * async get consensus status
+     *
+     * @param node the node that receive the request
+     * @param callback the callback
+     */
+    void getConsensusStatusAsync(String node, RespCallback<ConsensusStatus> callback);
+
+    void getConsensusStatusAsync(RespCallback<ConsensusStatus> callback);
+
+    ConsensusStatus getConsensusStatus(String node);
+
+    ConsensusStatus getConsensusStatus();
 
     /**
      * get group list
