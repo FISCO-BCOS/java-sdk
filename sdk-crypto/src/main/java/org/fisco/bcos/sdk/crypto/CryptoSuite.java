@@ -69,7 +69,7 @@ public class CryptoSuite {
         this.setConfig(configOption);
         // doesn't set the account name, generate the keyPair randomly
         if (!configOption.getAccountConfig().isAccountConfigured()) {
-            this.createKeyPair();
+            this.generateRandomKeyPair();
             return;
         }
         this.loadAccount(configOption);
@@ -101,7 +101,7 @@ public class CryptoSuite {
                             + " crypto type");
         }
         // create keyPair randomly
-        this.createKeyPair();
+        this.generateRandomKeyPair();
     }
 
     /**
@@ -124,7 +124,7 @@ public class CryptoSuite {
                             + ", current supported are p12 and pem");
         }
         logger.debug("Load account from {}", accountFilePath);
-        this.createKeyPair(keyTool.getKeyPair());
+        this.loadKeyPair(keyTool.getKeyPair());
     }
 
     /**
@@ -288,7 +288,7 @@ public class CryptoSuite {
      *
      * @return a generated key pair
      */
-    public CryptoKeyPair createKeyPair() {
+    public CryptoKeyPair generateRandomKeyPair() {
         this.cryptoKeyPair = this.keyPairFactory.generateKeyPair();
         this.cryptoKeyPair.setConfig(this.config);
         return this.cryptoKeyPair;
@@ -300,7 +300,7 @@ public class CryptoSuite {
      * @param keyPair key pair
      * @return CryptoKeyPair type key pair
      */
-    public CryptoKeyPair createKeyPair(KeyPair keyPair) {
+    public CryptoKeyPair loadKeyPair(KeyPair keyPair) {
         this.cryptoKeyPair = this.keyPairFactory.createKeyPair(keyPair);
         this.cryptoKeyPair.setConfig(this.config);
         return this.cryptoKeyPair;
@@ -312,7 +312,7 @@ public class CryptoSuite {
      * @param hexedPrivateKey a hex string of private key
      * @return CryptoKeyPair type key pair
      */
-    public CryptoKeyPair createKeyPair(String hexedPrivateKey) {
+    public CryptoKeyPair loadKeyPair(String hexedPrivateKey) {
         this.cryptoKeyPair = this.keyPairFactory.createKeyPair(hexedPrivateKey);
         this.cryptoKeyPair.setConfig(this.config);
         return this.cryptoKeyPair;

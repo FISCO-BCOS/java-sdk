@@ -142,7 +142,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
                 TransactionSignerServcie.decodeSignatureString(
                         signatureStr,
                         this.cryptoSuite.getCryptoTypeConfig(),
-                        this.cryptoSuite.createKeyPair().getHexPublicKey());
+                        this.cryptoSuite.getCryptoKeyPair().getHexPublicKey());
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
         byte[] signedTransaction =
                 this.transactionEncoder.encodeToTransactionBytes(
