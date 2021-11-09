@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.codec.abi.Constant;
@@ -278,8 +277,8 @@ public class ABICodec {
         throw new ABICodecException(errorMsg);
     }
 
-    public byte[] encodeConstructorFromString(
-            String abi, String bin, List<String> params, String path) throws ABICodecException {
+    public byte[] encodeConstructorFromString(String abi, String bin, List<String> params)
+            throws ABICodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
         List<ABIDefinition.NamedType> inputTypes = abiDefinition.getInputs();
@@ -305,21 +304,16 @@ public class ABICodec {
                 outputStream.write(
                         org.fisco.bcos.sdk.codec.abi.FunctionEncoder.encodeConstructor(types));
             } else {
-                assert path != null;
                 List<Type> deployParams = new ArrayList<>();
                 deployParams.add(new DynamicBytes(Hex.decode(bin)));
                 deployParams.add(
                         new DynamicBytes(
                                 org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeConstructor(
                                         types)));
-                deployParams.add(new Utf8String(path));
                 deployParams.add(new Utf8String(abi));
-                byte[] input = "deployWasm(bytes,bytes,string,string)".getBytes();
-                byte[] hash = this.cryptoSuite.hash(input);
-                byte[] methodID = Arrays.copyOfRange(hash, 0, 4);
                 outputStream.write(
                         org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeParameters(
-                                deployParams, methodID));
+                                deployParams, null));
             }
             return outputStream.toByteArray();
         } catch (Exception e) {
@@ -331,6 +325,34 @@ public class ABICodec {
                         + cause.getMessage();
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
+    }
+
+    public byte[] encodeConstructorFromBytes(String bin, byte[] params, String abi)
+            throws ABICodecException {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+            if (!this.isWasm) {
+                outputStream.write(Hex.decode(bin));
+                outputStream.write(params);
+            } else {
+                List<Type> deployParams = new ArrayList<>();
+                deployParams.add(new DynamicBytes(Hex.decode(bin)));
+                deployParams.add(new DynamicBytes(params));
+                deployParams.add(new Utf8String(abi));
+                outputStream.write(
+                        org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeParameters(
+                                deployParams, null));
+            }
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
+            String errorMsg =
+                    " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"
+                            + e.getMessage();
+            logger.error(errorMsg);
+            throw new ABICodecException(errorMsg);
+        }
     }
 
     public byte[] encodeMethod(String ABI, String methodName, List<Object> params)

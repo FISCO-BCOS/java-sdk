@@ -28,9 +28,13 @@ public class FunctionEncoder extends FunctionEncoderInterface {
 
     public static byte[] encodeParameters(List<Type> parameters, byte[] methodID) {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
-        ScaleCodecWriter writer = new ScaleCodecWriter(result);
+        // when wasm call, input first byte is 1; when wasm deploy, input first byte is 0
         try {
+            ScaleCodecWriter writer = new ScaleCodecWriter(result);
             if (methodID != null) {
+                byte[] wasmFlag = new byte[1];
+                wasmFlag[0] = 1;
+                result.write(wasmFlag);
                 result.write(methodID);
             }
             for (Type parameter : parameters) {

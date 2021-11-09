@@ -78,9 +78,9 @@ public class AssembleTransactionProcessorTest {
         // test sync deploy contract `HelloWorld`, which has no constructed parameter.
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("HelloWorld", new ArrayList<>());
-        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         Assert.assertEquals(response.getReturnCode(), 0);
-        Assert.assertEquals(0, response.getTransactionReceipt().getStatus().intValue());
+        Assert.assertEquals(0, response.getTransactionReceipt().getStatus());
         String helloWorldAddress = response.getContractAddress();
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
@@ -102,11 +102,11 @@ public class AssembleTransactionProcessorTest {
         TransactionReceipt tr =
                 transactionProcessor.sendTransactionAndGetReceiptByContractLoader(
                         "HelloWorld", helloWorldAddress, "set", params);
-        Assert.assertEquals(0, tr.getStatus().intValue());
+        Assert.assertEquals(0, tr.getStatus());
         TransactionResponse res =
                 transactionProcessor.sendTransactionAndGetResponseByContractLoader(
                         "HelloWorld", helloWorldAddress, "set", params);
-        Assert.assertEquals(0, res.getTransactionReceipt().getStatus().intValue());
+        Assert.assertEquals(0, res.getTransactionReceipt().getStatus());
 
         // test call by contract loader
         CallResponse callResponse2 =
@@ -118,7 +118,7 @@ public class AssembleTransactionProcessorTest {
 
         // test deploy by contract loader
         response = transactionProcessor.deployByContractLoader("HelloWorld", new ArrayList<>());
-        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         Assert.assertEquals(0, response.getReturnCode());
         System.out.println("### AssembleTransactionProcessorTest test1HelloWorld passed");
     }
@@ -137,14 +137,14 @@ public class AssembleTransactionProcessorTest {
         TransactionCallbackMock callbackMock = new TransactionCallbackMock();
         transactionProcessor.deployByContractLoaderAsync(
                 "HelloWorld", new ArrayList<>(), callbackMock);
-        Assert.assertEquals(0, callbackMock.getResult().getStatus().intValue());
+        Assert.assertEquals(0, callbackMock.getResult().getStatus());
 
         // send tx with callback
         String to = callbackMock.getResult().getContractAddress();
         System.out.println("contract address is " + to);
         List<Object> params = Lists.newArrayList("test");
         transactionProcessor.sendTransactionAsync(to, abi, "set", params, callbackMock);
-        Assert.assertEquals(0, callbackMock.getResult().getStatus().intValue());
+        Assert.assertEquals(0, callbackMock.getResult().getStatus());
 
         // deploy with future
         CompletableFuture<TransactionReceipt> future =
@@ -153,7 +153,7 @@ public class AssembleTransactionProcessorTest {
         future.thenAccept(
                 tr -> {
                     System.out.println("deploy succeed time " + System.currentTimeMillis());
-                    Assert.assertEquals(0, tr.getStatus().intValue());
+                    Assert.assertEquals(0, tr.getStatus());
                 });
         // handle exception.
         future.exceptionally(
@@ -179,12 +179,12 @@ public class AssembleTransactionProcessorTest {
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
         System.out.println(JsonUtils.toJson(response));
-        if (!response.getTransactionReceipt().getStatus().equals(0)) {
+        if (response.getTransactionReceipt().getStatus() != 0) {
             System.out.println(response.getReturnMessage());
             return;
         }
         Assert.assertEquals(0, response.getReturnCode());
-        Assert.assertEquals(0, response.getTransactionReceipt().getStatus().intValue());
+        Assert.assertEquals(0, response.getTransactionReceipt().getStatus());
         String contractAddress = response.getContractAddress();
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
@@ -208,7 +208,7 @@ public class AssembleTransactionProcessorTest {
             params.add("test2");
             TransactionResponse response =
                     transactionProcessor.deployByContractLoader("ComplexSol", params);
-            if (!response.getTransactionReceipt().getStatus().equals(0)) {
+            if (response.getTransactionReceipt().getStatus() != 0) {
                 return;
             }
             String contractAddress = response.getContractAddress();
@@ -249,13 +249,13 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         // send empty tx
         TransactionReceipt tr =
                 transactionProcessor.sendTransactionAndGetReceiptByContractLoader(
                         "ComplexSol", contractAddress, "emptyArgs", ListUtils.emptyIfNull(null));
-        Assert.assertEquals(0, tr.getStatus().intValue());
+        Assert.assertEquals(0, tr.getStatus());
     }
 
     @Test
@@ -269,7 +269,7 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         // increment v
         transactionProcessor.sendTransactionAsync(
@@ -280,7 +280,7 @@ public class AssembleTransactionProcessorTest {
                 new TransactionCallback() {
                     @Override
                     public void onResponse(TransactionReceipt receipt) {
-                        Assert.assertEquals(0, receipt.getStatus().intValue());
+                        Assert.assertEquals(0, receipt.getStatus());
                         // getV
                         CallResponse callResponse3;
                         try {
@@ -312,7 +312,7 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         // set values
         List<Object> paramsSetValues = Lists.newArrayList(20);
@@ -341,7 +341,7 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         // setBytes
         List<String> paramsSetBytes = Lists.newArrayList(new String("123".getBytes()));
@@ -383,7 +383,7 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         List<Object> paramsSetBytes = Lists.newArrayList("2".getBytes());
         byte[] data = transactionProcessor.encodeFunction(ABI, "setBytes", paramsSetBytes);
@@ -394,7 +394,7 @@ public class AssembleTransactionProcessorTest {
                 transactionProcessor.sendTransactionAsync(signedData);
         future.thenAccept(
                 r -> {
-                    Assert.assertEquals(0, response.getTransactionReceipt().getStatus().intValue());
+                    Assert.assertEquals(0, response.getTransactionReceipt().getStatus());
                 });
     }
 }

@@ -81,9 +81,9 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                 assembleTransactionWithRemoteSignProcessor.deployByContractLoader(
                         "HelloWorld", new ArrayList<>());
         System.out.println("--- finish deploy with  sync ---");
-        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         Assert.assertEquals(0, response.getReturnCode());
-        Assert.assertEquals(0, response.getTransactionReceipt().getStatus().intValue());
+        Assert.assertEquals(0, response.getTransactionReceipt().getStatus());
         String helloWorldAddress = response.getContractAddress();
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
@@ -95,7 +95,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         TransactionResponse transactionResponse2 =
                 assembleTransactionWithRemoteSignProcessor.sendTransactionAndGetResponse(
                         helloWorldAddress, abi, "set", this.params);
-        Assert.assertEquals(0, transactionResponse2.getTransactionReceipt().getStatus().intValue());
+        Assert.assertEquals(0, transactionResponse2.getTransactionReceipt().getStatus());
 
         // function3:  call, which only support sync mode.
         CallResponse callResponse1 =
@@ -127,7 +127,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                 assembleTransactionWithRemoteSignProcessor.deployByContractLoader(
                         "HelloWorld", new ArrayList<>());
         System.out.println("--- finish deploy with  sync ---");
-        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String helloWorldAddrss = response.getContractAddress();
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
@@ -155,7 +155,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         future.thenAccept(
                 tr -> {
                     System.out.println("deploy succeed time " + System.currentTimeMillis());
-                    Assert.assertEquals(0, tr.getStatus().intValue());
+                    Assert.assertEquals(0, tr.getStatus());
                 });
         // if exceptional.
         future.exceptionally(

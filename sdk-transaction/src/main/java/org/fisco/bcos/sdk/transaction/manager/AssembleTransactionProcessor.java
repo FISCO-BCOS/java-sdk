@@ -125,8 +125,8 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         return this.deployAndGetResponse(
                 abi,
                 this.createSignedTransaction(
-                        null,
-                        this.abiCodec.encodeConstructorFromString(abi, bin, params, path),
+                        path,
+                        this.abiCodec.encodeConstructorFromString(abi, bin, params),
                         this.cryptoKeyPair));
     }
 
