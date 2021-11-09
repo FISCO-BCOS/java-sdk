@@ -53,7 +53,7 @@ public class EventDecodeTest {
         params.add(1);
         params.add("test2");
         TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
-        if (!response.getTransactionReceipt().getStatus().equals(0)) {
+        if (response.getTransactionReceipt().getStatus() == 0) {
             System.out.println(response.getReturnMessage());
             return;
         }

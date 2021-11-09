@@ -44,11 +44,11 @@ import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.contract.solidity.HelloWorld;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.network.NetworkException;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.fisco.bcos.sdk.utils.StringUtils;
@@ -69,8 +69,7 @@ public class PrecompiledTest {
     private static final String GROUP = "group";
 
     @Test
-    public void test1ConsensusService()
-            throws ConfigException, ContractException, NetworkException {
+    public void test1ConsensusService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
@@ -138,7 +137,7 @@ public class PrecompiledTest {
     }
 
     @Test
-    public void test2CnsService() throws ConfigException, NetworkException, ContractException {
+    public void test2CnsService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
@@ -218,8 +217,7 @@ public class PrecompiledTest {
     }
 
     @Test
-    public void test3SystemConfigService()
-            throws ConfigException, ContractException, NetworkException {
+    public void test3SystemConfigService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
@@ -246,7 +244,7 @@ public class PrecompiledTest {
     }
 
     @Test
-    public void test5CRUDService() throws ConfigException, ContractException, NetworkException {
+    public void test5CRUDService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
@@ -296,14 +294,13 @@ public class PrecompiledTest {
         // remove
         tableCRUDService.remove(tableName, condition);
         result = tableCRUDService.select(tableName, condition);
-        Assert.assertTrue(result.size() == 0);
+        Assert.assertTrue(result.isEmpty());
         System.out.println("testCRUDPrecompiled tableCRUDService.remove size : " + result.size());
     }
 
     // Note: Please make sure that the ut is before the permission-related ut
     @Test
-    public void test51SyncCRUDService()
-            throws ConfigException, ContractException, NetworkException {
+    public void test51SyncCRUDService() throws ConfigException, ContractException, JniException {
 
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -375,7 +372,7 @@ public class PrecompiledTest {
 
     @Test
     public void test52AsyncCRUDService()
-            throws ConfigException, NetworkException, ContractException, InterruptedException {
+            throws ConfigException, ContractException, InterruptedException, JniException {
 
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -457,7 +454,7 @@ public class PrecompiledTest {
     }
 
     @Test
-    public void test7BFSPrecompiled() throws ConfigException, NetworkException, ContractException {
+    public void test7BFSPrecompiled() throws ConfigException, ContractException, JniException {
 
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);

@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
+import org.fisco.bcos.sdk.codec.ABICodec;
+import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.codec.EventEncoder;
 import org.fisco.bcos.sdk.codec.FunctionEncoderInterface;
 import org.fisco.bcos.sdk.codec.FunctionReturnDecoderInterface;
@@ -173,36 +175,42 @@ public class Contract {
     }
 
     private static <T extends Contract> T create(
-            T contract, String binary, String ABI, byte[] encodedConstructor, String path)
+            T contract, String binary, String abi, byte[] encodedConstructor, String path)
             throws ContractException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            outputStream.write(Hex.decode(binary));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            if (encodedConstructor != null) {
-                outputStream.write(encodedConstructor);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         TransactionReceipt transactionReceipt;
-        // FIXME: add deploy wasm logic
-        transactionReceipt = contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
-
-        String contractAddress = transactionReceipt.getContractAddress();
-        if (contractAddress == null) {
-            // parse the receipt
-            RetCode retCode = ReceiptParser.parseTransactionReceipt(transactionReceipt);
-            throw new ContractException(
-                    "Deploy contract failed, error message: " + retCode.getMessage());
-        }
-
         if (contract.client.isWASM()) {
+            ABICodec codec = new ABICodec(contract.cryptoSuite, true);
+            try {
+                // deploy fir byte is 0, new byte[1] default is 0
+                outputStream.write(new byte[1]);
+                outputStream.write(
+                        codec.encodeConstructorFromBytes(binary, encodedConstructor, abi));
+            } catch (IOException | ABICodecException e) {
+                throw new ContractException("Deploy contract failed, error message: " + e);
+            }
             contract.setContractAddress(path);
+            transactionReceipt =
+                    contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
         } else {
+            try {
+                outputStream.write(Hex.decode(binary));
+                if (encodedConstructor != null) {
+                    outputStream.write(encodedConstructor);
+                }
+            } catch (IOException e) {
+                throw new ContractException("Deploy contract failed, error message: " + e);
+            }
+            transactionReceipt =
+                    contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
+            String contractAddress = transactionReceipt.getContractAddress();
+            if (contractAddress == null) {
+                // parse the receipt
+                RetCode retCode = ReceiptParser.parseTransactionReceipt(transactionReceipt);
+                throw new ContractException(
+                        "Deploy contract failed, error message: " + retCode.getMessage());
+            }
             contract.setContractAddress(contractAddress);
         }
         contract.setDeployReceipt(transactionReceipt);

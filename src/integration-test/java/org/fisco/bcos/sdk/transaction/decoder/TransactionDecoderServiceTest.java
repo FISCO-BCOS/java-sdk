@@ -62,7 +62,7 @@ public class TransactionDecoderServiceTest {
         params.add(1);
         params.add("test2");
         TransactionResponse response = manager.deployByContractLoader(contractName, params);
-        Assert.assertEquals(response.getTransactionReceipt().getStatus().intValue(), 0);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
 
         // increment
