@@ -52,6 +52,11 @@ public class AmopImp implements Amop {
     }
 
     @Override
+    public void sendResponse(String endpoint, String seq, byte[] content) {
+        amopJni.sendResponse(endpoint, seq, content);
+    }
+
+    @Override
     public void broadcastAmopMsg(String topic, byte[] content) {
         amopJni.broadcastAmopMsg(topic, content);
     }
