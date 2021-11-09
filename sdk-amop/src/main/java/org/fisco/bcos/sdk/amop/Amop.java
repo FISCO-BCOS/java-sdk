@@ -61,6 +61,15 @@ public interface Amop {
     void sendAmopMsg(String topic, byte[] content, int timeout, AmopResponseCallback callback);
 
     /**
+     * Send response msg
+     *
+     * @param endpoint
+     * @param seq
+     * @param conteng
+     */
+    void sendResponse(String endpoint, String seq, byte[] conteng);
+
+    /**
      * Send amop msg
      *
      * @param content the broadcasted AMOP message
