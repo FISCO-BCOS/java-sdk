@@ -564,6 +564,42 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public void getConsensusStatusAsync(String node, RespCallback<ConsensusStatus> callback) {
+        this.asyncCallRemoteMethod(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_CONSENSUS_STATUS, Arrays.asList(this.groupID, node)),
+                ConsensusStatus.class,
+                callback);
+    }
+
+    @Override
+    public void getConsensusStatusAsync(RespCallback<ConsensusStatus> callback) {
+        this.asyncCallRemoteMethod(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_CONSENSUS_STATUS,
+                        Arrays.asList(this.groupID, this.defaultNode)),
+                ConsensusStatus.class,
+                callback);
+    }
+
+    @Override
+    public ConsensusStatus getConsensusStatus(String node) {
+        return this.callRemoteMethod(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_CONSENSUS_STATUS, Arrays.asList(this.groupID, node)),
+                ConsensusStatus.class);
+    }
+
+    @Override
+    public ConsensusStatus getConsensusStatus() {
+        return this.callRemoteMethod(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_CONSENSUS_STATUS,
+                        Arrays.asList(this.groupID, this.defaultNode)),
+                ConsensusStatus.class);
+    }
+
+    @Override
     public BcosGroupList getGroupList() {
         return this.callRemoteMethod(
                 new JsonRpcRequest(JsonRpcMethods.GET_GROUP_LIST, Arrays.asList()),

@@ -170,7 +170,7 @@ public class KeyToolTest {
 
     private CryptoKeyPair testSignature(KeyPair keyPair, int cryptoType, String expectedAccount) {
         CryptoSuite cryptoSuite = new CryptoSuite(cryptoType);
-        CryptoKeyPair cryptoKeyPair = cryptoSuite.createKeyPair(keyPair);
+        CryptoKeyPair cryptoKeyPair = cryptoSuite.loadKeyPair(keyPair);
         // check account
         Assert.assertEquals(expectedAccount, cryptoKeyPair.getAddress());
         // test signature
