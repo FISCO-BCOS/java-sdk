@@ -197,10 +197,12 @@ public class TransactionReceipt {
         this.contractAddress = contractAddress;
     }
 
+    @JsonProperty("logs")
     public void setLogEntries(List<Logs> logEntries) {
         this.logEntries = logEntries;
     }
 
+    @JsonProperty("logs")
     public List<Logs> getLogEntries() {
         return this.logEntries;
     }

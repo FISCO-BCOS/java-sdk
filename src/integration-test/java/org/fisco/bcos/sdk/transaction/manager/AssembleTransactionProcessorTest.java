@@ -66,7 +66,7 @@ public class AssembleTransactionProcessorTest {
     public AssembleTransactionProcessorTest() throws NetworkException {
         sdk = BcosSDK.build(CONFIG_FILE);
         client = this.sdk.getClient("group");
-        cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
+        cryptoKeyPair = this.client.getCryptoSuite().getCryptoKeyPair();
     }
 
     @Test

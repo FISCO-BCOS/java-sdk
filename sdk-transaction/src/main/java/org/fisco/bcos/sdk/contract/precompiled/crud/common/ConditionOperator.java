@@ -14,12 +14,26 @@
  */
 package org.fisco.bcos.sdk.contract.precompiled.crud.common;
 
+import java.math.BigInteger;
+
 public enum ConditionOperator {
-    eq,
-    ne,
-    gt,
-    ge,
-    lt,
-    le,
-    limit;
+    eq(0),
+    ne(1),
+    gt(2),
+    ge(3),
+    lt(4),
+    le(5);
+    private final int value;
+
+    private ConditionOperator(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public BigInteger getBigIntegerValue() {
+        return BigInteger.valueOf(value);
+    }
 }

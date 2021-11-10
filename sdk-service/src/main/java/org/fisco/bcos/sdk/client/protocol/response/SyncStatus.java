@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 import java.util.List;
@@ -38,7 +37,6 @@ public class SyncStatus extends JsonRpcResponse<SyncStatus.SyncStatusInfo> {
     }
 
     @Override
-    @JsonDeserialize(converter = SyncStatusInfoConvert.class)
     public void setResult(SyncStatus.SyncStatusInfo result) {
         super.setResult(result);
     }

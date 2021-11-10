@@ -55,7 +55,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     private Client client = this.sdk.getClient("group");
 
     // create new keypair
-    private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().createKeyPair();
+    private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().getCryptoKeyPair();
     // mock remote sign service
     private RemoteSignProviderInterface remoteSignProviderMock =
             new RemoteSignProviderMock(this.client.getCryptoSuite());

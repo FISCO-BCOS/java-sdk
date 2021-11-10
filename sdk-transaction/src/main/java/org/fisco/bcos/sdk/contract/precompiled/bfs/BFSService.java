@@ -16,7 +16,12 @@ public class BFSService {
 
     public BFSService(Client client, CryptoKeyPair credential) {
         this.bfsPrecompiled =
-                BFSPrecompiled.load(PrecompiledAddress.BFS_PRECOMPILED_ADDRESS, client, credential);
+                BFSPrecompiled.load(
+                        client.isWASM()
+                                ? PrecompiledAddress.BFS_PRECOMPILED_NAME
+                                : PrecompiledAddress.BFS_PRECOMPILED_ADDRESS,
+                        client,
+                        credential);
     }
 
     public RetCode mkdir(String path) throws ContractException {

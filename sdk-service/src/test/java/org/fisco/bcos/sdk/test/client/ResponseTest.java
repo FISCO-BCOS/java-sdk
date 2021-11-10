@@ -573,70 +573,66 @@ public class ResponseTest {
     @Test
     public void testSyncStatus() throws JsonProcessingException {
         String syncStatusStr =
-                "{\n"
-                        + "  \"id\": 1,\n"
-                        + "  \"jsonrpc\": \"2.0\",\n"
-                        + "  \"result\": {\n"
-                        + "    \"blockNumber\": 100,\n"
-                        + "    \"genesisHash\": \"0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2\",\n"
-                        + "    \"isSyncing\": false,\n"
-                        + "    \"knownHighestNumber\":0,\n"
-                        + "    \"knownLatestHash\":\"0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2\",\n"
-                        + "    \"latestHash\": \"0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2\",\n"
-                        + "    \"nodeID\": \"41285429582cbfe6eed501806391d2825894b3696f801e945176c7eb2379a1ecf03b36b027d72f480e89d15bacd43462d87efd09fb0549e0897f850f9eca82ba\",\n"
-                        + "    \"peers\": [\n"
-                        + "      {\n"
-                        + "        \"blockNumber\": 0,\n"
-                        + "        \"genesisHash\": \"0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2\",\n"
-                        + "        \"latestHash\": \"0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2\",\n"
-                        + "        \"nodeID\": \"29c34347a190c1ec0c4507c6eed6a5bcd4d7a8f9f54ef26da616e81185c0af11a8cea4eacb74cf6f61820292b24bc5d9e426af24beda06fbd71c217960c0dff0\"\n"
-                        + "      },\n"
-                        + "      {\n"
-                        + "        \"blockNumber\": 0,\n"
-                        + "        \"genesisHash\": \"0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2\",\n"
-                        + "        \"latestHash\": \"0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2\",\n"
-                        + "        \"nodeID\": \"87774114e4a496c68f2482b30d221fa2f7b5278876da72f3d0a75695b81e2591c1939fc0d3fadb15cc359c997bafc9ea6fc37345346acaf40b6042b5831c97e1\"\n"
-                        + "      },\n"
-                        + "      {\n"
-                        + "        \"blockNumber\": 0,\n"
-                        + "        \"genesisHash\": \"0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2\",\n"
-                        + "        \"latestHash\": \"0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2\",\n"
-                        + "        \"nodeID\": \"d5b3a9782c6aca271c9642aea391415d8b258e3a6d92082e59cc5b813ca123745440792ae0b29f4962df568f8ad58b75fc7cea495684988e26803c9c5198f3f8\"\n"
-                        + "      }\n"
-                        + "    ],\n"
-                        + "    \"protocolId\": 265,\n"
-                        + "    \"txPoolSize\": \"0\"\n"
-                        + "  }\n"
-                        + "}";
+                "{\n" +
+                        "  \"id\": \"1\",\n" +
+                        "  \"jsonrpc\": \"2.0\",\n" +
+                        "  \"result\": {\n" +
+                        "    \"isSyncing\": false,\n" +
+                        "    \"genesisHash\": \"c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad\",\n" +
+                        "    \"blockNumber\": 0,\n" +
+                        "    \"latestHash\": \"c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad\",\n" +
+                        "    \"knownHighestNumber\": 0,\n" +
+                        "    \"peers\": [\n" +
+                        "      {\n" +
+                        "        \"genesisHash\": \"c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad\",\n" +
+                        "        \"blockNumber\": 0,\n" +
+                        "        \"latestHash\": \"c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad\",\n" +
+                        "        \"nodeID\": \"2f1004ca21278394b8d96a3949879e934a008452db7e027228652db55224784e35d46f263fb73f6cfe9840a70880e9c88ed1b2385d05875010576cd97e96d6ab\"\n" +
+                        "      },\n" +
+                        "      {\n" +
+                        "        \"genesisHash\": \"c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad\",\n" +
+                        "        \"blockNumber\": 0,\n" +
+                        "        \"latestHash\": \"c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad\",\n" +
+                        "        \"nodeID\": \"c3df17cc318d95170601155d385429a1f3b4d548e437976f9f517e79d083adc615498392da67f12d09f6a1fbb774ef1efbfe2fdad823874014b28ed4e32c5cc8\"\n" +
+                        "      },\n" +
+                        "      {\n" +
+                        "        \"genesisHash\": \"c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad\",\n" +
+                        "        \"blockNumber\": 0,\n" +
+                        "        \"latestHash\": \"c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad\",\n" +
+                        "        \"nodeID\": \"eb64cca1736744fafbd4678aecd7c7dcb4226cf36f76690ff0725d24b3e42203fa7142714c1c49c894f9c31e6d5b856d35e27c2efc7ba7f8159a9606d79e60b8\"\n" +
+                        "      }\n" +
+                        "    ],\n" +
+                        "    \"knownLatestHash\": \"c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad\",\n" +
+                        "    \"nodeID\": \"8d1751c88d7074bf80afa3c4c2cbd8e6e72e45928877957203eaff98bb11a6c82a6def474c5ce8b6e3e0cbcbcae69593e64c68e7d2dd8c067370cecfae77b221\"\n" +
+                        "  }\n" +
+                        "}";
         SyncStatus syncStatus = objectMapper.readValue(syncStatusStr, SyncStatus.class);
-        Assert.assertEquals(100L, syncStatus.getSyncStatus().getBlockNumber());
+        Assert.assertEquals(0L, syncStatus.getSyncStatus().getBlockNumber());
         Assert.assertEquals(
-                "0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2",
+                "c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad",
                 syncStatus.getSyncStatus().getGenesisHash());
         Assert.assertEquals(false, syncStatus.getSyncStatus().getIsSyncing());
         Assert.assertEquals(0, syncStatus.getSyncStatus().getKnownHighestNumber());
         Assert.assertEquals(
-                "0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2",
+                "c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad",
                 syncStatus.getSyncStatus().getKnownLatestHash());
         Assert.assertEquals(
-                "0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2",
+                "c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad",
                 syncStatus.getSyncStatus().getLatestHash());
         Assert.assertEquals(
-                "41285429582cbfe6eed501806391d2825894b3696f801e945176c7eb2379a1ecf03b36b027d72f480e89d15bacd43462d87efd09fb0549e0897f850f9eca82ba",
+                "8d1751c88d7074bf80afa3c4c2cbd8e6e72e45928877957203eaff98bb11a6c82a6def474c5ce8b6e3e0cbcbcae69593e64c68e7d2dd8c067370cecfae77b221",
                 syncStatus.getSyncStatus().getNodeId());
-        Assert.assertEquals("265", syncStatus.getSyncStatus().getProtocolId());
-        Assert.assertEquals("0", syncStatus.getSyncStatus().getTxPoolSize());
         // check peers
         Assert.assertEquals(3, syncStatus.getSyncStatus().getPeers().size());
         Assert.assertEquals(0L, syncStatus.getSyncStatus().getPeers().get(2).getBlockNumber());
         Assert.assertEquals(
-                "0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2",
+                "c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad",
                 syncStatus.getSyncStatus().getPeers().get(2).getGenesisHash());
         Assert.assertEquals(
-                "0x4765a126a9de8d876b87f01119208be507ec28495bef09c1e30a8ab240cf00f2",
+                "c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad",
                 syncStatus.getSyncStatus().getPeers().get(2).getLatestHash());
         Assert.assertEquals(
-                "d5b3a9782c6aca271c9642aea391415d8b258e3a6d92082e59cc5b813ca123745440792ae0b29f4962df568f8ad58b75fc7cea495684988e26803c9c5198f3f8",
+                "eb64cca1736744fafbd4678aecd7c7dcb4226cf36f76690ff0725d24b3e42203fa7142714c1c49c894f9c31e6d5b856d35e27c2efc7ba7f8159a9606d79e60b8",
                 syncStatus.getSyncStatus().getPeers().get(2).getNodeId());
     }
 

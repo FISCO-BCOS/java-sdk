@@ -3,10 +3,11 @@ package org.fisco.bcos.sdk.codec.abi;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.fisco.bcos.sdk.codec.ABICodec;
+import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.junit.Assert;
 import org.junit.Test;
-import org.fisco.bcos.sdk.codec.*;
 
 public class ABIEventTest {
     private static final String abi =

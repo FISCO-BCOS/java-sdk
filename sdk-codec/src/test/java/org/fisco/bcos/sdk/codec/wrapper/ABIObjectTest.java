@@ -1,9 +1,6 @@
 package org.fisco.bcos.sdk.codec.wrapper;
 
 import org.fisco.bcos.sdk.codec.abi.TestUtils;
-import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
-import org.fisco.bcos.sdk.codec.wrapper.ABIObject;
-import org.fisco.bcos.sdk.codec.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.datatypes.generated.*;
 import org.fisco.bcos.sdk.utils.Hex;

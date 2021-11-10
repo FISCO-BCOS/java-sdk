@@ -14,8 +14,11 @@
  */
 package org.fisco.bcos.sdk.contract.precompiled.crud.common;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.fisco.bcos.sdk.contract.precompiled.crud.TablePrecompiled;
 
 public class Entry {
     private Map<String, String> fieldNameToValue = new HashMap<>();
@@ -26,8 +29,24 @@ public class Entry {
         this.fieldNameToValue = fieldNameToValue;
     }
 
+    public Entry(TablePrecompiled.Entry entry) {
+        for (TablePrecompiled.KVField field : entry.fields) {
+            this.fieldNameToValue.put(field.key, field.value);
+        }
+    }
+
     public Map<String, String> getFieldNameToValue() {
         return fieldNameToValue;
+    }
+
+    public TablePrecompiled.Entry getTablePrecompiledEntry() {
+        List<TablePrecompiled.KVField> fields = new ArrayList<>();
+        fieldNameToValue.forEach(
+                (String k, String v) -> {
+                    TablePrecompiled.KVField kvField = new TablePrecompiled.KVField(k, v);
+                    fields.add(kvField);
+                });
+        return new TablePrecompiled.Entry(fields);
     }
 
     public void setFieldNameToValue(Map<String, String> fieldNameToValue) {

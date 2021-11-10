@@ -15,7 +15,6 @@
 package org.fisco.bcos.sdk.contract.precompiled.crud;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +24,6 @@ import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
-import org.fisco.bcos.sdk.contract.precompiled.crud.table.TableFactory;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledConstant;
@@ -35,23 +33,22 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
-import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.fisco.bcos.sdk.utils.StringUtils;
 
 public class TableCRUDService {
     private final Client client;
-    private final CRUDPrecompiled crudService;
-    private final TableFactory tableFactory;
+    private final TablePrecompiled tablePrecompiled;
     private static final String ValueFieldsDelimiter = ",";
 
     public TableCRUDService(Client client, CryptoKeyPair credential) {
         this.client = client;
-        this.crudService =
-                CRUDPrecompiled.load(
-                        PrecompiledAddress.CRUD_PRECOMPILED_ADDRESS, client, credential);
-        this.tableFactory =
-                TableFactory.load(
-                        PrecompiledAddress.TABLEFACTORY_PRECOMPILED_ADDRESS, client, credential);
+        this.tablePrecompiled =
+                TablePrecompiled.load(
+                        client.isWASM()
+                                ? PrecompiledAddress.TABLEFACTORY_PRECOMPILED_NAME
+                                : PrecompiledAddress.TABLEFACTORY_PRECOMPILED_ADDRESS,
+                        client,
+                        credential);
     }
 
     public static String convertValueFieldsToString(List<String> valueFields) {
@@ -69,71 +66,41 @@ public class TableCRUDService {
         checkKey(keyFieldName);
         String valueFieldsString = convertValueFieldsToString(valueFields);
         return ReceiptParser.parseTransactionReceipt(
-                tableFactory.createTable(tableName, keyFieldName, valueFieldsString));
+                tablePrecompiled.createTable(tableName, keyFieldName, valueFieldsString));
     }
 
     public RetCode insert(String tableName, Entry fieldNameToValue) throws ContractException {
-        try {
-            String fieldNameToValueStr =
-                    ObjectMapperFactory.getObjectMapper()
-                            .writeValueAsString(fieldNameToValue.getFieldNameToValue());
-            return ReceiptParser.parseTransactionReceipt(
-                    crudService.insert(tableName, fieldNameToValueStr, ""));
-        } catch (JsonProcessingException e) {
-            throw new ContractException(
-                    "insert "
-                            + fieldNameToValue.toString()
-                            + " to "
-                            + tableName
-                            + " failed, error info:"
-                            + e.getMessage(),
-                    e);
-        }
+        return ReceiptParser.parseTransactionReceipt(
+                tablePrecompiled.insert(tableName, fieldNameToValue.getTablePrecompiledEntry()));
     }
 
     public RetCode update(String tableName, Entry fieldNameToValue, Condition condition)
             throws ContractException {
-        try {
-            String fieldNameToValueStr =
-                    ObjectMapperFactory.getObjectMapper()
-                            .writeValueAsString(fieldNameToValue.getFieldNameToValue());
-            String conditionStr = encodeCondition(condition);
-            return ReceiptParser.parseTransactionReceipt(
-                    crudService.update(tableName, fieldNameToValueStr, conditionStr, ""));
-        } catch (JsonProcessingException e) {
-            throw new ContractException(
-                    "update "
-                            + fieldNameToValue.toString()
-                            + " to "
-                            + tableName
-                            + " failed, error info:"
-                            + e.getMessage(),
-                    e);
-        }
-    }
-
-    private String encodeCondition(Condition condition) throws JsonProcessingException {
-        if (condition == null) {
-            condition = new Condition();
-        }
-        return ObjectMapperFactory.getObjectMapper().writeValueAsString(condition.getConditions());
+        TablePrecompiled.Condition cond =
+                (condition == null)
+                        ? new TablePrecompiled.Condition(new ArrayList<>())
+                        : condition.getConditions();
+        return ReceiptParser.parseTransactionReceipt(
+                tablePrecompiled.update(
+                        tableName, fieldNameToValue.getTablePrecompiledEntry(), cond));
     }
 
     public RetCode remove(String tableName, Condition condition) throws ContractException {
-        try {
-            String conditionStr = encodeCondition(condition);
-            return ReceiptParser.parseTransactionReceipt(
-                    crudService.remove(tableName, conditionStr, ""));
-        } catch (JsonProcessingException e) {
-            throw new ContractException("remove key  with condition from " + tableName + " failed");
-        }
+        TablePrecompiled.Condition cond =
+                (condition == null)
+                        ? new TablePrecompiled.Condition(new ArrayList<>())
+                        : condition.getConditions();
+        return ReceiptParser.parseTransactionReceipt(tablePrecompiled.remove(tableName, cond));
     }
 
     public List<Map<String, String>> select(String tableName, Condition condition)
             throws ContractException {
         try {
-            String conditionStr = encodeCondition(condition);
-            return parseSelectResult(crudService.select(tableName, conditionStr, ""));
+            TablePrecompiled.Condition cond =
+                    (condition == null)
+                            ? new TablePrecompiled.Condition(new ArrayList<>())
+                            : condition.getConditions();
+            return parseSelectResult(tablePrecompiled.select(tableName, cond));
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);
         } catch (JsonProcessingException e) {
@@ -147,16 +114,22 @@ public class TableCRUDService {
         }
     }
 
-    public static List<Map<String, String>> parseSelectResult(String selectResult)
-            throws JsonProcessingException {
-        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-        return objectMapper.readValue(
-                selectResult,
-                objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class));
+    public static List<Map<String, String>> parseSelectResult(
+            List<TablePrecompiled.Entry> selectResult) throws JsonProcessingException {
+        List<Map<String, String>> result = new ArrayList<>();
+        for (TablePrecompiled.Entry entry : selectResult) {
+            Map<String, String> m = new HashMap<>();
+            for (TablePrecompiled.KVField field : entry.fields) {
+                m.put(field.key, field.value);
+            }
+            result.add(m);
+        }
+        return result;
     }
 
     private List<Map<String, String>> getTableDesc(String tableName) throws ContractException {
-        Tuple2<String, String> tableDesc = crudService.desc(tableName);
+        Tuple2<String, String> tableDesc =
+                tablePrecompiled.getDescOutput(tablePrecompiled.desc(tableName));
         List<Map<String, String>> tableDescList = new ArrayList<>(1);
         Map<String, String> keyToValue = new HashMap<>();
         keyToValue.put(PrecompiledConstant.KEY_FIELD_NAME, tableDesc.getValue1());
@@ -191,62 +164,31 @@ public class TableCRUDService {
         };
     }
 
-    public void asyncInsert(String tableName, Entry fieldNameToValue, PrecompiledCallback callback)
+    public void asyncInsert(
+            String tableName, TablePrecompiled.Entry entry, PrecompiledCallback callback)
             throws ContractException {
-        try {
-            String fieldNameToValueStr =
-                    ObjectMapperFactory.getObjectMapper()
-                            .writeValueAsString(fieldNameToValue.getFieldNameToValue());
-            this.crudService.insert(
-                    tableName, fieldNameToValueStr, "", createTransactionCallback(callback));
-        } catch (JsonProcessingException e) {
-            throw new ContractException(
-                    "asyncInsert "
-                            + fieldNameToValue.toString()
-                            + " to "
-                            + tableName
-                            + " failed, error info:"
-                            + e.getMessage(),
-                    e);
-        }
+        this.tablePrecompiled.insert(tableName, entry, createTransactionCallback(callback));
     }
 
     public void asyncUpdate(
             String tableName,
-            Entry fieldNameToValue,
+            TablePrecompiled.Entry entry,
             Condition condition,
             PrecompiledCallback callback)
             throws ContractException {
-        try {
-            String fieldNameToValueStr =
-                    ObjectMapperFactory.getObjectMapper()
-                            .writeValueAsString(fieldNameToValue.getFieldNameToValue());
-            String conditionStr = encodeCondition(condition);
-            this.crudService.update(
-                    tableName,
-                    fieldNameToValueStr,
-                    conditionStr,
-                    "",
-                    createTransactionCallback(callback));
-        } catch (JsonProcessingException e) {
-            throw new ContractException(
-                    "asyncUpdate "
-                            + fieldNameToValue.toString()
-                            + " to "
-                            + tableName
-                            + " failed, error info:"
-                            + e.getMessage(),
-                    e);
-        }
+        TablePrecompiled.Condition cond =
+                (condition == null)
+                        ? new TablePrecompiled.Condition(new ArrayList<>())
+                        : condition.getConditions();
+        this.tablePrecompiled.update(tableName, entry, cond, createTransactionCallback(callback));
     }
 
     public void asyncRemove(String tableName, Condition condition, PrecompiledCallback callback)
             throws ContractException {
-        try {
-            this.crudService.remove(
-                    tableName, encodeCondition(condition), "", createTransactionCallback(callback));
-        } catch (JsonProcessingException e) {
-            throw new ContractException("asyncRemove with condition from " + tableName + " failed");
-        }
+        TablePrecompiled.Condition cond =
+                (condition == null)
+                        ? new TablePrecompiled.Condition(new ArrayList<>())
+                        : condition.getConditions();
+        this.tablePrecompiled.remove(tableName, cond, createTransactionCallback(callback));
     }
 }

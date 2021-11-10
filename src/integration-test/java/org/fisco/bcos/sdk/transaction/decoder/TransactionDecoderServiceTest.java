@@ -56,7 +56,7 @@ public class TransactionDecoderServiceTest {
         String abi = contractLoader.getABIByContractName(contractName);
         AssembleTransactionProcessor manager =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        client, client.getCryptoSuite().createKeyPair(), abiFile, binFile);
+                        client, client.getCryptoSuite().getCryptoKeyPair(), abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);

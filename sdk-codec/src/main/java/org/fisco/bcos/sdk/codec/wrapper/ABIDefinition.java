@@ -424,7 +424,7 @@ public class ABIDefinition {
         }
 
         public int structIdentifier() {
-            return ((internalType == null ? type : internalType.isEmpty() ? type : internalType)
+            return (((internalType == null || internalType.isEmpty()) ? type : internalType)
                             + components.stream()
                                     .map(namedType -> String.valueOf(namedType.structIdentifier()))
                                     .collect(Collectors.joining()))
