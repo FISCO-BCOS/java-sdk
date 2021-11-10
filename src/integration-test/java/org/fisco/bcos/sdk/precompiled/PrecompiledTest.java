@@ -73,7 +73,7 @@ public class PrecompiledTest {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
-        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         ConsensusService consensusService = new ConsensusService(client, cryptoKeyPair);
         // get the current sealerList
         List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
@@ -141,7 +141,7 @@ public class PrecompiledTest {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
-        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
         String contractAddress = helloWorld.getContractAddress().toLowerCase();
         String contractName = "HelloWorld";
@@ -221,7 +221,7 @@ public class PrecompiledTest {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
-        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         SystemConfigService systemConfigService = new SystemConfigService(client, cryptoKeyPair);
         this.testSystemConfigService(client, systemConfigService, "tx_count_limit");
         this.testSystemConfigService(client, systemConfigService, "tx_gas_limit");
@@ -248,7 +248,7 @@ public class PrecompiledTest {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
-        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         TableCRUDService tableCRUDService = new TableCRUDService(client, cryptoKeyPair);
         // create a user table
         String tableName = "test" + (int) (Math.random() * 1000);
@@ -305,7 +305,7 @@ public class PrecompiledTest {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
-        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
         String tableName = "test_sync" + new Random().nextInt(100);
         List<String> valueFiled = new ArrayList<>();
@@ -377,7 +377,7 @@ public class PrecompiledTest {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
-        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
         // create table
         String tableName = "send_async" + new Random().nextInt(1000);
@@ -402,7 +402,10 @@ public class PrecompiledTest {
                             value.put("key", "key" + index);
                             // insert
                             FakeTransactionCallback callback = new FakeTransactionCallback();
-                            crudService.asyncInsert(tableName, new Entry(value), callback);
+                            crudService.asyncInsert(
+                                    tableName,
+                                    new Entry(value).getTablePrecompiledEntry(),
+                                    callback);
                             // update
                             Condition condition = new Condition();
                             condition.EQ(key, "key" + index);
@@ -410,7 +413,10 @@ public class PrecompiledTest {
                             value.put("field", "field" + index + 100);
                             FakeTransactionCallback callback2 = new FakeTransactionCallback();
                             crudService.asyncUpdate(
-                                    tableName, new Entry(value), condition, callback2);
+                                    tableName,
+                                    new Entry(value).getTablePrecompiledEntry(),
+                                    condition,
+                                    callback2);
                             // remove
                             FakeTransactionCallback callback3 = new FakeTransactionCallback();
                             crudService.asyncRemove(tableName, condition, callback3);
@@ -459,7 +465,7 @@ public class PrecompiledTest {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
-        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         BFSService bfsService = new BFSService(client, cryptoKeyPair);
         List<FileInfo> list = bfsService.list("/");
         System.out.println(list);
@@ -484,7 +490,7 @@ public class PrecompiledTest {
     //        try {
     //            BcosSDK sdk = BcosSDK.build(configFile);
     //            Client client = sdk.getClientByGroupID("1");
-    //            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().createKeyPair();
+    //            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
     //            ContractLifeCycleService contractLifeCycleService =
     //                    new ContractLifeCycleService(client, cryptoKeyPair);
     //            // deploy a helloWorld

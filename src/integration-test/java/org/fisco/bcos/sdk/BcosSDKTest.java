@@ -101,7 +101,7 @@ public class BcosSDKTest {
 
         // get getSyncStatus
         SyncStatus syncStatus = client.getSyncStatus();
-        System.out.println(syncStatus.getSyncStatus());
+        System.out.println(syncStatus.getSyncStatus().toString());
     }
 
     @Test
@@ -235,7 +235,7 @@ public class BcosSDKTest {
         Client client = Client.build(GROUP, configOption);
 
         CryptoSuite cryptoSuite = client.getCryptoSuite();
-        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
         BigInteger blockLimit = client.getBlockLimit();
         System.out.println("blockLimit:" + blockLimit);
         org.fisco.bcos.sdk.contract.solidity.HelloWorld helloWorld = null;
@@ -282,7 +282,7 @@ public class BcosSDKTest {
         Client client = Client.build(GROUP, configOption);
 
         CryptoSuite cryptoSuite = client.getCryptoSuite();
-        CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
         BigInteger blockLimit = client.getBlockLimit();
         System.out.println("blockLimit:" + blockLimit);
         org.fisco.bcos.sdk.contract.liquid.HelloWorld helloWorld = null;

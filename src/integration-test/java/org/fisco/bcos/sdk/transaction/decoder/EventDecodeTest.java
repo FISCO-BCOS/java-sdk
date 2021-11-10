@@ -46,7 +46,7 @@ public class EventDecodeTest {
         Client client = sdk.getClient("group");
         AssembleTransactionProcessor manager =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        client, client.getCryptoSuite().createKeyPair(), abiFile, binFile);
+                        client, client.getCryptoSuite().getCryptoKeyPair(), abiFile, binFile);
         ABICodec abiCodec = new ABICodec(client.getCryptoSuite(), client.isWASM());
         // deploy
         List<Object> params = Lists.newArrayList();

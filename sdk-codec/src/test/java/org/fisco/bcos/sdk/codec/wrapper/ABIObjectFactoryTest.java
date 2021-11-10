@@ -1,10 +1,7 @@
 package org.fisco.bcos.sdk.codec.wrapper;
 
+import org.fisco.bcos.sdk.codec.FunctionEncoderInterface;
 import org.fisco.bcos.sdk.codec.abi.TestUtils;
-import org.fisco.bcos.sdk.codec.wrapper.ABIObject;
-import org.fisco.bcos.sdk.codec.wrapper.ABIObjectFactory;
-import org.fisco.bcos.sdk.codec.wrapper.ContractABIDefinition;
-import org.fisco.bcos.sdk.codec.*;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;

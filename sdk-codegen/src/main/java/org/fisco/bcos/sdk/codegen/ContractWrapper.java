@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.codec.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
@@ -315,12 +316,19 @@ public class ContractWrapper {
                 continue;
             }
 
-            final String internalType = namedType.getInternalType();
+            String internalType = namedType.getInternalType();
             final String structName;
             if (internalType == null || internalType.isEmpty()) {
                 structName = "Struct" + structCounter;
             } else {
-                structName = internalType.substring(internalType.lastIndexOf(".") + 1);
+                if (namedType.getType().equals("tuple[]") && internalType.endsWith("[]")) {
+                    internalType = internalType.substring(0, internalType.lastIndexOf("["));
+                }
+                if (isWasm) {
+                    structName = internalType.substring(internalType.lastIndexOf(".") + 1);
+                } else {
+                    structName = internalType.substring(internalType.lastIndexOf(" ") + 1);
+                }
             }
 
             final TypeSpec.Builder builder =
@@ -351,7 +359,7 @@ public class ContractWrapper {
                     constructorBuilder.addParameter(typeName, component.getName());
                     nativeConstructorBuilder.addParameter(typeName, component.getName());
                 } else if (component.getType().startsWith("tuple")
-                        && component.getType().contains("[")) {
+                        && component.getType().endsWith("[]")) {
                     final TypeName typeName = buildStructArrayTypeName(component);
                     builder.addField(typeName, component.getName(), Modifier.PUBLIC);
                     constructorBuilder.addParameter(typeName, component.getName());
@@ -405,7 +413,7 @@ public class ContractWrapper {
                 return false;
             }
         }
-        return namedType.getType().equals("tuple");
+        return namedType.getType().startsWith("tuple");
     }
 
     private List<ABIDefinition.NamedType> extractStructs(
@@ -422,7 +430,7 @@ public class ContractWrapper {
                             }
                             return parameters.stream()
                                     .map(this::normalizeNamedType)
-                                    .filter(namedType -> namedType.getType().equals("tuple"));
+                                    .filter(namedType -> namedType.getType().startsWith("tuple"));
                         })
                 .forEach(
                         namedType -> {
@@ -589,7 +597,7 @@ public class ContractWrapper {
                                 + ")",
                         isWasm
                                 ? org.fisco.bcos.sdk.codec.scale.FunctionEncoder.class
-                                : org.fisco.bcos.sdk.codec.abi.FunctionEncoder.class,
+                                : FunctionEncoder.class,
                         Arrays.class,
                         Type.class,
                         inputParams)
@@ -704,7 +712,7 @@ public class ContractWrapper {
         return true;
     }
 
-    private static TypeName buildStructArrayTypeName(ABIDefinition.NamedType namedType) {
+    private TypeName buildStructArrayTypeName(ABIDefinition.NamedType namedType) {
         String structName;
         if (namedType.getInternalType().isEmpty()) {
             structName =
@@ -717,12 +725,21 @@ public class ContractWrapper {
                                             .structIdentifier())
                             .toString();
         } else {
-            structName =
-                    namedType
-                            .getInternalType()
-                            .substring(
-                                    namedType.getInternalType().lastIndexOf(".") + 1,
-                                    namedType.getInternalType().indexOf("["));
+            if (isWasm) {
+                structName =
+                        namedType
+                                .getInternalType()
+                                .substring(
+                                        namedType.getInternalType().lastIndexOf(".") + 1,
+                                        namedType.getInternalType().indexOf("["));
+            } else {
+                structName =
+                        namedType
+                                .getInternalType()
+                                .substring(
+                                        namedType.getInternalType().lastIndexOf(" ") + 1,
+                                        namedType.getInternalType().indexOf("["));
+            }
         }
 
         return ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get("", structName));
@@ -909,7 +926,7 @@ public class ContractWrapper {
         }
     }
 
-    protected static List<TypeName> buildTypeNames(List<ABIDefinition.NamedType> namedTypes)
+    protected List<TypeName> buildTypeNames(List<ABIDefinition.NamedType> namedTypes)
             throws ClassNotFoundException {
         List<TypeName> result = new ArrayList<>(namedTypes.size());
         for (ABIDefinition.NamedType namedType : namedTypes) {

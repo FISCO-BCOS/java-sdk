@@ -1,6 +1,5 @@
 package org.fisco.bcos.sdk.codec.wrapper;
 
-import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
 import org.junit.Assert;
 import org.junit.Test;
 

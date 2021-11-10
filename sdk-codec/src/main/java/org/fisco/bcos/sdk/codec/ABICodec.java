@@ -419,11 +419,6 @@ public class ABICodec {
         }
         String name = methodInterface.substring(0, start);
         String type = methodInterface.substring(start + 1, end);
-        if (type.indexOf("tuple") != -1) {
-            String errorMsg = " cannot support tuple type";
-            logger.error(errorMsg);
-            throw new ABICodecException(errorMsg);
-        }
         String[] types = type.split(",");
         List<ABIDefinition.NamedType> inputs = new ArrayList<ABIDefinition.NamedType>();
         for (String s : types) {

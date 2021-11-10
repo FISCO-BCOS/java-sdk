@@ -2,7 +2,11 @@ package org.fisco.bcos.sdk.codec;
 
 import org.bouncycastle.util.encoders.Hex;
 import org.fisco.bcos.sdk.codec.abi.TestUtils;
-import org.fisco.bcos.sdk.codec.ABICodec.*;
+import org.fisco.bcos.sdk.codec.wrapper.ABICodecObject;
+import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.codec.wrapper.ABIObject;
+import org.fisco.bcos.sdk.codec.wrapper.ABIObjectFactory;
+import org.fisco.bcos.sdk.codec.wrapper.ContractABIDefinition;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -365,7 +369,7 @@ public class ABICodecTest {
         List<String> args = new ArrayList<String>();
         ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
         try {
-            abiCodec.encodeConstructorFromString(this.abiDesc, "0xaaaaaaaa", args, null);
+            abiCodec.encodeConstructorFromString(this.abiDesc, "0xaaaaaaaa", args);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -377,7 +381,7 @@ public class ABICodecTest {
         args.add("invalid");
         ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
         try {
-            abiCodec.encodeConstructorFromString(this.abiDesc, "BIN", args, null);
+            abiCodec.encodeConstructorFromString(this.abiDesc, "BIN", args);
             Assert.fail();
         } catch (Exception e) {
             Assert.assertTrue(e instanceof ABICodecException);
