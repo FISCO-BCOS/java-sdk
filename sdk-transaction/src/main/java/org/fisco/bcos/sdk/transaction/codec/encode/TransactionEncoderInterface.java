@@ -26,6 +26,13 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 public interface TransactionEncoderInterface {
 
     /**
+     * Tars encode based on TransactionData
+     *
+     * @param rawTransaction
+     * @return
+     */
+    byte[] encode(TransactionData rawTransaction);
+    /**
      * Tars encode and sign based on TransactionData
      *
      * @param rawTransaction data to be encoded

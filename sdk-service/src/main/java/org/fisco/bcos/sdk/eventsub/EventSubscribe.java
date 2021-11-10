@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.eventsub;
 
 import java.util.Set;
+import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.ConfigOption;
 
 /**
@@ -32,6 +33,16 @@ public interface EventSubscribe {
      */
     static EventSubscribe build(String group, ConfigOption configOption) {
         return new EventSubscribeImp(group, configOption);
+    }
+
+    /**
+     * Create Event subscribe instance
+     *
+     * @param client Client
+     * @return EventSubscribe Object
+     */
+    static EventSubscribe build(Client client) {
+        return new EventSubscribeImp(client.getGroup(), client.getConfigOption());
     }
 
     /**

@@ -53,6 +53,13 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     }
 
     @Override
+    public byte[] encode(TransactionData rawTransaction) {
+        TarsOutputStream tarsOutputStream = new TarsOutputStream();
+        rawTransaction.writeTo(tarsOutputStream);
+        return tarsOutputStream.toByteArray();
+    }
+
+    @Override
     public String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
         return Base64.getEncoder()
                 .encodeToString(this.encodeAndSignBytes(rawTransaction, cryptoKeyPair));

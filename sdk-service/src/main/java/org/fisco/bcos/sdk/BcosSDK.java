@@ -18,6 +18,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +78,6 @@ public class BcosSDK {
     /**
      * Get a Client instance of a specific group
      *
-     * @param groupId the group id
      * @return Client
      */
     public Client getClient(String groupId) throws BcosSDKException {
@@ -101,6 +101,21 @@ public class BcosSDK {
         } catch (Exception e) {
             logger.warn("create amop for failed, error: {}", e);
             throw new BcosSDKException("get amop failed, e: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get a event subscribe instance of a specific group
+     *
+     * @return Client
+     */
+    public EventSubscribe getEventSubscribe(String groupId) throws BcosSDKException {
+        try {
+            EventSubscribe eventSubscribe = EventSubscribe.build(groupId, config);
+            return eventSubscribe;
+        } catch (Exception e) {
+            logger.warn("create event sub for failed, error: {}", e);
+            throw new BcosSDKException("get event sub failed, e: " + e.getMessage());
         }
     }
 

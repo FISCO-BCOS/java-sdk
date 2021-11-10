@@ -17,7 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
@@ -28,7 +27,6 @@ import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.config.model.NetworkConfig;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.rpc.Rpc;
@@ -58,8 +56,10 @@ public class ClientImpl implements Client {
     private BcosGroupInfo.GroupInfo groupInfo;
     private GroupNodeIniConfig groupNodeIniConfig;
 
-    private final CryptoSuite cryptoSuite;
+    private CryptoSuite cryptoSuite;
     private final Rpc jniRpcImpl;
+
+    private final ConfigOption configOption;
 
     protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
@@ -85,12 +85,9 @@ public class ClientImpl implements Client {
     }
 
     protected ClientImpl(String groupID, ConfigOption configOption) throws JniException {
-
-        NetworkConfig networkConfig = configOption.getNetworkConfig();
-        List<String> peers = networkConfig.getPeers();
-
+        this.configOption = configOption;
         // init jni sdk
-        jniRpcImpl = Rpc.build(configOption.getJniConfig());
+        this.jniRpcImpl = Rpc.build(configOption.getJniConfig());
         // start rpc
         start();
 
@@ -109,6 +106,20 @@ public class ClientImpl implements Client {
         }
 
         logger.info("new ClientImpl end");
+    }
+
+    protected ClientImpl(ConfigOption configOption) throws JniException {
+        this.configOption = configOption;
+        // init jni sdk
+        this.jniRpcImpl = Rpc.build(configOption.getJniConfig());
+        // start rpc
+        start();
+        logger.info("new ClientImpl end, group not set");
+    }
+
+    @Override
+    public ConfigOption getConfigOption() {
+        return this.configOption;
     }
 
     @Override

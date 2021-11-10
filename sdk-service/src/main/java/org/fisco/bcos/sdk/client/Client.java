@@ -44,6 +44,15 @@ public interface Client {
     }
 
     /**
+     * Build a client instance GroupId is identified, all interfaces are available
+     *
+     * @return a client instance
+     */
+    static Client build(ConfigOption configOption) throws JniException {
+        return new ClientImpl(configOption);
+    }
+
+    /**
      * Get CryptoSuite
      *
      * @return the CryptoSuite
@@ -77,6 +86,8 @@ public interface Client {
      * @return the groupId
      */
     String getChainId();
+    /** */
+    ConfigOption getConfigOption();
 
     // ------------------------- rpc interface begin ------------------------------------------
 
