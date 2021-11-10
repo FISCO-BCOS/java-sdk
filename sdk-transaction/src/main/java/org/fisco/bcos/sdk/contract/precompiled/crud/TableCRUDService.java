@@ -44,7 +44,11 @@ public class TableCRUDService {
         this.client = client;
         this.tablePrecompiled =
                 TablePrecompiled.load(
-                        PrecompiledAddress.TABLEFACTORY_PRECOMPILED_ADDRESS, client, credential);
+                        client.isWASM()
+                                ? PrecompiledAddress.TABLEFACTORY_PRECOMPILED_NAME
+                                : PrecompiledAddress.TABLEFACTORY_PRECOMPILED_ADDRESS,
+                        client,
+                        credential);
     }
 
     public static String convertValueFieldsToString(List<String> valueFields) {

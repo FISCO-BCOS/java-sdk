@@ -27,7 +27,11 @@ public class SystemConfigService {
     public SystemConfigService(Client client, CryptoKeyPair credential) {
         this.systemConfigPrecompiled =
                 SystemConfigPrecompiled.load(
-                        PrecompiledAddress.SYSCONFIG_PRECOMPILED_ADDRESS, client, credential);
+                        client.isWASM()
+                                ? PrecompiledAddress.SYSCONFIG_PRECOMPILED_NAME
+                                : PrecompiledAddress.SYSCONFIG_PRECOMPILED_ADDRESS,
+                        client,
+                        credential);
     }
 
     public RetCode setValueByKey(String key, String value) throws ContractException {

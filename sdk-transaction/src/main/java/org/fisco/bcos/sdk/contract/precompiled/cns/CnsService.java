@@ -31,7 +31,12 @@ public class CnsService {
 
     public CnsService(Client client, CryptoKeyPair credential) {
         this.cnsPrecompiled =
-                CNSPrecompiled.load(PrecompiledAddress.CNS_PRECOMPILED_ADDRESS, client, credential);
+                CNSPrecompiled.load(
+                        client.isWASM()
+                                ? PrecompiledAddress.CNS_PRECOMPILED_NAME
+                                : PrecompiledAddress.CNS_PRECOMPILED_ADDRESS,
+                        client,
+                        credential);
     }
 
     public RetCode registerCNS(

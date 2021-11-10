@@ -34,7 +34,11 @@ public class ConsensusService {
         // load the ConsensusPrecompiled
         this.consensusPrecompiled =
                 ConsensusPrecompiled.load(
-                        PrecompiledAddress.CONSENSUS_PRECOMPILED_ADDRESS, client, credential);
+                        client.isWASM()
+                                ? PrecompiledAddress.CONSENSUS_PRECOMPILED_NAME
+                                : PrecompiledAddress.CONSENSUS_PRECOMPILED_ADDRESS,
+                        client,
+                        credential);
     }
 
     public RetCode addSealer(String nodeId, BigInteger weight) throws ContractException {
