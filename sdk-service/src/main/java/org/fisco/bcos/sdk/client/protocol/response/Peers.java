@@ -16,33 +16,32 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.Converter;
+import java.io.IOException;
 import java.util.List;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 
 /** getPeers */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Peers extends JsonRpcResponse<Peers.PeersInfo> {
-    public Peers.PeersInfo getPeersInfo() {
+    public Peers.PeersInfo getPeers() {
         return this.getResult();
     }
 
     @Override
-    @JsonDeserialize(converter = Peers.PeersInfoConvert.class)
+    @JsonDeserialize(using = Peers.PeersDeserializer.class)
     public void setResult(Peers.PeersInfo result) {
         super.setResult(result);
     }
 
     public static class NodeIDInfo {
-        @JsonProperty("group")
         private String group;
-
-        @JsonProperty("nodeIDList")
         private List<String> nodeIDList;
 
         public String getGroup() {
@@ -68,14 +67,9 @@ public class Peers extends JsonRpcResponse<Peers.PeersInfo> {
     }
 
     public static class PeerInfo {
-        @JsonProperty("p2pNodeID")
         private String p2pNodeID;
-
-        @JsonProperty("endPoint")
         private String endPoint;
-
-        @JsonProperty("groupNodeIDInfo")
-        List<NodeIDInfo> groupNodeIDInfo;
+        List<Peers.NodeIDInfo> groupNodeIDInfo;
 
         public String getP2pNodeID() {
             return p2pNodeID;
@@ -93,11 +87,11 @@ public class Peers extends JsonRpcResponse<Peers.PeersInfo> {
             this.endPoint = endPoint;
         }
 
-        public List<NodeIDInfo> getGroupNodeIDInfo() {
+        public List<Peers.NodeIDInfo> getGroupNodeIDInfo() {
             return groupNodeIDInfo;
         }
 
-        public void setGroupNodeIDInfo(List<NodeIDInfo> groupNodeIDInfo) {
+        public void setGroupNodeIDInfo(List<Peers.NodeIDInfo> groupNodeIDInfo) {
             this.groupNodeIDInfo = groupNodeIDInfo;
         }
 
@@ -118,17 +112,10 @@ public class Peers extends JsonRpcResponse<Peers.PeersInfo> {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class PeersInfo {
-        @JsonProperty("p2pNodeID")
         private String p2pNodeID;
-
-        @JsonProperty("endPoint")
         private String endPoint;
-
-        @JsonProperty("groupNodeIDInfo")
-        List<NodeIDInfo> groupNodeIDInfo;
-
-        @JsonProperty("peers")
-        List<PeerInfo> peersInfo;
+        List<Peers.NodeIDInfo> groupNodeIDInfo;
+        List<Peers.PeerInfo> peers;
 
         public String getP2pNodeID() {
             return p2pNodeID;
@@ -146,20 +133,20 @@ public class Peers extends JsonRpcResponse<Peers.PeersInfo> {
             this.endPoint = endPoint;
         }
 
-        public List<NodeIDInfo> getGroupNodeIDInfo() {
+        public List<Peers.NodeIDInfo> getGroupNodeIDInfo() {
             return groupNodeIDInfo;
         }
 
-        public void setGroupNodeIDInfo(List<NodeIDInfo> groupNodeIDInfo) {
+        public void setGroupNodeIDInfo(List<Peers.NodeIDInfo> groupNodeIDInfo) {
             this.groupNodeIDInfo = groupNodeIDInfo;
         }
 
-        public List<PeerInfo> getPeersInfo() {
-            return peersInfo;
+        public List<Peers.PeerInfo> getPeers() {
+            return peers;
         }
 
-        public void setPeersInfo(List<PeerInfo> peersInfo) {
-            this.peersInfo = peersInfo;
+        public void setPeers(List<Peers.PeerInfo> peers) {
+            this.peers = peers;
         }
 
         @Override
@@ -173,30 +160,25 @@ public class Peers extends JsonRpcResponse<Peers.PeersInfo> {
                     + '\''
                     + ", groupNodeIDInfo="
                     + groupNodeIDInfo
-                    + ", peersInfo="
-                    + peersInfo
+                    + ", peers="
+                    + peers
                     + '}';
         }
     }
 
-    public static class PeersInfoConvert implements Converter<String, Peers.PeersInfo> {
+    // decode the block
+    public static class PeersDeserializer extends JsonDeserializer<Peers.PeersInfo> {
+        private final ObjectReader objectReader = ObjectMapperFactory.getObjectReader();
+
         @Override
-        public Peers.PeersInfo convert(String value) {
-            try {
-                return new ObjectMapper().readValue(value, Peers.PeersInfo.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+        public Peers.PeersInfo deserialize(
+                JsonParser jsonParser, DeserializationContext deserializationContext)
+                throws IOException {
+            if (jsonParser.getCurrentToken() != JsonToken.VALUE_NULL) {
+                return this.objectReader.readValue(jsonParser, Peers.PeersInfo.class);
+            } else {
+                return null; // null is wrapped by Optional in above getter
             }
-        }
-
-        @Override
-        public JavaType getInputType(TypeFactory typeFactory) {
-            return typeFactory.constructSimpleType(String.class, null);
-        }
-
-        @Override
-        public JavaType getOutputType(TypeFactory typeFactory) {
-            return typeFactory.constructSimpleType(ConsensusStatus.ConsensusStatusInfo.class, null);
         }
     }
 }

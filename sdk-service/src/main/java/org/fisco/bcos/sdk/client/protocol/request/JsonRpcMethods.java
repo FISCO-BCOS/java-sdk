@@ -35,6 +35,7 @@ public class JsonRpcMethods {
     public static final String GET_TOTAL_TRANSACTION_COUNT = "getTotalTransactionCount";
     public static final String GET_NODE_INFO = "getNodeInfo";
     public static final String GET_PEERS = "getPeers";
+    public static final String GET_GROUP_PEERS = "getGroupPeers";
 
     public static final String GET_GROUP_LIST = "getGroupList";
     public static final String GET_GROUP_INFO = "getGroupInfo";

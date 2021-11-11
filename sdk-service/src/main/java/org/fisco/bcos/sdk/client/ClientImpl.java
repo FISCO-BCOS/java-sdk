@@ -446,6 +446,25 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public GroupPeers getGroupPeers(String groupID) {
+        return this.callRemoteMethod(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_GROUP_PEERS,
+                        Arrays.asList(this.groupID, this.defaultNode)),
+                GroupPeers.class);
+    }
+
+    @Override
+    public void getGroupPeersAsync(RespCallback<GroupPeers> callback) {
+        this.asyncCallRemoteMethod(
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_GROUP_PEERS,
+                        Arrays.asList(this.groupID, this.defaultNode)),
+                GroupPeers.class,
+                callback);
+    }
+
+    @Override
     public Peers getPeers() {
         return this.callRemoteMethod(
                 new JsonRpcRequest(
