@@ -303,6 +303,15 @@ public interface Client {
     Peers getPeers();
 
     /**
+     * get the group peers
+     *
+     * @param groupID the groupID
+     * @return the groupPeers
+     */
+    GroupPeers getGroupPeers(String groupID);
+
+    void getGroupPeersAsync(RespCallback<GroupPeers> callback);
+    /**
      * Peer operation: async get connected peers
      *
      * @param callback the callback instance
