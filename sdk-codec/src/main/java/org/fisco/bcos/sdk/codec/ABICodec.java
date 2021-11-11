@@ -15,7 +15,6 @@
 
 package org.fisco.bcos.sdk.codec;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +26,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.codec.abi.Constant;
 import org.fisco.bcos.sdk.codec.datatypes.*;
+import org.fisco.bcos.sdk.codec.datatypes.generated.Uint8;
 import org.fisco.bcos.sdk.codec.wrapper.*;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.EventLog;
@@ -89,7 +89,7 @@ public class ABICodec {
     }
 
     private Type buildType(ABIDefinition.NamedType namedType, String param)
-            throws ABICodecException, JsonProcessingException {
+            throws ABICodecException, IOException {
         String typeStr = namedType.getType();
         ABIDefinition.Type paramType = new ABIDefinition.Type(typeStr);
         Type type = null;
@@ -293,29 +293,13 @@ public class ABICodec {
 
         Throwable cause;
         try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             List<Type> types = new ArrayList<>();
             for (int i = 0; i < inputTypes.size(); ++i) {
                 types.add(buildType(inputTypes.get(i), params.get(i)));
             }
-
-            if (!this.isWasm) {
-                outputStream.write(Hex.decode(bin));
-                outputStream.write(
-                        org.fisco.bcos.sdk.codec.abi.FunctionEncoder.encodeConstructor(types));
-            } else {
-                List<Type> deployParams = new ArrayList<>();
-                deployParams.add(new DynamicBytes(Hex.decode(bin)));
-                deployParams.add(
-                        new DynamicBytes(
-                                org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeConstructor(
-                                        types)));
-                deployParams.add(new Utf8String(abi));
-                outputStream.write(
-                        org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeParameters(
-                                deployParams, null));
-            }
-            return outputStream.toByteArray();
+            byte[] paramBytes =
+                    org.fisco.bcos.sdk.codec.abi.FunctionEncoder.encodeConstructor(types);
+            return encodeConstructorFromBytes(bin, paramBytes, abi);
         } catch (Exception e) {
             cause = e;
             logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
@@ -334,11 +318,20 @@ public class ABICodec {
 
             if (!this.isWasm) {
                 outputStream.write(Hex.decode(bin));
-                outputStream.write(params);
+                if (params != null) {
+                    outputStream.write(params);
+                }
             } else {
+                // deploy fir byte is 0, new byte[1] default is 0
+                outputStream.write(new byte[1]);
+
                 List<Type> deployParams = new ArrayList<>();
                 deployParams.add(new DynamicBytes(Hex.decode(bin)));
-                deployParams.add(new DynamicBytes(params));
+                if (params != null) {
+                    deployParams.add(new DynamicBytes(params));
+                } else {
+                    deployParams.add(new Uint8(0));
+                }
                 deployParams.add(new Utf8String(abi));
                 outputStream.write(
                         org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeParameters(

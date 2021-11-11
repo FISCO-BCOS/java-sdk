@@ -122,6 +122,9 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(abi);
         Map<String, List<ABIDefinition>> eventsMap = contractABIDefinition.getEvents();
         Map<String, List<List<Object>>> result = new HashMap<>();
+        if (logs == null) {
+            return result;
+        }
         eventsMap.forEach(
                 (name, events) -> {
                     for (ABIDefinition abiDefinition : events) {

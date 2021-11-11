@@ -14,8 +14,6 @@
  */
 package org.fisco.bcos.sdk.contract;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -39,7 +37,6 @@ import org.fisco.bcos.sdk.transaction.manager.TransactionProcessor;
 import org.fisco.bcos.sdk.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
-import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,41 +174,27 @@ public class Contract {
     private static <T extends Contract> T create(
             T contract, String binary, String abi, byte[] encodedConstructor, String path)
             throws ContractException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
+        ABICodec codec = new ABICodec(contract.cryptoSuite, contract.client.isWASM());
         TransactionReceipt transactionReceipt;
-        if (contract.client.isWASM()) {
-            ABICodec codec = new ABICodec(contract.cryptoSuite, true);
-            try {
-                // deploy fir byte is 0, new byte[1] default is 0
-                outputStream.write(new byte[1]);
-                outputStream.write(
-                        codec.encodeConstructorFromBytes(binary, encodedConstructor, abi));
-            } catch (IOException | ABICodecException e) {
-                throw new ContractException("Deploy contract failed, error message: " + e);
-            }
-            contract.setContractAddress(path);
+        try {
             transactionReceipt =
-                    contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
-        } else {
-            try {
-                outputStream.write(Hex.decode(binary));
-                if (encodedConstructor != null) {
-                    outputStream.write(encodedConstructor);
+                    contract.executeTransaction(
+                            codec.encodeConstructorFromBytes(binary, encodedConstructor, abi),
+                            FUNC_DEPLOY);
+            if (Boolean.TRUE.equals(contract.client.isWASM())) {
+                contract.setContractAddress(path);
+            } else {
+                String contractAddress = transactionReceipt.getContractAddress();
+                if (contractAddress == null) {
+                    // parse the receipt
+                    RetCode retCode = ReceiptParser.parseTransactionReceipt(transactionReceipt);
+                    throw new ContractException(
+                            "Deploy contract failed, error message: " + retCode.getMessage());
                 }
-            } catch (IOException e) {
-                throw new ContractException("Deploy contract failed, error message: " + e);
+                contract.setContractAddress(contractAddress);
             }
-            transactionReceipt =
-                    contract.executeTransaction(outputStream.toByteArray(), FUNC_DEPLOY);
-            String contractAddress = transactionReceipt.getContractAddress();
-            if (contractAddress == null) {
-                // parse the receipt
-                RetCode retCode = ReceiptParser.parseTransactionReceipt(transactionReceipt);
-                throw new ContractException(
-                        "Deploy contract failed, error message: " + retCode.getMessage());
-            }
-            contract.setContractAddress(contractAddress);
+        } catch (ABICodecException e) {
+            throw new ContractException("Deploy contract failed, error message: " + e);
         }
         contract.setDeployReceipt(transactionReceipt);
         return contract;

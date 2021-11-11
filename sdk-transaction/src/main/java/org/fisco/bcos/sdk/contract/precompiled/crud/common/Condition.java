@@ -15,64 +15,75 @@
 package org.fisco.bcos.sdk.contract.precompiled.crud.common;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.fisco.bcos.sdk.contract.precompiled.crud.TablePrecompiled;
 
 public class Condition {
 
-    private List<TablePrecompiled.CompareTriple> conditions;
+    private Map<String, Map<ConditionOperator, String>> conditions;
 
     public Condition() {
-        conditions = new ArrayList<>();
+        conditions = new HashMap<>();
     }
 
     public void EQ(String key, String value) {
-        TablePrecompiled.CompareTriple compareTriple =
-                new TablePrecompiled.CompareTriple(
-                        key, value, ConditionOperator.eq.getBigIntegerValue());
-        conditions.add(compareTriple);
+        HashMap<ConditionOperator, String> map = new HashMap<>();
+        map.put(ConditionOperator.eq, value);
+        conditions.put(key, map);
     }
 
     public void NE(String key, String value) {
-        TablePrecompiled.CompareTriple compareTriple =
-                new TablePrecompiled.CompareTriple(
-                        key, value, ConditionOperator.ne.getBigIntegerValue());
-        conditions.add(compareTriple);
+        HashMap<ConditionOperator, String> map = new HashMap<>();
+        map.put(ConditionOperator.ne, value);
+        conditions.put(key, map);
     }
 
     public void GT(String key, String value) {
-        TablePrecompiled.CompareTriple compareTriple =
-                new TablePrecompiled.CompareTriple(
-                        key, value, ConditionOperator.gt.getBigIntegerValue());
-        conditions.add(compareTriple);
+        HashMap<ConditionOperator, String> map = new HashMap<>();
+        map.put(ConditionOperator.gt, value);
+        conditions.put(key, map);
     }
 
     public void GE(String key, String value) {
-        TablePrecompiled.CompareTriple compareTriple =
-                new TablePrecompiled.CompareTriple(
-                        key, value, ConditionOperator.ge.getBigIntegerValue());
-        conditions.add(compareTriple);
+        HashMap<ConditionOperator, String> map = new HashMap<>();
+        map.put(ConditionOperator.ge, value);
+        conditions.put(key, map);
     }
 
     public void LT(String key, String value) {
-        TablePrecompiled.CompareTriple compareTriple =
-                new TablePrecompiled.CompareTriple(
-                        key, value, ConditionOperator.lt.getBigIntegerValue());
-        conditions.add(compareTriple);
+        HashMap<ConditionOperator, String> map = new HashMap<>();
+        map.put(ConditionOperator.lt, value);
+        conditions.put(key, map);
     }
 
     public void LE(String key, String value) {
-        TablePrecompiled.CompareTriple compareTriple =
-                new TablePrecompiled.CompareTriple(
-                        key, value, ConditionOperator.le.getBigIntegerValue());
-        conditions.add(compareTriple);
+        HashMap<ConditionOperator, String> map = new HashMap<>();
+        map.put(ConditionOperator.le, value);
+        conditions.put(key, map);
     }
 
-    public TablePrecompiled.Condition getConditions() {
-        return new TablePrecompiled.Condition(conditions);
+    public Map<String, Map<ConditionOperator, String>> getConditions() {
+        return conditions;
     }
 
-    public void setConditions(List<TablePrecompiled.CompareTriple> conditions) {
+    public TablePrecompiled.Condition getTableCondition() {
+        List<TablePrecompiled.CompareTriple> compareTripleList = new ArrayList<>();
+        this.conditions.forEach(
+                (String key, Map<ConditionOperator, String> cmpValue) -> {
+                    cmpValue.forEach(
+                            (ConditionOperator cmp, String value) -> {
+                                TablePrecompiled.CompareTriple compareTriple =
+                                        new TablePrecompiled.CompareTriple(
+                                                key, value, cmp.getBigIntegerValue());
+                                compareTripleList.add(compareTriple);
+                            });
+                });
+        return new TablePrecompiled.Condition(compareTripleList);
+    }
+
+    public void setConditions(Map<String, Map<ConditionOperator, String>> conditions) {
         this.conditions = conditions;
     }
 }
