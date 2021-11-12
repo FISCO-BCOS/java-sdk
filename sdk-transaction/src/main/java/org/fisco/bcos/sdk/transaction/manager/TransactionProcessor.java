@@ -62,11 +62,19 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         return this.client.sendRawTransactionAndGetReceipt(signedData);
     }
 
+    public TransactionReceipt sendTransactionAndGetReceipt(String to, String data) {
+        return sendTransactionAndGetReceipt(to, data, this.cryptoKeyPair);
+    }
+
     @Override
     public void sendTransactionAsync(
             String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
         String signedData = createSignedTransaction(to, data, cryptoKeyPair);
         client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
+    }
+
+    public void sendTransactionAsync(String to, String data, TransactionCallback callback) {
+        sendTransactionAsync(to, data, this.cryptoKeyPair, callback);
     }
 
     @Override
@@ -76,6 +84,11 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
         byte[] transactionHash = cryptoSuite.hash(Hex.decode(Numeric.cleanHexPrefix(signedData)));
         return transactionHash;
+    }
+
+    public byte[] sendTransactionAsyncAndGetHash(
+            String to, String data, TransactionCallback callback) {
+        return sendTransactionAsyncAndGetHash(to, data, this.cryptoKeyPair, callback);
     }
 
     @Override
@@ -102,5 +115,9 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         BigInteger.valueOf(this.groupId),
                         "");
         return transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
+    }
+
+    public String createSignedTransaction(String to, String data) {
+        return createSignedTransaction(to, data, this.cryptoKeyPair);
     }
 }
