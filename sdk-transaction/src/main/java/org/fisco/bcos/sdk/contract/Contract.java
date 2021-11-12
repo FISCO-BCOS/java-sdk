@@ -177,13 +177,14 @@ public class Contract {
         ABICodec codec = new ABICodec(contract.cryptoSuite, contract.client.isWASM());
         TransactionReceipt transactionReceipt;
         try {
+            if (contract.client.isWASM()) {
+                contract.setContractAddress(path);
+            }
             transactionReceipt =
                     contract.executeTransaction(
                             codec.encodeConstructorFromBytes(binary, encodedConstructor, abi),
                             FUNC_DEPLOY);
-            if (Boolean.TRUE.equals(contract.client.isWASM())) {
-                contract.setContractAddress(path);
-            } else {
+            if (!contract.client.isWASM()) {
                 String contractAddress = transactionReceipt.getContractAddress();
                 if (contractAddress == null) {
                     // parse the receipt

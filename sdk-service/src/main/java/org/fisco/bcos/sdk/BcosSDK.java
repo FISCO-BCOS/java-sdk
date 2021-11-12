@@ -90,6 +90,21 @@ public class BcosSDK {
     }
 
     /**
+     * Get a Client instance of default group in config
+     *
+     * @return Client
+     */
+    public Client getClient() throws BcosSDKException {
+        try {
+            assert config.getNetworkConfig().getDefaultGroup() != null;
+            return Client.build(config.getNetworkConfig().getDefaultGroup(), config);
+        } catch (Exception e) {
+            logger.warn("create client for failed, error: {}", e);
+            throw new BcosSDKException("get Client failed, e: " + e.getMessage());
+        }
+    }
+
+    /**
      * Get a amop instance of a specific group
      *
      * @return Client
