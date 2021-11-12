@@ -59,10 +59,12 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     public TransactionReceipt sendTransactionAndGetReceipt(
             String to, String data, CryptoKeyPair cryptoKeyPair) {
         if (cryptoKeyPair == null) {
-            cryptoKeyPair = this.cryptoKeyPair;
+            return this.client.sendRawTransactionAndGetReceipt(
+                    createSignedTransaction(to, data, this.cryptoKeyPair));
+        } else {
+            return this.client.sendRawTransactionAndGetReceipt(
+                    createSignedTransaction(to, data, cryptoKeyPair));
         }
-        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
-        return this.client.sendRawTransactionAndGetReceipt(signedData);
     }
 
     public TransactionReceipt sendTransactionAndGetReceipt(String to, String data) {
@@ -71,12 +73,13 @@ public class TransactionProcessor implements TransactionProcessorInterface {
 
     @Override
     public void sendTransactionAsync(
-            String to, String data, CryptoKeyPair newCryptoKeyPair, TransactionCallback callback) {
-        if (newCryptoKeyPair == null) {
-            newCryptoKeyPair = this.cryptoKeyPair;
+            String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
+        if (cryptoKeyPair == null) {
+            client.sendRawTransactionAndGetReceiptAsync(
+                    createSignedTransaction(to, data, this.cryptoKeyPair), callback);
         }
-        String signedData = createSignedTransaction(to, data, newCryptoKeyPair);
-        client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
+        client.sendRawTransactionAndGetReceiptAsync(
+                createSignedTransaction(to, data, cryptoKeyPair), callback);
     }
 
     public void sendTransactionAsync(String to, String data, TransactionCallback callback) {
@@ -85,11 +88,13 @@ public class TransactionProcessor implements TransactionProcessorInterface {
 
     @Override
     public byte[] sendTransactionAsyncAndGetHash(
-            String to, String data, CryptoKeyPair newCryptoKeyPair, TransactionCallback callback) {
-        if (newCryptoKeyPair == null) {
-            newCryptoKeyPair = this.cryptoKeyPair;
+            String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
+        String signedData;
+        if (cryptoKeyPair == null) {
+            signedData = createSignedTransaction(to, data, this.cryptoKeyPair);
+        } else {
+            signedData = createSignedTransaction(to, data, cryptoKeyPair);
         }
-        String signedData = createSignedTransaction(to, data, newCryptoKeyPair);
         client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
         byte[] transactionHash = cryptoSuite.hash(Hex.decode(Numeric.cleanHexPrefix(signedData)));
         return transactionHash;
@@ -112,10 +117,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     }
 
     @Override
-    public String createSignedTransaction(String to, String data, CryptoKeyPair newCryptoKeyPair) {
-        if (newCryptoKeyPair == null) {
-            newCryptoKeyPair = this.cryptoKeyPair;
-        }
+    public String createSignedTransaction(String to, String data, CryptoKeyPair cryptoKeyPair) {
         RawTransaction rawTransaction =
                 transactionBuilder.createTransaction(
                         DefaultGasProvider.GAS_PRICE,
@@ -126,7 +128,10 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         new BigInteger(this.chainId),
                         BigInteger.valueOf(this.groupId),
                         "");
-        return transactionEncoder.encodeAndSign(rawTransaction, newCryptoKeyPair);
+        if (cryptoKeyPair == null) {
+            return transactionEncoder.encodeAndSign(rawTransaction, this.cryptoKeyPair);
+        }
+        return transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
     }
 
     public String createSignedTransaction(String to, String data) {
