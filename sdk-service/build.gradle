@@ -3,7 +3,7 @@ plugins {
     id 'java'
 }
 dependencies {
-    api("org.fisco-bcos:java-sdk-jni:${javaSdkJniVersion}")
+    api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")
     api("org.apache.commons:commons-configuration2:2.7")
 
     implementation project(':sdk-amop')

@@ -36,7 +36,7 @@ ext {
     tarsCoreVersion = "1.7.2"
 
     config2Version = '2.7'
-    javaSdkJniVersion = "3.1.0-110701-SNAPSHOT"
+    bcosSdkJniVersion = "3.1.0-111111-SNAPSHOT"
 }
 
 // check.dependsOn integrationTest
@@ -186,7 +186,7 @@ googleJavaFormat {
 }
 
 dependencies {
-    api("org.fisco-bcos:java-sdk-jni:${javaSdkJniVersion}")
+    api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("io.netty:netty-all:${nettyVersion}")
