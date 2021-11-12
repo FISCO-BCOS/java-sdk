@@ -246,9 +246,9 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws TransactionBaseException, ABICodecException {
         String signedData;
         if (cryptoKeyPair == null) {
-            signedData = createSignedTransaction(to, data, cryptoKeyPair);
-        } else {
             signedData = createSignedTransaction(to, data, this.cryptoKeyPair);
+        } else {
+            signedData = createSignedTransaction(to, data, cryptoKeyPair);
         }
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
@@ -282,8 +282,19 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
             String to, String abi, String functionName, List<String> params)
             throws ABICodecException, TransactionBaseException {
+        return sendTransactionWithStringParamsAndGetResponse(
+                to, abi, functionName, params, this.cryptoKeyPair);
+    }
+
+    public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
+            String to,
+            String abi,
+            String functionName,
+            List<String> params,
+            CryptoKeyPair cryptoKeyPair)
+            throws ABICodecException, TransactionBaseException {
         String data = abiCodec.encodeMethodFromString(abi, functionName, params);
-        return sendTransactionAndGetResponse(to, abi, functionName, data);
+        return sendTransactionAndGetResponse(to, abi, functionName, data, cryptoKeyPair);
     }
 
     @Override
@@ -314,11 +325,8 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String functionName,
             List<Object> funcParams)
             throws ABICodecException, TransactionBaseException {
-        return sendTransactionAndGetResponse(
-                contractAddress,
-                contractLoader.getABIByContractName(contractName),
-                functionName,
-                funcParams);
+        return sendTransactionAndGetResponseByContractLoader(
+                contractName, contractAddress, functionName, funcParams, this.cryptoKeyPair);
     }
 
     public TransactionResponse sendTransactionAndGetResponseByContractLoader(
