@@ -37,6 +37,7 @@ public interface Client {
      * Build a client instance GroupId is identified, all interfaces are available
      *
      * @param groupID the group info
+     * @param configOption the config
      * @return a client instance
      */
     static Client build(String groupID, ConfigOption configOption) throws JniException {
@@ -46,6 +47,7 @@ public interface Client {
     /**
      * Build a client instance GroupId is identified, all interfaces are available
      *
+     * @param configOption the config
      * @return a client instance
      */
     static Client build(ConfigOption configOption) throws JniException {
@@ -100,6 +102,16 @@ public interface Client {
     BcosTransactionReceipt sendTransaction(String signedTransactionData, boolean withProof);
 
     /**
+     * Ledger operation: send transaction
+     *
+     * @param node the node rpc request send to
+     * @param signedTransactionData transaction string
+     * @return SendTransaction
+     */
+    BcosTransactionReceipt sendTransaction(
+            String node, String signedTransactionData, boolean withProof);
+
+    /**
      * Ledger operation: async send transaction
      *
      * @param signedTransactionData transaction string
@@ -107,6 +119,19 @@ public interface Client {
      */
     void sendTransactionAsync(
             String signedTransactionData, boolean withProof, TransactionCallback callback);
+
+    /**
+     * Ledger operation: async send transaction
+     *
+     * @param node the node rpc request send to
+     * @param signedTransactionData transaction string
+     * @param callback the callback that will be called when receive the response
+     */
+    void sendTransactionAsync(
+            String node,
+            String signedTransactionData,
+            boolean withProof,
+            TransactionCallback callback);
 
     /**
      * Ledger operation: call contract functions without sending transaction
@@ -117,12 +142,30 @@ public interface Client {
     Call call(Transaction transaction);
 
     /**
+     * Ledger operation: call contract functions without sending transaction
+     *
+     * @param node the node rpc request send to
+     * @param transaction transaction instance
+     * @return Call
+     */
+    Call call(String node, Transaction transaction);
+
+    /**
      * Ledger operation: async call contract functions without sending transaction
      *
      * @param transaction transaction instance
      * @param callback the callback that will be called when receive the response
      */
     void callAsync(Transaction transaction, RespCallback<Call> callback);
+
+    /**
+     * Ledger operation: async call contract functions without sending transaction
+     *
+     * @param node the node rpc request send to
+     * @param transaction transaction instance
+     * @param callback the callback that will be called when receive the response
+     */
+    void callAsync(String node, Transaction transaction, RespCallback<Call> callback);
 
     /**
      * Ledger operation: get block number
@@ -132,11 +175,27 @@ public interface Client {
     BlockNumber getBlockNumber();
 
     /**
+     * Ledger operation: get block number
+     *
+     * @param node the node rpc request send to
+     * @return block number
+     */
+    BlockNumber getBlockNumber(String node);
+
+    /**
      * Ledger operation: async get block number
      *
      * @param callback the callback that will be called when receive the response
      */
     void getBlockNumberAsync(RespCallback<BlockNumber> callback);
+
+    /**
+     * Ledger operation: async get block number
+     *
+     * @param node the node rpc request send to
+     * @param callback the callback that will be called when receive the response
+     */
+    void getBlockNumberAsync(String node, RespCallback<BlockNumber> callback);
 
     /**
      * Ledger operation: get code
@@ -147,12 +206,30 @@ public interface Client {
     Code getCode(String address);
 
     /**
+     * Ledger operation: get code
+     *
+     * @param node the node rpc request send to
+     * @param address the address string
+     * @return a code instance
+     */
+    Code getCode(String node, String address);
+
+    /**
      * Ledger operation: async get code
      *
      * @param address the address string
      * @param callback the callback that will be called when receive the response
      */
     void getCodeAsync(String address, RespCallback<Code> callback);
+
+    /**
+     * Ledger operation: async get code
+     *
+     * @param node the node rpc request send to
+     * @param address the address string
+     * @param callback the callback that will be called when receive the response
+     */
+    void getCodeAsync(String node, String address, RespCallback<Code> callback);
 
     /**
      * Ledger operation: get total transaction coun
@@ -162,11 +239,27 @@ public interface Client {
     TotalTransactionCount getTotalTransactionCount();
 
     /**
+     * Ledger operation: get total transaction coun
+     *
+     * @param node the node rpc request send to
+     * @return TotalTransactionCount
+     */
+    TotalTransactionCount getTotalTransactionCount(String node);
+
+    /**
      * Ledger operation: async get total transaction count
      *
      * @param callback the callback that will be called when receive the response
      */
     void getTotalTransactionCountAsync(RespCallback<TotalTransactionCount> callback);
+
+    /**
+     * Ledger operation: async get total transaction count
+     *
+     * @param node the node rpc request send to
+     * @param callback the callback that will be called when receive the response
+     */
+    void getTotalTransactionCountAsync(String node, RespCallback<TotalTransactionCount> callback);
 
     /**
      * Ledger operation: get block by hash
@@ -179,6 +272,20 @@ public interface Client {
             String blockHash, boolean onlyHeader, boolean returnFullTransactionObjects);
 
     /**
+     * Ledger operation: get block by hash
+     *
+     * @param node the node rpc request send to
+     * @param blockHash the hashcode of the block
+     * @param returnFullTransactionObjects the boolean define the tx is full or not
+     * @return a block
+     */
+    BcosBlock getBlockByHash(
+            String node,
+            String blockHash,
+            boolean onlyHeader,
+            boolean returnFullTransactionObjects);
+
+    /**
      * Ledger operation: async get block by hash
      *
      * @param blockHash the hashcode of the block
@@ -186,6 +293,21 @@ public interface Client {
      * @param callback the callback that will be called when receive the response
      */
     void getBlockByHashAsync(
+            String blockHash,
+            boolean onlyHeader,
+            boolean returnFullTransactionObjects,
+            RespCallback<BcosBlock> callback);
+
+    /**
+     * Ledger operation: async get block by hash
+     *
+     * @param node the node rpc request send to
+     * @param blockHash the hashcode of the block
+     * @param returnFullTransactionObjects the boolean define the tx is full or not
+     * @param callback the callback that will be called when receive the response
+     */
+    void getBlockByHashAsync(
+            String node,
             String blockHash,
             boolean onlyHeader,
             boolean returnFullTransactionObjects,
@@ -202,6 +324,17 @@ public interface Client {
             BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions);
 
     /**
+     * Ledger operation: get block by block number
+     *
+     * @param node the node rpc request send to
+     * @param blockNumber the number of the block
+     * @param onlyHeader the boolean define if only return header
+     * @return block
+     */
+    BcosBlock getBlockByNumber(
+            String node, BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions);
+
+    /**
      * Ledger operation: async get block by block number
      *
      * @param blockNumber the number of the block
@@ -216,6 +349,30 @@ public interface Client {
             RespCallback<BcosBlock> callback);
 
     /**
+     * Ledger operation: async get block by block number
+     *
+     * @param node the node rpc request send to
+     * @param blockNumber the number of the block
+     * @param onlyHeader the boolean if only need header
+     * @param fullTransactions the boolean if need all transactions
+     * @param callback the callback that will be called when receive the response
+     */
+    void getBlockByNumberAsync(
+            String node,
+            BigInteger blockNumber,
+            boolean onlyHeader,
+            boolean fullTransactions,
+            RespCallback<BcosBlock> callback);
+
+    /**
+     * Ledger operation: async get block hash by block number
+     *
+     * @param blockNumber the number of the block
+     * @return BlockHash
+     */
+    BlockHash getBlockHashByNumber(BigInteger blockNumber);
+
+    /**
      * Ledger operation: async get block hash by block number
      *
      * @param blockNumber the number of the block
@@ -224,7 +381,26 @@ public interface Client {
     void getBlockHashByNumberAsync(BigInteger blockNumber, RespCallback<BlockHash> callback);
 
     /**
-     * Ledger operation: get trnasaction by hash
+     * Ledger operation: async get block hash by block number
+     *
+     * @param node the node rpc request send to
+     * @param blockNumber the number of the block
+     * @return BlockHash
+     */
+    BlockHash getBlockHashByNumber(String node, BigInteger blockNumber);
+
+    /**
+     * Ledger operation: async get block hash by block number
+     *
+     * @param node the node rpc request send to
+     * @param blockNumber the number of the block
+     * @param callback the callback that will be called when receive the response
+     */
+    void getBlockHashByNumberAsync(
+            String node, BigInteger blockNumber, RespCallback<BlockHash> callback);
+
+    /**
+     * Ledger operation: get transaction by hash
      *
      * @param transactionHash the hashcode of transaction
      * @param withProof with the transaction proof
@@ -233,26 +409,64 @@ public interface Client {
     BcosTransaction getTransaction(String transactionHash, Boolean withProof);
 
     /**
+     * Ledger operation: get trnasaction by hash
+     *
+     * @param node the node rpc request send to
+     * @param transactionHash the hashcode of transaction
+     * @param withProof with the transaction proof
+     * @return transaction
+     */
+    BcosTransaction getTransaction(String node, String transactionHash, Boolean withProof);
+
+    /**
      * Ledger operation: async get trnasaction by hash
      *
      * @param transactionHash the hashcode of transaction
+     * @param withProof with the transaction proof
      * @param callback the callback that will be called when receive the response
      */
     void getTransactionAsync(
             String transactionHash, Boolean withProof, RespCallback<BcosTransaction> callback);
 
     /**
+     * Ledger operation: async get trnasaction by hash
+     *
+     * @param node the node rpc request send to
+     * @param transactionHash the hashcode of transaction
+     * @param withProof with the transaction proof
+     * @param callback the callback that will be called when receive the response
+     */
+    void getTransactionAsync(
+            String node,
+            String transactionHash,
+            Boolean withProof,
+            RespCallback<BcosTransaction> callback);
+
+    /**
      * Ledger operation: get transaction receipt by transaction hash
      *
      * @param transactionHash the hashcode of transaction
+     * @param withProof with the transaction proof
      * @return transaction receipt
      */
     BcosTransactionReceipt getTransactionReceipt(String transactionHash, Boolean withProof);
 
     /**
+     * Ledger operation: get transaction receipt by transaction hash
+     *
+     * @param node the node rpc request send to
+     * @param transactionHash the hashcode of transaction
+     * @param withProof with the transaction receipt proof
+     * @return transaction receipt
+     */
+    BcosTransactionReceipt getTransactionReceipt(
+            String node, String transactionHash, Boolean withProof);
+
+    /**
      * Ledger operation: async get transaction receipt by transaction hash
      *
      * @param transactionHash the hashcode of transaction
+     * @param withProof with the transaction receipt proof
      * @param callback the callback that will be called when receive the response
      */
     void getTransactionReceiptAsync(
@@ -261,8 +475,23 @@ public interface Client {
             RespCallback<BcosTransactionReceipt> callback);
 
     /**
+     * Ledger operation: async get transaction receipt by transaction hash
+     *
+     * @param node the node rpc request send to
+     * @param transactionHash the hashcode of transaction
+     * @param withProof with the transaction receipt proof
+     * @param callback the callback that will be called when receive the response
+     */
+    void getTransactionReceiptAsync(
+            String node,
+            String transactionHash,
+            Boolean withProof,
+            RespCallback<BcosTransactionReceipt> callback);
+
+    /**
      * Ledger operation: get pending transaction size
      *
+     * @param node the node rpc request send to
      * @return PendingTxSize
      */
     PendingTxSize getPendingTxSize(String node);
@@ -305,10 +534,9 @@ public interface Client {
     /**
      * get the group peers
      *
-     * @param groupID the groupID
      * @return the groupPeers
      */
-    GroupPeers getGroupPeers(String groupID);
+    GroupPeers getGroupPeers();
 
     void getGroupPeersAsync(RespCallback<GroupPeers> callback);
     /**
@@ -326,11 +554,25 @@ public interface Client {
     ObserverList getObserverList();
 
     /**
+     * Peer operation: get observer node list
+     *
+     * @return observer node list
+     */
+    ObserverList getObserverList(String node);
+
+    /**
      * Peer operation: async get observer node list
      *
      * @param callback the callback instance
      */
     void getObserverList(RespCallback<ObserverList> callback);
+
+    /**
+     * Peer operation: async get observer node list
+     *
+     * @param callback the callback instance
+     */
+    void getObserverList(String node, RespCallback<ObserverList> callback);
 
     /**
      * Peer operation: get sealer node list
@@ -340,11 +582,27 @@ public interface Client {
     SealerList getSealerList();
 
     /**
+     * Peer operation: get sealer node list
+     *
+     * @param node the node rpc request send to
+     * @return sealer node list
+     */
+    SealerList getSealerList(String node);
+
+    /**
      * Peer operation: async get sealer node list
      *
      * @param callback the callback instance
      */
     void getSealerListAsync(RespCallback<SealerList> callback);
+
+    /**
+     * Peer operation: async get sealer node list
+     *
+     * @param node the node rpc request send to
+     * @param callback the callback instance
+     */
+    void getSealerListAsync(String node, RespCallback<SealerList> callback);
 
     /**
      * Peer operation: get pbft view
@@ -354,11 +612,27 @@ public interface Client {
     PbftView getPbftView();
 
     /**
+     * Peer operation: get pbft view
+     *
+     * @param node the node rpc request send to
+     * @return pbft view
+     */
+    PbftView getPbftView(String node);
+
+    /**
      * Peer operation: async get pbft view
      *
      * @param callback the callback instance
      */
     void getPbftViewAsync(RespCallback<PbftView> callback);
+
+    /**
+     * Peer operation: async get pbft view
+     *
+     * @param node the node rpc request send to
+     * @param callback the callback instance
+     */
+    void getPbftViewAsync(String node, RespCallback<PbftView> callback);
 
     /**
      * Peer operation: get system config
@@ -369,12 +643,30 @@ public interface Client {
     SystemConfig getSystemConfigByKey(String key);
 
     /**
+     * Peer operation: get system config
+     *
+     * @param node the node rpc request send to
+     * @param key the string of key
+     * @return system config
+     */
+    SystemConfig getSystemConfigByKey(String node, String key);
+
+    /**
      * Peer operation: async get system config
      *
      * @param key the string of key
      * @param callback the callback instance
      */
     void getSystemConfigByKeyAsync(String key, RespCallback<SystemConfig> callback);
+
+    /**
+     * Peer operation: async get system config
+     *
+     * @param node the node rpc request send to
+     * @param key the string of key
+     * @param callback the callback instance
+     */
+    void getSystemConfigByKeyAsync(String node, String key, RespCallback<SystemConfig> callback);
 
     /**
      * Peer operation: get sync status
@@ -386,6 +678,7 @@ public interface Client {
     /**
      * Peer operation: async get sync status
      *
+     * @param node the node rpc request send to
      * @param callback the callback instance
      */
     void getSyncStatusAsync(String node, RespCallback<SyncStatus> callback);
@@ -407,15 +700,31 @@ public interface Client {
     /**
      * async get consensus status
      *
-     * @param node the node that receive the request
+     * @param node the node rpc request send to
      * @param callback the callback
      */
     void getConsensusStatusAsync(String node, RespCallback<ConsensusStatus> callback);
 
+    /**
+     * async get consensus status
+     *
+     * @param callback
+     */
     void getConsensusStatusAsync(RespCallback<ConsensusStatus> callback);
 
+    /**
+     * sync get consensus status
+     *
+     * @param node the node rpc request send to
+     * @return
+     */
     ConsensusStatus getConsensusStatus(String node);
 
+    /**
+     * sync get consensus status
+     *
+     * @return
+     */
     ConsensusStatus getConsensusStatus();
 
     /**

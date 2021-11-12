@@ -43,4 +43,17 @@ public class Response {
     public void setContent(byte[] content) {
         this.content = content;
     }
+
+    @Override
+    public String toString() {
+        return "Response{"
+                + "errorCode="
+                + errorCode
+                + ", errorMessage='"
+                + errorMessage
+                + '\''
+                + ", content="
+                + new String(content)
+                + '}';
+    }
 }
