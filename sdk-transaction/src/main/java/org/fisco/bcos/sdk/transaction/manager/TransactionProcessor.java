@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class TransactionProcessor implements TransactionProcessorInterface {
     protected static Logger log = LoggerFactory.getLogger(TransactionProcessor.class);
     protected final CryptoSuite cryptoSuite;
-    protected final CryptoKeyPair cryptoKeyPair;
+    protected CryptoKeyPair cryptoKeyPair;
     protected final Client client;
     protected final Integer groupId;
     protected final String chainId;
@@ -53,6 +53,14 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         this.chainId = chainId;
         this.transactionBuilder = new TransactionBuilderService(client);
         this.transactionEncoder = new TransactionEncoderService(client.getCryptoSuite());
+    }
+
+    public CryptoKeyPair getCryptoKeyPair() {
+        return cryptoKeyPair;
+    }
+
+    public void setCryptoKeyPair(CryptoKeyPair cryptoKeyPair) {
+        this.cryptoKeyPair = cryptoKeyPair;
     }
 
     @Override
