@@ -58,6 +58,9 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     @Override
     public TransactionReceipt sendTransactionAndGetReceipt(
             String to, String data, CryptoKeyPair cryptoKeyPair) {
+        if (cryptoKeyPair == null) {
+            cryptoKeyPair = this.cryptoKeyPair;
+        }
         String signedData = createSignedTransaction(to, data, cryptoKeyPair);
         return this.client.sendRawTransactionAndGetReceipt(signedData);
     }
@@ -69,6 +72,9 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     @Override
     public void sendTransactionAsync(
             String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
+        if (cryptoKeyPair == null) {
+            cryptoKeyPair = this.cryptoKeyPair;
+        }
         String signedData = createSignedTransaction(to, data, cryptoKeyPair);
         client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
     }
@@ -80,6 +86,9 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     @Override
     public byte[] sendTransactionAsyncAndGetHash(
             String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
+        if (cryptoKeyPair == null) {
+            cryptoKeyPair = this.cryptoKeyPair;
+        }
         String signedData = createSignedTransaction(to, data, cryptoKeyPair);
         client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
         byte[] transactionHash = cryptoSuite.hash(Hex.decode(Numeric.cleanHexPrefix(signedData)));
@@ -104,6 +113,9 @@ public class TransactionProcessor implements TransactionProcessorInterface {
 
     @Override
     public String createSignedTransaction(String to, String data, CryptoKeyPair cryptoKeyPair) {
+        if (cryptoKeyPair == null) {
+            cryptoKeyPair = this.cryptoKeyPair;
+        }
         RawTransaction rawTransaction =
                 transactionBuilder.createTransaction(
                         DefaultGasProvider.GAS_PRICE,
