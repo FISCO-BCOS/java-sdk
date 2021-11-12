@@ -75,6 +75,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         }
     }
 
+    @Override
     public TransactionReceipt sendTransactionAndGetReceipt(String to, String data) {
         return sendTransactionAndGetReceipt(to, data, this.cryptoKeyPair);
     }
@@ -90,6 +91,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                 createSignedTransaction(to, data, cryptoKeyPair), callback);
     }
 
+    @Override
     public void sendTransactionAsync(String to, String data, TransactionCallback callback) {
         sendTransactionAsync(to, data, this.cryptoKeyPair, callback);
     }
@@ -108,6 +110,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         return transactionHash;
     }
 
+    @Override
     public byte[] sendTransactionAsyncAndGetHash(
             String to, String data, TransactionCallback callback) {
         return sendTransactionAsyncAndGetHash(to, data, this.cryptoKeyPair, callback);
@@ -142,6 +145,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         return transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
     }
 
+    @Override
     public String createSignedTransaction(String to, String data) {
         return createSignedTransaction(to, data, this.cryptoKeyPair);
     }
