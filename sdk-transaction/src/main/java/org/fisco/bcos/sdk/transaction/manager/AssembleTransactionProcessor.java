@@ -91,7 +91,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public void deployOnly(String abi, String bin, List<Object> params) throws ABICodecException {
-        transactionPusher.pushOnly(createSignedConstructor(abi, bin, params));
+        deployOnly(abi, bin, params, this.cryptoKeyPair);
     }
 
     public void deployOnly(String abi, String bin, List<Object> params, CryptoKeyPair cryptoKeyPair)
