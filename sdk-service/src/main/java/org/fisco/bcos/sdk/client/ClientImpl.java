@@ -42,7 +42,7 @@ public class ClientImpl implements Client {
     private static final Logger logger = LoggerFactory.getLogger(ClientImpl.class);
 
     // ------------basic group info --------------
-    private String groupID;
+    private String groupID = "";
     private String chainID;
     private Boolean wasm;
     private Boolean smCrypto;
@@ -768,6 +768,8 @@ public class ClientImpl implements Client {
             responseCallback.setTimeoutValue(timeoutValue);
 
             this.jniRpcImpl.genericMethod(
+                    this.groupID,
+                    this.defaultNode,
                     this.objectMapper.writeValueAsString(request),
                     (resp) -> {
                         Response response = new Response();
@@ -796,6 +798,8 @@ public class ClientImpl implements Client {
 
         try {
             this.jniRpcImpl.genericMethod(
+                    this.groupID,
+                    this.defaultNode,
                     this.objectMapper.writeValueAsString(request),
                     (resp) -> {
                         Response response = new Response();
