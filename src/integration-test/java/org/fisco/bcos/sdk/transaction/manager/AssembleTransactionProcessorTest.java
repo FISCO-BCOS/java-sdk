@@ -344,13 +344,12 @@ public class AssembleTransactionProcessorTest {
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         // setBytes
-        List<String> paramsSetBytes = Lists.newArrayList(new String("123".getBytes()));
+        List<String> paramsSetBytes = Lists.newArrayList(new String("[1, 2, 3]".getBytes()));
         TransactionResponse transactionResponse3 =
                 transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                         contractAddress, ABI, "setBytes", paramsSetBytes);
         System.out.println(JsonUtils.toJson(transactionResponse3));
-        Assert.assertEquals(transactionResponse3.getValuesList().size(), 1);
-        Assert.assertEquals(transactionResponse3.getValuesList().get(0), "set bytes test");
+        Assert.assertEquals(transactionResponse3.getResults().size(), 1);
 
         Map<String, List<List<Object>>> eventsMap3 = transactionResponse3.getEventResultMap();
         System.out.println(JsonUtils.toJson(eventsMap3));
@@ -367,9 +366,6 @@ public class AssembleTransactionProcessorTest {
                         "_bytesV",
                         Lists.newArrayList());
         Assert.assertEquals(0, callResponse4.getReturnCode());
-        List<Object> resultEntityList4 =
-                JsonUtils.fromJsonList(callResponse4.getValues(), Object.class);
-        Assert.assertEquals("set bytes test", resultEntityList4.get(0));
     }
 
     @Test

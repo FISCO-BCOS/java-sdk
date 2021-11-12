@@ -79,7 +79,7 @@ public class TableCRUDService {
         TablePrecompiled.Condition cond =
                 (condition == null)
                         ? new TablePrecompiled.Condition(new ArrayList<>())
-                        : condition.getConditions();
+                        : condition.getTableCondition();
         return ReceiptParser.parseTransactionReceipt(
                 tablePrecompiled.update(
                         tableName, fieldNameToValue.getTablePrecompiledEntry(), cond));
@@ -89,7 +89,7 @@ public class TableCRUDService {
         TablePrecompiled.Condition cond =
                 (condition == null)
                         ? new TablePrecompiled.Condition(new ArrayList<>())
-                        : condition.getConditions();
+                        : condition.getTableCondition();
         return ReceiptParser.parseTransactionReceipt(tablePrecompiled.remove(tableName, cond));
     }
 
@@ -99,7 +99,7 @@ public class TableCRUDService {
             TablePrecompiled.Condition cond =
                     (condition == null)
                             ? new TablePrecompiled.Condition(new ArrayList<>())
-                            : condition.getConditions();
+                            : condition.getTableCondition();
             return parseSelectResult(tablePrecompiled.select(tableName, cond));
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);
@@ -179,7 +179,7 @@ public class TableCRUDService {
         TablePrecompiled.Condition cond =
                 (condition == null)
                         ? new TablePrecompiled.Condition(new ArrayList<>())
-                        : condition.getConditions();
+                        : condition.getTableCondition();
         this.tablePrecompiled.update(tableName, entry, cond, createTransactionCallback(callback));
     }
 
@@ -188,7 +188,7 @@ public class TableCRUDService {
         TablePrecompiled.Condition cond =
                 (condition == null)
                         ? new TablePrecompiled.Condition(new ArrayList<>())
-                        : condition.getConditions();
+                        : condition.getTableCondition();
         this.tablePrecompiled.remove(tableName, cond, createTransactionCallback(callback));
     }
 }
