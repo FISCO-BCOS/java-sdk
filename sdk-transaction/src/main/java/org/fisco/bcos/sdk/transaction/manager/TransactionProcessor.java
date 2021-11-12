@@ -86,9 +86,10 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         if (cryptoKeyPair == null) {
             client.sendRawTransactionAndGetReceiptAsync(
                     createSignedTransaction(to, data, this.cryptoKeyPair), callback);
+        } else {
+            client.sendRawTransactionAndGetReceiptAsync(
+                    createSignedTransaction(to, data, cryptoKeyPair), callback);
         }
-        client.sendRawTransactionAndGetReceiptAsync(
-                createSignedTransaction(to, data, cryptoKeyPair), callback);
     }
 
     @Override

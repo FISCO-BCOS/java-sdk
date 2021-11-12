@@ -244,12 +244,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, String data, CryptoKeyPair cryptoKeyPair)
             throws TransactionBaseException, ABICodecException {
-        String signedData;
-        if (cryptoKeyPair == null) {
-            signedData = createSignedTransaction(to, data, this.cryptoKeyPair);
-        } else {
-            signedData = createSignedTransaction(to, data, cryptoKeyPair);
-        }
+        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
             return transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
@@ -468,10 +463,6 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public String createSignedConstructor(
             String abi, String bin, List<Object> params, CryptoKeyPair cryptoKeyPair)
             throws ABICodecException {
-        if (cryptoKeyPair == null) {
-            return createSignedTransaction(
-                    null, abiCodec.encodeConstructor(abi, bin, params), this.cryptoKeyPair);
-        }
         return createSignedTransaction(
                 null, abiCodec.encodeConstructor(abi, bin, params), cryptoKeyPair);
     }
