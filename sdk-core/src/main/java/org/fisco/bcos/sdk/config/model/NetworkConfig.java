@@ -22,11 +22,13 @@ import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 /** Network configuration, include the peers */
 public class NetworkConfig {
     private List<String> peers;
+    private String defaultGroup;
 
     public NetworkConfig(ConfigProperty configProperty) throws ConfigException {
         Map<String, Object> networkProperty = configProperty.getNetwork();
         if (networkProperty != null) {
             peers = (List<String>) networkProperty.get("peers");
+            defaultGroup = (String) networkProperty.get("defaultGroup");
         }
     }
 
@@ -36,5 +38,13 @@ public class NetworkConfig {
 
     public void setPeers(List<String> peers) {
         this.peers = peers;
+    }
+
+    public String getDefaultGroup() {
+        return defaultGroup;
+    }
+
+    public void setDefaultGroup(String defaultGroup) {
+        this.defaultGroup = defaultGroup;
     }
 }
