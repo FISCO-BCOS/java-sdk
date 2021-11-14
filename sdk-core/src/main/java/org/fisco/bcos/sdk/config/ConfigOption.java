@@ -80,6 +80,7 @@ public class ConfigOption {
         // if disable ssl, default false
         jniConfig.setDisableSsl(disableSsl);
         jniConfig.setThreadPoolSize(threadPoolConfig.getThreadPoolSize());
+        jniConfig.setMessageTimeoutMs(networkConfig.getTimeout());
 
         if (disableSsl) {
             logger.info(" ==>> java sdk work in disable ssl model !!!");

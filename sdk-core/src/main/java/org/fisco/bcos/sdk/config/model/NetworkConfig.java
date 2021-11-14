@@ -17,18 +17,30 @@ package org.fisco.bcos.sdk.config.model;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Network configuration, include the peers */
 public class NetworkConfig {
+
+    private static Logger logger = LoggerFactory.getLogger(NetworkConfig.class);
+
     private List<String> peers;
     private String defaultGroup;
+    private int timeout = -1;
 
     public NetworkConfig(ConfigProperty configProperty) throws ConfigException {
         Map<String, Object> networkProperty = configProperty.getNetwork();
         if (networkProperty != null) {
             peers = (List<String>) networkProperty.get("peers");
             defaultGroup = (String) networkProperty.get("defaultGroup");
+            Object value = networkProperty.get("messageTimeout");
+            if (Objects.nonNull(value)) {
+                timeout = Integer.valueOf((String) value);
+            }
+            logger.info("network config items, timeout: {}, peers: {}", timeout, peers);
         }
     }
 
@@ -46,5 +58,13 @@ public class NetworkConfig {
 
     public void setDefaultGroup(String defaultGroup) {
         this.defaultGroup = defaultGroup;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 }
