@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.model.GroupNodeIniConfig;
+import org.fisco.bcos.sdk.client.protocol.model.GroupNodeIniInfo;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcMethods;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
@@ -73,7 +74,7 @@ public class ClientImpl implements Client {
         }
 
         BcosGroupNodeInfo.GroupNodeInfo groupNodeInfo = groupInfo.getNodeList().get(0);
-        String nodeIniConfig = groupNodeInfo.getIniConfig();
+        GroupNodeIniInfo nodeIniConfig = groupNodeInfo.getIniConfig();
 
         this.groupNodeIniConfig = GroupNodeIniConfig.newIniConfig(nodeIniConfig);
         this.chainID = groupNodeIniConfig.getChain().getChainID();
