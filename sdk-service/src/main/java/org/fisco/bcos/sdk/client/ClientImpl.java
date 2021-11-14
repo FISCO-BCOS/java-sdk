@@ -593,9 +593,9 @@ public class ClientImpl implements Client {
         /*
         // TODO: add impl in cpp-sdk
         */
-        long blk = getBlockNumber().getBlockNumber().longValue();
+        long blk = blockNumber;
         if (blk == 0) {
-            blk = blockNumber;
+            blk = getBlockNumber().getBlockNumber().longValue();
         }
 
         return BigInteger.valueOf(blk).add(BigInteger.valueOf(500));

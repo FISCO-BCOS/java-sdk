@@ -92,6 +92,6 @@ public class TransactionDecoderServiceTest {
                         contractName, contractAddress, "setBytesMapping", paramsSetBytes);
         // decode receipt
         TransactionResponse transactionResponse2 = decoder.decodeReceiptStatus(transactionReceipt2);
-        Assert.assertEquals(22, transactionResponse2.getReturnCode());
+        Assert.assertEquals(16, transactionResponse2.getReturnCode());
     }
 }

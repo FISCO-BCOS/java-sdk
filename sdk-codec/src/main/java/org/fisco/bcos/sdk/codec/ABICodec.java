@@ -211,13 +211,7 @@ public class ABICodec {
             }
 
             if (typeStr.equals("bytes")) {
-                JsonNode jsonNode = this.objectMapper.readTree(param);
-                assert jsonNode.isArray();
-                byte[] bytes = new byte[jsonNode.size()];
-                for (int i = 0; i < jsonNode.size(); ++i) {
-                    bytes[i] = ((byte) jsonNode.get(i).asInt());
-                }
-                type = new DynamicBytes(bytes);
+                type = new DynamicBytes(param.getBytes());
                 return type;
             }
 

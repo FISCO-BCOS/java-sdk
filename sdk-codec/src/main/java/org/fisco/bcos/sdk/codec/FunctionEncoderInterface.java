@@ -18,7 +18,6 @@ public abstract class FunctionEncoderInterface extends Encoder {
         StringBuilder result = new StringBuilder();
         result.append(methodName);
         result.append("(");
-        // FIXME: add tuple list
         String params =
                 parameters.stream().map(Type::getTypeAsString).collect(Collectors.joining(","));
         result.append(params);

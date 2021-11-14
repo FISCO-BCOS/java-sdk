@@ -742,7 +742,8 @@ public class ContractWrapper {
             }
         }
 
-        return ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get("", structName));
+        return ParameterizedTypeName.get(
+                ClassName.get(DynamicArray.class), ClassName.get("", structName));
     }
 
     private String createMappedParameterTypes(ParameterSpec parameterSpec) {

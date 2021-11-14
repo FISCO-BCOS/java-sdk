@@ -276,19 +276,18 @@ public class PrecompiledTest {
         condition.EQ(key, "key1");
         List<Map<String, String>> result = tableCRUDService.select(tableName, condition);
         // field value result + key result
-        if (result.size() > 0) {
-            Assert.assertEquals(result.get(0).size(), fieldNameToValue.size());
+        if (!result.isEmpty()) {
+            Assert.assertEquals(result.get(0).size(), valueFields.size());
         }
         System.out.println("tableCRUDService select result: " + result);
         // update
         fieldNameToValue.clear();
-        fieldNameToValue.put(key, "key1");
+        fieldNameToValue.put("field1", "value123");
         fieldNameToValueEntry.setFieldNameToValue(fieldNameToValue);
-        tableCRUDService.update(tableName, fieldNameToValueEntry, null);
+        tableCRUDService.update(tableName, fieldNameToValueEntry, condition);
         result = tableCRUDService.select(tableName, condition);
-        if (result.size() > 0) {
-            Assert.assertTrue(result.get(0).size() == valueFields.size() + 1);
-        }
+        Assert.assertEquals(result.get(0).size(), valueFields.size());
+        Assert.assertEquals(result.get(0).get("field1"), "value123");
         System.out.println("tableCRUDService select result: " + result);
 
         // remove
@@ -402,10 +401,7 @@ public class PrecompiledTest {
                             value.put("key", "key" + index);
                             // insert
                             FakeTransactionCallback callback = new FakeTransactionCallback();
-                            crudService.asyncInsert(
-                                    tableName,
-                                    new Entry(value).getTablePrecompiledEntry(),
-                                    callback);
+                            crudService.asyncInsert(tableName, new Entry(value), callback);
                             // update
                             Condition condition = new Condition();
                             condition.EQ(key, "key" + index);
@@ -413,10 +409,7 @@ public class PrecompiledTest {
                             value.put("field", "field" + index + 100);
                             FakeTransactionCallback callback2 = new FakeTransactionCallback();
                             crudService.asyncUpdate(
-                                    tableName,
-                                    new Entry(value).getTablePrecompiledEntry(),
-                                    condition,
-                                    callback2);
+                                    tableName, new Entry(value), condition, callback2);
                             // remove
                             FakeTransactionCallback callback3 = new FakeTransactionCallback();
                             crudService.asyncRemove(tableName, condition, callback3);

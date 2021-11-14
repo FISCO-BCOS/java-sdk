@@ -381,8 +381,9 @@ public class TypeDecoder {
             int dynamicParametersToProcess =
                     getDynamicStructDynamicParametersCount(constructor.getParameterTypes());
             for (int i = 0; i < length; ++i) {
-                final Class<T> declaredField = (Class<T>) constructor.getParameterTypes()[i];
-                if (isDynamic(declaredField)) {
+                TypeReference<T> typeReferenceElement =
+                        TypeReference.create(constructor.getGenericParameterTypes()[i]);
+                if (isDynamic(typeReferenceElement.getClassType())) {
                     final boolean isLastParameterInStruct =
                             dynamicParametersProcessed == (dynamicParametersToProcess - 1);
                     final int parameterLength =
@@ -397,7 +398,7 @@ public class TypeDecoder {
                                     input,
                                     parameterOffsets.get(dynamicParametersProcessed),
                                     parameterLength,
-                                    declaredField));
+                                    typeReferenceElement));
                     dynamicParametersProcessed++;
                 }
             }
@@ -431,19 +432,18 @@ public class TypeDecoder {
             final byte[] input,
             final int parameterOffset,
             final int parameterLength,
-            final Class<T> declaredField) {
+            TypeReference<T> typeReference)
+            throws ClassNotFoundException {
         final byte[] dynamicElementData =
                 Arrays.copyOfRange(input, parameterOffset, parameterOffset + parameterLength);
 
         final T value;
-        if (DynamicStruct.class.isAssignableFrom(declaredField)) {
-            value =
-                    decodeDynamicStruct(
-                            dynamicElementData,
-                            Type.MAX_BYTE_LENGTH,
-                            TypeReference.create(declaredField));
+        if (DynamicStruct.class.isAssignableFrom(typeReference.getClassType())) {
+            value = decodeDynamicStruct(dynamicElementData, Type.MAX_BYTE_LENGTH, typeReference);
+        } else if (DynamicArray.class.isAssignableFrom(typeReference.getClassType())) {
+            value = decodeDynamicArray(dynamicElementData, Type.MAX_BYTE_LENGTH, typeReference);
         } else {
-            value = decode(dynamicElementData, 0, declaredField);
+            value = decode(dynamicElementData, 0, typeReference.getClassType());
         }
         return value;
     }
