@@ -6,7 +6,7 @@ dependencies {
     api project(':sdk-core')
     implementation project(':sdk-core')
     implementation ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
-    implementation("org.fisco-bcos:java-sdk-jni:${javaSdkJniVersion}")
+    implementation("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")
 }
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
