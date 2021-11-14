@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.codec.datatypes.DynamicArray;
 import org.fisco.bcos.sdk.codec.datatypes.DynamicStruct;
 import org.fisco.bcos.sdk.codec.datatypes.Function;
 import org.fisco.bcos.sdk.codec.datatypes.Type;
@@ -303,10 +304,13 @@ public class TablePrecompiled extends Contract {
         final Function function =
                 new Function(
                         FUNC_SELECT,
-                        Arrays.<Type>asList(new Utf8String(tableName), condition),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Entry>() {}));
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.codec.datatypes.Utf8String(tableName),
+                                condition),
+                        Arrays.<TypeReference<?>>asList(
+                                new TypeReference<DynamicArray<Entry>>() {}));
         List<Type> result = (List<Type>) executeCallWithSingleValueReturn(function, List.class);
-        return convertToNative(result);
+        return result;
     }
 
     public TransactionReceipt update(String tableName, Entry entry, Condition condition) {
@@ -426,20 +430,28 @@ public class TablePrecompiled extends Contract {
     }
 
     public static class Entry extends DynamicStruct {
-        public List<KVField> fields;
+        public DynamicArray<KVField> fields;
+
+        public Entry(DynamicArray<KVField> fields) {
+            super(fields);
+            this.fields = fields;
+        }
 
         public Entry(List<KVField> fields) {
-            super(fields.stream().toArray(KVField[]::new));
-            this.fields = fields;
+            this(new DynamicArray<>(KVField.class, fields));
         }
     }
 
     public static class Condition extends DynamicStruct {
-        public List<CompareTriple> condFields;
+        public DynamicArray<CompareTriple> condFields;
+
+        public Condition(DynamicArray<CompareTriple> condFields) {
+            super(condFields);
+            this.condFields = condFields;
+        }
 
         public Condition(List<CompareTriple> condFields) {
-            super(condFields.stream().toArray(CompareTriple[]::new));
-            this.condFields = condFields;
+            this(new DynamicArray<>(CompareTriple.class, condFields));
         }
     }
 }

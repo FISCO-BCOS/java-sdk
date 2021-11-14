@@ -128,11 +128,11 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                         "HelloWorld", new ArrayList<>());
         System.out.println("--- finish deploy with  sync ---");
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
-        String helloWorldAddrss = response.getContractAddress();
+        String helloWorldAddress = response.getContractAddress();
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
-                                helloWorldAddrss,
+                                helloWorldAddress,
                                 "0x0000000000000000000000000000000000000000000000000000000000000000"));
 
         // function2: deploy async with callback
@@ -168,19 +168,19 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         // function4: send transaction async with callback
         TransactionData sendTxRawTransaction =
                 assembleTransactionWithRemoteSignProcessor.getRawTransaction(
-                        helloWorldAddrss, abi, "set", this.params);
+                        helloWorldAddress, abi, "set", this.params);
         // create an instance of Remote Sign Service callback, and define the hook function.
         RemoteSignCallbackMock callbackMock2 =
                 new RemoteSignCallbackMock(
                         assembleTransactionWithRemoteSignProcessor, sendTxRawTransaction);
         System.out.println(System.currentTimeMillis() + " begin to send tx with callback: ");
         assembleTransactionWithRemoteSignProcessor.sendTransactionAsync(
-                helloWorldAddrss, abi, "set", this.params, callbackMock2);
+                helloWorldAddress, abi, "set", this.params, callbackMock2);
 
         // function5: async send with CompletableFuture
         CompletableFuture<TransactionReceipt> future2 =
                 assembleTransactionWithRemoteSignProcessor.sendTransactionAsync(
-                        helloWorldAddrss, abi, "set", this.params);
+                        helloWorldAddress, abi, "set", this.params);
         // if exceptional
         future2.exceptionally(
                 e -> {

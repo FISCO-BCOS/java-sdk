@@ -30,7 +30,7 @@ public class Entry {
     }
 
     public Entry(TablePrecompiled.Entry entry) {
-        for (TablePrecompiled.KVField field : entry.fields) {
+        for (TablePrecompiled.KVField field : entry.fields.getValue()) {
             this.fieldNameToValue.put(field.key, field.value);
         }
     }

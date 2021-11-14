@@ -35,6 +35,15 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.codec.datatypes
         this.indexed = indexed;
     }
 
+    protected TypeReference(Type type) {
+        Type superclass = getClass().getGenericSuperclass();
+        if (superclass instanceof Class) {
+            throw new RuntimeException("Missing type parameter.");
+        }
+        this.type = type;
+        this.indexed = false;
+    }
+
     public int compareTo(TypeReference<T> o) {
         // taken from the blog post comments - this results in an errror if the
         // type parameter is left out.
@@ -78,6 +87,16 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.codec.datatypes
             @Override
             public Type getType() {
                 return cls;
+            }
+        };
+    }
+
+    public static <T extends org.fisco.bcos.sdk.codec.datatypes.Type> TypeReference<T> create(
+            Type type) {
+        return new TypeReference<T>(type) {
+            @Override
+            public Type getType() {
+                return super.getType();
             }
         };
     }

@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.datatypes.DynamicBytes;
 import org.fisco.bcos.sdk.codec.datatypes.Type;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
@@ -344,7 +345,7 @@ public class AssembleTransactionProcessorTest {
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         // setBytes
-        List<String> paramsSetBytes = Lists.newArrayList(new String("[1, 2, 3]".getBytes()));
+        List<String> paramsSetBytes = Lists.newArrayList(new String("123".getBytes()));
         TransactionResponse transactionResponse3 =
                 transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                         contractAddress, ABI, "setBytes", paramsSetBytes);
@@ -366,6 +367,7 @@ public class AssembleTransactionProcessorTest {
                         "_bytesV",
                         Lists.newArrayList());
         Assert.assertEquals(0, callResponse4.getReturnCode());
+        Assert.assertEquals(callResponse4.getResults().get(0), new DynamicBytes("123".getBytes()));
     }
 
     @Test
