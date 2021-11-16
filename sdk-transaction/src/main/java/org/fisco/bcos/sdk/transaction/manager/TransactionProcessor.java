@@ -56,7 +56,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     public TransactionReceipt sendTransactionAndGetReceipt(
             String to, byte[] data, CryptoKeyPair cryptoKeyPair) {
         String signedData = this.createSignedTransaction(to, data, cryptoKeyPair);
-        return this.client.sendTransaction(signedData, false).getTransactionReceipt().get();
+        return this.client.sendTransaction(signedData, false).getTransactionReceipt();
     }
 
     @Override
