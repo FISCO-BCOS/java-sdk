@@ -6,7 +6,6 @@ plugins {
 dependencies {
     api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
-    api("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     api("com.moandjiezana.toml:toml4j:${toml4jVersion}")
     api("commons-io:commons-io:${commonIOVersion}")
