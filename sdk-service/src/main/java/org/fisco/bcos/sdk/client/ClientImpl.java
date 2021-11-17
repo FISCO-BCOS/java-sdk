@@ -202,8 +202,7 @@ public class ClientImpl implements Client {
                 new RespCallback<BcosTransactionReceipt>() {
                     @Override
                     public void onResponse(BcosTransactionReceipt transactionReceiptWithProof) {
-                        callback.onResponse(
-                                transactionReceiptWithProof.getTransactionReceipt().get());
+                        callback.onResponse(transactionReceiptWithProof.getTransactionReceipt());
                     }
 
                     @Override
@@ -1009,38 +1008,43 @@ public class ClientImpl implements Client {
             JsonRpcRequest request, Response response, Class<T> responseType)
             throws ClientException {
         try {
-            if (response.getErrorCode() != 0) {
+            if (response.getErrorCode() == 0) {
+                // parse the response into JsonRPCResponse
+                T jsonRpcResponse = objectMapper.readValue(response.getContent(), responseType);
+                if (jsonRpcResponse.getError() != null) {
+                    logger.error(
+                            "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {}, retErrorMessage: {}, retErrorCode: {}",
+                            request.getMethod(),
+                            this.groupID,
+                            jsonRpcResponse.getError().getMessage(),
+                            jsonRpcResponse.getError().getCode());
+                    throw new ClientException(
+                            jsonRpcResponse.getError().getCode(),
+                            jsonRpcResponse.getError().getMessage(),
+                            "ErrorMessage: " + jsonRpcResponse.getError().getMessage());
+                }
+                return jsonRpcResponse;
+            } else {
+                logger.error(
+                        "parseResponseIntoJsonRpcResponse failed, method: {}, group: {}, retErrorMessage: {}, retErrorCode: {}",
+                        request.getMethod(),
+                        this.groupID,
+                        response.getErrorMessage(),
+                        response.getErrorCode());
                 throw new ClientException(
                         response.getErrorCode(),
                         response.getErrorMessage(),
-                        "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: "
-                                + request.getMethod()
-                                + " ,group: "
-                                + this.groupID
-                                + ",retErrorMessage: "
+                        "get response failed, errorCode: "
+                                + response.getErrorCode()
+                                + ", error message: "
                                 + response.getErrorMessage());
             }
-            byte[] content = response.getContent();
-            // parse the response into JsonRPCResponse
-            T jsonRpcResponse = this.objectMapper.readValue(content, responseType);
-            if (jsonRpcResponse.getError() != null) {
-                logger.error(
-                        "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {},  retErrorMessage: {}, retErrorCode: {}",
-                        request.getMethod(),
-                        this.groupID,
-                        jsonRpcResponse.getError().getMessage(),
-                        jsonRpcResponse.getError().getCode());
-            }
-            return jsonRpcResponse;
         } catch (Exception e) {
             logger.error(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}, groupId: {}",
                     e.getMessage(),
                     this.groupID);
-            throw new ClientException(
-                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, error message:"
-                            + e.getMessage(),
-                    e);
+            throw new ClientException(e.getMessage(), e);
         }
     }
 }

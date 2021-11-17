@@ -41,7 +41,16 @@ public class ConsensusService {
                         credential);
     }
 
+    private boolean existsInNodeList(String nodeId) {
+        List<String> nodeIdList = client.getGroupPeers().getGroupPeers();
+        return nodeIdList.contains(nodeId);
+    }
+
     public RetCode addSealer(String nodeId, BigInteger weight) throws ContractException {
+        // check the nodeId exists in the nodeList or not
+        if (!existsInNodeList(nodeId)) {
+            throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
+        }
         // check the node exists in the sealerList or not
         List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
         if (sealerList != null) {
