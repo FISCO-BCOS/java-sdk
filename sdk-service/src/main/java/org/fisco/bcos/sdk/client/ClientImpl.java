@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.channel.ResponseCallback;
@@ -171,6 +172,7 @@ public class ClientImpl implements Client {
     @Override
     public BcosTransactionReceipt sendTransaction(
             String node, String signedTransactionData, boolean withProof) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -192,6 +194,7 @@ public class ClientImpl implements Client {
             String signedTransactionData,
             boolean withProof,
             TransactionCallback callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -220,6 +223,7 @@ public class ClientImpl implements Client {
 
     @Override
     public Call call(String node, Transaction transaction) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -237,6 +241,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void callAsync(String node, Transaction transaction, RespCallback<Call> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -253,6 +258,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BlockNumber getBlockNumber(String node) {
+        node = Objects.isNull(node) ? "" : node;
         // create request
         JsonRpcRequest request =
                 new JsonRpcRequest(
@@ -267,6 +273,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getBlockNumberAsync(String node, RespCallback<BlockNumber> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -283,6 +290,7 @@ public class ClientImpl implements Client {
 
     @Override
     public Code getCode(String node, String address) {
+        node = Objects.isNull(node) ? "" : node;
         // create request
         JsonRpcRequest request =
                 new JsonRpcRequest(
@@ -297,6 +305,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getCodeAsync(String node, String address, RespCallback<Code> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -313,6 +322,7 @@ public class ClientImpl implements Client {
 
     @Override
     public TotalTransactionCount getTotalTransactionCount(String node) {
+        node = Objects.isNull(node) ? "" : node;
         // create request for getTotalTransactionCount
         JsonRpcRequest request =
                 new JsonRpcRequest(
@@ -329,6 +339,7 @@ public class ClientImpl implements Client {
     @Override
     public void getTotalTransactionCountAsync(
             String node, RespCallback<TotalTransactionCount> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -351,6 +362,7 @@ public class ClientImpl implements Client {
             String blockHash,
             boolean onlyHeader,
             boolean returnFullTransactionObjects) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -381,6 +393,7 @@ public class ClientImpl implements Client {
             boolean onlyHeader,
             boolean returnFullTransactionObjects,
             RespCallback<BcosBlock> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -405,6 +418,7 @@ public class ClientImpl implements Client {
     @Override
     public BcosBlock getBlockByNumber(
             String node, BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -431,6 +445,7 @@ public class ClientImpl implements Client {
             boolean onlyHeader,
             boolean fullTransactions,
             RespCallback<BcosBlock> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -449,6 +464,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BlockHash getBlockHashByNumber(String node, BigInteger blockNumber) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -467,6 +483,7 @@ public class ClientImpl implements Client {
     @Override
     public void getBlockHashByNumberAsync(
             String node, BigInteger blockNumber, RespCallback<BlockHash> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -484,6 +501,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BcosTransaction getTransaction(String node, String transactionHash, Boolean withProof) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -505,6 +523,7 @@ public class ClientImpl implements Client {
             String transactionHash,
             Boolean withProof,
             RespCallback<BcosTransaction> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -523,6 +542,7 @@ public class ClientImpl implements Client {
     @Override
     public BcosTransactionReceipt getTransactionReceipt(
             String node, String transactionHash, Boolean withProof) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -546,6 +566,7 @@ public class ClientImpl implements Client {
             String transactionHash,
             Boolean withProof,
             RespCallback<BcosTransactionReceipt> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -563,6 +584,7 @@ public class ClientImpl implements Client {
 
     @Override
     public PendingTxSize getPendingTxSize(String node) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -578,6 +600,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getPendingTxSizeAsync(String node, RespCallback<PendingTxSize> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -642,6 +665,7 @@ public class ClientImpl implements Client {
 
     @Override
     public ObserverList getObserverList(String node) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -657,6 +681,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getObserverList(String node, RespCallback<ObserverList> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -673,6 +698,7 @@ public class ClientImpl implements Client {
 
     @Override
     public SealerList getSealerList(String node) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -688,6 +714,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getSealerListAsync(String node, RespCallback<SealerList> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -709,6 +736,7 @@ public class ClientImpl implements Client {
 
     @Override
     public PbftView getPbftView(String node) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -718,6 +746,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getPbftViewAsync(String node, RespCallback<PbftView> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -733,6 +762,7 @@ public class ClientImpl implements Client {
 
     @Override
     public SystemConfig getSystemConfigByKey(String node, String key) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -762,6 +792,7 @@ public class ClientImpl implements Client {
 
     @Override
     public SyncStatus getSyncStatus(String node) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -782,6 +813,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getSyncStatusAsync(String node, RespCallback<SyncStatus> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -793,6 +825,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getConsensusStatusAsync(String node, RespCallback<ConsensusStatus> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
@@ -809,6 +842,7 @@ public class ClientImpl implements Client {
 
     @Override
     public ConsensusStatus getConsensusStatus(String node) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -881,6 +915,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BcosGroupNodeInfo getGroupNodeInfo(String node) {
+        node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
@@ -891,6 +926,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getGroupNodeInfoAsync(String node, RespCallback<BcosGroupNodeInfo> callback) {
+        node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
                 this.groupID,
                 node,
