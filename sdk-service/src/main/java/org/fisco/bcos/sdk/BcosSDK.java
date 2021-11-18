@@ -29,6 +29,7 @@ public class BcosSDK {
 
     private final ConfigOption config;
     private org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk;
+    private org.fisco.bcos.sdk.jni.rpc.Rpc jniRpcImpl;
 
     public ConfigOption getConfig() {
         return config;
@@ -69,6 +70,7 @@ public class BcosSDK {
         this.config = configOption;
         try {
             this.jniBcosSdk = org.fisco.bcos.sdk.jni.BcosSDK.build(configOption.getJniConfig());
+            this.jniRpcImpl = org.fisco.bcos.sdk.jni.rpc.Rpc.build(config.getJniConfig());
         } catch (Exception e) {
             logger.warn("error: {}", e);
             throw new BcosSDKException("create BcosSDK failed, error: " + e.getMessage());
@@ -82,7 +84,7 @@ public class BcosSDK {
      */
     public Client getClient(String groupId) throws BcosSDKException {
         try {
-            return Client.build(groupId, config);
+            return Client.build(groupId, config, jniRpcImpl);
         } catch (Exception e) {
             logger.warn("create client for failed, error: {}", e);
             throw new BcosSDKException("get Client failed, e: " + e.getMessage());
