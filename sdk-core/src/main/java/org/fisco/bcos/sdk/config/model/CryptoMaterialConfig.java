@@ -41,7 +41,7 @@ public class CryptoMaterialConfig {
     private String enSdkCert;
     private String enSdkPrivateKey;
 
-    protected CryptoMaterialConfig() {}
+    public CryptoMaterialConfig() {}
 
     public CryptoMaterialConfig(ConfigProperty configProperty) throws ConfigException {
 
