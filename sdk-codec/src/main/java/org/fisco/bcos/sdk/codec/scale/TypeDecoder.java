@@ -5,6 +5,7 @@ import static org.fisco.bcos.sdk.codec.Utils.getSimpleTypeName;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +62,19 @@ public class TypeDecoder {
                 String[] splitName = type.getSimpleName().split(regex);
                 if (splitName.length == 2) {
                     String[] bitsCounts = splitName[1].split("x");
-                    bitSize = Integer.parseInt(bitsCounts[0]) + Integer.parseInt(bitsCounts[1]);
+                    // newly define the size is left to "x"
+                    bitSize = Integer.parseInt(bitsCounts[0]);
+                    int nbitSize = Integer.parseInt(bitsCounts[1]);
+                    // int part
+                    byte[] sig = reader.readByteArray(1);
+                    byte[] resultIntBytes = reader.readByteArray(((bitSize - nbitSize) >> 3) - 1);
+                    // decimal part
+                    byte[] resultDecBytes = reader.readByteArray(nbitSize >> 3);
+                    BigInteger numericIntValue = new BigInteger(resultIntBytes);
+                    
+                    BigDecimal result = Utils.processFixedScaleDecode(resultDecBytes, nbitSize);
+                    BigDecimal finalResult =  (sig[0] == (byte)0) ? result.add(new BigDecimal(numericIntValue)) :result.add(new BigDecimal(numericIntValue)).negate();
+                    return type.getConstructor(BigDecimal.class).newInstance(finalResult);
                 }
             }
 

@@ -6,6 +6,7 @@ import org.fisco.bcos.sdk.utils.Numeric;
 import org.junit.Test;
 import org.fisco.bcos.sdk.codec.abi.TestFixture.*;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -959,6 +960,62 @@ public class TypeEncoderTest {
                 ("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
     }
     */
+
+    @Test
+    public void testFixedEncode() {
+        Fixed zero = new Fixed64x16(BigDecimal.ZERO);
+        
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(zero)),
+                ("0000000000000000000000000000000000000000000000000000000000000000"));
+
+        Fixed aNum = new Fixed64x16(new BigDecimal("1.2"));
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(aNum)),
+                ("0000000000000000000000000000000000000000000000000000000000013333"));
+        
+        Fixed maxInteger = new Fixed64x16(new BigDecimal(Integer.MAX_VALUE));
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(maxInteger)),
+                ("00000000000000000000000000000000000000000000000000007fffffff0000"));
+                
+        Fixed Fixed64x16Max = new Fixed64x16(new BigDecimal("140737488355327.9999847412109375"));
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(Fixed64x16Max)),
+                ("0000000000000000000000000000000000000000000000007fffffffffffffff"));
+
+        Fixed Fixed64x16Min = new Fixed64x16(new BigDecimal("-140737488355328.0"));
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(Fixed64x16Min)),
+                ("ffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000"));
+
+        Fixed Fixed64x16minusOne = new Fixed64x16(new BigDecimal("-1.0"));
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(Fixed64x16minusOne)),
+                ("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000"));
+
+        Fixed test1 = new Fixed64x16(new BigDecimal("-1.125"));
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(test1)),
+                ("fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffee000"));
+        
+        Fixed zeroFixed80x16 = new Fixed80x16(BigDecimal.ZERO);
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(zeroFixed80x16)),
+                ("0000000000000000000000000000000000000000000000000000000000000000"));
+
+        Fixed Fixed80x16Max = new Fixed80x16(new BigDecimal("9223372036854775807.9999847412109375"));
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(Fixed80x16Max)),
+                ("000000000000000000000000000000000000000000007fffffffffffffffffff"));
+
+        Fixed Fixed80x16Min = new Fixed80x16(new BigDecimal("-9223372036854775808.0"));
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(Fixed80x16Min)),
+                ("ffffffffffffffffffffffffffffffffffffffffffff80000000000000000000"));
+
+        Fixed zeroFixed80x24 = new Fixed80x24(BigDecimal.ZERO);
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(zeroFixed80x24)),
+                ("0000000000000000000000000000000000000000000000000000000000000000"));
+
+        Fixed Fixed80x24Max = new Fixed80x24(new BigDecimal("36028797018963967.99999994039535522461"));
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(Fixed80x24Max)),
+                ("000000000000000000000000000000000000000000007fffffffffffffffffff"));
+
+        Fixed Fixed80x24Min = new Fixed80x24(new BigDecimal("-36028797018963968"));
+        assertEquals(TestUtils.bytesToString(TypeEncoder.encodeNumeric(Fixed80x24Min)),
+                ("ffffffffffffffffffffffffffffffffffffffffffff80000000000000000000"));
+    }
 
     @Test
     public void testStaticBytes() {

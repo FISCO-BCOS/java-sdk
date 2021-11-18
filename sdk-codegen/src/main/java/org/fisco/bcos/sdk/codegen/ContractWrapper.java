@@ -13,6 +13,7 @@ import javax.lang.model.element.Modifier;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.datatypes.TypeReference;
+import org.fisco.bcos.sdk.codec.datatypes.generated.Fixed72x16;
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -834,6 +835,8 @@ public class ContractWrapper {
             return TypeName.get(byte[].class);
         } else if (simpleName.startsWith(Bool.class.getSimpleName())) {
             return TypeName.get(Boolean.class); // boolean cannot be a parameterized type
+        } else if (simpleName.startsWith(Fixed72x16.class.getSimpleName())) {
+            return TypeName.get(Fixed72x16.class);
         } else {
             throw new UnsupportedOperationException(
                     "Unsupported type: " + typeName + ", no native type mapping exists.");
@@ -892,6 +895,20 @@ public class ContractWrapper {
         }
         return result;
     }
+    /**
+     * parse the inputParams for FixedPointNumber
+     * @param inputParams
+     * @return
+     */
+    protected static String processInputStringParamsForFixed(String inputParams) {
+        logger.info("inputParams :"+inputParams);
+        Pattern pattern = Pattern.compile("(?<=\\()[^\\)]+");
+        Matcher matcher = pattern.matcher(inputParams);
+        while(matcher.find()) {
+            inputParams = matcher.group();
+        }
+        return inputParams;
+    }
 
     /**
      * Public Solidity arrays and maps require an unnamed input parameter - multiple if they require
@@ -937,7 +954,13 @@ public class ContractWrapper {
                 MethodSpec.methodBuilder(functionName).addModifiers(Modifier.PUBLIC);
 
         String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
-
+        // logger.info("inputParams :"+inputParams);
+        // Pattern pattern = Pattern.compile("(?<=\\()[^\\)]+");
+        // Matcher matcher = pattern.matcher(inputParams);
+        // while(matcher.find()) {
+        //     inputParams = matcher.group();
+        // }
+        inputParams = processInputStringParamsForFixed(inputParams);
         List<TypeName> outputParameterTypes = buildTypeNames(functionDefinition.getOutputs());
         if (functionDefinition.isConstant()) {
             this.buildConstantFunction(
@@ -962,7 +985,13 @@ public class ContractWrapper {
                 MethodSpec.methodBuilder(functionName).addModifiers(Modifier.PUBLIC);
 
         String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
-
+        // logger.info("inputParams :"+inputParams);
+        // Pattern pattern = Pattern.compile("(?<=\\()[^\\)]+");
+        // Matcher matcher = pattern.matcher(inputParams);
+        // while(matcher.find()) {
+        //     inputParams = matcher.group();
+        // }
+        inputParams = processInputStringParamsForFixed(inputParams);
         this.buildTransactionFunctionSeq(functionDefinition, methodBuilder, inputParams);
 
         return methodBuilder.build();
@@ -979,10 +1008,12 @@ public class ContractWrapper {
 
         if (functionDefinition.isConstant()) {
             String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
+            inputParams = processInputStringParamsForFixed(inputParams);
             this.buildConstantFunction(
                     functionDefinition, methodBuilder, outputParameterTypes, inputParams);
         } else {
             String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
+            inputParams = processInputStringParamsForFixed(inputParams);
             methodBuilder.addParameter(TransactionCallback.class, "callback");
             this.buildTransactionFunctionWithCallback(
                     functionDefinition, methodBuilder, inputParams);
@@ -1251,7 +1282,13 @@ public class ContractWrapper {
 
         TypeName returnType = TypeName.get(String.class);
         methodBuilder.returns(returnType);
-
+        // logger.info("inputParams :"+inputParams);
+        // Pattern pattern = Pattern.compile("(?<=\\()[^\\)]+");
+        // Matcher matcher = pattern.matcher(inputParams);
+        // while(matcher.find()) {
+        //     inputParams = matcher.group();
+        // }
+        // inputParams = processInputStringParamsForFixed(inputParams);
         methodBuilder.addStatement(
                 "final $T function = new $T(\n$N, \n$T.<$T>asList($L), \n$T"
                         + ".<$T<?>>emptyList())",

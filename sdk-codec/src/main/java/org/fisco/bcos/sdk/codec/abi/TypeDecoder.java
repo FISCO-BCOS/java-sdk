@@ -2,6 +2,7 @@ package org.fisco.bcos.sdk.codec.abi;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -36,7 +37,7 @@ public class TypeDecoder {
         } else if (Array.class.isAssignableFrom(type)) {
             throw new UnsupportedOperationException(
                     "Array types must be wrapped in a TypeReference");
-        } else {
+        } else{
             throw new UnsupportedOperationException("Type cannot be encoded: " + type.getClass());
         }
     }
@@ -48,7 +49,6 @@ public class TypeDecoder {
     public static <T extends NumericType> T decodeNumeric(byte[] inputByteArray, Class<T> type) {
         try {
             int typeLengthAsBytes = getTypeLengthInBytes(type);
-
             byte[] resultByteArray = new byte[typeLengthAsBytes + 1];
 
             if (Int.class.isAssignableFrom(type) || Fixed.class.isAssignableFrom(type)) {
@@ -57,6 +57,11 @@ public class TypeDecoder {
 
             int valueOffset = Type.MAX_BYTE_LENGTH - typeLengthAsBytes;
             System.arraycopy(inputByteArray, valueOffset, resultByteArray, 1, typeLengthAsBytes);
+            if (type.getSimpleName().startsWith("Fixed") && type.getSimpleName().substring(5).split("x").length>0) {
+                int deciBitCount = Integer.parseInt(type.getSimpleName().substring(5).split("x")[1]);
+                BigDecimal result = Utils.processFixedDecode(resultByteArray,deciBitCount);
+                return type.getConstructor(BigDecimal.class).newInstance(result);
+            }
 
             BigInteger numericValue = new BigInteger(resultByteArray);
             return type.getConstructor(BigInteger.class).newInstance(numericValue);
@@ -73,7 +78,7 @@ public class TypeDecoder {
     }
 
     static <T extends NumericType> int getTypeLengthInBytes(Class<T> type) {
-        return getTypeLength(type) >> 3; // divide by 8
+        return getTypeLength(type) >> 3; 
     }
 
     static <T extends NumericType> int getTypeLength(Class<T> type) {
@@ -89,7 +94,7 @@ public class TypeDecoder {
             String[] splitName = type.getSimpleName().split(regex);
             if (splitName.length == 2) {
                 String[] bitsCounts = splitName[1].split("x");
-                return Integer.parseInt(bitsCounts[0]) + Integer.parseInt(bitsCounts[1]);
+                return Integer.parseInt(bitsCounts[0]);
             }
         }
         return Type.MAX_BIT_LENGTH;

@@ -4,11 +4,15 @@ import static org.fisco.bcos.sdk.codec.datatypes.Type.MAX_BYTE_LENGTH;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+
+import org.fisco.bcos.sdk.codec.Utils;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 
 /**
@@ -86,6 +90,16 @@ public class TypeEncoder {
                 System.arraycopy(value.toByteArray(), 1, byteArray, 0, MAX_BYTE_LENGTH);
                 return byteArray;
             }
+        } else if(numericType instanceof Fixed && numericType.getClass().getSimpleName().substring(5).split("x").length>0) {
+            BigDecimal dValue = numericType.getDValue();
+            
+            byte[] byteArray = value.toByteArray();
+            byte[] decimalByteArray = new byte[numericType.getNBitSize()/8];
+            decimalByteArray = Utils.getBytesOfDecimalPart(dValue, numericType.getNBitSize());
+            byte[] finalByteArray = new byte[byteArray.length + decimalByteArray.length];
+            System.arraycopy(byteArray, 0, finalByteArray, 0, byteArray.length);
+            System.arraycopy(decimalByteArray, 0, finalByteArray, byteArray.length, decimalByteArray.length);
+            return finalByteArray;
         }
         return value.toByteArray();
     }

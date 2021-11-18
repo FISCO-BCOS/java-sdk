@@ -5,6 +5,7 @@ import org.fisco.bcos.sdk.codec.datatypes.generated.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static org.junit.Assert.*;
@@ -751,6 +752,71 @@ public class TypeDecoderTest {
                 (new Int256(BigInteger.valueOf(-1))));
     }
 
+    @Test
+    public void testFixed() throws Exception {
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("0000000000000000000000000000000000000000000000000000000000000000"),
+                        Fixed64x16.class),
+                (new Fixed64x16(new BigDecimal("0"))));
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("0000000000000000000000000000000000000000000000007fffffffffffffff"),
+                        Fixed64x16.class),
+                (new Fixed64x16(new BigDecimal("140737488355327.9999847412109375"))));
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("ffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000"),
+                        Fixed64x16.class),
+                (new Fixed64x16(new BigDecimal("-140737488355328.0"))));
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+                        Fixed64x16.class),
+                (new Fixed64x16(new BigDecimal("-0.0000152587890625"))));
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec000"),
+                        Fixed64x16.class),
+                (new Fixed64x16(new BigDecimal("-1.25"))));
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("0000000000000000000000000000000000000000000000000000000000003ae1"),
+                        Fixed64x16.class),
+                (new Fixed64x16(new BigDecimal("0.230"))));
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("0000000000000000000000000000000000000000000000000000000000000000"),
+                        Fixed80x16.class),
+                (new Fixed80x16(new BigDecimal("0"))));
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("000000000000000000000000000000000000000000007fffffffffffffffffff"),
+                        Fixed80x16.class),
+                (new Fixed80x16(new BigDecimal("9223372036854775807.9999847412109375"))));
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("ffffffffffffffffffffffffffffffffffffffffffff80000000000000000000"),
+                        Fixed80x16.class),
+                (new Fixed80x16(new BigDecimal("-9223372036854775808.0"))));
+
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("0000000000000000000000000000000000000000000000000000000000000000"),
+                        Fixed80x24.class),
+                (new Fixed80x24(new BigDecimal("0"))));
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("000000000000000000000000000000000000000000007fffffffffffffffffff"),
+                        Fixed80x24.class),
+                (new Fixed80x24(new BigDecimal("36028797018963967.99999994039535522461"))));
+        assertEquals(
+                TypeDecoder.decodeNumeric(
+                        TestUtils.stringToBytes("ffffffffffffffffffffffffffffffffffffffffffff80000000000000000000"),
+                        Fixed80x24.class),
+                (new Fixed80x24(new BigDecimal("-36028797018963968"))));
+
+        }
 
     @Test
     public void testStaticBytes() throws Exception {
