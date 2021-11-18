@@ -33,6 +33,8 @@ public class ThreadPoolConfig {
         this.threadPoolSize = threadPoolSize;
     }
 
+    public ThreadPoolConfig() {}
+
     public ThreadPoolConfig(ConfigProperty configProperty) {
         Map<String, Object> threadPoolConfig = configProperty.getThreadPool();
         String cpuNum = String.valueOf(Runtime.getRuntime().availableProcessors());
