@@ -26,6 +26,8 @@ public class AccountConfig {
     private String accountPassword;
     private String accountFilePath;
 
+    public AccountConfig() {}
+
     public AccountConfig(ConfigProperty configProperty) throws ConfigException {
         this.keyStoreDir =
                 ConfigProperty.getConfigFilePath(

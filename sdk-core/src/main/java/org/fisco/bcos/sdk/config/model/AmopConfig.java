@@ -24,6 +24,8 @@ public class AmopConfig {
     // AMOP topic related config
     private List<AmopTopic> amopTopicConfig;
 
+    public AmopConfig() {}
+
     public AmopConfig(ConfigProperty configProperty) throws ConfigException {
         this.amopTopicConfig = configProperty.getAmop();
         if (amopTopicConfig == null) {
