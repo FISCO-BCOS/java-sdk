@@ -158,4 +158,12 @@ public class ConfigOption {
     public void setJniConfig(JniConfig jniConfig) {
         this.jniConfig = jniConfig;
     }
+
+    public ConfigProperty getConfigProperty() {
+        return configProperty;
+    }
+
+    public void setConfigProperty(ConfigProperty configProperty) {
+        this.configProperty = configProperty;
+    }
 }

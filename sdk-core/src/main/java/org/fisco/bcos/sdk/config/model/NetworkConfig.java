@@ -31,6 +31,8 @@ public class NetworkConfig {
     private String defaultGroup;
     private int timeout = -1;
 
+    public NetworkConfig() {}
+
     public NetworkConfig(ConfigProperty configProperty) throws ConfigException {
         Map<String, Object> networkProperty = configProperty.getNetwork();
         if (networkProperty != null) {
