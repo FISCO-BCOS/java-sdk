@@ -45,6 +45,21 @@ public interface Client {
     }
 
     /**
+     * Build a client instance GroupId is identified, all interfaces are available, with specific
+     * jniRPC
+     *
+     * @param groupID the group info
+     * @param configOption the config
+     * @param jniRpcIml jni rpc impl
+     * @return a client instance
+     */
+    static Client build(
+            String groupID, ConfigOption configOption, org.fisco.bcos.sdk.jni.rpc.Rpc jniRpcIml)
+            throws JniException {
+        return new ClientImpl(groupID, configOption, jniRpcIml);
+    }
+
+    /**
      * Build a client instance GroupId is identified, all interfaces are available
      *
      * @param configOption the config

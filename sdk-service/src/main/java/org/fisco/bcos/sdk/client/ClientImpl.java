@@ -93,11 +93,17 @@ public class ClientImpl implements Client {
     }
 
     protected ClientImpl(String groupID, ConfigOption configOption) throws JniException {
+        this(groupID, configOption, Rpc.build(configOption.getJniConfig()));
+    }
+
+    protected ClientImpl(
+            String groupID, ConfigOption configOption, org.fisco.bcos.sdk.jni.rpc.Rpc jniRpcImpl) {
         this.configOption = configOption;
         // set group id
         this.groupID = groupID;
         // init jni sdk
-        this.jniRpcImpl = Rpc.build(configOption.getJniConfig());
+        assert jniRpcImpl != null;
+        this.jniRpcImpl = jniRpcImpl;
 
         // start rpc
         start();
