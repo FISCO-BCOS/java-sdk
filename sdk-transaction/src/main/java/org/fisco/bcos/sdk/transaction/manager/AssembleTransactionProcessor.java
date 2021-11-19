@@ -14,10 +14,6 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
@@ -47,6 +43,11 @@ import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * ContractlessTransactionManager @Description: ContractlessTransactionManager
@@ -96,7 +97,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionReceipt deployAndGetReceipt(String data) {
-        String signedData = createSignedTransaction(null, data, this.cryptoKeyPair);
+        String signedData = createSignedTransaction(null, data, getCryptoKeyPair());
         return transactionPusher.push(signedData);
     }
 
@@ -126,7 +127,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 createSignedTransaction(
                         null,
                         abiCodec.encodeConstructorFromString(abi, bin, params),
-                        this.cryptoKeyPair));
+                        getCryptoKeyPair()));
     }
 
     @Override
@@ -181,7 +182,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, String data)
             throws TransactionBaseException, ABICodecException {
-        String signedData = createSignedTransaction(to, data, this.cryptoKeyPair);
+        String signedData = createSignedTransaction(to, data, getCryptoKeyPair());
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
             return transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
@@ -246,7 +247,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             TransactionCallback callback)
             throws TransactionBaseException, ABICodecException {
         String data = encodeFunction(abi, functionName, params);
-        sendTransactionAsync(to, data, this.cryptoKeyPair, callback);
+        sendTransactionAsync(to, data, getCryptoKeyPair(), callback);
     }
 
     @Override
@@ -265,7 +266,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         String data =
                 abiCodec.encodeMethod(
                         contractLoader.getABIByContractName(contractName), functionName, args);
-        sendTransactionAsync(contractAddress, data, this.cryptoKeyPair, callback);
+        sendTransactionAsync(contractAddress, data, getCryptoKeyPair(), callback);
     }
 
     @Override
@@ -273,7 +274,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String contractName, String contractAddress, String functionName, List<Object> args)
             throws TransactionBaseException, ABICodecException {
         return sendCall(
-                this.cryptoKeyPair.getAddress(),
+                getCryptoKeyPair().getAddress(),
                 contractAddress,
                 contractLoader.getABIByContractName(contractName),
                 functionName,
@@ -328,7 +329,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public String createSignedConstructor(String abi, String bin, List<Object> params)
             throws ABICodecException {
         return createSignedTransaction(
-                null, abiCodec.encodeConstructor(abi, bin, params), this.cryptoKeyPair);
+                null, abiCodec.encodeConstructor(abi, bin, params), getCryptoKeyPair());
     }
 
     @Override

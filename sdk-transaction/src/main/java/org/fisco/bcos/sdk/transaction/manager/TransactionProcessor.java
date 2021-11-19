@@ -14,12 +14,12 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
-import java.math.BigInteger;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderInterface;
@@ -33,6 +33,8 @@ import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
 
 public class TransactionProcessor implements TransactionProcessorInterface {
     protected static Logger log = LoggerFactory.getLogger(TransactionProcessor.class);
@@ -58,21 +60,21 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     @Override
     public TransactionReceipt sendTransactionAndGetReceipt(
             String to, String data, CryptoKeyPair cryptoKeyPair) {
-        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
+        String signedData = createSignedTransaction(to, data, getCryptoKeyPair());
         return this.client.sendRawTransactionAndGetReceipt(signedData);
     }
 
     @Override
     public void sendTransactionAsync(
             String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
-        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
+        String signedData = createSignedTransaction(to, data, getCryptoKeyPair());
         client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
     }
 
     @Override
     public byte[] sendTransactionAsyncAndGetHash(
             String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
-        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
+        String signedData = createSignedTransaction(to, data, getCryptoKeyPair());
         client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
         byte[] transactionHash = cryptoSuite.hash(Hex.decode(Numeric.cleanHexPrefix(signedData)));
         return transactionHash;
@@ -101,6 +103,28 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         new BigInteger(this.chainId),
                         BigInteger.valueOf(this.groupId),
                         "");
-        return transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
+        return transactionEncoder.encodeAndSign(rawTransaction, getCryptoKeyPair());
+    }
+
+    /**
+     * SaaS多租户平台私钥托管动态切换
+     * 1.识别租户(Controller从request Header中获取X-tenant租户ID存入ThreadLocal)
+     * 2.切换私钥(根据租户ID从DB查询托管私钥创建CryptoKeyPair)
+     * @return
+     */
+    protected CryptoKeyPair getCryptoKeyPair(){
+        //请根据实际业务实现租户识别和根据租户ID从DB查询托管私钥逻辑替换privateKey
+        //AccountService accountService = SpringUtils.getBean("accountService");
+        String privateKey = null;//accountService.getPrivateKey(TenantContextHolder.getTenant());
+        if(null == privateKey){
+            log.info("getCryptoKeyPair[accountService.getPrivateKey(tenantId)] is null, use default cryptoKeyPair");
+            return this.cryptoKeyPair;
+        }
+
+        //创建国密类型的CryptoSuite
+        CryptoKeyPair cryptoKeyPair = new CryptoSuite(CryptoType.SM_TYPE).createKeyPair(privateKey);
+        log.info("Dynamic CryptoKeyPair address => " + cryptoKeyPair.getAddress());
+        //cryptoSuite.setCryptoKeyPair(cryptoKeyPair);
+        return cryptoKeyPair;
     }
 }
