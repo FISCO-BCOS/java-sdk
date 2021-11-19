@@ -14,6 +14,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.datatypes.TypeReference;
+import org.fisco.bcos.sdk.codec.datatypes.generated.Fixed72x16;
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -852,6 +853,8 @@ public class ContractWrapper {
             return TypeName.get(byte[].class);
         } else if (simpleName.startsWith(Bool.class.getSimpleName())) {
             return TypeName.get(Boolean.class); // boolean cannot be a parameterized type
+        } else if (simpleName.startsWith(Fixed72x16.class.getSimpleName())) {
+            return TypeName.get(Fixed72x16.class);
         } else {
             throw new UnsupportedOperationException(
                     "Unsupported type: " + typeName + ", no native type mapping exists.");
@@ -911,6 +914,16 @@ public class ContractWrapper {
         return result;
     }
 
+    protected static String processInputStringParamsForFixed(String inputParams) {
+        logger.info("inputParams :"+inputParams);
+        Pattern pattern = Pattern.compile("(?<=\\()[^\\)]+");
+        Matcher matcher = pattern.matcher(inputParams);
+        while(matcher.find()) {
+            inputParams = matcher.group();
+        }
+        return inputParams;
+    }
+
     /**
      * Public Solidity arrays and maps require an unnamed input parameter - multiple if they require
      * a struct type.
@@ -956,6 +969,7 @@ public class ContractWrapper {
 
         String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
 
+        inputParams = processInputStringParamsForFixed(inputParams);
         List<TypeName> outputParameterTypes = buildTypeNames(functionDefinition.getOutputs());
         if (functionDefinition.isConstant()) {
             this.buildConstantFunction(
@@ -981,6 +995,7 @@ public class ContractWrapper {
 
         String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
 
+        inputParams = processInputStringParamsForFixed(inputParams);
         this.buildTransactionFunctionSeq(functionDefinition, methodBuilder, inputParams);
 
         return methodBuilder.build();
@@ -997,10 +1012,12 @@ public class ContractWrapper {
 
         if (functionDefinition.isConstant()) {
             String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
+            inputParams = processInputStringParamsForFixed(inputParams);
             this.buildConstantFunction(
                     functionDefinition, methodBuilder, outputParameterTypes, inputParams);
         } else {
             String inputParams = this.addParameters(methodBuilder, functionDefinition.getInputs());
+            inputParams = processInputStringParamsForFixed(inputParams);
             methodBuilder.addParameter(TransactionCallback.class, "callback");
             this.buildTransactionFunctionWithCallback(
                     functionDefinition, methodBuilder, inputParams);

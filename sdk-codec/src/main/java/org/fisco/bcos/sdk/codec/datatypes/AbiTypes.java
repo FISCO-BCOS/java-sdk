@@ -216,6 +216,8 @@ public final class AbiTypes {
                 return Bytes31.class;
             case "bytes32":
                 return Bytes32.class;
+            case "Fixed72x16":
+                return Fixed72x16.class;
             default:
                 {
                     try {

@@ -1,12 +1,16 @@
 package org.fisco.bcos.sdk.codec;
 
 import java.lang.reflect.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.codec.abi.TypeMappingException;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.datatypes.Type;
@@ -259,5 +263,70 @@ public class Utils {
             }
         }
         return result;
+    }
+
+    public static Pair<BigInteger, BigDecimal> divideFixed(BigDecimal value) {
+        // Decimal Part
+        BigDecimal fractionalPart = value.remainder( BigDecimal.ONE ); 
+        // Integer Part
+        BigInteger in = value.subtract(fractionalPart).toBigInteger();
+        return Pair.of(in, fractionalPart);
+    }
+    
+    public static BigDecimal processFixedScaleDecode(byte[] decByteArray, int decimalCount) {
+        BigDecimal decimal = new BigDecimal(1/Math.pow(2, decimalCount)*((new BigInteger(1,decByteArray)).doubleValue()));
+        return decimal;
+    }
+
+    public static byte[] getBytesOfDecimalPart(BigDecimal decimal, int nBitSize) {
+        double r = 0d;
+        if (decimal.signum()<0){
+           r = decimal.doubleValue()+1;
+        }else
+            r = decimal.doubleValue();
+        
+        StringBuilder stringBuilder = new StringBuilder();
+        
+        int count = nBitSize; 
+        double num = 0;
+        
+        while (Math.abs(r) > 0.0000000001) {
+            r = Math.abs(r);
+            if (count == 0) {
+                // throw new Exception("Cannot change the decimal number to binary!");
+                break;
+            }
+            num = r * 2;
+            if (num >= 1) {
+                stringBuilder.append(1);
+                r = num - 1;
+                if(r == 0) {
+                    for (int i = 0; i < count - 1; i++) {
+                        stringBuilder.append(0);
+                    }
+                }
+            } else {
+                stringBuilder.append(0);
+                r = num;
+            }
+            count--;
+        }
+        if (stringBuilder.length() == 0) {
+            byte[] zeroByte = new byte[nBitSize/8];
+            return zeroByte;
+        }
+        long result = Long.parseLong(stringBuilder.toString(), 2);
+        byte[] resultByte = new byte[nBitSize/8];
+        byte[] resultBytes = BigInteger.valueOf(result).toByteArray();
+        if (resultBytes.length==nBitSize/8) {
+            for (int i=0;i<resultByte.length;i++) {
+                resultByte[i] = resultBytes[i];
+            }
+        }else {
+            for (int i=0;i<resultByte.length;i++) {
+                resultByte[i] = resultBytes[i+1];
+            }
+        }
+        return resultByte;
     }
 }
