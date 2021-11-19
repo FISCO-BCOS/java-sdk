@@ -50,6 +50,8 @@ public class ConfigOption {
     private ConfigProperty configProperty;
     private JniConfig jniConfig;
 
+    public ConfigOption() {}
+
     public ConfigOption(ConfigProperty configProperty) throws ConfigException {
         // load cryptoMaterialConfig
         this.cryptoMaterialConfig = new CryptoMaterialConfig(configProperty);
