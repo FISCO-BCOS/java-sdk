@@ -88,6 +88,12 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
         return tarsOutputStream.toByteArray();
     }
 
+    @Override
+    public byte[] encodeToTransactionBytes(TransactionData rawTransaction, SignatureResult result) {
+        byte[] hash = this.cryptoSuite.hash(encode(rawTransaction));
+        return encodeToTransactionBytes(rawTransaction, hash, result);
+    }
+
     /** @return the signature */
     public Signature getSignature() {
         return this.signature;
