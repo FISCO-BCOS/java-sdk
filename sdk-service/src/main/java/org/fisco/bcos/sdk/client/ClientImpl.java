@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 public class ClientImpl implements Client {
     private static final Logger logger = LoggerFactory.getLogger(ClientImpl.class);
+    private static final int BlockLimitRange = 500;
 
     // ------------basic group info --------------
     private String groupID = "";
@@ -618,15 +619,16 @@ public class ClientImpl implements Client {
 
     @Override
     public BigInteger getBlockLimit() {
-        /*
-        // TODO: add impl in cpp-sdk
-        */
-        long blk = blockNumber;
-        if (blk == 0) {
-            blk = getBlockNumber().getBlockNumber().longValue();
+        BigInteger blockLimit = BigInteger.valueOf(this.jniRpcImpl.getBlockLimit(this.groupID));
+        if (logger.isDebugEnabled()) {
+            logger.debug("getBlockLimit, group: {}, blockLimit: {}", groupID, blockLimit);
         }
 
-        return BigInteger.valueOf(blk).add(BigInteger.valueOf(500));
+        if (blockLimit.compareTo(BigInteger.ZERO) <= 0) {
+            blockLimit = BigInteger.valueOf(blockNumber).add(BigInteger.valueOf(BlockLimitRange));
+        }
+
+        return blockLimit;
     }
 
     @Override
