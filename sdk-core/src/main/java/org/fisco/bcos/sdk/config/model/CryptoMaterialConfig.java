@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class CryptoMaterialConfig {
     private static Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
 
-    private boolean useSmCrypto = false;
+    private Boolean useSmCrypto = false;
     private String certPath = "conf";
 
     private String caCertPath;
@@ -46,7 +46,9 @@ public class CryptoMaterialConfig {
     public CryptoMaterialConfig(ConfigProperty configProperty) throws ConfigException {
 
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
-        this.useSmCrypto = (boolean) cryptoMaterialProperty.get("useSMCrypto");
+        String useSMCrypto = (String) cryptoMaterialProperty.get("useSMCrypto");
+
+        this.useSmCrypto = Boolean.valueOf(useSMCrypto);
 
         int cryptoType = this.useSmCrypto ? CryptoType.SM_TYPE : CryptoType.ECDSA_TYPE;
         this.certPath =
@@ -192,11 +194,11 @@ public class CryptoMaterialConfig {
         this.enSdkPrivateKey = enSdkPrivateKey;
     }
 
-    public boolean getUseSmCrypto() {
+    public Boolean getUseSmCrypto() {
         return this.useSmCrypto;
     }
 
-    public void setUseSmCrypto(boolean useSmCrypto) {
+    public void setUseSmCrypto(Boolean useSmCrypto) {
         this.useSmCrypto = useSmCrypto;
     }
 
