@@ -418,21 +418,20 @@ public class ClientImpl implements Client {
 
     @Override
     public BcosBlock getBlockByNumber(
-            BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions) {
-        return this.getBlockByNumber("", blockNumber, onlyHeader, fullTransactions);
+            BigInteger blockNumber, boolean onlyHeader, boolean isOnlyTxHash) {
+        return this.getBlockByNumber("", blockNumber, onlyHeader, isOnlyTxHash);
     }
 
     @Override
     public BcosBlock getBlockByNumber(
-            String node, BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions) {
+            String node, BigInteger blockNumber, boolean onlyHeader, boolean isOnlyTxHash) {
         node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
-                        Arrays.asList(
-                                this.groupID, node, blockNumber, onlyHeader, fullTransactions)),
+                        Arrays.asList(this.groupID, node, blockNumber, onlyHeader, isOnlyTxHash)),
                 BcosBlock.class);
     }
 
@@ -440,9 +439,9 @@ public class ClientImpl implements Client {
     public void getBlockByNumberAsync(
             BigInteger blockNumber,
             boolean onlyHeader,
-            boolean fullTransactions,
+            boolean isOnlyTxHash,
             RespCallback<BcosBlock> callback) {
-        this.getBlockByNumberAsync("", blockNumber, onlyHeader, fullTransactions, callback);
+        this.getBlockByNumberAsync("", blockNumber, onlyHeader, isOnlyTxHash, callback);
     }
 
     @Override
@@ -450,7 +449,7 @@ public class ClientImpl implements Client {
             String node,
             BigInteger blockNumber,
             boolean onlyHeader,
-            boolean fullTransactions,
+            boolean isOnlyTxHash,
             RespCallback<BcosBlock> callback) {
         node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
@@ -458,8 +457,7 @@ public class ClientImpl implements Client {
                 node,
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
-                        Arrays.asList(
-                                this.groupID, node, blockNumber, onlyHeader, fullTransactions)),
+                        Arrays.asList(this.groupID, node, blockNumber, onlyHeader, isOnlyTxHash)),
                 BcosBlock.class,
                 callback);
     }

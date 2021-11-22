@@ -190,7 +190,7 @@ public class PrecompiledRetCode {
 
     // internal error(for example: params check failed, etc.): -29999~-20000
     public static final String MUST_EXIST_IN_NODE_LIST =
-            "The operated node must be in the list returned by getNodeIDList";
+            "The operated node must be in the list returned by getGroupPeers";
     public static final String ALREADY_EXISTS_IN_SEALER_LIST =
             "The node already exists in the sealerList";
     public static final String ALREADY_EXISTS_IN_OBSERVER_LIST =
