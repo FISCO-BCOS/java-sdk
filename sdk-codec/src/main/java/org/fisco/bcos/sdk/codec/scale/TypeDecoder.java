@@ -71,9 +71,12 @@ public class TypeDecoder {
                     // decimal part
                     byte[] resultDecBytes = reader.readByteArray(nbitSize >> 3);
                     BigInteger numericIntValue = new BigInteger(resultIntBytes);
-                    
+
                     BigDecimal result = Utils.processFixedScaleDecode(resultDecBytes, nbitSize);
-                    BigDecimal finalResult =  (sig[0] == (byte)0) ? result.add(new BigDecimal(numericIntValue)) :result.add(new BigDecimal(numericIntValue)).negate();
+                    BigDecimal finalResult =
+                            (sig[0] == (byte) 0)
+                                    ? result.add(new BigDecimal(numericIntValue))
+                                    : result.add(new BigDecimal(numericIntValue)).negate();
                     return type.getConstructor(BigDecimal.class).newInstance(finalResult);
                 }
             }

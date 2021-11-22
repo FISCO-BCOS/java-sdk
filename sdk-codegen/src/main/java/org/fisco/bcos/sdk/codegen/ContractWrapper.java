@@ -915,10 +915,10 @@ public class ContractWrapper {
     }
 
     protected static String processInputStringParamsForFixed(String inputParams) {
-        logger.info("inputParams :"+inputParams);
+        logger.info("inputParams :" + inputParams);
         Pattern pattern = Pattern.compile("(?<=\\()[^\\)]+");
         Matcher matcher = pattern.matcher(inputParams);
-        while(matcher.find()) {
+        while (matcher.find()) {
             inputParams = matcher.group();
         }
         return inputParams;

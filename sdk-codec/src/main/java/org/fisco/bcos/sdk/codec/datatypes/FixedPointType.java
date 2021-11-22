@@ -28,7 +28,6 @@ public abstract class FixedPointType extends NumericType {
         super(typePrefix + mBitSize + "x" + nBitSize, value, mBitSize, nBitSize);
     }
 
-
     boolean valid(int mBitSize, int nBitSize, BigInteger value) {
         return isValidBitSize(mBitSize, nBitSize) && isValidBitCount(mBitSize, nBitSize, value);
     }
