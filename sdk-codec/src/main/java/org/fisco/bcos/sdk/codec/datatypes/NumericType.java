@@ -113,4 +113,8 @@ public abstract class NumericType implements Type<BigInteger> {
     public BigInteger getNValue() {
         return nValue;
     }
+
+    public BigDecimal getDecimal() {
+        return decimalValue;
+    }
 }

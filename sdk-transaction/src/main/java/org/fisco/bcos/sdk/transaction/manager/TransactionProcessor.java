@@ -82,6 +82,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     public String createSignedTransaction(String to, byte[] data, CryptoKeyPair cryptoKeyPair) {
         TransactionData rawTransaction =
                 this.transactionBuilder.createTransaction(to, data, this.chainId, this.groupId);
+        System.out.println("5: " + rawTransaction.nonce);
         return this.transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
     }
 }

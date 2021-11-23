@@ -72,6 +72,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         this.transactionDecoder = new TransactionDecoderService(this.cryptoSuite, client.isWASM());
         this.transactionPusher = new TransactionPusherService(client);
         this.abiCodec = new ABICodec(this.cryptoSuite, client.isWASM());
+        System.out.println(client.isWASM());
         this.contractLoader = contractLoader;
     }
 
@@ -104,7 +105,9 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse deployAndGetResponse(String abi, String signedData) {
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
+        System.out.println("receipt: "+receipt);
         try {
+            System.out.println("6: " + "enter");
             return this.transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
         } catch (TransactionException | IOException | ABICodecException e) {
             log.error("deploy exception: {}", e.getMessage());
@@ -317,6 +320,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws ABICodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
+        System.out.println("1: " + call.getCallResult());
         List<Type> decodedResult =
                 this.abiCodec.decodeMethodAndGetOutputObject(
                         abi, functionName, call.getCallResult().getOutput());

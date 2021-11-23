@@ -17,8 +17,11 @@ public class TypeEncoder {
         } else if (parameter instanceof Bool) {
             encodeBool((Bool) parameter, writer);
         } else if (parameter instanceof BytesType) {
+            System.out.println("encodeBytes");
             encodeBytes((BytesType) parameter, writer);
         } else if (parameter instanceof Utf8String) {
+            System.out.println("ut8String");
+            System.out.println(parameter.getValue());
             encodeString((Utf8String) parameter, writer);
         } else if (parameter instanceof StructType) {
             encodeStruct((StructType) parameter, writer);

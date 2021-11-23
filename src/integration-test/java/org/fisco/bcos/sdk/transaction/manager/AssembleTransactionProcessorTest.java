@@ -15,6 +15,10 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
 import com.google.common.collect.Lists;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
@@ -39,6 +44,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -68,6 +74,65 @@ public class AssembleTransactionProcessorTest {
         sdk = BcosSDK.build(CONFIG_FILE);
         client = this.sdk.getClient("group");
         cryptoKeyPair = this.client.getCryptoSuite().getCryptoKeyPair();
+    }
+    
+    private byte[] readBytes(File file) throws IOException {
+        byte[] bytes = new byte[(int) file.length()];
+        FileInputStream fileInputStream = new FileInputStream(file);
+        if (fileInputStream.read(bytes) != bytes.length) {
+            throw new IOException("incomplete reading of file: " + file.toString());
+        }
+        fileInputStream.close();
+        return bytes;
+    }
+
+    @Test
+    public void test1LiquidHelloWolrd() throws Exception {
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
+        File abiFile = new File(ABI_FILE + "fixed_pointsimple.abi");
+        String abi = FileUtils.readFileToString(abiFile);
+        File binFile = new File(BIN_FILE + "fixed_pointsimple.wasm");
+        byte[] bin = readBytes(binFile);
+        String binStr = Hex.toHexString(bin);
+        String[] params = new String[1];
+        params[0] = "1.5";
+        List<String> inputParams = Arrays.asList(params);
+        TransactionResponse response =
+                transactionProcessor.deployAndGetResponseWithStringParams(abi, binStr, inputParams, "fixed");
+                System.out.println(response.getEvents());
+                System.out.println(response.getReturnMessage());
+    }
+
+    @Test
+    public void testCallLiquid() {
+        try {
+                AssembleTransactionProcessor transactionProcessor;
+                transactionProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
+                        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
+        String[] params = new String[0];
+        File abiFile = new File(ABI_FILE + "fixed_pointsimple.abi");
+        String abi = FileUtils.readFileToString(abiFile);
+        List<String> inputParams = Arrays.asList(params);
+        CallResponse response =
+                transactionProcessor.sendCallWithStringParams(
+                        cryptoKeyPair.getAddress(),
+                        this.client.isWASM() ? "fixed" : "fixed",
+                        abi,
+                        "get",
+                        inputParams);
+        // System.out.println(response.getResults());
+        } catch (TransactionBaseException|ABICodecException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+        
+        } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+        }
+        
     }
 
     @Test

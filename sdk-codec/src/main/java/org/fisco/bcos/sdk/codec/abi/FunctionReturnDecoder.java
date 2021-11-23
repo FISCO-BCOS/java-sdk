@@ -25,6 +25,7 @@ public class FunctionReturnDecoder implements FunctionReturnDecoderInterface {
      */
     @Override
     public List<Type> decode(String rawInput, List<TypeReference<Type>> outputParameters) {
+        System.out.println("2: come");
         String input = Numeric.cleanHexPrefix(rawInput);
 
         if (StringUtils.isEmpty(input)) {
@@ -81,7 +82,7 @@ public class FunctionReturnDecoder implements FunctionReturnDecoderInterface {
     private static List<Type> build(String input, List<TypeReference<Type>> outputParameters) {
         List<Type> results = new ArrayList<>(outputParameters.size());
         byte[] rawInput = Hex.decode(input);
-
+        System.out.println("2: come");
         int offset = 0;
         for (TypeReference<?> typeReference : outputParameters) {
             try {

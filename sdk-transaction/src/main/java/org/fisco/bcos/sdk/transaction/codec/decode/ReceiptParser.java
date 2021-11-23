@@ -41,6 +41,7 @@ public class ReceiptParser {
         RetCode retCode;
         try {
             Integer status = receipt.getStatus();
+            System.out.println("9: " + status);
             if (status != 0) {
                 retCode = TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
                 Tuple2<Boolean, String> errorOutput =

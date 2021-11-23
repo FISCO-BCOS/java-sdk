@@ -6,6 +6,7 @@ import org.fisco.bcos.sdk.utils.Numeric;
 import org.junit.Test;
 import org.fisco.bcos.sdk.codec.abi.TestFixture.*;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -20,6 +21,13 @@ public class TypeEncoderTest {
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encodeBool(new Bool(true))),
                 ("0000000000000000000000000000000000000000000000000000000000000001"));
+    }
+
+    @Test
+    public void testFixedEncode() {
+        assertEquals(
+                TestUtils.bytesToString(TypeEncoder.encodeNumeric(new Fixed72x16("1.5"))),
+                ("000000000000018000"));
     }
 
     @Test

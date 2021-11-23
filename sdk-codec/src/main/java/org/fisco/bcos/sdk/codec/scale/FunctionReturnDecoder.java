@@ -79,7 +79,7 @@ public class FunctionReturnDecoder implements FunctionReturnDecoderInterface {
         List<Type> results = new ArrayList<>(outputParameters.size());
         byte[] rawInput = Hex.decode(input);
         ScaleCodecReader reader = new ScaleCodecReader(rawInput);
-
+        System.out.println("4: ");
         for (TypeReference<?> typeReference : outputParameters) {
             try {
                 Class<Type> classType = (Class<Type>) typeReference.getClassType();

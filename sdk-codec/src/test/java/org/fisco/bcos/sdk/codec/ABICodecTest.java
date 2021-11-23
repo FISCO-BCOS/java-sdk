@@ -376,6 +376,17 @@ public class ABICodecTest {
     }
 
     @Test
+    public void testEncodeConsctructorWasm() {
+        List<String> args = new ArrayList<String>();
+        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), true);
+        try {
+            abiCodec.encodeConstructorFromString(this.abiDesc, "0x00aaaaaa", args);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
     public void testEncodeConsctructorWithInvalidParams() {
         List<String> args = new ArrayList<String>();
         args.add("invalid");

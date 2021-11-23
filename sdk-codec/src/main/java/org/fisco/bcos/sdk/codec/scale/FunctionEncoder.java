@@ -38,11 +38,13 @@ public class FunctionEncoder extends FunctionEncoderInterface {
                 result.write(methodID);
             }
             for (Type parameter : parameters) {
+                System.out.println(parameter.getTypeAsString());
                 TypeEncoder.encode(parameter, writer);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(result.toByteArray()[0]);
         return result.toByteArray();
     }
 }

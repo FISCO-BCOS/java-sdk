@@ -136,11 +136,12 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.codec.datatypes
             throws ClassNotFoundException {
         Matcher nextSquareBrackets = ARRAY_SUFFIX.matcher(type);
         if (!nextSquareBrackets.find()) {
+            System.out.println("3: ");
             final Class<? extends org.fisco.bcos.sdk.codec.datatypes.Type> typeClass =
                     getAtomicTypeClass(type);
             return create(typeClass, indexed);
         }
-
+        System.out.println("4: ");
         int lastReadStringPosition = nextSquareBrackets.start();
 
         final Class<? extends org.fisco.bcos.sdk.codec.datatypes.Type> baseClass =

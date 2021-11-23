@@ -61,6 +61,7 @@ public class TypeDecoder {
                                 + ")";
                 String[] splitName = type.getSimpleName().split(regex);
                 if (splitName.length == 2) {
+                    System.out.println("5: "+type.getSimpleName());
                     String[] bitsCounts = splitName[1].split("x");
                     // newly define the size is left to "x"
                     bitSize = Integer.parseInt(bitsCounts[0]);
@@ -74,6 +75,7 @@ public class TypeDecoder {
                     
                     BigDecimal result = Utils.processFixedScaleDecode(resultDecBytes, nbitSize);
                     BigDecimal finalResult =  (sig[0] == (byte)0) ? result.add(new BigDecimal(numericIntValue)) :result.add(new BigDecimal(numericIntValue)).negate();
+                    System.out.println(finalResult);
                     return type.getConstructor(BigDecimal.class).newInstance(finalResult);
                 }
             }

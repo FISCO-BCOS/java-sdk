@@ -20,12 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.codec.abi.Constant;
 import org.fisco.bcos.sdk.codec.datatypes.*;
+import org.fisco.bcos.sdk.codec.datatypes.generated.Fixed72x16;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Uint8;
 import org.fisco.bcos.sdk.codec.wrapper.*;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -79,6 +81,7 @@ public class ABICodec {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             outputStream.write(Hex.decode(bin));
             outputStream.write(abiCodecObject.encodeValue(inputABIObject, params).encode());
+            System.out.println("normal");
             return outputStream.toByteArray();
         } catch (Exception e) {
             logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
@@ -205,6 +208,13 @@ public class ABICodec {
                 return type;
             }
 
+            if (typeStr.startsWith("Fixed")) {
+                if (typeStr.substring(5).split("x")[0].equals("72") && typeStr.substring(5).split("x")[1].equals("16")) {
+                    type = new Fixed72x16(new BigDecimal(param));
+                    return type;
+                }
+            }
+
             if (typeStr.equals("string")) {
                 type = new Utf8String(param);
                 return type;
@@ -276,12 +286,14 @@ public class ABICodec {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
         List<ABIDefinition.NamedType> inputTypes = abiDefinition.getInputs();
+        System.out.println("1: " + inputTypes.size());
         if (inputTypes.size() != params.size()) {
             String errorMsg =
                     String.format(
                             " expected %d parameters but provided %d parameters",
                             inputTypes.size(), params.size());
             logger.error(errorMsg);
+            System.out.println("1: "+errorMsg);
             throw new ABICodecException(errorMsg);
         }
 
@@ -289,18 +301,24 @@ public class ABICodec {
         try {
             List<Type> types = new ArrayList<>();
             for (int i = 0; i < inputTypes.size(); ++i) {
+                System.out.println("************");
+                System.out.println(inputTypes.get(i));
                 types.add(buildType(inputTypes.get(i), params.get(i)));
             }
             byte[] paramBytes =
                     org.fisco.bcos.sdk.codec.abi.FunctionEncoder.encodeConstructor(types);
+            System.out.println("2: encodeConstructorFromByte");
+            System.out.println(paramBytes.length);
             return encodeConstructorFromBytes(bin, paramBytes, abi);
         } catch (Exception e) {
             cause = e;
+            System.out.println("3:" + e.getMessage());
             logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
         }
         String errorMsg =
                 " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"
                         + cause.getMessage();
+        System.out.println("4:" + errorMsg);
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
@@ -316,6 +334,7 @@ public class ABICodec {
                     outputStream.write(params);
                 }
             } else {
+                System.out.println("wasm process");
                 // deploy fir byte is 0, new byte[1] default is 0
                 outputStream.write(new byte[1]);
 
@@ -327,9 +346,15 @@ public class ABICodec {
                     deployParams.add(new Uint8(0));
                 }
                 deployParams.add(new Utf8String(abi));
+                System.out.println("deployParams"+deployParams);
                 outputStream.write(
                         org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeParameters(
                                 deployParams, null));
+            }
+            System.out.println(outputStream.toByteArray().length);
+            System.out.println("------");
+            for(int i=0;i<10;i++) {
+                System.out.println(outputStream.toByteArray()[i]);
             }
             return outputStream.toByteArray();
         } catch (Exception e) {
@@ -561,9 +586,12 @@ public class ABICodec {
             List<TypeReference<Type>> outputTypes = new ArrayList<>();
             try {
                 for (ABIDefinition.NamedType namedType : outputs) {
+                    System.out.println("2: "+namedType.getType().toString());
                     outputTypes.add(TypeReference.makeTypeReference(namedType.getType(), false));
+                    System.out.println(outputTypes.get(0).getType().toString());
                 }
                 List<Type> decodedOutputs = this.functionReturnDecoder.decode(output, outputTypes);
+                System.out.println(decodedOutputs.get(0).getClass().getSimpleName());
                 return decodedOutputs;
             } catch (Exception e) {
                 logger.error("exception in decodeMethodToObject: {}", e.getMessage());

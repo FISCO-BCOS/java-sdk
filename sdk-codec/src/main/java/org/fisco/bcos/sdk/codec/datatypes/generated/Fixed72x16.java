@@ -11,6 +11,6 @@ public class Fixed72x16 extends Fixed {
     }
 
     public Fixed72x16(String value) {
-        super(72, 16, value);
+        this(new BigDecimal(value));
     }
 }

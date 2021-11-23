@@ -87,6 +87,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     public TransactionResponse decodeReceiptWithoutValues(
             String abi, TransactionReceipt transactionReceipt)
             throws TransactionException, IOException, ABICodecException {
+        System.out.println("7: " + "decodeReceiptWithoutValues");
         TransactionResponse response = decodeReceiptStatus(transactionReceipt);
         response.setTransactionReceipt(transactionReceipt);
         response.setContractAddress(transactionReceipt.getContractAddress());
@@ -103,8 +104,12 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt) {
         TransactionResponse response = new TransactionResponse();
         try {
+            System.out.println("8: "+"response");
+            System.out.println("8: "+receipt.getFrom());
+            System.out.println("8: "+receipt.getStatus());
             RetCode retCode = ReceiptParser.parseTransactionReceipt(receipt);
             response.setReturnCode(retCode.getCode());
+            System.out.println("9: "+response.getReturnCode());
             response.setReceiptMessages(retCode.getMessage());
             response.setReturnMessage(retCode.getMessage());
         } catch (ContractException e) {
