@@ -46,7 +46,6 @@ public class ResponseTest {
                         + "    \"hash\": \"0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82\",\n"
                         + "    \"logsBloom\": \"0x0000abc123\",\n"
                         + "    \"number\": 1,\n"
-                        + "    \"parentHash\": \"0x3d161a0302bb05d97d68e129c552a83f171e673d0b6b866c1f687c3da98d9a08\",\n"
                         + "    \"receiptRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n"
                         + "    \"sealer\": \"0x3\",\n"
                         + "    \"sealerList\": [\n"
@@ -94,9 +93,6 @@ public class ResponseTest {
             Assert.assertEquals(
                     "0x3", blockHeader.getBlockHeader().getSignatureList().get(1).getIndex());
             Assert.assertEquals("0x3", blockHeader.getBlockHeader().getSealer());
-            Assert.assertEquals(
-                    "0x3d161a0302bb05d97d68e129c552a83f171e673d0b6b866c1f687c3da98d9a08",
-                    blockHeader.getBlockHeader().getParentHash());
             Assert.assertEquals(
                     "0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2",
                     blockHeader.getBlockHeader().getReceiptsRoot());
@@ -185,44 +181,55 @@ public class ResponseTest {
     @Test
     public void testBcosBlockWithTransaction() throws IOException {
         String blockString =
-                "{\n"
-                        + "  \"id\": 10001,\n"
-                        + "  \"jsonrpc\": \"3.0\",\n"
-                        + "  \"result\": {\n"
-                        + "    \"dbHash\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "    \"extraData\": \"\",\n"
-                        + "    \"gasLimit\": \"0x0\",\n"
-                        + "    \"gasUsed\": \"0x0\",\n"
-                        + "    \"hash\": \"0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82\",\n"
-                        + "    \"logsBloom\": \"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "    \"number\": \"256\",\n"
-                        + "    \"parentHash\": \"0x3d161a0302bb05d97d68e129c552a83f171e673d0b6b866c1f687c3da98d9a08\",\n"
-                        + "    \"receiptsRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n"
-                        + "    \"sealer\": \"4\",\n"
-                        + "    \"sealerList\": [\n"
-                        + "      \"11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f\",\n"
-                        + "      \"b8acb51b9fe84f88d670646be36f31c52e67544ce56faf3dc8ea4cf1b0ebff0864c6b218fdcd9cf9891ebd414a995847911bd26a770f429300085f37e1131f36\"\n"
-                        + "    ],\n"
-                        + "    \"stateRoot\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "    \"timestamp\": \"1633953720\",\n"
-                        + "    \"transactions\": [\n"
-                        + "      {\n"
-                        + "        \"blockHash\": \"0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82\",\n"
-                        + "        \"blockNumber\": \"0x100\",\n"
-                        + "        \"from\": \"0x2d6300a8f067872ebc87252d711b83a0c9325d35\",\n"
-                        + "        \"gas\": \"0x2faf080\",\n"
-                        + "        \"gasPrice\": \"0xa\",\n"
-                        + "        \"hash\": \"0x83ae369e15e1aafb18df7da2ff30de009bf53a1ff72ced3d1c342182409c4f87\",\n"
-                        + "        \"input\": \"0x4ed3885e0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a464953434f2042434f5300000000000000000000000000000000000000000000\",\n"
-                        + "        \"nonce\": \"0x3eb675ec791c2d19858c91d0046821c27d815e2e9c151595296779000016038\",\n"
-                        + "        \"to\": \"0x8c17cf316c1063ab6c89df875e96c9f0f5b2f744\",\n"
-                        + "        \"transactionIndex\": \"0x0\",\n"
-                        + "        \"value\": \"0x0\"\n"
-                        + "      }\n"
-                        + "    ],\n"
-                        + "    \"txsRoot\": \"0x9eec1be2effb2d7934928d4ccab1bd2886b920b1cf29f8744e3be1d253102cd7\"\n"
-                        + "    }\n"
-                        + "  }";
+                "{\n" +
+                        "  \"id\": 5,\n" +
+                        "  \"jsonrpc\": \"2.0\",\n" +
+                        "  \"result\": {\n" +
+                        "    \"consensusWeights\": [\n" +
+                        "      1\n" +
+                        "    ],\n" +
+                        "    \"extraData\": \"0x\",\n" +
+                        "    \"gasUsed\": \"36488\",\n" +
+                        "    \"hash\": \"0xaa3fb2b657db63ca437f9b862bab1a5e06bb0be6281cd78bf51373beafc97f5b\",\n" +
+                        "    \"number\": 1,\n" +
+                        "    \"parentInfo\": [\n" +
+                        "      {\n" +
+                        "        \"blockHash\": \"0x3e05e34a36cad0836483101667a9ed1822a7810f848979ce2a38444a222e029c\",\n" +
+                        "        \"blockNumber\": 0\n" +
+                        "      }\n" +
+                        "    ],\n" +
+                        "    \"receiptsRoot\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n" +
+                        "    \"sealer\": 0,\n" +
+                        "    \"sealerList\": [\n" +
+                        "      \"0x751bbcec9ab8fc8a8ecc9da7827e40a7f1b710801b3090cf06f846198b1ad0a0baff615a2624c00d2bf1f48bd29fbe509982130eb8c22debca2cacc8125b551e\"\n" +
+                        "    ],\n" +
+                        "    \"signatureList\": [\n" +
+                        "      {\n" +
+                        "        \"sealerIndex\": 0,\n" +
+                        "        \"signature\": \"0x8427bf9a5f3081dc4ede863d85ccccb22b870d56be63fbac110e20b9473e5f822486238fe39faf732f902bdad895c437ddf95037e46e37dbf06f0aee8bb14ad100\"\n" +
+                        "      }\n" +
+                        "    ],\n" +
+                        "    \"stateRoot\": \"0x6a061fd2b32d4384df1d2e1897286f6dbbc139a3383569cbd940d0d990f66604\",\n" +
+                        "    \"timestamp\": 1637579843630,\n" +
+                        "    \"transactions\": [\n" +
+                        "      {\n" +
+                        "        \"blockLimit\": 500,\n" +
+                        "        \"chainID\": \"chain\",\n" +
+                        "        \"from\": \"0x2d6300a8f067872ebc87252d711b83a0c9325d35\",\n" +
+                        "        \"groupID\": \"group\",\n" +
+                        "        \"hash\": \"0x24e190d013390901562265e4e3158dbb392c83e50e7cfa394d56d4afac4536a7\",\n" +
+                        "        \"importTime\": 0,\n" +
+                        "        \"input\": \"0x608060405234801561001057600080fd5b506040518060400160405280600d81526020017f48656c6c6f2c20576f726c6421000000000000000000000000000000000000008152506000908051906020019061005c929190610062565b50610107565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106100a357805160ff19168380011785556100d1565b828001600101855582156100d1579182015b828111156100d05782518255916020019190600101906100b5565b5b5090506100de91906100e2565b5090565b61010491905b808211156101005760008160009055506001016100e8565b5090565b90565b610310806101166000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c80634ed3885e1461003b5780636d4ce63c146100f6575b600080fd5b6100f46004803603602081101561005157600080fd5b810190808035906020019064010000000081111561006e57600080fd5b82018360208201111561008057600080fd5b803590602001918460018302840111640100000000831117156100a257600080fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f820116905080830192505050505050509192919290505050610179565b005b6100fe610193565b6040518080602001828103825283818151815260200191508051906020019080838360005b8381101561013e578082015181840152602081019050610123565b50505050905090810190601f16801561016b5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b806000908051906020019061018f929190610235565b5050565b606060008054600181600116156101000203166002900480601f01602080910402602001604051908101604052809291908181526020018280546001816001161561010002031660029004801561022b5780601f106102005761010080835404028352916020019161022b565b820191906000526020600020905b81548152906001019060200180831161020e57829003601f168201915b5050505050905090565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061027657805160ff19168380011785556102a4565b828001600101855582156102a4579182015b828111156102a3578251825591602001919060010190610288565b5b5090506102b191906102b5565b5090565b6102d791905b808211156102d35760008160009055506001016102bb565b5090565b9056fea26469706673582212200a71759272326fb76572af846152efb3ab0eecfce0a176c6bc5805cf18e343bb64736f6c634300060a0033\",\n" +
+                        "        \"nonce\": \"855475221066568941671465558267495097831584488208619915012326931364330103302\",\n" +
+                        "        \"signature\": \"0xd8ab504b932b2a338685ea1a3c378a3a83683c055fe13651957d01a72ffdb2c53963367108ae496c53785dd3e6827a6f9bb72d55fcc7cb6ed846d302f384873200\",\n" +
+                        "        \"to\": \"0x8c17cf316c1063ab6c89df875e96c9f0f5b2f744\",\n" +
+                        "        \"version\": 0\n" +
+                        "      }\n" +
+                        "    ],\n" +
+                        "    \"txsRoot\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n" +
+                        "    \"version\": 0\n" +
+                        "  }\n" +
+                        "}";
         // encode the string into object
         BcosBlock bcosBlock = objectMapper.readValue(blockString.getBytes(), BcosBlock.class);
         this.checkBlockHeader(bcosBlock);
@@ -231,38 +238,61 @@ public class ResponseTest {
         this.checkEncodeDecode(bcosBlock);
     }
 
+    @Test
     public void testBcosBlockWithoutTransaction() throws IOException {
         String blockString =
-                "{\n"
-                        + "  \"id\": 10001,\n"
-                        + "  \"jsonrpc\": \"3.0\",\n"
-                        + "  \"result\": {\n"
-                        + "    \"dbHash\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "    \"extraData\": [],\n"
-                        + "    \"gasLimit\": \"0x0\",\n"
-                        + "    \"gasUsed\": \"0x0\",\n"
-                        + "    \"hash\": \"0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82\",\n"
-                        + "    \"logsBloom\": \"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "    \"number\": \"0x100\",\n"
-                        + "    \"parentHash\": \"0x3d161a0302bb05d97d68e129c552a83f171e673d0b6b866c1f687c3da98d9a08\",\n"
-                        + "    \"receiptRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n"
-                        + "    \"sealer\": \"0x4\",\n"
-                        + "    \"sealerList\": [\n"
-                        + "      \"11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f\",\n"
-                        + "      \"b8acb51b9fe84f88d670646be36f31c52e67544ce56faf3dc8ea4cf1b0ebff0864c6b218fdcd9cf9891ebd414a995847911bd26a770f429300085f37e1131f36\"\n"
-                        + "    ],\n"
-                        + "    \"stateRoot\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "    \"timestamp\": \"0x1736f190efb\",\n"
-                        + " \"transactions\": [ \n"
-                        + "             \"0x19e5f919888038fcb16c7d75bb86945e1bf6349c591d33e3b5fdcda973577875\" \n"
-                        + "    ],\n"
-                        + "    \"txsRoot\": \"0x9eec1be2effb2d7934928d4ccab1bd2886b920b1cf29f8744e3be1d253102cd7\"\n"
-                        + "    }\n"
-                        + "  }";
+                "{\n" +
+                        "  \"id\": 5,\n" +
+                        "  \"jsonrpc\": \"2.0\",\n" +
+                        "  \"result\": {\n" +
+                        "    \"consensusWeights\": [\n" +
+                        "      1\n" +
+                        "    ],\n" +
+                        "    \"extraData\": \"0x\",\n" +
+                        "    \"gasUsed\": \"36488\",\n" +
+                        "    \"hash\": \"0xaa3fb2b657db63ca437f9b862bab1a5e06bb0be6281cd78bf51373beafc97f5b\",\n" +
+                        "    \"number\": 1,\n" +
+                        "    \"parentInfo\": [\n" +
+                        "      {\n" +
+                        "        \"blockHash\": \"0x3e05e34a36cad0836483101667a9ed1822a7810f848979ce2a38444a222e029c\",\n" +
+                        "        \"blockNumber\": 0\n" +
+                        "      }\n" +
+                        "    ],\n" +
+                        "    \"receiptsRoot\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n" +
+                        "    \"sealer\": 0,\n" +
+                        "    \"sealerList\": [\n" +
+                        "      \"0x751bbcec9ab8fc8a8ecc9da7827e40a7f1b710801b3090cf06f846198b1ad0a0baff615a2624c00d2bf1f48bd29fbe509982130eb8c22debca2cacc8125b551e\"\n" +
+                        "    ],\n" +
+                        "    \"signatureList\": [\n" +
+                        "      {\n" +
+                        "        \"sealerIndex\": 0,\n" +
+                        "        \"signature\": \"0x79a8fd54dc9371d9fd8dc51b1d42aee959d9f1a75f9a348a48a7fc2de42bf7c9134dd0988a2e4c5cfea63ff1b0f8acac0295925662b0ebb7a0e336fdf4175ce501\"\n" +
+                        "      }\n" +
+                        "    ],\n" +
+                        "    \"stateRoot\": \"0x6a061fd2b32d4384df1d2e1897286f6dbbc139a3383569cbd940d0d990f66604\",\n" +
+                        "    \"timestamp\": 1637579843630,\n" +
+                        "    \"transactions\": [\n" +
+                        "      \"0x8e72f7411887bdd218487437d3af29ce6fb5f3e624bf25b5bd4e593ba574ba28\"\n" +
+                        "    ],\n" +
+                        "    \"txsRoot\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n" +
+                        "    \"version\": 0\n" +
+                        "  }\n" +
+                        "}";
         BcosBlock bcosBlock = objectMapper.readValue(blockString.getBytes(), BcosBlock.class);
         this.checkBlockHeader(bcosBlock);
         // check transaction
         this.checkEncodeDecode(bcosBlock);
+        this.checkEncodeDecodeString(bcosBlock);
+    }
+
+    private void checkEncodeDecodeString(BcosBlock bcosBlock) throws IOException {
+        // encode the block
+        String encodedData = objectMapper.writeValueAsString(bcosBlock);
+        // decode the block
+        BcosBlock decodedBlock = objectMapper.readValue(encodedData, BcosBlock.class);
+        // check the block
+        Assert.assertEquals(bcosBlock.getBlock(), decodedBlock.getBlock());
+        Assert.assertEquals(bcosBlock.getBlock().hashCode(), decodedBlock.getBlock().hashCode());
     }
 
     private void checkEncodeDecode(BcosBlock bcosBlock) throws IOException {
@@ -277,25 +307,25 @@ public class ResponseTest {
 
     private void checkBlockHeader(BcosBlock bcosBlock) {
         // check the BcosBlock object
-        Assert.assertEquals("3.0", bcosBlock.getJsonrpc());
-        Assert.assertEquals(10001, bcosBlock.getId());
-        Assert.assertEquals(256L, bcosBlock.getBlock().getNumber());
+        Assert.assertEquals("2.0", bcosBlock.getJsonrpc());
+        Assert.assertEquals(5, bcosBlock.getId());
+        Assert.assertEquals(1L, bcosBlock.getBlock().getNumber());
         Assert.assertEquals(
-                "0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82",
+                "0xaa3fb2b657db63ca437f9b862bab1a5e06bb0be6281cd78bf51373beafc97f5b",
                 bcosBlock.getBlock().getHash());
         Assert.assertEquals(
-                "0x3d161a0302bb05d97d68e129c552a83f171e673d0b6b866c1f687c3da98d9a08",
-                bcosBlock.getBlock().getParentHash());
+                "0x3e05e34a36cad0836483101667a9ed1822a7810f848979ce2a38444a222e029c",
+                bcosBlock.getBlock().getParentInfo().get(0).getBlockHash());
         Assert.assertEquals(
-                "0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2",
+                "0x0000000000000000000000000000000000000000000000000000000000000000",
                 bcosBlock.getBlock().getReceiptsRoot());
-        Assert.assertEquals(2, bcosBlock.getBlock().getSealerList().size());
+        Assert.assertEquals(1, bcosBlock.getBlock().getSealerList().size());
         Assert.assertEquals(
-                "11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f",
+                "0x751bbcec9ab8fc8a8ecc9da7827e40a7f1b710801b3090cf06f846198b1ad0a0baff615a2624c00d2bf1f48bd29fbe509982130eb8c22debca2cacc8125b551e",
                 bcosBlock.getBlock().getSealerList().get(0));
-        Assert.assertEquals(4, bcosBlock.getBlock().getSealer());
-        Assert.assertEquals(1633953720L, bcosBlock.getBlock().getTimestamp());
-        Assert.assertEquals(0, bcosBlock.getBlock().getExtraData().length());
+        Assert.assertEquals(0, bcosBlock.getBlock().getSealer());
+        Assert.assertEquals(1637579843630L, bcosBlock.getBlock().getTimestamp());
+        Assert.assertEquals(2, bcosBlock.getBlock().getExtraData().length());
     }
 
     private void checkTransactionsForBlock(BcosBlock bcosBlock) {
@@ -304,13 +334,13 @@ public class ResponseTest {
                 ((BcosBlock.TransactionObject) bcosBlock.getBlock().getTransactions().get(0));
         Assert.assertEquals("0x2d6300a8f067872ebc87252d711b83a0c9325d35", transaction.getFrom());
         Assert.assertEquals(
-                "0x83ae369e15e1aafb18df7da2ff30de009bf53a1ff72ced3d1c342182409c4f87",
+                "0x24e190d013390901562265e4e3158dbb392c83e50e7cfa394d56d4afac4536a7",
                 transaction.getHash());
         Assert.assertEquals(
-                "0x4ed3885e0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a464953434f2042434f5300000000000000000000000000000000000000000000",
+                "0x608060405234801561001057600080fd5b506040518060400160405280600d81526020017f48656c6c6f2c20576f726c6421000000000000000000000000000000000000008152506000908051906020019061005c929190610062565b50610107565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106100a357805160ff19168380011785556100d1565b828001600101855582156100d1579182015b828111156100d05782518255916020019190600101906100b5565b5b5090506100de91906100e2565b5090565b61010491905b808211156101005760008160009055506001016100e8565b5090565b90565b610310806101166000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c80634ed3885e1461003b5780636d4ce63c146100f6575b600080fd5b6100f46004803603602081101561005157600080fd5b810190808035906020019064010000000081111561006e57600080fd5b82018360208201111561008057600080fd5b803590602001918460018302840111640100000000831117156100a257600080fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f820116905080830192505050505050509192919290505050610179565b005b6100fe610193565b6040518080602001828103825283818151815260200191508051906020019080838360005b8381101561013e578082015181840152602081019050610123565b50505050905090810190601f16801561016b5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b806000908051906020019061018f929190610235565b5050565b606060008054600181600116156101000203166002900480601f01602080910402602001604051908101604052809291908181526020018280546001816001161561010002031660029004801561022b5780601f106102005761010080835404028352916020019161022b565b820191906000526020600020905b81548152906001019060200180831161020e57829003601f168201915b5050505050905090565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061027657805160ff19168380011785556102a4565b828001600101855582156102a4579182015b828111156102a3578251825591602001919060010190610288565b5b5090506102b191906102b5565b5090565b6102d791905b808211156102d35760008160009055506001016102bb565b5090565b9056fea26469706673582212200a71759272326fb76572af846152efb3ab0eecfce0a176c6bc5805cf18e343bb64736f6c634300060a0033",
                 transaction.getInput());
         Assert.assertEquals(
-                "0x3eb675ec791c2d19858c91d0046821c27d815e2e9c151595296779000016038",
+                "855475221066568941671465558267495097831584488208619915012326931364330103302",
                 transaction.getNonce());
         Assert.assertEquals("0x8c17cf316c1063ab6c89df875e96c9f0f5b2f744", transaction.getTo());
     }
@@ -489,7 +519,6 @@ public class ResponseTest {
 
     @Test
     public void testPeers() throws IOException {
-        // FIXME: The structure of `Peers` is not correct!
         String peerStr =
                 "{\n" +
                         "  \"id\": 12,\n" +

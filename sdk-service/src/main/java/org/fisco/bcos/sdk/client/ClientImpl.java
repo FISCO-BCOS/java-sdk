@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 public class ClientImpl implements Client {
     private static final Logger logger = LoggerFactory.getLogger(ClientImpl.class);
+    private static final int BlockLimitRange = 500;
 
     // ------------basic group info --------------
     private String groupID = "";
@@ -179,13 +180,19 @@ public class ClientImpl implements Client {
     public BcosTransactionReceipt sendTransaction(
             String node, String signedTransactionData, boolean withProof) {
         node = Objects.isNull(node) ? "" : node;
-        return this.callRemoteMethod(
-                this.groupID,
-                node,
-                new JsonRpcRequest(
-                        JsonRpcMethods.SEND_TRANSACTION,
-                        Arrays.asList(this.groupID, node, signedTransactionData, withProof)),
-                BcosTransactionReceipt.class);
+        BcosTransactionReceipt bcosTransactionReceipt =
+                this.callRemoteMethod(
+                        this.groupID,
+                        node,
+                        new JsonRpcRequest(
+                                JsonRpcMethods.SEND_TRANSACTION,
+                                Arrays.asList(
+                                        this.groupID, node, signedTransactionData, withProof)),
+                        BcosTransactionReceipt.class);
+        if (bcosTransactionReceipt.getResult() != null) {
+            bcosTransactionReceipt.getResult().setWasm(isWASM());
+        }
+        return bcosTransactionReceipt;
     }
 
     @Override
@@ -211,6 +218,9 @@ public class ClientImpl implements Client {
                 new RespCallback<BcosTransactionReceipt>() {
                     @Override
                     public void onResponse(BcosTransactionReceipt transactionReceiptWithProof) {
+                        if (transactionReceiptWithProof.getResult() != null) {
+                            transactionReceiptWithProof.getResult().setWasm(isWASM());
+                        }
                         callback.onResponse(transactionReceiptWithProof.getTransactionReceipt());
                     }
 
@@ -417,21 +427,20 @@ public class ClientImpl implements Client {
 
     @Override
     public BcosBlock getBlockByNumber(
-            BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions) {
-        return this.getBlockByNumber("", blockNumber, onlyHeader, fullTransactions);
+            BigInteger blockNumber, boolean onlyHeader, boolean isOnlyTxHash) {
+        return this.getBlockByNumber("", blockNumber, onlyHeader, isOnlyTxHash);
     }
 
     @Override
     public BcosBlock getBlockByNumber(
-            String node, BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions) {
+            String node, BigInteger blockNumber, boolean onlyHeader, boolean isOnlyTxHash) {
         node = Objects.isNull(node) ? "" : node;
         return this.callRemoteMethod(
                 this.groupID,
                 node,
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
-                        Arrays.asList(
-                                this.groupID, node, blockNumber, onlyHeader, fullTransactions)),
+                        Arrays.asList(this.groupID, node, blockNumber, onlyHeader, isOnlyTxHash)),
                 BcosBlock.class);
     }
 
@@ -439,9 +448,9 @@ public class ClientImpl implements Client {
     public void getBlockByNumberAsync(
             BigInteger blockNumber,
             boolean onlyHeader,
-            boolean fullTransactions,
+            boolean isOnlyTxHash,
             RespCallback<BcosBlock> callback) {
-        this.getBlockByNumberAsync("", blockNumber, onlyHeader, fullTransactions, callback);
+        this.getBlockByNumberAsync("", blockNumber, onlyHeader, isOnlyTxHash, callback);
     }
 
     @Override
@@ -449,7 +458,7 @@ public class ClientImpl implements Client {
             String node,
             BigInteger blockNumber,
             boolean onlyHeader,
-            boolean fullTransactions,
+            boolean isOnlyTxHash,
             RespCallback<BcosBlock> callback) {
         node = Objects.isNull(node) ? "" : node;
         this.asyncCallRemoteMethod(
@@ -457,8 +466,7 @@ public class ClientImpl implements Client {
                 node,
                 new JsonRpcRequest(
                         JsonRpcMethods.GET_BLOCK_BY_NUMBER,
-                        Arrays.asList(
-                                this.groupID, node, blockNumber, onlyHeader, fullTransactions)),
+                        Arrays.asList(this.groupID, node, blockNumber, onlyHeader, isOnlyTxHash)),
                 BcosBlock.class,
                 callback);
     }
@@ -618,15 +626,16 @@ public class ClientImpl implements Client {
 
     @Override
     public BigInteger getBlockLimit() {
-        /*
-        // TODO: add impl in cpp-sdk
-        */
-        long blk = blockNumber;
-        if (blk == 0) {
-            blk = getBlockNumber().getBlockNumber().longValue();
+        BigInteger blockLimit = BigInteger.valueOf(this.jniRpcImpl.getBlockLimit(this.groupID));
+        if (logger.isDebugEnabled()) {
+            logger.debug("getBlockLimit, group: {}, blockLimit: {}", groupID, blockLimit);
         }
 
-        return BigInteger.valueOf(blk).add(BigInteger.valueOf(500));
+        if (blockLimit.compareTo(BigInteger.ZERO) <= 0) {
+            blockLimit = BigInteger.valueOf(blockNumber).add(BigInteger.valueOf(BlockLimitRange));
+        }
+
+        return blockLimit;
     }
 
     @Override

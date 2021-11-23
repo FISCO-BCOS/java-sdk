@@ -68,4 +68,13 @@ public interface TransactionEncoderInterface {
      */
     byte[] encodeToTransactionBytes(
             TransactionData rawTransaction, byte[] hash, SignatureResult result);
+
+    /**
+     * Tars encode rawTransaction to Transaction bytes
+     *
+     * @param rawTransaction
+     * @param result
+     * @return
+     */
+    byte[] encodeToTransactionBytes(TransactionData rawTransaction, SignatureResult result);
 }

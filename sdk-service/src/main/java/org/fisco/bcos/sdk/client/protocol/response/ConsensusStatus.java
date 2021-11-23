@@ -110,7 +110,7 @@ public class ConsensusStatus extends JsonRpcResponse<ConsensusStatus.ConsensusSt
         private String nodeID;
 
         @JsonProperty("index")
-        private Integer index;
+        private String index;
 
         @JsonProperty("leaderIndex")
         private Integer leaderIndex;
@@ -156,11 +156,11 @@ public class ConsensusStatus extends JsonRpcResponse<ConsensusStatus.ConsensusSt
             this.nodeID = nodeID;
         }
 
-        public Integer getIndex() {
+        public String getIndex() {
             return index;
         }
 
-        public void setIndex(Integer index) {
+        public void setIndex(String index) {
             this.index = index;
         }
 

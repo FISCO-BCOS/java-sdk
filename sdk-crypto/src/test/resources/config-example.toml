@@ -2,7 +2,7 @@
 
 # defaut is conf
 certPath = "config"                           # The certification path
-useSMCrypto = false
+useSMCrypto = "false"
 
 # The following configurations take the certPath by default if commented
 # caCert = "conf/ca.crt"                    # CA cert file path
