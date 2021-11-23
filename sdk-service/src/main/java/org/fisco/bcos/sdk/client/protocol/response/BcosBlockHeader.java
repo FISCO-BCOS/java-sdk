@@ -144,7 +144,6 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
         protected long number;
         protected int version;
         protected String hash;
-        protected String parentHash;
         protected String logsBloom;
 
         @JsonProperty("txsRoot")
@@ -189,10 +188,6 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             this.hash = hash;
         }
 
-        public void setParentHash(String parentHash) {
-            this.parentHash = parentHash;
-        }
-
         public void setLogsBloom(String logsBloom) {
             this.logsBloom = logsBloom;
         }
@@ -235,10 +230,6 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
 
         public String getHash() {
             return this.hash;
-        }
-
-        public String getParentHash() {
-            return this.parentHash;
         }
 
         public String getLogsBloom() {
@@ -351,7 +342,6 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             BlockHeader that = (BlockHeader) o;
             return Objects.equals(this.number, that.number)
                     && Objects.equals(this.hash, that.hash)
-                    && Objects.equals(this.parentHash, that.parentHash)
                     && Objects.equals(this.logsBloom, that.logsBloom)
                     && Objects.equals(this.transactionsRoot, that.transactionsRoot)
                     && Objects.equals(this.receiptsRoot, that.receiptsRoot)
@@ -369,7 +359,6 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
             return Objects.hash(
                     this.number,
                     this.hash,
-                    this.parentHash,
                     this.logsBloom,
                     this.transactionsRoot,
                     this.receiptsRoot,
@@ -389,9 +378,6 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
                     + this.number
                     + ", hash='"
                     + this.hash
-                    + '\''
-                    + ", parentHash='"
-                    + this.parentHash
                     + '\''
                     + ", logsBloom='"
                     + this.logsBloom

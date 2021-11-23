@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
@@ -37,6 +38,8 @@ public class TransactionReceipt {
     private List<MerkleProofUnit> transactionProof;
     private List<MerkleProofUnit> receiptProof;
     private String message;
+
+    @JsonIgnore private boolean wasm = false;
 
     public boolean isStatusOK() {
         return this.status == 0;
@@ -190,7 +193,11 @@ public class TransactionReceipt {
     }
 
     public String getContractAddress() {
-        return this.contractAddress;
+        if (!isWasm() && Objects.nonNull(contractAddress)) {
+            return "0x" + contractAddress;
+        }
+
+        return contractAddress;
     }
 
     public void setContractAddress(String contractAddress) {
@@ -235,6 +242,14 @@ public class TransactionReceipt {
 
     public void setTransactionProof(List<MerkleProofUnit> transactionProof) {
         this.transactionProof = transactionProof;
+    }
+
+    public boolean isWasm() {
+        return wasm;
+    }
+
+    public void setWasm(boolean wasm) {
+        this.wasm = wasm;
     }
 
     @Override
