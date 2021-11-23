@@ -137,7 +137,8 @@ public class ABICodec {
                     try {
                         bitSize = Integer.parseInt(bitSizeStr);
                     } catch (NumberFormatException e) {
-                        String errorMsg = " unrecognized uint type: " + typeStr;
+                        String errorMsg =
+                                " unrecognized type: " + typeStr + ", error:" + e.getCause();
                         logger.error(errorMsg);
                         throw new ABICodecException(errorMsg);
                     }
@@ -157,7 +158,8 @@ public class ABICodec {
                         | InstantiationException
                         | IllegalAccessException
                         | InvocationTargetException e) {
-                    String errorMsg = "unrecognized uint type: " + typeStr;
+                    String errorMsg =
+                            "buildType error, type: " + typeStr + ", error: " + e.getCause();
                     logger.error(errorMsg);
                     throw new ABICodecException(errorMsg);
                 }
@@ -192,7 +194,7 @@ public class ABICodec {
                         | InstantiationException
                         | IllegalAccessException
                         | InvocationTargetException e) {
-                    String errorMsg = "unrecognized uint type: " + typeStr;
+                    String errorMsg = "unrecognized type: " + typeStr + ", error:" + e.getCause();
                     logger.error(errorMsg);
                     throw new ABICodecException(errorMsg);
                 }
@@ -566,7 +568,7 @@ public class ABICodec {
                 List<Type> decodedOutputs = this.functionReturnDecoder.decode(output, outputTypes);
                 return decodedOutputs;
             } catch (Exception e) {
-                logger.error("exception in decodeMethodToObject: {}", e.getMessage());
+                logger.error("exception in decodeMethodToObject: {}, e:", e.getMessage(), e);
             }
         }
 

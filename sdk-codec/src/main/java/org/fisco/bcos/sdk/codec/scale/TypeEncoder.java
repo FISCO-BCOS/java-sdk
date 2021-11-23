@@ -1,7 +1,6 @@
 package org.fisco.bcos.sdk.codec.scale;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.fisco.bcos.sdk.codec.datatypes.*;
@@ -29,18 +28,17 @@ public class TypeEncoder {
     public static void encodeNumeric(NumericType numericType, ScaleCodecWriter writer)
             throws IOException {
         int bitSize = numericType.getBitSize();
-        if ((bitSize & (bitSize - 1)) != 0 && bitSize < 8) {
-            throw new UnsupportedOperationException(
-                    "Type cannot be encoded: " + numericType.getTypeAsString());
+        int byteSize = bitSize / 8;
+        if (byteSize >= 1 && byteSize <= 16) {
+            if (numericType.getTypeAsString().contains("uint")) {
+                writer.writeUnsignedInteger(numericType.getValue(), byteSize);
+                return;
+            }
+            writer.writeInteger(numericType.getValue(), byteSize);
+            return;
         }
-
-        byte[] byteArray = new byte[bitSize >> 3];
-        BigInteger value = numericType.getValue();
-        byte[] byteValue = value.toByteArray();
-        for (int i = 0; i < byteValue.length; ++i) {
-            byteArray[i] = byteValue[byteValue.length - i - 1];
-        }
-        writer.writeByteArray(byteArray);
+        // Note: modify with liquid u256 after modify the node
+        writer.writeCompactInteger(numericType.getValue());
     }
 
     public static void encodeBool(Bool boolType, ScaleCodecWriter writer) throws IOException {
