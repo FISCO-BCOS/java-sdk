@@ -333,10 +333,10 @@ public interface Client {
      *
      * @param blockNumber the number of the block
      * @param onlyHeader the boolean define if only return header
+     * @param isOnlyTxHash the boolean define if only return tx hash
      * @return block
      */
-    BcosBlock getBlockByNumber(
-            BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions);
+    BcosBlock getBlockByNumber(BigInteger blockNumber, boolean onlyHeader, boolean isOnlyTxHash);
 
     /**
      * Ledger operation: get block by block number
@@ -344,23 +344,24 @@ public interface Client {
      * @param node the node rpc request send to
      * @param blockNumber the number of the block
      * @param onlyHeader the boolean define if only return header
+     * @param isOnlyTxHash the boolean define if only return tx hash
      * @return block
      */
     BcosBlock getBlockByNumber(
-            String node, BigInteger blockNumber, boolean onlyHeader, boolean fullTransactions);
+            String node, BigInteger blockNumber, boolean onlyHeader, boolean isOnlyTxHash);
 
     /**
      * Ledger operation: async get block by block number
      *
      * @param blockNumber the number of the block
      * @param onlyHeader the boolean if only need header
-     * @param fullTransactions the boolean if need all transactions
+     * @param isOnlyTxHash the boolean if you need all transactions
      * @param callback the callback that will be called when receive the response
      */
     void getBlockByNumberAsync(
             BigInteger blockNumber,
             boolean onlyHeader,
-            boolean fullTransactions,
+            boolean isOnlyTxHash,
             RespCallback<BcosBlock> callback);
 
     /**
@@ -369,14 +370,14 @@ public interface Client {
      * @param node the node rpc request send to
      * @param blockNumber the number of the block
      * @param onlyHeader the boolean if only need header
-     * @param fullTransactions the boolean if need all transactions
+     * @param isOnlyTxHash the boolean if you need all transactions
      * @param callback the callback that will be called when receive the response
      */
     void getBlockByNumberAsync(
             String node,
             BigInteger blockNumber,
             boolean onlyHeader,
-            boolean fullTransactions,
+            boolean isOnlyTxHash,
             RespCallback<BcosBlock> callback);
 
     /**
