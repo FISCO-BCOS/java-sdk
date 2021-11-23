@@ -180,13 +180,19 @@ public class ClientImpl implements Client {
     public BcosTransactionReceipt sendTransaction(
             String node, String signedTransactionData, boolean withProof) {
         node = Objects.isNull(node) ? "" : node;
-        return this.callRemoteMethod(
-                this.groupID,
-                node,
-                new JsonRpcRequest(
-                        JsonRpcMethods.SEND_TRANSACTION,
-                        Arrays.asList(this.groupID, node, signedTransactionData, withProof)),
-                BcosTransactionReceipt.class);
+        BcosTransactionReceipt bcosTransactionReceipt =
+                this.callRemoteMethod(
+                        this.groupID,
+                        node,
+                        new JsonRpcRequest(
+                                JsonRpcMethods.SEND_TRANSACTION,
+                                Arrays.asList(
+                                        this.groupID, node, signedTransactionData, withProof)),
+                        BcosTransactionReceipt.class);
+        if (bcosTransactionReceipt.getResult() != null) {
+            bcosTransactionReceipt.getResult().setWasm(isWASM());
+        }
+        return bcosTransactionReceipt;
     }
 
     @Override
@@ -212,6 +218,9 @@ public class ClientImpl implements Client {
                 new RespCallback<BcosTransactionReceipt>() {
                     @Override
                     public void onResponse(BcosTransactionReceipt transactionReceiptWithProof) {
+                        if (transactionReceiptWithProof.getResult() != null) {
+                            transactionReceiptWithProof.getResult().setWasm(isWASM());
+                        }
                         callback.onResponse(transactionReceiptWithProof.getTransactionReceipt());
                     }
 
