@@ -3,7 +3,6 @@ package org.fisco.bcos.sdk.codec.datatypes;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
-
 import org.fisco.bcos.sdk.codec.Utils;
 
 /** Common numeric type. */
@@ -34,13 +33,13 @@ public abstract class NumericType implements Type<BigInteger> {
         this.nbitSize = nbitSize;
     }
 
-    public NumericType(String type, String value,int mbitSize, int nbitSize) {
-        this.type = type; 
+    public NumericType(String type, String value, int mbitSize, int nbitSize) {
+        this.type = type;
         this.value = new BigInteger(value.split("\\.")[0]);
-        if(value.split("\\.")[1].startsWith("-")) {
+        if (value.split("\\.")[1].startsWith("-")) {
             this.sig = -1;
             this.nValue = new BigInteger(value.split("\\.")[1].substring(1));
-        }else {
+        } else {
             this.sig = 0;
             this.nValue = new BigInteger(value.split("\\.")[1]);
         }
@@ -72,13 +71,20 @@ public abstract class NumericType implements Type<BigInteger> {
         if (!type.equals(that.type)) {
             return false;
         }
-        if(this.nbitSize==0) {
+        if (this.nbitSize == 0) {
             return Objects.equals(value, that.value);
-        }else {
-            if(decimalValue.scale()<that.decimalValue.scale()){
-                return (dValue.compareTo(that.dValue.setScale(dValue.scale(),BigDecimal.ROUND_HALF_UP))==0&&value.equals(that.value));
-            }else {
-                return (dValue.setScale(that.dValue.scale(),BigDecimal.ROUND_HALF_UP).compareTo(that.dValue)==0&&value.equals(that.value));
+        } else {
+            if (decimalValue.scale() < that.decimalValue.scale()) {
+                return (dValue.compareTo(
+                                        that.dValue.setScale(
+                                                dValue.scale(), BigDecimal.ROUND_HALF_UP))
+                                == 0
+                        && value.equals(that.value));
+            } else {
+                return (dValue.setScale(that.dValue.scale(), BigDecimal.ROUND_HALF_UP)
+                                        .compareTo(that.dValue)
+                                == 0
+                        && value.equals(that.value));
             }
         }
     }

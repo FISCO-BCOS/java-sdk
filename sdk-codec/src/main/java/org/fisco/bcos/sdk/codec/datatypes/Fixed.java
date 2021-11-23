@@ -17,7 +17,7 @@ public class Fixed extends FixedPointType {
     public Fixed(BigInteger value) {
         this(DEFAULT_BIT_LENGTH, DEFAULT_BIT_LENGTH, value);
     }
-    
+
     protected Fixed(int mBitSize, int nBitSize, BigDecimal value) {
         super(TYPE_NAME, mBitSize, nBitSize, value);
     }
