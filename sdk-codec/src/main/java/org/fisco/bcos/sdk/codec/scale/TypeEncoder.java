@@ -80,7 +80,8 @@ public class TypeEncoder {
                 byteArray[i] = byteValue[byteValue.length - i - 1];
             }
         }
-        writer.writeByteArray(byteArray);
+        // Note: modify with liquid u256 after modify the node
+        writer.writeCompactInteger(numericType.getValue());
     }
 
     public static void encodeBool(Bool boolType, ScaleCodecWriter writer) throws IOException {

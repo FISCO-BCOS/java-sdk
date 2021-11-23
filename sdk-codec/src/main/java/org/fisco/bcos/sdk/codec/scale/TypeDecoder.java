@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
-import org.apache.commons.lang3.ArrayUtils;
 import org.fisco.bcos.sdk.codec.Utils;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 
@@ -42,9 +41,9 @@ public class TypeDecoder {
     }
 
     public static <T extends NumericType> T decodeNumeric(ScaleCodecReader reader, Class<T> type) {
-
         try {
             int bitSize = 256;
+            // TODO: optimize here(duplicated code with abi)
             if (IntType.class.isAssignableFrom(type)) {
                 String regex =
                         "(" + Uint.class.getSimpleName() + "|" + Int.class.getSimpleName() + ")";
@@ -79,11 +78,15 @@ public class TypeDecoder {
                     return type.getConstructor(BigDecimal.class).newInstance(finalResult);
                 }
             }
-
-            byte[] resultBytes = reader.readByteArray(bitSize >> 3);
-            ArrayUtils.reverse(resultBytes);
-            BigInteger numericValue = new BigInteger(resultBytes);
-            return type.getConstructor(BigInteger.class).newInstance(numericValue);
+            int bytesSize = bitSize >> 3;
+            BigInteger value;
+            boolean signedValue = type.toString().contains("Uint") ? false : true;
+            if (bytesSize >= 1 && bytesSize <= 16) {
+                value = reader.decodeInteger(signedValue, bytesSize);
+            } else {
+                value = reader.decodeCompactInteger();
+            }
+            return type.getConstructor(BigInteger.class).newInstance(value);
         } catch (NoSuchMethodException
                 | SecurityException
                 | InstantiationException
