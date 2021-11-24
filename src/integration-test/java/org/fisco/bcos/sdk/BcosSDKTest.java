@@ -18,6 +18,7 @@
 package org.fisco.bcos.sdk;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -344,5 +345,24 @@ public class BcosSDKTest {
         System.out.println("helloworld2 get :" + s2);
         s2 = helloWorld.get();
         System.out.println("helloworld get :" + s2);
+    }
+
+    @Test
+    public void testGetGroupList() throws ConfigException, JniException {
+        ConfigOption configOption = Config.load(configFile);
+
+        System.out.println("configOption: " + configOption);
+
+        Client clientWithoutGroupId = Client.build(configOption);
+        System.out.println("build clientWithoutGroupId");
+        List<String> groupList = clientWithoutGroupId.getGroupList().getResult().getGroupList();
+        System.out.println("getGroupList: " + groupList);
+
+        BcosSDK bcosSDK = new BcosSDK(configOption);
+        for(String groupId: groupList) {
+            Client client = bcosSDK.getClient(groupId);
+            System.out.println("build client, groupId: " + groupId);
+            System.out.println("getBlockNumber, blk: " + client.getBlockNumber().getBlockNumber());
+        }
     }
 }
