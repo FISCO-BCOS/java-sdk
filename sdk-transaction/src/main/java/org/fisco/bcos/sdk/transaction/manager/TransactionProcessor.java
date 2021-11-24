@@ -74,6 +74,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
 
     @Override
     public Call executeCall(String from, String to, byte[] encodedFunction) {
+        System.out.println("encoded function: "+Hex.toHexString(encodedFunction));
         log.info("encoded function: {}", Hex.toHexString(encodedFunction));
         return this.client.call(new Transaction(from, to, encodedFunction));
     }
@@ -82,7 +83,6 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     public String createSignedTransaction(String to, byte[] data, CryptoKeyPair cryptoKeyPair) {
         TransactionData rawTransaction =
                 this.transactionBuilder.createTransaction(to, data, this.chainId, this.groupId);
-        System.out.println("5: " + rawTransaction.nonce);
         return this.transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
     }
 }

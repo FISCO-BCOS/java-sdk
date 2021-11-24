@@ -23,6 +23,7 @@ public class FunctionReturnDecoder implements FunctionReturnDecoderInterface {
      */
     @Override
     public List<Type> decode(String rawInput, List<TypeReference<Type>> outputParameters) {
+        System.out.println("rawInput:"+rawInput);
         String input = Numeric.cleanHexPrefix(rawInput);
 
         if (StringUtils.isEmpty(input)) {
@@ -79,11 +80,13 @@ public class FunctionReturnDecoder implements FunctionReturnDecoderInterface {
         List<Type> results = new ArrayList<>(outputParameters.size());
         byte[] rawInput = Hex.decode(input);
         ScaleCodecReader reader = new ScaleCodecReader(rawInput);
-        System.out.println("4: ");
+        System.out.println("4: build");
         for (TypeReference<?> typeReference : outputParameters) {
             try {
                 Class<Type> classType = (Class<Type>) typeReference.getClassType();
                 Type result = TypeDecoder.decode(reader, classType);
+                System.out.println("validation Fixed: "+(result instanceof FixedType));
+                System.out.println("validation Fixed Value: "+result.getValue());
                 results.add(result);
             } catch (ClassNotFoundException e) {
                 throw new UnsupportedOperationException("Invalid class reference provided", e);

@@ -105,7 +105,6 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse deployAndGetResponse(String abi, String signedData) {
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
-        System.out.println("receipt: "+receipt);
         try {
             System.out.println("6: " + "enter");
             return this.transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
@@ -312,6 +311,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws TransactionBaseException, ABICodecException {
         byte[] data = this.abiCodec.encodeMethodFromString(abi, functionName, paramsList);
         log.info("encoded data: {}", Hex.toHexString(data));
+        System.out.println("encoded data: "+Hex.toHexString(data));
         return this.callAndGetResponse(from, to, abi, functionName, data);
     }
 
@@ -319,6 +319,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String from, String to, String abi, String functionName, byte[] data)
             throws ABICodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
+        System.out.println("execute call" + call.getCallResult());
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         System.out.println("1: " + call.getCallResult());
         List<Type> decodedResult =

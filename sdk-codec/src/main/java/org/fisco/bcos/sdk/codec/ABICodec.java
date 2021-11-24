@@ -213,6 +213,7 @@ public class ABICodec {
             if (typeStr.startsWith("Fixed")) {
                 if (typeStr.substring(5).split("x")[0].equals("72") && typeStr.substring(5).split("x")[1].equals("16")) {
                     type = new Fixed72x16(new BigDecimal(param));
+                    System.out.println("typeValue: "+type.getValue());
                     return type;
                 }
             }
@@ -288,14 +289,13 @@ public class ABICodec {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
         List<ABIDefinition.NamedType> inputTypes = abiDefinition.getInputs();
-        System.out.println("1: " + inputTypes.size());
+        System.out.println("1: inputTypes.Size: " + inputTypes.size());
         if (inputTypes.size() != params.size()) {
             String errorMsg =
                     String.format(
                             " expected %d parameters but provided %d parameters",
                             inputTypes.size(), params.size());
             logger.error(errorMsg);
-            System.out.println("1: "+errorMsg);
             throw new ABICodecException(errorMsg);
         }
 
@@ -353,11 +353,8 @@ public class ABICodec {
                         org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeParameters(
                                 deployParams, null));
             }
-            System.out.println(outputStream.toByteArray().length);
+            System.out.println("outputLen: "+outputStream.toByteArray().length);
             System.out.println("------");
-            for(int i=0;i<10;i++) {
-                System.out.println(outputStream.toByteArray()[i]);
-            }
             return outputStream.toByteArray();
         } catch (Exception e) {
             logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
@@ -469,6 +466,7 @@ public class ABICodec {
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        System.out.println("methodName: "+methodName);
         if (methods == null) {
             logger.debug(
                     "Invalid methodName: {}, all the functions are: {}",
@@ -493,6 +491,7 @@ public class ABICodec {
                     String signature =
                             FunctionEncoderInterface.buildMethodSignature(
                                     abiDefinition.getName(), inputTypes);
+                    System.out.println("signature: "+signature);
                     if (this.isWasm) {
                         byte[] methodID = this.scaleFunctionEncoder.buildMethodId(signature);
                         outputStream.write(
@@ -583,17 +582,17 @@ public class ABICodec {
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        System.out.println("method" + methodName+methods.size());
         for (ABIDefinition abiDefinition : methods) {
             List<ABIDefinition.NamedType> outputs = abiDefinition.getOutputs();
             List<TypeReference<Type>> outputTypes = new ArrayList<>();
+            System.out.println("outputs: "+outputs.size());
             try {
                 for (ABIDefinition.NamedType namedType : outputs) {
-                    System.out.println("2: "+namedType.getType().toString());
                     outputTypes.add(TypeReference.makeTypeReference(namedType.getType(), false));
                     System.out.println(outputTypes.get(0).getType().toString());
                 }
                 List<Type> decodedOutputs = this.functionReturnDecoder.decode(output, outputTypes);
-                System.out.println(decodedOutputs.get(0).getClass().getSimpleName());
                 return decodedOutputs;
             } catch (Exception e) {
                 logger.error("exception in decodeMethodToObject: {}, e:", e.getMessage(), e);

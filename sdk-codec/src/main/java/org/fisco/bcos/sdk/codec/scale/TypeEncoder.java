@@ -13,13 +13,13 @@ public class TypeEncoder {
     public static void encode(Type parameter, ScaleCodecWriter writer) throws IOException {
         if (parameter instanceof NumericType) {
             encodeNumeric((NumericType) parameter, writer);
+        } else if (parameter instanceof FixedType) {
+            encodeFixed((FixedType) parameter, writer);
         } else if (parameter instanceof Bool) {
             encodeBool((Bool) parameter, writer);
         } else if (parameter instanceof BytesType) {
-            System.out.println("encodeBytes");
             encodeBytes((BytesType) parameter, writer);
         } else if (parameter instanceof Utf8String) {
-            System.out.println("ut8String");
             System.out.println(parameter.getValue());
             encodeString((Utf8String) parameter, writer);
         } else if (parameter instanceof StructType) {
@@ -35,53 +35,55 @@ public class TypeEncoder {
     public static void encodeNumeric(NumericType numericType, ScaleCodecWriter writer)
             throws IOException {
         int bitSize = numericType.getBitSize();
-        if ((bitSize & (bitSize - 1)) != 0 && bitSize < 8) {
-            throw new UnsupportedOperationException(
-                    "Type cannot be encoded: " + numericType.getTypeAsString());
-        }
-
-        byte[] byteArray = new byte[bitSize >> 3];
-        BigInteger value = numericType.getValue();
-        // For FixedPointType number encoding
-        if (FixedPointType.class.isAssignableFrom(numericType.getClass())) {
-            String regex =
-                    "(" + Ufixed.class.getSimpleName() + "|" + Fixed.class.getSimpleName() + ")";
-            String[] splitName = numericType.getClass().getSimpleName().split(regex);
-            if (splitName.length == 2) {
-                // FixedPointType processing
-                byte[] byteInt =
-                        new byte[((numericType.getBitSize() - numericType.getNBitSize()) >> 3) - 1];
-                BigDecimal dValue = numericType.getDValue();
-                if (dValue.signum() < 0) dValue = dValue.abs();
-                byte[] decimalByteArray =
-                        Utils.getBytesOfDecimalPart(dValue, numericType.getNBitSize());
-                if (value.signum() < 0) value = value.abs();
-                byte[] byteIntValue = value.toByteArray();
-
-                for (int i = 0; i < byteIntValue.length; ++i) {
-                    byteInt[i] = byteIntValue[byteIntValue.length - i - 1];
-                }
-
-                ArrayUtils.reverse(byteInt);
-
-                byteArray[0] = (numericType.getSig() == 0) ? (byte) 0 : (byte) 255;
-
-                System.arraycopy(byteInt, 0, byteArray, 1, byteInt.length);
-                System.arraycopy(
-                        decimalByteArray,
-                        0,
-                        byteArray,
-                        byteInt.length + 1,
-                        decimalByteArray.length);
+        int byteSize = bitSize / 8;
+        if (byteSize >= 1 && byteSize <= 16) {
+            if (numericType.getTypeAsString().contains("uint")) {
+                writer.writeUnsignedInteger(numericType.getValue(), byteSize);
+                return;
             }
-        } else {
-            byte[] byteValue = value.toByteArray();
-            for (int i = 0; i < byteValue.length; ++i) {
-                byteArray[i] = byteValue[byteValue.length - i - 1];
-            }
+            writer.writeInteger(numericType.getValue(), byteSize);
+            return;
         }
         // Note: modify with liquid u256 after modify the node
         writer.writeCompactInteger(numericType.getValue());
+    }
+
+    public static void encodeFixed(FixedType fixedType, ScaleCodecWriter writer)
+            throws IOException {
+        int bitSize = fixedType.getBitSize();
+        if ((bitSize & (bitSize - 1)) != 0 && bitSize < 8) {
+            throw new UnsupportedOperationException(
+                    "Type cannot be encoded: " + fixedType.getTypeAsString());
+        }
+        byte[] byteArray = new byte[bitSize >> 3];
+        // FixedPointType processing
+        byte[] byteInt =
+        new byte[((fixedType.getBitSize() - fixedType.getNBitSize()) >> 3) - 1];
+        BigDecimal dValue = fixedType.getDValue();
+        if (dValue.signum() < 0) dValue = dValue.abs();
+        byte[] decimalByteArray =
+                Utils.getBytesOfDecimalPart(dValue, fixedType.getNBitSize());
+        BigInteger nValue = fixedType.getNValue();
+        if (nValue.signum() < 0) nValue = nValue.abs();
+        byte[] byteIntValue = nValue.toByteArray();
+
+        for (int i = 0; i < byteIntValue.length; ++i) {
+            byteInt[i] = byteIntValue[byteIntValue.length - i - 1];
+        }
+
+        ArrayUtils.reverse(byteInt);
+
+        byteArray[0] = (fixedType.getSig() == 0) ? (byte) 0 : (byte) 255;
+
+        System.arraycopy(byteInt, 0, byteArray, 1, byteInt.length);
+        System.arraycopy(
+                decimalByteArray,
+                0,
+                byteArray,
+                byteInt.length + 1,
+                decimalByteArray.length);
+        // Note: modify with liquid u256 after modify the node
+        writer.writeByteArray(byteArray);
     }
 
     public static void encodeBool(Bool boolType, ScaleCodecWriter writer) throws IOException {

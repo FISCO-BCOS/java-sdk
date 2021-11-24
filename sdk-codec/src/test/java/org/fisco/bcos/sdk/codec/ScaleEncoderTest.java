@@ -70,7 +70,18 @@ public class ScaleEncoderTest {
                 "01257e44f7"
                         + "45000000"
                         + "0000fffffffffffffe",
-                TestUtils.bytesToString(ecdsaEncoder.encode(function2)));         
+                TestUtils.bytesToString(ecdsaEncoder.encode(function2)));
+                
+        Function function3 =
+        new Function(
+                "set",
+                Arrays.asList(new Fixed72x16("1.5")),
+                Collections.emptyList());
+
+        assertEquals(
+                "01f18bd7a2"
+                        + "000000000000018000",
+                TestUtils.bytesToString(ecdsaEncoder.encode(function3)));   
     }
 
     

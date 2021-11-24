@@ -26,8 +26,8 @@ public class TypeEncoderTest {
     @Test
     public void testFixedEncode() {
         assertEquals(
-                TestUtils.bytesToString(TypeEncoder.encodeNumeric(new Fixed72x16("1.5"))),
-                ("000000000000018000"));
+                TestUtils.bytesToString(TypeEncoder.encodeFixed(new Fixed72x16("-2.5"))),
+                ("ff0000000000028000"));
     }
 
     @Test

@@ -105,11 +105,11 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         TransactionResponse response = new TransactionResponse();
         try {
             System.out.println("8: "+"response");
-            System.out.println("8: "+receipt.getFrom());
             System.out.println("8: "+receipt.getStatus());
             RetCode retCode = ReceiptParser.parseTransactionReceipt(receipt);
             response.setReturnCode(retCode.getCode());
             System.out.println("9: "+response.getReturnCode());
+            System.out.println("10: Results: "+response.getResults());
             response.setReceiptMessages(retCode.getMessage());
             response.setReturnMessage(retCode.getMessage());
         } catch (ContractException e) {

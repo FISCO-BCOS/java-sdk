@@ -32,6 +32,7 @@ import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.codec.datatypes.DynamicBytes;
+import org.fisco.bcos.sdk.codec.datatypes.FixedType;
 import org.fisco.bcos.sdk.codec.datatypes.Type;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
@@ -100,15 +101,16 @@ public class AssembleTransactionProcessorTest {
         params[0] = "1.5";
         List<String> inputParams = Arrays.asList(params);
         TransactionResponse response =
-                transactionProcessor.deployAndGetResponseWithStringParams(abi, binStr, inputParams, "fixed");
+                transactionProcessor.deployAndGetResponseWithStringParams(abi, binStr, inputParams, "fixed13");
                 System.out.println(response.getEvents());
                 System.out.println(response.getReturnMessage());
+                System.out.println(response.getContractAddress());
     }
 
     @Test
     public void testCallLiquid() {
         try {
-                AssembleTransactionProcessor transactionProcessor;
+                AssembleTransactionProcessorInterface transactionProcessor;
                 transactionProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(
                         this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
                         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
@@ -119,10 +121,44 @@ public class AssembleTransactionProcessorTest {
         CallResponse response =
                 transactionProcessor.sendCallWithStringParams(
                         cryptoKeyPair.getAddress(),
-                        this.client.isWASM() ? "fixed" : "fixed",
+                        this.client.isWASM() ? "fixed13" : "fixed13",
                         abi,
                         "get",
                         inputParams);
+        System.out.println("is Fixed?: "+(response.getResults().get(0) instanceof FixedType));
+        System.out.println("FixedValue: "+response.getResults().get(0).getValue());
+        // System.out.println(response.getResults());
+        } catch (TransactionBaseException|ABICodecException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+        
+        } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+        }
+        
+    }
+
+    @Test
+    public void testCallSetLiquid() {
+        try {
+                AssembleTransactionProcessorInterface transactionProcessor;
+                transactionProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
+                        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
+        String[] params = new String[1];
+        params[0] = "3.5";
+        File abiFile = new File(ABI_FILE + "fixed_pointsimple.abi");
+        String abi = FileUtils.readFileToString(abiFile);
+        List<String> inputParams = Arrays.asList(params);
+        TransactionResponse response =
+                transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
+                        "fixed15",
+                        abi,
+                        "set",
+                        inputParams);
+        System.out.println(response.getReturnMessage());
+        // System.out.println("FixedValue: "+response.getResults().get(0).getValue());
         // System.out.println(response.getResults());
         } catch (TransactionBaseException|ABICodecException e) {
                 // TODO Auto-generated catch block
