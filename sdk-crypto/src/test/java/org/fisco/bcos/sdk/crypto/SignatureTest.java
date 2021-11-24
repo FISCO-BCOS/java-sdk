@@ -426,9 +426,9 @@ public class SignatureTest {
     public String getKeyStoreFilePath(
             CryptoSuite cryptoSuite, ConfigOption configOption, String postFix) {
         return configOption.getAccountConfig().getKeyStoreDir()
-                + File.separator
+                + "/"
                 + cryptoSuite.getCryptoKeyPair().getKeyStoreSubDir()
-                + File.separator
+                + "/"
                 + cryptoSuite.getCryptoKeyPair().getAddress()
                 + postFix;
     }
