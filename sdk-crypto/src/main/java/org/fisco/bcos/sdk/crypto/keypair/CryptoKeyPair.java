@@ -301,7 +301,7 @@ public abstract class CryptoKeyPair {
         if (config != null) {
             keyStoreFileDir = config.getAccountConfig().getKeyStoreDir();
         }
-        keyStoreFileDir = keyStoreFileDir + File.separator + keyStoreSubDir + File.separator;
+        keyStoreFileDir = keyStoreFileDir + "/" + keyStoreSubDir + "/";
         return keyStoreFileDir + address + postFix;
     }
 }

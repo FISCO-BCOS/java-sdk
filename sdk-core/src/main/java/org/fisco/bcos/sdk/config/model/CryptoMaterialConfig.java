@@ -15,7 +15,6 @@
 
 package org.fisco.bcos.sdk.config.model;
 
-import java.io.File;
 import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.model.CryptoType;
@@ -124,20 +123,15 @@ public class CryptoMaterialConfig {
         CryptoMaterialConfig cryptoMaterialConfig = new CryptoMaterialConfig();
         cryptoMaterialConfig.setCertPath(certPath);
         if (cryptoType == CryptoType.ECDSA_TYPE) {
-            cryptoMaterialConfig.setCaCertPath(certPath + File.separator + "ca.crt");
-            cryptoMaterialConfig.setSdkCertPath(certPath + File.separator + "sdk.crt");
-            cryptoMaterialConfig.setSdkPrivateKeyPath(certPath + File.separator + "sdk.key");
+            cryptoMaterialConfig.setCaCertPath(certPath + "/" + "ca.crt");
+            cryptoMaterialConfig.setSdkCertPath(certPath + "/" + "sdk.crt");
+            cryptoMaterialConfig.setSdkPrivateKeyPath(certPath + "/" + "sdk.key");
         } else if (cryptoType == CryptoType.SM_TYPE) {
-            cryptoMaterialConfig.setCaCertPath(
-                    certPath + File.separator + File.separator + "sm_ca.crt");
-            cryptoMaterialConfig.setSdkCertPath(
-                    certPath + File.separator + File.separator + "sm_sdk.crt");
-            cryptoMaterialConfig.setSdkPrivateKeyPath(
-                    certPath + File.separator + File.separator + "sm_sdk.key");
-            cryptoMaterialConfig.setEnSdkCertPath(
-                    certPath + File.separator + File.separator + "sm_ensdk.crt");
-            cryptoMaterialConfig.setEnSdkPrivateKeyPath(
-                    certPath + File.separator + File.separator + "sm_ensdk.key");
+            cryptoMaterialConfig.setCaCertPath(certPath + "/" + "sm_ca.crt");
+            cryptoMaterialConfig.setSdkCertPath(certPath + "/" + "sm_sdk.crt");
+            cryptoMaterialConfig.setSdkPrivateKeyPath(certPath + "/" + "sm_sdk.key");
+            cryptoMaterialConfig.setEnSdkCertPath(certPath + "/" + "sm_ensdk.crt");
+            cryptoMaterialConfig.setEnSdkPrivateKeyPath(certPath + "/" + "sm_ensdk.key");
         } else {
             throw new ConfigException(
                     "load CryptoMaterialConfig failed, only support ecdsa and sm now, expected 0 or 1, but provided "
