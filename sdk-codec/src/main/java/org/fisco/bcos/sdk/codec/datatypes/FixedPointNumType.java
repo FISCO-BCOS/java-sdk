@@ -2,7 +2,7 @@ package org.fisco.bcos.sdk.codec.datatypes;
 
 import java.math.BigDecimal;
 
-public class FixedPointNumType extends FixedType{
+public class FixedPointNumType extends FixedType {
     static final int DEFAULT_BIT_LENGTH = MAX_BIT_LENGTH >> 1;
 
     public FixedPointNumType(String typePrefix, int mBitSize, int nBitSize, BigDecimal value) {
@@ -22,6 +22,9 @@ public class FixedPointNumType extends FixedType{
     }
 
     static boolean isValidBitSize(int mBitSize, int nBitSize) {
-        return mBitSize % 8 == 0 && nBitSize % 8 == 0 && mBitSize*nBitSize > 0 && mBitSize <= MAX_BIT_LENGTH;
+        return mBitSize % 8 == 0
+                && nBitSize % 8 == 0
+                && mBitSize * nBitSize > 0
+                && mBitSize <= MAX_BIT_LENGTH;
     }
 }

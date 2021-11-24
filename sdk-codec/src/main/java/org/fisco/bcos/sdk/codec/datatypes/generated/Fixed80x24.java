@@ -1,7 +1,6 @@
 package org.fisco.bcos.sdk.codec.datatypes.generated;
 
 import java.math.BigDecimal;
-import org.fisco.bcos.sdk.codec.datatypes.Fixed;
 import org.fisco.bcos.sdk.codec.datatypes.FixedPointNumType;
 
 public class Fixed80x24 extends FixedPointNumType {

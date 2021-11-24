@@ -311,7 +311,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws TransactionBaseException, ABICodecException {
         byte[] data = this.abiCodec.encodeMethodFromString(abi, functionName, paramsList);
         log.info("encoded data: {}", Hex.toHexString(data));
-        System.out.println("encoded data: "+Hex.toHexString(data));
+        System.out.println("encoded data: " + Hex.toHexString(data));
         return this.callAndGetResponse(from, to, abi, functionName, data);
     }
 

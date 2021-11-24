@@ -211,9 +211,10 @@ public class ABICodec {
             }
 
             if (typeStr.startsWith("Fixed")) {
-                if (typeStr.substring(5).split("x")[0].equals("72") && typeStr.substring(5).split("x")[1].equals("16")) {
+                if (typeStr.substring(5).split("x")[0].equals("72")
+                        && typeStr.substring(5).split("x")[1].equals("16")) {
                     type = new Fixed72x16(new BigDecimal(param));
-                    System.out.println("typeValue: "+type.getValue());
+                    System.out.println("typeValue: " + type.getValue());
                     return type;
                 }
             }
@@ -348,12 +349,12 @@ public class ABICodec {
                     deployParams.add(new Uint8(0));
                 }
                 deployParams.add(new Utf8String(abi));
-                System.out.println("deployParams"+deployParams);
+                System.out.println("deployParams" + deployParams);
                 outputStream.write(
                         org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeParameters(
                                 deployParams, null));
             }
-            System.out.println("outputLen: "+outputStream.toByteArray().length);
+            System.out.println("outputLen: " + outputStream.toByteArray().length);
             System.out.println("------");
             return outputStream.toByteArray();
         } catch (Exception e) {
@@ -466,7 +467,7 @@ public class ABICodec {
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
-        System.out.println("methodName: "+methodName);
+        System.out.println("methodName: " + methodName);
         if (methods == null) {
             logger.debug(
                     "Invalid methodName: {}, all the functions are: {}",
@@ -491,7 +492,7 @@ public class ABICodec {
                     String signature =
                             FunctionEncoderInterface.buildMethodSignature(
                                     abiDefinition.getName(), inputTypes);
-                    System.out.println("signature: "+signature);
+                    System.out.println("signature: " + signature);
                     if (this.isWasm) {
                         byte[] methodID = this.scaleFunctionEncoder.buildMethodId(signature);
                         outputStream.write(
@@ -582,11 +583,11 @@ public class ABICodec {
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
-        System.out.println("method" + methodName+methods.size());
+        System.out.println("method" + methodName + methods.size());
         for (ABIDefinition abiDefinition : methods) {
             List<ABIDefinition.NamedType> outputs = abiDefinition.getOutputs();
             List<TypeReference<Type>> outputTypes = new ArrayList<>();
-            System.out.println("outputs: "+outputs.size());
+            System.out.println("outputs: " + outputs.size());
             try {
                 for (ABIDefinition.NamedType namedType : outputs) {
                     outputTypes.add(TypeReference.makeTypeReference(namedType.getType(), false));

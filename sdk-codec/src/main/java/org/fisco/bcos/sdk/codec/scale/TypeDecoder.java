@@ -19,7 +19,7 @@ public class TypeDecoder {
     public static <T extends Type> T decode(ScaleCodecReader reader, Class<T> type) {
         if (NumericType.class.isAssignableFrom(type)) {
             return (T) decodeNumeric(reader, (Class<NumericType>) type);
-        } else if(FixedType.class.isAssignableFrom(type)) {
+        } else if (FixedType.class.isAssignableFrom(type)) {
             return (T) decodeFixed(reader, (Class<FixedType>) type);
         } else if (Bool.class.isAssignableFrom(type)) {
             return (T) decodeBool(reader);
@@ -43,9 +43,9 @@ public class TypeDecoder {
     }
 
     public static <T extends FixedType> T decodeFixed(ScaleCodecReader reader, Class<T> type) {
-        try{
+        try {
             String splitName = type.getSimpleName().substring(5);
-            System.out.println("5: "+type.getSimpleName());
+            System.out.println("5: " + type.getSimpleName());
             String[] bitsCounts = splitName.split("x");
             // newly define the size is left to "x"
             int bitSize = Integer.parseInt(bitsCounts[0]);
@@ -58,11 +58,13 @@ public class TypeDecoder {
             BigInteger numericIntValue = new BigInteger(resultIntBytes);
 
             BigDecimal result = Utils.processFixedScaleDecode(resultDecBytes, nbitSize);
-            BigDecimal finalResult =  (sig[0] == (byte)0) ? result.add(new BigDecimal(numericIntValue)) :result.add(new BigDecimal(numericIntValue)).negate();
+            BigDecimal finalResult =
+                    (sig[0] == (byte) 0)
+                            ? result.add(new BigDecimal(numericIntValue))
+                            : result.add(new BigDecimal(numericIntValue)).negate();
             System.out.println(finalResult);
             return type.getConstructor(BigDecimal.class).newInstance(finalResult);
-        }
-        catch (NoSuchMethodException
+        } catch (NoSuchMethodException
                 | SecurityException
                 | InstantiationException
                 | IllegalAccessException

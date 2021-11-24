@@ -57,12 +57,10 @@ public class TypeEncoder {
         }
         byte[] byteArray = new byte[bitSize >> 3];
         // FixedPointType processing
-        byte[] byteInt =
-        new byte[((fixedType.getBitSize() - fixedType.getNBitSize()) >> 3) - 1];
+        byte[] byteInt = new byte[((fixedType.getBitSize() - fixedType.getNBitSize()) >> 3) - 1];
         BigDecimal dValue = fixedType.getDValue();
         if (dValue.signum() < 0) dValue = dValue.abs();
-        byte[] decimalByteArray =
-                Utils.getBytesOfDecimalPart(dValue, fixedType.getNBitSize());
+        byte[] decimalByteArray = Utils.getBytesOfDecimalPart(dValue, fixedType.getNBitSize());
         BigInteger nValue = fixedType.getNValue();
         if (nValue.signum() < 0) nValue = nValue.abs();
         byte[] byteIntValue = nValue.toByteArray();
@@ -77,11 +75,7 @@ public class TypeEncoder {
 
         System.arraycopy(byteInt, 0, byteArray, 1, byteInt.length);
         System.arraycopy(
-                decimalByteArray,
-                0,
-                byteArray,
-                byteInt.length + 1,
-                decimalByteArray.length);
+                decimalByteArray, 0, byteArray, byteInt.length + 1, decimalByteArray.length);
         // Note: modify with liquid u256 after modify the node
         writer.writeByteArray(byteArray);
     }

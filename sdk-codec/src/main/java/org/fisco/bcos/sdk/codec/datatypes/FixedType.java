@@ -4,10 +4,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Objects;
-
 import org.fisco.bcos.sdk.codec.Utils;
 
-public class FixedType implements Type<BigDecimal>{
+public class FixedType implements Type<BigDecimal> {
     private String type;
     BigDecimal value;
     private BigInteger nValue;
@@ -72,7 +71,8 @@ public class FixedType implements Type<BigDecimal>{
             if (value.scale() < that.value.scale()) {
                 return (value.equals(that.value.setScale(value.scale(), RoundingMode.HALF_UP)));
             } else {
-                return (value.setScale(that.value.scale(), RoundingMode.HALF_UP).equals(that.value));
+                return (value.setScale(that.value.scale(), RoundingMode.HALF_UP)
+                        .equals(that.value));
             }
         }
     }
