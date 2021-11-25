@@ -37,6 +37,7 @@ import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Response;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class ClientImpl implements Client {
         if (nodeList == null || nodeList.isEmpty()) {
             logger.error("There has no nodes in the group, groupID: {}, groupInfo: {}", groupInfo);
             throw new ClientException(
-                    "There has no nodes in the group, please check the group, groupID: "
+                    "There has no nodes in the group, maybe the group has been removed, groupID: "
                             + this.groupID);
         }
 
@@ -246,7 +247,10 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(
                         JsonRpcMethods.CALL,
                         Arrays.asList(
-                                this.groupID, node, transaction.getTo(), transaction.getData())),
+                                this.groupID,
+                                node,
+                                Hex.trimPrefix(transaction.getTo()),
+                                transaction.getData())),
                 Call.class);
     }
 
@@ -262,7 +266,12 @@ public class ClientImpl implements Client {
                 this.groupID,
                 node,
                 new JsonRpcRequest(
-                        JsonRpcMethods.CALL, Arrays.asList(this.groupID, node, transaction)),
+                        JsonRpcMethods.CALL,
+                        Arrays.asList(
+                                this.groupID,
+                                node,
+                                Hex.trimPrefix(transaction.getTo()),
+                                transaction.getData())),
                 Call.class,
                 callback);
     }
@@ -307,10 +316,12 @@ public class ClientImpl implements Client {
     @Override
     public Code getCode(String node, String address) {
         node = Objects.isNull(node) ? "" : node;
+
         // create request
         JsonRpcRequest request =
                 new JsonRpcRequest(
-                        JsonRpcMethods.GET_CODE, Arrays.asList(this.groupID, node, address));
+                        JsonRpcMethods.GET_CODE,
+                        Arrays.asList(this.groupID, node, Hex.trimPrefix(address)));
         return this.callRemoteMethod(this.groupID, node, request, Code.class);
     }
 
@@ -326,7 +337,8 @@ public class ClientImpl implements Client {
                 this.groupID,
                 node,
                 new JsonRpcRequest(
-                        JsonRpcMethods.GET_CODE, Arrays.asList(this.groupID, node, address)),
+                        JsonRpcMethods.GET_CODE,
+                        Arrays.asList(this.groupID, node, Hex.trimPrefix(address))),
                 Code.class,
                 callback);
     }

@@ -33,13 +33,13 @@ public class BcosSDK {
         return config;
     }
 
-//    public org.fisco.bcos.sdk.jni.BcosSDK getJniBcosSdk() {
-//        return jniBcosSdk;
-//    }
-//
-//    public void setJniBcosSdk(org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk) {
-//        this.jniBcosSdk = jniBcosSdk;
-//    }
+    //    public org.fisco.bcos.sdk.jni.BcosSDK getJniBcosSdk() {
+    //        return jniBcosSdk;
+    //    }
+    //
+    //    public void setJniBcosSdk(org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk) {
+    //        this.jniBcosSdk = jniBcosSdk;
+    //    }
 
     /**
      * Build BcosSDK instance
