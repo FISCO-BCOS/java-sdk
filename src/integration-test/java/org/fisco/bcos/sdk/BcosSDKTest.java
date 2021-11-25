@@ -359,7 +359,7 @@ public class BcosSDKTest {
         System.out.println("getGroupList: " + groupList);
 
         BcosSDK bcosSDK = new BcosSDK(configOption);
-        for(String groupId: groupList) {
+        for (String groupId : groupList) {
             Client client = bcosSDK.getClient(groupId);
             System.out.println("build client, groupId: " + groupId);
             System.out.println("getBlockNumber, blk: " + client.getBlockNumber().getBlockNumber());
