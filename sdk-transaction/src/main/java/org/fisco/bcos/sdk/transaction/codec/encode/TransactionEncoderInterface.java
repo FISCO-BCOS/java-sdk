@@ -39,7 +39,8 @@ public interface TransactionEncoderInterface {
      * @param cryptoKeyPair keypair
      * @return encoded & signed transaction byte array
      */
-    byte[] encodeAndSignBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);
+    byte[] encodeAndSignBytes(
+            TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair, int attribute);
 
     /**
      * Tars encode and sign based on TransactionData
@@ -48,7 +49,8 @@ public interface TransactionEncoderInterface {
      * @param cryptoKeyPair keypair
      * @return encoded & signed transaction hexed String
      */
-    String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair);
+    String encodeAndSign(
+            TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair, int attribute);
 
     /**
      * Tars encode and hash based on TransactionData
@@ -67,7 +69,7 @@ public interface TransactionEncoderInterface {
      * @return
      */
     byte[] encodeToTransactionBytes(
-            TransactionData rawTransaction, byte[] hash, SignatureResult result);
+            TransactionData rawTransaction, byte[] hash, SignatureResult result, int attribute);
 
     /**
      * Tars encode rawTransaction to Transaction bytes
@@ -76,5 +78,6 @@ public interface TransactionEncoderInterface {
      * @param result
      * @return
      */
-    byte[] encodeToTransactionBytes(TransactionData rawTransaction, SignatureResult result);
+    byte[] encodeToTransactionBytes(
+            TransactionData rawTransaction, SignatureResult result, int attribute);
 }

@@ -1,5 +1,7 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
+import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_CREATE;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.bouncycastle.util.encoders.Hex;
@@ -58,6 +60,10 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     public void deployAsync(
             TransactionData rawTransaction, RemoteSignCallbackInterface remoteSignCallbackInterface)
             throws ABICodecException {
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_CREATE;
+        }
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
         this.transactionSignProvider.requestForSignAsync(
                 rawTxHash, this.cryptoSuite.getCryptoTypeConfig(), remoteSignCallbackInterface);
@@ -81,7 +87,11 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             String abi, String bin, List<Object> params) throws ABICodecException {
         TransactionData rawTransaction = this.getRawTransactionForConstructor(abi, bin, params);
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
-        return this.signAndPush(rawTransaction, rawTxHash);
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_CREATE;
+        }
+        return this.signAndPush(rawTransaction, rawTxHash, txAttribute);
     }
 
     @Override
@@ -133,11 +143,12 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             throws ABICodecException {
         TransactionData rawTransaction = this.getRawTransaction(to, abi, functionName, params);
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
-        return this.signAndPush(rawTransaction, rawTxHash);
+        return this.signAndPush(rawTransaction, rawTxHash, 0);
     }
 
     @Override
-    public TransactionReceipt encodeAndPush(TransactionData rawTransaction, String signatureStr) {
+    public TransactionReceipt encodeAndPush(
+            TransactionData rawTransaction, String signatureStr, int txAttribute) {
         SignatureResult signatureResult =
                 TransactionSignerServcie.decodeSignatureString(
                         signatureStr,
@@ -146,13 +157,13 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
         byte[] signedTransaction =
                 this.transactionEncoder.encodeToTransactionBytes(
-                        rawTransaction, rawTxHash, signatureResult);
+                        rawTransaction, rawTxHash, signatureResult, txAttribute);
         return this.transactionPusher.push(Hex.toHexString(signedTransaction));
     }
 
     @Override
     public CompletableFuture<TransactionReceipt> signAndPush(
-            TransactionData rawTransaction, byte[] rawTxHash) {
+            TransactionData rawTransaction, byte[] rawTxHash, int txAttribute) {
         CompletableFuture<SignatureResult> future =
                 CompletableFuture.supplyAsync(
                         () ->
@@ -172,7 +183,8 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
                                         "Request remote signature is null");
                                 return null;
                             }
-                            return this.encodeAndPush(rawTransaction, s.convertToString());
+                            return this.encodeAndPush(
+                                    rawTransaction, s.convertToString(), txAttribute);
                         });
         AssembleTransactionProcessor.log.info("Sign and push over, wait for callback...");
         return cr;
