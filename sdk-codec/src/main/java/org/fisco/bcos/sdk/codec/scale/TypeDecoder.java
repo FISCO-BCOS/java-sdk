@@ -69,7 +69,7 @@ public class TypeDecoder {
             if (bytesSize >= 1 && bytesSize <= 16) {
                 value = reader.decodeInteger(signedValue, bytesSize);
             } else {
-                value = reader.decodeCompactInteger();
+                value = reader.decodeInt256();
             }
             return type.getConstructor(BigInteger.class).newInstance(value);
         } catch (NoSuchMethodException

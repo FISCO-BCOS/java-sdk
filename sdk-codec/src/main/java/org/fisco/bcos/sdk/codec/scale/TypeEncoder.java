@@ -29,16 +29,16 @@ public class TypeEncoder {
             throws IOException {
         int bitSize = numericType.getBitSize();
         int byteSize = bitSize / 8;
+        boolean signedInteger = (numericType.getTypeAsString().contains("uint")) ? false : true;
         if (byteSize >= 1 && byteSize <= 16) {
-            if (numericType.getTypeAsString().contains("uint")) {
+            if (!signedInteger) {
                 writer.writeUnsignedInteger(numericType.getValue(), byteSize);
                 return;
             }
             writer.writeInteger(numericType.getValue(), byteSize);
             return;
         }
-        // Note: modify with liquid u256 after modify the node
-        writer.writeCompactInteger(numericType.getValue());
+        writer.writeInt256(signedInteger, numericType.getValue());
     }
 
     public static void encodeBool(Bool boolType, ScaleCodecWriter writer) throws IOException {

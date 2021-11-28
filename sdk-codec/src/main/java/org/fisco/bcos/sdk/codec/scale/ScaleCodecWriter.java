@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.codec.scale.writer.*;
+import org.fisco.bcos.sdk.utils.Hex;
 
 public class ScaleCodecWriter implements Closeable {
     public static class EncodingCategoryLimits {
@@ -76,13 +77,14 @@ public class ScaleCodecWriter implements Closeable {
     }
 
     public void writeUnsignedInteger(BigInteger value, int valueByteSize) throws IOException {
-        BigInteger maxSignedValue = BigInteger.valueOf((1 << (valueByteSize * 8 - 1)) - 1);
+        BigInteger maxSignedValue =
+                BigInteger.ONE.shiftLeft((valueByteSize * 8 - 1)).subtract(BigInteger.ONE);
         if (value.compareTo(maxSignedValue) <= 0) {
             writeInteger(value, valueByteSize);
             return;
         }
         // the highest bit is 1, convert to the negative
-        BigInteger minOverflowUnsignedValue = BigInteger.valueOf((1 << (valueByteSize * 8)));
+        BigInteger minOverflowUnsignedValue = BigInteger.ONE.shiftLeft(valueByteSize * 8);
         if (value.compareTo(minOverflowUnsignedValue) >= 0) {
             throw new UnsupportedOperationException(
                     "writeInteger exception for overflow, value: " + value);
@@ -100,10 +102,39 @@ public class ScaleCodecWriter implements Closeable {
             throw new UnsupportedOperationException(
                     "writeInteger exception for overflow, value: " + value);
         }
+
         for (int i = 0; i < byteValue.length; ++i) {
             byteArray[i] = byteValue[byteValue.length - i - 1];
         }
+        // negative value(fill 0xff: -1)
+        if (value.compareTo(BigInteger.ZERO) < 0) {
+            for (int i = byteValue.length; i < valueByteSize; i++) {
+                byteArray[i] = -1;
+            }
+        }
+        System.out.println(
+                "#### encodedData: "
+                        + Hex.toHexString(byteArray)
+                        + ", byteValue: "
+                        + Hex.toHexString(byteValue));
         writeByteArray(byteArray);
+    }
+
+    public void writeInt256(boolean signed, BigInteger value) throws IOException {
+        // get bytes size
+        byte size = (byte) (((value.bitLength() + 7) >> 3) + 1);
+        // when byteSize more than 16, encode as u256
+        if (size >= 34 && !signed) {
+            throw new UnsupportedOperationException(
+                    "Unsupported unsigned type with length more than 33 bytes");
+        }
+        if (size >= 33 && signed) {
+            throw new UnsupportedOperationException(
+                    "Unsupported unsigned type with length more than 32 bytes");
+        }
+        writeByte(size);
+        // write the big-endian data
+        writeByteArray(value.toByteArray());
     }
 
     private void writeSecondCategory(BigInteger value) throws IOException {

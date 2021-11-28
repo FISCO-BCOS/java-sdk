@@ -3,6 +3,7 @@ package org.fisco.bcos.sdk.codec.scale;
 import java.math.BigInteger;
 import org.apache.commons.lang3.ArrayUtils;
 import org.fisco.bcos.sdk.codec.scale.reader.*;
+import org.fisco.bcos.sdk.utils.Hex;
 
 public class ScaleCodecReader {
     public static final UByteReader UBYTE = new UByteReader();
@@ -78,22 +79,25 @@ public class ScaleCodecReader {
             throw new UnsupportedOperationException("decodeInteger exception for not enough data");
         }
         byte[] resultBytes = readByteArray(bytesSize);
+        System.out.println("#### decodedData: " + Hex.toHexString(resultBytes));
         ArrayUtils.reverse(resultBytes);
-        int pos = 0;
-        for (; pos < resultBytes.length; pos++) {
-            if (resultBytes[pos] != 0) {
-                break;
-            }
-        }
-        int length = resultBytes.length - pos;
-        byte[] result = new byte[length];
-        System.arraycopy(resultBytes, pos, result, 0, length);
-        BigInteger value = new BigInteger(result);
+        System.out.println("#### reversed decodedData: " + Hex.toHexString(resultBytes));
+        BigInteger value = new BigInteger(resultBytes);
         if (value.compareTo(BigInteger.ZERO) < 0 && signed == false) {
             BigInteger minOverflowUnsignedValue = BigInteger.valueOf((1 << (bytesSize * 8)));
             return value.add(minOverflowUnsignedValue);
         }
         return value;
+    }
+
+    public BigInteger decodeInt256() {
+        if (hasMore(1) == false) {
+            throw new UnsupportedOperationException("decodeInt256 exception for not enough data");
+        }
+        // get the size
+        byte size = readByte();
+        // get the data
+        return new BigInteger(readByteArray(size));
     }
 
     public BigInteger decodeCompactInteger() {
