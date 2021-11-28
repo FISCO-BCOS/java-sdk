@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.auth.po;
+package org.fisco.bcos.sdk.contract.auth.po;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -49,5 +49,19 @@ public class CommitteeInfo {
 
     public void setWinRate(int winRate) {
         this.winRate = winRate;
+    }
+
+    @Override
+    public String toString() {
+        return "CommitteeInfo{"
+                + "governorList="
+                + governorList
+                + ", weightList="
+                + weightList
+                + ", participatesRate="
+                + participatesRate
+                + ", winRate="
+                + winRate
+                + '}';
     }
 }

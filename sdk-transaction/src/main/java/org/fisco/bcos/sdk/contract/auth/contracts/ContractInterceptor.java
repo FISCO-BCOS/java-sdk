@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.auth.contracts;
+package org.fisco.bcos.sdk.contract.auth.contracts;
 
 import java.util.Arrays;
 import org.fisco.bcos.sdk.client.Client;

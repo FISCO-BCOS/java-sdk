@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.auth.po;
+package org.fisco.bcos.sdk.contract.auth.po;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -80,5 +80,27 @@ public class ProposalInfo {
 
     public void setAgainstVoters(List<String> againstVoters) {
         this.againstVoters = againstVoters;
+    }
+
+    @Override
+    public String toString() {
+        return "ProposalInfo{"
+                + "id='"
+                + id
+                + '\''
+                + ", proposer='"
+                + proposer
+                + '\''
+                + ", proposalType="
+                + proposalType
+                + ", blockNumberInterval="
+                + blockNumberInterval
+                + ", status="
+                + status
+                + ", agreeVoters="
+                + agreeVoters
+                + ", againstVoters="
+                + againstVoters
+                + '}';
     }
 }
