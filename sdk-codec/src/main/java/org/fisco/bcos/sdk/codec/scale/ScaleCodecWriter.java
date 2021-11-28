@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.codec.scale.writer.*;
-import org.fisco.bcos.sdk.utils.Hex;
 
 public class ScaleCodecWriter implements Closeable {
     public static class EncodingCategoryLimits {
@@ -109,32 +108,35 @@ public class ScaleCodecWriter implements Closeable {
         // negative value(fill 0xff: -1)
         if (value.compareTo(BigInteger.ZERO) < 0) {
             for (int i = byteValue.length; i < valueByteSize; i++) {
-                byteArray[i] = -1;
+                byteArray[i] = (byte) 0xff;
             }
         }
-        System.out.println(
-                "#### encodedData: "
-                        + Hex.toHexString(byteArray)
-                        + ", byteValue: "
-                        + Hex.toHexString(byteValue));
         writeByteArray(byteArray);
     }
 
-    public void writeInt256(boolean signed, BigInteger value) throws IOException {
-        // get bytes size
-        byte size = (byte) (((value.bitLength() + 7) >> 3) + 1);
-        // when byteSize more than 16, encode as u256
-        if (size >= 34 && !signed) {
+    public void writeBigInt256(boolean signed, BigInteger value) throws IOException {
+        if (value.compareTo(BigInteger.ZERO) < 0 && !signed) {
             throw new UnsupportedOperationException(
-                    "Unsupported unsigned type with length more than 33 bytes");
+                    "Must provide positive data when using unsigned type");
         }
-        if (size >= 33 && signed) {
+        // get bytes size
+        byte[] valueBytes = value.toByteArray();
+        byte size = (byte) (valueBytes.length);
+        // when byteSize more than 16, encode as u256
+        if (size > 32) {
             throw new UnsupportedOperationException(
                     "Unsupported unsigned type with length more than 32 bytes");
         }
-        writeByte(size);
+        byte[] encodedData = new byte[32];
+        System.arraycopy(valueBytes, 0, encodedData, (32 - valueBytes.length), valueBytes.length);
+        // extend 0xff
+        if (signed && value.compareTo(BigInteger.ZERO) < 0) {
+            for (int i = 0; i < (32 - valueBytes.length); i++) {
+                encodedData[i] = (byte) 0xff;
+            }
+        }
         // write the big-endian data
-        writeByteArray(value.toByteArray());
+        writeByteArray(encodedData);
     }
 
     private void writeSecondCategory(BigInteger value) throws IOException {

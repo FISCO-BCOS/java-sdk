@@ -13,6 +13,8 @@ public class TypeEncoder {
             encodeBool((Bool) parameter, writer);
         } else if (parameter instanceof BytesType) {
             encodeBytes((BytesType) parameter, writer);
+        } else if (parameter instanceof Address) {
+            encodeAddress((Address) parameter, writer);
         } else if (parameter instanceof Utf8String) {
             encodeString((Utf8String) parameter, writer);
         } else if (parameter instanceof StructType) {
@@ -23,6 +25,10 @@ public class TypeEncoder {
             throw new UnsupportedOperationException(
                     "Type cannot be encoded: " + parameter.getClass());
         }
+    }
+
+    public static void encodeAddress(Address address, ScaleCodecWriter writer) throws IOException {
+        encodeNumeric(address.toUint160(), writer);
     }
 
     public static void encodeNumeric(NumericType numericType, ScaleCodecWriter writer)
@@ -38,7 +44,7 @@ public class TypeEncoder {
             writer.writeInteger(numericType.getValue(), byteSize);
             return;
         }
-        writer.writeInt256(signedInteger, numericType.getValue());
+        writer.writeBigInt256(signedInteger, numericType.getValue());
     }
 
     public static void encodeBool(Bool boolType, ScaleCodecWriter writer) throws IOException {

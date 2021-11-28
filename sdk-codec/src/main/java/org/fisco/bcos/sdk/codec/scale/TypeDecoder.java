@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import org.fisco.bcos.sdk.codec.Utils;
 import org.fisco.bcos.sdk.codec.datatypes.*;
+import org.fisco.bcos.sdk.codec.datatypes.generated.Uint160;
 
 public class TypeDecoder {
     @SuppressWarnings("unchecked")
@@ -20,6 +21,8 @@ public class TypeDecoder {
             return (T) decodeNumeric(reader, (Class<NumericType>) type);
         } else if (Bool.class.isAssignableFrom(type)) {
             return (T) decodeBool(reader);
+        } else if (Address.class.isAssignableFrom(type)) {
+            return (T) decodeAddress(reader);
         } else if (Bytes.class.isAssignableFrom(type)
                 || DynamicBytes.class.isAssignableFrom(type)) {
             return (T) decodeBytes(reader, (Class<Bytes>) type);
@@ -37,6 +40,10 @@ public class TypeDecoder {
         } else {
             throw new UnsupportedOperationException("Type cannot be decoded: " + type.getClass());
         }
+    }
+
+    public static Address decodeAddress(ScaleCodecReader reader) {
+        return new Address(decodeNumeric(reader, Uint160.class));
     }
 
     public static <T extends NumericType> T decodeNumeric(ScaleCodecReader reader, Class<T> type) {

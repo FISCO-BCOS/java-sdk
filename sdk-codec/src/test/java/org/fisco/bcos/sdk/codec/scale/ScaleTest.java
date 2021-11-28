@@ -15,19 +15,29 @@ public class ScaleTest
         // test encode
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ScaleCodecWriter writer = new ScaleCodecWriter(outputStream);
-        if(signed) {
-            writer.writeInteger(value, valueByteSize);
-        }
-        else{
-            writer.writeUnsignedInteger(value, valueByteSize);
-        }
+        if(valueByteSize >= 0 && valueByteSize <= 16) {
+            if (signed) {
+                writer.writeInteger(value, valueByteSize);
+            } else {
+                writer.writeUnsignedInteger(value, valueByteSize);
+            }
+        }else
+            {
+                writer.writeBigInt256(signed, value);
+            }
         String encodeHexData = Hex.toHexString(outputStream.toByteArray());
         System.out.println("* encodeHexData: " + encodeHexData + ", expected data:" + encodeData);
         Assert.assertEquals(encodeHexData, encodeData);
 
         // test decode
         ScaleCodecReader reader = new ScaleCodecReader(outputStream.toByteArray());
-        BigInteger decodedValue = reader.decodeInteger(signed, valueByteSize);
+        BigInteger decodedValue;
+        if(valueByteSize >= 0 && valueByteSize <= 16) {
+             decodedValue = reader.decodeInteger(signed, valueByteSize);
+        }else
+            {
+                decodedValue = reader.decodeInt256();
+            }
         System.out.println("* decodedValue: " + decodedValue + ", expected value:" + value);
         Assert.assertEquals(decodedValue, value);
     }
@@ -226,5 +236,56 @@ public class ScaleTest
         testFixedWidthInteger(new BigInteger("12312434324578437695752307201"), signed, valueByteSize, "0102d3614f9f262a629bc82700000000");
 
         // test u256
+        signed = false;
+        valueByteSize = 32;
+        testFixedWidthInteger(BigInteger.valueOf(0), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000000");
+        testFixedWidthInteger(BigInteger.valueOf(1), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000001");
+        testFixedWidthInteger(BigInteger.valueOf(127), signed, valueByteSize, "000000000000000000000000000000000000000000000000000000000000007f");
+        testFixedWidthInteger(BigInteger.valueOf(128), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000080");
+        testFixedWidthInteger(BigInteger.valueOf(129), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000081");
+        testFixedWidthInteger(BigInteger.valueOf(255), signed, valueByteSize, "00000000000000000000000000000000000000000000000000000000000000ff");
+        testFixedWidthInteger(BigInteger.valueOf(256), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000100");
+        testFixedWidthInteger(BigInteger.valueOf(257), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000101");
+        testFixedWidthInteger(BigInteger.valueOf(65535), signed, valueByteSize, "000000000000000000000000000000000000000000000000000000000000ffff");
+        testFixedWidthInteger(BigInteger.valueOf(65536), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000010000");
+        testFixedWidthInteger(BigInteger.valueOf(65537), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000010001");
+        testFixedWidthInteger(BigInteger.valueOf(2147483647), signed, valueByteSize, "000000000000000000000000000000000000000000000000000000007fffffff");
+        testFixedWidthInteger(new BigInteger("2147483648"), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000080000000");
+        testFixedWidthInteger(new BigInteger("2147483649"), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000080000001");
+        testFixedWidthInteger(new BigInteger("123123122147483649"), signed, valueByteSize, "00000000000000000000000000000000000000000000000001b56bd3c73ce001");
+
+        // s256 test
+        signed = true;
+        valueByteSize = 32;
+        testFixedWidthInteger(BigInteger.valueOf(-1), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        testFixedWidthInteger(BigInteger.valueOf(-127), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff81");
+        testFixedWidthInteger(BigInteger.valueOf(-128), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80");
+        testFixedWidthInteger(BigInteger.valueOf(-129), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f");
+        testFixedWidthInteger(BigInteger.valueOf(-255), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff01");
+        testFixedWidthInteger(BigInteger.valueOf(-256), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00");
+        testFixedWidthInteger(BigInteger.valueOf(-257), signed, valueByteSize, "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeff");
+        testFixedWidthInteger(BigInteger.valueOf(-65535), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0001");
+        testFixedWidthInteger(BigInteger.valueOf(-65536), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000");
+        testFixedWidthInteger(BigInteger.valueOf(-65537), signed, valueByteSize, "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffff");
+        testFixedWidthInteger(BigInteger.valueOf(-2147483647), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffff80000001");
+        testFixedWidthInteger(BigInteger.valueOf(-2147483648), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffff80000000");
+        testFixedWidthInteger(new BigInteger("-2147483649"), signed, valueByteSize, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffff7fffffff");
+        testFixedWidthInteger(new BigInteger("-123123122147483649"), signed, valueByteSize, "fffffffffffffffffffffffffffffffffffffffffffffffffe4a942c38c31fff");
+
+        testFixedWidthInteger(BigInteger.valueOf(1), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000001");
+        testFixedWidthInteger(BigInteger.valueOf(127), signed, valueByteSize, "000000000000000000000000000000000000000000000000000000000000007f");
+        testFixedWidthInteger(BigInteger.valueOf(128), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000080");
+        testFixedWidthInteger(BigInteger.valueOf(129), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000081");
+        testFixedWidthInteger(BigInteger.valueOf(255), signed, valueByteSize, "00000000000000000000000000000000000000000000000000000000000000ff");
+        testFixedWidthInteger(BigInteger.valueOf(256), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000100");
+        testFixedWidthInteger(BigInteger.valueOf(257), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000000101");
+        testFixedWidthInteger(BigInteger.valueOf(65535), signed, valueByteSize, "000000000000000000000000000000000000000000000000000000000000ffff");
+        testFixedWidthInteger(BigInteger.valueOf(65536), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000010000");
+        testFixedWidthInteger(BigInteger.valueOf(65537), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000000010001");
+        testFixedWidthInteger(BigInteger.valueOf(2147483647), signed, valueByteSize, "000000000000000000000000000000000000000000000000000000007fffffff");
+        testFixedWidthInteger(new BigInteger("2147483648"), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000080000000");
+        testFixedWidthInteger(new BigInteger("2147483649"), signed, valueByteSize, "0000000000000000000000000000000000000000000000000000000080000001");
+        testFixedWidthInteger(new BigInteger("123123122147483649"), signed, valueByteSize, "00000000000000000000000000000000000000000000000001b56bd3c73ce001");
     }
+
 }
