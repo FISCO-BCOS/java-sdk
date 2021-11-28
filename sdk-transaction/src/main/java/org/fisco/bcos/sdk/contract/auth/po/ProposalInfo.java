@@ -5,7 +5,7 @@ import java.util.List;
 import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple7;
 
 public class ProposalInfo {
-    private String id;
+    private String resourceId;
     private String proposer;
     private int proposalType;
     private long blockNumberInterval;
@@ -16,7 +16,7 @@ public class ProposalInfo {
     public ProposalInfo fromTuple(
             Tuple7<String, String, BigInteger, BigInteger, BigInteger, List<String>, List<String>>
                     tuple7) {
-        this.id = tuple7.getValue1();
+        this.resourceId = tuple7.getValue1();
         this.proposer = tuple7.getValue2();
         this.proposalType = tuple7.getValue3().intValue();
         this.blockNumberInterval = tuple7.getValue4().longValue();
@@ -26,12 +26,12 @@ public class ProposalInfo {
         return this;
     }
 
-    public String getId() {
-        return id;
+    public String getResourceId() {
+        return resourceId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
     }
 
     public String getProposer() {
@@ -85,18 +85,18 @@ public class ProposalInfo {
     @Override
     public String toString() {
         return "ProposalInfo{"
-                + "id='"
-                + id
+                + "resourceId='"
+                + resourceId
                 + '\''
                 + ", proposer='"
                 + proposer
                 + '\''
                 + ", proposalType="
-                + proposalType
+                + ProposalType.fromInt(proposalType).getValue()
                 + ", blockNumberInterval="
                 + blockNumberInterval
                 + ", status="
-                + status
+                + ProposalStatus.fromInt(status).getValue()
                 + ", agreeVoters="
                 + agreeVoters
                 + ", againstVoters="

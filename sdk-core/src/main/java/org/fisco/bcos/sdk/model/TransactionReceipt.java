@@ -193,7 +193,7 @@ public class TransactionReceipt {
     }
 
     public String getContractAddress() {
-        if (!isWasm() && Objects.nonNull(contractAddress)) {
+        if (!isWasm() && Objects.nonNull(contractAddress) && !contractAddress.isEmpty()) {
             return "0x" + contractAddress;
         }
 

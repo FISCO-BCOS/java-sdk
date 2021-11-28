@@ -1,38 +1,64 @@
 package org.fisco.bcos.sdk.contract.auth.po;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple4;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CommitteeInfo {
-    private List<String> governorList;
-    private List<BigInteger> weightList;
+    private final Logger logger = LoggerFactory.getLogger(CommitteeInfo.class);
+
+    class GovernorInfo {
+        String governorAddress;
+        BigInteger weight;
+
+        public GovernorInfo(String governorAddress, BigInteger weight) {
+            this.governorAddress = governorAddress;
+            this.weight = weight;
+        }
+
+        @Override
+        public String toString() {
+            return "GovernorInfo{"
+                    + "governorAddress='"
+                    + governorAddress
+                    + '\''
+                    + ", weight="
+                    + weight
+                    + '}';
+        }
+    }
+
+    private List<GovernorInfo> governorList = new ArrayList<>();
     private int participatesRate;
     private int winRate;
 
     public CommitteeInfo fromTuple(
             Tuple4<BigInteger, BigInteger, List<String>, List<BigInteger>> tuple) {
-        this.governorList = tuple.getValue3();
-        this.weightList = tuple.getValue4();
+        List<String> governorNameList = tuple.getValue3();
+        List<BigInteger> weightList = tuple.getValue4();
+        try {
+            for (int i = 0; i < governorNameList.size(); i++) {
+                this.governorList.add(new GovernorInfo(governorNameList.get(i), weightList.get(i)));
+            }
+        } catch (IndexOutOfBoundsException e) {
+            logger.error(
+                    "Governor list size not fit with weight list, you should check committee info. e:",
+                    e);
+        }
         this.participatesRate = tuple.getValue1().intValue();
         this.winRate = tuple.getValue2().intValue();
         return this;
     }
 
-    public List<String> getGovernorList() {
+    public List<GovernorInfo> getGovernorList() {
         return governorList;
     }
 
-    public void setGovernorList(List<String> governorList) {
+    public void setGovernorList(List<GovernorInfo> governorList) {
         this.governorList = governorList;
-    }
-
-    public List<BigInteger> getWeightList() {
-        return weightList;
-    }
-
-    public void setWeightList(List<BigInteger> weightList) {
-        this.weightList = weightList;
     }
 
     public int getParticipatesRate() {
@@ -56,8 +82,6 @@ public class CommitteeInfo {
         return "CommitteeInfo{"
                 + "governorList="
                 + governorList
-                + ", weightList="
-                + weightList
                 + ", participatesRate="
                 + participatesRate
                 + ", winRate="

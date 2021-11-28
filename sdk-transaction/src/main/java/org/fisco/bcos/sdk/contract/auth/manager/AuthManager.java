@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.datatypes.NumericType;
+import org.fisco.bcos.sdk.codec.datatypes.Type;
 import org.fisco.bcos.sdk.contract.auth.contracts.Committee;
 import org.fisco.bcos.sdk.contract.auth.contracts.CommitteeManager;
 import org.fisco.bcos.sdk.contract.auth.contracts.ContractAuthPrecompiled;
@@ -117,6 +119,15 @@ public class AuthManager {
     }
 
     /**
+     * get global deploy auth type
+     *
+     * @return deployAuthType
+     */
+    public BigInteger getDeployAuthType() throws ContractException {
+        return this.contractAuthPrecompiled.deployType();
+    }
+
+    /**
      * submit a proposal of adding deploy contract auth for account, only governor can call it
      *
      * @param account account address string
@@ -186,11 +197,17 @@ public class AuthManager {
         if (transactionResponse == null) {
             throw new TransactionException("Decode transaction response error");
         }
-        List<Object> valuesList = transactionResponse.getValuesList();
+        if (transactionResponse.getTransactionReceipt().getStatus() != 0) {
+            throw new TransactionException(
+                    transactionResponse.getReceiptMessages(),
+                    transactionResponse.getTransactionReceipt().getStatus());
+        }
+        List<Type> valuesList = transactionResponse.getResults();
         if (valuesList == null || valuesList.isEmpty()) {
             throw new TransactionException("Decode transaction response error");
         }
-        return BigInteger.valueOf((long) valuesList.get(0));
+        NumericType value = (NumericType) valuesList.get(0);
+        return value.getValue();
     }
 
     /**
