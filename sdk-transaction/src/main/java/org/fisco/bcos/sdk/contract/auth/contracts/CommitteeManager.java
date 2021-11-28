@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.auth.contracts;
+package org.fisco.bcos.sdk.contract.auth.contracts;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -101,15 +101,6 @@ public class CommitteeManager extends Contract {
         final Function function =
                 new Function(
                         FUNC__COMMITTEE,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
-        return executeCallWithSingleValueReturn(function, String.class);
-    }
-
-    public String _contractPrecompiled() throws ContractException {
-        final Function function =
-                new Function(
-                        FUNC__CONTRACTPRECOMPILED,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
         return executeCallWithSingleValueReturn(function, String.class);

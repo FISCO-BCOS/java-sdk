@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.auth.contracts;
+package org.fisco.bcos.sdk.contract.auth.contracts;
 
 import java.math.BigInteger;
 import java.util.Arrays;
