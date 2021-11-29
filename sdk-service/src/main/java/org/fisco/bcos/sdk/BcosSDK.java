@@ -24,24 +24,22 @@ import org.slf4j.LoggerFactory;
 
 public class BcosSDK {
     private static Logger logger = LoggerFactory.getLogger(BcosSDK.class);
-    public static final String ECDSA_TYPE_STR = "ecdsa";
-    public static final String SM_TYPE_STR = "sm";
 
     private final ConfigOption config;
-    private org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk;
+    // private org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk;
     private org.fisco.bcos.sdk.jni.rpc.Rpc jniRpcImpl;
 
     public ConfigOption getConfig() {
         return config;
     }
 
-    public org.fisco.bcos.sdk.jni.BcosSDK getJniBcosSdk() {
-        return jniBcosSdk;
-    }
-
-    public void setJniBcosSdk(org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk) {
-        this.jniBcosSdk = jniBcosSdk;
-    }
+    //    public org.fisco.bcos.sdk.jni.BcosSDK getJniBcosSdk() {
+    //        return jniBcosSdk;
+    //    }
+    //
+    //    public void setJniBcosSdk(org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk) {
+    //        this.jniBcosSdk = jniBcosSdk;
+    //    }
 
     /**
      * Build BcosSDK instance
@@ -67,9 +65,9 @@ public class BcosSDK {
      * @throws BcosSDKException
      */
     public BcosSDK(ConfigOption configOption) throws BcosSDKException {
-        this.config = configOption;
         try {
-            this.jniBcosSdk = org.fisco.bcos.sdk.jni.BcosSDK.build(configOption.getJniConfig());
+            this.config = configOption;
+            // this.jniBcosSdk = org.fisco.bcos.sdk.jni.BcosSDK.build(configOption.getJniConfig());
             this.jniRpcImpl = org.fisco.bcos.sdk.jni.rpc.Rpc.build(config.getJniConfig());
         } catch (Exception e) {
             logger.warn("error: {}", e);

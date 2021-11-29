@@ -24,6 +24,7 @@ import org.fisco.bcos.sdk.codec.ABICodec;
 import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
+import org.fisco.bcos.sdk.utils.Hex;
 
 public class TransactionBuilderService implements TransactionBuilderInterface {
     private Client client;
@@ -88,7 +89,13 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
         Random r = ThreadLocalRandom.current();
         BigInteger randomId = new BigInteger(250, r);
         return new TransactionData(
-                0, chainId, groupId, blockLimit.intValue(), randomId.toString(), to, data);
+                0,
+                chainId,
+                groupId,
+                blockLimit.intValue(),
+                randomId.toString(),
+                Hex.trimPrefix(to),
+                data);
     }
 
     /** @return the client */
