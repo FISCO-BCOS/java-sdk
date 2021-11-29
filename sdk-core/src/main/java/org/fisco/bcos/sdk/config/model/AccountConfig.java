@@ -25,6 +25,7 @@ public class AccountConfig {
     private String accountFileFormat;
     private String accountPassword;
     private String accountFilePath;
+    private Boolean authCheck;
 
     public AccountConfig() {}
 
@@ -43,6 +44,9 @@ public class AccountConfig {
         if (!this.accountFilePath.equals("")) {
             this.accountFilePath = ConfigProperty.getConfigFilePath(this.accountFilePath);
         }
+        String authCheck =
+                ConfigProperty.getValue(configProperty.getAccount(), "authCheck", "false");
+        this.authCheck = Boolean.valueOf(authCheck);
         checkAccountConfig();
     }
 
@@ -97,6 +101,14 @@ public class AccountConfig {
 
     public void setAccountPassword(String accountPassword) {
         this.accountPassword = accountPassword;
+    }
+
+    public Boolean getAuthCheck() {
+        return authCheck;
+    }
+
+    public void setAuthCheck(Boolean authCheck) {
+        this.authCheck = authCheck;
     }
 
     @Override
