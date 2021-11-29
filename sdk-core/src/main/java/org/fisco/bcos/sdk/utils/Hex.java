@@ -24,6 +24,18 @@ import org.fisco.bcos.sdk.utils.exceptions.EncoderException;
 public class Hex {
     private static final HexEncoder encoder = new HexEncoder();
 
+    public static String addPrefix(String data) {
+        if (Objects.isNull(data)) {
+            return data;
+        }
+
+        if (data.startsWith("0x")) {
+            return data;
+        }
+
+        return "0x" + data;
+    }
+
     public static String trimPrefix(String data) {
         if (Objects.nonNull(data) && data.startsWith("0x")) {
             return data.substring(2);
