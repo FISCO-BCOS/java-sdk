@@ -6,14 +6,14 @@ import java.util.Optional;
 public class TransactionException extends Exception {
     private static final long serialVersionUID = -2204228001512046284L;
     private Optional<String> transactionHash = Optional.empty();
-    private String status;
+    private int status;
     private BigInteger gasUsed;
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
@@ -38,8 +38,13 @@ public class TransactionException extends Exception {
         this.transactionHash = Optional.ofNullable(transactionHash);
     }
 
+    public TransactionException(String message, int status) {
+        super(message);
+        this.status = status;
+    }
+
     public TransactionException(
-            String message, String status, BigInteger gasUsed, String transactionHash) {
+            String message, int status, BigInteger gasUsed, String transactionHash) {
         super(message);
         this.status = status;
         this.gasUsed = gasUsed;

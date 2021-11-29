@@ -16,12 +16,20 @@ package org.fisco.bcos.sdk.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 import org.fisco.bcos.sdk.utils.exceptions.DecoderException;
 import org.fisco.bcos.sdk.utils.exceptions.EncoderException;
 
 /** Utility class for converting hex data to bytes and back again. */
 public class Hex {
     private static final HexEncoder encoder = new HexEncoder();
+
+    public static String trimPrefix(String data) {
+        if (Objects.nonNull(data) && data.startsWith("0x")) {
+            return data.substring(2);
+        }
+        return data;
+    }
 
     public static String toHexString(byte[] data) {
         return toHexString(data, 0, data.length);

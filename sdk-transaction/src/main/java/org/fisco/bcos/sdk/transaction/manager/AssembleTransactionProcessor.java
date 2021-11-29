@@ -369,7 +369,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String to, String abi, String functionName, List<Object> params)
             throws ABICodecException {
         return this.transactionBuilder.createTransaction(
-                to,
+                Hex.trimPrefix(to),
                 this.abiCodec.encodeMethod(abi, functionName, params),
                 this.chainId,
                 this.groupId);
@@ -381,7 +381,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws ABICodecException {
         return this.transactionBuilder.createTransaction(
                 blockLimit,
-                to,
+                Hex.trimPrefix(to),
                 this.abiCodec.encodeMethod(abi, functionName, params),
                 this.chainId,
                 this.groupId);
