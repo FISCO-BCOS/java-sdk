@@ -14,6 +14,9 @@
  */
 package org.fisco.bcos.sdk.contract;
 
+import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_CREATE;
+import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_SCALE_CODEC;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -289,8 +292,15 @@ public class Contract {
 
     protected void asyncExecuteTransaction(
             byte[] data, String funName, TransactionCallback callback) {
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_SCALE_CODEC;
+            if (funName == FUNC_DEPLOY) {
+                txAttribute |= LIQUID_CREATE;
+            }
+        }
         this.transactionProcessor.sendTransactionAsync(
-                this.contractAddress, data, this.credential, callback);
+                this.contractAddress, data, this.credential, txAttribute, callback);
     }
 
     protected void asyncExecuteTransaction(Function function, TransactionCallback callback) {
@@ -303,8 +313,15 @@ public class Contract {
     }
 
     protected TransactionReceipt executeTransaction(byte[] data, String functionName) {
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_SCALE_CODEC;
+            if (functionName == FUNC_DEPLOY) {
+                txAttribute |= LIQUID_CREATE;
+            }
+        }
         return this.transactionProcessor.sendTransactionAndGetReceipt(
-                this.contractAddress, data, this.credential);
+                this.contractAddress, data, this.credential, txAttribute);
     }
 
     /** Adds a log field to {@link EventValues}. */
@@ -331,12 +348,20 @@ public class Contract {
     }
 
     protected String createSignedTransaction(Function function) {
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_SCALE_CODEC;
+            if (function.getName() == FUNC_DEPLOY) {
+                txAttribute |= LIQUID_CREATE;
+            }
+        }
         return this.createSignedTransaction(
-                this.contractAddress, this.functionEncoder.encode(function));
+                this.contractAddress, this.functionEncoder.encode(function), txAttribute);
     }
 
-    protected String createSignedTransaction(String to, byte[] data) {
-        return this.transactionProcessor.createSignedTransaction(to, data, this.credential);
+    protected String createSignedTransaction(String to, byte[] data, int txAttribute) {
+        return this.transactionProcessor.createSignedTransaction(
+                to, data, this.credential, txAttribute);
     }
 
     public static EventValues staticExtractEventParameters(

@@ -14,6 +14,9 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_CREATE;
+import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_SCALE_CODEC;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
@@ -97,7 +100,12 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionReceipt deployAndGetReceipt(byte[] data) {
-        String signedData = this.createSignedTransaction(null, data, this.cryptoKeyPair);
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
+        }
+        String signedData =
+                this.createSignedTransaction(null, data, this.cryptoKeyPair, txAttribute);
         return this.transactionPusher.push(signedData);
     }
 
@@ -122,12 +130,17 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse deployAndGetResponseWithStringParams(
             String abi, String bin, List<String> params, String path) throws ABICodecException {
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
+        }
         return this.deployAndGetResponse(
                 abi,
                 this.createSignedTransaction(
                         path,
                         this.abiCodec.encodeConstructorFromString(abi, bin, params),
-                        this.cryptoKeyPair));
+                        this.cryptoKeyPair,
+                        txAttribute));
     }
 
     @Override
@@ -181,7 +194,11 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, byte[] data) throws ABICodecException {
-        String signedData = this.createSignedTransaction(to, data, this.cryptoKeyPair);
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_SCALE_CODEC;
+        }
+        String signedData = this.createSignedTransaction(to, data, this.cryptoKeyPair, txAttribute);
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
             return this.transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
@@ -216,7 +233,12 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         byte[] data =
                 this.abiCodec.encodeMethod(
                         this.contractLoader.getABIByContractName(contractName), functionName, args);
-        return this.sendTransactionAndGetReceipt(contractAddress, data, this.cryptoKeyPair);
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_SCALE_CODEC;
+        }
+        return this.sendTransactionAndGetReceipt(
+                contractAddress, data, this.cryptoKeyPair, txAttribute);
     }
 
     @Override
@@ -247,7 +269,11 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             TransactionCallback callback)
             throws TransactionBaseException, ABICodecException {
         byte[] data = this.encodeFunction(abi, functionName, params);
-        this.sendTransactionAsync(to, data, this.cryptoKeyPair, callback);
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_SCALE_CODEC;
+        }
+        this.sendTransactionAsync(to, data, this.cryptoKeyPair, txAttribute, callback);
     }
 
     @Override
@@ -266,7 +292,11 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         byte[] data =
                 this.abiCodec.encodeMethod(
                         this.contractLoader.getABIByContractName(contractName), functionName, args);
-        this.sendTransactionAsync(contractAddress, data, this.cryptoKeyPair, callback);
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_SCALE_CODEC;
+        }
+        this.sendTransactionAsync(contractAddress, data, this.cryptoKeyPair, txAttribute, callback);
     }
 
     @Override
@@ -327,8 +357,15 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public String createSignedConstructor(String abi, String bin, List<Object> params)
             throws ABICodecException {
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
+        }
         return this.createSignedTransaction(
-                null, this.abiCodec.encodeConstructor(abi, bin, params), this.cryptoKeyPair);
+                null,
+                this.abiCodec.encodeConstructor(abi, bin, params),
+                this.cryptoKeyPair,
+                txAttribute);
     }
 
     @Override

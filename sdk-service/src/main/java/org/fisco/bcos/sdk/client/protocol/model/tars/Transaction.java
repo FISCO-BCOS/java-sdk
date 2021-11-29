@@ -13,6 +13,8 @@ import com.qq.tars.protocol.util.TarsUtil;
 
 @TarsStruct
 public class Transaction {
+    public static final int LIQUID_SCALE_CODEC = 0x2;
+    public static final int LIQUID_CREATE = 0x8;
 
     @TarsStructProperty(order = 1, isRequire = false)
     public TransactionData data = null;
@@ -26,8 +28,14 @@ public class Transaction {
     @TarsStructProperty(order = 4, isRequire = false)
     public long importTime = 0L;
 
+    @TarsStructProperty(order = 5, isRequire = false)
+    public int attribute = 0;
+
+    @TarsStructProperty(order = 6, isRequire = false)
+    public String source = "";
+
     public TransactionData getData() {
-        return this.data;
+        return data;
     }
 
     public void setData(TransactionData data) {
@@ -35,7 +43,7 @@ public class Transaction {
     }
 
     public byte[] getDataHash() {
-        return this.dataHash;
+        return dataHash;
     }
 
     public void setDataHash(byte[] dataHash) {
@@ -43,7 +51,7 @@ public class Transaction {
     }
 
     public byte[] getSignature() {
-        return this.signature;
+        return signature;
     }
 
     public void setSignature(byte[] signature) {
@@ -51,30 +59,56 @@ public class Transaction {
     }
 
     public long getImportTime() {
-        return this.importTime;
+        return importTime;
     }
 
     public void setImportTime(long importTime) {
         this.importTime = importTime;
     }
 
+    public int getAttribute() {
+        return attribute;
+    }
+
+    public void setAttribute(int attribute) {
+        this.attribute = attribute;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
     public Transaction() {}
 
-    public Transaction(TransactionData data, byte[] dataHash, byte[] signature, long importTime) {
+    public Transaction(
+            TransactionData data,
+            byte[] dataHash,
+            byte[] signature,
+            long importTime,
+            int attribute,
+            String source) {
         this.data = data;
         this.dataHash = dataHash;
         this.signature = signature;
         this.importTime = importTime;
+        this.attribute = attribute;
+        this.source = source;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + TarsUtil.hashCode(this.data);
-        result = prime * result + TarsUtil.hashCode(this.dataHash);
-        result = prime * result + TarsUtil.hashCode(this.signature);
-        result = prime * result + TarsUtil.hashCode(this.importTime);
+        result = prime * result + TarsUtil.hashCode(data);
+        result = prime * result + TarsUtil.hashCode(dataHash);
+        result = prime * result + TarsUtil.hashCode(signature);
+        result = prime * result + TarsUtil.hashCode(importTime);
+        result = prime * result + TarsUtil.hashCode(attribute);
+        result = prime * result + TarsUtil.hashCode(source);
         return result;
     }
 
@@ -90,10 +124,12 @@ public class Transaction {
             return false;
         }
         Transaction other = (Transaction) obj;
-        return (TarsUtil.equals(this.data, other.data)
-                && TarsUtil.equals(this.dataHash, other.dataHash)
-                && TarsUtil.equals(this.signature, other.signature)
-                && TarsUtil.equals(this.importTime, other.importTime));
+        return (TarsUtil.equals(data, other.data)
+                && TarsUtil.equals(dataHash, other.dataHash)
+                && TarsUtil.equals(signature, other.signature)
+                && TarsUtil.equals(importTime, other.importTime)
+                && TarsUtil.equals(attribute, other.attribute)
+                && TarsUtil.equals(source, other.source));
     }
 
     @Override
@@ -122,21 +158,35 @@ public class Transaction {
         sb.append(", ");
         sb.append("importTime:");
         sb.append(this.importTime);
+        sb.append(", ");
+        sb.append("attribute:");
+        sb.append(this.attribute);
+        sb.append(", ");
+        sb.append("source:");
+        if (this.source == null) {
+            sb.append("null");
+        } else {
+            sb.append(this.source);
+        }
         sb.append(")");
         return sb.toString();
     }
 
     public void writeTo(TarsOutputStream _os) {
-        if (null != this.data) {
-            _os.write(this.data, 1);
+        if (null != data) {
+            _os.write(data, 1);
         }
-        if (null != this.dataHash) {
-            _os.write(this.dataHash, 2);
+        if (null != dataHash) {
+            _os.write(dataHash, 2);
         }
-        if (null != this.signature) {
-            _os.write(this.signature, 3);
+        if (null != signature) {
+            _os.write(signature, 3);
         }
-        _os.write(this.importTime, 4);
+        _os.write(importTime, 4);
+        _os.write(attribute, 5);
+        if (null != source) {
+            _os.write(source, 6);
+        }
     }
 
     static TransactionData cache_data;
@@ -149,22 +199,24 @@ public class Transaction {
 
     static {
         cache_dataHash = new byte[1];
-        byte var_12 = (byte) 0;
-        cache_dataHash[0] = var_12;
+        byte var_2 = (byte) 0;
+        cache_dataHash[0] = var_2;
     }
 
     static byte[] cache_signature;
 
     static {
         cache_signature = new byte[1];
-        byte var_13 = (byte) 0;
-        cache_signature[0] = var_13;
+        byte var_3 = (byte) 0;
+        cache_signature[0] = var_3;
     }
 
     public void readFrom(TarsInputStream _is) {
         this.data = (TransactionData) _is.read(cache_data, 1, false);
         this.dataHash = (byte[]) _is.read(cache_dataHash, 2, false);
         this.signature = (byte[]) _is.read(cache_signature, 3, false);
-        this.importTime = _is.read(this.importTime, 4, false);
+        this.importTime = _is.read(importTime, 4, false);
+        this.attribute = _is.read(attribute, 5, false);
+        this.source = _is.readString(6, false);
     }
 }
