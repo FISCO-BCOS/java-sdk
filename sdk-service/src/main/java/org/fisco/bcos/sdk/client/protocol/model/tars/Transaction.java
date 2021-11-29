@@ -13,6 +13,7 @@ import com.qq.tars.protocol.util.TarsUtil;
 
 @TarsStruct
 public class Transaction {
+    public static final int LIQUID_SCALE_CODEC = 0x2;
     public static final int LIQUID_CREATE = 0x8;
 
     @TarsStructProperty(order = 1, isRequire = false)

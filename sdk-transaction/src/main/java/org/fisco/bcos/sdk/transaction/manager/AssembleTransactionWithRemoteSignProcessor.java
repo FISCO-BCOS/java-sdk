@@ -1,6 +1,7 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
 import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_CREATE;
+import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_SCALE_CODEC;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -62,7 +63,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             throws ABICodecException {
         int txAttribute = 0;
         if (client.isWASM()) {
-            txAttribute = LIQUID_CREATE;
+            txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
         this.transactionSignProvider.requestForSignAsync(
@@ -89,7 +90,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
         int txAttribute = 0;
         if (client.isWASM()) {
-            txAttribute = LIQUID_CREATE;
+            txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
         return this.signAndPush(rawTransaction, rawTxHash, txAttribute);
     }
@@ -143,7 +144,11 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             throws ABICodecException {
         TransactionData rawTransaction = this.getRawTransaction(to, abi, functionName, params);
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
-        return this.signAndPush(rawTransaction, rawTxHash, 0);
+        int txAttribute = 0;
+        if (client.isWASM()) {
+            txAttribute = LIQUID_SCALE_CODEC;
+        }
+        return this.signAndPush(rawTransaction, rawTxHash, txAttribute);
     }
 
     @Override
