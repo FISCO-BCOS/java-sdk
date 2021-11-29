@@ -31,10 +31,7 @@ public class TransactionProcessorFactory {
         String chainId = client.getChainId();
         // get group
         String group = client.getGroup();
-        logger.debug(
-                "createTransactionManager for >=rc2 node, chainId: {}, groupId: {}",
-                chainId,
-                group);
+        logger.debug("createTransactionManager, chainId: {}, groupId: {}", chainId, group);
         return Pair.of(chainId, group);
     }
 
