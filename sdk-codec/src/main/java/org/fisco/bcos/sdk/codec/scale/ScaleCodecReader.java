@@ -79,21 +79,20 @@ public class ScaleCodecReader {
         }
         byte[] resultBytes = readByteArray(bytesSize);
         ArrayUtils.reverse(resultBytes);
-        int pos = 0;
-        for (; pos < resultBytes.length; pos++) {
-            if (resultBytes[pos] != 0) {
-                break;
-            }
-        }
-        int length = resultBytes.length - pos;
-        byte[] result = new byte[length];
-        System.arraycopy(resultBytes, pos, result, 0, length);
-        BigInteger value = new BigInteger(result);
+        BigInteger value = new BigInteger(resultBytes);
         if (value.compareTo(BigInteger.ZERO) < 0 && signed == false) {
             BigInteger minOverflowUnsignedValue = BigInteger.valueOf((1 << (bytesSize * 8)));
             return value.add(minOverflowUnsignedValue);
         }
         return value;
+    }
+
+    public BigInteger decodeInt256() {
+        if (hasMore(32) == false) {
+            throw new UnsupportedOperationException("decodeInt256 exception for not enough data");
+        }
+        byte[] data = readByteArray(32);
+        return new BigInteger(data);
     }
 
     public BigInteger decodeCompactInteger() {
