@@ -19,14 +19,15 @@ import java.util.List;
 import org.fisco.bcos.sdk.model.EventLog;
 
 /** Event callback */
-public interface EventCallback {
+public interface EventSubCallback {
 
     /**
      * onReceiveLog called when sdk receive any response of the target subscription. logs will be
      * parsed by the user through the ABI module.
      *
+     * @param eventSubId the event sub task id.
      * @param status the status that peer response to sdk.
      * @param logs logs from the message.
      */
-    void onReceiveLog(int status, List<EventLog> logs);
+    void onReceiveLog(String eventSubId, int status, List<EventLog> logs);
 }

@@ -13,41 +13,45 @@
  *
  */
 
-package org.fisco.bcos.sdk.eventsub.filter;
+package org.fisco.bcos.sdk.eventsub;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.fisco.bcos.sdk.model.EventLog;
 
-public class EventLogResponse {
-    private int result;
-    private String filterID;
+public class EventSubResponse {
+    private int status;
+    private String id;
+
+    @JsonProperty("result")
     private List<EventLog> logs;
 
     @Override
     public String toString() {
         return "EventLogResponse [result="
-                + result
-                + ", filterID="
-                + filterID
+                + status
+                + ", id="
+                + id
                 + ", logs="
                 + logs
                 + "]";
     }
 
-    public int getResult() {
-        return result;
+    public int getStatus() {
+        return status;
     }
 
-    public void setResult(int result) {
-        this.result = result;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
-    public String getFilterID() {
-        return filterID;
+    public String getId() {
+        return id;
     }
 
-    public void setFilterID(String filterID) {
-        this.filterID = filterID;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public List<EventLog> getLogs() {

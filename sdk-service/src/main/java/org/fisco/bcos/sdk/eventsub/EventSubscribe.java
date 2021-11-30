@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.eventsub;
 import java.util.Set;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.jni.common.JniException;
 
 /**
  * Event subscribe interface.
@@ -29,10 +30,12 @@ public interface EventSubscribe {
      * Create Event subscribe instance
      *
      * @param group group
+     * @param group configOption
      * @return EventSubscribe Object
      */
-    static EventSubscribe build(String group, ConfigOption configOption) {
-        return new EventSubscribeImp(group, configOption);
+    static EventSubscribe build(String group, ConfigOption configOption) throws JniException {
+        Client client = Client.build(group, configOption);
+        return new EventSubscribeImp(client, configOption);
     }
 
     /**
@@ -41,8 +44,8 @@ public interface EventSubscribe {
      * @param client Client
      * @return EventSubscribe Object
      */
-    static EventSubscribe build(Client client) {
-        return new EventSubscribeImp(client.getGroup(), client.getConfigOption());
+    static EventSubscribe build(Client client) throws JniException {
+        return new EventSubscribeImp(client, client.getConfigOption());
     }
 
     /**
@@ -52,17 +55,19 @@ public interface EventSubscribe {
      * @param callback the EventCallback instance
      * @return registerId of event
      */
-    String subscribeEvent(EventLogParams params, EventCallback callback);
+    void subscribeEvent(EventSubParams params, EventSubCallback callback);
 
     /**
      * Unsubscribe events
      *
-     * @param id the ID of event subscribe task
-     * @param callback the EventCallback instance
+     * @param eventSubId the ID of event subscribe task
      */
-    void unsubscribeEvent(String id, EventCallback callback);
+    void unsubscribeEvent(String eventSubId);
 
-    /** @return */
+    /**
+     * get all events subscribed by clients
+     * @return
+     */
     Set<String> getAllSubscribedEvents();
 
     /** Start */

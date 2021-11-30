@@ -1,6 +1,8 @@
 package org.fisco.bcos.sdk.codec.abi.tools;
 
 import java.math.BigInteger;
+import java.util.Objects;
+
 import org.fisco.bcos.sdk.codec.abi.TypeEncoder;
 import org.fisco.bcos.sdk.codec.datatypes.Bytes;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -10,7 +12,7 @@ import org.fisco.bcos.sdk.utils.Numeric;
 public class TopicTools {
 
     public static final int MAX_NUM_TOPIC_EVENT_LOG = 4;
-    public static final String LATEST = "latest";
+    public static final int TOPIC_LENGTH = 64;
 
     private final CryptoSuite cryptoSuite;
 
@@ -21,6 +23,19 @@ public class TopicTools {
     public String integerToTopic(BigInteger i) {
         return Numeric.toHexStringWithPrefixZeroPadded(i, 64);
     }
+
+    public static boolean validTopic(String topic) {
+        if (Objects.isNull(topic)) {
+            return false;
+        }
+
+        if (topic.startsWith("0x") || topic.startsWith("0X")) {
+            return topic.length() == (TOPIC_LENGTH + 2);
+        }
+
+        return topic.length() == TOPIC_LENGTH;
+    }
+
 
     public String boolToTopic(boolean b) {
         if (b) {

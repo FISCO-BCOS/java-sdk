@@ -13,9 +13,9 @@
  *
  */
 
-package org.fisco.bcos.sdk.eventsub.filter;
+package org.fisco.bcos.sdk.eventsub;
 
-public enum EventSubNodeRespStatus {
+public enum EventSubStatus {
     /** When make a subscribe of an event, the node would response the status. */
     SUCCESS(0),
     PUSH_COMPLETED(1),
@@ -32,7 +32,7 @@ public enum EventSubNodeRespStatus {
 
     private int status;
 
-    private EventSubNodeRespStatus(int status) {
+    private EventSubStatus(int status) {
         this.setStatus(status);
     }
 
@@ -44,20 +44,20 @@ public enum EventSubNodeRespStatus {
         this.status = status;
     }
 
-    public static EventSubNodeRespStatus fromIntStatus(int status) {
-        for (EventSubNodeRespStatus e : EventSubNodeRespStatus.values()) {
+    public static EventSubStatus fromIntStatus(int status) {
+        for (EventSubStatus e : EventSubStatus.values()) {
             if (e.getStatus() == status) {
                 return e;
             }
         }
-        return EventSubNodeRespStatus.OTHER_ERROR;
+        return EventSubStatus.OTHER_ERROR;
     }
 
     public static String getDescMessage(int status) {
         return getDescMessage(fromIntStatus(status));
     }
 
-    public static String getDescMessage(EventSubNodeRespStatus status) {
+    public static String getDescMessage(EventSubStatus status) {
 
         String desc;
 

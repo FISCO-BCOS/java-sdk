@@ -17,57 +17,41 @@ package org.fisco.bcos.sdk.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Objects;
+
 import org.fisco.bcos.sdk.utils.Numeric;
 
 public class EventLog {
-    private boolean removed;
     private String logIndex;
     private String transactionIndex;
     private String transactionHash;
-    private String blockHash;
     private String blockNumber;
     private String address;
     private String data;
-    private String type;
     private List<String> topics;
 
     public EventLog() {}
 
     public EventLog(
-            boolean removed,
             String logIndex,
             String transactionIndex,
             String transactionHash,
-            String blockHash,
             String blockNumber,
             String address,
             String data,
-            String type,
             List<String> topics) {
-        this.removed = removed;
         this.logIndex = logIndex;
         this.transactionIndex = transactionIndex;
         this.transactionHash = transactionHash;
-        this.blockHash = blockHash;
         this.blockNumber = blockNumber;
         this.address = address;
         this.data = data;
-        this.type = type;
         this.topics = topics;
     }
 
     public EventLog(String data, List<String> topics) {
         this.data = data;
         this.topics = topics;
-    }
-
-    @JsonIgnore
-    public boolean isRemoved() {
-        return removed;
-    }
-
-    public void setRemoved(boolean removed) {
-        this.removed = removed;
     }
 
     public BigInteger getLogIndex() {
@@ -104,14 +88,6 @@ public class EventLog {
         this.transactionHash = transactionHash;
     }
 
-    public String getBlockHash() {
-        return blockHash;
-    }
-
-    public void setBlockHash(String blockHash) {
-        this.blockHash = blockHash;
-    }
-
     public BigInteger getBlockNumber() {
         return convert(blockNumber);
     }
@@ -141,15 +117,6 @@ public class EventLog {
         this.data = data;
     }
 
-    @JsonIgnore
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public List<String> getTopics() {
         return topics;
     }
@@ -177,9 +144,6 @@ public class EventLog {
 
         EventLog log = (EventLog) o;
 
-        if (isRemoved() != log.isRemoved()) {
-            return false;
-        }
         if (getLogIndexRaw() != null
                 ? !getLogIndexRaw().equals(log.getLogIndexRaw())
                 : log.getLogIndexRaw() != null) {
@@ -195,11 +159,6 @@ public class EventLog {
                 : log.getTransactionHash() != null) {
             return false;
         }
-        if (getBlockHash() != null
-                ? !getBlockHash().equals(log.getBlockHash())
-                : log.getBlockHash() != null) {
-            return false;
-        }
         if (getBlockNumberRaw() != null
                 ? !getBlockNumberRaw().equals(log.getBlockNumberRaw())
                 : log.getBlockNumberRaw() != null) {
@@ -213,49 +172,24 @@ public class EventLog {
         if (getData() != null ? !getData().equals(log.getData()) : log.getData() != null) {
             return false;
         }
-        if (getType() != null ? !getType().equals(log.getType()) : log.getType() != null) {
-            return false;
-        }
         return getTopics() != null ? getTopics().equals(log.getTopics()) : log.getTopics() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = (isRemoved() ? 1 : 0);
-        result = 31 * result + (getLogIndexRaw() != null ? getLogIndexRaw().hashCode() : 0);
-        result =
-                31 * result
-                        + (getTransactionIndexRaw() != null
-                                ? getTransactionIndexRaw().hashCode()
-                                : 0);
-        result = 31 * result + (getTransactionHash() != null ? getTransactionHash().hashCode() : 0);
-        result = 31 * result + (getBlockHash() != null ? getBlockHash().hashCode() : 0);
-        result = 31 * result + (getBlockNumberRaw() != null ? getBlockNumberRaw().hashCode() : 0);
-        result = 31 * result + (getAddress() != null ? getAddress().hashCode() : 0);
-        result = 31 * result + (getData() != null ? getData().hashCode() : 0);
-        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
-        result = 31 * result + (getTopics() != null ? getTopics().hashCode() : 0);
-        return result;
+        return Objects.hash(logIndex, transactionIndex, transactionHash, blockNumber, address, data, topics);
     }
 
     @Override
     public String toString() {
-        return "Log [logIndex="
-                + logIndex
-                + ", transactionIndex="
-                + transactionIndex
-                + ", transactionHash="
-                + transactionHash
-                + ", blockHash="
-                + blockHash
-                + ", blockNumber="
-                + blockNumber
-                + ", address="
-                + address
-                + ", data="
-                + data
-                + ", topics="
-                + topics
-                + "]";
+        return "EventLog{" +
+                "logIndex='" + logIndex + '\'' +
+                ", transactionIndex='" + transactionIndex + '\'' +
+                ", transactionHash='" + transactionHash + '\'' +
+                ", blockNumber='" + blockNumber + '\'' +
+                ", address='" + address + '\'' +
+                ", data='" + data + '\'' +
+                ", topics=" + topics +
+                '}';
     }
 }
