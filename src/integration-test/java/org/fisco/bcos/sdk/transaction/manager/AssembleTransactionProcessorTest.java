@@ -485,7 +485,7 @@ public class AssembleTransactionProcessorTest {
         byte[] data = transactionProcessor.encodeFunction(ABI, "setBytes", paramsSetBytes);
         String signedData =
                 transactionProcessor.createSignedTransaction(
-                        contractAddress, data, this.cryptoKeyPair);
+                        contractAddress, data, this.cryptoKeyPair, 0);
         CompletableFuture<TransactionReceipt> future =
                 transactionProcessor.sendTransactionAsync(signedData);
         future.thenAccept(

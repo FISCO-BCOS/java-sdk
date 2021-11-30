@@ -19,6 +19,8 @@ public class TypeEncoder {
             encodeBool((Bool) parameter, writer);
         } else if (parameter instanceof BytesType) {
             encodeBytes((BytesType) parameter, writer);
+        } else if (parameter instanceof Address) {
+            encodeAddress((Address) parameter, writer);
         } else if (parameter instanceof Utf8String) {
             System.out.println(parameter.getValue());
             encodeString((Utf8String) parameter, writer);
@@ -32,20 +34,24 @@ public class TypeEncoder {
         }
     }
 
+    public static void encodeAddress(Address address, ScaleCodecWriter writer) throws IOException {
+        encodeNumeric(address.toUint160(), writer);
+    }
+
     public static void encodeNumeric(NumericType numericType, ScaleCodecWriter writer)
             throws IOException {
         int bitSize = numericType.getBitSize();
         int byteSize = bitSize / 8;
+        boolean signedInteger = (numericType.getTypeAsString().contains("uint")) ? false : true;
         if (byteSize >= 1 && byteSize <= 16) {
-            if (numericType.getTypeAsString().contains("uint")) {
+            if (!signedInteger) {
                 writer.writeUnsignedInteger(numericType.getValue(), byteSize);
                 return;
             }
             writer.writeInteger(numericType.getValue(), byteSize);
             return;
         }
-        // Note: modify with liquid u256 after modify the node
-        writer.writeCompactInteger(numericType.getValue());
+        writer.writeBigInt256(signedInteger, numericType.getValue());
     }
 
     public static void encodeFixed(FixedType fixedType, ScaleCodecWriter writer)

@@ -62,7 +62,8 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
             String to,
             String functionName,
             List<Object> params,
-            boolean isWasm)
+            boolean isWasm,
+            int txAttribute)
             throws ABICodecException {
         ABICodec abiCodec = new ABICodec(cryptoSuite, isWasm);
         byte[] data = abiCodec.encodeMethod(abi, functionName, params);
@@ -73,7 +74,8 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
                         0, chainId, groupId, blockLimit.intValue(), randomId.toString(), to, data);
 
         TransactionEncoderService transactionEncoder = new TransactionEncoderService(cryptoSuite);
-        return transactionEncoder.encodeAndSign(rawTransaction, cryptoSuite.getCryptoKeyPair());
+        return transactionEncoder.encodeAndSign(
+                rawTransaction, cryptoSuite.getCryptoKeyPair(), txAttribute);
     }
 
     @Override

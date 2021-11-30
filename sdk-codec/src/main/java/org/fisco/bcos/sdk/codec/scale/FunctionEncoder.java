@@ -32,9 +32,6 @@ public class FunctionEncoder extends FunctionEncoderInterface {
         try {
             ScaleCodecWriter writer = new ScaleCodecWriter(result);
             if (methodID != null) {
-                byte[] wasmFlag = new byte[1];
-                wasmFlag[0] = 1;
-                result.write(wasmFlag);
                 result.write(methodID);
             }
             for (Type parameter : parameters) {

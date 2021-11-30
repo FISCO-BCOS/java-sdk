@@ -60,9 +60,10 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     }
 
     @Override
-    public String encodeAndSign(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
+    public String encodeAndSign(
+            TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair, int attribute) {
         return Base64.getEncoder()
-                .encodeToString(this.encodeAndSignBytes(rawTransaction, cryptoKeyPair));
+                .encodeToString(this.encodeAndSignBytes(rawTransaction, cryptoKeyPair, attribute));
     }
 
     @Override
@@ -73,25 +74,28 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     }
 
     @Override
-    public byte[] encodeAndSignBytes(TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair) {
+    public byte[] encodeAndSignBytes(
+            TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair, int attribute) {
         byte[] hash = this.encodeAndHashBytes(rawTransaction);
         SignatureResult result = this.transactionSignerService.sign(hash, cryptoKeyPair);
-        return this.encodeToTransactionBytes(rawTransaction, hash, result);
+        return this.encodeToTransactionBytes(rawTransaction, hash, result, attribute);
     }
 
     @Override
     public byte[] encodeToTransactionBytes(
-            TransactionData rawTransaction, byte[] hash, SignatureResult result) {
-        Transaction transaction = new Transaction(rawTransaction, hash, result.encode(), 0);
+            TransactionData rawTransaction, byte[] hash, SignatureResult result, int attribute) {
+        Transaction transaction =
+                new Transaction(rawTransaction, hash, result.encode(), 0, attribute, null);
         TarsOutputStream tarsOutputStream = new TarsOutputStream();
         transaction.writeTo(tarsOutputStream);
         return tarsOutputStream.toByteArray();
     }
 
     @Override
-    public byte[] encodeToTransactionBytes(TransactionData rawTransaction, SignatureResult result) {
+    public byte[] encodeToTransactionBytes(
+            TransactionData rawTransaction, SignatureResult result, int attribute) {
         byte[] hash = this.cryptoSuite.hash(encode(rawTransaction));
-        return encodeToTransactionBytes(rawTransaction, hash, result);
+        return encodeToTransactionBytes(rawTransaction, hash, result, attribute);
     }
 
     /** @return the signature */

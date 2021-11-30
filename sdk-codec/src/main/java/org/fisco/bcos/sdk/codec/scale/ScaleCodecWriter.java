@@ -76,13 +76,14 @@ public class ScaleCodecWriter implements Closeable {
     }
 
     public void writeUnsignedInteger(BigInteger value, int valueByteSize) throws IOException {
-        BigInteger maxSignedValue = BigInteger.valueOf((1 << (valueByteSize * 8 - 1)) - 1);
+        BigInteger maxSignedValue =
+                BigInteger.ONE.shiftLeft((valueByteSize * 8 - 1)).subtract(BigInteger.ONE);
         if (value.compareTo(maxSignedValue) <= 0) {
             writeInteger(value, valueByteSize);
             return;
         }
         // the highest bit is 1, convert to the negative
-        BigInteger minOverflowUnsignedValue = BigInteger.valueOf((1 << (valueByteSize * 8)));
+        BigInteger minOverflowUnsignedValue = BigInteger.ONE.shiftLeft(valueByteSize * 8);
         if (value.compareTo(minOverflowUnsignedValue) >= 0) {
             throw new UnsupportedOperationException(
                     "writeInteger exception for overflow, value: " + value);
@@ -100,10 +101,42 @@ public class ScaleCodecWriter implements Closeable {
             throw new UnsupportedOperationException(
                     "writeInteger exception for overflow, value: " + value);
         }
+
         for (int i = 0; i < byteValue.length; ++i) {
             byteArray[i] = byteValue[byteValue.length - i - 1];
         }
+        // negative value(fill 0xff: -1)
+        if (value.compareTo(BigInteger.ZERO) < 0) {
+            for (int i = byteValue.length; i < valueByteSize; i++) {
+                byteArray[i] = (byte) 0xff;
+            }
+        }
         writeByteArray(byteArray);
+    }
+
+    public void writeBigInt256(boolean signed, BigInteger value) throws IOException {
+        if (value.compareTo(BigInteger.ZERO) < 0 && !signed) {
+            throw new UnsupportedOperationException(
+                    "Must provide positive data when using unsigned type");
+        }
+        // get bytes size
+        byte[] valueBytes = value.toByteArray();
+        byte size = (byte) (valueBytes.length);
+        // when byteSize more than 16, encode as u256
+        if (size > 32) {
+            throw new UnsupportedOperationException(
+                    "Unsupported unsigned type with length more than 32 bytes");
+        }
+        byte[] encodedData = new byte[32];
+        System.arraycopy(valueBytes, 0, encodedData, (32 - valueBytes.length), valueBytes.length);
+        // extend 0xff
+        if (signed && value.compareTo(BigInteger.ZERO) < 0) {
+            for (int i = 0; i < (32 - valueBytes.length); i++) {
+                encodedData[i] = (byte) 0xff;
+            }
+        }
+        // write the big-endian data
+        writeByteArray(encodedData);
     }
 
     private void writeSecondCategory(BigInteger value) throws IOException {

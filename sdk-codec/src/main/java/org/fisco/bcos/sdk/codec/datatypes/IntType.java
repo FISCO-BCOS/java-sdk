@@ -9,22 +9,20 @@ public abstract class IntType extends NumericType {
         super(typePrefix + bitSize, value, bitSize);
         if (!valid(bitSize, value)) {
             throw new UnsupportedOperationException(
-                    "Bitsize must be 8 bit aligned, and in range 0 < bitSize <= 256, and in valid range, bitSize: "
+                    "Bit size must be 8 bit aligned, and the bitLength must be no larger than "
                             + bitSize
+                            + ". Current bytes size:"
+                            + value.toByteArray().length
                             + ", value:"
                             + value);
         }
     }
 
     boolean valid(int bitSize, BigInteger value) {
-        return isValidBitSize(bitSize) && isValidBitCount(bitSize, value);
+        return isValidBitSize(bitSize);
     }
 
     static boolean isValidBitSize(int bitSize) {
         return bitSize % 8 == 0 && bitSize > 0 && bitSize <= MAX_BIT_LENGTH;
-    }
-
-    private static boolean isValidBitCount(int bitSize, BigInteger value) {
-        return value.bitLength() <= bitSize;
     }
 }
