@@ -1047,7 +1047,7 @@ public class TypeEncoderTest {
                 UnsupportedOperationException.class,
                 () ->
                         new Address(
-                                "0xa04462684b510796c186d19abfa6929742f79394583d6efb1243bbb473f21d9f"));
+                                "0xa044321313121362684b510796c186d19abfa6929742f79394583d6efb1243bbb473f21d9f"));
     }
 
     @Test

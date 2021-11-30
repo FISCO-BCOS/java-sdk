@@ -24,6 +24,8 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 
+/** This class not support in FISCO BCOS 3.0.0 rc1 Do not use it. */
+@Deprecated
 @SuppressWarnings("unchecked")
 public class TablePrecompiled extends Contract {
     public static final String[] BINARY_ARRAY = {

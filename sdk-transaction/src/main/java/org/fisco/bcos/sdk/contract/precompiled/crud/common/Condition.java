@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.contract.precompiled.crud.TablePrecompiled;
 
+@Deprecated
 public class Condition {
 
     private Map<String, Map<ConditionOperator, String>> conditions;

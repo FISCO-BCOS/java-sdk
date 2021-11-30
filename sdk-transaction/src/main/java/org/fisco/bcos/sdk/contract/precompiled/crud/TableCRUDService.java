@@ -24,7 +24,6 @@ import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
-import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
@@ -35,32 +34,40 @@ import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.utils.StringUtils;
 
+/** This class not support in FISCO BCOS 3.0.0 rc1 Do not use it. */
+@Deprecated
 public class TableCRUDService {
     private final Client client;
     private final TablePrecompiled tablePrecompiled;
     private static final String ValueFieldsDelimiter = ",";
 
+    @Deprecated
     public TableCRUDService(Client client, CryptoKeyPair credential) {
-        this.client = client;
-        this.tablePrecompiled =
-                TablePrecompiled.load(
-                        client.isWASM()
-                                ? PrecompiledAddress.TABLEFACTORY_PRECOMPILED_NAME
-                                : PrecompiledAddress.TABLEFACTORY_PRECOMPILED_ADDRESS,
-                        client,
-                        credential);
+        this.client = null;
+        this.tablePrecompiled = null;
+        //        this.client = client;
+        //        this.tablePrecompiled =
+        //                TablePrecompiled.load(
+        //                        client.isWASM()
+        //                                ? PrecompiledAddress.TABLEFACTORY_PRECOMPILED_NAME
+        //                                : PrecompiledAddress.TABLEFACTORY_PRECOMPILED_ADDRESS,
+        //                        client,
+        //                        credential);
     }
 
+    @Deprecated
     public static String convertValueFieldsToString(List<String> valueFields) {
         return StringUtils.join(valueFields, ValueFieldsDelimiter);
     }
 
+    @Deprecated
     public void checkKey(String key) throws ContractException {
         if (key.length() > PrecompiledConstant.TABLE_KEY_MAX_LENGTH) {
             throw new ContractException(PrecompiledRetCode.OVER_TABLE_KEY_LENGTH_LIMIT);
         }
     }
 
+    @Deprecated
     public RetCode createTable(String tableName, String keyFieldName, List<String> valueFields)
             throws ContractException {
         checkKey(keyFieldName);
@@ -69,11 +76,13 @@ public class TableCRUDService {
                 tablePrecompiled.createTable(tableName, keyFieldName, valueFieldsString));
     }
 
+    @Deprecated
     public RetCode insert(String tableName, Entry fieldNameToValue) throws ContractException {
         return ReceiptParser.parseTransactionReceipt(
                 tablePrecompiled.insert(tableName, fieldNameToValue.getTablePrecompiledEntry()));
     }
 
+    @Deprecated
     public RetCode update(String tableName, Entry fieldNameToValue, Condition condition)
             throws ContractException {
         return ReceiptParser.parseTransactionReceipt(
@@ -83,11 +92,13 @@ public class TableCRUDService {
                         condition.getTableCondition()));
     }
 
+    @Deprecated
     public RetCode remove(String tableName, Condition condition) throws ContractException {
         return ReceiptParser.parseTransactionReceipt(
                 tablePrecompiled.remove(tableName, condition.getTableCondition()));
     }
 
+    @Deprecated
     public List<Map<String, String>> select(String tableName, Condition condition)
             throws ContractException {
         try {
@@ -106,6 +117,7 @@ public class TableCRUDService {
         }
     }
 
+    @Deprecated
     public static List<Map<String, String>> parseSelectResult(
             List<TablePrecompiled.Entry> selectResult) throws JsonProcessingException {
         List<Map<String, String>> result = new ArrayList<>();
@@ -130,6 +142,7 @@ public class TableCRUDService {
         return tableDescList;
     }
 
+    @Deprecated
     public List<Map<String, String>> desc(String tableName) throws ContractException {
         try {
             return getTableDesc(tableName);
@@ -138,6 +151,7 @@ public class TableCRUDService {
         }
     }
 
+    @Deprecated
     private TransactionCallback createTransactionCallback(PrecompiledCallback callback) {
         return new TransactionCallback() {
             @Override
@@ -156,12 +170,14 @@ public class TableCRUDService {
         };
     }
 
+    @Deprecated
     public void asyncInsert(String tableName, Entry entry, PrecompiledCallback callback)
             throws ContractException {
         this.tablePrecompiled.insert(
                 tableName, entry.getTablePrecompiledEntry(), createTransactionCallback(callback));
     }
 
+    @Deprecated
     public void asyncUpdate(
             String tableName, Entry entry, Condition condition, PrecompiledCallback callback)
             throws ContractException {
@@ -172,6 +188,7 @@ public class TableCRUDService {
                 createTransactionCallback(callback));
     }
 
+    @Deprecated
     public void asyncRemove(String tableName, Condition condition, PrecompiledCallback callback)
             throws ContractException {
         this.tablePrecompiled.remove(
