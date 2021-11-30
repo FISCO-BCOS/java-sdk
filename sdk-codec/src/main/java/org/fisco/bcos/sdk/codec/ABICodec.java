@@ -217,6 +217,11 @@ public class ABICodec {
                 return type;
             }
 
+            if (typeStr.equals("address")) {
+                type = new Address(param);
+                return type;
+            }
+
             if (typeStr.startsWith("bytes")) {
                 String lengthStr = typeStr.substring("bytes".length());
                 int length;
