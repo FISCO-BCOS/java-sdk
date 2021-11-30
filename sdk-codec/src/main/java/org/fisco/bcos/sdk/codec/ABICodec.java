@@ -337,9 +337,6 @@ public class ABICodec {
                     outputStream.write(params);
                 }
             } else {
-                System.out.println("wasm process");
-                // deploy fir byte is 0, new byte[1] default is 0
-                outputStream.write(new byte[1]);
 
                 List<Type> deployParams = new ArrayList<>();
                 deployParams.add(new DynamicBytes(Hex.decode(bin)));

@@ -142,7 +142,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         // mock a sign callback
         RemoteSignCallbackMock callbackMock =
                 new RemoteSignCallbackMock(
-                        assembleTransactionWithRemoteSignProcessor, rawTransaction);
+                        assembleTransactionWithRemoteSignProcessor, rawTransaction, 0);
         System.out.println(System.currentTimeMillis() + " begin to deploy: ");
         assembleTransactionWithRemoteSignProcessor.deployAsync(rawTransaction, callbackMock);
         // will return first, and the hook function would be called async.
@@ -172,7 +172,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         // create an instance of Remote Sign Service callback, and define the hook function.
         RemoteSignCallbackMock callbackMock2 =
                 new RemoteSignCallbackMock(
-                        assembleTransactionWithRemoteSignProcessor, sendTxRawTransaction);
+                        assembleTransactionWithRemoteSignProcessor, sendTxRawTransaction, 0);
         System.out.println(System.currentTimeMillis() + " begin to send tx with callback: ");
         assembleTransactionWithRemoteSignProcessor.sendTransactionAsync(
                 helloWorldAddress, abi, "set", this.params, callbackMock2);

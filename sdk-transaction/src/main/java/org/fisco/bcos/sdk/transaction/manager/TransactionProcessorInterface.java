@@ -36,7 +36,7 @@ public interface TransactionProcessorInterface {
      * @return transaction receipt
      */
     public TransactionReceipt sendTransactionAndGetReceipt(
-            String to, byte[] data, CryptoKeyPair cryptoKeyPair);
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute);
 
     /**
      * send transaction to fisco bcos node and get transaction receipt asynchronously.
@@ -47,7 +47,11 @@ public interface TransactionProcessorInterface {
      * @param callback define hook function
      */
     public void sendTransactionAsync(
-            String to, byte[] data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback);
+            String to,
+            byte[] data,
+            CryptoKeyPair cryptoKeyPair,
+            int txAttribute,
+            TransactionCallback callback);
 
     /**
      * send call to fisco bcos node and receive call response.
@@ -75,5 +79,6 @@ public interface TransactionProcessorInterface {
      * @param cryptoKeyPair key pair
      * @return hexed data of signed transaction
      */
-    public String createSignedTransaction(String to, byte[] data, CryptoKeyPair cryptoKeyPair);
+    public String createSignedTransaction(
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute);
 }

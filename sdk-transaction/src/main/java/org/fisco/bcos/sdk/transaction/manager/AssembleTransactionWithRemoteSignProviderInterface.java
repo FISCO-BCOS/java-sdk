@@ -108,7 +108,8 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param signatureStr signature string.
      * @return TransactionReceipt
      */
-    TransactionReceipt encodeAndPush(TransactionData rawTransaction, String signatureStr);
+    TransactionReceipt encodeAndPush(
+            TransactionData rawTransaction, String signatureStr, int txAttribute);
 
     /**
      * sign based on raw transaction and send to fisco bcos node.
@@ -118,5 +119,5 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @return TransactionReceipt
      */
     CompletableFuture<TransactionReceipt> signAndPush(
-            TransactionData rawTransaction, byte[] rawTxHash);
+            TransactionData rawTransaction, byte[] rawTxHash, int txAttribute);
 }

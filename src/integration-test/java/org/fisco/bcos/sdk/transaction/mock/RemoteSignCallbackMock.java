@@ -11,13 +11,16 @@ public class RemoteSignCallbackMock implements RemoteSignCallbackInterface {
 
     protected AssembleTransactionWithRemoteSignProcessor assembleTransactionWithRemoteSignProcessor;
     protected TransactionData rawTransaction;
+    protected int txAttribute;
 
     public RemoteSignCallbackMock(
             AssembleTransactionWithRemoteSignProcessor assembleTransactionWithRemoteSignProcessor,
-            TransactionData rawTransaction) {
+            TransactionData rawTransaction,
+            int txAttribute) {
         this.assembleTransactionWithRemoteSignProcessor =
                 assembleTransactionWithRemoteSignProcessor;
         this.rawTransaction = rawTransaction;
+        this.txAttribute = txAttribute;
     }
 
     /**
@@ -32,7 +35,7 @@ public class RemoteSignCallbackMock implements RemoteSignCallbackInterface {
         // 完成了交易签名后，将其发送出去
         TransactionReceipt tr =
                 assembleTransactionWithRemoteSignProcessor.encodeAndPush(
-                        rawTransaction, signatureStr.convertToString());
+                        rawTransaction, signatureStr.convertToString(), this.txAttribute);
         System.out.println(
                 "handleSignedTransaction transactionReceipt is: " + JsonUtils.toJson(tr));
         return 0;

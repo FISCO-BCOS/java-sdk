@@ -54,15 +54,19 @@ public class TransactionProcessor implements TransactionProcessorInterface {
 
     @Override
     public TransactionReceipt sendTransactionAndGetReceipt(
-            String to, byte[] data, CryptoKeyPair cryptoKeyPair) {
-        String signedData = this.createSignedTransaction(to, data, cryptoKeyPair);
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
+        String signedData = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
         return this.client.sendTransaction(signedData, false).getTransactionReceipt();
     }
 
     @Override
     public void sendTransactionAsync(
-            String to, byte[] data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
-        String signedData = this.createSignedTransaction(to, data, cryptoKeyPair);
+            String to,
+            byte[] data,
+            CryptoKeyPair cryptoKeyPair,
+            int txAttribute,
+            TransactionCallback callback) {
+        String signedData = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
         this.client.sendTransactionAsync(signedData, false, callback);
     }
 
@@ -80,9 +84,10 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     }
 
     @Override
-    public String createSignedTransaction(String to, byte[] data, CryptoKeyPair cryptoKeyPair) {
+    public String createSignedTransaction(
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
         TransactionData rawTransaction =
                 this.transactionBuilder.createTransaction(to, data, this.chainId, this.groupId);
-        return this.transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
+        return this.transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair, txAttribute);
     }
 }
