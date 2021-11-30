@@ -25,7 +25,15 @@ public class EventSubParams {
     private BigInteger fromBlock = BigInteger.valueOf(-1);
     private BigInteger toBlock = BigInteger.valueOf(-1);
     private List<String> addresses = new ArrayList<>();
-    private List<List<String>> topics = new ArrayList<List<String>>() {{ add(null); add(null); add(null); add(null);}};
+    private List<List<String>> topics =
+            new ArrayList<List<String>>() {
+                {
+                    add(null);
+                    add(null);
+                    add(null);
+                    add(null);
+                }
+            };
 
     public BigInteger getFromBlock() {
         return fromBlock;
@@ -75,9 +83,7 @@ public class EventSubParams {
         return true;
     }
 
-    /**
-     * @return check params
-     */
+    /** @return check params */
     @SuppressWarnings("unchecked")
     public boolean checkParams() {
         if (fromBlock.compareTo(BigInteger.ZERO) > 0 && toBlock.compareTo(BigInteger.ZERO) > 0) {
@@ -88,12 +94,15 @@ public class EventSubParams {
 
     @Override
     public String toString() {
-        return "EventLogParams{" +
-                "fromBlock=" + fromBlock +
-                ", toBlock=" + toBlock +
-                ", addresses=" + addresses +
-                ", topics=" + topics +
-                '}';
+        return "EventLogParams{"
+                + "fromBlock="
+                + fromBlock
+                + ", toBlock="
+                + toBlock
+                + ", addresses="
+                + addresses
+                + ", topics="
+                + topics
+                + '}';
     }
-
 }

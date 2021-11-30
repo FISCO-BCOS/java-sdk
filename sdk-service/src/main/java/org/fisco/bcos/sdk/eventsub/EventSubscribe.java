@@ -66,6 +66,7 @@ public interface EventSubscribe {
 
     /**
      * get all events subscribed by clients
+     *
      * @return
      */
     Set<String> getAllSubscribedEvents();

@@ -15,11 +15,9 @@
 
 package org.fisco.bcos.sdk.eventsub;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
+import java.util.Set;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -44,9 +42,13 @@ public class EventSubscribeImp implements EventSubscribe {
         this.groupId = client.getGroup();
         this.configOption = configOption;
         this.cryptoSuite = client.getCryptoSuite();
-        this.eventSubscribe = org.fisco.bcos.sdk.jni.event.EventSubscribe.build(configOption.getJniConfig());
+        this.eventSubscribe =
+                org.fisco.bcos.sdk.jni.event.EventSubscribe.build(configOption.getJniConfig());
 
-        logger.info(" EventSub constructor, group: {}, config: {}", groupId, configOption.getJniConfig());
+        logger.info(
+                " EventSub constructor, group: {}, config: {}",
+                groupId,
+                configOption.getJniConfig());
     }
 
     public CryptoSuite getCryptoSuite() {
@@ -91,27 +93,44 @@ public class EventSubscribeImp implements EventSubscribe {
 
         logger.info("EventSub subscribeEvent, params: {}", params);
 
-        eventSubscribe.subscribeEvent(groupId, strParams, new EventSubscribeCallback() {
-            @Override
-            public void onResponse(Response response) {
-                if (response.getErrorCode() != 0) {
-                    logger.error("subscribeEvent response error, errorCode: {}, errorMessage: {}", response.getErrorCode(), response.getErrorMessage());
-                    callback.onReceiveLog("", response.getErrorCode(), null);
-                    return;
-                }
+        eventSubscribe.subscribeEvent(
+                groupId,
+                strParams,
+                new EventSubscribeCallback() {
+                    @Override
+                    public void onResponse(Response response) {
+                        if (response.getErrorCode() != 0) {
+                            logger.error(
+                                    "subscribeEvent response error, errorCode: {}, errorMessage: {}",
+                                    response.getErrorCode(),
+                                    response.getErrorMessage());
+                            callback.onReceiveLog("", response.getErrorCode(), null);
+                            return;
+                        }
 
-                String strResp = new String(response.getData());
-                logger.debug("subscribeEvent response, errorCode: {}, errorMessage: {}, data: {}", response.getErrorCode(), response.getErrorMessage(), strResp);
+                        String strResp = new String(response.getData());
+                        logger.debug(
+                                "subscribeEvent response, errorCode: {}, errorMessage: {}, data: {}",
+                                response.getErrorCode(),
+                                response.getErrorMessage(),
+                                strResp);
 
-                ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-                try {
-                    EventSubResponse eventSubResponse = objectMapper.readValue(strResp, EventSubResponse.class);
-                    callback.onReceiveLog(eventSubResponse.getId(), eventSubResponse.getStatus(), eventSubResponse.getLogs());
-                } catch (JsonProcessingException e) {
-                    logger.error("subscribeEvent response parser json error, resp: {}, e: {}", strResp, e);
-                }
-            }
-        });
+                        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+                        try {
+                            EventSubResponse eventSubResponse =
+                                    objectMapper.readValue(strResp, EventSubResponse.class);
+                            callback.onReceiveLog(
+                                    eventSubResponse.getId(),
+                                    eventSubResponse.getStatus(),
+                                    eventSubResponse.getLogs());
+                        } catch (JsonProcessingException e) {
+                            logger.error(
+                                    "subscribeEvent response parser json error, resp: {}, e: {}",
+                                    strResp,
+                                    e);
+                        }
+                    }
+                });
     }
 
     @Override
@@ -126,8 +145,12 @@ public class EventSubscribeImp implements EventSubscribe {
     }
 
     @Override
-    public void start() { eventSubscribe.start(); }
+    public void start() {
+        eventSubscribe.start();
+    }
 
     @Override
-    public void stop() { eventSubscribe.stop();}
+    public void stop() {
+        eventSubscribe.stop();
+    }
 }
