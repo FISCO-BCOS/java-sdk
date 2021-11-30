@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
-
 import org.fisco.bcos.sdk.utils.Numeric;
 
 public class EventLog {
@@ -177,19 +176,33 @@ public class EventLog {
 
     @Override
     public int hashCode() {
-        return Objects.hash(logIndex, transactionIndex, transactionHash, blockNumber, address, data, topics);
+        return Objects.hash(
+                logIndex, transactionIndex, transactionHash, blockNumber, address, data, topics);
     }
 
     @Override
     public String toString() {
-        return "EventLog{" +
-                "logIndex='" + logIndex + '\'' +
-                ", transactionIndex='" + transactionIndex + '\'' +
-                ", transactionHash='" + transactionHash + '\'' +
-                ", blockNumber='" + blockNumber + '\'' +
-                ", address='" + address + '\'' +
-                ", data='" + data + '\'' +
-                ", topics=" + topics +
-                '}';
+        return "EventLog{"
+                + "logIndex='"
+                + logIndex
+                + '\''
+                + ", transactionIndex='"
+                + transactionIndex
+                + '\''
+                + ", transactionHash='"
+                + transactionHash
+                + '\''
+                + ", blockNumber='"
+                + blockNumber
+                + '\''
+                + ", address='"
+                + address
+                + '\''
+                + ", data='"
+                + data
+                + '\''
+                + ", topics="
+                + topics
+                + '}';
     }
 }

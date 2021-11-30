@@ -15,9 +15,8 @@
 
 package org.fisco.bcos.sdk.eventsub;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import org.fisco.bcos.sdk.model.EventLog;
 
 public class EventSubResponse {
@@ -29,13 +28,7 @@ public class EventSubResponse {
 
     @Override
     public String toString() {
-        return "EventLogResponse [result="
-                + status
-                + ", id="
-                + id
-                + ", logs="
-                + logs
-                + "]";
+        return "EventLogResponse [result=" + status + ", id=" + id + ", logs=" + logs + "]";
     }
 
     public int getStatus() {
