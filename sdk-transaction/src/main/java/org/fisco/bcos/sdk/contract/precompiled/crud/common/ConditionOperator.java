@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.contract.precompiled.crud.common;
 
 import java.math.BigInteger;
 
+@Deprecated
 public enum ConditionOperator {
     eq(0),
     ne(1),
