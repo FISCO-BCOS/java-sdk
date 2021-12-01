@@ -109,7 +109,7 @@ public class PrecompiledRetCode {
 
     // SystemConfigPrecompiled -51399 ~ -51300
     public static final RetCode CODE_INVALID_CONFIGURATION_VALUES =
-            new RetCode(-51300, "Invalid configuration entry");
+            new RetCode(-51300, "Invalid configuration value");
 
     // CNSPrecompiled -51299 ~ -51200
     public static final RetCode CODE_VERSION_LENGTH_OVERFLOW =

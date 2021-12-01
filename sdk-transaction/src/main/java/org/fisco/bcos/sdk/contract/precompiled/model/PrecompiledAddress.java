@@ -15,11 +15,11 @@
 package org.fisco.bcos.sdk.contract.precompiled.model;
 
 public class PrecompiledAddress {
-    public static final String SYSCONFIG_PRECOMPILED_ADDRESS =
+    public static final String SYS_CONFIG_PRECOMPILED_ADDRESS =
             "0000000000000000000000000000000000001000";
 
     @Deprecated
-    public static final String TABLEFACTORY_PRECOMPILED_ADDRESS =
+    public static final String TABLE_FACTORY_PRECOMPILED_ADDRESS =
             "0000000000000000000000000000000000001001";
 
     public static final String CONSENSUS_PRECOMPILED_ADDRESS =
@@ -29,12 +29,15 @@ public class PrecompiledAddress {
     public static final String COMMITTEE_MANAGER_ADDRESS =
             "0000000000000000000000000000000000010001";
     public static final String CONTRACT_AUTH_ADDRESS = "0000000000000000000000000000000000001005";
+    public static final String KV_TABLE_PRECOMPILED_ADDRESS =
+            "0000000000000000000000000000000000001009";
 
-    public static final String SYSCONFIG_PRECOMPILED_NAME = "/sys/status";
+    public static final String SYS_CONFIG_PRECOMPILED_NAME = "/sys/status";
     public static final String CONSENSUS_PRECOMPILED_NAME = "/sys/consensus";
     public static final String CNS_PRECOMPILED_NAME = "/sys/cns";
     public static final String BFS_PRECOMPILED_NAME = "/sys/bfs";
-    @Deprecated public static final String TABLEFACTORY_PRECOMPILED_NAME = "/sys/table_storage";
+    public static final String KV_TABLE_PRECOMPILED_NAME = "/sys/kv_storage";
+    @Deprecated public static final String TABLE_FACTORY_PRECOMPILED_NAME = "/sys/table_storage";
 
     private PrecompiledAddress() {}
 }
