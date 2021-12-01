@@ -25,7 +25,7 @@ ext {
     picocliVersion = '4.6.1'
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = '1.69'
-    keyMiniToolkit = "1.0.3"
+    keyMiniToolkit = "1.0.4-SNAPSHOT"
 
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
