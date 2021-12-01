@@ -55,7 +55,7 @@ public interface EventSubscribe {
      * @param callback the EventCallback instance
      * @return registerId of event
      */
-    void subscribeEvent(EventSubParams params, EventSubCallback callback);
+    String subscribeEvent(EventSubParams params, EventSubCallback callback);
 
     /**
      * Unsubscribe events
