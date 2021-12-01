@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.fisco.bcos.sdk.contract.precompiled.crud.KVTablePrecompiled;
 import org.fisco.bcos.sdk.contract.precompiled.crud.TablePrecompiled;
 
-@Deprecated
 public class Entry {
     private Map<String, String> fieldNameToValue = new HashMap<>();
 
@@ -30,8 +30,15 @@ public class Entry {
         this.fieldNameToValue = fieldNameToValue;
     }
 
+    @Deprecated
     public Entry(TablePrecompiled.Entry entry) {
         for (TablePrecompiled.KVField field : entry.fields.getValue()) {
+            this.fieldNameToValue.put(field.key, field.value);
+        }
+    }
+
+    public Entry(KVTablePrecompiled.Entry entry) {
+        for (KVTablePrecompiled.KVField field : entry.fields.getValue()) {
             this.fieldNameToValue.put(field.key, field.value);
         }
     }
@@ -40,6 +47,7 @@ public class Entry {
         return fieldNameToValue;
     }
 
+    @Deprecated
     public TablePrecompiled.Entry getTablePrecompiledEntry() {
         List<TablePrecompiled.KVField> fields = new ArrayList<>();
         fieldNameToValue.forEach(
@@ -48,6 +56,16 @@ public class Entry {
                     fields.add(kvField);
                 });
         return new TablePrecompiled.Entry(fields);
+    }
+
+    public KVTablePrecompiled.Entry getKVPrecompiledEntry() {
+        List<KVTablePrecompiled.KVField> fields = new ArrayList<>();
+        fieldNameToValue.forEach(
+                (String k, String v) -> {
+                    KVTablePrecompiled.KVField kvField = new KVTablePrecompiled.KVField(k, v);
+                    fields.add(kvField);
+                });
+        return new KVTablePrecompiled.Entry(fields);
     }
 
     public void setFieldNameToValue(Map<String, String> fieldNameToValue) {

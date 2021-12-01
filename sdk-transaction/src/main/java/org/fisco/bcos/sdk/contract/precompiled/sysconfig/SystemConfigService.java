@@ -28,8 +28,8 @@ public class SystemConfigService {
         this.systemConfigPrecompiled =
                 SystemConfigPrecompiled.load(
                         client.isWASM()
-                                ? PrecompiledAddress.SYSCONFIG_PRECOMPILED_NAME
-                                : PrecompiledAddress.SYSCONFIG_PRECOMPILED_ADDRESS,
+                                ? PrecompiledAddress.SYS_CONFIG_PRECOMPILED_NAME
+                                : PrecompiledAddress.SYS_CONFIG_PRECOMPILED_ADDRESS,
                         client,
                         credential);
     }

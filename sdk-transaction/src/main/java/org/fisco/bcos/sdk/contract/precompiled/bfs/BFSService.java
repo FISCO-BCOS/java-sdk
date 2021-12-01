@@ -31,12 +31,15 @@ public class BFSService {
     public List<FileInfo> list(String path) throws ContractException {
         try {
             String list = bfsPrecompiled.list(path);
+            if (list.isEmpty()) {
+                throw new ContractException(
+                        "BfsService: list return empty string, check error msg in blockchain node.");
+            }
             return ObjectMapperFactory.getObjectMapper()
                     .readValue(list, new TypeReference<List<FileInfo>>() {});
         } catch (JsonProcessingException e) {
             throw new ContractException(
-                    "CnsService: failed to call selectByName interface, error message: "
-                            + e.getMessage());
+                    "BfsService: failed to call list interface, error message: " + e.getMessage());
         } catch (ContractException e) {
             throw ReceiptParser.parseExceptionCall(e);
         }
