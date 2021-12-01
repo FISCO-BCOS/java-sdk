@@ -76,11 +76,11 @@ public class EventSubscribeImp implements EventSubscribe {
     }
 
     @Override
-    public void subscribeEvent(EventSubParams params, EventSubCallback callback) {
+    public String subscribeEvent(EventSubParams params, EventSubCallback callback) {
 
         if (!params.checkParams()) {
             callback.onReceiveLog("", EventSubStatus.INVALID_PARAMS.getStatus(), null);
-            return;
+            return "";
         }
 
         String strParams = null;
@@ -88,12 +88,12 @@ public class EventSubscribeImp implements EventSubscribe {
             strParams = objectMapper.writeValueAsString(params);
         } catch (JsonProcessingException e) {
             logger.error("e: ", e);
-            return;
+            return "";
         }
 
         logger.info("EventSub subscribeEvent, params: {}", params);
 
-        eventSubscribe.subscribeEvent(
+        return eventSubscribe.subscribeEvent(
                 groupId,
                 strParams,
                 new EventSubscribeCallback() {
