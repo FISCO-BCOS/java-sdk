@@ -111,8 +111,7 @@ public interface Client {
 
     public void setDAG(boolean dag);
 
-    // ------------------------- rpc interface begin
-    // ------------------------------------------
+    // ------------------------- rpc interface begin ------------------------------------------
 
     /**
      * Ledger operation: send transaction
@@ -786,8 +785,7 @@ public interface Client {
 
     void getGroupNodeInfoAsync(String node, RespCallback<BcosGroupNodeInfo> callback);
 
-    // ------------------------- rpc interface end
-    // ------------------------------------------
+    // ------------------------- rpc interface end ------------------------------------------
 
     void start();
 

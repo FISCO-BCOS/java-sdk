@@ -213,7 +213,7 @@ public class Contract {
                 attribute |= LIQUID_CREATE;
             }
         } else {
-            attribute |= Transaction.SOLIDITY_ABI_CODEC;
+            attribute |= Transaction.EVM_ABI_CODEC;
         }
 
         if (client.getDAG()) {
