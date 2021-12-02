@@ -103,8 +103,13 @@ public interface Client {
      * @return the groupId
      */
     String getChainId();
+
     /** */
     ConfigOption getConfigOption();
+
+    public boolean getDAG();
+
+    public void setDAG(boolean dag);
 
     // ------------------------- rpc interface begin ------------------------------------------
 
@@ -555,6 +560,7 @@ public interface Client {
     GroupPeers getGroupPeers();
 
     void getGroupPeersAsync(RespCallback<GroupPeers> callback);
+
     /**
      * Peer operation: async get connected peers
      *
