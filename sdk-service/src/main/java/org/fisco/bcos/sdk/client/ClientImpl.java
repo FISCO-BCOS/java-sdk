@@ -204,9 +204,6 @@ public class ClientImpl implements Client {
                                 Arrays.asList(
                                         this.groupID, node, signedTransactionData, withProof)),
                         BcosTransactionReceipt.class);
-        if (bcosTransactionReceipt.getResult() != null) {
-            bcosTransactionReceipt.getResult().setWasm(isWASM());
-        }
         return bcosTransactionReceipt;
     }
 
@@ -233,9 +230,6 @@ public class ClientImpl implements Client {
                 new RespCallback<BcosTransactionReceipt>() {
                     @Override
                     public void onResponse(BcosTransactionReceipt transactionReceiptWithProof) {
-                        if (transactionReceiptWithProof.getResult() != null) {
-                            transactionReceiptWithProof.getResult().setWasm(isWASM());
-                        }
                         callback.onResponse(transactionReceiptWithProof.getTransactionReceipt());
                     }
 

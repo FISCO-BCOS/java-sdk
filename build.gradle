@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
     id 'java-library'
     id 'java'
-    id 'org.ajoberstar.grgit' version '4.1.0'
+    id 'org.ajoberstar.grgit' version '4.1.1'
     id 'com.github.sherter.google-java-format' version '0.9'
 }
 println("Notice: current gradle version is " + gradle.gradleVersion)
