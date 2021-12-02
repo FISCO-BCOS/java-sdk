@@ -103,10 +103,16 @@ public interface Client {
      * @return the groupId
      */
     String getChainId();
+
     /** */
     ConfigOption getConfigOption();
 
-    // ------------------------- rpc interface begin ------------------------------------------
+    public boolean getDAG();
+
+    public void setDAG(boolean dag);
+
+    // ------------------------- rpc interface begin
+    // ------------------------------------------
 
     /**
      * Ledger operation: send transaction
@@ -555,6 +561,7 @@ public interface Client {
     GroupPeers getGroupPeers();
 
     void getGroupPeersAsync(RespCallback<GroupPeers> callback);
+
     /**
      * Peer operation: async get connected peers
      *
@@ -779,7 +786,8 @@ public interface Client {
 
     void getGroupNodeInfoAsync(String node, RespCallback<BcosGroupNodeInfo> callback);
 
-    // ------------------------- rpc interface end ------------------------------------------
+    // ------------------------- rpc interface end
+    // ------------------------------------------
 
     void start();
 

@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.protocol.model.tars.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.codec.ABICodec;
 import org.fisco.bcos.sdk.codec.ABICodecException;
@@ -204,6 +205,24 @@ public class Contract {
         return contract;
     }
 
+    private int generateTransactionAttribute(String funcName) {
+        int attribute = 0;
+        if (client.isWASM()) {
+            attribute = LIQUID_SCALE_CODEC;
+            if (funcName == FUNC_DEPLOY) {
+                attribute |= LIQUID_CREATE;
+            }
+        } else {
+            attribute |= Transaction.SOLIDITY_ABI_CODEC;
+        }
+
+        if (client.getDAG()) {
+            attribute |= Transaction.DAG;
+        }
+
+        return attribute;
+    }
+
     public String getContractAddress() {
         return this.contractAddress;
     }
@@ -292,13 +311,8 @@ public class Contract {
 
     protected void asyncExecuteTransaction(
             byte[] data, String funName, TransactionCallback callback) {
-        int txAttribute = 0;
-        if (client.isWASM()) {
-            txAttribute = LIQUID_SCALE_CODEC;
-            if (funName == FUNC_DEPLOY) {
-                txAttribute |= LIQUID_CREATE;
-            }
-        }
+        int txAttribute = generateTransactionAttribute(funName);
+
         this.transactionProcessor.sendTransactionAsync(
                 this.contractAddress, data, this.credential, txAttribute, callback);
     }
@@ -313,13 +327,8 @@ public class Contract {
     }
 
     protected TransactionReceipt executeTransaction(byte[] data, String functionName) {
-        int txAttribute = 0;
-        if (client.isWASM()) {
-            txAttribute = LIQUID_SCALE_CODEC;
-            if (functionName == FUNC_DEPLOY) {
-                txAttribute |= LIQUID_CREATE;
-            }
-        }
+        int txAttribute = generateTransactionAttribute(functionName);
+
         return this.transactionProcessor.sendTransactionAndGetReceipt(
                 this.contractAddress, data, this.credential, txAttribute);
     }
@@ -348,13 +357,8 @@ public class Contract {
     }
 
     protected String createSignedTransaction(Function function) {
-        int txAttribute = 0;
-        if (client.isWASM()) {
-            txAttribute = LIQUID_SCALE_CODEC;
-            if (function.getName() == FUNC_DEPLOY) {
-                txAttribute |= LIQUID_CREATE;
-            }
-        }
+        int txAttribute = generateTransactionAttribute(function.getName());
+
         return this.createSignedTransaction(
                 this.contractAddress, this.functionEncoder.encode(function), txAttribute);
     }

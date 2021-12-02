@@ -53,6 +53,10 @@ public class ClientImpl implements Client {
     private Boolean smCrypto;
     // ------------basic group info --------------
 
+    // ------------ runtime info -----------------
+    private boolean dag = false;
+    // ------------ runtime info -----------------
+
     private long blockNumber = 0;
 
     private BcosGroupInfo.GroupInfo groupInfo;
@@ -155,6 +159,16 @@ public class ClientImpl implements Client {
 
     public Boolean getSmCrypto() {
         return this.smCrypto;
+    }
+
+    @Override
+    public boolean getDAG() {
+        return this.dag;
+    }
+
+    @Override
+    public void setDAG(boolean dag) {
+        this.dag = dag;
     }
 
     @Override
