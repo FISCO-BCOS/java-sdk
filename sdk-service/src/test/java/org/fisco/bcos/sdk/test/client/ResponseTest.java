@@ -744,7 +744,7 @@ public class ResponseTest {
                         + "        \"output\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n"
                         + "        \"root\":\"0x38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca\",\n"
                         + "        \"status\": \"12\",\n"
-                        + "        \"to\": \"0x15538acd403ac1b2ff09083c70d04856b8c0bdfd\",\n"
+                        + "        \"to\": \"15538acd403ac1b2ff09083c70d04856b8c0bdfd\",\n"
                         + "        \"transactionHash\": \"0x708b5781b62166bd86e543217be6cd954fd815fd192b9a124ee9327580df8f3f\",\n"
                         + "        \"transactionIndex\": \"0x10\"\n"
                         + "    }\n"

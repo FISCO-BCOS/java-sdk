@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
+import org.fisco.bcos.sdk.utils.AddressUtils;
 
 public class TransactionReceipt {
     private String version;
@@ -177,7 +178,7 @@ public class TransactionReceipt {
     }
 
     public String getTo() {
-        return this.to;
+        return AddressUtils.addHexPrefixToAddress(this.to);
     }
 
     public void setTo(String to) {
@@ -193,11 +194,7 @@ public class TransactionReceipt {
     }
 
     public String getContractAddress() {
-        if (!isWasm() && Objects.nonNull(contractAddress) && !contractAddress.isEmpty()) {
-            return "0x" + contractAddress;
-        }
-
-        return contractAddress;
+        return AddressUtils.addHexPrefixToAddress(contractAddress);
     }
 
     public void setContractAddress(String contractAddress) {
@@ -242,14 +239,6 @@ public class TransactionReceipt {
 
     public void setTransactionProof(List<MerkleProofUnit> transactionProof) {
         this.transactionProof = transactionProof;
-    }
-
-    public boolean isWasm() {
-        return wasm;
-    }
-
-    public void setWasm(boolean wasm) {
-        this.wasm = wasm;
     }
 
     @Override
@@ -306,7 +295,7 @@ public class TransactionReceipt {
                 + this.from
                 + '\''
                 + ", to='"
-                + this.to
+                + this.getTo()
                 + '\''
                 + ", gasUsed='"
                 + this.gasUsed

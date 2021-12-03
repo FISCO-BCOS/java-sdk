@@ -24,6 +24,14 @@ import org.fisco.bcos.sdk.utils.exceptions.EncoderException;
 public class Hex {
     private static final HexEncoder encoder = new HexEncoder();
 
+    public static boolean hasHexPrefix(String data) {
+        if ((data != null) && (data.startsWith("0x") || data.startsWith("0X"))) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static String addPrefix(String data) {
         if (Objects.isNull(data)) {
             return data;

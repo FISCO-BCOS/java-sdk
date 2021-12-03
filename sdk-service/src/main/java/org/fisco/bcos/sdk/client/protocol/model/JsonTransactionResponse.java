@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.MerkleProofUnit;
+import org.fisco.bcos.sdk.utils.AddressUtils;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +95,7 @@ public class JsonTransactionResponse {
     }
 
     public String getTo() {
-        return this.to;
+        return AddressUtils.addHexPrefixToAddress(this.to);
     }
 
     public void setTo(String to) {
@@ -213,7 +214,7 @@ public class JsonTransactionResponse {
                 + this.nonce
                 + '\''
                 + ", to='"
-                + this.to
+                + this.getTo()
                 + '\''
                 + ", blockLimit='"
                 + this.blockLimit
