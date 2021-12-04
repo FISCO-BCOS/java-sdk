@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 import org.fisco.bcos.sdk.codec.datatypes.*;
@@ -21,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ABICodecJsonWrapper {
-    public static final String Base64EncodedDataPrefix = "base64://";
     public static final String HexEncodedDataPrefix = "hex://";
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodecJsonWrapper.class);
@@ -280,10 +278,7 @@ public class ABICodecJsonWrapper {
     }
 
     public static byte[] tryDecodeInputData(String inputData) {
-        if (inputData.startsWith(Base64EncodedDataPrefix)) {
-            return Base64.getDecoder()
-                    .decode(inputData.substring(Base64EncodedDataPrefix.length()));
-        } else if (inputData.startsWith(HexEncodedDataPrefix)) {
+        if (inputData.startsWith(HexEncodedDataPrefix)) {
             String hexString = inputData.substring(HexEncodedDataPrefix.length());
             if (hexString.startsWith("0x")) {
                 return Hex.decode(hexString.substring(2));
@@ -340,7 +335,7 @@ public class ABICodecJsonWrapper {
                                     }
                                 case BYTES:
                                     {
-                                        // Binary data requires base64 encoding
+                                        // Binary data hex encoding
                                         byte[] bytesValue = tryDecodeInputData(value);
                                         if (bytesValue == null) {
                                             bytesValue = value.getBytes();
@@ -360,7 +355,7 @@ public class ABICodecJsonWrapper {
                                     }
                                 case DBYTES:
                                     {
-                                        // Binary data requires base64 encoding
+                                        // Binary data requires hex encoding
                                         byte[] bytesValue = tryDecodeInputData(value);
                                         if (bytesValue == null) {
                                             bytesValue = value.getBytes();
@@ -432,13 +427,14 @@ public class ABICodecJsonWrapper {
                             }
                         case BYTES:
                             {
-                                return jsonNodeFactory.binaryNode(
-                                        abiObject.getBytesValue().getValue());
+                                return jsonNodeFactory.textNode(
+                                        Hex.toHexString(abiObject.getBytesValue().getValue()));
                             }
                         case DBYTES:
                             {
-                                return jsonNodeFactory.binaryNode(
-                                        abiObject.getDynamicBytesValue().getValue());
+                                return jsonNodeFactory.textNode(
+                                        Hex.toHexString(
+                                                abiObject.getDynamicBytesValue().getValue()));
                             }
                         case STRING:
                             {
@@ -511,19 +507,15 @@ public class ABICodecJsonWrapper {
                             case BYTES:
                                 {
                                     byte[] value = ABICodecObject.formatBytesN(argObject);
-                                    byte[] base64Bytes = Base64.getEncoder().encode(value);
-                                    result.add(Base64EncodedDataPrefix + new String(base64Bytes));
+                                    byte[] hexBytes = Hex.encode(value);
+                                    result.add(HexEncodedDataPrefix + new String(hexBytes));
                                     break;
                                 }
                             case DBYTES:
                                 {
-                                    byte[] base64Bytes =
-                                            Base64.getEncoder()
-                                                    .encode(
-                                                            argObject
-                                                                    .getDynamicBytesValue()
-                                                                    .getValue());
-                                    result.add(Base64EncodedDataPrefix + new String(base64Bytes));
+                                    byte[] hexBytes =
+                                            Hex.encode(argObject.getDynamicBytesValue().getValue());
+                                    result.add(HexEncodedDataPrefix + new String(hexBytes));
                                     break;
                                 }
                             case STRING:
@@ -545,7 +537,7 @@ public class ABICodecJsonWrapper {
                     {
                         // Note: when the argNode is text data, toPrettyString output the text data
                         //       if the argNode is binary data, toPrettyString output the
-                        // base64-encoded data
+                        // hex-encoded data
                         result.add(argNode.toPrettyString());
                         break;
                     }

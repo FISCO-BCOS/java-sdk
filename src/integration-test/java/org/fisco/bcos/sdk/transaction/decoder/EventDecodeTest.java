@@ -16,13 +16,17 @@ package org.fisco.bcos.sdk.transaction.decoder;
 
 import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.Map;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.ABICodec;
 import org.fisco.bcos.sdk.model.ConstantConfig;
+import org.fisco.bcos.sdk.model.EventLog;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionProcessor;
 import org.fisco.bcos.sdk.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -53,16 +57,12 @@ public class EventDecodeTest {
         params.add(1);
         params.add("test2");
         TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
-        if (response.getTransactionReceipt().getStatus() == 0) {
-            System.out.println(response.getReturnMessage());
-            return;
-        }
-        // FIXME: event is not supported now
-        // TransactionReceipt.Logs log = response.getTransactionReceipt().getLogEntries().get(0);
-        // EventLog eventLog = new EventLog(log.getData(), log.getTopics());
-        // List<Object> list = abiCodec.decodeEvent(this.abi, "LogInit", eventLog);
-        // Assert.assertEquals("test2", list.get(1));
-        // Map<String, List<List<Object>>> map = response.getEventResultMap();
-        // Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
+        TransactionReceipt.Logs log = response.getTransactionReceipt().getLogEntries().get(0);
+        EventLog eventLog = new EventLog(log.getData(), log.getTopics());
+        List<Object> list = abiCodec.decodeEvent(this.abi, "LogInit", eventLog);
+        Assert.assertEquals("test2", list.get(1));
+        Map<String, List<List<Object>>> map = response.getEventResultMap();
+        Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
     }
 }

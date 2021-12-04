@@ -98,7 +98,7 @@ public class ABIDefinition {
         result.append("(");
         String params =
                 this.getInputs().stream()
-                        .map(abi -> abi.getTypeAsString())
+                        .map(NamedType::getTypeAsString)
                         .collect(Collectors.joining(","));
         result.append(params);
         result.append(")");

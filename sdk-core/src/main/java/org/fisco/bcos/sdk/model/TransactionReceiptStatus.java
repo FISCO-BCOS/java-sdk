@@ -25,7 +25,7 @@ public class TransactionReceiptStatus {
     public static final RetCode NotEnoughCash = new RetCode(7, "Not enough cash");
     public static final RetCode BadInstruction = new RetCode(10, "Bad instruction");
     public static final RetCode BadJumpDestination = new RetCode(11, "Bad jump destination");
-    public static final RetCode OutOfGas = new RetCode(12, "Out-of-gas during EVM execution");
+    public static final RetCode OutOfGas = new RetCode(12, "Out-of-gas during VM execution");
     public static final RetCode OutOfStack = new RetCode(13, "Out of stack");
     public static final RetCode StackUnderflow = new RetCode(14, "Stack underflow");
     public static final RetCode PrecompiledError = new RetCode(15, "Precompiled error");

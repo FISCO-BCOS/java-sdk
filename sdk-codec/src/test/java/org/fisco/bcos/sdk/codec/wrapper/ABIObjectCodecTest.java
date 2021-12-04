@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 public class ABIObjectCodecTest {
@@ -562,9 +561,9 @@ public class ABIObjectCodecTest {
     args.add("arg312345678901234567890123456789012345678901234567890");
 
     String bytesValue = "0x123456789874321";
-    byte[] encode = Base64.getEncoder().encode(bytesValue.getBytes());
+    byte[] encode = Hex.encode(bytesValue.getBytes());
 
-    args.add(ABICodecJsonWrapper.Base64EncodedDataPrefix + new String(encode));
+    args.add(ABICodecJsonWrapper.HexEncodedDataPrefix + new String(encode));
 
     ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
     ABIObject encodedObj = abiCodecJsonWrapper.encode(inputABIObject, args);
@@ -589,11 +588,7 @@ public class ABIObjectCodecTest {
     }
 
     byte[] decode =
-        Base64.getDecoder()
-            .decode(
-                decodeArgs
-                    .get(args.size() - 1)
-                    .substring(ABICodecJsonWrapper.Base64EncodedDataPrefix.length()));
+            Hex.decode(decodeArgs.get(args.size() - 1).substring(ABICodecJsonWrapper.HexEncodedDataPrefix.length()));
 
     Assert.assertEquals(new String(decode), bytesValue);
   }

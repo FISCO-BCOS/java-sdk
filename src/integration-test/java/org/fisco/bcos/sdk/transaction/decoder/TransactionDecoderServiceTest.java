@@ -66,32 +66,61 @@ public class TransactionDecoderServiceTest {
         String contractAddress = response.getContractAddress();
 
         // increment
-        TransactionReceipt transactionReceipt =
-                manager.sendTransactionAndGetReceiptByContractLoader(
-                        contractName,
-                        contractAddress,
-                        "incrementUint256",
-                        Lists.newArrayList(BigInteger.valueOf(1)));
-        TransactionResponse transactionResponseWithoutValues =
-                decoder.decodeReceiptWithoutValues(abi, transactionReceipt);
-        System.out.println(JsonUtils.toJson(transactionResponseWithoutValues));
-        TransactionResponse transactionResponseWithValues =
-                decoder.decodeReceiptWithValues(abi, "incrementUint256", transactionReceipt);
-        System.out.println(JsonUtils.toJson(transactionResponseWithValues));
-        Assert.assertEquals("Success", transactionResponseWithValues.getReceiptMessages());
-        Map<String, List<List<Object>>> events =
-                decoder.decodeEvents(abi, transactionReceipt.getLogEntries());
-        // FIXME: event is not supported now
-        // Assert.assertEquals(1, events.size());
-        // setBytes
-        List<Object> s = Lists.newArrayList("2".getBytes());
-        List<Object> paramsSetBytes = new ArrayList<Object>();
-        paramsSetBytes.add(s);
-        TransactionReceipt transactionReceipt2 =
-                manager.sendTransactionAndGetReceiptByContractLoader(
-                        contractName, contractAddress, "setBytesMapping", paramsSetBytes);
-        // decode receipt
-        TransactionResponse transactionResponse2 = decoder.decodeReceiptStatus(transactionReceipt2);
-        Assert.assertEquals(16, transactionResponse2.getReturnCode());
+        {
+            TransactionReceipt transactionReceipt =
+                    manager.sendTransactionAndGetReceiptByContractLoader(
+                            contractName,
+                            contractAddress,
+                            "incrementUint256",
+                            Lists.newArrayList(BigInteger.valueOf(1)));
+            TransactionResponse transactionResponseWithoutValues =
+                    decoder.decodeReceiptWithoutValues(abi, transactionReceipt);
+            System.out.println(JsonUtils.toJson(transactionResponseWithoutValues));
+            TransactionResponse transactionResponseWithValues =
+                    decoder.decodeReceiptWithValues(abi, "incrementUint256", transactionReceipt);
+            System.out.println(JsonUtils.toJson(transactionResponseWithValues));
+            Assert.assertEquals("Success", transactionResponseWithValues.getReceiptMessages());
+            Map<String, List<List<Object>>> events =
+                    decoder.decodeEvents(abi, transactionReceipt.getLogEntries());
+            Assert.assertEquals(1, events.size());
+        }
+        // setBytesMapping
+        {
+            List<Object> s = Lists.newArrayList("2".getBytes());
+            List<Object> paramsSetBytes = new ArrayList<Object>();
+            paramsSetBytes.add(s);
+            TransactionReceipt transactionReceipt2 =
+                    manager.sendTransactionAndGetReceiptByContractLoader(
+                            contractName, contractAddress, "setBytesMapping", paramsSetBytes);
+            // decode receipt
+            TransactionResponse transactionResponse2 =
+                    decoder.decodeReceiptStatus(transactionReceipt2);
+            Assert.assertEquals(16, transactionResponse2.getReturnCode());
+            Assert.assertEquals(
+                    transactionResponse2.getReceiptMessages(), "Bytes array is less than 2");
+
+            List<Object> s2 = Lists.newArrayList("2".getBytes(), "3".getBytes());
+            List<Object> paramsSetBytes2 = new ArrayList<>();
+            paramsSetBytes2.add(s2);
+            TransactionReceipt transactionReceipt =
+                    manager.sendTransactionAndGetReceiptByContractLoader(
+                            contractName, contractAddress, "setBytesMapping", paramsSetBytes2);
+            TransactionResponse transactionResponse =
+                    decoder.decodeReceiptWithValues(abi, "setBytesMapping", transactionReceipt);
+            Assert.assertEquals(1, transactionResponse.getReturnCode());
+
+            List<Object> paramsBytes = new ArrayList<>();
+            paramsBytes.add("2".getBytes());
+            TransactionReceipt transactionReceipt3 =
+                    manager.sendTransactionAndGetReceiptByContractLoader(
+                            contractName, contractAddress, "getByBytes", paramsBytes);
+            TransactionResponse transactionResponse3 =
+                    decoder.decodeReceiptWithValues(abi, "getByBytes", transactionReceipt3);
+            Assert.assertEquals(1, transactionResponse3.getResults().size());
+            Assert.assertEquals(
+                    "bytes[]", transactionResponse3.getResults().get(0).getTypeAsString());
+        }
+
+        //
     }
 }
