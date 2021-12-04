@@ -51,6 +51,10 @@ public class Hex {
         return data;
     }
 
+    public static String toHexStringWithPrefix(byte[] data) {
+        return addPrefix(toHexString(data, 0, data.length));
+    }
+
     public static String toHexString(byte[] data) {
         return toHexString(data, 0, data.length);
     }
