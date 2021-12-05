@@ -19,6 +19,7 @@ import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.eventsub.EventSubscribe;
+import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,20 +27,11 @@ public class BcosSDK {
     private static Logger logger = LoggerFactory.getLogger(BcosSDK.class);
 
     private final ConfigOption config;
-    // private org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk;
-    private org.fisco.bcos.sdk.jni.rpc.Rpc jniRpcImpl;
+    private BcosSDKJniObj bcosSDKJniObj;
 
     public ConfigOption getConfig() {
         return config;
     }
-
-    //    public org.fisco.bcos.sdk.jni.BcosSDK getJniBcosSdk() {
-    //        return jniBcosSdk;
-    //    }
-    //
-    //    public void setJniBcosSdk(org.fisco.bcos.sdk.jni.BcosSDK jniBcosSdk) {
-    //        this.jniBcosSdk = jniBcosSdk;
-    //    }
 
     /**
      * Build BcosSDK instance
@@ -67,10 +59,9 @@ public class BcosSDK {
     public BcosSDK(ConfigOption configOption) throws BcosSDKException {
         try {
             this.config = configOption;
-            // this.jniBcosSdk = org.fisco.bcos.sdk.jni.BcosSDK.build(configOption.getJniConfig());
-            this.jniRpcImpl = org.fisco.bcos.sdk.jni.rpc.Rpc.build(config.getJniConfig());
+            this.bcosSDKJniObj = BcosSDKJniObj.build(this.config.getJniConfig());
         } catch (Exception e) {
-            logger.warn("error: {}", e);
+            logger.error("error: {}", e);
             throw new BcosSDKException("create BcosSDK failed, error: " + e.getMessage());
         }
     }
@@ -82,7 +73,7 @@ public class BcosSDK {
      */
     public Client getClient(String groupId) throws BcosSDKException {
         try {
-            return Client.build(groupId, config, jniRpcImpl);
+            return Client.build(groupId, config, bcosSDKJniObj.getNativePointer());
         } catch (Exception e) {
             logger.warn("create client for failed, error: {}", e);
             throw new BcosSDKException("get Client failed, e: " + e.getMessage());
@@ -96,8 +87,15 @@ public class BcosSDK {
      */
     public Client getClient() throws BcosSDKException {
         try {
-            assert config.getNetworkConfig().getDefaultGroup() != null;
-            return Client.build(config.getNetworkConfig().getDefaultGroup(), config);
+            String groupId = config.getNetworkConfig().getDefaultGroup();
+            if ((groupId == null) || groupId.isEmpty()) {
+                throw new RuntimeException(
+                        "The default group is not set, please set it in config.toml: defaultGroup field");
+            }
+            return Client.build(
+                    config.getNetworkConfig().getDefaultGroup(),
+                    config,
+                    bcosSDKJniObj.getNativePointer());
         } catch (Exception e) {
             logger.warn("create client for failed, error: {}", e);
             throw new BcosSDKException("get Client failed, e: " + e.getMessage());
@@ -114,7 +112,7 @@ public class BcosSDK {
             Amop amop = Amop.build(config);
             return amop;
         } catch (Exception e) {
-            logger.warn("create amop for failed, error: {}", e);
+            logger.error("create amop for failed, error: {}", e);
             throw new BcosSDKException("get amop failed, e: " + e.getMessage());
         }
     }

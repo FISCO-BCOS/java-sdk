@@ -15,8 +15,10 @@
 
 package org.fisco.bcos.sdk.amop;
 
+import java.util.HashSet;
 import java.util.Set;
-import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
+import org.fisco.bcos.sdk.jni.amop.AmopJniObj;
 import org.fisco.bcos.sdk.jni.amop.AmopRequestCallback;
 import org.fisco.bcos.sdk.jni.amop.AmopResponseCallback;
 import org.fisco.bcos.sdk.jni.common.JniException;
@@ -27,11 +29,12 @@ import org.slf4j.LoggerFactory;
 public class AmopImp implements Amop {
     private static final Logger logger = LoggerFactory.getLogger(AmopImp.class);
 
-    private org.fisco.bcos.sdk.jni.amop.Amop amopJni;
+    private AmopJniObj amopJni;
 
-    public AmopImp(ConfigOption config) throws JniException {
-        logger.info("newAmop, config: {}", config);
-        this.amopJni = org.fisco.bcos.sdk.jni.amop.Amop.build(config.getJniConfig());
+    public AmopImp(long nativePointer) throws JniException {
+        this.amopJni = AmopJniObj.build(nativePointer);
+
+        logger.info("newAmop, nativePointer: {}", nativePointer);
         start();
     }
 
@@ -42,7 +45,9 @@ public class AmopImp implements Amop {
 
     @Override
     public void unsubscribeTopic(String topicName) {
-        amopJni.unsubscribeTopic(topicName);
+        Set<String> topics = new HashSet<>();
+        topics.add(topicName);
+        amopJni.unsubscribeTopic(topics);
     }
 
     @Override
@@ -82,6 +87,14 @@ public class AmopImp implements Amop {
     public void stop() {
         if (amopJni != null) {
             amopJni.stop();
+        }
+    }
+
+    @Override
+    public void destroy() {
+        if (amopJni != null) {
+            BcosSDKJniObj.destroy(amopJni.getNativePointer());
+            amopJni = null;
         }
     }
 }

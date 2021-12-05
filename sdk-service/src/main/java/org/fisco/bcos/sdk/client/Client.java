@@ -20,6 +20,7 @@ import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.slf4j.Logger;
@@ -31,33 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author Maggie
  */
 public interface Client {
-    static Logger logger = LoggerFactory.getLogger(Client.class);
-
-    /**
-     * Build a client instance GroupId is identified, all interfaces are available
-     *
-     * @param groupID the group info
-     * @param configOption the config
-     * @return a client instance
-     */
-    static Client build(String groupID, ConfigOption configOption) throws JniException {
-        return new ClientImpl(groupID, configOption);
-    }
-
-    /**
-     * Build a client instance GroupId is identified, all interfaces are available, with specific
-     * jniRPC
-     *
-     * @param groupID the group info
-     * @param configOption the config
-     * @param jniRpcIml jni rpc impl
-     * @return a client instance
-     */
-    static Client build(
-            String groupID, ConfigOption configOption, org.fisco.bcos.sdk.jni.rpc.Rpc jniRpcIml)
-            throws JniException {
-        return new ClientImpl(groupID, configOption, jniRpcIml);
-    }
+    static final Logger logger = LoggerFactory.getLogger(Client.class);
 
     /**
      * Build a client instance GroupId is identified, all interfaces are available
@@ -66,8 +41,44 @@ public interface Client {
      * @return a client instance
      */
     static Client build(ConfigOption configOption) throws JniException {
-        return new ClientImpl(configOption);
+        logger.info("build, configOption: {}", configOption);
+        return build(null, configOption);
     }
+
+    /**
+     * Build a client instance GroupId is identified, all interfaces are available
+     *
+     * @param groupId the group info
+     * @param configOption the config
+     * @return a client instance
+     */
+    static Client build(String groupId, ConfigOption configOption) throws JniException {
+        logger.info("build, groupID: {}, configOption: {}", groupId, configOption);
+        long nativePointer = BcosSDKJniObj.create(configOption.getJniConfig());
+        return build(groupId, configOption, nativePointer);
+    }
+
+    /**
+     * Build a client instance GroupId is identified, all interfaces are available, with specific
+     * jniRPC
+     *
+     * @param groupId the group info
+     * @param configOption the config
+     * @param nativePointer jni impl native handler
+     * @return a client instance
+     */
+    static Client build(String groupId, ConfigOption configOption, long nativePointer)
+            throws JniException {
+        logger.info(
+                "build, groupID: {}, configOption: {}, nativePointer: {}",
+                groupId,
+                configOption,
+                nativePointer);
+        return new ClientImpl(groupId, configOption, nativePointer);
+    }
+
+    /** @return */
+    long getNativePointer();
 
     /**
      * Get CryptoSuite
@@ -790,4 +801,6 @@ public interface Client {
     void start();
 
     void stop();
+
+    void destroy();
 }

@@ -21,9 +21,9 @@ import java.util.Set;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.jni.common.JniException;
-import org.fisco.bcos.sdk.jni.common.Response;
-import org.fisco.bcos.sdk.jni.event.EventSubscribeCallback;
+import org.fisco.bcos.sdk.jni.event.EventSubJniObj;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,20 +35,18 @@ public class EventSubscribeImp implements EventSubscribe {
     private String groupId;
     private ConfigOption configOption;
     private CryptoSuite cryptoSuite;
+    private EventSubJniObj eventSubJniObj;
+
     private ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-    private org.fisco.bcos.sdk.jni.event.EventSubscribe eventSubscribe;
 
     public EventSubscribeImp(Client client, ConfigOption configOption) throws JniException {
         this.groupId = client.getGroup();
         this.configOption = configOption;
         this.cryptoSuite = client.getCryptoSuite();
-        this.eventSubscribe =
-                org.fisco.bcos.sdk.jni.event.EventSubscribe.build(configOption.getJniConfig());
+        this.eventSubJniObj = EventSubJniObj.build(client.getNativePointer());
+        this.configOption = client.getConfigOption();
 
-        logger.info(
-                " EventSub constructor, group: {}, config: {}",
-                groupId,
-                configOption.getJniConfig());
+        logger.info(" EventSub constructor, group: {}, configOption: {}", groupId, configOption);
     }
 
     public CryptoSuite getCryptoSuite() {
@@ -93,12 +91,11 @@ public class EventSubscribeImp implements EventSubscribe {
 
         logger.info("EventSub subscribeEvent, params: {}", params);
 
-        return eventSubscribe.subscribeEvent(
+        return eventSubJniObj.subscribeEvent(
                 groupId,
                 strParams,
-                new EventSubscribeCallback() {
-                    @Override
-                    public void onResponse(Response response) {
+                (response) -> {
+                    {
                         if (response.getErrorCode() != 0) {
                             logger.error(
                                     "subscribeEvent response error, errorCode: {}, errorMessage: {}",
@@ -135,7 +132,7 @@ public class EventSubscribeImp implements EventSubscribe {
 
     @Override
     public void unsubscribeEvent(String eventId) {
-        eventSubscribe.unsubscribeEvent(eventId);
+        eventSubJniObj.unsubscribeEvent(eventId);
     }
 
     @Override
@@ -146,11 +143,19 @@ public class EventSubscribeImp implements EventSubscribe {
 
     @Override
     public void start() {
-        eventSubscribe.start();
+        eventSubJniObj.start();
     }
 
     @Override
     public void stop() {
-        eventSubscribe.stop();
+        eventSubJniObj.stop();
+    }
+
+    @Override
+    public void destroy() {
+        if (eventSubJniObj != null) {
+            BcosSDKJniObj.destroy(eventSubJniObj.getNativePointer());
+            eventSubJniObj = null;
+        }
     }
 }
