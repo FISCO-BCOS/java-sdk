@@ -50,7 +50,7 @@ allprojects {
     apply plugin: 'signing'
 
     configurations.all {
-        resolutionStrategy.cacheChangingModulesFor 30, 'seconds'
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
 
     jacoco {

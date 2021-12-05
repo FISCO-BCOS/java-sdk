@@ -31,8 +31,8 @@ import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.jni.common.JniException;
-import org.fisco.bcos.sdk.jni.rpc.Rpc;
+import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
+import org.fisco.bcos.sdk.jni.rpc.RpcJniObj;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Response;
@@ -59,13 +59,11 @@ public class ClientImpl implements Client {
 
     private long blockNumber = 0;
 
+    private final ConfigOption configOption;
     private BcosGroupInfo.GroupInfo groupInfo;
     private GroupNodeIniConfig groupNodeIniConfig;
-
     private CryptoSuite cryptoSuite;
-    private final Rpc jniRpcImpl;
-
-    private final ConfigOption configOption;
+    private RpcJniObj rpcJniObj;
 
     protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
@@ -98,44 +96,39 @@ public class ClientImpl implements Client {
                 groupNodeIniConfig);
     }
 
-    protected ClientImpl(String groupID, ConfigOption configOption) throws JniException {
-        this(groupID, configOption, Rpc.build(configOption.getJniConfig()));
-    }
-
-    protected ClientImpl(
-            String groupID, ConfigOption configOption, org.fisco.bcos.sdk.jni.rpc.Rpc jniRpcImpl) {
-        this.configOption = configOption;
-        // set group id
+    protected ClientImpl(String groupID, ConfigOption configOption, long nativePointer) {
         this.groupID = groupID;
-        // init jni sdk
-        assert jniRpcImpl != null;
-        this.jniRpcImpl = jniRpcImpl;
+        this.configOption = configOption;
+        this.rpcJniObj = RpcJniObj.build(nativePointer);
 
         // start rpc
         start();
 
-        // init group basic info, eg: chain_id, sm_crypto, is_wasm
-        initGroupInfo();
+        // groupID is set, init group basic info, eg: chain_id, sm_crypto, is_wasm
+        if (Objects.nonNull(groupID) && !groupID.isEmpty()) {
 
-        // init crypto suite
-        if (smCrypto) {
-            this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
+            initGroupInfo();
 
-        } else {
-            this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
+            // init crypto suite
+            if (smCrypto) {
+                this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
+
+            } else {
+                this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
+            }
         }
 
-        logger.info("ClientImpl constructor, groupID: {}", groupID);
+        logger.info(
+                "ClientImpl constructor, groupID: {}, nativePointer: {}, smCrypto: {}, wasm: {}",
+                groupID,
+                nativePointer,
+                smCrypto,
+                isWASM());
     }
 
-    protected ClientImpl(ConfigOption configOption) throws JniException {
-        this.configOption = configOption;
-        // init jni sdk
-        this.jniRpcImpl = Rpc.build(configOption.getJniConfig());
-        // start rpc
-        start();
-
-        logger.info("ClientImpl constructor");
+    @Override
+    public long getNativePointer() {
+        return rpcJniObj.getNativePointer();
     }
 
     @Override
@@ -646,7 +639,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BigInteger getBlockLimit() {
-        BigInteger blockLimit = BigInteger.valueOf(this.jniRpcImpl.getBlockLimit(this.groupID));
+        BigInteger blockLimit = BigInteger.valueOf(this.rpcJniObj.getBlockLimit(this.groupID));
         if (logger.isDebugEnabled()) {
             logger.debug("getBlockLimit, group: {}, blockLimit: {}", groupID, blockLimit);
         }
@@ -973,15 +966,23 @@ public class ClientImpl implements Client {
 
     @Override
     public void start() {
-        if (jniRpcImpl != null) {
-            jniRpcImpl.start();
+        if (rpcJniObj != null) {
+            rpcJniObj.start();
         }
     }
 
     @Override
     public void stop() {
-        if (jniRpcImpl != null) {
-            jniRpcImpl.stop();
+        if (rpcJniObj != null) {
+            rpcJniObj.stop();
+        }
+    }
+
+    @Override
+    public void destroy() {
+        if (rpcJniObj != null) {
+            BcosSDKJniObj.destroy(rpcJniObj.getNativePointer());
+            rpcJniObj = null;
         }
     }
 
@@ -1009,7 +1010,7 @@ public class ClientImpl implements Client {
             CompletableFuture<Response> future = new CompletableFuture<>();
 
             String data = this.objectMapper.writeValueAsString(request);
-            this.jniRpcImpl.genericMethod(
+            this.rpcJniObj.genericMethod(
                     groupID,
                     node,
                     data,
@@ -1047,7 +1048,7 @@ public class ClientImpl implements Client {
             RespCallback<T> callback) {
 
         try {
-            this.jniRpcImpl.genericMethod(
+            this.rpcJniObj.genericMethod(
                     groupID,
                     node,
                     this.objectMapper.writeValueAsString(request),

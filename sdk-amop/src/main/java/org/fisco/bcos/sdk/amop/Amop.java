@@ -17,9 +17,12 @@ package org.fisco.bcos.sdk.amop;
 
 import java.util.Set;
 import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.jni.amop.AmopRequestCallback;
 import org.fisco.bcos.sdk.jni.amop.AmopResponseCallback;
 import org.fisco.bcos.sdk.jni.common.JniException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AMOP module interface.
@@ -27,14 +30,28 @@ import org.fisco.bcos.sdk.jni.common.JniException;
  * @author Maggie
  */
 public interface Amop {
+    static final Logger logger = LoggerFactory.getLogger(Amop.class);
+
     /**
      * Create a Amop object.
      *
-     * @param config the config object
+     * @param configOption the config object
      * @return Amop instance
      */
-    static Amop build(ConfigOption config) throws JniException {
-        return new AmopImp(config);
+    static Amop build(ConfigOption configOption) throws JniException {
+        long nativePointer = BcosSDKJniObj.create(configOption.getJniConfig());
+        logger.info("build AMOP, configOption: {}", configOption);
+        return new AmopImp(nativePointer);
+    }
+
+    /**
+     * Create a Amop object.
+     *
+     * @param nativePointer the
+     * @return Amop instance
+     */
+    static Amop build(long nativePointer) throws JniException {
+        return new AmopImp(nativePointer);
     }
 
     /**
@@ -95,4 +112,7 @@ public interface Amop {
 
     /** Stop. */
     void stop();
+
+    /** Destroy amop object */
+    void destroy();
 }

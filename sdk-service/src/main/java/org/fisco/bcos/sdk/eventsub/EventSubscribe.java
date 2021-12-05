@@ -76,4 +76,6 @@ public interface EventSubscribe {
 
     /** Stop */
     void stop();
+
+    void destroy();
 }
