@@ -298,8 +298,13 @@ public class ABICodec {
             for (int i = 0; i < inputTypes.size(); ++i) {
                 types.add(buildType(inputTypes.get(i), params.get(i)));
             }
-            byte[] paramBytes =
-                    org.fisco.bcos.sdk.codec.abi.FunctionEncoder.encodeConstructor(types);
+            byte[] paramBytes = null;
+            if (isWasm) {
+                paramBytes =
+                        org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeConstructor(types);
+            } else {
+                paramBytes = org.fisco.bcos.sdk.codec.abi.FunctionEncoder.encodeConstructor(types);
+            }
             return encodeConstructorFromBytes(bin, paramBytes, abi);
         } catch (Exception e) {
             cause = e;
@@ -323,7 +328,6 @@ public class ABICodec {
                     outputStream.write(params);
                 }
             } else {
-
                 List<Type> deployParams = new ArrayList<>();
                 deployParams.add(new DynamicBytes(Hex.decode(bin)));
                 if (params != null) {
