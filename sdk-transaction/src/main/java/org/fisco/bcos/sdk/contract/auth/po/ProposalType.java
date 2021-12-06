@@ -18,7 +18,7 @@ public enum ProposalType {
         return value;
     }
 
-    static ProposalType fromInt(int type) {
+    public static ProposalType fromInt(int type) {
         switch (type) {
             case 11:
                 return ProposalType.SET_WEIGHT;

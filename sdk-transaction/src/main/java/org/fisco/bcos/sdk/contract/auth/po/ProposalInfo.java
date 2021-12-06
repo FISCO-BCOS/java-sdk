@@ -46,6 +46,10 @@ public class ProposalInfo {
         return proposalType;
     }
 
+    public String getProposalTypeString() {
+        return ProposalType.fromInt(proposalType).getValue();
+    }
+
     public void setProposalType(int proposalType) {
         this.proposalType = proposalType;
     }
@@ -60,6 +64,10 @@ public class ProposalInfo {
 
     public int getStatus() {
         return status;
+    }
+
+    public String getStatusString() {
+        return ProposalStatus.fromInt(status).getValue();
     }
 
     public void setStatus(int status) {

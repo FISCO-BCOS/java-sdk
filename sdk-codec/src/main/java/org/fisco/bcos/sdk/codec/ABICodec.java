@@ -213,7 +213,11 @@ public class ABICodec {
             }
 
             if (typeStr.equals("bytes")) {
-                type = new DynamicBytes(param.getBytes());
+                byte[] bytes = ABICodecJsonWrapper.tryDecodeInputData(param);
+                if (bytes == null) {
+                    bytes = param.getBytes();
+                }
+                type = new DynamicBytes(bytes);
                 return type;
             }
 
@@ -239,7 +243,10 @@ public class ABICodec {
                     logger.error(errorMsg);
                     throw new ABICodecException(errorMsg);
                 }
-                byte[] bytesN = param.getBytes();
+                byte[] bytesN = ABICodecJsonWrapper.tryDecodeInputData(param);
+                if (bytesN == null) {
+                    bytesN = param.getBytes();
+                }
                 if (bytesN.length != length) {
                     String errorMsg =
                             String.format(

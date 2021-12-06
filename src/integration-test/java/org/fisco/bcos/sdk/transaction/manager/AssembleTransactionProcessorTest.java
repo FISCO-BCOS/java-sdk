@@ -357,28 +357,56 @@ public class AssembleTransactionProcessorTest {
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         // setBytes
-        List<String> paramsSetBytes = Lists.newArrayList(new String("123".getBytes()));
-        TransactionResponse transactionResponse3 =
-                transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
-                        contractAddress, ABI, "setBytes", paramsSetBytes);
-        System.out.println(JsonUtils.toJson(transactionResponse3));
-        Assert.assertEquals(transactionResponse3.getResults().size(), 1);
+        {
+            List<String> paramsSetBytes = Lists.newArrayList(new String("123".getBytes()));
+            TransactionResponse transactionResponse3 =
+                    transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
+                            contractAddress, ABI, "setBytes", paramsSetBytes);
+            System.out.println(JsonUtils.toJson(transactionResponse3));
+            Assert.assertEquals(transactionResponse3.getResults().size(), 1);
 
-        Map<String, List<List<Object>>> eventsMap3 = transactionResponse3.getEventResultMap();
-        System.out.println(JsonUtils.toJson(eventsMap3));
-        Assert.assertEquals(1, eventsMap3.size());
-        Assert.assertEquals("123", eventsMap3.get("LogSetBytes").get(0).get(1));
+            Map<String, List<List<Object>>> eventsMap3 = transactionResponse3.getEventResultMap();
+            System.out.println(JsonUtils.toJson(eventsMap3));
+            Assert.assertEquals(1, eventsMap3.size());
+            Assert.assertEquals("123", eventsMap3.get("LogSetBytes").get(0).get(1));
 
-        // getBytes
-        CallResponse callResponse4 =
-                transactionProcessor.sendCall(
-                        this.cryptoKeyPair.getAddress(),
-                        contractAddress,
-                        ABI,
-                        "_bytesV",
-                        Lists.newArrayList());
-        Assert.assertEquals(0, callResponse4.getReturnCode());
-        Assert.assertEquals(callResponse4.getResults().get(0), new DynamicBytes("123".getBytes()));
+            // getBytes
+            CallResponse callResponse4 =
+                    transactionProcessor.sendCall(
+                            this.cryptoKeyPair.getAddress(),
+                            contractAddress,
+                            ABI,
+                            "_bytesV",
+                            Lists.newArrayList());
+            Assert.assertEquals(0, callResponse4.getReturnCode());
+            Assert.assertEquals(
+                    callResponse4.getResults().get(0), new DynamicBytes("123".getBytes()));
+        }
+
+        // setBytes
+        {
+            List<String> paramsSetBytes2 =
+                    Lists.newArrayList(new String("hex://0x1234".getBytes()));
+            TransactionResponse transactionResponse4 =
+                    transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
+                            contractAddress, ABI, "setBytes", paramsSetBytes2);
+            System.out.println(JsonUtils.toJson(transactionResponse4));
+            Assert.assertEquals(transactionResponse4.getResults().size(), 1);
+
+            Map<String, List<List<Object>>> eventsMap4 = transactionResponse4.getEventResultMap();
+            System.out.println(JsonUtils.toJson(eventsMap4));
+            Assert.assertEquals(1, eventsMap4.size());
+
+            // getBytes
+            CallResponse callResponse4 =
+                    transactionProcessor.sendCall(
+                            this.cryptoKeyPair.getAddress(),
+                            contractAddress,
+                            ABI,
+                            "_bytesV",
+                            Lists.newArrayList());
+            Assert.assertEquals(0, callResponse4.getReturnCode());
+        }
     }
 
     @Test

@@ -17,7 +17,7 @@ public enum ProposalStatus {
         return value;
     }
 
-    static ProposalStatus fromInt(int status) {
+    public static ProposalStatus fromInt(int status) {
         switch (status) {
             case 1:
                 return NOT_ENOUGH_VOTE;
