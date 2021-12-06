@@ -28,6 +28,8 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.codec.datatypes.DynamicBytes;
 import org.fisco.bcos.sdk.codec.datatypes.Type;
+import org.fisco.bcos.sdk.codec.datatypes.generated.Bytes4;
+import org.fisco.bcos.sdk.codec.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
@@ -57,7 +59,7 @@ public class AssembleTransactionProcessorTest {
     private static final String ABI_FILE = "src/integration-test/resources/abi/";
     private static final String BIN_FILE = "src/integration-test/resources/bin/";
     private static final String ABI =
-            "[{\"constant\":true,\"inputs\":[{\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"getByBytes\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes[]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"bytesArray\",\"type\":\"bytes[]\"}],\"name\":\"setBytesMapping\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_addrDArray\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_addr\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"getUint256\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"v\",\"type\":\"uint256\"}],\"name\":\"incrementUint256\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_bytesV\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_s\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"getSArray\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256[2]\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"setBytes\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"i\",\"type\":\"int256\"},{\"name\":\"a\",\"type\":\"address[]\"},{\"name\":\"s\",\"type\":\"string\"}],\"name\":\"setValues\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_intV\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"emptyArgs\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"i\",\"type\":\"int256\"},{\"name\":\"s\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogIncrement\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogInit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"i\",\"type\":\"int256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"address[]\"},{\"indexed\":false,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogSetValues\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"o\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"LogSetBytes\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"o\",\"type\":\"uint256[2]\"},{\"indexed\":false,\"name\":\"n\",\"type\":\"uint256[2]\"}],\"name\":\"LogSetSArray\",\"type\":\"event\"}]";
+            "[{\"inputs\":[{\"internalType\":\"int256\",\"name\":\"i\",\"type\":\"int256\"},{\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogIncrement\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogInit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"o\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"LogSetBytes\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256[2]\",\"name\":\"o\",\"type\":\"uint256[2]\"},{\"indexed\":false,\"internalType\":\"uint256[2]\",\"name\":\"n\",\"type\":\"uint256[2]\"}],\"name\":\"LogSetSArray\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"i\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"a\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogSetValues\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"_addr\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"_addrDArray\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_bytes4V\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_bytesV\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_intV\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_s\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"emptyArgs\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"getByBytes\",\"outputs\":[{\"internalType\":\"bytes[]\",\"name\":\"\",\"type\":\"bytes[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getSArray\",\"outputs\":[{\"internalType\":\"uint256[2]\",\"name\":\"\",\"type\":\"uint256[2]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getUint256\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getValues\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"},{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"v\",\"type\":\"uint256\"}],\"name\":\"incrementUint256\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"b\",\"type\":\"bytes\"}],\"name\":\"setBytes\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes[]\",\"name\":\"bytesArray\",\"type\":\"bytes[]\"}],\"name\":\"setBytesMapping\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"b\",\"type\":\"bytes4\"}],\"name\":\"setStaticByte4\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int256\",\"name\":\"i\",\"type\":\"int256\"},{\"internalType\":\"address[]\",\"name\":\"a\",\"type\":\"address[]\"},{\"internalType\":\"string\",\"name\":\"s\",\"type\":\"string\"}],\"name\":\"setValues\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
     // init the sdk, and set the config options.
     private final BcosSDK sdk;
     // group
@@ -193,8 +195,7 @@ public class AssembleTransactionProcessorTest {
                                 contractAddress,
                                 "0x0000000000000000000000000000000000000000000000000000000000000000"));
         Map<String, List<List<Object>>> map = response.getEventResultMap();
-        // FIXME: event is not supported now
-        // Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
+        Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
     }
 
     @Test
@@ -326,9 +327,20 @@ public class AssembleTransactionProcessorTest {
                         contractAddress, ABI, "setValues", paramsSetValues);
         System.out.println(JsonUtils.toJson(transactionResponse));
         Map<String, List<List<Object>>> eventsMap = transactionResponse.getEventResultMap();
-        // FIXME: event is not supported now
-        // Assert.assertEquals(1, eventsMap.size());
-        // Assert.assertEquals("set values 字符串", eventsMap.get("LogSetValues").get(0).get(2));
+        Assert.assertEquals(1, eventsMap.size());
+        Assert.assertEquals("set values 字符串", eventsMap.get("LogSetValues").get(0).get(2));
+
+        // getValues
+        CallResponse callResponse4 =
+                transactionProcessor.sendCall(
+                        this.cryptoKeyPair.getAddress(),
+                        contractAddress,
+                        ABI,
+                        "getValues",
+                        Lists.newArrayList());
+        Assert.assertEquals(0, callResponse4.getReturnCode());
+        Assert.assertEquals(callResponse4.getResults().get(0), new Int256(20));
+        Assert.assertEquals(callResponse4.getResults().get(2), "set values 字符串");
     }
 
     @Test
@@ -354,9 +366,8 @@ public class AssembleTransactionProcessorTest {
 
         Map<String, List<List<Object>>> eventsMap3 = transactionResponse3.getEventResultMap();
         System.out.println(JsonUtils.toJson(eventsMap3));
-        // FIXME: event not supported now
-        // Assert.assertEquals(1, eventsMap3.size());
-        // Assert.assertEquals("set bytes test", eventsMap3.get("LogSetBytes").get(0).get(1));
+        Assert.assertEquals(1, eventsMap3.size());
+        Assert.assertEquals("123", eventsMap3.get("LogSetBytes").get(0).get(1));
 
         // getBytes
         CallResponse callResponse4 =
@@ -394,5 +405,38 @@ public class AssembleTransactionProcessorTest {
                 r -> {
                     Assert.assertEquals(0, response.getTransactionReceipt().getStatus());
                 });
+    }
+
+    @Test
+    public void test9ComplexSetStaticBytes() throws Exception {
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
+        // deploy
+        List<Object> params = Lists.newArrayList();
+        params.add(1);
+        params.add("test2");
+        TransactionResponse response =
+                transactionProcessor.deployByContractLoader("ComplexSol", params);
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
+        String contractAddress = response.getContractAddress();
+        // setStaticByte4
+        List<String> paramsSetBytes = Lists.newArrayList(new String("1234".getBytes()));
+        TransactionResponse transactionResponse3 =
+                transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
+                        contractAddress, ABI, "setStaticByte4", paramsSetBytes);
+        System.out.println(JsonUtils.toJson(transactionResponse3));
+        Assert.assertEquals(transactionResponse3.getResults().size(), 1);
+
+        // get _bytes4V
+        CallResponse callResponse4 =
+                transactionProcessor.sendCall(
+                        this.cryptoKeyPair.getAddress(),
+                        contractAddress,
+                        ABI,
+                        "_bytes4V",
+                        Lists.newArrayList());
+        Assert.assertEquals(0, callResponse4.getReturnCode());
+        Assert.assertEquals(callResponse4.getResults().get(0), new Bytes4("1234".getBytes()));
     }
 }
