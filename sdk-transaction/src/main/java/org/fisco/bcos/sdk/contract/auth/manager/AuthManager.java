@@ -192,7 +192,7 @@ public class AuthManager {
      * @param transactionResponse which get proposal from
      * @return proposal id
      */
-    public BigInteger getProposal(TransactionResponse transactionResponse)
+    private BigInteger getProposal(TransactionResponse transactionResponse)
             throws TransactionException {
         if (transactionResponse == null) {
             throw new TransactionException("Decode transaction response error");
@@ -236,7 +236,7 @@ public class AuthManager {
      * @param account the account to check
      * @return true or false
      */
-    public Boolean hasDeployAuth(String account) throws ContractException {
+    public Boolean checkDeployAuth(String account) throws ContractException {
         return contractAuthPrecompiled.hasDeployAuth(account);
     }
 

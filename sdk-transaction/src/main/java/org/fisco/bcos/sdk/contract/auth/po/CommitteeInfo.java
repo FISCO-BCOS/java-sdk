@@ -10,27 +10,6 @@ import org.slf4j.LoggerFactory;
 public class CommitteeInfo {
     private final Logger logger = LoggerFactory.getLogger(CommitteeInfo.class);
 
-    class GovernorInfo {
-        String governorAddress;
-        BigInteger weight;
-
-        public GovernorInfo(String governorAddress, BigInteger weight) {
-            this.governorAddress = governorAddress;
-            this.weight = weight;
-        }
-
-        @Override
-        public String toString() {
-            return "GovernorInfo{"
-                    + "governorAddress='"
-                    + governorAddress
-                    + '\''
-                    + ", weight="
-                    + weight
-                    + '}';
-        }
-    }
-
     private List<GovernorInfo> governorList = new ArrayList<>();
     private int participatesRate;
     private int winRate;

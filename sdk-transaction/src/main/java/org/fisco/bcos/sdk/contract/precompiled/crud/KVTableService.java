@@ -32,7 +32,6 @@ import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.utils.StringUtils;
 
-/** This class not support in FISCO BCOS 3.0.0 rc1 Do not use it. */
 public class KVTableService {
     private final KVTablePrecompiled kvTablePrecompiled;
     private static final String VALUE_FIELDS_DELIMITER = ",";

@@ -213,7 +213,11 @@ public class ABICodec {
             }
 
             if (typeStr.equals("bytes")) {
-                type = new DynamicBytes(param.getBytes());
+                byte[] bytes = ABICodecJsonWrapper.tryDecodeInputData(param);
+                if (bytes == null) {
+                    bytes = param.getBytes();
+                }
+                type = new DynamicBytes(bytes);
                 return type;
             }
 
@@ -222,6 +226,7 @@ public class ABICodec {
                 return type;
             }
 
+            // static bytesN
             if (typeStr.startsWith("bytes")) {
                 String lengthStr = typeStr.substring("bytes".length());
                 int length;
@@ -238,22 +243,19 @@ public class ABICodec {
                     logger.error(errorMsg);
                     throw new ABICodecException(errorMsg);
                 }
-
-                JsonNode jsonNode = this.objectMapper.readTree(param);
-                assert jsonNode.isArray();
-                if (jsonNode.size() != length) {
+                byte[] bytesN = ABICodecJsonWrapper.tryDecodeInputData(param);
+                if (bytesN == null) {
+                    bytesN = param.getBytes();
+                }
+                if (bytesN.length != length) {
                     String errorMsg =
                             String.format(
                                     "expected byte array at length %d but length of provided in data is %d",
-                                    length, jsonNode.size());
+                                    length, bytesN.length);
                     logger.error(errorMsg);
                     throw new ABICodecException(errorMsg);
                 }
 
-                byte[] bytes = new byte[jsonNode.size()];
-                for (int i = 0; i < jsonNode.size(); ++i) {
-                    bytes[i] = ((byte) jsonNode.get(i).asInt());
-                }
                 try {
                     Class<?> bytesClass =
                             Class.forName(
@@ -262,7 +264,7 @@ public class ABICodec {
                             (Type)
                                     bytesClass
                                             .getDeclaredConstructor(byte[].class)
-                                            .newInstance(bytes);
+                                            .newInstance(bytesN);
                 } catch (ClassNotFoundException
                         | NoSuchMethodException
                         | InstantiationException
