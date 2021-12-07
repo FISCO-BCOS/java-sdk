@@ -20,6 +20,7 @@ public class GroupNodeIniConfig {
             // executor
             GroupNodeIniConfig.Executor executor = new GroupNodeIniConfig.Executor();
             executor.setWasm(groupIniConfig.getWasm());
+            executor.setAuthCheck(groupIniConfig.getAuthCheck());
 
             GroupNodeIniConfig groupNodeIniConfig = new GroupNodeIniConfig();
             groupNodeIniConfig.setChain(chain);
@@ -53,6 +54,7 @@ public class GroupNodeIniConfig {
 
     public static class Executor {
         private boolean isWasm;
+        private boolean isAuthCheck;
 
         public boolean isWasm() {
             return isWasm;
@@ -62,9 +64,17 @@ public class GroupNodeIniConfig {
             isWasm = wasm;
         }
 
+        public boolean isAuthCheck() {
+            return isAuthCheck;
+        }
+
+        public void setAuthCheck(boolean authCheck) {
+            isAuthCheck = authCheck;
+        }
+
         @Override
         public String toString() {
-            return "Executor{" + "isWasm=" + isWasm + '}';
+            return "Executor{" + "isWasm=" + isWasm + ", isAuthCheck=" + isAuthCheck + '}';
         }
     }
 
