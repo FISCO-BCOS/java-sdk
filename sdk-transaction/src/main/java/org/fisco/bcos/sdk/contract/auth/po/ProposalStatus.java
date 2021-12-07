@@ -2,7 +2,7 @@ package org.fisco.bcos.sdk.contract.auth.po;
 
 public enum ProposalStatus {
     NOT_ENOUGH_VOTE("notEnoughVotes"),
-    SUCCESS("success"),
+    FINISHED("finished"),
     FAILED("failed"),
     REVOKE("revoke"),
     UNKNOWN("unknown");
@@ -22,7 +22,7 @@ public enum ProposalStatus {
             case 1:
                 return NOT_ENOUGH_VOTE;
             case 2:
-                return SUCCESS;
+                return FINISHED;
             case 3:
                 return FAILED;
             case 4:

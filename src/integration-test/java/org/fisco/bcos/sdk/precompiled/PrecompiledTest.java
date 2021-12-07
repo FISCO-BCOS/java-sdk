@@ -50,6 +50,7 @@ import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.fisco.bcos.sdk.utils.StringUtils;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
@@ -143,7 +144,7 @@ public class PrecompiledTest {
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
-        String contractAddress = helloWorld.getContractAddress().toLowerCase();
+        String contractAddress = Hex.trimPrefix(helloWorld.getContractAddress().toLowerCase());
         String contractName = "HelloWorld";
         String contractVersion = String.valueOf(Math.random());
         CnsService cnsService = new CnsService(client, cryptoKeyPair);
@@ -199,7 +200,7 @@ public class PrecompiledTest {
         }
         // insert anther cns for other contract
         HelloWorld helloWorld2 = HelloWorld.deploy(client, cryptoKeyPair);
-        String contractAddress2 = helloWorld2.getContractAddress().toLowerCase();
+        String contractAddress2 = Hex.trimPrefix(helloWorld2.getContractAddress().toLowerCase());
         String contractName2 = "hello";
         retCode = cnsService.registerCNS(contractName2, contractVersion, contractAddress2, "");
         if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
