@@ -1,6 +1,12 @@
 package org.fisco.bcos.sdk.codec.datatypes;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.IOException;
 import java.util.Arrays;
+import org.fisco.bcos.sdk.utils.Hex;
 
 /** Binary sequence of bytes. */
 public abstract class BytesType implements Type<byte[]> {
@@ -14,6 +20,7 @@ public abstract class BytesType implements Type<byte[]> {
     }
 
     @Override
+    @JsonSerialize(using = bytesUsingHexSerializer.class)
     public byte[] getValue() {
         return value;
     }
@@ -52,5 +59,18 @@ public abstract class BytesType implements Type<byte[]> {
         return value.length <= 32
                 ? MAX_BYTE_LENGTH
                 : (value.length / MAX_BYTE_LENGTH + 1) * MAX_BYTE_LENGTH;
+    }
+
+    public static class bytesUsingHexSerializer extends JsonSerializer<byte[]> {
+        @Override
+        public void serialize(byte[] value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException {
+            if (value == null) {
+                gen.writeNull();
+                return;
+            }
+            String hexString = Hex.toHexString(value);
+            gen.writeString(hexString);
+        }
     }
 }

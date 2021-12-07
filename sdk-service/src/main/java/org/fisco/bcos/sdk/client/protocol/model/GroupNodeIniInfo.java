@@ -84,6 +84,9 @@ public class GroupNodeIniInfo {
     @JsonProperty("isWasm")
     private Boolean wasm;
 
+    @JsonProperty("isAuthCheck")
+    private Boolean isAuthCheck = false;
+
     private String nodeID;
     private String nodeName;
     private String rpcServiceName;
@@ -127,6 +130,14 @@ public class GroupNodeIniInfo {
 
     public void setWasm(Boolean wasm) {
         this.wasm = wasm;
+    }
+
+    public Boolean getAuthCheck() {
+        return isAuthCheck;
+    }
+
+    public void setAuthCheck(Boolean authCheck) {
+        isAuthCheck = authCheck;
     }
 
     public String getNodeID() {

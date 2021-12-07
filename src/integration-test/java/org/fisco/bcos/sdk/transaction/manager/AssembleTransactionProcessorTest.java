@@ -448,23 +448,49 @@ public class AssembleTransactionProcessorTest {
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
-        // setStaticByte4
-        List<String> paramsSetBytes = Lists.newArrayList(new String("1234".getBytes()));
-        TransactionResponse transactionResponse3 =
-                transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
-                        contractAddress, ABI, "setStaticByte4", paramsSetBytes);
-        System.out.println(JsonUtils.toJson(transactionResponse3));
-        Assert.assertEquals(transactionResponse3.getResults().size(), 1);
 
-        // get _bytes4V
-        CallResponse callResponse4 =
-                transactionProcessor.sendCall(
-                        this.cryptoKeyPair.getAddress(),
-                        contractAddress,
-                        ABI,
-                        "_bytes4V",
-                        Lists.newArrayList());
-        Assert.assertEquals(0, callResponse4.getReturnCode());
-        Assert.assertEquals(callResponse4.getResults().get(0), new Bytes4("1234".getBytes()));
+        // setStaticByte4
+        {
+            List<String> paramsSetBytes = Lists.newArrayList(new String("1234".getBytes()));
+            TransactionResponse transactionResponse3 =
+                    transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
+                            contractAddress, ABI, "setStaticByte4", paramsSetBytes);
+            System.out.println(JsonUtils.toJson(transactionResponse3));
+            Assert.assertEquals(transactionResponse3.getResults().size(), 1);
+
+            // get _bytes4V
+            CallResponse callResponse4 =
+                    transactionProcessor.sendCall(
+                            this.cryptoKeyPair.getAddress(),
+                            contractAddress,
+                            ABI,
+                            "_bytes4V",
+                            Lists.newArrayList());
+            Assert.assertEquals(0, callResponse4.getReturnCode());
+            Assert.assertEquals(callResponse4.getResults().get(0), new Bytes4("1234".getBytes()));
+        }
+
+        // setStaticByte4 in hex
+        {
+            List<String> paramsSetBytes = Lists.newArrayList("hex://0x12345678");
+            TransactionResponse transactionResponse3 =
+                    transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
+                            contractAddress, ABI, "setStaticByte4", paramsSetBytes);
+            System.out.println(JsonUtils.toJson(transactionResponse3));
+            Assert.assertEquals(transactionResponse3.getResults().size(), 1);
+
+            // get _bytes4V
+            CallResponse callResponse4 =
+                    transactionProcessor.sendCall(
+                            this.cryptoKeyPair.getAddress(),
+                            contractAddress,
+                            ABI,
+                            "_bytes4V",
+                            Lists.newArrayList());
+            String s = JsonUtils.toJson(callResponse4.getResults().get(0));
+            Assert.assertEquals(0, callResponse4.getReturnCode());
+            Assert.assertEquals(
+                    callResponse4.getResults().get(0), new Bytes4("12345678".getBytes()));
+        }
     }
 }

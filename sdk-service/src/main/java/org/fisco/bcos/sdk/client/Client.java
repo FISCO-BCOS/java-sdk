@@ -102,6 +102,13 @@ public interface Client {
     Boolean isWASM();
 
     /**
+     * Whether is auth check in chain
+     *
+     * @return true when chain in auth mode
+     */
+    Boolean isAuthCheck();
+
+    /**
      * get groupId of the client
      *
      * @return the groupId
