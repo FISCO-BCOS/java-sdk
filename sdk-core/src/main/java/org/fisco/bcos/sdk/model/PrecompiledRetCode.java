@@ -125,18 +125,18 @@ public class PrecompiledRetCode {
     public static final RetCode CODE_INVALID_NODEID = new RetCode(-51100, "Invalid node ID");
 
     // PermissionPrecompiled -51099 ~ -51000
-    public static final RetCode CODE_COMMITTEE_PERMISSION =
+    public static final RetCode CODE_TABLE_AUTH_TYPE_DECODE_ERROR =
+            new RetCode(-51004, "Auth map decode error.");
+    public static final RetCode CODE_TABLE_ERROR_AUTH_TYPE =
+            new RetCode(-51003, "Error auth type input.");
+    public static final RetCode CODE_TABLE_AUTH_TYPE_NOT_EXIST =
             new RetCode(
-                    -51004,
-                    "The committee permission control by ChainGovernancePrecompiled are recommended");
-    public static final RetCode CODE_CONTRACT_NOT_EXIST =
-            new RetCode(-51003, "The contract doesn't exist");
-    public static final RetCode CODE_TABLE_NAME_OVERFLOW =
-            new RetCode(-51002, "The table name string length exceeds the maximum limit");
+                    -51002,
+                    "The contract method auth type not set, please set method auth type first.");
     public static final RetCode CODE_TABLE_AUTH_ROW_NOT_EXIST =
-            new RetCode(-51001, "The table auth not exist");
+            new RetCode(-51001, "The contract method auth not exist");
     public static final RetCode CODE_TABLE_AGENT_ROW_NOT_EXIST =
-            new RetCode(-51000, "The table agent not exist");
+            new RetCode(-51000, "The contract admin not exist");
 
     // Common error code among all precompiled contracts -50199 ~ -50100
     public static final RetCode CODE_TABLE_OPEN_ERROR = new RetCode(-50105, "Open table error");
