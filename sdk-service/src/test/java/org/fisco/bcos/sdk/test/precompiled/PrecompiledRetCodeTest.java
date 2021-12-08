@@ -81,12 +81,12 @@ public class PrecompiledRetCodeTest {
                                 PrecompiledRetCode.CODE_LAST_SEALER.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_INVALID_NODEID.getCode(),
                                 PrecompiledRetCode.CODE_INVALID_NODEID.getMessage());
-                checkResponse(PrecompiledRetCode.CODE_COMMITTEE_PERMISSION.getCode(),
-                                PrecompiledRetCode.CODE_COMMITTEE_PERMISSION.getMessage());
-                checkResponse(PrecompiledRetCode.CODE_CONTRACT_NOT_EXIST.getCode(),
-                                PrecompiledRetCode.CODE_CONTRACT_NOT_EXIST.getMessage());
-                checkResponse(PrecompiledRetCode.CODE_TABLE_NAME_OVERFLOW.getCode(),
-                                PrecompiledRetCode.CODE_TABLE_NAME_OVERFLOW.getMessage());
+                checkResponse(PrecompiledRetCode.CODE_TABLE_AUTH_TYPE_DECODE_ERROR.getCode(),
+                                PrecompiledRetCode.CODE_TABLE_AUTH_TYPE_DECODE_ERROR.getMessage());
+                checkResponse(PrecompiledRetCode.CODE_TABLE_ERROR_AUTH_TYPE.getCode(),
+                                PrecompiledRetCode.CODE_TABLE_ERROR_AUTH_TYPE.getMessage());
+                checkResponse(PrecompiledRetCode.CODE_TABLE_AUTH_TYPE_NOT_EXIST.getCode(),
+                                PrecompiledRetCode.CODE_TABLE_AUTH_TYPE_NOT_EXIST.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_TABLE_AGENT_ROW_NOT_EXIST.getCode(),
                                 PrecompiledRetCode.CODE_TABLE_AGENT_ROW_NOT_EXIST.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_ADDRESS_INVALID.getCode(),

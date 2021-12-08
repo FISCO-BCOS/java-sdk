@@ -298,4 +298,13 @@ public class AuthManager {
             return contractAuthPrecompiled.getCloseMethodAuthOutput(receipt).getValue1();
         }
     }
+
+    /**
+     * get proposal count
+     *
+     * @return count
+     */
+    public BigInteger proposalCount() throws ContractException {
+        return this.proposalManager._proposalCount();
+    }
 }
