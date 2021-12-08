@@ -32,6 +32,7 @@ import org.fisco.bcos.sdk.client.protocol.response.*;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
+import org.fisco.bcos.sdk.jni.rpc.RpcCallback;
 import org.fisco.bcos.sdk.jni.rpc.RpcJniObj;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
@@ -895,21 +896,65 @@ public class ClientImpl implements Client {
 
     @Override
     public BcosGroupInfo getGroupInfo() {
-        return this.callRemoteMethod(
-                this.groupID,
-                "",
-                new JsonRpcRequest(JsonRpcMethods.GET_GROUP_INFO, Arrays.asList(groupID)),
-                BcosGroupInfo.class);
+        try {
+            CompletableFuture<Response> future = new CompletableFuture<>();
+
+            this.rpcJniObj.getGroupInfo(
+                    groupID,
+                    (resp) -> {
+                        Response response = new Response();
+                        response.setErrorCode(resp.getErrorCode());
+                        response.setErrorMessage(resp.getErrorMessage());
+                        response.setContent(resp.getData());
+
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("getGroupInfo onResponse: {}", response);
+                        }
+
+                        future.complete(response);
+                    });
+            Response response = future.get();
+            return this.parseResponseIntoJsonRpcResponse(
+                    new JsonRpcRequest(JsonRpcMethods.GET_GROUP_INFO, Arrays.asList(groupID)),
+                    response,
+                    BcosGroupInfo.class);
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("e: ", e);
+            throw new ClientException(
+                    "getGroupInfo failed for decode the message exception, error message:"
+                            + e.getMessage(),
+                    e);
+        }
     }
 
     @Override
     public void getGroupInfoAsync(RespCallback<BcosGroupInfo> callback) {
-        this.asyncCallRemoteMethod(
+        rpcJniObj.getGroupInfo(
                 this.groupID,
-                "",
-                new JsonRpcRequest(JsonRpcMethods.GET_GROUP_INFO, Arrays.asList(groupID)),
-                BcosGroupInfo.class,
-                callback);
+                new RpcCallback() {
+                    @Override
+                    public void onResponse(org.fisco.bcos.sdk.jni.common.Response resp) {
+
+                        Response response = new Response();
+                        response.setErrorCode(resp.getErrorCode());
+                        response.setErrorMessage(resp.getErrorMessage());
+                        response.setContent(resp.getData());
+
+                        ResponseCallback responseCallback =
+                                createResponseCallback(
+                                        new JsonRpcRequest(
+                                                JsonRpcMethods.GET_GROUP_INFO,
+                                                Arrays.asList(groupID)),
+                                        BcosGroupInfo.class,
+                                        callback);
+
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("getGroupInfo onResponse: {}", response);
+                        }
+
+                        responseCallback.onResponse(response);
+                    }
+                });
     }
 
     @Override
