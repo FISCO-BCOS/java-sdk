@@ -25,7 +25,7 @@ ext {
     picocliVersion = '4.6.1'
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = '1.69'
-    keyMiniToolkit = "1.0.4-SNAPSHOT"
+    keyMiniToolkit = "1.0.4"
 
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
@@ -33,14 +33,14 @@ ext {
     tarsCoreVersion = "1.7.2"
 
     config2Version = '2.7'
-    bcosSdkJniVersion = "3.1.0-SNAPSHOT"
+    bcosSdkJniVersion = "3.0.0-rc1"
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.1.0-SNAPSHOT'
+    version = '3.0.0-rc1'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
