@@ -43,7 +43,9 @@ public class ABICodecObject {
         List<Object> list = new ArrayList<>();
         if (value instanceof List) {
             list = (List<Object>) value;
-        } else {
+        } else if(value instanceof DynamicArray) {
+            list = (List<Object>) ((DynamicArray<?>) value).getValue();
+        }else{
             Object[] objs = (Object[]) value;
             Collections.addAll(list, objs);
         }
@@ -233,8 +235,11 @@ public class ABICodecObject {
                         if (value instanceof byte[]) {
                             byte[] bytesValue = (byte[]) value;
                             abiObject.setBytesValue(new Bytes(bytesValue.length, bytesValue));
-
-                        } else {
+                        } else if (value instanceof Bytes){
+                            abiObject.setBytesValue((Bytes) value);
+                        }
+                        else
+                        {
                             errorReport(
                                     " valueType mismatch",
                                     abiObject.getValueType().getClass().getName(),
