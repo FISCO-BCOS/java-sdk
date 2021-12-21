@@ -20,6 +20,7 @@ import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
+import org.fisco.bcos.sdk.jni.BlockNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +65,14 @@ public class BcosSDK {
             logger.error("error: {}", e);
             throw new BcosSDKException("create BcosSDK failed, error: " + e.getMessage());
         }
+    }
+
+    /**
+     * @param groupID
+     * @param blockNotifier
+     */
+    public void registerBlockNotifier(String groupID, BlockNotifier blockNotifier) {
+        this.bcosSDKJniObj.registerBlockNotifier(groupID, blockNotifier);
     }
 
     /**
