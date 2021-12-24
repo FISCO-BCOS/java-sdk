@@ -17,6 +17,7 @@ package org.fisco.bcos.sdk.config.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -125,7 +126,7 @@ public class ConfigProperty {
             // try to read from file system
             File file = new File(configFilePath);
             if (file.exists()) {
-                Path path = Paths.get(configFilePath);
+                Path path = file.toPath();
                 return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             }
 
