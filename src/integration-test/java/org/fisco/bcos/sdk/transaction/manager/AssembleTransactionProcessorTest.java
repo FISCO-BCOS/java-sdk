@@ -41,6 +41,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -339,8 +340,9 @@ public class AssembleTransactionProcessorTest {
                         "getValues",
                         Lists.newArrayList());
         Assert.assertEquals(0, callResponse4.getReturnCode());
-        Assert.assertEquals(callResponse4.getResults().get(0), new Int256(20));
-        Assert.assertEquals(callResponse4.getResults().get(2), "set values 字符串");
+        Assert.assertEquals(
+                callResponse4.getResults().get(0).getValue(), new Int256(20).getValue());
+        Assert.assertEquals(callResponse4.getResults().get(2).getValue(), "set values 字符串");
     }
 
     @Test
@@ -380,7 +382,8 @@ public class AssembleTransactionProcessorTest {
                             Lists.newArrayList());
             Assert.assertEquals(0, callResponse4.getReturnCode());
             Assert.assertEquals(
-                    callResponse4.getResults().get(0), new DynamicBytes("123".getBytes()));
+                    Hex.toHexString((byte[]) callResponse4.getResults().get(0).getValue()),
+                    Hex.toHexString(new DynamicBytes("123".getBytes()).getValue()));
         }
 
         // setBytes
@@ -490,7 +493,8 @@ public class AssembleTransactionProcessorTest {
             String s = JsonUtils.toJson(callResponse4.getResults().get(0));
             Assert.assertEquals(0, callResponse4.getReturnCode());
             Assert.assertEquals(
-                    callResponse4.getResults().get(0), new Bytes4("12345678".getBytes()));
+                    Hex.toHexString((byte[]) callResponse4.getResults().get(0).getValue()),
+                    "12345678");
         }
     }
 }

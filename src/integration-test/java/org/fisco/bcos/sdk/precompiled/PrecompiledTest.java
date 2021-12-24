@@ -25,6 +25,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.fisco.bcos.sdk.BcosSDKTest;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
@@ -52,7 +53,6 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
-import org.fisco.bcos.sdk.utils.StringUtils;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -81,60 +81,72 @@ public class PrecompiledTest {
 
         // select the node to operate
         SealerList.Sealer selectedNode = sealerList.get(0);
+        System.out.println("selectNode: " + selectedNode.getNodeID());
 
         // addSealer
-        //        Assert.assertThrows(
-        //                ContractException.class,
-        //                () -> {
-        //                    consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
-        //                });
+        Assert.assertThrows(
+                ContractException.class,
+                () -> {
+                    consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
+                });
 
         // add the sealer to the observerList
         RetCode retCode = consensusService.addObserver(selectedNode.getNodeID());
         // query the observerList
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            List<String> observerList = client.getObserverList().getResult();
-            Assert.assertTrue(observerList.contains(selectedNode.getNodeID()));
-            // query the sealerList
-            sealerList = client.getSealerList().getResult();
-            Assert.assertFalse(sealerList.contains(selectedNode));
-            // add the node to the observerList again
-            Assert.assertThrows(
-                    ContractException.class,
-                    () -> consensusService.addObserver(selectedNode.getNodeID()));
-        }
+        Assert.assertEquals(PrecompiledRetCode.CODE_SUCCESS.getCode(), retCode.getCode());
+        List<String> observerList = client.getObserverList().getResult();
+        System.out.println("observerList: " + observerList);
+        Assert.assertTrue(observerList.contains(selectedNode.getNodeID()));
+        // query the sealerList
+        sealerList = client.getSealerList().getResult();
+        System.out.println("sealerList: " + sealerList);
+        Assert.assertFalse(sealerList.contains(selectedNode));
+        // add the node to the observerList again
+        Assert.assertThrows(
+                ContractException.class,
+                () -> consensusService.addObserver(selectedNode.getNodeID()));
+
         // add the node to the sealerList again
         retCode = consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
 
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
-            Assert.assertFalse(
-                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-        }
+        Assert.assertEquals(PrecompiledRetCode.CODE_SUCCESS.getCode(), retCode.getCode());
+        List<SealerList.Sealer> sealerList1 = client.getSealerList().getResult();
+        System.out.println("sealerList1: " + sealerList1);
+        Assert.assertTrue(sealerList1.contains(selectedNode));
+        List<String> observerList1 = client.getObserverList().getResult();
+        System.out.println("observerList1: " + observerList1);
+        Assert.assertFalse(observerList1.contains(selectedNode.getNodeID()));
 
         // removeNode
         retCode = consensusService.removeNode(selectedNode.getNodeID());
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            Assert.assertFalse(
-                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-            Assert.assertFalse(client.getSealerList().getResult().contains(selectedNode));
-        }
+        Assert.assertEquals(PrecompiledRetCode.CODE_SUCCESS.getCode(), retCode.getCode());
+        List<String> observerList2 = client.getObserverList().getResult();
+        System.out.println("observerList2: " + observerList2);
+        Assert.assertFalse(observerList2.contains(selectedNode.getNodeID()));
+        List<SealerList.Sealer> sealerList2 = client.getSealerList().getResult();
+        System.out.println("sealerList2: " + sealerList2);
+        Assert.assertFalse(sealerList2.contains(selectedNode));
 
         // add the node to observerList again
         retCode = consensusService.addObserver(selectedNode.getNodeID());
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            Assert.assertTrue(
-                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-            Assert.assertFalse(client.getSealerList().getResult().contains(selectedNode));
-        }
+        Assert.assertEquals(PrecompiledRetCode.CODE_SUCCESS.getCode(), retCode.getCode());
+        List<String> observerList3 = client.getObserverList().getResult();
+        System.out.println("observerList3: " + observerList3);
+        Assert.assertTrue(observerList3.contains(selectedNode.getNodeID()));
+        List<SealerList.Sealer> sealerList3 = client.getSealerList().getResult();
+        System.out.println("sealerList3: " + sealerList3);
+        Assert.assertFalse(sealerList3.contains(selectedNode));
 
         // add the node to the sealerList again
         retCode = consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
-            Assert.assertFalse(
-                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-        }
+        Assert.assertEquals(PrecompiledRetCode.CODE_SUCCESS.getCode(), retCode.getCode());
+        List<SealerList.Sealer> sealerList4 = client.getSealerList().getResult();
+        System.out.println("sealerList4: " + sealerList4);
+
+        Assert.assertTrue(sealerList4.contains(selectedNode));
+        List<String> observerList4 = client.getObserverList().getResult();
+        System.out.println("observerList4: " + observerList4);
+        Assert.assertFalse(observerList4.contains(selectedNode.getNodeID()));
     }
 
     @Test
@@ -233,18 +245,19 @@ public class PrecompiledTest {
             throws ContractException {
         BigInteger value =
                 new BigInteger(client.getSystemConfigByKey(key).getSystemConfig().getValue());
-        BigInteger updatedValue = value.add(BigInteger.valueOf(1000));
+        BigInteger updatedValue = value.add(BigInteger.valueOf(100));
         String updatedValueStr = String.valueOf(updatedValue);
         systemConfigService.setValueByKey(key, updatedValueStr);
 
         BigInteger queriedValue =
                 new BigInteger(client.getSystemConfigByKey(key).getSystemConfig().getValue());
         System.out.println("queriedValue: " + queriedValue);
-        // Assert.assertTrue(queriedValue.equals(updatedValue));
-        // Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(1000))));
+        Assert.assertTrue(queriedValue.equals(updatedValue));
+        Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(100))));
     }
 
-    @Test
+    // FIXME: no use in FISCO BCOS v3.0.0-rc1
+    // @Test
     public void test5CRUDService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -298,8 +311,8 @@ public class PrecompiledTest {
         System.out.println("testCRUDPrecompiled tableCRUDService.remove size : " + result.size());
     }
 
-    // Note: Please make sure that the ut is before the permission-related ut
-    @Test
+    // FIXME: no use in FISCO BCOS v3.0.0-rc1
+    // @Test
     public void test51SyncCRUDService() throws ConfigException, ContractException, JniException {
 
         ConfigOption configOption = Config.load(configFile);
@@ -370,7 +383,8 @@ public class PrecompiledTest {
         }
     }
 
-    @Test
+    // FIXME: no use in FISCO BCOS v3.0.0-rc1
+    // @Test
     public void test52AsyncCRUDService()
             throws ConfigException, ContractException, InterruptedException, JniException {
 
@@ -434,25 +448,6 @@ public class PrecompiledTest {
         Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(300))) >= 0);
     }
 
-    public static byte[] hexStringToBytes(String hexString) {
-        if (StringUtils.isEmpty(hexString)) {
-            return new byte[0];
-        }
-        hexString = hexString.toLowerCase();
-        final byte[] byteArray = new byte[hexString.length() >> 1];
-        int index = 0;
-        for (int i = 0; i < hexString.length(); i++) {
-            if (index > hexString.length() - 1) {
-                return byteArray;
-            }
-            byte highDit = (byte) (Character.digit(hexString.charAt(index), 16) & 0xFF);
-            byte lowDit = (byte) (Character.digit(hexString.charAt(index + 1), 16) & 0xFF);
-            byteArray[i] = (byte) (highDit << 4 | lowDit);
-            index += 2;
-        }
-        return byteArray;
-    }
-
     @Test
     public void test7BFSPrecompiled() throws ConfigException, ContractException, JniException {
 
@@ -464,10 +459,11 @@ public class PrecompiledTest {
         List<FileInfo> list = bfsService.list("/");
         System.out.println(list);
 
-        String newDir = "local" + new Random().nextInt(1000);
-        RetCode mkdir = bfsService.mkdir("/usr/" + newDir);
+        String newDir = "local" + new Random().nextInt(10000) + new Random().nextInt(1000);
+        RetCode mkdir = bfsService.mkdir("/apps/" + newDir);
+        System.out.println("newDir: " + newDir);
         Assert.assertEquals(mkdir.code, 0);
-        List<FileInfo> list2 = bfsService.list("/usr");
+        List<FileInfo> list2 = bfsService.list("/apps");
         System.out.println(list2);
         boolean flag = false;
         for (FileInfo fileInfo : list2) {

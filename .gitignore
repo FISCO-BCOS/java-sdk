@@ -3,7 +3,6 @@
 log/
 build/
 dist/
-bin/
 .vscode/
 .settings/**
 java-sdk.iml
@@ -12,7 +11,6 @@ java-sdk.iml
 .classpath
 .project
 */.settings/**
-*/bin/**
 out/
 */dist/**
 */build/**

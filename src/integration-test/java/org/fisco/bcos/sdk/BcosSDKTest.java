@@ -106,7 +106,8 @@ public class BcosSDKTest {
     }
 
     @Test
-    public void testClientAsync() throws ConfigException, JniException {
+    public void testClientAsync()
+            throws ConfigException, JniException, ExecutionException, InterruptedException {
 
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -114,6 +115,7 @@ public class BcosSDKTest {
         // test getBlockByNumber only header
         String[] genesisHash = {null};
 
+        CompletableFuture<String> hashFuture = new CompletableFuture<>();
         client.getBlockByNumberAsync(
                 BigInteger.ZERO,
                 true,
@@ -122,7 +124,7 @@ public class BcosSDKTest {
                     @Override
                     public void onResponse(BcosBlock bcosBlock) {
                         System.out.println("getBlockByNumberAsync=" + bcosBlock.getBlock());
-                        genesisHash[0] = bcosBlock.getBlock().getHash();
+                        hashFuture.complete(bcosBlock.getBlock().getHash());
                     }
 
                     @Override
@@ -132,6 +134,8 @@ public class BcosSDKTest {
                                 errorResponse.getErrorMessage());
                     }
                 });
+        genesisHash[0] = hashFuture.get();
+
         // test getBlockByNumber
         client.getBlockByNumberAsync(
                 BigInteger.ZERO,
@@ -206,27 +210,19 @@ public class BcosSDKTest {
         System.out.println(syncStatus.getSyncStatus());
 
         // test getBlockNumber
-        CompletableFuture<BigInteger> future = new CompletableFuture<>();
         client.getBlockNumberAsync(
                 new RespCallback<BlockNumber>() {
                     @Override
                     public void onResponse(BlockNumber blockNumber) {
                         System.out.println("getBlockNumberAsync=" + blockNumber.getBlockNumber());
-                        future.complete(blockNumber.getBlockNumber());
                     }
 
                     @Override
                     public void onError(Response errorResponse) {
                         System.out.printf(
                                 "getBlockNumberAsync failed: {}", errorResponse.getErrorMessage());
-                        future.complete(BigInteger.valueOf(-1));
                     }
                 });
-        try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
@@ -276,7 +272,8 @@ public class BcosSDKTest {
         System.out.println("blockLimit:" + blockLimit);
     }
 
-    @Test
+    // FIXME: not use in CI integration test
+    // @Test
     public void testHelloWorldInLiquid() throws ConfigException, JniException, ContractException {
 
         ConfigOption configOption = Config.load(configFile);
