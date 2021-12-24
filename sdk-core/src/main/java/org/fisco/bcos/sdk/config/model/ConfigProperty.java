@@ -16,13 +16,12 @@
 package org.fisco.bcos.sdk.config.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
@@ -143,12 +142,24 @@ public class ConfigProperty {
             if (url == null) {
                 return configFilePath;
             }
-            String resourceCertPath = URLDecoder.decode(url.getPath(), "utf-8");
-            if (new File(resourceCertPath).exists()) {
-                return resourceCertPath;
+
+            URI uri = url.toURI();
+            try {
+                File file1 = Paths.get(uri).toFile();
+                logger.debug(
+                        "Find file from resource dir, url: {}, file: {}, path: {}",
+                        url,
+                        file1,
+                        file1.getAbsolutePath());
+                return file1.getAbsolutePath();
+            } catch (FileSystemNotFoundException e) {
+                logger.info(
+                        "FileSystemNotFoundException, uri: {}, configFilePath: {}",
+                        url,
+                        configFilePath);
+                return configFilePath;
             }
-            return configFilePath;
-        } catch (UnsupportedEncodingException e) {
+        } catch (URISyntaxException e) {
             throw new ConfigException(e);
         }
     }
