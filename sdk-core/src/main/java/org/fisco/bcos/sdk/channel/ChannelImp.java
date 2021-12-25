@@ -70,9 +70,19 @@ public class ChannelImp implements Channel {
     private long heartBeatDelay = (long) 2000;
     private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
+    private int timeout = 10000; // ms
+
     public ChannelImp(ConfigOption configOption) throws ConfigException {
         msgHandler = new ChannelMsgHandler();
         network = new NetworkImp(configOption, msgHandler);
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     @Override
@@ -208,7 +218,7 @@ public class ChannelImp implements Channel {
     @Override
     public Response sendToPeer(Message out, String peerIpPort) {
         Options options = new Options();
-        options.setTimeout(10000);
+        options.setTimeout(timeout);
         return sendToPeerWithTimeOut(out, peerIpPort, options);
     }
 

@@ -24,15 +24,30 @@ import org.slf4j.LoggerFactory;
 public abstract class TransactionCallback {
     private static Logger logger = LoggerFactory.getLogger(TransactionCallback.class);
     private Timeout timeoutHandler;
-    public static Integer DEFAULT_TRANS_TIMEOUT = 30 * 1000;
+    public static Integer DEFAULT_TRANS_TIMEOUT = 0;
     private Integer timeout = DEFAULT_TRANS_TIMEOUT;
+    private String transactionHash;
+
+    public String getTransactionHash() {
+        return transactionHash;
+    }
+
+    public void setTransactionHash(String transactionHash) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("transactionHash: {}", transactionHash);
+        }
+        this.transactionHash = transactionHash;
+    }
 
     public abstract void onResponse(TransactionReceipt receipt);
 
     public void onError(int errorCode, String errorMessage) {
         cancelTimeout();
         logger.error(
-                "transaction exception, errorCode: {}, errorMessage: {}", errorCode, errorMessage);
+                "transaction exception, transactionHash: {}, errorCode: {}, errorMessage: {}",
+                transactionHash,
+                errorCode,
+                errorMessage);
         TransactionReceipt receipt = new TransactionReceipt();
         receipt.setStatus(String.valueOf(errorCode));
         receipt.setMessage(errorMessage);
@@ -47,7 +62,7 @@ public abstract class TransactionCallback {
 
     public void onTimeout() {
         cancelTimeout();
-        logger.warn("transactionSuc timeout");
+        logger.warn("transactionSuc timeout, transactionHash: {}", transactionHash);
         TransactionReceipt receipt = new TransactionReceipt();
         receipt.setStatus(String.valueOf(TransactionReceiptStatus.TimeOut.getCode()));
         receipt.setMessage(TransactionReceiptStatus.TimeOut.getMessage());

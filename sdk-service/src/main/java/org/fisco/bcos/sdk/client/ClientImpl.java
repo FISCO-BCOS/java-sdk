@@ -60,6 +60,7 @@ import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.service.GroupManagerService;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 public class ClientImpl implements Client {
@@ -70,6 +71,8 @@ public class ClientImpl implements Client {
     private final NodeVersion nodeVersion;
     private final GroupManagerService groupManagerService;
     private EventResource eventResource;
+    // timeout for send transaction, default: 30s
+    private int timeoutForTx = 30000;
 
     protected ClientImpl(
             GroupManagerService groupManagerService,
@@ -94,6 +97,16 @@ public class ClientImpl implements Client {
         this.cryptoSuite = null;
         this.nodeVersion = null;
         this.groupManagerService = null;
+    }
+
+    @Override
+    public void setTimeoutForTx(int timeoutForTx) {
+        this.timeoutForTx = timeoutForTx;
+    }
+
+    @Override
+    public int getTimeoutForTx() {
+        return timeoutForTx;
     }
 
     @Override
@@ -963,6 +976,15 @@ public class ClientImpl implements Client {
     @Override
     public void sendRawTransactionAndGetReceiptAsync(
             String signedTransactionData, TransactionCallback callback) {
+
+        String transactionHash =
+                "0x"
+                        + Hex.toHexString(
+                                cryptoSuite.hash(
+                                        Hex.decode(Numeric.cleanHexPrefix(signedTransactionData))));
+        callback.setTransactionHash(transactionHash);
+        callback.setTimeout(getTimeoutForTx());
+
         this.jsonRpcService.asyncSendTransactionToGroup(
                 new JsonRpcRequest(
                         JsonRpcMethods.SEND_RAWTRANSACTION,
@@ -974,6 +996,15 @@ public class ClientImpl implements Client {
     @Override
     public void sendRawTransactionAndGetReceiptWithProofAsync(
             String signedTransactionData, TransactionCallback callback) {
+
+        String transactionHash =
+                "0x"
+                        + Hex.toHexString(
+                                cryptoSuite.hash(
+                                        Hex.decode(Numeric.cleanHexPrefix(signedTransactionData))));
+        callback.setTransactionHash(transactionHash);
+        callback.setTimeout(getTimeoutForTx());
+
         this.jsonRpcService.asyncSendTransactionToGroup(
                 new JsonRpcRequest(
                         JsonRpcMethods.SEND_RAWTRANSACTION_AND_GET_PROOF,

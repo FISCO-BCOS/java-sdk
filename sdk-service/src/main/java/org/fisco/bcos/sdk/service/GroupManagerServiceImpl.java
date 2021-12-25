@@ -398,7 +398,9 @@ public class GroupManagerServiceImpl implements GroupManagerService {
                                 public void run(Timeout timeout) throws Exception {
                                     callback.onTimeout();
                                     logger.info(
-                                            "Transaction timeout: {}", transactionMessage.getSeq());
+                                            "Transaction timeout, seq: {}, transactionHash: {}",
+                                            transactionMessage.getSeq(),
+                                            callback.getTransactionHash());
                                     seq2TransactionCallback.remove(transactionMessage.getSeq());
                                 }
                             },

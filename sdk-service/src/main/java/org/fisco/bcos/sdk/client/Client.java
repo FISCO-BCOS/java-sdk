@@ -117,6 +117,10 @@ public interface Client {
         return new ClientImpl(channel);
     }
 
+    void setTimeoutForTx(int timeoutForTx);
+
+    int getTimeoutForTx();
+
     /**
      * Get group manager serveice
      *
