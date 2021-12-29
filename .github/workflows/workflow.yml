@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-18.04
     container:
       image: docker.io/ubuntu:18.04
+      volumes:
+        - /__w/java-sdk:/__w/java-sdk
     steps:
       - uses: actions/checkout@v2
         with:
@@ -40,6 +42,8 @@ jobs:
     runs-on: ubuntu-20.04
     container:
       image: docker.io/ubuntu:20.04
+      volumes:
+        - /__w/java-sdk:/__w/java-sdk
     steps:
       - uses: actions/checkout@v2
         with:

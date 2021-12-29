@@ -27,7 +27,6 @@ gmsm2.param
 integrationTestEnv.sh
 gradle.properties
 gpg.gpg
-clog.ini
 
 ## macOS
 .DS_Store

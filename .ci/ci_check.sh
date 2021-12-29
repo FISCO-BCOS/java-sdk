@@ -39,6 +39,7 @@ prepare_environment()
   mkdir -p conf
   cp -r nodes/127.0.0.1/sdk/* conf
   cp src/test/resources/config-example.toml src/integration-test/resources/config.toml
+  cp src/test/resources/clog.ini conf/
   cp src/test/resources/config-example.toml src/test/resources/config.toml
   cp src/test/resources/log4j2.properties src/integration-test/resources/
   cp -r src/test/resources/amop conf/amop
@@ -58,6 +59,7 @@ prepare_environment()
     rm -rf src/integration-test/resources/bin
     cp -r src/test/resources/gm/abi src/integration-test/resources/abi
     cp -r src/test/resources/gm/bin src/integration-test/resources/bin
+    ${sed_cmd} 's/useSMCrypto = "false"/useSMCrypto = "true"/g' src/integration-test/resources/config.toml
   fi
 }
 
@@ -100,6 +102,7 @@ check_sm_node()
   clean_node
 }
 
+export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 LOG_INFO "------ download_build_chain---------"
 # set tag v3.0.0-rc1, update when new rc, remove when release final
 download_build_chain "v3.0.0-rc1"
