@@ -255,16 +255,13 @@ public class BcosSDKTest {
         // getTransaction
         BcosTransaction transaction = client.getTransaction(receipt.getTransactionHash(), true);
         Assert.assertTrue(transaction.getTransaction() != null);
-        System.out.println("getTransaction :" + transaction.getTransaction());
         // getTransactionReceipt
         BcosTransactionReceipt receipt1 =
                 client.getTransactionReceipt(receipt.getTransactionHash(), true);
         Assert.assertTrue(receipt1.getTransactionReceipt() != null);
-        System.out.println("getTransactionReceipt :" + receipt1.getTransactionReceipt());
         // getCode
-        //            Code code = client.getCode(helloWorld.getContractAddress());
-        //            Assert.assertNotNull(code.getResult());
-        //            System.out.println("getCode :" + code.getCode());
+        Code code = client.getCode(helloWorld.getContractAddress());
+        Assert.assertNotNull(code.getResult());
         s = helloWorld.get();
         System.out.println("helloworld get :" + s);
 

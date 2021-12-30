@@ -15,9 +15,6 @@ import org.junit.Test;
 public class CodecTest {
     private static final String configFile =
             "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
-    private static final String abiFile = "src/integration-test/resources/abi/";
-    private static final String binFile = "src/integration-test/resources/bin/";
-    private static final String contractName = "CodecTest";
 
     @Test
     public void testNumericType() throws Exception {
