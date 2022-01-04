@@ -3,7 +3,6 @@
 log/
 build/
 dist/
-bin/
 .vscode/
 .settings/**
 java-sdk.iml
@@ -12,7 +11,6 @@ java-sdk.iml
 .classpath
 .project
 */.settings/**
-*/bin/**
 out/
 */dist/**
 */build/**
@@ -29,7 +27,6 @@ gmsm2.param
 integrationTestEnv.sh
 gradle.properties
 gpg.gpg
-clog.ini
 
 ## macOS
 .DS_Store

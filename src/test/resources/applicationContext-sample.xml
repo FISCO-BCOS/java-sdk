@@ -8,6 +8,7 @@
 		<property name="cryptoMaterial">
 			<map>
 			<entry key="certPath" value="conf" />
+			<entry key="useSMCrypto" value="false" />
 			<!-- SSL certificate configuration -->
 			<!-- entry key="caCert" value="conf/ca.crt" /-->
 			<!-- entry key="sslCert" value="conf/sdk.crt" /-->
@@ -28,6 +29,8 @@
 						<value>127.0.0.1:20201</value>
 					</list>
 				</entry>
+				<entry key="defaultGroup" value="group" />
+				<entry key="messageTimeout" value="10000" />
 			</map>
 		</property>
 		<!--
@@ -57,9 +60,7 @@
 		</property>
 		<property name="threadPool">
 			<map>
-			<entry key="channelProcessorThreadSize" value="16" />
-			<entry key="receiptProcessorThreadSize" value="16" />
-			<entry key="maxBlockingQueueSize" value="102400" />
+			<entry key="threadPoolSize" value="16" />
 			</map>
 		</property>
 	</bean>

@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.config.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -25,7 +24,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
