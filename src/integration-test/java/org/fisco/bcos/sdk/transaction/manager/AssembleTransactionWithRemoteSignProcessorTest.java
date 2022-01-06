@@ -52,7 +52,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     // prepare sdk， read from the config file
     private BcosSDK sdk = BcosSDK.build(configFile);
     // set the group number 1
-    private Client client = this.sdk.getClient("group");
+    private Client client = this.sdk.getClient("group0");
 
     // create new keypair
     private CryptoKeyPair cryptoKeyPair = this.client.getCryptoSuite().getCryptoKeyPair();

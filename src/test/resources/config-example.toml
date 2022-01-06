@@ -17,7 +17,7 @@ useSMCrypto = "false"
 
 [network]
 messageTimeout = "10000"
-defaultGroup = "group"
+defaultGroup = "group0"
 # FIXME: cpp sdk choose error node
 peers=["127.0.0.1:20203"]    # The peer list to connect
 

@@ -66,12 +66,18 @@ prepare_environment()
 build_node()
 {
   local node_type="${1}"
+  local sed_cmd=$(get_sed_cmd)
   if [ "${node_type}" == "sm" ];then
       bash build_chain.sh -l 127.0.0.1:4 -s
   else
       bash build_chain.sh -l 127.0.0.1:4
   fi
   ./nodes/127.0.0.1/fisco-bcos -v
+  local group_name=`cat nodes/127.0.0.1/node0/config.ini | grep group_id | awk -F '=' '{print $2}'`
+  if [ ! ${group_name} = 'group0' ] ; then
+    ${sed_cmd} 's/group_id=group/group_id=group0/g' nodes/127.0.0.1/node*/config.ini
+  fi
+  cat nodes/127.0.0.1/node0/config.ini | grep group_id
   bash nodes/127.0.0.1/start_all.sh
 }
 
@@ -102,6 +108,7 @@ check_sm_node()
   clean_node
 }
 
+pwd
 ls -la
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 LOG_INFO "------ download_build_chain---------"

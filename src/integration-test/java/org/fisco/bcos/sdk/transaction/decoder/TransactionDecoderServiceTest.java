@@ -48,7 +48,7 @@ public class TransactionDecoderServiceTest {
     @Test
     public void testDecode() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
-        Client client = sdk.getClient("group");
+        Client client = sdk.getClient("group0");
         TransactionDecoderInterface decoder =
                 new TransactionDecoderService(client.getCryptoSuite(), client.isWASM());
         ContractLoader contractLoader = new ContractLoader(abiFile, binFile);
