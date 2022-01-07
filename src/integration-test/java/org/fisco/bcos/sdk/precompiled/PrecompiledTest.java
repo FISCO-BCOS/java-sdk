@@ -66,7 +66,7 @@ public class PrecompiledTest {
                     .getResource(ConstantConfig.CONFIG_FILE_NAME)
                     .getPath();
     public AtomicLong receiptCount = new AtomicLong();
-    private static final String GROUP = "group";
+    private static final String GROUP = "group0";
 
     // FIXME: this integration test should be fix in cpp sdk
     // @Test

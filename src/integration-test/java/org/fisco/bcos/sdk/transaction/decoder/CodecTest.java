@@ -19,7 +19,7 @@ public class CodecTest {
     @Test
     public void testNumericType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
-        Client client = sdk.getClient("group");
+        Client client = sdk.getClient("group0");
         org.fisco.bcos.sdk.contract.solidity.CodecTest codecTest =
                 org.fisco.bcos.sdk.contract.solidity.CodecTest.deploy(
                         client, client.getCryptoSuite().getCryptoKeyPair());
@@ -64,7 +64,7 @@ public class CodecTest {
     @Test
     public void testByteType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
-        Client client = sdk.getClient("group");
+        Client client = sdk.getClient("group0");
         org.fisco.bcos.sdk.contract.solidity.CodecTest codecTest =
                 org.fisco.bcos.sdk.contract.solidity.CodecTest.deploy(
                         client, client.getCryptoSuite().getCryptoKeyPair());
@@ -95,7 +95,7 @@ public class CodecTest {
     @Test
     public void testUintNumericArrayType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
-        Client client = sdk.getClient("group");
+        Client client = sdk.getClient("group0");
         org.fisco.bcos.sdk.contract.solidity.CodecTest codecTest =
                 org.fisco.bcos.sdk.contract.solidity.CodecTest.deploy(
                         client, client.getCryptoSuite().getCryptoKeyPair());
@@ -156,7 +156,7 @@ public class CodecTest {
     @Test
     public void testIntNumericArrayType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
-        Client client = sdk.getClient("group");
+        Client client = sdk.getClient("group0");
         org.fisco.bcos.sdk.contract.solidity.CodecTest codecTest =
                 org.fisco.bcos.sdk.contract.solidity.CodecTest.deploy(
                         client, client.getCryptoSuite().getCryptoKeyPair());
@@ -217,7 +217,7 @@ public class CodecTest {
     @Test
     public void testIntByteArrayType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
-        Client client = sdk.getClient("group");
+        Client client = sdk.getClient("group0");
         org.fisco.bcos.sdk.contract.solidity.CodecTest codecTest =
                 org.fisco.bcos.sdk.contract.solidity.CodecTest.deploy(
                         client, client.getCryptoSuite().getCryptoKeyPair());

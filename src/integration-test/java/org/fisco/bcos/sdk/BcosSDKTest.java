@@ -44,7 +44,7 @@ public class BcosSDKTest {
                     .getClassLoader()
                     .getResource(ConstantConfig.CONFIG_FILE_NAME)
                     .getPath();
-    private static final String GROUP = "group";
+    private static final String GROUP = "group0";
 
     @Test
     public void testClient() throws ConfigException, JniException {
