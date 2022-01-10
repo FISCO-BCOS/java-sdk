@@ -35,7 +35,6 @@ import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.network.NetworkException;
 import org.fisco.bcos.sdk.transaction.mock.TransactionCallbackMock;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
@@ -67,7 +66,7 @@ public class AssembleTransactionProcessorTest {
     private final Client client;
     private final CryptoKeyPair cryptoKeyPair;
 
-    public AssembleTransactionProcessorTest() throws NetworkException {
+    public AssembleTransactionProcessorTest() {
         sdk = BcosSDK.build(CONFIG_FILE);
         client = this.sdk.getClient("group0");
         cryptoKeyPair = this.client.getCryptoSuite().getCryptoKeyPair();

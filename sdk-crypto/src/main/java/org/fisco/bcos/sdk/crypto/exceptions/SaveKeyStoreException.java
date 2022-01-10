@@ -13,7 +13,7 @@
  */
 package org.fisco.bcos.sdk.crypto.exceptions;
 
-/** Exceptioned when save the CryptoKeyPair into p12 or pem */
+/** Throw exception when save the CryptoKeyPair into p12 or pem */
 public class SaveKeyStoreException extends RuntimeException {
     public SaveKeyStoreException(String message) {
         super(message);

@@ -25,7 +25,6 @@ import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.network.NetworkException;
 import org.fisco.bcos.sdk.transaction.mock.RemoteSignCallbackMock;
 import org.fisco.bcos.sdk.transaction.mock.RemoteSignProviderMock;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
@@ -60,7 +59,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     private RemoteSignProviderInterface remoteSignProviderMock =
             new RemoteSignProviderMock(this.client.getCryptoSuite());
 
-    public AssembleTransactionWithRemoteSignProcessorTest() throws NetworkException {}
+    public AssembleTransactionWithRemoteSignProcessorTest() {}
 
     @Test
     public void test1HelloWorldSync() throws Exception {

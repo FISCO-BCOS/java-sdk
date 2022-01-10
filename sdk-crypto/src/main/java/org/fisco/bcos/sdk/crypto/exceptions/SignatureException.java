@@ -13,7 +13,7 @@
  */
 package org.fisco.bcos.sdk.crypto.exceptions;
 
-/** Exceptioned when calling signature related functions. */
+/** Throw exception when calling signature related functions. */
 public class SignatureException extends RuntimeException {
     public SignatureException(String message) {
         super(message);

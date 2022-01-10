@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author Maggie
  */
 public interface Client {
-    static final Logger logger = LoggerFactory.getLogger(Client.class);
+    Logger logger = LoggerFactory.getLogger(Client.class);
 
     /**
      * Build a client instance GroupId is identified, all interfaces are available
