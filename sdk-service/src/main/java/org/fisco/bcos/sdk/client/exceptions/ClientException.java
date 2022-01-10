@@ -15,7 +15,7 @@ package org.fisco.bcos.sdk.client.exceptions;
 
 import java.util.Objects;
 
-/** Exceptioned when calling. */
+/** Throw exception when calling. */
 public class ClientException extends RuntimeException {
     private int errorCode;
     private String errorMessage;
