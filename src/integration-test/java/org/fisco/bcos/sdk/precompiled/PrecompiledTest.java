@@ -32,8 +32,8 @@ import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.contract.precompiled.bfs.BFSPrecompiled;
 import org.fisco.bcos.sdk.contract.precompiled.bfs.BFSService;
-import org.fisco.bcos.sdk.contract.precompiled.bfs.FileInfo;
 import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsService;
@@ -458,18 +458,18 @@ public class PrecompiledTest {
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         BFSService bfsService = new BFSService(client, cryptoKeyPair);
-        List<FileInfo> list = bfsService.list("/");
+        List<BFSPrecompiled.BfsInfo> list = bfsService.list("/");
         System.out.println(list);
 
         String newDir = "local" + new Random().nextInt(10000) + new Random().nextInt(1000);
         RetCode mkdir = bfsService.mkdir("/apps/" + newDir);
         System.out.println("newDir: " + newDir);
         Assert.assertEquals(mkdir.code, 0);
-        List<FileInfo> list2 = bfsService.list("/apps");
+        List<BFSPrecompiled.BfsInfo> list2 = bfsService.list("/apps");
         System.out.println(list2);
         boolean flag = false;
-        for (FileInfo fileInfo : list2) {
-            if (Objects.equals(fileInfo.getName(), newDir)) {
+        for (BFSPrecompiled.BfsInfo bfsInfo : list2) {
+            if (Objects.equals(bfsInfo.getFileName(), newDir)) {
                 flag = true;
                 break;
             }
