@@ -256,7 +256,7 @@ public class ClientImpl implements Client {
                                 this.groupID,
                                 node,
                                 Hex.trimPrefix(transaction.getTo()),
-                                transaction.getData())),
+                                Hex.toHexString(transaction.getData()))),
                 Call.class);
     }
 
@@ -277,7 +277,7 @@ public class ClientImpl implements Client {
                                 this.groupID,
                                 node,
                                 Hex.trimPrefix(transaction.getTo()),
-                                transaction.getData())),
+                                Hex.toHexString(transaction.getData()))),
                 Call.class,
                 callback);
     }
