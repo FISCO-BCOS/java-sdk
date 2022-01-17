@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.datatypes.Address;
 import org.fisco.bcos.sdk.codec.datatypes.DynamicArray;
@@ -142,22 +143,20 @@ public class BFSPrecompiled extends Contract {
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
-    public TransactionReceipt list(String absolutPath) {
+    public Tuple2<BigInteger, DynamicArray<BfsInfo>> list(String absolutPath)
+            throws ContractException {
         final Function function =
                 new Function(
                         FUNC_LIST,
-                        Arrays.<Type>asList(new Utf8String(absolutPath)),
-                        Collections.<TypeReference<?>>emptyList());
-        return executeTransaction(function);
-    }
-
-    public void list(String absolutPath, TransactionCallback callback) {
-        final Function function =
-                new Function(
-                        FUNC_LIST,
-                        Arrays.<Type>asList(new Utf8String(absolutPath)),
-                        Collections.<TypeReference<?>>emptyList());
-        asyncExecuteTransaction(function, callback);
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.codec.datatypes.Utf8String(absolutPath)),
+                        Arrays.<TypeReference<?>>asList(
+                                new TypeReference<Int256>() {},
+                                new TypeReference<DynamicArray<BfsInfo>>() {}));
+        List<Type> results = executeCallWithMultipleValueReturn(function);
+        return new Tuple2<>(
+                (BigInteger) results.get(0).getValue(),
+                new DynamicArray<>(BfsInfo.class, (List<BfsInfo>) results.get(1).getValue()));
     }
 
     public String getSignedTransactionForList(String absolutPath) {
@@ -167,35 +166,6 @@ public class BFSPrecompiled extends Contract {
                         Arrays.<Type>asList(new Utf8String(absolutPath)),
                         Collections.<TypeReference<?>>emptyList());
         return createSignedTransaction(function);
-    }
-
-    public Tuple1<String> getListInput(TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getInput().substring(10);
-        final Function function =
-                new Function(
-                        FUNC_LIST,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
-        List<Type> results =
-                this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple1<String>((String) results.get(0).getValue());
-    }
-
-    public Tuple2<BigInteger, DynamicArray<BfsInfo>> getListOutput(
-            TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getOutput();
-        final Function function =
-                new Function(
-                        FUNC_LIST,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(
-                                new TypeReference<Int256>() {},
-                                new TypeReference<DynamicArray<BfsInfo>>() {}));
-        List<Type> results =
-                this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple2<BigInteger, DynamicArray<BfsInfo>>(
-                (BigInteger) results.get(0).getValue(),
-                (DynamicArray<BfsInfo>) results.get(1).getValue());
     }
 
     public TransactionReceipt mkdir(String absolutPath) {
@@ -267,21 +237,27 @@ public class BFSPrecompiled extends Contract {
     }
 
     public static class BfsInfo extends DynamicStruct {
-        public String fileName;
+        private String fileName;
 
-        public String fileType;
+        private String fileType;
 
-        public String ext;
+        private List<String> ext;
 
-        public BfsInfo(Utf8String fileName, Utf8String fileType, Utf8String ext) {
+        public BfsInfo(Utf8String fileName, Utf8String fileType, DynamicArray<Utf8String> ext) {
             super(fileName, fileType, ext);
             this.fileName = fileName.getValue();
             this.fileType = fileType.getValue();
-            this.ext = ext.getValue();
+            this.ext =
+                    ext.getValue().stream().map(Utf8String::getValue).collect(Collectors.toList());
         }
 
-        public BfsInfo(String fileName, String fileType, String ext) {
-            super(new Utf8String(fileName), new Utf8String(fileType), new Utf8String(ext));
+        public BfsInfo(String fileName, String fileType, List<String> ext) {
+            super(
+                    new Utf8String(fileName),
+                    new Utf8String(fileType),
+                    new DynamicArray<>(
+                            Utf8String.class,
+                            ext.stream().map(Utf8String::new).collect(Collectors.toList())));
             this.fileName = fileName;
             this.fileType = fileType;
             this.ext = ext;
@@ -303,11 +279,11 @@ public class BFSPrecompiled extends Contract {
             this.fileType = fileType;
         }
 
-        public String getExt() {
+        public List<String> getExt() {
             return ext;
         }
 
-        public void setExt(String ext) {
+        public void setExt(List<String> ext) {
             this.ext = ext;
         }
 

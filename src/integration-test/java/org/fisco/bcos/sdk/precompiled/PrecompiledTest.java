@@ -450,7 +450,7 @@ public class PrecompiledTest {
     }
 
     // FIXME: this integration test should be fix in cpp sdk
-    // @Test
+    @Test
     public void test7BFSPrecompiled() throws ConfigException, ContractException, JniException {
 
         ConfigOption configOption = Config.load(configFile);

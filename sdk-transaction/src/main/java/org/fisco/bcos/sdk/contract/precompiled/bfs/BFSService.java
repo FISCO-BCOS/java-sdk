@@ -8,7 +8,6 @@ import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.RetCode;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 
@@ -31,9 +30,8 @@ public class BFSService {
 
     public List<BFSPrecompiled.BfsInfo> list(String path) throws ContractException {
         try {
-            TransactionReceipt transactionReceipt = bfsPrecompiled.list(path);
             Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
-                    bfsPrecompiled.getListOutput(transactionReceipt);
+                    bfsPrecompiled.list(path);
             if (!listOutput.getValue1().equals(BigInteger.ZERO)
                     || listOutput.getValue2().getValue().isEmpty()) {
                 throw new ContractException(
