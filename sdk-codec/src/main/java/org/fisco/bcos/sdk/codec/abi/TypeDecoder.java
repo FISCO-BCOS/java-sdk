@@ -340,16 +340,13 @@ public class TypeDecoder {
                 final T value;
                 final int beginIndex = offset + staticOffset;
                 if (isDynamic(declaredField)) {
-                    final boolean isOnlyParameterInStruct = length == 1;
                     final int parameterOffset =
-                            isOnlyParameterInStruct
-                                    ? offset
-                                    : (decodeDynamicStructDynamicParameterOffset(
-                                                    Arrays.copyOfRange(
-                                                            input,
-                                                            beginIndex,
-                                                            beginIndex + Type.MAX_BYTE_LENGTH)))
-                                            + offset;
+                            (decodeDynamicStructDynamicParameterOffset(
+                                            Arrays.copyOfRange(
+                                                    input,
+                                                    beginIndex,
+                                                    beginIndex + Type.MAX_BYTE_LENGTH)))
+                                    + offset;
                     parameterOffsets.add(parameterOffset);
                     staticOffset += Type.MAX_BYTE_LENGTH;
                 } else {
@@ -439,9 +436,9 @@ public class TypeDecoder {
 
         final T value;
         if (DynamicStruct.class.isAssignableFrom(typeReference.getClassType())) {
-            value = decodeDynamicStruct(dynamicElementData, Type.MAX_BYTE_LENGTH, typeReference);
+            value = decodeDynamicStruct(dynamicElementData, 0, typeReference);
         } else if (DynamicArray.class.isAssignableFrom(typeReference.getClassType())) {
-            value = decodeDynamicArray(dynamicElementData, Type.MAX_BYTE_LENGTH, typeReference);
+            value = decodeDynamicArray(dynamicElementData, 0, typeReference);
         } else {
             value = decode(dynamicElementData, 0, typeReference.getClassType());
         }

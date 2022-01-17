@@ -10,12 +10,13 @@ import org.fisco.bcos.sdk.contract.solidity.ComplexCodecTest;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class CodecComplexTest {
     private static final String configFile =
             "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
 
-    // @Test
+    @Test
     public void testStructType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient("group0");
@@ -31,24 +32,24 @@ public class CodecComplexTest {
         Tuple1<ComplexCodecTest.StructA> setAStructOutput =
                 complexCodecTest.getSetAStructOutput(transactionReceipt);
         ComplexCodecTest.StructA structA = setAStructOutput.getValue1();
-        Assert.assertEquals(bytes32Str, structA.value_str);
-        Assert.assertEquals(bytes32Str, Hex.toHexString(structA.bytes32_in_struct.get(0)));
+        Assert.assertEquals(bytes32Str, structA.valueStr);
+        Assert.assertEquals(bytes32Str, Hex.toHexString(structA.bytes32InStruct.get(0)));
 
         // setBStruct
         TransactionReceipt transactionReceipt1 = complexCodecTest.setBStruct(structA);
         ComplexCodecTest.StructB structB =
                 complexCodecTest.getSetBStructOutput(transactionReceipt1).getValue1();
-        Assert.assertEquals(bytes32Str, structB.a_struct.getValue().get(0).value_str);
+        Assert.assertEquals(bytes32Str, structB.a_struct.getValue().get(0).valueStr);
         Assert.assertEquals(
                 bytes32Str,
-                Hex.toHexString(structB.a_struct.getValue().get(0).bytes32_in_struct.get(0)));
+                Hex.toHexString(structB.a_struct.getValue().get(0).bytes32InStruct.get(0)));
 
         // setBStruct2
         TransactionReceipt transactionReceipt2 = complexCodecTest.setBStruct2(structB);
         ComplexCodecTest.StructA structA1 =
                 complexCodecTest.getSetBStruct2Output(transactionReceipt2).getValue1();
-        Assert.assertEquals(bytes32Str, structA1.value_str);
-        Assert.assertEquals(bytes32Str, Hex.toHexString(structA1.bytes32_in_struct.get(0)));
+        Assert.assertEquals(bytes32Str, structA1.valueStr);
+        Assert.assertEquals(bytes32Str, Hex.toHexString(structA1.bytes32InStruct.get(0)));
 
         // staticStruct
 
