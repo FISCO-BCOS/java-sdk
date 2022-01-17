@@ -32,10 +32,11 @@ public class BFSService {
         try {
             Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
                     bfsPrecompiled.list(path);
-            if (!listOutput.getValue1().equals(BigInteger.ZERO)
-                    || listOutput.getValue2().getValue().isEmpty()) {
+            if (!listOutput.getValue1().equals(BigInteger.ZERO)) {
                 throw new ContractException(
-                        "BfsService: list return empty string, check error msg in blockchain node.");
+                        "BfsService: list return error code: "
+                                + listOutput.getValue1()
+                                + ", check error msg in blockchain node.");
             }
             return listOutput.getValue2().getValue();
         } catch (ContractException e) {
