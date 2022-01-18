@@ -28,8 +28,8 @@ public interface TransactionEncoderInterface {
     /**
      * Tars encode based on TransactionData
      *
-     * @param rawTransaction
-     * @return
+     * @param rawTransaction raw transaction data
+     * @return encoded transaction
      */
     byte[] encode(TransactionData rawTransaction);
     /**
@@ -63,10 +63,10 @@ public interface TransactionEncoderInterface {
     /**
      * Tars encode rawTransaction to Transaction bytes
      *
-     * @param rawTransaction
-     * @param hash
-     * @param result
-     * @return
+     * @param rawTransaction raw transaction data
+     * @param hash transaction hash
+     * @param result transaction signature
+     * @return encoded bytes
      */
     byte[] encodeToTransactionBytes(
             TransactionData rawTransaction, byte[] hash, SignatureResult result, int attribute);
@@ -74,9 +74,9 @@ public interface TransactionEncoderInterface {
     /**
      * Tars encode rawTransaction to Transaction bytes
      *
-     * @param rawTransaction
-     * @param result
-     * @return
+     * @param rawTransaction raw transaction data
+     * @param result transaction signature
+     * @return encoded bytes
      */
     byte[] encodeToTransactionBytes(
             TransactionData rawTransaction, SignatureResult result, int attribute);

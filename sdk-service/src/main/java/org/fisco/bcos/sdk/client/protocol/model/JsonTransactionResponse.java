@@ -144,7 +144,7 @@ public class JsonTransactionResponse {
                             this.blockLimit,
                             this.nonce,
                             this.to,
-                            Hex.decode(this.input));
+                            this.input.getBytes());
             TarsOutputStream tarsOutputStream = new TarsOutputStream();
             rawTransaction.writeTo(tarsOutputStream);
             byte[] encodedTransaction = cryptoSuite.hash(tarsOutputStream.toByteArray());

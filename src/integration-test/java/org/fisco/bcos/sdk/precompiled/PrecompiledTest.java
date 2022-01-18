@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.precompiled;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,9 +68,11 @@ public class PrecompiledTest {
                     .getPath();
     public AtomicLong receiptCount = new AtomicLong();
     private static final String GROUP = "group0";
+    private Random random = new Random();
 
-    // FIXME: this integration test should be fix in cpp sdk
-    // @Test
+    public PrecompiledTest() throws NoSuchAlgorithmException {}
+
+    @Test
     public void test1ConsensusService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -149,7 +152,6 @@ public class PrecompiledTest {
         Assert.assertFalse(observerList4.contains(selectedNode.getNodeID()));
     }
 
-    // FIXME: this integration test should be fix in cpp sdk
     // @Test
     public void test2CnsService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
@@ -460,8 +462,7 @@ public class PrecompiledTest {
         BFSService bfsService = new BFSService(client, cryptoKeyPair);
         List<FileInfo> list = bfsService.list("/");
         System.out.println(list);
-
-        String newDir = "local" + new Random().nextInt(10000) + new Random().nextInt(1000);
+        String newDir = "local" + random.nextInt(10000) + random.nextInt(1000);
         RetCode mkdir = bfsService.mkdir("/apps/" + newDir);
         System.out.println("newDir: " + newDir);
         Assert.assertEquals(mkdir.code, 0);
@@ -475,62 +476,19 @@ public class PrecompiledTest {
             }
         }
         Assert.assertTrue(flag);
+        HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
+        String contractAddress = helloWorld.getContractAddress();
+        String version = String.valueOf(random.nextInt(10000));
+        bfsService.link("HelloWorld", version, contractAddress, HelloWorld.ABI);
+        List<BFSPrecompiled.BfsInfo> listLink = bfsService.list("/apps/HelloWorld");
+        System.out.println(listLink);
+        flag = false;
+        for (BFSPrecompiled.BfsInfo bfsInfo : listLink) {
+            if (bfsInfo.getFileType().equals("link") && bfsInfo.getFileName().equals(version)) {
+                flag = true;
+                break;
+            }
+        }
+        Assert.assertTrue(flag);
     }
-
-    //    @Test
-    //    public void test7ContractLifeCycleService() throws ConfigException {
-    //        try {
-    //            BcosSDK sdk = BcosSDK.build(configFile);
-    //            Client client = sdk.getClientByGroupID("1");
-    //            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
-    //            ContractLifeCycleService contractLifeCycleService =
-    //                    new ContractLifeCycleService(client, cryptoKeyPair);
-    //            // deploy a helloWorld
-    //            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
-    //            String orgValue = helloWorld.get();
-    //            contractLifeCycleService.freeze(helloWorld.getContractAddress());
-    //            // call the contract
-    //            TransactionReceipt receipt = helloWorld.set("Hello, Fisco");
-    //
-    //            // get contract status
-    //            contractLifeCycleService.getContractStatus(helloWorld.getContractAddress());
-    //
-    //            // unfreeze the contract
-    //            contractLifeCycleService.unfreeze(helloWorld.getContractAddress());
-    //            String value = helloWorld.get();
-    //            Assert.assertTrue(value.equals(orgValue));
-    //
-    //            helloWorld.set("Hello, Fisco1");
-    //            value = helloWorld.get();
-    //            System.out.println("==== after set: " + value);
-    //            // Assert.assertTrue("Hello, Fisco1".equals(value));
-    //            // grant Manager
-    //            CryptoSuite cryptoSuite1 =
-    //                    new CryptoSuite(client.getCryptoSuite().getCryptoTypeConfig());
-    //            CryptoKeyPair cryptoKeyPair1 = cryptoSuite1.createKeyPair();
-    //            ContractLifeCycleService contractLifeCycleService1 =
-    //                    new ContractLifeCycleService(client, cryptoKeyPair1);
-    //            // freeze contract without grant manager
-    //            RetCode retCode =
-    // contractLifeCycleService1.freeze(helloWorld.getContractAddress());
-    //            Assert.assertTrue(retCode.equals(PrecompiledRetCode.CODE_INVALID_NO_AUTHORIZED));
-    //            // grant manager
-    //            contractLifeCycleService.grantManager(
-    //                    helloWorld.getContractAddress(), cryptoKeyPair1.getAddress());
-    //            // freeze the contract
-    //            retCode = contractLifeCycleService1.freeze(helloWorld.getContractAddress());
-    //            receipt = helloWorld.set("Hello, fisco2");
-    //            //            Assert.assertTrue(
-    //            //                    new BigInteger(receipt.getStatus().substring(2), 16)
-    //            //                            .equals(BigInteger.valueOf(30)));
-    //
-    //            // unfreeze the contract
-    //            contractLifeCycleService1.unfreeze(helloWorld.getContractAddress());
-    //            helloWorld.set("Hello, fisco3");
-    //            Assert.assertTrue("Hello, fisco3".equals(helloWorld.get()));
-    //        } catch (ContractException | ClientException e) {
-    //            System.out.println("testContractLifeCycleService failed, error info:" +
-    // e.getMessage());
-    //        }
-    //    }
 }
