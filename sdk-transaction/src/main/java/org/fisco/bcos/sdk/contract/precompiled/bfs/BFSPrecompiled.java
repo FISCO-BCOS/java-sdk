@@ -148,9 +148,9 @@ public class BFSPrecompiled extends Contract {
                                 new TypeReference<Int256>() {},
                                 new TypeReference<DynamicArray<BfsInfo>>() {}));
         List<Type> results = executeCallWithMultipleValueReturn(function);
-        return new Tuple2<BigInteger, DynamicArray<BfsInfo>>(
+        return new Tuple2<>(
                 (BigInteger) results.get(0).getValue(),
-                (DynamicArray<BfsInfo>) results.get(1).getValue());
+                new DynamicArray<>(BfsInfo.class, (List<BfsInfo>) results.get(1).getValue()));
     }
 
     public TransactionReceipt mkdir(String absolutPath) {

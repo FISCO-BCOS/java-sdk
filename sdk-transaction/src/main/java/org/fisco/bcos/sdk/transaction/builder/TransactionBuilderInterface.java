@@ -39,7 +39,7 @@ public interface TransactionBuilderInterface {
     /**
      * Create fisco bcos transaction for short
      *
-     * @param blockLimit, block limit
+     * @param blockLimit block limit
      * @param to target address
      * @param data encoded data
      * @param groupId group id
