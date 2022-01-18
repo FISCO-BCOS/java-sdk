@@ -15,7 +15,6 @@
 package org.fisco.bcos.sdk.transaction.codec.encode;
 
 import com.qq.tars.protocol.tars.TarsOutputStream;
-import java.util.Base64;
 import org.fisco.bcos.sdk.client.protocol.model.tars.Transaction;
 import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -25,6 +24,7 @@ import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerFactory;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +62,7 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     @Override
     public String encodeAndSign(
             TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair, int attribute) {
-        return Base64.getEncoder()
-                .encodeToString(this.encodeAndSignBytes(rawTransaction, cryptoKeyPair, attribute));
+        return Hex.toHexString(this.encodeAndSignBytes(rawTransaction, cryptoKeyPair, attribute));
     }
 
     @Override
