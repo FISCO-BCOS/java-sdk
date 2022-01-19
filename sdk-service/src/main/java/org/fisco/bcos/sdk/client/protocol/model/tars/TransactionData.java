@@ -198,7 +198,7 @@ public class TransactionData {
         _os.write(this.groupID, 3);
         _os.write(this.blockLimit, 4);
         _os.write(this.nonce, 5);
-        if (null != this.to) {
+        if (null != this.to && !this.to.isEmpty()) {
             _os.write(this.to, 6);
         }
         _os.write(this.input, 7);

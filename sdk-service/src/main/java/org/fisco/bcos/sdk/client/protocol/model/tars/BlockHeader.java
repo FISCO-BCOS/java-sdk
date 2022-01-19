@@ -328,8 +328,7 @@ public class BlockHeader {
         _os.write(this.sealer, 10);
         _os.write(this.sealerList, 11);
         _os.write(this.extraData, 12);
-        _os.write(this.signatureList, 13);
-        _os.write(this.consensusWeights, 14);
+        _os.write(this.consensusWeights, 13);
     }
 
     static java.util.List<ParentInfo> cache_parentInfo;

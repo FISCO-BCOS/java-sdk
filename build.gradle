@@ -147,13 +147,13 @@ subprojects {
 sourceSets {
     main {
         java {
-//            srcDir "sdk-amop/src/main/java"
-//            srcDir "sdk-core/src/main/java"
-//            srcDir "sdk-crypto/src/main/java"
-//            srcDir "sdk-codec/src/main/java"
-//            srcDir "sdk-service/src/main/java"
-//            srcDir "sdk-transaction/src/main/java"
-//            srcDir "sdk-codegen/src/main/java"
+            srcDir "sdk-amop/src/main/java"
+            srcDir "sdk-core/src/main/java"
+            srcDir "sdk-crypto/src/main/java"
+            srcDir "sdk-codec/src/main/java"
+            srcDir "sdk-service/src/main/java"
+            srcDir "sdk-transaction/src/main/java"
+            srcDir "sdk-codegen/src/main/java"
         }
         buildscript
         resources {
