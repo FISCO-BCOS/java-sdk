@@ -119,7 +119,7 @@ LOG_INFO "------ check_standard_node---------"
 LOG_INFO "------ check_sm_node---------"
 #check_sm_node
 LOG_INFO "------ check_basic---------"
-#check_basic
+check_basic
 #LOG_INFO "------ check_log---------"
 #cat log/* |grep -i error
 #cat log/* |grep -i warn
