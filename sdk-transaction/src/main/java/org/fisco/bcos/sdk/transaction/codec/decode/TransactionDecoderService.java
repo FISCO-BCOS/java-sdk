@@ -72,6 +72,15 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
             String abi, String functionName, TransactionReceipt transactionReceipt)
             throws IOException, ABICodecException, TransactionException {
         TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
+        // parse the input
+        if (transactionReceipt.getInput() != null) {
+            Pair<List<Object>, List<ABIObject>> inputObject =
+                    abiCodec.decodeTransactionInput(abi, transactionReceipt.getInput());
+            String inputValues = JsonUtils.toJson(inputObject.getLeft());
+            response.setInputData(inputValues);
+            response.setInputObject(inputObject.getLeft());
+            response.setInputABIObject(inputObject.getRight());
+        }
         // only successful tx has return values.
         if (transactionReceipt.getStatus().equals("0x0")) {
             Pair<List<Object>, List<ABIObject>> returnObject =
@@ -98,6 +107,24 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         }
         String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogs()));
         response.setEvents(events);
+        return response;
+    }
+
+    @Override
+    public TransactionResponse decodeReceiptWithoutOutputValues(
+            String abi, TransactionReceipt transactionReceipt, String constructorCode)
+            throws TransactionException, IOException, ABICodecException {
+        TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
+        // parse the input
+        if (transactionReceipt.getInput() != null && transactionReceipt.isStatusOK()) {
+            Pair<List<Object>, List<ABIObject>> inputObject =
+                    abiCodec.decodeMethodInput(
+                            abi, transactionReceipt.getInput(), "constructor", constructorCode);
+            String inputValues = JsonUtils.toJson(inputObject.getLeft());
+            response.setInputData(inputValues);
+            response.setInputObject(inputObject.getLeft());
+            response.setInputABIObject(inputObject.getRight());
+        }
         return response;
     }
 

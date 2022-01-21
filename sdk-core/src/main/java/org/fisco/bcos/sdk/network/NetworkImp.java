@@ -162,6 +162,7 @@ public class NetworkImp implements Network {
         boolean tryEcdsaConnect = false;
         CheckCertExistenceResult result = null;
         String ecdsaCryptoInfo = configOption.getCryptoMaterialConfig().toString();
+        String ecdsaErrorMessage = "";
         try {
             try {
                 result = checkCertExistence(false);
@@ -195,6 +196,7 @@ public class NetworkImp implements Network {
                 }
                 // means that all the ECDSA certificates exist
                 tryEcdsaConnect = true;
+                ecdsaErrorMessage += e.getMessage();
                 connManager.stopNetty();
                 logger.debug(
                         "start connManager with the ECDSA sslContext failed, try to use SM sslContext, error info: {}",
@@ -206,7 +208,11 @@ public class NetworkImp implements Network {
             if (!result.isCheckPassed()) {
                 if (tryEcdsaConnect) {
                     String errorMessage =
-                            "\n* Try init the sslContext failed.\n\n* If your blockchain channel config is NON-SM, please provide the NON-SM certificates: "
+                            "\n* Try init the NON-SM sslContext failed and the SM certificates are incomplete . error info: \n"
+                                    + ecdsaErrorMessage;
+
+                    errorMessage +=
+                            "\n* If your blockchain channel config is NON-SM, please provide the NON-SM certificates: "
                                     + ecdsaCryptoInfo
                                     + ".\n";
                     errorMessage +=

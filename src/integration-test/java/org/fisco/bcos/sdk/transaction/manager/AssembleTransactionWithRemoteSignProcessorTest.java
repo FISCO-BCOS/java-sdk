@@ -48,7 +48,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     private static final String abiFile = "src/integration-test/resources/abi/";
     private static final String binFile = "src/integration-test/resources/bin/";
     private List<Object> params = Lists.newArrayList("test");
-    // prepare sdk， read from the config file
+    // prepare sdk, read from the config file
     private BcosSDK sdk = BcosSDK.build(configFile);
     // set the group number 1
     private Client client = sdk.getClient(Integer.valueOf(1));

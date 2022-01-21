@@ -1,5 +1,7 @@
 package org.fisco.bcos.sdk.abi.wrapper;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,16 +28,38 @@ import org.fisco.bcos.sdk.crypto.CryptoSuite;
  * blockchain state), view (specified to not modify the blockchain state), nonpayable (function does
  * not accept Ether - the default) and payable (function accepts Ether). <br>
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ABIDefinition {
+    public static final String CONSTRUCTOR_TYPE = "constructor";
+    public static final String FUNCTION_TYPE = "function";
+    public static final String EVENT_TYPE = "event";
+    public static final String FALLBACK_TYPE = "fallback";
+    public static final String RECEIVE_TYPE = "receive";
+
+    @JsonProperty("name")
     private String name;
+
+    @JsonProperty("type")
     private String type;
+
+    @JsonProperty("constant")
     private boolean constant;
+
+    @JsonProperty("payable")
     private boolean payable;
+
+    @JsonProperty("anonymous")
     private boolean anonymous;
+
+    @JsonProperty("stateMutability")
     private String stateMutability;
 
+    @JsonProperty("inputs")
     private List<NamedType> inputs;
+
+    @JsonProperty("outputs")
     private List<NamedType> outputs;
+
     public static List<String> CONSTANT_KEY = Arrays.asList("view");
 
     public ABIDefinition() {}
@@ -94,14 +118,19 @@ public class ABIDefinition {
      */
     public String getMethodSignatureAsString() {
         StringBuilder result = new StringBuilder();
-        result.append(name);
+        // Fix: the name field of the fallback is empty
+        if (name != null) {
+            result.append(name);
+        }
         result.append("(");
-        String params =
-                getInputs()
-                        .stream()
-                        .map(abi -> abi.getTypeAsString())
-                        .collect(Collectors.joining(","));
-        result.append(params);
+        if (getInputs() != null) {
+            String params =
+                    getInputs()
+                            .stream()
+                            .map(abi -> abi.getTypeAsString())
+                            .collect(Collectors.joining(","));
+            result.append(params);
+        }
         result.append(")");
         return result.toString();
     }
@@ -113,8 +142,11 @@ public class ABIDefinition {
      * @return the method id
      */
     public String getMethodId(CryptoSuite cryptoSuite) {
-        FunctionEncoder encoder = new FunctionEncoder(cryptoSuite);
-        return encoder.buildMethodId(getMethodSignatureAsString());
+        if (getType().equals(ABIDefinition.FUNCTION_TYPE)) {
+            FunctionEncoder encoder = new FunctionEncoder(cryptoSuite);
+            return encoder.buildMethodId(getMethodSignatureAsString());
+        }
+        return "";
     }
 
     public boolean isConstant() {

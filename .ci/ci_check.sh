@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+tag="v2.7.2"
 LOG_INFO() {
     local content=${1}
     echo -e "\033[32m ${content}\033[0m"
@@ -28,7 +29,6 @@ download_tassl()
 
 download_build_chain()
 {
-  tag=$(curl -sS "https://gitee.com/api/v5/repos/FISCO-BCOS/FISCO-BCOS/tags" | grep -oe "\"name\":\"v[2-9]*\.[0-9]*\.[0-9]*\"" | cut -d \" -f 4 | sort -V | tail -n 1)
   LOG_INFO "--- current tag: $tag"
 #  curl -LO "https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/${tag}/build_chain.sh" && chmod u+x build_chain.sh
   curl -LO "https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master-2.0/tools/build_chain.sh" && chmod u+x build_chain.sh

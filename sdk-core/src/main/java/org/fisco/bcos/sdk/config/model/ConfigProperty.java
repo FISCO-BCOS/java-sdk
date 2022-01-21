@@ -42,6 +42,7 @@ public class ConfigProperty {
     public List<AmopTopic> amop;
     public Map<String, Object> account;
     public Map<String, Object> threadPool;
+    public Map<String, Object> cryptoProvider;
 
     public Map<String, Object> getCryptoMaterial() {
         return cryptoMaterial;
@@ -81,6 +82,14 @@ public class ConfigProperty {
 
     public void setThreadPool(Map<String, Object> threadPool) {
         this.threadPool = threadPool;
+    }
+
+    public Map<String, Object> getCryptoProvider() {
+        return cryptoProvider;
+    }
+
+    public void setCryptoProvider(Map<String, Object> cryptoProvider) {
+        this.cryptoProvider = cryptoProvider;
     }
 
     public static String getValue(Map<String, Object> config, String key, String defaultValue) {
