@@ -15,6 +15,7 @@ package org.fisco.bcos.sdk.crypto.signature;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.rlp.RlpString;
 import org.fisco.bcos.sdk.rlp.RlpType;
 import org.fisco.bcos.sdk.utils.Hex;
@@ -24,7 +25,8 @@ public class SM2SignatureResult extends SignatureResult {
 
     public SM2SignatureResult(final String hexPublicKey, final String signatureString) {
         super(signatureString);
-        this.pub = Hex.decode(hexPublicKey.substring(2));
+        // clean 04 prefix
+        this.pub = Hex.decode(CryptoKeyPair.getPublicKeyNoPrefix(hexPublicKey));
     }
 
     public SM2SignatureResult(byte[] pub, byte[] r, byte[] s) {
