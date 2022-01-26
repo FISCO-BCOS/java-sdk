@@ -43,7 +43,6 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param contractName contract function name.
      * @param params contract function parameters
      * @param remoteSignCallbackInterface after signed, callback function hook
-     * @return
      */
     void deployByContractLoaderAsync(
             String contractName,
@@ -59,7 +58,6 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param functionName contract function name.
      * @param params contract function parameters
      * @param remoteSignCallbackInterface after signed, callback function hook
-     * @return
      */
     void sendTransactionAndGetReceiptByContractLoaderAsync(
             String contractName,
@@ -77,7 +75,6 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param functionName contract function name.
      * @param params contract function parameters
      * @param remoteSignCallbackInterface after signed, callback function hook
-     * @return
      */
     public void sendTransactionAsync(
             String to,

@@ -113,11 +113,11 @@ ls -la
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 LOG_INFO "------ download_build_chain---------"
 # set tag v3.0.0-rc1, update when new rc, remove when release final
-download_build_chain "v3.0.0-rc1"
+#download_build_chain "v3.0.0-rc1"
 LOG_INFO "------ check_standard_node---------"
-check_standard_node
+#check_standard_node
 LOG_INFO "------ check_sm_node---------"
-check_sm_node
+#check_sm_node
 LOG_INFO "------ check_basic---------"
 check_basic
 #LOG_INFO "------ check_log---------"

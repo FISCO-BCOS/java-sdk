@@ -30,7 +30,7 @@ public interface EventSubscribe {
      * Create Event subscribe instance
      *
      * @param group group
-     * @param group configOption
+     * @param configOption configOption
      * @return EventSubscribe Object
      */
     static EventSubscribe build(String group, ConfigOption configOption) throws JniException {
@@ -67,7 +67,7 @@ public interface EventSubscribe {
     /**
      * get all events subscribed by clients
      *
-     * @return
+     * @return event set
      */
     Set<String> getAllSubscribedEvents();
 

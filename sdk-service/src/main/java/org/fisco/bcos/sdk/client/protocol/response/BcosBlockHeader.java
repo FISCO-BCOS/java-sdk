@@ -287,18 +287,11 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
                 for (String sealer : this.sealerList) {
                     sealerList.add(Hex.decode(sealer));
                 }
-                List<org.fisco.bcos.sdk.client.protocol.model.tars.Signature> signatureList =
-                        new ArrayList<>();
-                for (Signature signature : this.signatureList) {
-                    signatureList.add(
-                            new org.fisco.bcos.sdk.client.protocol.model.tars.Signature(
-                                    signature.getIndex(), Hex.decode(signature.getSignature())));
-                }
                 List<org.fisco.bcos.sdk.client.protocol.model.tars.ParentInfo> parentInfoList =
                         new ArrayList<>();
                 for (ParentInfo parentInfo : this.parentInfo) {
-                    signatureList.add(
-                            new org.fisco.bcos.sdk.client.protocol.model.tars.Signature(
+                    parentInfoList.add(
+                            new org.fisco.bcos.sdk.client.protocol.model.tars.ParentInfo(
                                     parentInfo.getBlockNumber(),
                                     Hex.decode(parentInfo.getBlockHash())));
                 }
@@ -315,11 +308,11 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
                                 this.sealer,
                                 sealerList,
                                 Hex.decode(this.extraData),
-                                signatureList,
+                                null,
                                 this.consensusWeights);
                 TarsOutputStream tarsOutputStream = new TarsOutputStream();
                 blockHeader.writeTo(tarsOutputStream);
-                return "0x" + Hex.toHexString(tarsOutputStream.toByteArray());
+                return Hex.toHexStringWithPrefix(cryptoSuite.hash(tarsOutputStream.toByteArray()));
             } catch (Exception e) {
                 BcosBlockHeader.logger.warn(
                         "calculateHash for the block failed, blockNumber: {}, blockHash: {}, error info: {}",

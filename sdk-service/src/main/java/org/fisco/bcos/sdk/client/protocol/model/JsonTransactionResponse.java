@@ -147,8 +147,7 @@ public class JsonTransactionResponse {
                             Hex.decode(this.input));
             TarsOutputStream tarsOutputStream = new TarsOutputStream();
             rawTransaction.writeTo(tarsOutputStream);
-            byte[] encodedTransaction = cryptoSuite.hash(tarsOutputStream.toByteArray());
-            return "0x" + Hex.toHexString(cryptoSuite.hash(encodedTransaction));
+            return Hex.toHexStringWithPrefix(cryptoSuite.hash(tarsOutputStream.toByteArray()));
         } catch (Exception e) {
             logger.warn(
                     "calculate hash for the transaction failed, version: {}, transactionHash: {}, error info: {}",
