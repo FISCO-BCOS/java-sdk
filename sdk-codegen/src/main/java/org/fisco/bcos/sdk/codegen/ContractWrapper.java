@@ -18,6 +18,7 @@ import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.eventsub.EventSubCallback;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
@@ -1148,9 +1149,17 @@ public class ContractWrapper {
                     "throw new RuntimeException"
                             + "(\"cannot call constant function with void return type\")");
         } else if (outputParameterTypes.size() == 1) {
-            TypeName typeName = outputParameterTypes.get(0);
             TypeName nativeReturnTypeName;
-            nativeReturnTypeName = this.getWrapperRawType(typeName);
+            ABIDefinition.NamedType outputType = functionDefinition.getOutputs().get(0);
+            if (outputType.getType().equals("tuple")) {
+                nativeReturnTypeName = structClassNameMap.get(outputType.structIdentifier());
+            } else if (outputType.getType().startsWith("tuple")
+                    && outputType.getType().contains("[")) {
+                nativeReturnTypeName = buildStructArrayTypeName(outputType);
+            } else {
+                TypeName typeName = outputParameterTypes.get(0);
+                nativeReturnTypeName = this.getWrapperRawType(typeName);
+            }
 
             methodBuilder.returns(nativeReturnTypeName);
 
@@ -1167,7 +1176,7 @@ public class ContractWrapper {
                     Arrays.class,
                     TypeReference.class,
                     TypeReference.class,
-                    typeName);
+                    nativeReturnTypeName);
 
             if (nativeReturnTypeName.equals(ClassName.get(List.class))) {
                 // We return list. So all the list elements should
@@ -1358,24 +1367,22 @@ public class ContractWrapper {
     }
 
     private MethodSpec buildDefaultSubscribeEventLog(String eventName) {
-        // FIXME: event
-        // String generatedFunctionName =
-        //         "subscribe" + StringUtils.capitaliseFirstLetter(eventName) + "Event";
-        //
-        //    MethodSpec.Builder getEventMethodBuilder =
-        //        MethodSpec.methodBuilder(generatedFunctionName)
-        //            .addModifiers(Modifier.PUBLIC)
-        //            .addParameter(EventCallback.class, CALLBACK_VALUE);
+        String generatedFunctionName =
+                "subscribe" + StringUtils.capitaliseFirstLetter(eventName) + "Event";
 
-        //    getEventMethodBuilder.addStatement(
-        //        "String topic0 = $N.encode(" + buildEventDefinitionName(eventName) + ")",
-        // EVENT_ENCODER);
-        //
-        //    getEventMethodBuilder.addStatement(
-        //        "subscribeEvent(ABI,BINARY" + ",topic0" + "," + CALLBACK_VALUE + ")");
-        //
-        //    return getEventMethodBuilder.build();
-        return null;
+        MethodSpec.Builder getEventMethodBuilder =
+                MethodSpec.methodBuilder(generatedFunctionName)
+                        .addModifiers(Modifier.PUBLIC)
+                        .addParameter(EventSubCallback.class, CALLBACK_VALUE);
+
+        getEventMethodBuilder.addStatement(
+                "String topic0 = $N.encode(" + buildEventDefinitionName(eventName) + ")",
+                EVENT_ENCODER);
+
+        getEventMethodBuilder.addStatement(
+                "subscribeEvent(ABI,BINARY" + ",topic0" + "," + CALLBACK_VALUE + ")");
+
+        return getEventMethodBuilder.build();
     }
 
     private MethodSpec buildEventTransactionReceiptFunction(
