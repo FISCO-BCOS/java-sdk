@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.codec.abi;
+package org.fisco.bcos.sdk.codec;
 
 import org.fisco.bcos.sdk.codec.datatypes.DynamicStruct;
 import org.fisco.bcos.sdk.codec.datatypes.StaticStruct;

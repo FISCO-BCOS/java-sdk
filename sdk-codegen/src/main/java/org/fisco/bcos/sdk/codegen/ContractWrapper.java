@@ -1150,7 +1150,15 @@ public class ContractWrapper {
         } else if (outputParameterTypes.size() == 1) {
             TypeName typeName = outputParameterTypes.get(0);
             TypeName nativeReturnTypeName;
-            nativeReturnTypeName = this.getWrapperRawType(typeName);
+            ABIDefinition.NamedType outputType = functionDefinition.getOutputs().get(0);
+            if (outputType.getType().equals("tuple")) {
+                nativeReturnTypeName = structClassNameMap.get(outputType.structIdentifier());
+            } else if (outputType.getType().startsWith("tuple")
+                    && outputType.getType().contains("[")) {
+                nativeReturnTypeName = buildStructArrayTypeName(outputType);
+            } else {
+                nativeReturnTypeName = this.getWrapperRawType(typeName);
+            }
 
             methodBuilder.returns(nativeReturnTypeName);
 

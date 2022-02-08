@@ -1,10 +1,11 @@
 package org.fisco.bcos.sdk.codec.abi;
 
+import org.fisco.bcos.sdk.codec.TestUtils;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.datatypes.generated.*;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.junit.Test;
-import org.fisco.bcos.sdk.codec.abi.TestFixture.*;
+import org.fisco.bcos.sdk.codec.TestFixture.*;
 
 import java.math.BigInteger;
 
