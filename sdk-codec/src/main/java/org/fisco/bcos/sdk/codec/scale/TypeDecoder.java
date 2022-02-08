@@ -13,6 +13,7 @@ import java.util.function.BiFunction;
 import org.fisco.bcos.sdk.codec.Utils;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Uint160;
+import org.fisco.bcos.sdk.utils.Hex;
 
 public class TypeDecoder {
     @SuppressWarnings("unchecked")
@@ -23,8 +24,7 @@ public class TypeDecoder {
             return (T) decodeBool(reader);
         } else if (Address.class.isAssignableFrom(type)) {
             return (T) decodeAddress(reader);
-        } else if (Bytes.class.isAssignableFrom(type)
-                || DynamicBytes.class.isAssignableFrom(type)) {
+        } else if (BytesType.class.isAssignableFrom(type)) {
             return (T) decodeBytes(reader, (Class<Bytes>) type);
         } else if (Utf8String.class.isAssignableFrom(type)) {
             return (T) decodeUtf8String(reader);
@@ -40,6 +40,11 @@ public class TypeDecoder {
         } else {
             throw new UnsupportedOperationException("Type cannot be decoded: " + type.getClass());
         }
+    }
+
+    public static <T extends Type> T decode(String input, Class<T> type) {
+        ScaleCodecReader scaleCodecReader = new ScaleCodecReader(Hex.decode(input));
+        return decode(scaleCodecReader, type);
     }
 
     public static Address decodeAddress(ScaleCodecReader reader) {
@@ -95,7 +100,7 @@ public class TypeDecoder {
         return new Bool(boolValue);
     }
 
-    public static <T extends Bytes> T decodeBytes(ScaleCodecReader reader, Class<T> type) {
+    public static <T extends BytesType> T decodeBytes(ScaleCodecReader reader, Class<T> type) {
         try {
             byte[] bytes = reader.readByteArray();
             return type.getConstructor(byte[].class).newInstance(bytes);
