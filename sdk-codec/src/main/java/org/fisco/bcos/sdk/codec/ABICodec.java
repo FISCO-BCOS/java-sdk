@@ -553,7 +553,7 @@ public class ABICodec {
         try {
             return abiCodecObject.decodeJavaObjectAndOutputObject(outputABIObject, output);
         } catch (Exception e) {
-            logger.error(" exception in decodeMethodToObject : {}", e.getMessage());
+            logger.error(" exception in decodeMethodToObject : ", e);
         }
         String errorMsg = " cannot decode in decodeMethodToObject with appropriate interface ABI";
         logger.error(errorMsg);

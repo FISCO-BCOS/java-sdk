@@ -1149,6 +1149,7 @@ public class ContractWrapper {
                     "throw new RuntimeException"
                             + "(\"cannot call constant function with void return type\")");
         } else if (outputParameterTypes.size() == 1) {
+            TypeName typeName = outputParameterTypes.get(0);
             TypeName nativeReturnTypeName;
             ABIDefinition.NamedType outputType = functionDefinition.getOutputs().get(0);
             if (outputType.getType().equals("tuple")) {
@@ -1157,7 +1158,6 @@ public class ContractWrapper {
                     && outputType.getType().contains("[")) {
                 nativeReturnTypeName = buildStructArrayTypeName(outputType);
             } else {
-                TypeName typeName = outputParameterTypes.get(0);
                 nativeReturnTypeName = this.getWrapperRawType(typeName);
             }
 
@@ -1176,7 +1176,7 @@ public class ContractWrapper {
                     Arrays.class,
                     TypeReference.class,
                     TypeReference.class,
-                    nativeReturnTypeName);
+                    typeName);
 
             if (nativeReturnTypeName.equals(ClassName.get(List.class))) {
                 // We return list. So all the list elements should
