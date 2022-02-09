@@ -69,7 +69,7 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.codec.datatypes
     public Class<T> getClassType() throws ClassNotFoundException {
         Type clsType = getType();
 
-        if (getType() instanceof ParameterizedType) {
+        if (clsType instanceof ParameterizedType) {
             return (Class<T>) ((ParameterizedType) clsType).getRawType();
         } else {
             return (Class<T>) Class.forName(clsType.getTypeName());

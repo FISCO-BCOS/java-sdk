@@ -475,19 +475,21 @@ public class PrecompiledTest {
             }
         }
         Assert.assertTrue(flag);
-        HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
-        String contractAddress = helloWorld.getContractAddress();
-        String version = String.valueOf(random.nextInt(10000));
-        bfsService.link("HelloWorld", version, contractAddress, HelloWorld.ABI);
-        List<BFSPrecompiled.BfsInfo> listLink = bfsService.list("/apps/HelloWorld");
-        System.out.println(listLink);
-        flag = false;
-        for (BFSPrecompiled.BfsInfo bfsInfo : listLink) {
-            if (bfsInfo.getFileType().equals("link") && bfsInfo.getFileName().equals(version)) {
-                flag = true;
-                break;
+        if (!client.isWASM()) {
+            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
+            String contractAddress = helloWorld.getContractAddress();
+            String version = String.valueOf(random.nextInt(10000));
+            bfsService.link("HelloWorld", version, contractAddress, HelloWorld.ABI);
+            List<BFSPrecompiled.BfsInfo> listLink = bfsService.list("/apps/HelloWorld");
+            System.out.println(listLink);
+            flag = false;
+            for (BFSPrecompiled.BfsInfo bfsInfo : listLink) {
+                if (bfsInfo.getFileType().equals("link") && bfsInfo.getFileName().equals(version)) {
+                    flag = true;
+                    break;
+                }
             }
+            Assert.assertTrue(flag);
         }
-        Assert.assertTrue(flag);
     }
 }
