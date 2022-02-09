@@ -1,5 +1,7 @@
 package org.fisco.bcos.sdk.transaction.decoder;
 
+import java.math.BigInteger;
+import java.util.Random;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.abi.Constant;
@@ -9,9 +11,6 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.math.BigInteger;
-import java.util.Random;
-
 public class ScaleCodecTest {
     private static final String configFile =
             "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
@@ -20,7 +19,11 @@ public class ScaleCodecTest {
     public void testNumericType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient("group0");
-        CodecTest codecTest = CodecTest.deploy(client,client.getCryptoSuite().getCryptoKeyPair(),"codecTest"+ new Random().nextInt(10000));
+        CodecTest codecTest =
+                CodecTest.deploy(
+                        client,
+                        client.getCryptoSuite().getCryptoKeyPair(),
+                        "codecTest" + new Random().nextInt(10000));
         // string
         TransactionReceipt receipt = codecTest.set_str("Test test");
         Assert.assertEquals(0, receipt.getStatus());

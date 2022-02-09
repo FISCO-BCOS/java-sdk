@@ -123,10 +123,7 @@ public class ReceiptParser {
                 return PrecompiledRetCode.CODE_SUCCESS;
             }
             int statusValue = new BigInteger(callResult.getOutput().substring(2), 16).intValue();
-            RetCode ret =
-                    PrecompiledRetCode.getPrecompiledResponse(
-                            statusValue, PrecompiledRetCode.CODE_SUCCESS.getMessage());
-            return new RetCode(ret.getCode(), ret.getMessage());
+            return PrecompiledRetCode.getPrecompiledResponse(statusValue, message);
         } catch (Exception e) {
             return PrecompiledRetCode.CODE_SUCCESS;
         }
