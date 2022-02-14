@@ -27,63 +27,63 @@ import static org.junit.Assert.assertEquals;
 
 public class TypeEncoderTest {
     @Test
-    public void testBool() throws IOException {
+    public void testBool() throws IOException, ClassNotFoundException {
         assertEquals(TestUtils.bytesToString(TypeEncoder.encode(new Bool(false))), ("00"));
         assertEquals(TestUtils.bytesToString(TypeEncoder.encode(new Bool(true))), ("01"));
 
-        assertEquals(TypeDecoder.decode("00", Bool.class), new Bool(false));
-        assertEquals(TypeDecoder.decode("01", Bool.class), new Bool(true));
+        assertEquals(TypeDecoder.decode("00", TypeReference.create(Bool.class)), new Bool(false));
+        assertEquals(TypeDecoder.decode("01", TypeReference.create(Bool.class)), new Bool(true));
     }
 
     @Test
-    public void testStaticBytes() throws IOException {
+    public void testStaticBytes() throws IOException, ClassNotFoundException {
         Bytes staticBytes = new Bytes6(new byte[]{0, 1, 2, 3, 4, 5});
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(staticBytes)),
                 ("18" + "000102030405"));
-        assertEquals(TypeDecoder.decode("18" + "000102030405", Bytes6.class), staticBytes);
+        assertEquals(TypeDecoder.decode("18" + "000102030405", TypeReference.create(Bytes6.class)), staticBytes);
 
         Bytes empty = new Bytes1(new byte[]{0});
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(empty)),
                 ("04" + "00"));
-        assertEquals(TypeDecoder.decode("04" + "00", Bytes1.class), empty);
+        assertEquals(TypeDecoder.decode("04" + "00", TypeReference.create(Bytes1.class)), empty);
 
         Bytes ones = new Bytes1(new byte[]{127});
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(ones)),
                 ("04" + "7f"));
 
-        assertEquals(TypeDecoder.decode("04" + "7f", Bytes1.class), ones);
+        assertEquals(TypeDecoder.decode("04" + "7f", TypeReference.create(Bytes1.class)), ones);
 
         Bytes dave = new Bytes4("dave".getBytes());
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(dave)),
                 ("10" + "64617665"));
 
-        assertEquals(TypeDecoder.decode("10" + "64617665", Bytes4.class), dave);
+        assertEquals(TypeDecoder.decode("10" + "64617665", TypeReference.create(Bytes4.class)), dave);
     }
 
     @Test
-    public void testDynamicBytes() throws IOException {
+    public void testDynamicBytes() throws IOException, ClassNotFoundException {
         DynamicBytes dynamicBytes = new DynamicBytes(new byte[]{0, 1, 2, 3, 4, 5});
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(dynamicBytes)),
                 ("18" + "000102030405"));
-        assertEquals(TypeDecoder.decode("18" + "000102030405", DynamicBytes.class), dynamicBytes);
+        assertEquals(TypeDecoder.decode("18" + "000102030405", TypeReference.create(DynamicBytes.class)), dynamicBytes);
 
         DynamicBytes empty = new DynamicBytes(new byte[]{0});
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(empty)),
                 ("04" + "00"));
-        assertEquals(TypeDecoder.decode("04" + "00", DynamicBytes.class), empty);
+        assertEquals(TypeDecoder.decode("04" + "00", TypeReference.create(DynamicBytes.class)), empty);
 
         DynamicBytes dave = new DynamicBytes("dave".getBytes());
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(dave)),
                 ("10" + "64617665"));
 
-        assertEquals(TypeDecoder.decode("10" + "64617665", DynamicBytes.class), dave);
+        assertEquals(TypeDecoder.decode("10" + "64617665", TypeReference.create(DynamicBytes.class)), dave);
 
         DynamicBytes loremIpsum =
                 new DynamicBytes(
@@ -112,16 +112,16 @@ public class TypeEncoderTest {
                 + "74206d6f6c6c697420616e696d20696420657374206c61626f72756d2e";
         assertEquals(TestUtils.bytesToString(TypeEncoder.encode(loremIpsum)), expectHex);
 
-        assertEquals(TypeDecoder.decode(expectHex, DynamicBytes.class), loremIpsum);
+        assertEquals(TypeDecoder.decode(expectHex, TypeReference.create(DynamicBytes.class)), loremIpsum);
     }
 
     @Test
-    public void testUtf8String() throws IOException {
+    public void testUtf8String() throws IOException, ClassNotFoundException {
         Utf8String string = new Utf8String("Hello, world!");
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(string)),
                 ("34" + "48656c6c6f2c20776f726c6421"));
-        assertEquals(TypeDecoder.decode("34" + "48656c6c6f2c20776f726c6421", Utf8String.class), string);
+        assertEquals(TypeDecoder.decode("34" + "48656c6c6f2c20776f726c6421", TypeReference.create(Utf8String.class)), string);
     }
 
     @Test

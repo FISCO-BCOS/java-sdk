@@ -17,7 +17,9 @@ import org.fisco.bcos.sdk.utils.Hex;
 
 public class TypeDecoder {
     @SuppressWarnings("unchecked")
-    public static <T extends Type> T decode(ScaleCodecReader reader, Class<T> type) {
+    public static <T extends Type> T decode(ScaleCodecReader reader, TypeReference<T> typeReference)
+            throws ClassNotFoundException {
+        Class<T> type = typeReference.getClassType();
         if (NumericType.class.isAssignableFrom(type)) {
             return (T) decodeNumeric(reader, (Class<NumericType>) type);
         } else if (Bool.class.isAssignableFrom(type)) {
@@ -28,23 +30,21 @@ public class TypeDecoder {
             return (T) decodeBytes(reader, (Class<Bytes>) type);
         } else if (Utf8String.class.isAssignableFrom(type)) {
             return (T) decodeUtf8String(reader);
-        } else if (DynamicArray.class.isAssignableFrom(type)) {
-            return (T) decodeDynamicArray(reader, TypeReference.create(type));
         } else if (StructType.class.isAssignableFrom(type)) {
-            return (T) decodeStruct(reader, TypeReference.create(type));
+            return (T) decodeStruct(reader, typeReference);
+        } else if (DynamicArray.class.isAssignableFrom(type)) {
+            return (T) decodeDynamicArray(reader, typeReference);
         } else if (StaticArray.class.isAssignableFrom(type)) {
-            return (T) decodeStaticArray(reader, TypeReference.create(type));
-        } else if (Array.class.isAssignableFrom(type)) {
-            throw new UnsupportedOperationException(
-                    "Array types must be wrapped in a TypeReference");
+            return (T) decodeStaticArray(reader, typeReference);
         } else {
-            throw new UnsupportedOperationException("Type cannot be decoded: " + type.getClass());
+            throw new UnsupportedOperationException("Type cannot be decoded: " + type);
         }
     }
 
-    public static <T extends Type> T decode(String input, Class<T> type) {
+    public static <T extends Type> T decode(String input, TypeReference<T> typeReference)
+            throws ClassNotFoundException {
         ScaleCodecReader scaleCodecReader = new ScaleCodecReader(Hex.decode(input));
-        return decode(scaleCodecReader, type);
+        return decode(scaleCodecReader, typeReference);
     }
 
     public static Address decodeAddress(ScaleCodecReader reader) {
@@ -127,15 +127,12 @@ public class TypeDecoder {
             BiFunction<List<T>, String, T> consumer,
             Integer length) {
         int len = length == null ? reader.readCompact() : length;
-        if (len == 0) {
-            throw new UnsupportedOperationException("Zero length fixed array is invalid type");
-        }
 
         try {
             Class<T> cls = Utils.getParameterizedTypeFromArray(typeReference);
             List<T> elements = new ArrayList<>(len);
             for (int i = 0; i < len; i++) {
-                T value = decode(reader, cls);
+                T value = decode(reader, TypeReference.create(cls));
                 elements.add(value);
             }
 
@@ -191,6 +188,7 @@ public class TypeDecoder {
             ScaleCodecReader reader, TypeReference<T> typeReference) {
         try {
             Class<T> classType = typeReference.getClassType();
+            Constructor<?>[] declaredConstructors = classType.getDeclaredConstructors();
             Constructor<?> constructor =
                     Arrays.stream(classType.getDeclaredConstructors())
                             .filter(
@@ -206,8 +204,9 @@ public class TypeDecoder {
             List<T> elements = new ArrayList<>(length);
 
             for (int i = 0; i < length; i++) {
-                final Class<T> declaredField = (Class<T>) constructor.getParameterTypes()[i];
-                T value = decode(reader, declaredField);
+                java.lang.reflect.Type genericParameterType =
+                        constructor.getGenericParameterTypes()[i];
+                T value = decode(reader, TypeReference.create(genericParameterType));
                 elements.add(value);
             }
 
