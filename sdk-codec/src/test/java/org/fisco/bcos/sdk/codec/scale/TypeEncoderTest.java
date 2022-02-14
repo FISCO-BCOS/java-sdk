@@ -40,28 +40,28 @@ public class TypeEncoderTest {
         Bytes staticBytes = new Bytes6(new byte[]{0, 1, 2, 3, 4, 5});
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(staticBytes)),
-                ("18" + "000102030405"));
-        assertEquals(TypeDecoder.decode("18" + "000102030405", TypeReference.create(Bytes6.class)), staticBytes);
+                ("000102030405"));
+        assertEquals(TypeDecoder.decode("000102030405", TypeReference.create(Bytes6.class)), staticBytes);
 
         Bytes empty = new Bytes1(new byte[]{0});
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(empty)),
-                ("04" + "00"));
-        assertEquals(TypeDecoder.decode("04" + "00", TypeReference.create(Bytes1.class)), empty);
+                ("00"));
+        assertEquals(TypeDecoder.decode("00", TypeReference.create(Bytes1.class)), empty);
 
         Bytes ones = new Bytes1(new byte[]{127});
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(ones)),
-                ("04" + "7f"));
+                ("7f"));
 
-        assertEquals(TypeDecoder.decode("04" + "7f", TypeReference.create(Bytes1.class)), ones);
+        assertEquals(TypeDecoder.decode( "7f", TypeReference.create(Bytes1.class)), ones);
 
         Bytes dave = new Bytes4("dave".getBytes());
         assertEquals(
                 TestUtils.bytesToString(TypeEncoder.encode(dave)),
-                ("10" + "64617665"));
+                ( "64617665"));
 
-        assertEquals(TypeDecoder.decode("10" + "64617665", TypeReference.create(Bytes4.class)), dave);
+        assertEquals(TypeDecoder.decode( "64617665", TypeReference.create(Bytes4.class)), dave);
     }
 
     @Test

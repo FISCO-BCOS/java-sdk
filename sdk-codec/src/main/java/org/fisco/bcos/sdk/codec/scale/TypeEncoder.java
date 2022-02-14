@@ -12,7 +12,11 @@ public class TypeEncoder {
             encodeNumeric((NumericType) parameter, writer);
         } else if (parameter instanceof Bool) {
             encodeBool((Bool) parameter, writer);
+        } else if (parameter instanceof Bytes) {
+            // static bytes
+            encodeStaticBytes((Bytes) parameter, writer);
         } else if (parameter instanceof BytesType) {
+            // dynamic bytes
             encodeBytes((BytesType) parameter, writer);
         } else if (parameter instanceof Address) {
             encodeAddress((Address) parameter, writer);
@@ -64,6 +68,12 @@ public class TypeEncoder {
             throws IOException {
         byte[] bytes = bytesType.getValue();
         writer.writeAsList(bytes);
+    }
+
+    public static void encodeStaticBytes(Bytes bytesType, ScaleCodecWriter writer)
+            throws IOException {
+        byte[] bytes = bytesType.getValue();
+        writer.writeByteArray(bytes);
     }
 
     public static void encodeString(Utf8String stringType, ScaleCodecWriter writer)
