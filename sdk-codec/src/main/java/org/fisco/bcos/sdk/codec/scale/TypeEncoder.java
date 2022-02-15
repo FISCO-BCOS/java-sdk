@@ -1,5 +1,6 @@
 package org.fisco.bcos.sdk.codec.scale;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -11,7 +12,11 @@ public class TypeEncoder {
             encodeNumeric((NumericType) parameter, writer);
         } else if (parameter instanceof Bool) {
             encodeBool((Bool) parameter, writer);
+        } else if (parameter instanceof Bytes) {
+            // static bytes
+            encodeStaticBytes((Bytes) parameter, writer);
         } else if (parameter instanceof BytesType) {
+            // dynamic bytes
             encodeBytes((BytesType) parameter, writer);
         } else if (parameter instanceof Address) {
             encodeAddress((Address) parameter, writer);
@@ -25,6 +30,13 @@ public class TypeEncoder {
             throw new UnsupportedOperationException(
                     "Type cannot be encoded: " + parameter.getClass());
         }
+    }
+
+    public static byte[] encode(Type parameter) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ScaleCodecWriter scaleCodecWriter = new ScaleCodecWriter(outputStream);
+        encode(parameter, scaleCodecWriter);
+        return outputStream.toByteArray();
     }
 
     public static void encodeAddress(Address address, ScaleCodecWriter writer) throws IOException {
@@ -56,6 +68,12 @@ public class TypeEncoder {
             throws IOException {
         byte[] bytes = bytesType.getValue();
         writer.writeAsList(bytes);
+    }
+
+    public static void encodeStaticBytes(Bytes bytesType, ScaleCodecWriter writer)
+            throws IOException {
+        byte[] bytes = bytesType.getValue();
+        writer.writeByteArray(bytes);
     }
 
     public static void encodeString(Utf8String stringType, ScaleCodecWriter writer)

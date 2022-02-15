@@ -1,5 +1,7 @@
 package org.fisco.bcos.sdk.codec.abi;
 
+import org.fisco.bcos.sdk.codec.TestFixture;
+import org.fisco.bcos.sdk.codec.TestUtils;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Bytes10;
 import org.fisco.bcos.sdk.codec.datatypes.generated.StaticArray3;
