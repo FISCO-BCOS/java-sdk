@@ -9,12 +9,25 @@ public class Function {
     private String name;
     private List<Type> inputParameters;
     private List<TypeReference<Type>> outputParameters;
+    private int transactionAttribute = 0;
 
     public Function(
             String name, List<Type> inputParameters, List<TypeReference<?>> outputParameters) {
         this.name = name;
         this.inputParameters = inputParameters;
         this.outputParameters = Utils.convert(outputParameters);
+        this.transactionAttribute = 0;
+    }
+
+    public Function(
+            String name,
+            List<Type> inputParameters,
+            List<TypeReference<?>> outputParameters,
+            int transactionAttribute) {
+        this.name = name;
+        this.inputParameters = inputParameters;
+        this.outputParameters = Utils.convert(outputParameters);
+        this.transactionAttribute = transactionAttribute;
     }
 
     public Function() {
@@ -33,5 +46,13 @@ public class Function {
 
     public List<TypeReference<Type>> getOutputParameters() {
         return outputParameters;
+    }
+
+    public int getTransactionAttribute() {
+        return transactionAttribute;
+    }
+
+    public void setTransactionAttribute(int transactionAttribute) {
+        this.transactionAttribute = transactionAttribute;
     }
 }

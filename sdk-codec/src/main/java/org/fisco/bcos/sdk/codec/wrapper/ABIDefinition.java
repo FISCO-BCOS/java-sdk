@@ -33,6 +33,7 @@ public class ABIDefinition {
     private boolean payable;
     private boolean anonymous;
     private String stateMutability;
+    private List<ConflictField> conflictFields = new ArrayList<>();
 
     private List<NamedType> inputs = new ArrayList<>();
     private List<NamedType> outputs = new ArrayList<>();
@@ -242,6 +243,14 @@ public class ABIDefinition {
         return result;
     }
 
+    public List<ConflictField> getConflictFields() {
+        return conflictFields;
+    }
+
+    public void setConflictFields(List<ConflictField> conflictFields) {
+        this.conflictFields = conflictFields;
+    }
+
     public static class Type {
         public String type;
         public String rawType;
@@ -337,6 +346,47 @@ public class ABIDefinition {
 
         public void setDimensions(List<Integer> dimensions) {
             this.dimensions = dimensions;
+        }
+    }
+
+    public static class ConflictField {
+        private Integer kind;
+        private String slot;
+        private Integer value;
+        private List<Integer> path;
+
+        public ConflictField() {}
+
+        public Integer getKind() {
+            return kind;
+        }
+
+        public void setKind(Integer kind) {
+            this.kind = kind;
+        }
+
+        public String getSlot() {
+            return slot;
+        }
+
+        public void setSlot(String slot) {
+            this.slot = slot;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+
+        public void setValue(Integer value) {
+            this.value = value;
+        }
+
+        public List<Integer> getPath() {
+            return path;
+        }
+
+        public void setPath(List<Integer> path) {
+            this.path = path;
         }
     }
 

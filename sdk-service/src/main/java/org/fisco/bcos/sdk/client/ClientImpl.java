@@ -56,8 +56,6 @@ public class ClientImpl implements Client {
     // ------------basic group info --------------
 
     // ------------ runtime info -----------------
-    private boolean dag = false;
-    // ------------ runtime info -----------------
 
     private long blockNumber = 0;
 
@@ -160,16 +158,6 @@ public class ClientImpl implements Client {
 
     public Boolean getSmCrypto() {
         return this.smCrypto;
-    }
-
-    @Override
-    public boolean getDAG() {
-        return this.dag;
-    }
-
-    @Override
-    public void setDAG(boolean dag) {
-        this.dag = dag;
     }
 
     @Override

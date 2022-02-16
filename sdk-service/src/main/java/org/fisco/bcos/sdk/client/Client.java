@@ -125,10 +125,6 @@ public interface Client {
     /** */
     ConfigOption getConfigOption();
 
-    public boolean getDAG();
-
-    public void setDAG(boolean dag);
-
     // ------------------------- rpc interface begin ------------------------------------------
 
     /**
