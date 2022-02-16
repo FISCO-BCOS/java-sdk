@@ -19,17 +19,17 @@ import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_S
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.model.tars.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
-import org.fisco.bcos.sdk.codec.ABICodec;
-import org.fisco.bcos.sdk.codec.ABICodecException;
-import org.fisco.bcos.sdk.codec.EventEncoder;
-import org.fisco.bcos.sdk.codec.FunctionEncoderInterface;
-import org.fisco.bcos.sdk.codec.FunctionReturnDecoderInterface;
-import org.fisco.bcos.sdk.codec.abi.*;
+import org.fisco.bcos.sdk.codec.*;
+import org.fisco.bcos.sdk.codec.abi.EventValues;
+import org.fisco.bcos.sdk.codec.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -187,7 +187,8 @@ public class Contract {
             transactionReceipt =
                     contract.executeTransaction(
                             codec.encodeConstructorFromBytes(binary, encodedConstructor, abi),
-                            FUNC_DEPLOY);
+                            FUNC_DEPLOY,
+                            0);
             if (!contract.client.isWASM()) {
                 String contractAddress = transactionReceipt.getContractAddress();
                 if (contractAddress == null) {
@@ -214,10 +215,6 @@ public class Contract {
             }
         } else {
             attribute |= Transaction.EVM_ABI_CODEC;
-        }
-
-        if (client.getDAG()) {
-            attribute |= Transaction.DAG;
         }
 
         return attribute;
@@ -310,8 +307,8 @@ public class Contract {
     }
 
     protected void asyncExecuteTransaction(
-            byte[] data, String funName, TransactionCallback callback) {
-        int txAttribute = generateTransactionAttribute(funName);
+            byte[] data, String funName, TransactionCallback callback, int attribute) {
+        int txAttribute = generateTransactionAttribute(funName) | attribute;
 
         this.transactionProcessor.sendTransactionAsync(
                 this.contractAddress, data, this.credential, txAttribute, callback);
@@ -319,15 +316,22 @@ public class Contract {
 
     protected void asyncExecuteTransaction(Function function, TransactionCallback callback) {
         this.asyncExecuteTransaction(
-                this.functionEncoder.encode(function), function.getName(), callback);
+                this.functionEncoder.encode(function),
+                function.getName(),
+                callback,
+                function.getTransactionAttribute());
     }
 
     protected TransactionReceipt executeTransaction(Function function) {
-        return this.executeTransaction(this.functionEncoder.encode(function), function.getName());
+        return this.executeTransaction(
+                this.functionEncoder.encode(function),
+                function.getName(),
+                function.getTransactionAttribute());
     }
 
-    protected TransactionReceipt executeTransaction(byte[] data, String functionName) {
-        int txAttribute = generateTransactionAttribute(functionName);
+    protected TransactionReceipt executeTransaction(
+            byte[] data, String functionName, int attribute) {
+        int txAttribute = generateTransactionAttribute(functionName) | attribute;
 
         return this.transactionProcessor.sendTransactionAndGetReceipt(
                 this.contractAddress, data, this.credential, txAttribute);
@@ -357,7 +361,9 @@ public class Contract {
     }
 
     protected String createSignedTransaction(Function function) {
-        int txAttribute = generateTransactionAttribute(function.getName());
+        int txAttribute =
+                generateTransactionAttribute(function.getName())
+                        | function.getTransactionAttribute();
 
         return this.createSignedTransaction(
                 this.contractAddress, this.functionEncoder.encode(function), txAttribute);

@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.protocol.model.tars.Transaction;
 import org.fisco.bcos.sdk.codec.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.codec.datatypes.*;
-import org.fisco.bcos.sdk.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -608,7 +608,7 @@ public class ContractWrapper {
                         CLIENT,
                         ContractWrapper.CREDENTIAL,
                         getBinaryFuncDefinition(),
-                        isWasm ? getABIFuncDefinition() : "null",
+                        getABIFuncDefinition(),
                         isWasm ? PATH : "null");
         return methodBuilder.build();
     }
@@ -621,7 +621,7 @@ public class ContractWrapper {
                 CLIENT,
                 ContractWrapper.CREDENTIAL,
                 getBinaryFuncDefinition(),
-                isWasm ? getABIFuncDefinition() : "null",
+                getABIFuncDefinition(),
                 isWasm ? PATH : "null");
         return methodBuilder.build();
     }
@@ -1233,10 +1233,13 @@ public class ContractWrapper {
         String functionName = functionDefinition.getName();
 
         methodBuilder.returns(TypeName.get(TransactionReceipt.class));
-
+        int dagAttribute = 0;
+        if (!functionDefinition.getConflictFields().isEmpty()) {
+            dagAttribute = Transaction.DAG;
+        }
         methodBuilder.addStatement(
                 "final $T function = new $T(\n$N, \n$T.<$T>asList($L), \n$T"
-                        + ".<$T<?>>emptyList())",
+                        + ".<$T<?>>emptyList(), $L)",
                 Function.class,
                 Function.class,
                 funcNameToConst(functionName),
@@ -1244,7 +1247,8 @@ public class ContractWrapper {
                 Type.class,
                 inputParams,
                 Collections.class,
-                TypeReference.class);
+                TypeReference.class,
+                dagAttribute);
         methodBuilder.addStatement("return executeTransaction(function)");
     }
 
@@ -1255,10 +1259,13 @@ public class ContractWrapper {
         String functionName = functionDefinition.getName();
 
         methodBuilder.returns(TypeName.VOID);
-
+        int dagAttribute = 0;
+        if (!functionDefinition.getConflictFields().isEmpty()) {
+            dagAttribute = Transaction.DAG;
+        }
         methodBuilder.addStatement(
                 "final $T function = new $T(\n$N, \n$T.<$T>asList($L), \n$T"
-                        + ".<$T<?>>emptyList())",
+                        + ".<$T<?>>emptyList(), $L)",
                 Function.class,
                 Function.class,
                 funcNameToConst(functionName),
@@ -1266,7 +1273,8 @@ public class ContractWrapper {
                 Type.class,
                 inputParams,
                 Collections.class,
-                TypeReference.class);
+                TypeReference.class,
+                dagAttribute);
         methodBuilder.addStatement("asyncExecuteTransaction(function, callback)");
     }
 
@@ -1278,10 +1286,13 @@ public class ContractWrapper {
 
         TypeName returnType = TypeName.get(String.class);
         methodBuilder.returns(returnType);
-
+        int dagAttribute = 0;
+        if (!functionDefinition.getConflictFields().isEmpty()) {
+            dagAttribute = Transaction.DAG;
+        }
         methodBuilder.addStatement(
                 "final $T function = new $T(\n$N, \n$T.<$T>asList($L), \n$T"
-                        + ".<$T<?>>emptyList())",
+                        + ".<$T<?>>emptyList(), $L)",
                 Function.class,
                 Function.class,
                 funcNameToConst(functionName),
@@ -1289,7 +1300,8 @@ public class ContractWrapper {
                 Type.class,
                 inputParams,
                 Collections.class,
-                TypeReference.class);
+                TypeReference.class,
+                dagAttribute);
 
         methodBuilder.addStatement("return createSignedTransaction(function)");
     }
