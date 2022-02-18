@@ -1233,10 +1233,7 @@ public class ContractWrapper {
         String functionName = functionDefinition.getName();
 
         methodBuilder.returns(TypeName.get(TransactionReceipt.class));
-        int dagAttribute = 0;
-        if (!functionDefinition.getConflictFields().isEmpty()) {
-            dagAttribute = Transaction.DAG;
-        }
+        int dagAttribute = getDagAttribute(functionDefinition);
         methodBuilder.addStatement(
                 "final $T function = new $T(\n$N, \n$T.<$T>asList($L), \n$T"
                         + ".<$T<?>>emptyList(), $L)",
@@ -1252,6 +1249,19 @@ public class ContractWrapper {
         methodBuilder.addStatement("return executeTransaction(function)");
     }
 
+    private int getDagAttribute(ABIDefinition functionDefinition) {
+        int dagAttribute = 0;
+        if (!functionDefinition.getConflictFields().isEmpty()) {
+            for (ABIDefinition.ConflictField f : functionDefinition.getConflictFields()) {
+                if (f.getKind() == 0 || f.getKind() == 1 || f.getKind() == 4) {
+                    return dagAttribute;
+                }
+            }
+            dagAttribute = Transaction.DAG;
+        }
+        return dagAttribute;
+    }
+
     private void buildTransactionFunctionWithCallback(
             ABIDefinition functionDefinition,
             MethodSpec.Builder methodBuilder,
@@ -1259,10 +1269,7 @@ public class ContractWrapper {
         String functionName = functionDefinition.getName();
 
         methodBuilder.returns(TypeName.VOID);
-        int dagAttribute = 0;
-        if (!functionDefinition.getConflictFields().isEmpty()) {
-            dagAttribute = Transaction.DAG;
-        }
+        int dagAttribute = getDagAttribute(functionDefinition);
         methodBuilder.addStatement(
                 "final $T function = new $T(\n$N, \n$T.<$T>asList($L), \n$T"
                         + ".<$T<?>>emptyList(), $L)",
@@ -1286,10 +1293,7 @@ public class ContractWrapper {
 
         TypeName returnType = TypeName.get(String.class);
         methodBuilder.returns(returnType);
-        int dagAttribute = 0;
-        if (!functionDefinition.getConflictFields().isEmpty()) {
-            dagAttribute = Transaction.DAG;
-        }
+        int dagAttribute = getDagAttribute(functionDefinition);
         methodBuilder.addStatement(
                 "final $T function = new $T(\n$N, \n$T.<$T>asList($L), \n$T"
                         + ".<$T<?>>emptyList(), $L)",
