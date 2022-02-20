@@ -31,6 +31,7 @@ import org.fisco.bcos.sdk.codec.datatypes.Type;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Bytes4;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -419,11 +420,11 @@ public class AssembleTransactionProcessorTest {
         String contractAddress = response.getContractAddress();
         List<Object> paramsSetBytes = Lists.newArrayList("2".getBytes());
         byte[] data = transactionProcessor.encodeFunction(ABI, "setBytes", paramsSetBytes);
-        String signedData =
+        TxPair txPair =
                 transactionProcessor.createSignedTransaction(
-                        contractAddress, data, this.cryptoKeyPair, 0);
+                        contractAddress, data, ABI, this.cryptoKeyPair, 0);
         CompletableFuture<TransactionReceipt> future =
-                transactionProcessor.sendTransactionAsync(signedData);
+                transactionProcessor.sendTransactionAsync(txPair.getSignedTx());
         future.thenAccept(
                 r -> {
                     Assert.assertEquals(0, response.getTransactionReceipt().getStatus());

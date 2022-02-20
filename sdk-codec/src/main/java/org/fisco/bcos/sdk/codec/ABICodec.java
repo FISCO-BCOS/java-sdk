@@ -334,7 +334,7 @@ public class ABICodec {
                 } else {
                     deployParams.add(new Uint8(0));
                 }
-                deployParams.add(new Utf8String(abi));
+                // deployParams.add(new Utf8String(abi));
                 outputStream.write(
                         org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeParameters(
                                 deployParams, null));

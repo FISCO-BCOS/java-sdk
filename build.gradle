@@ -33,7 +33,7 @@ ext {
     tarsCoreVersion = "1.7.2"
 
     config2Version = '2.7'
-    bcosSdkJniVersion = "3.0.0-rc3-SNAPSHOT"
+    bcosSdkJniVersion = "3.0.0-crypto-rc3-SNAPSHOT"
 }
 
 // check.dependsOn integrationTest

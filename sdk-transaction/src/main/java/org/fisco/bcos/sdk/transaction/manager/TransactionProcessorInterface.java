@@ -16,6 +16,8 @@ package org.fisco.bcos.sdk.transaction.manager;
 
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
@@ -32,23 +34,27 @@ public interface TransactionProcessorInterface {
      *
      * @param to target contract address
      * @param data ABI encoded transaction data
+     * @param abi ABI
      * @param cryptoKeyPair key pair
      * @return transaction receipt
      */
     public TransactionReceipt sendTransactionAndGetReceipt(
-            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute);
+            String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute)
+            throws JniException;
 
     /**
      * send transaction to fisco bcos node and get transaction receipt asynchronously.
      *
      * @param to target contract address
      * @param data ABI encoded transaction data
+     * @param abi ABI
      * @param cryptoKeyPair key pair
      * @param callback define hook function
      */
-    public void sendTransactionAsync(
+    public String sendTransactionAsync(
             String to,
             byte[] data,
+            String abi,
             CryptoKeyPair cryptoKeyPair,
             int txAttribute,
             TransactionCallback callback);
@@ -76,9 +82,11 @@ public interface TransactionProcessorInterface {
      *
      * @param to target contract address
      * @param data ABI encoded transaction data
+     * @param abi ABI
      * @param cryptoKeyPair key pair
      * @return hexed data of signed transaction
      */
-    public String createSignedTransaction(
-            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute);
+    public TxPair createSignedTransaction(
+            String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute)
+            throws JniException;
 }

@@ -1,7 +1,7 @@
 package org.fisco.bcos.sdk.transaction.mock;
 
-import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionWithRemoteSignProcessor;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignCallbackInterface;
@@ -10,16 +10,16 @@ import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 public class RemoteSignCallbackMock implements RemoteSignCallbackInterface {
 
     protected AssembleTransactionWithRemoteSignProcessor assembleTransactionWithRemoteSignProcessor;
-    protected TransactionData rawTransaction;
+    protected long transactionData;
     protected int txAttribute;
 
     public RemoteSignCallbackMock(
             AssembleTransactionWithRemoteSignProcessor assembleTransactionWithRemoteSignProcessor,
-            TransactionData rawTransaction,
+            long transactionData,
             int txAttribute) {
         this.assembleTransactionWithRemoteSignProcessor =
                 assembleTransactionWithRemoteSignProcessor;
-        this.rawTransaction = rawTransaction;
+        this.transactionData = transactionData;
         this.txAttribute = txAttribute;
     }
 
@@ -32,10 +32,15 @@ public class RemoteSignCallbackMock implements RemoteSignCallbackInterface {
     @Override
     public int handleSignedTransaction(SignatureResult signatureStr) {
         System.out.println(System.currentTimeMillis() + " SignatureResult: " + signatureStr);
-        // 完成了交易签名后，将其发送出去
-        TransactionReceipt tr =
-                assembleTransactionWithRemoteSignProcessor.encodeAndPush(
-                        rawTransaction, signatureStr.convertToString(), this.txAttribute);
+        // send the transaction after sign it
+        TransactionReceipt tr = null;
+        try {
+            tr =
+                    assembleTransactionWithRemoteSignProcessor.encodeAndPush(
+                            transactionData, signatureStr.convertToString(), this.txAttribute);
+        } catch (JniException e) {
+            e.printStackTrace();
+        }
         System.out.println(
                 "handleSignedTransaction transactionReceipt is: " + JsonUtils.toJson(tr));
         return 0;

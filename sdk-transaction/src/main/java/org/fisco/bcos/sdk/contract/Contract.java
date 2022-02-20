@@ -14,8 +14,8 @@
  */
 package org.fisco.bcos.sdk.contract;
 
-import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_CREATE;
-import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_SCALE_CODEC;
+import static org.fisco.bcos.sdk.client.protocol.model.Transaction.LIQUID_CREATE;
+import static org.fisco.bcos.sdk.client.protocol.model.Transaction.LIQUID_SCALE_CODEC;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.protocol.model.tars.Transaction;
+import org.fisco.bcos.sdk.client.protocol.model.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.codec.*;
 import org.fisco.bcos.sdk.codec.abi.EventValues;
@@ -33,6 +33,7 @@ import org.fisco.bcos.sdk.codec.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
@@ -63,7 +64,6 @@ public class Contract {
     protected final CryptoKeyPair credential;
     protected final CryptoSuite cryptoSuite;
     protected final EventEncoder eventEncoder;
-    protected static String LATEST_BLOCK = "latest";
 
     /**
      * Constructor
@@ -306,16 +306,16 @@ public class Contract {
         return this.executeCall(function);
     }
 
-    protected void asyncExecuteTransaction(
+    protected String asyncExecuteTransaction(
             byte[] data, String funName, TransactionCallback callback, int attribute) {
         int txAttribute = generateTransactionAttribute(funName) | attribute;
 
-        this.transactionProcessor.sendTransactionAsync(
-                this.contractAddress, data, this.credential, txAttribute, callback);
+        return this.transactionProcessor.sendTransactionAsync(
+                this.contractAddress, data, "", this.credential, txAttribute, callback);
     }
 
-    protected void asyncExecuteTransaction(Function function, TransactionCallback callback) {
-        this.asyncExecuteTransaction(
+    protected String asyncExecuteTransaction(Function function, TransactionCallback callback) {
+        return this.asyncExecuteTransaction(
                 this.functionEncoder.encode(function),
                 function.getName(),
                 callback,
@@ -334,7 +334,7 @@ public class Contract {
         int txAttribute = generateTransactionAttribute(functionName) | attribute;
 
         return this.transactionProcessor.sendTransactionAndGetReceipt(
-                this.contractAddress, data, this.credential, txAttribute);
+                this.contractAddress, data, "", this.credential, txAttribute);
     }
 
     /** Adds a log field to {@link EventValues}. */
@@ -361,17 +361,20 @@ public class Contract {
     }
 
     protected String createSignedTransaction(Function function) {
+
         int txAttribute =
                 generateTransactionAttribute(function.getName())
                         | function.getTransactionAttribute();
 
-        return this.createSignedTransaction(
-                this.contractAddress, this.functionEncoder.encode(function), txAttribute);
-    }
+        TxPair txPair =
+                this.transactionProcessor.createSignedTransaction(
+                        this.contractAddress,
+                        this.functionEncoder.encode(function),
+                        "",
+                        this.credential,
+                        txAttribute);
 
-    protected String createSignedTransaction(String to, byte[] data, int txAttribute) {
-        return this.transactionProcessor.createSignedTransaction(
-                to, data, this.credential, txAttribute);
+        return txPair.getSignedTx();
     }
 
     public static EventValues staticExtractEventParameters(
