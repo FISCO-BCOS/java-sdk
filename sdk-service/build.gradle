@@ -11,8 +11,6 @@ dependencies {
     implementation project(':sdk-core')
     implementation project(':sdk-crypto')
     implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
-
-    api("com.tencent.tars:tars-core:1.7.2")
 }
 
 task sourcesJar(type: Jar) {

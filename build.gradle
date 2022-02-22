@@ -30,7 +30,6 @@ ext {
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
     guavaVersion = '30.1.1-jre'
-    tarsCoreVersion = "1.7.2"
 
     config2Version = '2.7'
     bcosSdkJniVersion = "3.0.0-crypto-rc3-SNAPSHOT"
@@ -191,8 +190,6 @@ dependencies {
     api("info.picocli:picocli:${picocliVersion}")
     api("com.webank:key-mini-toolkit:${keyMiniToolkit}")
     api("com.moandjiezana.toml:toml4j:${toml4jVersion}")
-    // api("com.google.googlejavaformat:google-java-format:1.10.0")
-    api("com.tencent.tars:tars-core:1.7.2")
     api("org.apache.commons:commons-configuration2:${config2Version}")
 
     testImplementation("junit:junit:${junitVersion}")
