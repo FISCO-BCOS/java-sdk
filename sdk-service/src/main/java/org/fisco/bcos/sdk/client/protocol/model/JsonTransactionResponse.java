@@ -14,15 +14,14 @@
  */
 package org.fisco.bcos.sdk.client.protocol.model;
 
-import com.qq.tars.protocol.tars.TarsOutputStream;
 import java.util.List;
 import java.util.Objects;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
-import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.model.MerkleProofUnit;
 import org.fisco.bcos.sdk.utils.AddressUtils;
-import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +35,8 @@ public class JsonTransactionResponse {
     private long blockLimit;
     private String to;
     private String from;
+    // TODO: how to set abi
+    private String abi = "";
     private String input;
     private String chainID;
     private String groupID;
@@ -136,18 +137,18 @@ public class JsonTransactionResponse {
     // calculate the hash for the transaction
     public String calculateHash(CryptoSuite cryptoSuite) throws ClientException {
         try {
-            TransactionData rawTransaction =
-                    new TransactionData(
-                            0,
-                            this.chainID,
+            long transactionData =
+                    TransactionBuilderJniObj.createTransactionData(
                             this.groupID,
-                            this.blockLimit,
-                            this.nonce,
+                            this.chainID,
                             this.to,
-                            Hex.decode(this.input));
-            TarsOutputStream tarsOutputStream = new TarsOutputStream();
-            rawTransaction.writeTo(tarsOutputStream);
-            return Hex.toHexStringWithPrefix(cryptoSuite.hash(tarsOutputStream.toByteArray()));
+                            this.input,
+                            this.abi,
+                            this.blockLimit);
+            long jniKeyPair = cryptoSuite.getCryptoKeyPair().getJniKeyPair();
+            int jniKeyPairCryptoType = KeyPairJniObj.getJniKeyPairCryptoType(jniKeyPair);
+            return TransactionBuilderJniObj.calcTransactionDataHash(
+                    jniKeyPairCryptoType, transactionData);
         } catch (Exception e) {
             logger.warn(
                     "calculate hash for the transaction failed, version: {}, transactionHash: {}, error info: {}",

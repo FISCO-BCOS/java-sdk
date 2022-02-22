@@ -14,9 +14,9 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.encode;
 
-import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+import org.fisco.bcos.sdk.jni.common.JniException;
 
 /**
  * TransactionEncoderInterface @Description: TransactionEncoderInterface
@@ -28,56 +28,57 @@ public interface TransactionEncoderInterface {
     /**
      * Tars encode based on TransactionData
      *
-     * @param rawTransaction raw transaction data
+     * @param transactionData transaction data
      * @return encoded transaction
      */
-    byte[] encode(TransactionData rawTransaction);
+    byte[] encode(long transactionData) throws JniException;
     /**
      * Tars encode and sign based on TransactionData
      *
-     * @param rawTransaction data to be encoded
+     * @param transactionData data to be encoded
      * @param cryptoKeyPair keypair
      * @return encoded & signed transaction byte array
      */
-    byte[] encodeAndSignBytes(
-            TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair, int attribute);
+    byte[] encodeAndSignBytes(long transactionData, CryptoKeyPair cryptoKeyPair, int attribute)
+            throws JniException;
 
     /**
      * Tars encode and sign based on TransactionData
      *
-     * @param rawTransaction data to be encoded
+     * @param transactionData data to be encoded
      * @param cryptoKeyPair keypair
      * @return encoded & signed transaction hexed String
      */
-    String encodeAndSign(
-            TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair, int attribute);
+    String encodeAndSign(long transactionData, CryptoKeyPair cryptoKeyPair, int attribute)
+            throws JniException;
 
     /**
      * Tars encode and hash based on TransactionData
      *
-     * @param rawTransaction data to be encoded
+     * @param transactionData data to be encoded
      * @return encoded & hashed transaction byte array
      */
-    byte[] encodeAndHashBytes(TransactionData rawTransaction);
+    byte[] encodeAndHashBytes(long transactionData) throws JniException;
 
     /**
-     * Tars encode rawTransaction to Transaction bytes
+     * Tars encode transactionData to Transaction bytes
      *
-     * @param rawTransaction raw transaction data
+     * @param transactionData raw transaction data
      * @param hash transaction hash
      * @param result transaction signature
      * @return encoded bytes
      */
     byte[] encodeToTransactionBytes(
-            TransactionData rawTransaction, byte[] hash, SignatureResult result, int attribute);
+            long transactionData, byte[] hash, SignatureResult result, int attribute)
+            throws JniException;
 
     /**
-     * Tars encode rawTransaction to Transaction bytes
+     * Tars encode transactionData to Transaction bytes
      *
-     * @param rawTransaction raw transaction data
+     * @param transactionData raw transaction data
      * @param result transaction signature
      * @return encoded bytes
      */
-    byte[] encodeToTransactionBytes(
-            TransactionData rawTransaction, SignatureResult result, int attribute);
+    byte[] encodeToTransactionBytes(long transactionData, SignatureResult result, int attribute)
+            throws JniException;
 }

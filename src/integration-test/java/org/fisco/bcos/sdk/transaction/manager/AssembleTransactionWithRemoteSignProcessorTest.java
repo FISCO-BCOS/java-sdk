@@ -21,7 +21,6 @@ import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -135,15 +134,15 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                                 "0x0000000000000000000000000000000000000000000000000000000000000000"));
 
         // function2: deploy async with callback
-        TransactionData rawTransaction =
+        long transactionData =
                 assembleTransactionWithRemoteSignProcessor.getRawTransactionForConstructor(
                         abi, bin, new ArrayList<>());
         // mock a sign callback
         RemoteSignCallbackMock callbackMock =
                 new RemoteSignCallbackMock(
-                        assembleTransactionWithRemoteSignProcessor, rawTransaction, 0);
+                        assembleTransactionWithRemoteSignProcessor, transactionData, 0);
         System.out.println(System.currentTimeMillis() + " begin to deploy: ");
-        assembleTransactionWithRemoteSignProcessor.deployAsync(rawTransaction, callbackMock);
+        assembleTransactionWithRemoteSignProcessor.deployAsync(transactionData, callbackMock);
         // will return first, and the hook function would be called async.
         System.out.println("--- finish deploy with callback async ---");
 
@@ -165,7 +164,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         System.out.println("--- finish deploy with CompletableFuture ---");
 
         // function4: send transaction async with callback
-        TransactionData sendTxRawTransaction =
+        long sendTxRawTransaction =
                 assembleTransactionWithRemoteSignProcessor.getRawTransaction(
                         helloWorldAddress, abi, "set", this.params);
         // create an instance of Remote Sign Service callback, and define the hook function.

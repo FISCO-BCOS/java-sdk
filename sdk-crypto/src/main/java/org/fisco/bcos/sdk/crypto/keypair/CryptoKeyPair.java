@@ -68,6 +68,9 @@ public abstract class CryptoKeyPair {
     protected String p12KeyStoreFilePath = "";
     protected String signatureAlgorithm;
 
+    // for jni transaction sign
+    protected long jniKeyPair;
+
     public CryptoKeyPair() {}
 
     /**
@@ -89,6 +92,10 @@ public abstract class CryptoKeyPair {
     CryptoKeyPair(final CryptoResult nativeResult) {
         this.hexPrivateKey = nativeResult.privteKey;
         this.hexPublicKey = nativeResult.publicKey;
+    }
+
+    public long getJniKeyPair() {
+        return jniKeyPair;
     }
 
     /**
