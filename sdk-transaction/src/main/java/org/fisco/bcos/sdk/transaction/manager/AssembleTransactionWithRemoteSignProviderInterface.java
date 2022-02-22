@@ -2,8 +2,8 @@ package org.fisco.bcos.sdk.transaction.manager;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
@@ -14,12 +14,11 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
     /**
      * deploy contract to fisco bcos node asynchronously.
      *
-     * @param rawTransaction raw transaction
+     * @param transactionData raw transaction data
      * @param remoteSignCallbackInterface after signed, callback function hook
      */
-    void deployAsync(
-            TransactionData rawTransaction, RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException;
+    void deployAsync(long transactionData, RemoteSignCallbackInterface remoteSignCallbackInterface)
+            throws ABICodecException, JniException;
 
     /**
      * deploy contract to fisco bcos node asynchronously.
@@ -34,7 +33,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
             String bin,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException;
+            throws ABICodecException, JniException;
 
     /**
      * deploy contract to fisco bcos node by contract name asynchronously. The contract loader will
@@ -48,7 +47,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
             String contractName,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, NoSuchTransactionFileException;
+            throws ABICodecException, NoSuchTransactionFileException, JniException;
 
     /**
      * deploy contract to fisco bcos node by contract name asynchronously.
@@ -65,7 +64,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
             String functionName,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, TransactionBaseException;
+            throws ABICodecException, TransactionBaseException, JniException;
 
     /**
      * send transaction to fisco bcos node by contract name asynchronously.
@@ -82,7 +81,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
             String functionName,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException;
+            throws ABICodecException, JniException;
 
     /**
      * send transaction to fisco bcos node by contract name asynchronously. The contract loader will
@@ -96,25 +95,25 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      */
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             String to, String abi, String functionName, List<Object> params)
-            throws ABICodecException;
+            throws ABICodecException, JniException;
 
     /**
      * sign based on raw transaction and send to fisco bcos node.
      *
-     * @param rawTransaction raw transaction
+     * @param transactionData raw transaction
      * @param signatureStr signature string.
      * @return TransactionReceipt
      */
-    TransactionReceipt encodeAndPush(
-            TransactionData rawTransaction, String signatureStr, int txAttribute);
+    TransactionReceipt encodeAndPush(long transactionData, String signatureStr, int txAttribute)
+            throws JniException;
 
     /**
      * sign based on raw transaction and send to fisco bcos node.
      *
-     * @param rawTransaction raw transaction
+     * @param transactionData raw transaction
      * @param rawTxHash signature byte array.
      * @return TransactionReceipt
      */
     CompletableFuture<TransactionReceipt> signAndPush(
-            TransactionData rawTransaction, byte[] rawTxHash, int txAttribute);
+            long transactionData, byte[] rawTxHash, int txAttribute);
 }

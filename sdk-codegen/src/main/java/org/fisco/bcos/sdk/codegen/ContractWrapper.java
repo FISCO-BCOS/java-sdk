@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.protocol.model.tars.Transaction;
+import org.fisco.bcos.sdk.client.protocol.model.Transaction;
 import org.fisco.bcos.sdk.codec.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
@@ -1268,8 +1268,9 @@ public class ContractWrapper {
             String inputParams) {
         String functionName = functionDefinition.getName();
 
-        methodBuilder.returns(TypeName.VOID);
+        methodBuilder.returns(String.class);
         int dagAttribute = getDagAttribute(functionDefinition);
+
         methodBuilder.addStatement(
                 "final $T function = new $T(\n$N, \n$T.<$T>asList($L), \n$T"
                         + ".<$T<?>>emptyList(), $L)",
@@ -1282,7 +1283,7 @@ public class ContractWrapper {
                 Collections.class,
                 TypeReference.class,
                 dagAttribute);
-        methodBuilder.addStatement("asyncExecuteTransaction(function, callback)");
+        methodBuilder.addStatement("return asyncExecuteTransaction(function, callback)");
     }
 
     private void buildTransactionFunctionSeq(

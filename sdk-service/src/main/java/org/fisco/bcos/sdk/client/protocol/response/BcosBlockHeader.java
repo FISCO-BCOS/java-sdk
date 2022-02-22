@@ -16,14 +16,9 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.qq.tars.protocol.tars.TarsOutputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.fisco.bcos.sdk.client.exceptions.ClientException;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
-import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -278,54 +273,6 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
 
         public long getTimestamp() {
             return this.timestamp;
-        }
-
-        // calculate hash for the block or the block header
-        public String calculateHash(CryptoSuite cryptoSuite) {
-            try {
-                List<byte[]> sealerList = new ArrayList<>();
-                for (String sealer : this.sealerList) {
-                    sealerList.add(Hex.decode(sealer));
-                }
-                List<org.fisco.bcos.sdk.client.protocol.model.tars.ParentInfo> parentInfoList =
-                        new ArrayList<>();
-                for (ParentInfo parentInfo : this.parentInfo) {
-                    parentInfoList.add(
-                            new org.fisco.bcos.sdk.client.protocol.model.tars.ParentInfo(
-                                    parentInfo.getBlockNumber(),
-                                    Hex.decode(parentInfo.getBlockHash())));
-                }
-                org.fisco.bcos.sdk.client.protocol.model.tars.BlockHeader blockHeader =
-                        new org.fisco.bcos.sdk.client.protocol.model.tars.BlockHeader(
-                                0,
-                                parentInfoList,
-                                Hex.decode(this.transactionsRoot),
-                                Hex.decode(this.receiptsRoot),
-                                Hex.decode(this.stateRoot),
-                                this.number,
-                                this.gasUsed,
-                                this.timestamp,
-                                this.sealer,
-                                sealerList,
-                                Hex.decode(this.extraData),
-                                null,
-                                this.consensusWeights);
-                TarsOutputStream tarsOutputStream = new TarsOutputStream();
-                blockHeader.writeTo(tarsOutputStream);
-                return Hex.toHexStringWithPrefix(cryptoSuite.hash(tarsOutputStream.toByteArray()));
-            } catch (Exception e) {
-                BcosBlockHeader.logger.warn(
-                        "calculateHash for the block failed, blockNumber: {}, blockHash: {}, error info: {}",
-                        this.hash,
-                        this.number,
-                        e.getMessage());
-                throw new ClientException(
-                        "calculateHash for block "
-                                + this.hash
-                                + " failed, error info: "
-                                + e.getMessage(),
-                        e);
-            }
         }
 
         @Override

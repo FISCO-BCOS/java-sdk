@@ -20,10 +20,17 @@ import java.security.KeyPair;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.Keccak256;
 import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
+import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ECDSAKeyPair extends CryptoKeyPair {
+    private static final Logger logger = LoggerFactory.getLogger(SM2KeyPair.class);
+
     public static Hash DefaultHashAlgorithm = new Keccak256();
 
     public ECDSAKeyPair() {
@@ -32,17 +39,20 @@ public class ECDSAKeyPair extends CryptoKeyPair {
         this.hexPrivateKey = keyPair.getHexPrivateKey();
         this.hexPublicKey = keyPair.getHexPublicKey();
         this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
+        this.initJniKeyPair();
     }
 
     public ECDSAKeyPair(KeyPair javaKeyPair) {
         super(javaKeyPair);
-        initECDSAKeyPair();
+        this.initECDSAKeyPair();
+        this.initJniKeyPair();
     }
 
     protected ECDSAKeyPair(final CryptoResult ecKeyPairInfo) {
         super(ecKeyPairInfo);
-        initECDSAKeyPair();
+        this.initECDSAKeyPair();
         this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
+        this.initJniKeyPair();
     }
 
     private void initECDSAKeyPair() {
@@ -50,6 +60,17 @@ public class ECDSAKeyPair extends CryptoKeyPair {
         this.curveName = CryptoKeyPair.ECDSA_CURVE_NAME;
         this.keyStoreSubDir = ECDSA_ACCOUNT_SUBDIR;
         this.signatureAlgorithm = ECDSA_SIGNATURE_ALGORITHM;
+    }
+
+    private void initJniKeyPair() {
+        try {
+            this.jniKeyPair =
+                    KeyPairJniObj.createJniKeyPair(
+                            CryptoType.ECDSA_TYPE, Hex.decode(this.hexPrivateKey));
+        } catch (JniException e) {
+            // TODO: handle jni exception
+            logger.error("jni e: ", e);
+        }
     }
 
     public static CryptoKeyPair createKeyPair() {

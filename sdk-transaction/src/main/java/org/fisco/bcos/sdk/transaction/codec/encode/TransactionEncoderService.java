@@ -14,13 +14,12 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.encode;
 
-import com.qq.tars.protocol.tars.TarsOutputStream;
-import org.fisco.bcos.sdk.client.protocol.model.tars.Transaction;
-import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.transaction.signer.RemoteSignProviderInterface;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerFactory;
 import org.fisco.bcos.sdk.transaction.signer.TransactionSignerInterface;
@@ -53,48 +52,52 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     }
 
     @Override
-    public byte[] encode(TransactionData rawTransaction) {
-        TarsOutputStream tarsOutputStream = new TarsOutputStream();
-        rawTransaction.writeTo(tarsOutputStream);
-        return tarsOutputStream.toByteArray();
+    public byte[] encode(long transactionData) throws JniException {
+
+        String encodedTransactionData =
+                TransactionBuilderJniObj.encodeTransactionData(transactionData);
+        return Hex.decode(encodedTransactionData);
     }
 
     @Override
-    public String encodeAndSign(
-            TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair, int attribute) {
-        return Hex.toHexString(this.encodeAndSignBytes(rawTransaction, cryptoKeyPair, attribute));
+    public String encodeAndSign(long transactionData, CryptoKeyPair cryptoKeyPair, int attribute)
+            throws JniException {
+        return Hex.toHexString(this.encodeAndSignBytes(transactionData, cryptoKeyPair, attribute));
     }
 
     @Override
-    public byte[] encodeAndHashBytes(TransactionData rawTransaction) {
-        TarsOutputStream tarsOutputStream = new TarsOutputStream();
-        rawTransaction.writeTo(tarsOutputStream);
-        return this.cryptoSuite.hash(tarsOutputStream.toByteArray());
+    public byte[] encodeAndHashBytes(long transactionData) throws JniException {
+        byte[] encode = encode(transactionData);
+        return this.cryptoSuite.hash(encode);
     }
 
     @Override
     public byte[] encodeAndSignBytes(
-            TransactionData rawTransaction, CryptoKeyPair cryptoKeyPair, int attribute) {
-        byte[] hash = this.encodeAndHashBytes(rawTransaction);
+            long transactionData, CryptoKeyPair cryptoKeyPair, int attribute) throws JniException {
+        byte[] hash = this.encodeAndHashBytes(transactionData);
         SignatureResult result = this.transactionSignerService.sign(hash, cryptoKeyPair);
-        return this.encodeToTransactionBytes(rawTransaction, hash, result, attribute);
+        return this.encodeToTransactionBytes(transactionData, hash, result, attribute);
     }
 
     @Override
     public byte[] encodeToTransactionBytes(
-            TransactionData rawTransaction, byte[] hash, SignatureResult result, int attribute) {
-        Transaction transaction =
-                new Transaction(rawTransaction, hash, result.encode(), 0, attribute, null);
-        TarsOutputStream tarsOutputStream = new TarsOutputStream();
-        transaction.writeTo(tarsOutputStream);
-        return tarsOutputStream.toByteArray();
+            long transactionData, byte[] hash, SignatureResult result, int attribute)
+            throws JniException {
+
+        String signedTransaction =
+                TransactionBuilderJniObj.createSignedTransaction(
+                        transactionData,
+                        Hex.toHexString(result.encode()),
+                        Hex.toHexString(hash),
+                        attribute);
+        return Hex.decode(signedTransaction);
     }
 
     @Override
     public byte[] encodeToTransactionBytes(
-            TransactionData rawTransaction, SignatureResult result, int attribute) {
-        byte[] hash = this.cryptoSuite.hash(encode(rawTransaction));
-        return encodeToTransactionBytes(rawTransaction, hash, result, attribute);
+            long transactionData, SignatureResult result, int attribute) throws JniException {
+        byte[] hash = this.cryptoSuite.hash(encode(transactionData));
+        return encodeToTransactionBytes(transactionData, hash, result, attribute);
     }
 
     /** @return the signature */

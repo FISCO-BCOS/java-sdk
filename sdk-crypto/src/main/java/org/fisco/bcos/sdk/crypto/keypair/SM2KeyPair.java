@@ -20,10 +20,17 @@ import java.security.KeyPair;
 import org.fisco.bcos.sdk.crypto.hash.Hash;
 import org.fisco.bcos.sdk.crypto.hash.SM3Hash;
 import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
+import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
+import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SM2KeyPair extends CryptoKeyPair {
+    private static final Logger logger = LoggerFactory.getLogger(SM2KeyPair.class);
+
     public static Hash DefaultHashAlgorithm = new SM3Hash();
 
     public SM2KeyPair() {
@@ -32,17 +39,20 @@ public class SM2KeyPair extends CryptoKeyPair {
         this.hexPrivateKey = keyPair.getHexPrivateKey();
         this.hexPublicKey = keyPair.getHexPublicKey();
         this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
+        this.initJniKeyPair();
     }
 
     public SM2KeyPair(KeyPair javaKeyPair) {
         super(javaKeyPair);
         initSM2KeyPairObject();
+        this.initJniKeyPair();
     }
 
     protected SM2KeyPair(CryptoResult sm2keyPairInfo) {
         super(sm2keyPairInfo);
         initSM2KeyPairObject();
         this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
+        this.initJniKeyPair();
     }
 
     private void initSM2KeyPairObject() {
@@ -50,6 +60,17 @@ public class SM2KeyPair extends CryptoKeyPair {
         this.hashImpl = new SM3Hash();
         this.curveName = CryptoKeyPair.SM2_CURVE_NAME;
         this.signatureAlgorithm = SM_SIGNATURE_ALGORITHM;
+    }
+
+    private void initJniKeyPair() {
+        try {
+            this.jniKeyPair =
+                    KeyPairJniObj.createJniKeyPair(
+                            CryptoType.SM_TYPE, Hex.decode(this.hexPrivateKey));
+        } catch (JniException e) {
+            // TODO: handle jni exception
+            logger.error("jni e: ", e);
+        }
     }
 
     public static CryptoKeyPair createKeyPair() {

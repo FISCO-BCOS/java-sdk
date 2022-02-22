@@ -14,16 +14,17 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
+import java.util.Objects;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderInterface;
-import org.fisco.bcos.sdk.transaction.builder.TransactionBuilderService;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
@@ -38,7 +39,6 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     protected final Client client;
     protected final String groupId;
     protected final String chainId;
-    protected final TransactionBuilderInterface transactionBuilder;
     protected TransactionEncoderInterface transactionEncoder;
 
     public TransactionProcessor(
@@ -48,26 +48,34 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         this.client = client;
         this.groupId = groupId;
         this.chainId = chainId;
-        this.transactionBuilder = new TransactionBuilderService(client);
         this.transactionEncoder = new TransactionEncoderService(client.getCryptoSuite());
     }
 
     @Override
     public TransactionReceipt sendTransactionAndGetReceipt(
-            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
-        String signedData = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
-        return this.client.sendTransaction(signedData, false).getTransactionReceipt();
+            String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute) {
+        TxPair txPair = this.createSignedTransaction(to, data, abi, cryptoKeyPair, txAttribute);
+        TransactionReceipt transactionReceipt =
+                this.client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
+        if (Objects.nonNull(transactionReceipt)
+                && (Objects.isNull(transactionReceipt.getTransactionHash())
+                        || "".equals(transactionReceipt.getTransactionHash()))) {
+            transactionReceipt.setTransactionHash(txPair.getTxHash());
+        }
+        return transactionReceipt;
     }
 
     @Override
-    public void sendTransactionAsync(
+    public String sendTransactionAsync(
             String to,
             byte[] data,
+            String abi,
             CryptoKeyPair cryptoKeyPair,
             int txAttribute,
             TransactionCallback callback) {
-        String signedData = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
-        this.client.sendTransactionAsync(signedData, false, callback);
+        TxPair txPair = this.createSignedTransaction(to, data, abi, cryptoKeyPair, txAttribute);
+        this.client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
+        return txPair.getTxHash();
     }
 
     @Override
@@ -83,10 +91,26 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     }
 
     @Override
-    public String createSignedTransaction(
-            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
-        TransactionData rawTransaction =
-                this.transactionBuilder.createTransaction(to, data, this.chainId, this.groupId);
-        return this.transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair, txAttribute);
+    public TxPair createSignedTransaction(
+            String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute) {
+        try {
+
+            if (log.isDebugEnabled()) {
+                log.debug("to: {}, abi: {}, attr: {}", to, abi, txAttribute);
+            }
+
+            return TransactionBuilderJniObj.createSignedTransaction(
+                    cryptoKeyPair.getJniKeyPair(),
+                    this.groupId,
+                    this.chainId,
+                    Objects.nonNull(to) ? to : "",
+                    Hex.toHexString(data),
+                    Objects.isNull(to) ? (Objects.nonNull(abi) ? abi : "") : "",
+                    client.getBlockLimit().longValue(),
+                    txAttribute);
+        } catch (JniException e) {
+            log.error("jni e: ", e);
+            return null;
+        }
     }
 }
