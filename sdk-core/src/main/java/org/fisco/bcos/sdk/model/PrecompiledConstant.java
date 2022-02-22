@@ -24,17 +24,6 @@ public class PrecompiledConstant {
     public static final int TABLE_KEY_VALUE_MAX_LENGTH = 255;
     public static final int USER_TABLE_FIELD_VALUE_MAX_LENGTH = 16 * 1024 * 1024 - 1;
 
-    public static final String SYS_TABLE = "_sys_tables_";
-    public static final String SYS_TABLE_ACCESS = "_sys_table_access_";
-    public static final String SYS_CONSENSUS = "_sys_consensus_";
-    public static final String SYS_CNS = "_sys_cns_";
-    public static final String SYS_CONFIG = "_sys_config_";
-
-    // user table prefix
-    public static final String USER_TABLE_PREFIX = "_user_";
-    public static final String USER_TABLE_PREFIX_2_2_0_VERSION = "u_";
-
     public static final String KEY_FIELD_NAME = "key_field";
     public static final String VALUE_FIELD_NAME = "value_field";
-    public static final String TABLE_NAME_FIELD = "table_name";
 }

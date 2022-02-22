@@ -162,8 +162,8 @@ public class AssembleTransactionProcessor extends TransactionProcessor
      * @param contractName the contract name
      * @param args the params when deploy a contract
      * @return the transaction response
-     * @throws TransactionBaseException send transaction exceptioned
-     * @throws ABICodecException abi encode exceptioned
+     * @throws TransactionBaseException send transaction exception
+     * @throws ABICodecException abi encode exception
      * @throws NoSuchTransactionFileException Files related to abi codec were not found
      */
     @Override

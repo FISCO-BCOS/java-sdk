@@ -35,12 +35,12 @@ import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.network.NetworkException;
 import org.fisco.bcos.sdk.transaction.mock.TransactionCallbackMock;
 import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -66,9 +66,9 @@ public class AssembleTransactionProcessorTest {
     private final Client client;
     private final CryptoKeyPair cryptoKeyPair;
 
-    public AssembleTransactionProcessorTest() throws NetworkException {
+    public AssembleTransactionProcessorTest() {
         sdk = BcosSDK.build(CONFIG_FILE);
-        client = this.sdk.getClient("group");
+        client = this.sdk.getClient("group0");
         cryptoKeyPair = this.client.getCryptoSuite().getCryptoKeyPair();
     }
 
@@ -181,7 +181,6 @@ public class AssembleTransactionProcessorTest {
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
-        System.out.println(JsonUtils.toJson(response));
         if (response.getTransactionReceipt().getStatus() != 0) {
             System.out.println(response.getReturnMessage());
             return;
@@ -218,7 +217,6 @@ public class AssembleTransactionProcessorTest {
             CallResponse callResponse1 =
                     transactionProcessor.sendCallByContractLoader(
                             "ComplexSol", contractAddress, "_intV", new ArrayList<>());
-            System.out.println(JsonUtils.toJson(callResponse1));
             System.out.println("callResponse1 : " + callResponse1.getReturnMessage());
             if (callResponse1.getReturnCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 List<Type> entities = callResponse1.getResults();
@@ -325,7 +323,6 @@ public class AssembleTransactionProcessorTest {
         TransactionResponse transactionResponse =
                 transactionProcessor.sendTransactionAndGetResponse(
                         contractAddress, ABI, "setValues", paramsSetValues);
-        System.out.println(JsonUtils.toJson(transactionResponse));
         Map<String, List<List<Object>>> eventsMap = transactionResponse.getEventResultMap();
         Assert.assertEquals(1, eventsMap.size());
         Assert.assertEquals("set values 字符串", eventsMap.get("LogSetValues").get(0).get(2));
@@ -339,8 +336,9 @@ public class AssembleTransactionProcessorTest {
                         "getValues",
                         Lists.newArrayList());
         Assert.assertEquals(0, callResponse4.getReturnCode());
-        Assert.assertEquals(callResponse4.getResults().get(0), new Int256(20));
-        Assert.assertEquals(callResponse4.getResults().get(2), "set values 字符串");
+        Assert.assertEquals(
+                callResponse4.getResults().get(0).getValue(), new Int256(20).getValue());
+        Assert.assertEquals(callResponse4.getResults().get(2).getValue(), "set values 字符串");
     }
 
     @Test
@@ -362,11 +360,9 @@ public class AssembleTransactionProcessorTest {
             TransactionResponse transactionResponse3 =
                     transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                             contractAddress, ABI, "setBytes", paramsSetBytes);
-            System.out.println(JsonUtils.toJson(transactionResponse3));
             Assert.assertEquals(transactionResponse3.getResults().size(), 1);
 
             Map<String, List<List<Object>>> eventsMap3 = transactionResponse3.getEventResultMap();
-            System.out.println(JsonUtils.toJson(eventsMap3));
             Assert.assertEquals(1, eventsMap3.size());
             Assert.assertEquals("123", eventsMap3.get("LogSetBytes").get(0).get(1));
 
@@ -380,7 +376,8 @@ public class AssembleTransactionProcessorTest {
                             Lists.newArrayList());
             Assert.assertEquals(0, callResponse4.getReturnCode());
             Assert.assertEquals(
-                    callResponse4.getResults().get(0), new DynamicBytes("123".getBytes()));
+                    Hex.toHexString((byte[]) callResponse4.getResults().get(0).getValue()),
+                    Hex.toHexString(new DynamicBytes("123".getBytes()).getValue()));
         }
 
         // setBytes
@@ -390,11 +387,9 @@ public class AssembleTransactionProcessorTest {
             TransactionResponse transactionResponse4 =
                     transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                             contractAddress, ABI, "setBytes", paramsSetBytes2);
-            System.out.println(JsonUtils.toJson(transactionResponse4));
             Assert.assertEquals(transactionResponse4.getResults().size(), 1);
 
             Map<String, List<List<Object>>> eventsMap4 = transactionResponse4.getEventResultMap();
-            System.out.println(JsonUtils.toJson(eventsMap4));
             Assert.assertEquals(1, eventsMap4.size());
 
             // getBytes
@@ -455,7 +450,6 @@ public class AssembleTransactionProcessorTest {
             TransactionResponse transactionResponse3 =
                     transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                             contractAddress, ABI, "setStaticByte4", paramsSetBytes);
-            System.out.println(JsonUtils.toJson(transactionResponse3));
             Assert.assertEquals(transactionResponse3.getResults().size(), 1);
 
             // get _bytes4V
@@ -476,7 +470,6 @@ public class AssembleTransactionProcessorTest {
             TransactionResponse transactionResponse3 =
                     transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                             contractAddress, ABI, "setStaticByte4", paramsSetBytes);
-            System.out.println(JsonUtils.toJson(transactionResponse3));
             Assert.assertEquals(transactionResponse3.getResults().size(), 1);
 
             // get _bytes4V
@@ -490,7 +483,8 @@ public class AssembleTransactionProcessorTest {
             String s = JsonUtils.toJson(callResponse4.getResults().get(0));
             Assert.assertEquals(0, callResponse4.getReturnCode());
             Assert.assertEquals(
-                    callResponse4.getResults().get(0), new Bytes4("12345678".getBytes()));
+                    Hex.toHexString((byte[]) callResponse4.getResults().get(0).getValue()),
+                    "12345678");
         }
     }
 }

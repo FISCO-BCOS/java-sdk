@@ -198,7 +198,7 @@ public class KVTablePrecompiled extends Contract {
                                 new TypeReference<Bool>() {}, new TypeReference<Entry>() {}));
         List<Type> results = executeCallWithMultipleValueReturn(function);
         return new Tuple2<Boolean, Entry>(
-                (Boolean) results.get(0).getValue(), (Entry) results.get(1).getValue());
+                (Boolean) results.get(0).getValue(), (Entry) results.get(1));
     }
 
     public TransactionReceipt set(String tableName, String key, Entry entry) {

@@ -1,6 +1,6 @@
 package org.fisco.bcos.sdk.codec.wrapper;
 
-import org.fisco.bcos.sdk.codec.abi.TestUtils;
+import org.fisco.bcos.sdk.codec.TestUtils;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.junit.Assert;
 import org.junit.Test;

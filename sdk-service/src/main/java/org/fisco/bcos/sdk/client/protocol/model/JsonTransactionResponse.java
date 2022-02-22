@@ -15,7 +15,6 @@
 package org.fisco.bcos.sdk.client.protocol.model;
 
 import com.qq.tars.protocol.tars.TarsOutputStream;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
@@ -145,11 +144,10 @@ public class JsonTransactionResponse {
                             this.blockLimit,
                             this.nonce,
                             this.to,
-                            Base64.getDecoder().decode(this.input));
+                            Hex.decode(this.input));
             TarsOutputStream tarsOutputStream = new TarsOutputStream();
             rawTransaction.writeTo(tarsOutputStream);
-            byte[] encodedTransaction = cryptoSuite.hash(tarsOutputStream.toByteArray());
-            return "0x" + Hex.toHexString(cryptoSuite.hash(encodedTransaction));
+            return Hex.toHexStringWithPrefix(cryptoSuite.hash(tarsOutputStream.toByteArray()));
         } catch (Exception e) {
             logger.warn(
                     "calculate hash for the transaction failed, version: {}, transactionHash: {}, error info: {}",

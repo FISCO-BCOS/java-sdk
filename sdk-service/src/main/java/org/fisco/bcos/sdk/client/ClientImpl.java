@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.client.protocol.model.GroupNodeIniConfig;
 import org.fisco.bcos.sdk.client.protocol.model.GroupNodeIniInfo;
@@ -37,6 +36,7 @@ import org.fisco.bcos.sdk.jni.rpc.RpcJniObj;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.model.Response;
+import org.fisco.bcos.sdk.model.callback.ResponseCallback;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
@@ -71,10 +71,18 @@ public class ClientImpl implements Client {
 
     protected void initGroupInfo() {
         this.groupInfo = getGroupInfo().getResult();
+        if (groupInfo == null) {
+            logger.error("The group not exist, groupID: {}", groupID);
+            throw new ClientException(
+                    "The group not exist, please check the groupID, groupID: " + this.groupID);
+        }
 
         List<BcosGroupNodeInfo.GroupNodeInfo> nodeList = groupInfo.getNodeList();
         if (nodeList == null || nodeList.isEmpty()) {
-            logger.error("There has no nodes in the group, groupID: {}, groupInfo: {}", groupInfo);
+            logger.error(
+                    "There has no nodes in the group, groupID: {}, groupInfo: {}",
+                    groupID,
+                    groupInfo);
             throw new ClientException(
                     "There has no nodes in the group, maybe the group has been removed, groupID: "
                             + this.groupID);
@@ -256,7 +264,7 @@ public class ClientImpl implements Client {
                                 this.groupID,
                                 node,
                                 Hex.trimPrefix(transaction.getTo()),
-                                transaction.getData())),
+                                Hex.toHexString(transaction.getData()))),
                 Call.class);
     }
 
@@ -277,7 +285,7 @@ public class ClientImpl implements Client {
                                 this.groupID,
                                 node,
                                 Hex.trimPrefix(transaction.getTo()),
-                                transaction.getData())),
+                                Hex.toHexString(transaction.getData()))),
                 Call.class,
                 callback);
     }

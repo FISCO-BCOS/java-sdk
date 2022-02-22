@@ -13,9 +13,8 @@
  *
  */
 
-package org.fisco.bcos.sdk.channel;
+package org.fisco.bcos.sdk.model.callback;
 
-import org.fisco.bcos.sdk.channel.model.ChannelMessageError;
 import org.fisco.bcos.sdk.model.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,7 @@ public abstract class ResponseCallback {
 
     public void onError(String errorMessage) {
         Response response = new Response();
-        response.setErrorCode(ChannelMessageError.INTERNAL_MESSAGE_HANDLE_FAILED.getError());
+        response.setErrorCode(-5000);
         response.setErrorMessage(errorMessage);
         onResponse(response);
     }

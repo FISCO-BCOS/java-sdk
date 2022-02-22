@@ -152,6 +152,7 @@ public class PrecompiledRetCode {
 
     // correct return code great or equal 0
     public static final RetCode CODE_SUCCESS = new RetCode(0, "Success");
+    public static final RetCode CODE_UNKNOWN_FAILED = new RetCode(-1, "Unknown failed");
 
     public static final RetCode CODE_NO_AUTHORIZED = new RetCode(-50000, "Permission denied");
     public static final RetCode CODE_TABLE_NAME_ALREADY_EXIST =

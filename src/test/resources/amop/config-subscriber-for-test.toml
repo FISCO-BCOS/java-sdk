@@ -39,8 +39,6 @@ accountFileFormat = "pem"
 
 
 [threadPool]
-# The size of the thread pool used to process the callback of the channel
-channelProcessorThreadSize = "16"
 # The size of the thread pool used to process the transaction receipt notification
 receiptProcessorThreadSize = "16"
 

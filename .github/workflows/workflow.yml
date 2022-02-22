@@ -9,16 +9,18 @@ env:
 jobs:
   build-ubuntu18:
     name: build-ubuntu18.04
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-18.04]
+    runs-on: ubuntu-18.04
+    container:
+      image: docker.io/ubuntu:18.04
+      volumes:
+        - /__w/java-sdk:/__w/java-sdk
+        - /__w/java-sdk/java-sdk:/__w/java-sdk/java-sdk
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 5
       - name: install Ubuntu dependencies
-        run: sudo apt-get update && sudo apt install -y git curl libssl-dev default-jdk build-essential
+        run: apt update && apt install -y git curl libssl-dev default-jdk build-essential
       - name: run integration testing
         run: /bin/bash .ci/ci_check.sh
   build-macos:
@@ -37,16 +39,18 @@ jobs:
       - name: run integration testing
         run: /bin/bash .ci/ci_check.sh
   build-ubuntu20:
-    name: build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04]
+    name: build-ubuntu20.04
+    runs-on: ubuntu-20.04
+    container:
+      image: docker.io/ubuntu:20.04
+      volumes:
+        - /__w/java-sdk:/__w/java-sdk
+        - /__w/java-sdk/java-sdk:/__w/java-sdk/java-sdk
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 5
       - name: install Ubuntu dependencies
-        run: sudo apt-get update && sudo apt install -y git curl libssl-dev default-jdk build-essential
+        run: ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && apt update && apt install -y git curl libssl-dev default-jdk build-essential
       - name: run integration testing
         run: /bin/bash .ci/ci_check.sh

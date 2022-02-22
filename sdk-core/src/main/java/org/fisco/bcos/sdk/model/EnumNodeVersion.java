@@ -1,13 +1,11 @@
-package org.fisco.bcos.sdk.channel.model;
+package org.fisco.bcos.sdk.model;
 
 public enum EnumNodeVersion {
-    BCOS_2_0_0_RC1("2.0.0-rc1"),
-    BCOS_2_0_0("2.0.0"),
-    BCOS_2_1_0("2.1.0");
-
+    BCOS_3_0_0_RC1("3.0.0-rc1"),
+    BCOS_3_0_0("3.0.0");
     private String version;
 
-    private EnumNodeVersion(String version) {
+    EnumNodeVersion(String version) {
         this.version = version;
     }
 
@@ -76,7 +74,7 @@ public enum EnumNodeVersion {
         }
     }
 
-    public static Version getClassVersion(String version) throws ChannelPrococolExceiption {
+    public static Version getClassVersion(String version) throws Exception {
         try {
             // node version str format : "a.b.c" or "a.b.c-rcx" or gm version
             if (version.endsWith("gm")) {
@@ -84,7 +82,7 @@ public enum EnumNodeVersion {
             }
             String[] s0 = version.trim().split("-");
 
-            Version v = EnumNodeVersion.BCOS_2_0_0.new Version();
+            Version v = EnumNodeVersion.BCOS_3_0_0.new Version();
             if (s0.length > 1) {
                 v.setExt(s0[1]);
             }
@@ -96,21 +94,11 @@ public enum EnumNodeVersion {
                 v.setMinor(Integer.parseInt(s1[1].trim()));
                 v.setPatch(Integer.parseInt(s1[2].trim()));
             } else { // invaid format
-                throw new ChannelPrococolExceiption(
-                        " invalid node version format, version: " + version);
+                throw new Exception(" invalid node version format, version: " + version);
             }
-
             return v;
         } catch (Exception e) {
-            throw new ChannelPrococolExceiption(
-                    " invalid node version format, version: " + version);
+            throw new Exception(" invalid node version format, version: " + version);
         }
-    }
-
-    public static boolean channelProtocolHandleShakeSupport(String version)
-            throws ChannelPrococolExceiption {
-        Version v = getClassVersion(version);
-        // 2.1.0 and above
-        return (v.getMajor() == 2) && (v.getMinor() >= 1);
     }
 }

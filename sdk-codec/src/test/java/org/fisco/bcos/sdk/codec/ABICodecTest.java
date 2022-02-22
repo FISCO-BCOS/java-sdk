@@ -1,7 +1,6 @@
 package org.fisco.bcos.sdk.codec;
 
 import org.bouncycastle.util.encoders.Hex;
-import org.fisco.bcos.sdk.codec.abi.TestUtils;
 import org.fisco.bcos.sdk.codec.wrapper.ABICodecObject;
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.codec.wrapper.ABIObject;

@@ -54,7 +54,6 @@
 		</property>
 		<property name="threadPool">
 			<map>
-			<entry key="channelProcessorThreadSize" value="16" />
 			<entry key="receiptProcessorThreadSize" value="16" />
 			<entry key="maxBlockingQueueSize" value="102400" />
 			</map>

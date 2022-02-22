@@ -16,6 +16,7 @@
 package org.fisco.bcos.sdk.precompiled;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsService;
 import org.fisco.bcos.sdk.contract.precompiled.consensus.ConsensusService;
+import org.fisco.bcos.sdk.contract.precompiled.crud.KVTableService;
 import org.fisco.bcos.sdk.contract.precompiled.crud.TableCRUDService;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
@@ -52,7 +54,6 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
-import org.fisco.bcos.sdk.utils.StringUtils;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -67,7 +68,10 @@ public class PrecompiledTest {
                     .getResource(ConstantConfig.CONFIG_FILE_NAME)
                     .getPath();
     public AtomicLong receiptCount = new AtomicLong();
-    private static final String GROUP = "group";
+    private static final String GROUP = "group0";
+    private Random random = new Random();
+
+    public PrecompiledTest() throws NoSuchAlgorithmException {}
 
     @Test
     public void test1ConsensusService() throws ConfigException, ContractException, JniException {
@@ -81,60 +85,72 @@ public class PrecompiledTest {
 
         // select the node to operate
         SealerList.Sealer selectedNode = sealerList.get(0);
+        System.out.println("selectNode: " + selectedNode.getNodeID());
 
         // addSealer
-        //        Assert.assertThrows(
-        //                ContractException.class,
-        //                () -> {
-        //                    consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
-        //                });
+        Assert.assertThrows(
+                ContractException.class,
+                () -> {
+                    consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
+                });
 
         // add the sealer to the observerList
         RetCode retCode = consensusService.addObserver(selectedNode.getNodeID());
         // query the observerList
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            List<String> observerList = client.getObserverList().getResult();
-            Assert.assertTrue(observerList.contains(selectedNode.getNodeID()));
-            // query the sealerList
-            sealerList = client.getSealerList().getResult();
-            Assert.assertFalse(sealerList.contains(selectedNode));
-            // add the node to the observerList again
-            Assert.assertThrows(
-                    ContractException.class,
-                    () -> consensusService.addObserver(selectedNode.getNodeID()));
-        }
+        Assert.assertEquals(PrecompiledRetCode.CODE_SUCCESS.getCode(), retCode.getCode());
+        List<String> observerList = client.getObserverList().getResult();
+        System.out.println("observerList: " + observerList);
+        Assert.assertTrue(observerList.contains(selectedNode.getNodeID()));
+        // query the sealerList
+        sealerList = client.getSealerList().getResult();
+        System.out.println("sealerList: " + sealerList);
+        Assert.assertFalse(sealerList.contains(selectedNode));
+        // add the node to the observerList again
+        Assert.assertThrows(
+                ContractException.class,
+                () -> consensusService.addObserver(selectedNode.getNodeID()));
+
         // add the node to the sealerList again
         retCode = consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
 
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
-            Assert.assertFalse(
-                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-        }
+        Assert.assertEquals(PrecompiledRetCode.CODE_SUCCESS.getCode(), retCode.getCode());
+        List<SealerList.Sealer> sealerList1 = client.getSealerList().getResult();
+        System.out.println("sealerList1: " + sealerList1);
+        Assert.assertTrue(sealerList1.contains(selectedNode));
+        List<String> observerList1 = client.getObserverList().getResult();
+        System.out.println("observerList1: " + observerList1);
+        Assert.assertFalse(observerList1.contains(selectedNode.getNodeID()));
 
         // removeNode
         retCode = consensusService.removeNode(selectedNode.getNodeID());
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            Assert.assertFalse(
-                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-            Assert.assertFalse(client.getSealerList().getResult().contains(selectedNode));
-        }
+        Assert.assertEquals(PrecompiledRetCode.CODE_SUCCESS.getCode(), retCode.getCode());
+        List<String> observerList2 = client.getObserverList().getResult();
+        System.out.println("observerList2: " + observerList2);
+        Assert.assertFalse(observerList2.contains(selectedNode.getNodeID()));
+        List<SealerList.Sealer> sealerList2 = client.getSealerList().getResult();
+        System.out.println("sealerList2: " + sealerList2);
+        Assert.assertFalse(sealerList2.contains(selectedNode));
 
         // add the node to observerList again
         retCode = consensusService.addObserver(selectedNode.getNodeID());
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            Assert.assertTrue(
-                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-            Assert.assertFalse(client.getSealerList().getResult().contains(selectedNode));
-        }
+        Assert.assertEquals(PrecompiledRetCode.CODE_SUCCESS.getCode(), retCode.getCode());
+        List<String> observerList3 = client.getObserverList().getResult();
+        System.out.println("observerList3: " + observerList3);
+        Assert.assertTrue(observerList3.contains(selectedNode.getNodeID()));
+        List<SealerList.Sealer> sealerList3 = client.getSealerList().getResult();
+        System.out.println("sealerList3: " + sealerList3);
+        Assert.assertFalse(sealerList3.contains(selectedNode));
 
         // add the node to the sealerList again
         retCode = consensusService.addSealer(selectedNode.getNodeID(), BigInteger.ONE);
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            Assert.assertTrue(client.getSealerList().getResult().contains(selectedNode));
-            Assert.assertFalse(
-                    client.getObserverList().getResult().contains(selectedNode.getNodeID()));
-        }
+        Assert.assertEquals(PrecompiledRetCode.CODE_SUCCESS.getCode(), retCode.getCode());
+        List<SealerList.Sealer> sealerList4 = client.getSealerList().getResult();
+        System.out.println("sealerList4: " + sealerList4);
+
+        Assert.assertTrue(sealerList4.contains(selectedNode));
+        List<String> observerList4 = client.getObserverList().getResult();
+        System.out.println("observerList4: " + observerList4);
+        Assert.assertFalse(observerList4.contains(selectedNode.getNodeID()));
     }
 
     @Test
@@ -233,18 +249,19 @@ public class PrecompiledTest {
             throws ContractException {
         BigInteger value =
                 new BigInteger(client.getSystemConfigByKey(key).getSystemConfig().getValue());
-        BigInteger updatedValue = value.add(BigInteger.valueOf(1000));
+        BigInteger updatedValue = value.add(BigInteger.valueOf(100));
         String updatedValueStr = String.valueOf(updatedValue);
         systemConfigService.setValueByKey(key, updatedValueStr);
 
         BigInteger queriedValue =
                 new BigInteger(client.getSystemConfigByKey(key).getSystemConfig().getValue());
         System.out.println("queriedValue: " + queriedValue);
-        // Assert.assertTrue(queriedValue.equals(updatedValue));
-        // Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(1000))));
+        Assert.assertTrue(queriedValue.equals(updatedValue));
+        Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(100))));
     }
 
-    @Test
+    // FIXME: no use in FISCO BCOS v3.0.0-rc1
+    // @Test
     public void test5CRUDService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -298,8 +315,8 @@ public class PrecompiledTest {
         System.out.println("testCRUDPrecompiled tableCRUDService.remove size : " + result.size());
     }
 
-    // Note: Please make sure that the ut is before the permission-related ut
-    @Test
+    // FIXME: no use in FISCO BCOS v3.0.0-rc1
+    // @Test
     public void test51SyncCRUDService() throws ConfigException, ContractException, JniException {
 
         ConfigOption configOption = Config.load(configFile);
@@ -370,7 +387,8 @@ public class PrecompiledTest {
         }
     }
 
-    @Test
+    // FIXME: no use in FISCO BCOS v3.0.0-rc1
+    // @Test
     public void test52AsyncCRUDService()
             throws ConfigException, ContractException, InterruptedException, JniException {
 
@@ -434,23 +452,40 @@ public class PrecompiledTest {
         Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(300))) >= 0);
     }
 
-    public static byte[] hexStringToBytes(String hexString) {
-        if (StringUtils.isEmpty(hexString)) {
-            return new byte[0];
+    @Test
+    public void test6KVService() throws ConfigException, ContractException, JniException {
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(GROUP, configOption);
+
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
+        KVTableService kvTableService = new KVTableService(client, cryptoKeyPair);
+        // create a user table
+        String tableName = "test" + (int) (Math.random() * 1000);
+        String key = "key";
+        List<String> valueFields = new ArrayList<>(5);
+        for (int i = 0; i < 5; i++) {
+            valueFields.add(i, "field" + i);
         }
-        hexString = hexString.toLowerCase();
-        final byte[] byteArray = new byte[hexString.length() >> 1];
-        int index = 0;
-        for (int i = 0; i < hexString.length(); i++) {
-            if (index > hexString.length() - 1) {
-                return byteArray;
-            }
-            byte highDit = (byte) (Character.digit(hexString.charAt(index), 16) & 0xFF);
-            byte lowDit = (byte) (Character.digit(hexString.charAt(index + 1), 16) & 0xFF);
-            byteArray[i] = (byte) (highDit << 4 | lowDit);
-            index += 2;
+        RetCode code = kvTableService.createTable(tableName, key, valueFields);
+        Assert.assertEquals(0, code.getCode());
+        // desc
+        Map<String, String> desc = kvTableService.desc(tableName);
+        Assert.assertEquals(desc.get("value_field"), "field0,field1,field2,field3,field4");
+
+        // set
+        Map<String, String> fieldNameToValue = new HashMap<>();
+        for (int i = 0; i < valueFields.size(); i++) {
+            fieldNameToValue.put("field" + i, "value" + i);
         }
-        return byteArray;
+        Entry fieldNameToValueEntry = new Entry(fieldNameToValue);
+        kvTableService.set(tableName, "key1", fieldNameToValueEntry);
+        // get
+        Map<String, String> key1 = kvTableService.get(tableName, "key1");
+        // field value result + key result
+        if (!key1.isEmpty()) {
+            Assert.assertEquals(key1.size(), valueFields.size());
+        }
+        System.out.println("kvTableService select result: " + key1);
     }
 
     @Test
@@ -463,11 +498,11 @@ public class PrecompiledTest {
         BFSService bfsService = new BFSService(client, cryptoKeyPair);
         List<FileInfo> list = bfsService.list("/");
         System.out.println(list);
-
-        String newDir = "local" + new Random().nextInt(1000);
-        RetCode mkdir = bfsService.mkdir("/usr/" + newDir);
+        String newDir = "local" + random.nextInt(10000) + random.nextInt(1000);
+        RetCode mkdir = bfsService.mkdir("/apps/" + newDir);
+        System.out.println("newDir: " + newDir);
         Assert.assertEquals(mkdir.code, 0);
-        List<FileInfo> list2 = bfsService.list("/usr");
+        List<FileInfo> list2 = bfsService.list("/apps");
         System.out.println(list2);
         boolean flag = false;
         for (FileInfo fileInfo : list2) {
@@ -478,61 +513,4 @@ public class PrecompiledTest {
         }
         Assert.assertTrue(flag);
     }
-
-    //    @Test
-    //    public void test7ContractLifeCycleService() throws ConfigException {
-    //        try {
-    //            BcosSDK sdk = BcosSDK.build(configFile);
-    //            Client client = sdk.getClientByGroupID("1");
-    //            CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
-    //            ContractLifeCycleService contractLifeCycleService =
-    //                    new ContractLifeCycleService(client, cryptoKeyPair);
-    //            // deploy a helloWorld
-    //            HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
-    //            String orgValue = helloWorld.get();
-    //            contractLifeCycleService.freeze(helloWorld.getContractAddress());
-    //            // call the contract
-    //            TransactionReceipt receipt = helloWorld.set("Hello, Fisco");
-    //
-    //            // get contract status
-    //            contractLifeCycleService.getContractStatus(helloWorld.getContractAddress());
-    //
-    //            // unfreeze the contract
-    //            contractLifeCycleService.unfreeze(helloWorld.getContractAddress());
-    //            String value = helloWorld.get();
-    //            Assert.assertTrue(value.equals(orgValue));
-    //
-    //            helloWorld.set("Hello, Fisco1");
-    //            value = helloWorld.get();
-    //            System.out.println("==== after set: " + value);
-    //            // Assert.assertTrue("Hello, Fisco1".equals(value));
-    //            // grant Manager
-    //            CryptoSuite cryptoSuite1 =
-    //                    new CryptoSuite(client.getCryptoSuite().getCryptoTypeConfig());
-    //            CryptoKeyPair cryptoKeyPair1 = cryptoSuite1.createKeyPair();
-    //            ContractLifeCycleService contractLifeCycleService1 =
-    //                    new ContractLifeCycleService(client, cryptoKeyPair1);
-    //            // freeze contract without grant manager
-    //            RetCode retCode =
-    // contractLifeCycleService1.freeze(helloWorld.getContractAddress());
-    //            Assert.assertTrue(retCode.equals(PrecompiledRetCode.CODE_INVALID_NO_AUTHORIZED));
-    //            // grant manager
-    //            contractLifeCycleService.grantManager(
-    //                    helloWorld.getContractAddress(), cryptoKeyPair1.getAddress());
-    //            // freeze the contract
-    //            retCode = contractLifeCycleService1.freeze(helloWorld.getContractAddress());
-    //            receipt = helloWorld.set("Hello, fisco2");
-    //            //            Assert.assertTrue(
-    //            //                    new BigInteger(receipt.getStatus().substring(2), 16)
-    //            //                            .equals(BigInteger.valueOf(30)));
-    //
-    //            // unfreeze the contract
-    //            contractLifeCycleService1.unfreeze(helloWorld.getContractAddress());
-    //            helloWorld.set("Hello, fisco3");
-    //            Assert.assertTrue("Hello, fisco3".equals(helloWorld.get()));
-    //        } catch (ContractException | ClientException e) {
-    //            System.out.println("testContractLifeCycleService failed, error info:" +
-    // e.getMessage());
-    //        }
-    //    }
 }
