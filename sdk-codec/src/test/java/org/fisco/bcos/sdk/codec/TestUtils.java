@@ -13,7 +13,7 @@
  *
  */
 
-package org.fisco.bcos.sdk.codec.abi;
+package org.fisco.bcos.sdk.codec;
 
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinitionFactory;
 import org.fisco.bcos.sdk.codec.wrapper.ContractABIDefinition;

@@ -24,7 +24,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
@@ -125,7 +124,7 @@ public class ConfigProperty {
             // try to read from file system
             File file = new File(configFilePath);
             if (file.exists()) {
-                Path path = Paths.get(configFilePath);
+                Path path = file.toPath();
                 return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             }
 

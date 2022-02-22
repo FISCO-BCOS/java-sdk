@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author Maggie
  */
 public interface Client {
-    static final Logger logger = LoggerFactory.getLogger(Client.class);
+    Logger logger = LoggerFactory.getLogger(Client.class);
 
     /**
      * Build a client instance GroupId is identified, all interfaces are available
@@ -77,7 +77,7 @@ public interface Client {
         return new ClientImpl(groupId, configOption, nativePointer);
     }
 
-    /** @return */
+    /** @return native pointer */
     long getNativePointer();
 
     /**
@@ -751,21 +751,21 @@ public interface Client {
      * sync get consensus status
      *
      * @param node the node rpc request send to
-     * @return
+     * @return consensus status info
      */
     ConsensusStatus getConsensusStatus(String node);
 
     /**
      * sync get consensus status
      *
-     * @return
+     * @return consensus status info
      */
     ConsensusStatus getConsensusStatus();
 
     /**
      * get group list
      *
-     * @return
+     * @return group list
      */
     BcosGroupList getGroupList();
 
@@ -774,7 +774,7 @@ public interface Client {
     /**
      * get group info
      *
-     * @return
+     * @return group info
      */
     BcosGroupInfo getGroupInfo();
 
@@ -783,7 +783,7 @@ public interface Client {
     /**
      * get group info list
      *
-     * @return
+     * @return group info list
      */
     BcosGroupInfoList getGroupInfoList();
 
@@ -792,7 +792,7 @@ public interface Client {
     /**
      * get group node info
      *
-     * @return
+     * @return group node info
      */
     BcosGroupNodeInfo getGroupNodeInfo(String node);
 

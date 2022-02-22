@@ -55,8 +55,7 @@ public class SealerList extends JsonRpcResponse<List<SealerList.Sealer>> {
         public boolean equals(Object obj) {
             if (obj instanceof Sealer) {
                 Sealer sealer = (Sealer) obj;
-                return Objects.equals(this.nodeID, sealer.getNodeID())
-                        && Objects.equals(this.weight, sealer.getWeight());
+                return Objects.equals(this.nodeID, sealer.getNodeID());
             }
             return super.equals(obj);
         }

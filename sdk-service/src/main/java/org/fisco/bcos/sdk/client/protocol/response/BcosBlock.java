@@ -104,7 +104,7 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
             return transactions;
         }
 
-        @JsonDeserialize(using = TransactionResultDeserialiser.class)
+        @JsonDeserialize(using = TransactionResultDeserializer.class)
         public void setTransactions(List<TransactionResult> transactions) {
             this.transactions = transactions;
         }
@@ -214,10 +214,10 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
     }
 
     // decode transactionResult
-    public static class TransactionResultDeserialiser
+    public static class TransactionResultDeserializer
             extends JsonDeserializer<List<TransactionResult>> {
 
-        private ObjectReader objectReader = ObjectMapperFactory.getObjectReader();
+        private final ObjectReader objectReader = ObjectMapperFactory.getObjectReader();
 
         @Override
         public List<TransactionResult> deserialize(

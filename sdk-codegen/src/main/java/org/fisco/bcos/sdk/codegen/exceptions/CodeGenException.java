@@ -13,7 +13,7 @@
  */
 package org.fisco.bcos.sdk.codegen.exceptions;
 
-/** Exceptioned when calling hash. */
+/** Throw exception when calling hash. */
 public class CodeGenException extends Exception {
     public CodeGenException(String message) {
         super(message);

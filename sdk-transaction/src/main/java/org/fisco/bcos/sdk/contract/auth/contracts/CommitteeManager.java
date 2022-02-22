@@ -115,6 +115,15 @@ public class CommitteeManager extends Contract {
         return executeCallWithSingleValueReturn(function, String.class);
     }
 
+    public Committee getCommittee() throws ContractException {
+        return Committee.load(_committee(), client, client.getCryptoSuite().getCryptoKeyPair());
+    }
+
+    public ProposalManager getProposalManager() throws ContractException {
+        return ProposalManager.load(
+                _proposalMgr(), client, client.getCryptoSuite().getCryptoKeyPair());
+    }
+
     public TransactionReceipt createModifyDeployAuthProposal(
             String account, Boolean openFlag, BigInteger blockNumberInterval) {
         final Function function =

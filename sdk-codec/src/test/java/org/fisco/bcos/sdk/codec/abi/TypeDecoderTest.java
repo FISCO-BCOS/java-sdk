@@ -1,5 +1,6 @@
 package org.fisco.bcos.sdk.codec.abi;
 
+import org.fisco.bcos.sdk.codec.TestUtils;
 import org.fisco.bcos.sdk.codec.datatypes.*;
 import org.fisco.bcos.sdk.codec.datatypes.generated.*;
 import org.junit.Assert;

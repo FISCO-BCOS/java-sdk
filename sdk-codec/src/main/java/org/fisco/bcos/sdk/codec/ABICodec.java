@@ -81,9 +81,9 @@ public class ABICodec {
             outputStream.write(abiCodecObject.encodeValue(inputABIObject, params).encode());
             return outputStream.toByteArray();
         } catch (Exception e) {
-            logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
+            logger.error(" exception in encodeConstructor : {}", e.getMessage());
         }
-        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
+        String errorMsg = " cannot encode in encodeConstructor with appropriate interface ABI";
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
@@ -294,13 +294,12 @@ public class ABICodec {
             throw new ABICodecException(errorMsg);
         }
 
-        Throwable cause;
         try {
             List<Type> types = new ArrayList<>();
             for (int i = 0; i < inputTypes.size(); ++i) {
                 types.add(buildType(inputTypes.get(i), params.get(i)));
             }
-            byte[] paramBytes = null;
+            byte[] paramBytes;
             if (isWasm) {
                 paramBytes =
                         org.fisco.bcos.sdk.codec.scale.FunctionEncoder.encodeConstructor(types);
@@ -309,14 +308,12 @@ public class ABICodec {
             }
             return encodeConstructorFromBytes(bin, paramBytes, abi);
         } catch (Exception e) {
-            cause = e;
-            logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
+            String errorMsg =
+                    " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"
+                            + e.getMessage();
+            logger.error(errorMsg);
+            throw new ABICodecException(errorMsg);
         }
-        String errorMsg =
-                " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"
-                        + cause.getMessage();
-        logger.error(errorMsg);
-        throw new ABICodecException(errorMsg);
     }
 
     public byte[] encodeConstructorFromBytes(String bin, byte[] params, String abi)
@@ -556,7 +553,7 @@ public class ABICodec {
         try {
             return abiCodecObject.decodeJavaObjectAndOutputObject(outputABIObject, output);
         } catch (Exception e) {
-            logger.error(" exception in decodeMethodToObject : {}", e.getMessage());
+            logger.error(" exception in decodeMethodToObject : ", e);
         }
         String errorMsg = " cannot decode in decodeMethodToObject with appropriate interface ABI";
         logger.error(errorMsg);
