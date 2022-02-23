@@ -11,6 +11,29 @@ English / [中文](docs/README_CN.md)
 
 This is the FISCO BCOS Client SDK for Java. Developers can use Java SDK to build blockchain applications with FISCO BCOS blockchain.
 
+**The current branch is v3.x version java-sdk, which is only suitable for FISCO BCOS 3.0+; please manually switch to [master-2.0](https://github.com/FISCO-BCOS/java-sdk/tree/master-2.0) branch for FISCO BCOS 2.0+ adaptation sdk).**
+
+## Version and Compatibility Notes
+
+**Version v3.x is only for FISCO BCOS v3.x, not compatible with FISCO BCOS v2.x**.
+
+### **v2.x**
+
+- [Documentation](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+- **Code**: [GitHub](https://github.com/FISCO-BCOS/java-sdk/tree/master-2.0), [Gitee](https://gitee.com/FISCO-BCOS/java-sdk/tree/master-2.0/)
+
+- **FISCO BCOS v2.x**: [GitHub](https://github.com/FISCO-BCOS/FISCO-BCOS/tree/master-2.0), [Gitee](https://gitee.com/FISCO-BCOS/FISCO-BCOS/tree/master-2.0/)
+
+### **v3.x**
+
+- [Documentation](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+- **Code**: [GitHub](https://github.com/FISCO-BCOS/java-sdk/tree/master), [Gitee](https://gitee.com/FISCO-BCOS/java-sdk/tree/master)
+
+- **FISCO BCOS v3.x**: [GitHub](https://github.com/FISCO-BCOS/FISCO-BCOS/tree/master), [Gitee](https://gitee.com/FISCO-BCOS/FISCO-BCOS/tree/master)
+
+
 ## Functions
 * Solidity contract compiling.
 * Liquid contract support, including deploy contracts, sending transactions.
