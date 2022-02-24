@@ -50,7 +50,7 @@ public class TransactionReceipt {
         @JsonProperty("address")
         private String address;
 
-        @JsonProperty("topic")
+        @JsonProperty("topics")
         private List<String> topics;
 
         @JsonProperty("data")
