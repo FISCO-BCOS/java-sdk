@@ -33,14 +33,14 @@ ext {
     tarsCoreVersion = "1.7.2"
 
     config2Version = '2.7'
-    bcosSdkJniVersion = "3.0.0-rc2-SNAPSHOT"
+    bcosSdkJniVersion = "3.0.0-rc2"
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.0.0-rc2-SNAPSHOT'
+    version = '3.0.0-rc2'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
