@@ -35,7 +35,6 @@ public class JsonTransactionResponse {
     private long blockLimit;
     private String to;
     private String from;
-    // TODO: how to set abi
     private String abi = "";
     private String input;
     private String chainID;
@@ -45,6 +44,14 @@ public class JsonTransactionResponse {
     private List<MerkleProofUnit> transactionProof;
 
     public JsonTransactionResponse() {}
+
+    public String getAbi() {
+        return abi;
+    }
+
+    public void setAbi(String abi) {
+        this.abi = abi;
+    }
 
     public List<MerkleProofUnit> getTransactionProof() {
         return this.transactionProof;
@@ -173,6 +180,7 @@ public class JsonTransactionResponse {
                 && Objects.equals(this.input, that.input)
                 && Objects.equals(this.nonce, that.nonce)
                 && Objects.equals(this.to, that.to)
+                && Objects.equals(this.abi, that.abi)
                 && Objects.equals(this.blockLimit, that.blockLimit)
                 && Objects.equals(this.chainID, that.chainID)
                 && Objects.equals(this.groupID, that.groupID)
@@ -188,6 +196,7 @@ public class JsonTransactionResponse {
                 this.input,
                 this.nonce,
                 this.to,
+                this.abi,
                 this.blockLimit,
                 this.chainID,
                 this.groupID,
@@ -214,6 +223,9 @@ public class JsonTransactionResponse {
                 + '\''
                 + ", to='"
                 + this.getTo()
+                + '\''
+                + ", abi='"
+                + this.abi
                 + '\''
                 + ", blockLimit='"
                 + this.blockLimit
