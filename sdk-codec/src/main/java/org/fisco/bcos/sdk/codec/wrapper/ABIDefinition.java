@@ -37,9 +37,18 @@ public class ABIDefinition {
 
     private List<NamedType> inputs = new ArrayList<>();
     private List<NamedType> outputs = new ArrayList<>();
+    private List<Long> selector = new ArrayList<>();
     public static List<String> CONSTANT_KEY = Arrays.asList("view");
 
     public ABIDefinition() {}
+
+    public List<Long> getSelector() {
+        return selector;
+    }
+
+    public void setSelector(List<Long> selector) {
+        this.selector = selector;
+    }
 
     public ABIDefinition(
             String name,
@@ -352,10 +361,17 @@ public class ABIDefinition {
     public static class ConflictField {
         private Integer kind;
         private String slot;
-        private Integer value;
-        private List<Integer> path;
+        private List<Integer> value;
 
         public ConflictField() {}
+
+        public List<Integer> getValue() {
+            return value;
+        }
+
+        public void setValue(List<Integer> value) {
+            this.value = value;
+        }
 
         public Integer getKind() {
             return kind;
@@ -371,22 +387,6 @@ public class ABIDefinition {
 
         public void setSlot(String slot) {
             this.slot = slot;
-        }
-
-        public Integer getValue() {
-            return value;
-        }
-
-        public void setValue(Integer value) {
-            this.value = value;
-        }
-
-        public List<Integer> getPath() {
-            return path;
-        }
-
-        public void setPath(List<Integer> path) {
-            this.path = path;
         }
     }
 

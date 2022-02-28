@@ -38,12 +38,12 @@ public class ABIDefinitionTest {
             "      {\n" +
             "        \"kind\": 3,\n" +
             "        \"slot\": \"0x2\",\n" +
-            "        \"value\": 0\n" +
+            "        \"value\": [0]\n" +
             "      },\n" +
             "      {\n" +
             "        \"kind\": 3,\n" +
             "        \"slot\": \"0x2\",\n" +
-            "        \"value\": 1\n" +
+            "        \"value\": [1]\n" +
             "      }\n" +
             "    ],\n" +
             "    \"inputs\": [\n" +
@@ -74,7 +74,7 @@ public class ABIDefinitionTest {
             "      {\n" +
             "        \"kind\": 2,\n" +
             "        \"slot\": \"0x2\",\n" +
-            "        \"value\": 0\n" +
+            "        \"value\": [0]\n" +
             "      }\n" +
             "    ],\n" +
             "    \"inputs\": [\n" +
@@ -124,7 +124,7 @@ public class ABIDefinitionTest {
             "      {\n" +
             "        \"kind\": 3,\n" +
             "        \"slot\": \"0x1\",\n" +
-            "        \"value\": 0\n" +
+            "        \"value\": [0]\n" +
             "      }\n" +
             "    ],\n" +
             "    \"inputs\": [\n" +
@@ -169,7 +169,7 @@ public class ABIDefinitionTest {
             "      {\n" +
             "        \"kind\": 3,\n" +
             "        \"slot\": \"0x3\",\n" +
-            "        \"value\": 0\n" +
+            "        \"value\": [0]\n" +
             "      }\n" +
             "    ],\n" +
             "    \"inputs\": [\n" +
@@ -222,7 +222,7 @@ public class ABIDefinitionTest {
             "      {\n" +
             "        \"kind\": 3,\n" +
             "        \"slot\": \"0x3\",\n" +
-            "        \"value\": 1\n" +
+            "        \"value\": [1]\n" +
             "      }\n" +
             "    ],\n" +
             "    \"inputs\": [\n" +
@@ -300,12 +300,12 @@ public class ABIDefinitionTest {
             "      {\n" +
             "        \"kind\": 2,\n" +
             "        \"slot\": \"0x1\",\n" +
-            "        \"value\": 0\n" +
+            "        \"value\": [0]\n" +
             "      },\n" +
             "      {\n" +
             "        \"kind\": 2,\n" +
             "        \"slot\": \"0x1\",\n" +
-            "        \"value\": 0\n" +
+            "        \"value\": [0]\n" +
             "      }\n" +
             "    ],\n" +
             "    \"inputs\": [\n" +
@@ -336,12 +336,12 @@ public class ABIDefinitionTest {
             "      {\n" +
             "        \"kind\": 2,\n" +
             "        \"slot\": \"0x2\",\n" +
-            "        \"value\": 0\n" +
+            "        \"value\": [0]\n" +
             "      },\n" +
             "      {\n" +
             "        \"kind\": 2,\n" +
             "        \"slot\": \"0x2\",\n" +
-            "        \"value\": 0\n" +
+            "        \"value\": [0]\n" +
             "      }\n" +
             "    ],\n" +
             "    \"inputs\": [\n" +
