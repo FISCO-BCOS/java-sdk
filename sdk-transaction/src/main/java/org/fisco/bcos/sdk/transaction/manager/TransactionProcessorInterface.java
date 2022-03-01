@@ -30,7 +30,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 public interface TransactionProcessorInterface {
 
     /**
-     * send transaction to fisco bcos node and get transaction receipt.
+     * send deploy transaction to fisco bcos node and get transaction receipt.
      *
      * @param to target contract address
      * @param data ABI encoded transaction data
@@ -38,8 +38,20 @@ public interface TransactionProcessorInterface {
      * @param cryptoKeyPair key pair
      * @return transaction receipt
      */
-    public TransactionReceipt sendTransactionAndGetReceipt(
+    public TransactionReceipt deployAndGetReceipt(
             String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute)
+            throws JniException;
+
+    /**
+     * send transaction to fisco bcos node and get transaction receipt.
+     *
+     * @param to target contract address
+     * @param data ABI encoded transaction data
+     * @param cryptoKeyPair key pair
+     * @return transaction receipt
+     */
+    public TransactionReceipt sendTransactionAndGetReceipt(
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute)
             throws JniException;
 
     /**
@@ -47,14 +59,12 @@ public interface TransactionProcessorInterface {
      *
      * @param to target contract address
      * @param data ABI encoded transaction data
-     * @param abi ABI
      * @param cryptoKeyPair key pair
      * @param callback define hook function
      */
     public String sendTransactionAsync(
             String to,
             byte[] data,
-            String abi,
             CryptoKeyPair cryptoKeyPair,
             int txAttribute,
             TransactionCallback callback);
@@ -78,7 +88,7 @@ public interface TransactionProcessorInterface {
     public Call executeCall(String from, String to, byte[] encodedFunction);
 
     /**
-     * create signed transaction
+     * create deploy signed transaction
      *
      * @param to target contract address
      * @param data ABI encoded transaction data
@@ -86,7 +96,19 @@ public interface TransactionProcessorInterface {
      * @param cryptoKeyPair key pair
      * @return hexed data of signed transaction
      */
-    public TxPair createSignedTransaction(
+    public TxPair createDeploySignedTransaction(
             String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute)
+            throws JniException;
+
+    /**
+     * create signed transaction
+     *
+     * @param to target contract address
+     * @param data ABI encoded transaction data
+     * @param cryptoKeyPair key pair
+     * @return hexed data of signed transaction
+     */
+    public TxPair createSignedTransaction(
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute)
             throws JniException;
 }
