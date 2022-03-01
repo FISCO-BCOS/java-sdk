@@ -39,6 +39,7 @@ import org.fisco.bcos.sdk.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsService;
 import org.fisco.bcos.sdk.contract.precompiled.consensus.ConsensusService;
+import org.fisco.bcos.sdk.contract.precompiled.crud.KVTableService;
 import org.fisco.bcos.sdk.contract.precompiled.crud.TableCRUDService;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.contract.precompiled.crud.common.Entry;
@@ -449,6 +450,42 @@ public class PrecompiledTest {
                                 .getTransactionCount());
         System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
         Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(300))) >= 0);
+    }
+
+    @Test
+    public void test6KVService() throws ConfigException, ContractException, JniException {
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(GROUP, configOption);
+
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
+        KVTableService kvTableService = new KVTableService(client, cryptoKeyPair);
+        // create a user table
+        String tableName = "test" + (int) (Math.random() * 1000);
+        String key = "key";
+        List<String> valueFields = new ArrayList<>(5);
+        for (int i = 0; i < 5; i++) {
+            valueFields.add(i, "field" + i);
+        }
+        RetCode code = kvTableService.createTable(tableName, key, valueFields);
+        Assert.assertEquals(0, code.getCode());
+        // desc
+        Map<String, String> desc = kvTableService.desc(tableName);
+        Assert.assertEquals(desc.get("value_field"), "field0,field1,field2,field3,field4");
+
+        // set
+        Map<String, String> fieldNameToValue = new HashMap<>();
+        for (int i = 0; i < valueFields.size(); i++) {
+            fieldNameToValue.put("field" + i, "value" + i);
+        }
+        Entry fieldNameToValueEntry = new Entry(fieldNameToValue);
+        kvTableService.set(tableName, "key1", fieldNameToValueEntry);
+        // get
+        Map<String, String> key1 = kvTableService.get(tableName, "key1");
+        // field value result + key result
+        if (!key1.isEmpty()) {
+            Assert.assertEquals(key1.size(), valueFields.size());
+        }
+        System.out.println("kvTableService select result: " + key1);
     }
 
     @Test

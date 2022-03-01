@@ -7,10 +7,8 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.codec.ABICodecException;
 import org.fisco.bcos.sdk.codec.datatypes.NumericType;
 import org.fisco.bcos.sdk.codec.datatypes.Type;
-import org.fisco.bcos.sdk.contract.auth.contracts.Committee;
 import org.fisco.bcos.sdk.contract.auth.contracts.CommitteeManager;
 import org.fisco.bcos.sdk.contract.auth.contracts.ContractAuthPrecompiled;
-import org.fisco.bcos.sdk.contract.auth.contracts.ProposalManager;
 import org.fisco.bcos.sdk.contract.auth.po.AuthType;
 import org.fisco.bcos.sdk.contract.auth.po.CommitteeInfo;
 import org.fisco.bcos.sdk.contract.auth.po.ProposalInfo;
@@ -26,8 +24,6 @@ import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
 public class AuthManager {
 
     private final CommitteeManager committeeManager;
-    private final ProposalManager proposalManager;
-    private final Committee committee;
     private final ContractAuthPrecompiled contractAuthPrecompiled;
     private final TransactionDecoderInterface decoder;
     // default block number interval. after current block number, it will be outdated. Default value
@@ -38,9 +34,6 @@ public class AuthManager {
         this.committeeManager =
                 CommitteeManager.load(
                         PrecompiledAddress.COMMITTEE_MANAGER_ADDRESS, client, credential);
-        this.committee = Committee.load(getCommitteeAddress(), client, credential);
-        this.proposalManager =
-                ProposalManager.load(getProposalManagerAddress(), client, credential);
         this.contractAuthPrecompiled =
                 ContractAuthPrecompiled.load(
                         PrecompiledAddress.CONTRACT_AUTH_ADDRESS, client, credential);
@@ -218,7 +211,8 @@ public class AuthManager {
      *     address[] agreeVoters, address[] againstVoters }
      */
     public ProposalInfo getProposalInfo(BigInteger proposalId) throws ContractException {
-        return new ProposalInfo().fromTuple(proposalManager.getProposalInfo(proposalId));
+        return new ProposalInfo()
+                .fromTuple(committeeManager.getProposalManager().getProposalInfo(proposalId));
     }
 
     /**
@@ -227,7 +221,7 @@ public class AuthManager {
      * @return CommitteeInfo
      */
     public CommitteeInfo getCommitteeInfo() throws ContractException {
-        return new CommitteeInfo().fromTuple(committee.getCommitteeInfo());
+        return new CommitteeInfo().fromTuple(committeeManager.getCommittee().getCommitteeInfo());
     }
 
     /**
@@ -305,6 +299,6 @@ public class AuthManager {
      * @return count
      */
     public BigInteger proposalCount() throws ContractException {
-        return this.proposalManager._proposalCount();
+        return committeeManager.getProposalManager()._proposalCount();
     }
 }

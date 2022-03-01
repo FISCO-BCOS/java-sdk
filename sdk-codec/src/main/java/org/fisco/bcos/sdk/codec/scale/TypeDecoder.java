@@ -26,8 +26,12 @@ public class TypeDecoder {
             return (T) decodeBool(reader);
         } else if (Address.class.isAssignableFrom(type)) {
             return (T) decodeAddress(reader);
+        } else if (Bytes.class.isAssignableFrom(type)) {
+            // static bytes
+            return (T) decodeStaticBytes(reader, (Class<Bytes>) type);
         } else if (BytesType.class.isAssignableFrom(type)) {
-            return (T) decodeBytes(reader, (Class<Bytes>) type);
+            // dynamic bytes
+            return (T) decodeBytes(reader, (Class<DynamicBytes>) type);
         } else if (Utf8String.class.isAssignableFrom(type)) {
             return (T) decodeUtf8String(reader);
         } else if (StructType.class.isAssignableFrom(type)) {
@@ -103,6 +107,28 @@ public class TypeDecoder {
     public static <T extends BytesType> T decodeBytes(ScaleCodecReader reader, Class<T> type) {
         try {
             byte[] bytes = reader.readByteArray();
+            return type.getConstructor(byte[].class).newInstance(bytes);
+        } catch (NoSuchMethodException
+                | SecurityException
+                | InstantiationException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new UnsupportedOperationException(
+                    "Unable to create instance of " + type.getName(), e);
+        }
+    }
+
+    public static <T extends BytesType> T decodeStaticBytes(
+            ScaleCodecReader reader, Class<T> type) {
+        try {
+            int size =
+                    Integer.parseInt(
+                            type.getTypeName()
+                                    .substring(
+                                            type.getTypeName().lastIndexOf("Bytes")
+                                                    + "Bytes".length()));
+            byte[] bytes = reader.readByteArray(size);
             return type.getConstructor(byte[].class).newInstance(bytes);
         } catch (NoSuchMethodException
                 | SecurityException
