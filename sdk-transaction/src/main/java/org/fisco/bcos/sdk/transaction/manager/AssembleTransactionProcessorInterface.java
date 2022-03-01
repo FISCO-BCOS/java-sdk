@@ -36,7 +36,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param data encoded transaction data
      * @return transaction receipt
      */
-    public TransactionReceipt deployAndGetReceipt(byte[] data);
+    public TransactionReceipt deployAndGetReceipt(byte[] data) throws JniException;
 
     /**
      * deploy contract to fisco bcos node only without receive any response.

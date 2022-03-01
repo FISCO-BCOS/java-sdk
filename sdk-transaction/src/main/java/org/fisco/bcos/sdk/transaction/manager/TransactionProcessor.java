@@ -52,9 +52,24 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     }
 
     @Override
-    public TransactionReceipt sendTransactionAndGetReceipt(
+    public TransactionReceipt deployAndGetReceipt(
             String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute) {
-        TxPair txPair = this.createSignedTransaction(to, data, abi, cryptoKeyPair, txAttribute);
+        TxPair txPair =
+                this.createDeploySignedTransaction(to, data, abi, cryptoKeyPair, txAttribute);
+        TransactionReceipt transactionReceipt =
+                this.client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
+        if (Objects.nonNull(transactionReceipt)
+                && (Objects.isNull(transactionReceipt.getTransactionHash())
+                        || "".equals(transactionReceipt.getTransactionHash()))) {
+            transactionReceipt.setTransactionHash(txPair.getTxHash());
+        }
+        return transactionReceipt;
+    }
+
+    @Override
+    public TransactionReceipt sendTransactionAndGetReceipt(
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
+        TxPair txPair = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
         TransactionReceipt transactionReceipt =
                 this.client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
         if (Objects.nonNull(transactionReceipt)
@@ -69,11 +84,10 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     public String sendTransactionAsync(
             String to,
             byte[] data,
-            String abi,
             CryptoKeyPair cryptoKeyPair,
             int txAttribute,
             TransactionCallback callback) {
-        TxPair txPair = this.createSignedTransaction(to, data, abi, cryptoKeyPair, txAttribute);
+        TxPair txPair = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
         this.client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
         return txPair.getTxHash();
     }
@@ -91,7 +105,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     }
 
     @Override
-    public TxPair createSignedTransaction(
+    public TxPair createDeploySignedTransaction(
             String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute) {
         try {
 
@@ -105,7 +119,31 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                     this.chainId,
                     Objects.nonNull(to) ? to : "",
                     Hex.toHexString(data),
-                    Objects.isNull(to) ? (Objects.nonNull(abi) ? abi : "") : "",
+                    Objects.nonNull(abi) ? abi : "",
+                    client.getBlockLimit().longValue(),
+                    txAttribute);
+        } catch (JniException e) {
+            log.error("jni e: ", e);
+            return null;
+        }
+    }
+
+    @Override
+    public TxPair createSignedTransaction(
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
+        try {
+
+            if (log.isDebugEnabled()) {
+                log.debug("to: {}, abi: {}, attr: {}", to, txAttribute);
+            }
+
+            return TransactionBuilderJniObj.createSignedTransaction(
+                    cryptoKeyPair.getJniKeyPair(),
+                    this.groupId,
+                    this.chainId,
+                    Objects.nonNull(to) ? to : "",
+                    Hex.toHexString(data),
+                    "",
                     client.getBlockLimit().longValue(),
                     txAttribute);
         } catch (JniException e) {

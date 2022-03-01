@@ -186,9 +186,10 @@ public class Contract {
                 contract.setContractAddress(path);
             }
             transactionReceipt =
-                    contract.executeTransaction(
+                    contract.executeDeployTransaction(
                             codec.encodeConstructorFromBytes(binary, encodedConstructor, abi),
                             FUNC_DEPLOY,
+                            abi,
                             0);
             if (!contract.client.isWASM()) {
                 String contractAddress = transactionReceipt.getContractAddress();
@@ -322,7 +323,7 @@ public class Contract {
             byte[] data, String funName, TransactionCallback callback, int dagAttribute) {
         int txAttribute = generateTxAttributeWithDagFlag(funName, dagAttribute);
         return this.transactionProcessor.sendTransactionAsync(
-                this.contractAddress, data, "", this.credential, txAttribute, callback);
+                this.contractAddress, data, this.credential, txAttribute, callback);
     }
 
     protected String asyncExecuteTransaction(Function function, TransactionCallback callback) {
@@ -334,18 +335,23 @@ public class Contract {
     }
 
     protected TransactionReceipt executeTransaction(Function function) {
-        return this.executeTransaction(
-                this.functionEncoder.encode(function),
-                function.getName(),
-                function.getTransactionAttribute());
-    }
-
-    protected TransactionReceipt executeTransaction(
-            byte[] data, String functionName, int dagAttribute) {
-        int txAttribute = generateTxAttributeWithDagFlag(functionName, dagAttribute);
+        int txAttribute =
+                generateTxAttributeWithDagFlag(
+                        function.getName(), function.getTransactionAttribute());
 
         return this.transactionProcessor.sendTransactionAndGetReceipt(
-                this.contractAddress, data, "", this.credential, txAttribute);
+                this.contractAddress,
+                this.functionEncoder.encode(function),
+                this.credential,
+                txAttribute);
+    }
+
+    protected TransactionReceipt executeDeployTransaction(
+            byte[] data, String functionName, String abi, int dagAttribute) {
+        int txAttribute = generateTxAttributeWithDagFlag(functionName, dagAttribute);
+
+        return this.transactionProcessor.deployAndGetReceipt(
+                this.contractAddress, data, abi, this.credential, txAttribute);
     }
 
     /** Adds a log field to {@link EventValues}. */
@@ -379,7 +385,6 @@ public class Contract {
                 this.transactionProcessor.createSignedTransaction(
                         this.contractAddress,
                         this.functionEncoder.encode(function),
-                        "",
                         this.credential,
                         txAttribute);
 

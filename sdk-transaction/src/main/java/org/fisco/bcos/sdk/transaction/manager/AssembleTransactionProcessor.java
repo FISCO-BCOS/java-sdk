@@ -111,7 +111,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         }
 
         TxPair txPair =
-                this.createSignedTransaction(null, data, "", this.cryptoKeyPair, txAttribute);
+                this.createDeploySignedTransaction("", data, "", this.cryptoKeyPair, txAttribute);
         TransactionReceipt transactionReceipt = this.transactionPusher.push(txPair.getSignedTx());
         if (Objects.nonNull(transactionReceipt)
                 && ((Objects.isNull(transactionReceipt.getTransactionHash()))
@@ -149,7 +149,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         }
 
         TxPair txPair =
-                this.createSignedTransaction(
+                this.createDeploySignedTransaction(
                         path,
                         this.abiCodec.encodeConstructorFromString(abi, bin, params),
                         abi,
@@ -217,8 +217,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         if (client.isWASM()) {
             txAttribute = LIQUID_SCALE_CODEC;
         }
-        TxPair txPair =
-                this.createSignedTransaction(to, data, abi, this.cryptoKeyPair, txAttribute);
+        TxPair txPair = this.createSignedTransaction(to, data, this.cryptoKeyPair, txAttribute);
         TransactionReceipt receipt = this.transactionPusher.push(txPair.getSignedTx());
         try {
             return this.transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
@@ -258,11 +257,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             txAttribute = LIQUID_SCALE_CODEC;
         }
         return this.sendTransactionAndGetReceipt(
-                contractAddress,
-                data,
-                this.contractLoader.getABIByContractName(contractName),
-                this.cryptoKeyPair,
-                txAttribute);
+                contractAddress, data, this.cryptoKeyPair, txAttribute);
     }
 
     @Override
@@ -297,7 +292,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         if (client.isWASM()) {
             txAttribute = LIQUID_SCALE_CODEC;
         }
-        this.sendTransactionAsync(to, data, abi, this.cryptoKeyPair, txAttribute, callback);
+        this.sendTransactionAsync(to, data, this.cryptoKeyPair, txAttribute, callback);
     }
 
     @Override
@@ -319,8 +314,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         if (client.isWASM()) {
             txAttribute = LIQUID_SCALE_CODEC;
         }
-        this.sendTransactionAsync(
-                contractAddress, data, abi, this.cryptoKeyPair, txAttribute, callback);
+        this.sendTransactionAsync(contractAddress, data, this.cryptoKeyPair, txAttribute, callback);
     }
 
     @Override
@@ -386,7 +380,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
         TxPair txPair =
-                this.createSignedTransaction(
+                this.createDeploySignedTransaction(
                         null,
                         this.abiCodec.encodeConstructor(abi, bin, params),
                         abi,
