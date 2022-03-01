@@ -64,6 +64,7 @@ public class Contract {
     protected final CryptoKeyPair credential;
     protected final CryptoSuite cryptoSuite;
     protected final EventEncoder eventEncoder;
+    private boolean enableDAG = false;
 
     /**
      * Constructor
@@ -307,9 +308,14 @@ public class Contract {
     }
 
     protected String asyncExecuteTransaction(
-            byte[] data, String funName, TransactionCallback callback, int attribute) {
-        int txAttribute = generateTransactionAttribute(funName) | attribute;
-
+            byte[] data, String funName, TransactionCallback callback, int dagAttribute) {
+        int txAttribute = generateTransactionAttribute(funName);
+        int dagFlag = dagAttribute;
+        // enforce dag
+        if (enableDAG) {
+            dagFlag = Transaction.DAG;
+        }
+        txAttribute |= dagFlag;
         return this.transactionProcessor.sendTransactionAsync(
                 this.contractAddress, data, "", this.credential, txAttribute, callback);
     }
@@ -451,5 +457,13 @@ public class Contract {
 
     public String getCurrentExternalAccountAddress() {
         return this.credential.getAddress();
+    }
+
+    public boolean isEnableDAG() {
+        return enableDAG;
+    }
+
+    public void setEnableDAG(boolean enableDAG) {
+        this.enableDAG = enableDAG;
     }
 }
