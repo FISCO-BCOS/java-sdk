@@ -307,15 +307,20 @@ public class Contract {
         return this.executeCall(function);
     }
 
-    protected String asyncExecuteTransaction(
-            byte[] data, String funName, TransactionCallback callback, int dagAttribute) {
-        int txAttribute = generateTransactionAttribute(funName);
+    protected int generateTxAttributeWithDagFlag(String functionName, int dagAttribute) {
+        int txAttribute = generateTransactionAttribute(functionName);
         int dagFlag = dagAttribute;
         // enforce dag
         if (enableDAG) {
             dagFlag = Transaction.DAG;
         }
         txAttribute |= dagFlag;
+        return txAttribute;
+    }
+
+    protected String asyncExecuteTransaction(
+            byte[] data, String funName, TransactionCallback callback, int dagAttribute) {
+        int txAttribute = generateTxAttributeWithDagFlag(funName, dagAttribute);
         return this.transactionProcessor.sendTransactionAsync(
                 this.contractAddress, data, "", this.credential, txAttribute, callback);
     }
@@ -336,8 +341,8 @@ public class Contract {
     }
 
     protected TransactionReceipt executeTransaction(
-            byte[] data, String functionName, int attribute) {
-        int txAttribute = generateTransactionAttribute(functionName) | attribute;
+            byte[] data, String functionName, int dagAttribute) {
+        int txAttribute = generateTxAttributeWithDagFlag(functionName, dagAttribute);
 
         return this.transactionProcessor.sendTransactionAndGetReceipt(
                 this.contractAddress, data, "", this.credential, txAttribute);
@@ -367,11 +372,9 @@ public class Contract {
     }
 
     protected String createSignedTransaction(Function function) {
-
         int txAttribute =
-                generateTransactionAttribute(function.getName())
-                        | function.getTransactionAttribute();
-
+                generateTxAttributeWithDagFlag(
+                        function.getName(), function.getTransactionAttribute());
         TxPair txPair =
                 this.transactionProcessor.createSignedTransaction(
                         this.contractAddress,
