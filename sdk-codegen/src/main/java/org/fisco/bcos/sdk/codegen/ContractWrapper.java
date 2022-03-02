@@ -1253,7 +1253,7 @@ public class ContractWrapper {
         int dagAttribute = 0;
         if (!functionDefinition.getConflictFields().isEmpty()) {
             for (ABIDefinition.ConflictField f : functionDefinition.getConflictFields()) {
-                if (f.getKind() == 0 || f.getKind() == 1 || f.getKind() == 4) {
+                if (f.getKind() == 0) {
                     return dagAttribute;
                 }
             }
