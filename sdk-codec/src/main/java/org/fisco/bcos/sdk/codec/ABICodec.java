@@ -350,6 +350,7 @@ public class ABICodec {
         }
     }
 
+    // FIXME: this interface use abi codec by default
     public byte[] encodeMethod(String ABI, String methodName, List<Object> params)
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(ABI);

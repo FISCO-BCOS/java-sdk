@@ -20,6 +20,7 @@ import static org.fisco.bcos.sdk.client.protocol.model.tars.Transaction.LIQUID_S
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.client.Client;
@@ -94,19 +95,30 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
-    public void deployOnly(String abi, String bin, List<Object> params) throws ABICodecException {
-        this.transactionPusher.pushOnly(this.createSignedConstructor(abi, bin, params));
+    public void deployOnly(String abi, String bin, List<Object> params, String path)
+            throws ABICodecException {
+        this.transactionPusher.pushOnly(this.createSignedConstructor(abi, bin, params, path));
     }
 
     @Override
-    public TransactionReceipt deployAndGetReceipt(byte[] data) {
+    public void deployOnly(String abi, String bin, List<Object> params) throws ABICodecException {
+        deployOnly(abi, bin, params, "");
+    }
+
+    @Override
+    public TransactionReceipt deployAndGetReceipt(byte[] data, String abi, String path) {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
         String signedData =
-                this.createSignedTransaction(null, data, this.cryptoKeyPair, txAttribute);
+                this.createSignedTransaction(path, data, this.cryptoKeyPair, txAttribute);
         return this.transactionPusher.push(signedData);
+    }
+
+    @Override
+    public TransactionReceipt deployAndGetReceipt(byte[] data) {
+        return deployAndGetReceipt(data, "", "");
     }
 
     @Override
@@ -122,9 +134,15 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
+    public TransactionResponse deployAndGetResponse(
+            String abi, String bin, List<Object> params, String path) throws ABICodecException {
+        return this.deployAndGetResponse(abi, this.createSignedConstructor(abi, bin, params, path));
+    }
+
+    @Override
     public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
             throws ABICodecException {
-        return this.deployAndGetResponse(abi, this.createSignedConstructor(abi, bin, params));
+        return deployAndGetResponse(abi, bin, params, "");
     }
 
     @Override
@@ -147,13 +165,28 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public void deployAsync(
             String abi, String bin, List<Object> params, TransactionCallback callback)
             throws ABICodecException {
-        this.transactionPusher.pushAsync(this.createSignedConstructor(abi, bin, params), callback);
+        deployAsync(abi, bin, params, "", callback);
+    }
+
+    @Override
+    public void deployAsync(
+            String abi, String bin, List<Object> params, String path, TransactionCallback callback)
+            throws ABICodecException {
+        this.transactionPusher.pushAsync(
+                this.createSignedConstructor(abi, bin, params, path), callback);
+    }
+
+    @Override
+    public CompletableFuture<TransactionReceipt> deployAsync(
+            String abi, String bin, List<Object> params, String path) throws ABICodecException {
+        return this.transactionPusher.pushAsync(
+                this.createSignedConstructor(abi, bin, params, path));
     }
 
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params) throws ABICodecException {
-        return this.transactionPusher.pushAsync(this.createSignedConstructor(abi, bin, params));
+        return deployAsync(abi, bin, params, "");
     }
 
     /**
@@ -355,14 +388,14 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
-    public String createSignedConstructor(String abi, String bin, List<Object> params)
+    public String createSignedConstructor(String abi, String bin, List<Object> params, String path)
             throws ABICodecException {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
         return this.createSignedTransaction(
-                null,
+                Objects.nonNull(path) ? path : "",
                 this.abiCodec.encodeConstructor(abi, bin, params),
                 this.cryptoKeyPair,
                 txAttribute);
