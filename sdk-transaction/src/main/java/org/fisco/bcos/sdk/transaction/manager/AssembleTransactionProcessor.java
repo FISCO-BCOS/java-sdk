@@ -97,21 +97,29 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
-    public String deployOnly(String abi, String bin, List<Object> params) throws ABICodecException {
-        TxPair txPair = this.createSignedConstructor(abi, bin, params);
+    public String deployOnly(String abi, String bin, List<Object> params, String path)
+            throws ABICodecException {
+        TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
         this.transactionPusher.pushOnly(txPair.getSignedTx());
         return txPair.getTxHash();
     }
 
     @Override
-    public TransactionReceipt deployAndGetReceipt(byte[] data) {
+    public String deployOnly(String abi, String bin, List<Object> params) throws ABICodecException {
+        return deployOnly(abi, bin, params, "");
+    }
+
+    @Override
+    public TransactionReceipt deployAndGetReceipt(byte[] data, String abi, String path)
+            throws JniException {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
 
         TxPair txPair =
-                this.createDeploySignedTransaction("", data, "", this.cryptoKeyPair, txAttribute);
+                this.createDeploySignedTransaction(
+                        path, data, abi, this.cryptoKeyPair, txAttribute);
         TransactionReceipt transactionReceipt = this.transactionPusher.push(txPair.getSignedTx());
         if (Objects.nonNull(transactionReceipt)
                 && ((Objects.isNull(transactionReceipt.getTransactionHash()))
@@ -119,6 +127,11 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             transactionReceipt.setTransactionHash(txPair.getTxHash());
         }
         return transactionReceipt;
+    }
+
+    @Override
+    public TransactionReceipt deployAndGetReceipt(byte[] data) throws JniException {
+        return deployAndGetReceipt(data, "", "");
     }
 
     @Override
@@ -134,10 +147,16 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
+    public TransactionResponse deployAndGetResponse(
+            String abi, String bin, List<Object> params, String path) throws ABICodecException {
+        TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
+        return this.deployAndGetResponse(abi, txPair.getSignedTx());
+    }
+
+    @Override
     public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
             throws ABICodecException {
-        TxPair txPair = this.createSignedConstructor(abi, bin, params);
-        return this.deployAndGetResponse(abi, txPair.getSignedTx());
+        return deployAndGetResponse(abi, bin, params, "");
     }
 
     @Override
@@ -163,16 +182,30 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public String deployAsync(
             String abi, String bin, List<Object> params, TransactionCallback callback)
             throws ABICodecException {
-        TxPair txPair = this.createSignedConstructor(abi, bin, params);
+        return deployAsync(abi, bin, params, "", callback);
+    }
+
+    @Override
+    public String deployAsync(
+            String abi, String bin, List<Object> params, String path, TransactionCallback callback)
+            throws ABICodecException {
+        TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
         this.transactionPusher.pushAsync(txPair.getSignedTx(), callback);
         return txPair.getTxHash();
     }
 
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
-            String abi, String bin, List<Object> params) throws ABICodecException, JniException {
-        TxPair txPair = this.createSignedConstructor(abi, bin, params);
+            String abi, String bin, List<Object> params, String path)
+            throws ABICodecException, JniException {
+        TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
         return this.transactionPusher.pushAsync(txPair.getSignedTx());
+    }
+
+    @Override
+    public CompletableFuture<TransactionReceipt> deployAsync(
+            String abi, String bin, List<Object> params) throws ABICodecException, JniException {
+        return deployAsync(abi, bin, params, "");
     }
 
     /**
@@ -373,20 +406,18 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
-    public TxPair createSignedConstructor(String abi, String bin, List<Object> params)
+    public TxPair createSignedConstructor(String abi, String bin, List<Object> params, String path)
             throws ABICodecException {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
-        TxPair txPair =
-                this.createDeploySignedTransaction(
-                        null,
-                        this.abiCodec.encodeConstructor(abi, bin, params),
-                        abi,
-                        this.cryptoKeyPair,
-                        txAttribute);
-        return txPair;
+        return this.createDeploySignedTransaction(
+                Objects.nonNull(path) ? path : "",
+                this.abiCodec.encodeConstructor(abi, bin, params),
+                abi,
+                this.cryptoKeyPair,
+                txAttribute);
     }
 
     @Override
