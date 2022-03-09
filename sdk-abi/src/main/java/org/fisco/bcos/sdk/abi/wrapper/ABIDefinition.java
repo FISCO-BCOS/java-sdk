@@ -2,6 +2,10 @@ package org.fisco.bcos.sdk.abi.wrapper;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.fisco.bcos.sdk.abi.EventEncoder;
+import org.fisco.bcos.sdk.abi.FunctionEncoder;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,8 +13,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.fisco.bcos.sdk.abi.FunctionEncoder;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
 
 /**
  * ABIDefinition wrapper
@@ -62,7 +64,8 @@ public class ABIDefinition {
 
     public static List<String> CONSTANT_KEY = Arrays.asList("view");
 
-    public ABIDefinition() {}
+    public ABIDefinition() {
+    }
 
     public ABIDefinition(
             String name,
@@ -142,11 +145,19 @@ public class ABIDefinition {
      * @return the method id
      */
     public String getMethodId(CryptoSuite cryptoSuite) {
-        if (getType().equals(ABIDefinition.FUNCTION_TYPE)) {
-            FunctionEncoder encoder = new FunctionEncoder(cryptoSuite);
-            return encoder.buildMethodId(getMethodSignatureAsString());
-        }
-        return "";
+        FunctionEncoder encoder = new FunctionEncoder(cryptoSuite);
+        return encoder.buildMethodId(getMethodSignatureAsString());
+    }
+
+    /**
+     * calculate the event topic
+     *
+     * @param cryptoSuite the crypto suite used for hash calculation
+     * @return the event topic
+     */
+    public String getEventTopic(CryptoSuite cryptoSuite) {
+        EventEncoder encoder = new EventEncoder(cryptoSuite);
+        return encoder.buildEventTopic(getMethodSignatureAsString());
     }
 
     public boolean isConstant() {
@@ -371,7 +382,8 @@ public class ABIDefinition {
         private boolean indexed;
         private List<NamedType> components;
 
-        public NamedType() {}
+        public NamedType() {
+        }
 
         public NamedType(String name, String type) {
             this(name, type, false);

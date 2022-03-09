@@ -14,23 +14,12 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.abi.EventEncoder;
-import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.abi.wrapper.*;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition.NamedType;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
-import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
-import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
-import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -42,6 +31,13 @@ import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.fisco.bcos.sdk.transaction.tools.ReceiptStatusUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TransactionDecoderService implements TransactionDecoderInterface {
     protected static Logger logger = LoggerFactory.getLogger(TransactionDecoderService.class);
@@ -160,11 +156,11 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                                 abiObjectFactory.createEventInputObject(abiDefinition);
                         ABICodecObject abiCodecObject = new ABICodecObject();
                         for (Logs log : logs) {
-                            String eventSignature =
-                                    eventEncoder.buildEventSignature(
+                            String eventTopic =
+                                    eventEncoder.buildEventTopic(
                                             decodeMethodSign(abiDefinition));
                             if (log.getTopics().isEmpty()
-                                    || !log.getTopics().contains(eventSignature)) {
+                                    || !log.getTopics().contains(eventTopic)) {
                                 continue;
                             }
                             try {

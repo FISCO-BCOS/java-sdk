@@ -1,13 +1,14 @@
 package org.fisco.bcos.sdk.abi.wrapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ContractABIDefinition {
 
@@ -20,7 +21,7 @@ public class ContractABIDefinition {
     private Map<String, ABIDefinition> methodIDToFunctions = new HashMap<>();
     private ABIDefinition fallbackFunction;
     private ABIDefinition receiveFunction;
-    // event topic => topic
+    // event topic => event
     private Map<String, ABIDefinition> eventTopicToEvents = new HashMap<>();
     private CryptoSuite cryptoSuite;
 
@@ -97,17 +98,17 @@ public class ContractABIDefinition {
         abiDefinitions.add(abiDefinition);
         logger.info(" name: {}, abi: {}", name, abiDefinition);
 
-        // calculate method id and add abiDefinition to eventTopicToEvents
-        String methodId = abiDefinition.getMethodId(cryptoSuite);
-        eventTopicToEvents.put(methodId, abiDefinition);
+        // calculate event topic and add abiDefinition to eventTopicToEvents
+        String eventTopic = abiDefinition.getEventTopic(cryptoSuite);
+        eventTopicToEvents.put(eventTopic, abiDefinition);
     }
 
     public ABIDefinition getABIDefinitionByMethodId(String methodId) {
         return methodIDToFunctions.get(Numeric.prependHexPrefix(methodId));
     }
 
-    public ABIDefinition getABIDefinitionByEventTopic(String topic) {
-        return eventTopicToEvents.get(Numeric.prependHexPrefix(topic));
+    public ABIDefinition getABIDefinitionByEventTopic(String eventTopic) {
+        return eventTopicToEvents.get(Numeric.prependHexPrefix(eventTopic));
     }
 
     public ABIDefinition getFallbackFunction() {

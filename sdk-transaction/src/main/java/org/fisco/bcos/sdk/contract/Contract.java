@@ -14,18 +14,7 @@
  */
 package org.fisco.bcos.sdk.contract;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import org.fisco.bcos.sdk.abi.EventEncoder;
-import org.fisco.bcos.sdk.abi.EventValues;
-import org.fisco.bcos.sdk.abi.FunctionEncoder;
-import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
-import org.fisco.bcos.sdk.abi.TypeReference;
+import org.fisco.bcos.sdk.abi.*;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
 import org.fisco.bcos.sdk.abi.datatypes.Function;
@@ -47,6 +36,14 @@ import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Contract help manage all operations including deploy, send transaction, call contract, and
@@ -364,8 +361,8 @@ public class Contract {
     public static EventValues staticExtractEventParameters(
             EventEncoder eventEncoder, Event event, TransactionReceipt.Logs log) {
         List<String> topics = log.getTopics();
-        String encodedEventSignature = eventEncoder.encode(event);
-        if (!topics.get(0).equals(encodedEventSignature)) {
+        String eventTopic = eventEncoder.encode(event);
+        if (!topics.get(0).equals(eventTopic)) {
             return null;
         }
 

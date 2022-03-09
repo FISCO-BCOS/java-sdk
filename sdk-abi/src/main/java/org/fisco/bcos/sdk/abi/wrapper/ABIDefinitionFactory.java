@@ -28,29 +28,35 @@ public class ABIDefinitionFactory {
 
             ContractABIDefinition contractABIDefinition = new ContractABIDefinition(cryptoSuite);
             for (ABIDefinition abiDefinition : abiDefinitions) {
-                if (abiDefinition.getType().equals(ABIDefinition.CONSTRUCTOR_TYPE)) {
-                    contractABIDefinition.setConstructor(abiDefinition);
-                } else if (abiDefinition.getType().equals(ABIDefinition.FUNCTION_TYPE)) {
-                    contractABIDefinition.addFunction(abiDefinition.getName(), abiDefinition);
-                } else if (abiDefinition.getType().equals(ABIDefinition.EVENT_TYPE)) {
-                    contractABIDefinition.addEvent(abiDefinition.getName(), abiDefinition);
-                } else if (abiDefinition.getType().equals(ABIDefinition.FALLBACK_TYPE)) {
-                    if (contractABIDefinition.hasFallbackFunction()) {
-                        throw new ABICodecException("only single fallback is allowed");
-                    }
-                    contractABIDefinition.setFallbackFunction(abiDefinition);
-                } else if (abiDefinition.getType().equals(ABIDefinition.RECEIVE_TYPE)) {
-                    if (contractABIDefinition.hasReceiveFunction()) {
-                        throw new ABICodecException("only single receive is allowed");
-                    }
-                    if (abiDefinition.getStateMutability().equals("payable") == false
-                            && abiDefinition.isPayable() == false) {
-                        throw new ABICodecException(
-                                "the statemutability of receive can only be payable");
-                    }
-                    contractABIDefinition.setReceiveFunction(abiDefinition);
-                } else {
-                    // skip and do nothing
+                switch (abiDefinition.getType()) {
+                    case ABIDefinition.CONSTRUCTOR_TYPE:
+                        contractABIDefinition.setConstructor(abiDefinition);
+                        break;
+                    case ABIDefinition.FUNCTION_TYPE:
+                        contractABIDefinition.addFunction(abiDefinition.getName(), abiDefinition);
+                        break;
+                    case ABIDefinition.EVENT_TYPE:
+                        contractABIDefinition.addEvent(abiDefinition.getName(), abiDefinition);
+                        break;
+                    case ABIDefinition.FALLBACK_TYPE:
+                        if (contractABIDefinition.hasFallbackFunction()) {
+                            throw new ABICodecException("only single fallback is allowed");
+                        }
+                        contractABIDefinition.setFallbackFunction(abiDefinition);
+                        break;
+                    case ABIDefinition.RECEIVE_TYPE:
+                        if (contractABIDefinition.hasReceiveFunction()) {
+                            throw new ABICodecException("only single receive is allowed");
+                        }
+                        if (!"payable".equals(abiDefinition.getStateMutability()) && !abiDefinition.isPayable()) {
+                            throw new ABICodecException(
+                                    "the statemutability of receive can only be payable");
+                        }
+                        contractABIDefinition.setReceiveFunction(abiDefinition);
+                        break;
+                    default:
+                        // skip and do nothing
+                        break;
                 }
 
                 if (logger.isInfoEnabled()) {
