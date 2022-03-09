@@ -17,9 +17,17 @@ package org.fisco.bcos.sdk.config.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ConfigOption is the java object of the config file.
@@ -28,12 +36,13 @@ import java.util.Map;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigProperty {
+    private static Logger logger = LoggerFactory.getLogger(ConfigProperty.class);
     public Map<String, Object> cryptoMaterial;
     public Map<String, Object> network;
     public List<AmopTopic> amop;
     public Map<String, Object> account;
-
     public Map<String, Object> threadPool;
+    public Map<String, Object> cryptoProvider;
 
     public Map<String, Object> getCryptoMaterial() {
         return cryptoMaterial;
@@ -75,6 +84,14 @@ public class ConfigProperty {
         this.threadPool = threadPool;
     }
 
+    public Map<String, Object> getCryptoProvider() {
+        return cryptoProvider;
+    }
+
+    public void setCryptoProvider(Map<String, Object> cryptoProvider) {
+        this.cryptoProvider = cryptoProvider;
+    }
+
     public static String getValue(Map<String, Object> config, String key, String defaultValue) {
         if (config == null || config.get(key) == null) {
             return defaultValue;
@@ -82,23 +99,57 @@ public class ConfigProperty {
         return (String) config.get(key);
     }
 
-    public static String getConfigFilePath(String configFilePath) {
+    public static InputStream getConfigInputStream(String configFilePath) throws ConfigException {
         if (configFilePath == null) {
             return null;
         }
-        File file = new File(configFilePath);
-        if (file.exists()) {
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(configFilePath);
+            if (inputStream != null) {
+                return inputStream;
+            }
+        } catch (IOException e) {
+            logger.warn(
+                    "Load config from {} failed, trying to load from the classpath, e: {}",
+                    configFilePath,
+                    e);
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException error) {
+                    logger.warn("close InputStream failed, error:", e);
+                }
+            }
+        }
+        // try to load from the class path
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        inputStream = classLoader.getResourceAsStream(configFilePath);
+        return inputStream;
+    }
+
+    public static String getConfigFilePath(String configFilePath) throws ConfigException {
+        try {
+            if (configFilePath == null) {
+                return null;
+            }
+
+            File file = new File(configFilePath);
+            if (file.exists()) {
+                return configFilePath;
+            }
+            // try to load from the resource path
+            URL url = Thread.currentThread().getContextClassLoader().getResource(configFilePath);
+            if (url == null) {
+                return configFilePath;
+            }
+            String resourceCertPath = URLDecoder.decode(url.getPath(), "utf-8");
+            if (new File(resourceCertPath).exists()) {
+                return resourceCertPath;
+            }
             return configFilePath;
+        } catch (UnsupportedEncodingException e) {
+            throw new ConfigException(e);
         }
-        // try to load from the resource path
-        URL url = Thread.currentThread().getContextClassLoader().getResource(configFilePath);
-        if (url == null) {
-            return configFilePath;
-        }
-        String resourceCertPath = url.getPath();
-        if (new File(resourceCertPath).exists()) {
-            return resourceCertPath;
-        }
-        return configFilePath;
     }
 }

@@ -13,8 +13,8 @@
  */
 package org.fisco.bcos.sdk.crypto.vrf;
 
-import com.webank.wedpr.crypto.CryptoResult;
-import com.webank.wedpr.crypto.NativeInterface;
+import com.webank.fisco.bcos.wedpr.sdk.NativeInterface;
+import com.webank.fisco.bcos.wedpr.sdk.SdkResult;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
@@ -33,8 +33,8 @@ public class Curve25519VRF implements VRFInterface {
 
     @Override
     public String generateVRFProof(String privateKey, String vrfInput) {
-        CryptoResult result =
-                NativeInterface.curve25519GenVRFProof(
+        SdkResult result =
+                NativeInterface.curve25519VrfProveUtf8(
                         Numeric.getKeyNoPrefix(
                                 CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
                                 privateKey,
@@ -48,17 +48,17 @@ public class Curve25519VRF implements VRFInterface {
 
     @Override
     public boolean verify(String publicKey, String vrfInput, String vrfProof) {
-        CryptoResult result = NativeInterface.curve25519VRFVerify(publicKey, vrfInput, vrfProof);
+        SdkResult result = NativeInterface.curve25519VrfVerifyUtf8(publicKey, vrfInput, vrfProof);
         if (result.wedprErrorMessage != null && !result.wedprErrorMessage.isEmpty()) {
-            throw new VRFException("verify VRF Proof failed: " + result.wedprErrorMessage);
+            return false;
         }
-        return result.vrfVerifyResult;
+        return result.booleanResult;
     }
 
     @Override
     public String getPublicKeyFromPrivateKey(String privateKey) {
-        CryptoResult result =
-                NativeInterface.curve25519VRFGetPubKeyFromPrivateKey(
+        SdkResult result =
+                NativeInterface.curve25519VrfDerivePublicKey(
                         Numeric.getKeyNoPrefix(
                                 CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
                                 privateKey,
@@ -66,16 +66,16 @@ public class Curve25519VRF implements VRFInterface {
         if (result.wedprErrorMessage != null && !result.wedprErrorMessage.isEmpty()) {
             throw new VRFException("get VRF Proof failed: " + result.wedprErrorMessage);
         }
-        return result.vrfPublicKey;
+        return result.publicKey;
     }
 
     @Override
     public String vrfProofToHash(String vrfProof) {
-        CryptoResult result = NativeInterface.curve25519VRFProofToHash(vrfProof);
+        SdkResult result = NativeInterface.curve25519VrfProofToHash(vrfProof);
         if (result.wedprErrorMessage != null && !result.wedprErrorMessage.isEmpty()) {
             throw new VRFException("convert VRF Proof to hash failed:" + result.wedprErrorMessage);
         }
-        return result.vrfHash;
+        return result.hash;
     }
 
     @Override
@@ -85,10 +85,10 @@ public class Curve25519VRF implements VRFInterface {
 
     @Override
     public boolean isValidVRFPublicKey(String vrfPublicKey) {
-        CryptoResult result = NativeInterface.curve25519IsValidVRFPubKey(vrfPublicKey);
+        SdkResult result = NativeInterface.curve25519VrfIsValidPublicKey(vrfPublicKey);
         if (result.wedprErrorMessage != null && !result.wedprErrorMessage.isEmpty()) {
-            throw new VRFException("invalid VRF public key:" + result.wedprErrorMessage);
+            return false;
         }
-        return result.isValidVRFPublicKey;
+        return result.booleanResult;
     }
 }

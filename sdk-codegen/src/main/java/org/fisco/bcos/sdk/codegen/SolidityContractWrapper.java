@@ -192,14 +192,19 @@ public class SolidityContractWrapper {
 
         return FieldSpec.builder(String[].class, type)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
-                .initializer("{" + String.join(",", formatArray) + "}", binaryArray.toArray())
+                .initializer(
+                        "{" + org.fisco.bcos.sdk.utils.StringUtils.joinAll(",", formatArray) + "}",
+                        binaryArray.toArray())
                 .build();
     }
 
     private FieldSpec createDefinition(String type, String binayArrayName) {
         return FieldSpec.builder(String.class, type)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
-                .initializer("String.join(\"\", " + binayArrayName + ")")
+                .initializer(
+                        "org.fisco.bcos.sdk.utils.StringUtils.joinAll(\"\", "
+                                + binayArrayName
+                                + ")")
                 .build();
     }
 
@@ -921,7 +926,8 @@ public class SolidityContractWrapper {
             throws ClassNotFoundException {
         String functionName = functionDefinition.getName();
 
-        methodBuilder.returns(TypeName.VOID);
+        TypeName returnType = TypeName.get(byte[].class);
+        methodBuilder.returns(returnType);
 
         methodBuilder.addStatement(
                 "final $T function = new $T(\n$N, \n$T.<$T>asList($L), \n$T"
@@ -934,7 +940,7 @@ public class SolidityContractWrapper {
                 inputParams,
                 Collections.class,
                 TypeReference.class);
-        methodBuilder.addStatement("asyncExecuteTransaction(function, callback)");
+        methodBuilder.addStatement("return asyncExecuteTransaction(function, callback)");
     }
 
     private void buildTransactionFunctionSeq(

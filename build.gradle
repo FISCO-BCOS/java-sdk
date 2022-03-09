@@ -2,7 +2,7 @@
 plugins {
     id 'com.github.sherter.google-java-format' version '0.8'
     id 'maven-publish'
-    id 'org.ajoberstar.grgit' version '4.1.0'
+    id 'org.ajoberstar.grgit' version '4.1.1'
 }
 println("Notice: current gradle version is " + gradle.gradleVersion)
 // Additional attribute definition
@@ -21,10 +21,11 @@ ext {
     javapoetVersion = "1.7.0"
     picocliVersion = "3.6.0"
     nettyVersion = "4.1.53.Final"
-    nettySMSSLContextVersion = "1.2.0"
+    nettySMSSLContextVersion = "1.3.0"
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
-    keyMiniToolkit = "1.0.3-SNAPSHOT"
+    webankJavaCryptoVersion = "1.0.0"
+    webankHsmCryptoVersion = "1.0.0-GMT0018"
 
     slf4jVersion = "1.7.30"
     junitVersion = "4.12"
@@ -36,7 +37,7 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = 'external-support-2.8.0-SNAPSHOT'
+    version = '2.9.0-SNAPSHOT'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
@@ -66,10 +67,12 @@ allprojects {
         maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
         maven { url "https://oss.sonatype.org/service/local/staging/deploy/maven2"}
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        maven {url "https://plugins.gradle.org/m2/"}
     }
 
     dependencies {
         compile ("org.slf4j:slf4j-api:${slf4jVersion}")
+        compile ("org.slf4j:slf4j-log4j12:${slf4jVersion}")
 	    testCompile ("junit:junit:${junitVersion}")
     }
 
@@ -193,9 +196,9 @@ dependencies {
     compile ("commons-io:commons-io:${commonsIOVersion}")
     compile ("com.squareup:javapoet:${javapoetVersion}")
     compile ("info.picocli:picocli:${picocliVersion}")
-    compile ("com.webank:key-mini-toolkit:${keyMiniToolkit}")
+    compile ("com.webank:webank-blockchain-java-crypto:${webankJavaCryptoVersion}")
     compile ("com.moandjiezana.toml:toml4j:${toml4jVersion}")
-
+    compile ("com.webank:webank-blockchain-hsm-crypto:${webankHsmCryptoVersion}")
     testCompile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
     testCompile ("com.google.guava:guava:${guavaVersion}")
 }

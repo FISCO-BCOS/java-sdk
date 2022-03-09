@@ -21,6 +21,7 @@ import org.fisco.bcos.sdk.config.model.AccountConfig;
 import org.fisco.bcos.sdk.config.model.AmopConfig;
 import org.fisco.bcos.sdk.config.model.ConfigProperty;
 import org.fisco.bcos.sdk.config.model.CryptoMaterialConfig;
+import org.fisco.bcos.sdk.config.model.CryptoProviderConfig;
 import org.fisco.bcos.sdk.config.model.NetworkConfig;
 import org.fisco.bcos.sdk.config.model.ThreadPoolConfig;
 import org.fisco.bcos.sdk.model.CryptoType;
@@ -37,6 +38,7 @@ public class ConfigOption {
     private AmopConfig amopConfig;
     private NetworkConfig networkConfig;
     private ThreadPoolConfig threadPoolConfig;
+    private CryptoProviderConfig cryptoProviderConfig;
     private ConfigProperty configProperty;
 
     public ConfigOption(ConfigProperty configProperty) throws ConfigException {
@@ -54,6 +56,8 @@ public class ConfigOption {
         networkConfig = new NetworkConfig(configProperty);
         // load threadPoolConfig
         threadPoolConfig = new ThreadPoolConfig(configProperty);
+        // load cryptoProviderConfig
+        cryptoProviderConfig = new CryptoProviderConfig(configProperty);
         // init configProperty
         this.configProperty = configProperty;
     }
@@ -100,5 +104,13 @@ public class ConfigOption {
 
     public void setThreadPoolConfig(ThreadPoolConfig threadPoolConfig) {
         this.threadPoolConfig = threadPoolConfig;
+    }
+
+    public CryptoProviderConfig getCryptoProviderConfig() {
+        return cryptoProviderConfig;
+    }
+
+    public void setCryptoProviderConfig(CryptoProviderConfig cryptoProviderConfig) {
+        this.cryptoProviderConfig = cryptoProviderConfig;
     }
 }

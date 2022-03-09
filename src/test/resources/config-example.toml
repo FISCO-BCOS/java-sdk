@@ -1,5 +1,4 @@
 [cryptoMaterial]
-
 certPath = "conf"                           # The certification path  
 
 # The following configurations take the certPath by default if commented

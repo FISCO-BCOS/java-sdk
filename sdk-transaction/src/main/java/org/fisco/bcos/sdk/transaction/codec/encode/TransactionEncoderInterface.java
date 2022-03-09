@@ -25,9 +25,39 @@ import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
  */
 public interface TransactionEncoderInterface {
 
-    byte[] encode(RawTransaction transaction, SignatureResult signature);
+    /**
+     * Rlp encode and sign based on RawTransaction
+     *
+     * @param rawTransaction data to be encoded
+     * @param signature signature result
+     * @return encoded and signed transaction byte array
+     */
+    byte[] encode(RawTransaction rawTransaction, SignatureResult signature);
 
+    /**
+     * Rlp encode and sign based on RawTransaction
+     *
+     * @param rawTransaction data to be encoded
+     * @param cryptoKeyPair keypair
+     * @return encoded and signed transaction byte array
+     */
     byte[] encodeAndSignBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair);
 
+    /**
+     * Rlp encode and sign based on RawTransaction
+     *
+     * @param rawTransaction data to be encoded
+     * @param cryptoKeyPair keypair
+     * @return encoded and signed transaction hexed String
+     */
     String encodeAndSign(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair);
+
+    /**
+     * Rlp encode and hash based on RawTransaction
+     *
+     * @param rawTransaction data to be encoded
+     * @param cryptoKeyPair keypair
+     * @return encoded and hashed transaction byte array
+     */
+    byte[] encodeAndHashBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair);
 }

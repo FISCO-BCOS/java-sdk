@@ -14,7 +14,6 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -31,18 +30,65 @@ import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
  */
 public interface TransactionDecoderInterface {
 
+    /**
+     * parse revert message from receipt
+     *
+     * @param input the input of transaction receipt
+     * @return the resolved revert message information
+     */
     public String decodeReceiptMessage(String input);
 
+    /**
+     * parse the status and transaction detail from receipt
+     *
+     * @param receipt transaction receipt
+     * @return the resolved status and other transaction detail
+     */
     public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt);
 
+    /**
+     * parse the transaction information of the function from receipt with return values
+     *
+     * @param abi contract abi
+     * @param functionName referred function name
+     * @param receipt transaction receipt
+     * @return the resolved status and other transaction detail
+     */
     public TransactionResponse decodeReceiptWithValues(
             String abi, String functionName, TransactionReceipt receipt)
-            throws JsonProcessingException, TransactionException, IOException, ABICodecException;
+            throws TransactionException, IOException, ABICodecException;
 
+    /**
+     * parse the transaction information from receipt without return values
+     *
+     * @param abi contract abi
+     * @param transactionReceipt transaction receipt
+     * @return the resolved status and other transaction detail
+     */
     public TransactionResponse decodeReceiptWithoutValues(
             String abi, TransactionReceipt transactionReceipt)
             throws TransactionException, IOException, ABICodecException;
 
+    /**
+     * parse the transaction information from receipt without return values, but with input values
+     *
+     * @param abi contract abi
+     * @param transactionReceipt transaction receipt
+     * @param constructorCode decode for constructor
+     * @return the resolved status and other transaction detail
+     */
+    public TransactionResponse decodeReceiptWithoutOutputValues(
+            String abi, TransactionReceipt transactionReceipt, String constructorCode)
+            throws TransactionException, IOException, ABICodecException;
+
+    /**
+     * parse the transaction events from receipt logs
+     *
+     * @param abi contract abi
+     * @param logs logs in the transaction receipt
+     * @return Map<K,V>, K is event name, V is list of events in Json. May have several events of
+     *     the same event
+     */
     public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
             throws ABICodecException;
 }

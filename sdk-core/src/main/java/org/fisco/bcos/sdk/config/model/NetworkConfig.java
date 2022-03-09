@@ -21,6 +21,7 @@ import java.util.Map;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.utils.Host;
 
+/** Network configuration, include the peers */
 public class NetworkConfig {
     private List<String> peers;
 

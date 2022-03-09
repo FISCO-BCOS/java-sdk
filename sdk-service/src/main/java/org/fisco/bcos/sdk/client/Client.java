@@ -108,7 +108,7 @@ public interface Client {
             return null;
         }
         CryptoSuite cryptoSuite = new CryptoSuite(cryptoType, groupManagerService.getConfig());
-        logger.info("build client success for group {}", groupId);
+        logger.info("build client success for group {}, crypto type {}", groupId, cryptoType);
         return new ClientImpl(
                 groupManagerService, channel, groupId, cryptoSuite, nodeVersion, eventResource);
     }
@@ -117,12 +117,32 @@ public interface Client {
         return new ClientImpl(channel);
     }
 
+    /**
+     * Get group manager serveice
+     *
+     * @return the instance of GroupManagerService
+     */
     GroupManagerService getGroupManagerService();
 
+    /**
+     * Get CryptoSuite
+     *
+     * @return the CryptoSuite
+     */
     CryptoSuite getCryptoSuite();
 
+    /**
+     * Get connected ClientNodeVersion
+     *
+     * @return the NodeVersion of the connected node
+     */
     NodeVersion getClientNodeVersion();
 
+    /**
+     * Get crypto type
+     *
+     * @return the CryptoType, e.g. ECDSA_TYPE
+     */
     Integer getCryptoType();
 
     /**

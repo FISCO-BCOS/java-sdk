@@ -15,6 +15,8 @@
 
 package org.fisco.bcos.sdk.network;
 
+import org.fisco.bcos.sdk.utils.SystemInformation;
+
 /**
  * Network exception
  *
@@ -40,7 +42,7 @@ public class NetworkException extends Exception {
     }
 
     public NetworkException(String message, Throwable cause) {
-        super(message, cause);
+        super(message + "\n" + SystemInformation.getSystemInformation(), cause);
     }
 
     public int getErrorCode() {

@@ -16,9 +16,28 @@
 package org.fisco.bcos.sdk.crypto.hash;
 
 public interface Hash {
+
+    /**
+     * Generate the hash string
+     *
+     * @param inputData string type input data, must be a digest
+     * @return the hash string
+     */
     String hash(final String inputData);
 
+    /**
+     * Generate the hash string
+     *
+     * @param inputBytes byte array type input data, must be a digest
+     * @return return hash string
+     */
     String hashBytes(byte[] inputBytes);
 
+    /**
+     * Generate the hash
+     *
+     * @param inputBytes byte array type input data, must be a digest
+     * @return return byte array hash result
+     */
     byte[] hash(final byte[] inputBytes);
 }

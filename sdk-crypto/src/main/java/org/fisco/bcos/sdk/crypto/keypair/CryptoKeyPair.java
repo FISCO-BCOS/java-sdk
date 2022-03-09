@@ -71,7 +71,7 @@ public abstract class CryptoKeyPair {
     public CryptoKeyPair() {}
 
     /**
-     * init CryptoKeyPair from the keyPair
+     * Init CryptoKeyPair from the keyPair
      *
      * @param keyPair the original keyPair
      */
@@ -82,51 +82,89 @@ public abstract class CryptoKeyPair {
         this.hexPublicKey = KeyTool.getHexedPublicKey(keyPair.getPublic());
     }
     /**
-     * get CryptoKeyPair information from CryptoResult
+     * Get CryptoKeyPair information from CryptoResult
      *
      * @param nativeResult
      */
     CryptoKeyPair(final CryptoResult nativeResult) {
-        this.hexPrivateKey = nativeResult.privteKey;
-        this.hexPublicKey = nativeResult.publicKey;
+        this.hexPrivateKey = nativeResult.privateKey;
+        this.hexPublicKey = getPublicKeyNoPrefix(nativeResult.publicKey);
     }
 
+    /**
+     * Get the configuration
+     *
+     * @param config ConfigOption type config
+     */
     public void setConfig(ConfigOption config) {
         this.config = config;
     }
 
+    /**
+     * Get the private key
+     *
+     * @return hex string private key
+     */
     public String getHexPrivateKey() {
         return hexPrivateKey;
     }
 
+    /**
+     * Get the hex string public key
+     *
+     * @return the hex string public key
+     */
     public String getHexPublicKey() {
         return hexPublicKey;
     }
 
+    /**
+     * Get key pair
+     *
+     * @return KeyPair
+     */
     public KeyPair getKeyPair() {
         return this.keyPair;
     }
 
     /**
-     * generate keyPair randomly
+     * Abstract function of generate keyPair randomly
      *
      * @return the generated keyPair
      */
     public abstract CryptoKeyPair generateKeyPair();
 
+    /**
+     * Abstract function of create keyPair randomly
+     *
+     * @param keyPair KeyPair type key pair
+     * @return CryptoKeyPair type key pair
+     */
     public abstract CryptoKeyPair createKeyPair(KeyPair keyPair);
 
+    /**
+     * Create key pair
+     *
+     * @param privateKeyValue BigInteger type private key
+     * @return CryptoKeyPair
+     */
     public CryptoKeyPair createKeyPair(BigInteger privateKeyValue) {
         KeyPair keyPair = KeyTool.convertPrivateKeyToKeyPair(privateKeyValue, curveName);
         return createKeyPair(keyPair);
     }
 
+    /**
+     * Create key pair
+     *
+     * @param hexPrivateKey hex string of integer private key
+     * @return CryptoKeyPair
+     */
     public CryptoKeyPair createKeyPair(String hexPrivateKey) {
         KeyPair keyPair = KeyTool.convertHexedStringToKeyPair(hexPrivateKey, curveName);
         return createKeyPair(keyPair);
     }
 
-    protected static String getPublicKeyNoPrefix(String publicKeyStr) {
+    public static String getPublicKeyNoPrefix(String publicKeyStr) {
         String publicKeyNoPrefix = Numeric.cleanHexPrefix(publicKeyStr);
         if (publicKeyNoPrefix.startsWith(UNCOMPRESSED_PUBLICKEY_FLAG_STR)
                 && publicKeyNoPrefix.length()
@@ -150,7 +188,7 @@ public abstract class CryptoKeyPair {
     public String getAddress() {
         // Note: The generated publicKey is prefixed with 04, When calculate the address, need to
         // remove 04
-        return getAddress(this.getHexPublicKey().substring(2));
+        return getAddress(getPublicKeyNoPrefix(this.hexPublicKey));
     }
 
     public String getAddress(String publicKey) {

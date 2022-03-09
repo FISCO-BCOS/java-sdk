@@ -34,15 +34,14 @@ public class ECDSASignature implements Signature {
         return sign(Hex.toHexString(message), keyPair);
     }
 
-    private void checkInputMessage(final String message) {
+    private static void checkInputMessage(final String message) {
         if (message.length() != INPUT_MESSAGE_SIZE_IN_HEX) {
             throw new SignatureException(
                     "Invalid input message " + message + ", must be a hex string of length 64");
         }
     }
 
-    @Override
-    public String signWithStringSignature(final String message, final CryptoKeyPair keyPair) {
+    public static String signMessage(final String message, final CryptoKeyPair keyPair) {
         String inputMessage = Numeric.cleanHexPrefix(message);
         checkInputMessage(inputMessage);
         CryptoResult signatureResult =
@@ -58,7 +57,21 @@ public class ECDSASignature implements Signature {
     }
 
     @Override
+    public String signWithStringSignature(final String message, final CryptoKeyPair keyPair) {
+        return signMessage(message, keyPair);
+    }
+
+    @Override
     public boolean verify(final String publicKey, final String message, final String signature) {
+        return verifyMessage(publicKey, message, signature);
+    }
+
+    @Override
+    public boolean verify(final String publicKey, final byte[] message, final byte[] signature) {
+        return verify(publicKey, Hex.toHexString(message), Hex.toHexString(signature));
+    }
+
+    public static boolean verifyMessage(String publicKey, String message, String signature) {
         String inputMessage = Numeric.cleanHexPrefix(message);
         checkInputMessage(inputMessage);
         String hexPubKeyWithPrefix =
@@ -67,17 +80,12 @@ public class ECDSASignature implements Signature {
                         CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
                         CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX);
         CryptoResult verifyResult =
-                NativeInterface.secp256k1verify(hexPubKeyWithPrefix, inputMessage, signature);
+                NativeInterface.secp256k1Verify(hexPubKeyWithPrefix, inputMessage, signature);
         // call secp256k1verify failed
         if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
                     "Verify with secp256k1 failed:" + verifyResult.wedprErrorMessage);
         }
-        return verifyResult.result;
-    }
-
-    @Override
-    public boolean verify(final String publicKey, final byte[] message, final byte[] signature) {
-        return verify(publicKey, Hex.toHexString(message), Hex.toHexString(signature));
+        return verifyResult.booleanResult;
     }
 }

@@ -29,6 +29,8 @@ import org.fisco.bcos.sdk.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.transaction.model.gas.DefaultGasProvider;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
+import org.fisco.bcos.sdk.utils.Hex;
+import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     protected final Integer groupId;
     protected final String chainId;
     protected final TransactionBuilderInterface transactionBuilder;
-    protected final TransactionEncoderInterface transactionEncoder;
+    protected TransactionEncoderInterface transactionEncoder;
 
     public TransactionProcessor(
             Client client, CryptoKeyPair cryptoKeyPair, Integer groupId, String chainId) {
@@ -65,6 +67,15 @@ public class TransactionProcessor implements TransactionProcessorInterface {
             String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
         String signedData = createSignedTransaction(to, data, cryptoKeyPair);
         client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
+    }
+
+    @Override
+    public byte[] sendTransactionAsyncAndGetHash(
+            String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
+        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
+        client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
+        byte[] transactionHash = cryptoSuite.hash(Hex.decode(Numeric.cleanHexPrefix(signedData)));
+        return transactionHash;
     }
 
     @Override

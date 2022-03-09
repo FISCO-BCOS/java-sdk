@@ -15,6 +15,8 @@
 
 package org.fisco.bcos.sdk.network;
 
+import static org.fisco.bcos.sdk.model.CryptoProviderType.HSM;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -33,15 +35,8 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.Security;
-import java.security.cert.CertificateException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +47,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLException;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.RetCode;
@@ -73,6 +67,7 @@ public class ConnectionManager {
     private EventLoopGroup workerGroup;
     private Boolean running = false;
     private Bootstrap bootstrap = new Bootstrap();
+    private List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
     private ScheduledExecutorService reconnSchedule = new ScheduledThreadPoolExecutor(1);
 
     public ConnectionManager(ConfigOption configOption, MsgHandler msgHandler) {
@@ -99,11 +94,15 @@ public class ConnectionManager {
         }
         logger.debug(" start connect. ");
         /** init netty * */
-        initNetty(configOption);
-        running = true;
+        try {
+            initNetty(configOption);
+            running = true;
+        } catch (Exception e) {
+            logger.debug("init failed " + e.getMessage());
+            throw new NetworkException("init failed " + e.getMessage());
+        }
 
         /** try connection */
-        List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
         for (ConnectionInfo connect : connectionInfoList) {
             logger.debug("startConnect to {}", connect.getEndPoint());
             ChannelFuture channelFuture = bootstrap.connect(connect.getIp(), connect.getPort());
@@ -157,11 +156,20 @@ public class ConnectionManager {
     }
 
     public void stopNetty() {
-        if (running) {
-            if (workerGroup != null) {
-                workerGroup.shutdownGracefully();
+        try {
+            if (running) {
+
+                if (workerGroup != null) {
+                    workerGroup.shutdownGracefully().sync();
+                }
+                for (ChannelFuture channelFuture : connChannelFuture) {
+                    channelFuture.channel().closeFuture().sync();
+                }
+                running = false;
+                logger.info("The netty has been stopped");
             }
-            running = false;
+        } catch (InterruptedException e) {
+            logger.warn("Stop netty failed for {}", e.getMessage());
         }
     }
 
@@ -220,28 +228,21 @@ public class ConnectionManager {
             Security.setProperty("jdk.disabled.namedCurves", "");
             System.setProperty("jdk.sunec.disableNative", "false");
             // Get file, file existence is already checked when check config file.
-            FileInputStream caCert =
-                    new FileInputStream(
-                            new File(configOption.getCryptoMaterialConfig().getCaCertPath()));
-            FileInputStream sslCert =
-                    new FileInputStream(
-                            new File(configOption.getCryptoMaterialConfig().getSdkCertPath()));
-            FileInputStream sslKey =
-                    new FileInputStream(
-                            new File(
-                                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
-
             // Init SslContext
             logger.info(" build ECDSA ssl context with configured certificates ");
             SslContext sslCtx =
                     SslContextBuilder.forClient()
-                            .trustManager(caCert)
-                            .keyManager(sslCert, sslKey)
+                            .trustManager(configOption.getCryptoMaterialConfig().getCaInputStream())
+                            .keyManager(
+                                    configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
+                                    configOption
+                                            .getCryptoMaterialConfig()
+                                            .getSdkPrivateKeyInputStream())
                             .sslProvider(SslProvider.OPENSSL)
                             // .sslProvider(SslProvider.JDK)
                             .build();
             return sslCtx;
-        } catch (FileNotFoundException | SSLException e) {
+        } catch (IOException e) {
             logger.error(
                     "initSslContext failed, caCert: {}, sslCert: {}, sslKey: {}, error: {}, e: {}",
                     configOption.getCryptoMaterialConfig().getCaCertPath(),
@@ -264,43 +265,35 @@ public class ConnectionManager {
     private SslContext initSMSslContext(ConfigOption configOption) throws NetworkException {
         try {
             // Get file, file existence is already checked when check config file.
-            FileInputStream caCert =
-                    new FileInputStream(
-                            new File(configOption.getCryptoMaterialConfig().getCaCertPath()));
-            FileInputStream sslCert =
-                    new FileInputStream(
-                            new File(configOption.getCryptoMaterialConfig().getSdkCertPath()));
-            FileInputStream sslKey =
-                    new FileInputStream(
-                            new File(
-                                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath()));
-            FileInputStream enCert =
-                    new FileInputStream(
-                            new File(configOption.getCryptoMaterialConfig().getEnSSLCertPath()));
-            FileInputStream enKey =
-                    new FileInputStream(
-                            new File(
-                                    configOption
-                                            .getCryptoMaterialConfig()
-                                            .getEnSSLPrivateKeyPath()));
-
             // Init SslContext
-            logger.info(" build SM ssl context with configured certificates ");
-            return SMSslClientContextFactory.build(caCert, enCert, enKey, sslCert, sslKey);
-        } catch (IOException
-                | CertificateException
-                | NoSuchAlgorithmException
-                | InvalidKeySpecException
-                | NoSuchProviderException e) {
-            logger.error(
-                    "initSMSslContext failed, caCert:{}, sslCert: {}, sslKey: {}, enCert: {}, enKey: {}, error: {}, e: {}",
-                    configOption.getCryptoMaterialConfig().getCaCertPath(),
-                    configOption.getCryptoMaterialConfig().getSdkCertPath(),
-                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath(),
-                    configOption.getCryptoMaterialConfig().getEnSSLCertPath(),
-                    configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath(),
-                    e.getMessage(),
-                    e);
+            return SMSslClientContextFactory.build(
+                    configOption.getCryptoMaterialConfig().getCaInputStream(),
+                    configOption.getCryptoMaterialConfig().getEnSSLCertInputStream(),
+                    configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyInputStream(),
+                    configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
+                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream());
+        } catch (Exception e) {
+            if (configOption.getCryptoMaterialConfig().getCryptoProvider().equalsIgnoreCase(HSM)) {
+                logger.error(
+                        "initSMSslContext failed, caCert:{}, sslCert: {}, sslKeyIndex: {}, enCert: {}, enSslKeyIndex: {}, error: {}, e: {}",
+                        configOption.getCryptoMaterialConfig().getCaCertPath(),
+                        configOption.getCryptoMaterialConfig().getSdkCertPath(),
+                        configOption.getCryptoMaterialConfig().getSslKeyIndex(),
+                        configOption.getCryptoMaterialConfig().getEnSSLCertPath(),
+                        configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
+                        e.getMessage(),
+                        e);
+            } else {
+                logger.error(
+                        "initSMSslContext failed, caCert:{}, sslCert: {}, sslKey: {}, enCert: {}, enSslKey: {}, error: {}, e: {}",
+                        configOption.getCryptoMaterialConfig().getCaCertPath(),
+                        configOption.getCryptoMaterialConfig().getSdkCertPath(),
+                        configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath(),
+                        configOption.getCryptoMaterialConfig().getEnSSLCertPath(),
+                        configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath(),
+                        e.getMessage(),
+                        e);
+            }
             throw new NetworkException(
                     "SSL context init failed, please make sure your cert and key files are properly configured. error info: "
                             + e.getMessage(),
@@ -316,7 +309,14 @@ public class ConnectionManager {
         // set connection timeout
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeoutConfig.connectTimeout);
         int sslCryptoType = configOption.getCryptoMaterialConfig().getSslCryptoType();
-        SslContext sslContext =
+        SslContext sslContext;
+        if (configOption.getCryptoMaterialConfig().getCryptoProvider() != null
+                && configOption.getCryptoMaterialConfig().getCryptoProvider().equalsIgnoreCase(HSM)
+                && sslCryptoType == CryptoType.ECDSA_TYPE) {
+            throw new NetworkException(
+                    "NON-SM not support hardware secure module yet, please do not config cryptoMatirial.cryptoProvider = hsm.");
+        }
+        sslContext =
                 (sslCryptoType == CryptoType.ECDSA_TYPE
                         ? initSslContext(configOption)
                         : initSMSslContext(configOption));
@@ -376,7 +376,7 @@ public class ConnectionManager {
             /** connect success, check ssl handshake result. */
             SslHandler sslhandler = connectFuture.channel().pipeline().get(SslHandler.class);
             String checkerMessage =
-                    "! Please check the certificate and ensure that the SDK and the node are in the same agency!";
+                    "! Please make sure the certificate is correctly configured and copied, ensure that the SDK and the node are in the same agency!";
             if (Objects.isNull(sslhandler)) {
                 String sslHandshakeFailedMessage =
                         " ssl handshake failed:/"

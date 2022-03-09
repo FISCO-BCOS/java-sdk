@@ -62,7 +62,7 @@ public abstract class KeyTool {
     private String hexedPublicKey = "";
 
     /**
-     * constructor for the P12: with password
+     * Constructor for the P12: with password
      *
      * @param keyStoreFile the path of the keystore file
      * @param password password to read the keystore file
@@ -75,7 +75,7 @@ public abstract class KeyTool {
     }
 
     /**
-     * constructor for PEM without password
+     * Constructor for PEM without password
      *
      * @param keyStoreFile the path of the keystore file
      */
@@ -84,7 +84,7 @@ public abstract class KeyTool {
     }
 
     /**
-     * constructor for the P12: with password and key file input stream
+     * Constructor for the P12: with password and key file input stream
      *
      * @param keyStoreFileInputStream the input stream of the keystore file
      * @param password password to read the keystore file
@@ -97,7 +97,7 @@ public abstract class KeyTool {
     }
 
     /**
-     * constructor for PEM with key file input stream
+     * Constructor for PEM with key file input stream
      *
      * @param keyStoreFileInputStream the input stream of the keystore file
      */
@@ -117,7 +117,7 @@ public abstract class KeyTool {
     }
 
     /**
-     * get keyPair loaded from the keyStore file
+     * Get keyPair loaded from the keyStore file
      *
      * @return the keyPair
      */
@@ -127,15 +127,25 @@ public abstract class KeyTool {
         return new KeyPair(publicKey, privateKey);
     }
 
+    /**
+     * Abstract function of getting public key
+     *
+     * @return PublicKey
+     */
     protected abstract PublicKey getPublicKey();
 
     public static String getHexedPublicKey(PublicKey publicKey) {
         byte[] publicKeyBytes = ((BCECPublicKey) publicKey).getQ().getEncoded(false);
         BigInteger publicKeyValue =
                 new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
-        return ("04" + Numeric.toHexStringNoPrefixZeroPadded(publicKeyValue, 128));
+        return Numeric.toHexStringNoPrefixZeroPadded(publicKeyValue, 128);
     }
 
+    /**
+     * Get hex string type public key
+     *
+     * @return hex string of a public key
+     */
     public String getHexedPublicKey() {
         if (!"".equals(hexedPublicKey)) {
             return this.hexedPublicKey;
@@ -144,6 +154,12 @@ public abstract class KeyTool {
         return this.hexedPublicKey;
     }
 
+    /**
+     * Get hex string type private key
+     *
+     * @param privateKey PrivateKey type private key
+     * @return the hex string type private key
+     */
     public static String getHexedPrivateKey(PrivateKey privateKey) {
         return Numeric.toHexStringNoPrefixZeroPadded(((BCECPrivateKey) privateKey).getD(), 64);
     }
@@ -162,17 +178,40 @@ public abstract class KeyTool {
         return convertHexedStringToPrivateKey(privateKeyValue, curveName);
     }
 
+    /**
+     * Convert BigInteger private key and ECC curve name to PrivateKey type key
+     *
+     * @param privateKey BigInteger type private key
+     * @param curveName the ECC curve name
+     * @return PrivateKey
+     */
     public static PrivateKey convertHexedStringToPrivateKey(
             BigInteger privateKey, String curveName) {
         return convertPrivateKeyToKeyPair(privateKey, curveName).getPrivate();
     }
 
+    /**
+     * Convert string type private key integer and ECC curve name to PrivateKey type key
+     *
+     * @param hexedPrivateKey string type of the private key integer
+     * @param curveName ECC curve name
+     * @return KeyPair
+     * @throws LoadKeyStoreException
+     */
     public static KeyPair convertHexedStringToKeyPair(String hexedPrivateKey, String curveName)
             throws LoadKeyStoreException {
         BigInteger privateKeyValue = new BigInteger(hexedPrivateKey, 16);
         return convertPrivateKeyToKeyPair(privateKeyValue, curveName);
     }
 
+    /**
+     * Convert BigInteger private key and ECC curve name to KeyPair
+     *
+     * @param privateKey BigInteger type private key
+     * @param curveName ECC curve name
+     * @return KeyPair
+     * @throws LoadKeyStoreException
+     */
     public static KeyPair convertPrivateKeyToKeyPair(BigInteger privateKey, String curveName)
             throws LoadKeyStoreException {
         try {
@@ -210,12 +249,26 @@ public abstract class KeyTool {
         }
     }
 
+    /**
+     * Generate public key from private key, and store public key in to pem key file
+     *
+     * @param privateKey a private key
+     * @param privateKeyFilePath the pem key file
+     * @throws IOException
+     */
     public static void storePublicKeyWithPem(PrivateKey privateKey, String privateKeyFilePath)
             throws IOException {
         PublicKey publicKey = getPublicKeyFromPrivateKey(privateKey);
         storePublicKeyWithPem(publicKey, privateKeyFilePath);
     }
 
+    /**
+     * Store public key in to pem key file
+     *
+     * @param publicKey a public key
+     * @param privateKeyFilePath the pem key file
+     * @throws IOException
+     */
     public static void storePublicKeyWithPem(PublicKey publicKey, String privateKeyFilePath)
             throws IOException {
         String publicKeyPath = privateKeyFilePath + ".pub";
@@ -225,6 +278,11 @@ public abstract class KeyTool {
         writer.close();
     }
 
+    /**
+     * Abstract function of load key from InputStream
+     *
+     * @param in the InputStream
+     */
     protected abstract void load(InputStream in);
 
     /** load information from the keyStoreFile */
@@ -248,7 +306,7 @@ public abstract class KeyTool {
         try {
             return ec5UtilClass.getDeclaredMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException e) {
-            logger.warn("get method for EC5Util failed, method name: {}", methodName);
+            logger.debug("try to get method for EC5Util failed, method name: {}", methodName);
             return null;
         }
     }
@@ -293,10 +351,22 @@ public abstract class KeyTool {
         }
     }
 
+    /**
+     * Get the public key
+     *
+     * @return PublicKey
+     */
     protected PublicKey getPublicKeyFromPrivateKey() {
         return getPublicKeyFromPrivateKey(getPrivateKey());
     }
 
+    /**
+     * Generate and get the public key from private key
+     *
+     * @param privateKey the PrivateKey
+     * @return the PublicKey
+     * @throws LoadKeyStoreException
+     */
     public static PublicKey getPublicKeyFromPrivateKey(PrivateKey privateKey)
             throws LoadKeyStoreException {
         try {

@@ -53,6 +53,18 @@ public class SignatureTest {
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         // generate keyPair
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+        CryptoSuite cryptoSuite2 = new CryptoSuite(CryptoType.ECDSA_TYPE, keyPair);
+        System.out.println("cryptoSuite2.getCryptoKeyPair().getHexPublicKey(): " + cryptoSuite2.getCryptoKeyPair().getHexPublicKey());
+        System.out.println("cryptoSuite.getCryptoKeyPair().getHexPublicKey(): " + cryptoSuite.getCryptoKeyPair().getHexPublicKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPublicKey(), cryptoSuite.getCryptoKeyPair().getHexPublicKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey(), cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
+
+        cryptoSuite2 = new CryptoSuite(CryptoType.ECDSA_TYPE, cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
+        System.out.println("cryptoSuite2.getCryptoKeyPair().getHexPublicKey(): " + cryptoSuite2.getCryptoKeyPair().getHexPublicKey());
+        System.out.println("cryptoSuite.getCryptoKeyPair().getHexPublicKey(): " + cryptoSuite.getCryptoKeyPair().getHexPublicKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPublicKey(), cryptoSuite.getCryptoKeyPair().getHexPublicKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey(), cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
+
         // test signature
         testSignature(cryptoSuite, keyPair);
 
@@ -68,7 +80,7 @@ public class SignatureTest {
         System.out.println("hexedPublicKey: " + hexedPublicKey);
         System.out.println("keyPair.getHexPublicKey(): " + keyPair.getHexPublicKey());
         System.out.println("keyPair.getHexPrivate(): " + keyPair.getHexPrivateKey());
-        Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey().substring(2));
+        Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey());
         testSignature(cryptoSuite, keyPair);
 
         String hexedPrivateKeyStr = "bcec428d5205abe0f0cc8a734083908d9eb8563e31f943d760786edf42ad67dd";
@@ -81,6 +93,14 @@ public class SignatureTest {
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
         // generate keyPair
         CryptoKeyPair keyPair = cryptoSuite.createKeyPair();
+
+        CryptoSuite cryptoSuite2 = new CryptoSuite(CryptoType.SM_TYPE, keyPair);
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPublicKey(), cryptoSuite.getCryptoKeyPair().getHexPublicKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey(), cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
+
+        cryptoSuite2 = new CryptoSuite(CryptoType.SM_TYPE, cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPublicKey(), cryptoSuite.getCryptoKeyPair().getHexPublicKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey(), cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
         // test signature
         testSignature(cryptoSuite, keyPair);
     }
@@ -186,8 +206,7 @@ public class SignatureTest {
         Assert.assertEquals(expectedAddress, keyPair.getAddress(publicKey));
         String uncompressedPublicKey = publicKey;
         boolean contain0x = false;
-        if(publicKey.startsWith("0x"))
-        {
+        if (publicKey.startsWith("0x")) {
             contain0x = true;
             uncompressedPublicKey = publicKey.substring(2);
         }
@@ -198,32 +217,28 @@ public class SignatureTest {
                             + uncompressedPublicKey;
         }
         String prefix = "04";
-        if(contain0x)
-        {
+        if (contain0x) {
             prefix = "0x04";
         }
         Assert.assertEquals(expectedAddress, keyPair.getAddress(prefix + uncompressedPublicKey));
         // convert the publicKey into BigInteger
-        BigInteger  uncompressedPublicKeyValue = new BigInteger(uncompressedPublicKey, 16);
+        BigInteger uncompressedPublicKeyValue = new BigInteger(uncompressedPublicKey, 16);
         Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(keyPair.getAddress(uncompressedPublicKeyValue)));
         // convert the publicKey into bytes
         byte[] uncompressedPublicKeyBytes = Hex.decode(Numeric.cleanHexPrefix(uncompressedPublicKey));
         Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(keyPair.getAddress(uncompressedPublicKeyBytes)));
 
-        if(smCrypto)
-        {
-            Assert.assertEquals(expectedAddress,  SM2KeyPair.getAddressByPublicKey(publicKey));
-            Assert.assertEquals(expectedAddress,  SM2KeyPair.getAddressByPublicKey(uncompressedPublicKey));
-            Assert.assertEquals(expectedAddress,  "0x" + Hex.toHexString(SM2KeyPair.getAddressByPublicKey(uncompressedPublicKeyValue)));
-            Assert.assertEquals(expectedAddress,  "0x" + Hex.toHexString(SM2KeyPair.getAddressByPublicKey(uncompressedPublicKeyBytes)));
+        if (smCrypto) {
+            Assert.assertEquals(expectedAddress, SM2KeyPair.getAddressByPublicKey(publicKey));
+            Assert.assertEquals(expectedAddress, SM2KeyPair.getAddressByPublicKey(uncompressedPublicKey));
+            Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(SM2KeyPair.getAddressByPublicKey(uncompressedPublicKeyValue)));
+            Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(SM2KeyPair.getAddressByPublicKey(uncompressedPublicKeyBytes)));
 
-        }
-        else
-        {
-            Assert.assertEquals(expectedAddress,  ECDSAKeyPair.getAddressByPublicKey(publicKey));
-            Assert.assertEquals(expectedAddress,  ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKey));
-            Assert.assertEquals(expectedAddress,  "0x" + Hex.toHexString(ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKeyValue)));
-            Assert.assertEquals(expectedAddress,  "0x" + Hex.toHexString(ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKeyBytes)));
+        } else {
+            Assert.assertEquals(expectedAddress, ECDSAKeyPair.getAddressByPublicKey(publicKey));
+            Assert.assertEquals(expectedAddress, ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKey));
+            Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKeyValue)));
+            Assert.assertEquals(expectedAddress, "0x" + Hex.toHexString(ECDSAKeyPair.getAddressByPublicKey(uncompressedPublicKeyBytes)));
         }
     }
 
@@ -288,7 +303,7 @@ public class SignatureTest {
                     signature.verify(
                             keyPair.getHexPublicKey(), hexMessageWithPrefix, signResult.convertToString()));
             //verify
-            String hexPublicKeyWithoutPrefix = keyPair.getHexPublicKey().substring(2);
+            String hexPublicKeyWithoutPrefix = keyPair.getHexPublicKey();
             Assert.assertTrue(
                     signature.verify(
                             hexPublicKeyWithoutPrefix, message, signResult.convertToString()));
@@ -327,20 +342,17 @@ public class SignatureTest {
         try {
             String invalidMessage = "0xb3b9ce5a0725c1457b8c7872d05accb3887ecc09a50dc7619b53837e4d9f";
             SignatureResult signResult = signature.sign(invalidMessage, keyPair);
-        }catch(SignatureException e)
-        {
+        } catch (SignatureException e) {
             System.out.println("Sign failed for " + e.getMessage());
         }
 
         try {
             String invalidMessage = "";
-            for(int i = 0; i < 64; i++)
-            {
+            for (int i = 0; i < 64; i++) {
                 invalidMessage += "r";
             }
             SignatureResult signResult = signature.sign(invalidMessage, keyPair);
-        }catch(SignatureException e)
-        {
+        } catch (SignatureException e) {
             System.out.println("Sign failed for " + e.getMessage());
         }
     }
@@ -494,10 +506,10 @@ public class SignatureTest {
         System.out.println("P12   orgKeyPair   pri: " + orgKeyPair.getHexPrivateKey());
         System.out.println("P12 decodedKeyPair pr: " + decodedCryptoKeyPair.getHexPrivateKey());
 
-        Assert.assertTrue(
-                orgKeyPair.getHexPrivateKey().equals(decodedCryptoKeyPair.getHexPrivateKey()));
-        Assert.assertTrue(
-                orgKeyPair.getHexPublicKey().equals(decodedCryptoKeyPair.getHexPublicKey()));
+        Assert.assertEquals(
+                orgKeyPair.getHexPrivateKey(), decodedCryptoKeyPair.getHexPrivateKey());
+        Assert.assertEquals(
+                orgKeyPair.getHexPublicKey(), decodedCryptoKeyPair.getHexPublicKey());
 
         // test sign and verify message with
         String publicP12Path = p12FilePath + ".pub";

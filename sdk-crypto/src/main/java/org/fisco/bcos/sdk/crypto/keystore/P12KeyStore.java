@@ -32,6 +32,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
+import java.util.Enumeration;
 import org.bouncycastle.jce.X509Principal;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.fisco.bcos.sdk.crypto.exceptions.LoadKeyStoreException;
@@ -52,7 +53,15 @@ public class P12KeyStore extends KeyTool {
     @Override
     public PublicKey getPublicKey() {
         try {
-            Certificate certificate = keyStore.getCertificate(NAME);
+            Enumeration<String> aliases = keyStore.aliases();
+            Certificate certificate = null;
+            while (aliases.hasMoreElements() && certificate == null) {
+                certificate = keyStore.getCertificate(aliases.nextElement());
+            }
+            if (certificate == null) {
+                throw new LoadKeyStoreException(
+                        "getPublicKey from p12 file " + keyStoreFile + "failed");
+            }
             return certificate.getPublicKey();
         } catch (KeyStoreException e) {
             throw new LoadKeyStoreException(
@@ -100,7 +109,17 @@ public class P12KeyStore extends KeyTool {
      */
     protected PrivateKey getPrivateKey() {
         try {
-            return (PrivateKey) keyStore.getKey(NAME, password.toCharArray());
+            Enumeration<String> aliases = keyStore.aliases();
+            PrivateKey privateKey = null;
+            while (aliases.hasMoreElements() && privateKey == null) {
+                privateKey =
+                        (PrivateKey) keyStore.getKey(aliases.nextElement(), password.toCharArray());
+            }
+            if (privateKey == null) {
+                throw new LoadKeyStoreException(
+                        "getPrivateKey from p12 file " + keyStoreFile + "failed");
+            }
+            return privateKey;
         } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException e) {
             String errorMessage =
                     "get private key from "

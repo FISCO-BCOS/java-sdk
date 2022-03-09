@@ -18,6 +18,7 @@ package org.fisco.bcos.sdk.abi;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.wrapper.ABICodecJsonWrapper;
 import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
@@ -31,6 +32,7 @@ import org.fisco.bcos.sdk.model.EventLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** ABI encode and decode tool */
 public class ABICodec {
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodec.class);
@@ -75,13 +77,16 @@ public class ABICodec {
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
         @SuppressWarnings("static-access")
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-
+        Throwable cause = null;
         try {
             return BIN + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
         } catch (Exception e) {
+            cause = e;
             logger.error(" exception in encodeMethodFromObject : {}", e.getMessage());
         }
-        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
+        String errorMsg =
+                " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"
+                        + cause.getMessage();
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
@@ -90,6 +95,9 @@ public class ABICodec {
             throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        if (methods == null || methods.size() == 0) {
+            throw new ABICodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
+        }
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
                 @SuppressWarnings("static-access")
@@ -103,10 +111,8 @@ public class ABICodec {
                 }
             }
         }
-
-        String errorMsg = " cannot encode in encodeMethodFromObject with appropriate interface ABI";
-        logger.error(errorMsg);
-        throw new ABICodecException(errorMsg);
+        logger.error(Constant.NO_APPROPRIATE_ABI_METHOD);
+        throw new ABICodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
     }
 
     public String encodeMethodById(String ABI, String methodId, List<Object> params)
@@ -200,13 +206,14 @@ public class ABICodec {
                 try {
                     String methodId = abiDefinition.getMethodId(cryptoSuite);
                     return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
                 }
             }
         }
 
-        String errorMsg = " cannot encode in encodeMethodFromString with appropriate interface ABI";
+        String errorMsg =
+                " cannot encode in encodeMethodFromString with appropriate interface ABI, make sure params match";
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
     }
@@ -297,9 +304,58 @@ public class ABICodec {
             throws ABICodecException {
         return decodeMethodAndGetOutputObject(ABI, methodName, output).getLeft();
     }
-
-    public List<Object> decodeMethodById(String ABI, String methodId, String output)
+    /**
+     * decode the input string into json
+     *
+     * @param input the transaction input
+     * @return the decoded json string of the input
+     */
+    public List<String> decodeTransactionInputToString(String ABI, String input)
             throws ABICodecException {
+        String inputWithPrefix = addHexPrefixToString(input);
+        String methodId = inputWithPrefix.substring(0, 10);
+        return decodeMethodByIdToString(ABI, methodId, input.substring(10), false);
+    }
+
+    public Pair<List<Object>, List<ABIObject>> decodeTransactionInput(String ABI, String input)
+            throws ABICodecException {
+        String inputWithPrefix = addHexPrefixToString(input);
+        String methodId = inputWithPrefix.substring(0, 10);
+        return decodeDataByMethodId(ABI, methodId, input.substring(10), false);
+    }
+
+    public Pair<List<Object>, List<ABIObject>> decodeMethodInput(
+            String ABI, String input, String methodName, String code) throws ABICodecException {
+        ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
+        List<ABIDefinition> methods;
+        ABICodecObject abiCodecObject = new ABICodecObject();
+        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
+        if (StringUtils.equals(methodName, "constructor")) {
+            String lastCode = StringUtils.substring(code, code.length() - 32, code.length());
+            String paramsInput = StringUtils.substringAfter(input, lastCode);
+            // remove methodId of input
+            return abiCodecObject.decodeJavaObjectAndOutputObject(
+                    abiObjectFactory.createInputObject(contractABIDefinition.getConstructor()),
+                    paramsInput);
+        } else {
+            methods = contractABIDefinition.getFunctions().get(methodName);
+        }
+        for (ABIDefinition abiDefinition : methods) {
+            ABIObject outputABIObject = abiObjectFactory.createInputObject(abiDefinition);
+            try {
+                return abiCodecObject.decodeJavaObjectAndOutputObject(
+                        outputABIObject, input.substring(10));
+            } catch (Exception e) {
+                logger.warn(" exception in decodeMethodInput : {}", e.getMessage());
+            }
+        }
+        String errorMsg = " cannot decode in decodeMethodInput with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ABICodecException(errorMsg);
+    }
+
+    public Pair<List<Object>, List<ABIObject>> decodeDataByMethodId(
+            String ABI, String methodId, String data, boolean isOutput) throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         if (abiDefinition == null) {
@@ -307,10 +363,15 @@ public class ABICodec {
             logger.error(errorMsg);
             throw new ABICodecException(errorMsg);
         }
-        ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
+        ABIObject outputABIObject = null;
+        if (isOutput) {
+            outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
+        } else {
+            outputABIObject = abiObjectFactory.createInputObject(abiDefinition);
+        }
         ABICodecObject abiCodecObject = new ABICodecObject();
         try {
-            return abiCodecObject.decodeJavaObject(outputABIObject, output);
+            return abiCodecObject.decodeJavaObjectAndOutputObject(outputABIObject, data);
         } catch (Exception e) {
             logger.error(" exception in decodeMethodByIdToObject : {}", e.getMessage());
         }
@@ -318,6 +379,11 @@ public class ABICodec {
         String errorMsg = " cannot decode in decodeMethodToObject with appropriate interface ABI";
         logger.error(errorMsg);
         throw new ABICodecException(errorMsg);
+    }
+
+    public List<Object> decodeMethodById(String ABI, String methodId, String output)
+            throws ABICodecException {
+        return decodeDataByMethodId(ABI, methodId, output, true).getLeft();
     }
 
     public List<Object> decodeMethodByInterface(String ABI, String methodInterface, String output)
@@ -355,6 +421,11 @@ public class ABICodec {
 
     public List<String> decodeMethodByIdToString(String ABI, String methodId, String output)
             throws ABICodecException {
+        return decodeMethodByIdToString(ABI, methodId, output, true);
+    }
+
+    public List<String> decodeMethodByIdToString(
+            String ABI, String methodId, String data, boolean isOutput) throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         if (abiDefinition == null) {
@@ -362,10 +433,15 @@ public class ABICodec {
             logger.error(errorMsg);
             throw new ABICodecException(errorMsg);
         }
-        ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
+        ABIObject outputABIObject = null;
+        if (isOutput) {
+            outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
+        } else {
+            outputABIObject = abiObjectFactory.createInputObject(abiDefinition);
+        }
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         try {
-            return abiCodecJsonWrapper.decode(outputABIObject, output);
+            return abiCodecJsonWrapper.decode(outputABIObject, data);
         } catch (UnsupportedOperationException e) {
             logger.error(" exception in decodeMethodByIdToString : {}", e.getMessage());
         }
@@ -505,6 +581,13 @@ public class ABICodec {
         FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
         String methodId = functionEncoder.buildMethodId(eventSignature);
         return decodeEventByTopicToString(ABI, methodId, log);
+    }
+
+    private String addHexPrefixToString(String s) {
+        if (!s.startsWith("0x")) {
+            return "0x" + s;
+        }
+        return s;
     }
 
     private List<Object> mergeEventParamsAndTopics(

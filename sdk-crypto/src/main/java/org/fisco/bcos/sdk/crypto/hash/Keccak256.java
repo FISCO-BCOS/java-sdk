@@ -35,9 +35,9 @@ public class Keccak256 implements Hash {
         return calculateHash(inputBytes);
     }
 
-    private String calculateHash(final byte[] inputBytes) {
+    public static String calculateHash(final byte[] inputBytes) {
         // Note: the exceptions should be handled by the caller
-        CryptoResult hashResult = NativeInterface.keccak256(Hex.toHexString(inputBytes));
+        CryptoResult hashResult = NativeInterface.keccak256Hash(Hex.toHexString(inputBytes));
         if (hashResult.wedprErrorMessage != null && !hashResult.wedprErrorMessage.isEmpty()) {
             throw new HashException(
                     "Calculate hash with keccak256 failed! error message:"

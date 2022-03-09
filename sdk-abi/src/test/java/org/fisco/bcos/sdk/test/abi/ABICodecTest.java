@@ -1,15 +1,24 @@
 package org.fisco.bcos.sdk.test.abi;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
 import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.model.CryptoType;
+import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -227,9 +236,13 @@ public class ABICodecTest {
                     + "                \"payable\": false,\n"
                     + "                \"stateMutability\": \"nonpayable\",\n"
                     + "                \"type\": \"fallback\"\n"
+                    + "        },\n"
+                    + "        {\n"
+                    + "                \"payable\": false,\n"
+                    + "                \"stateMutability\": \"payable\",\n"
+                    + "                \"type\": \"receive\"\n"
                     + "        }\n"
                     + "]";
-
     // int a, Info[] memory b, string memory c
     /*
     	 * {
@@ -291,7 +304,40 @@ public class ABICodecTest {
     private String encodedWithMethodId = "0x00a3c75d" + encoded;
 
     @Test
-    public void testEncodeFromString() {
+    public void testEncodeFromString() throws IOException {
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
+        ContractABIDefinition abiDefinition = abiDefinitionFactory.loadABI(abiDesc);
+        // check the fallback function
+        Assert.assertTrue(abiDefinition.getFallbackFunction() != null);
+        // check the content of the fallback function
+        Assert.assertTrue(abiDefinition.getFallbackFunction().getStateMutability().equals( "nonpayable"));
+        Assert.assertTrue(abiDefinition.getFallbackFunction().isPayable() == false);
+        Assert.assertTrue(abiDefinition.getFallbackFunction().getType().equals("fallback"));
+
+        // check receive functions
+        Assert.assertTrue(abiDefinition.getReceiveFunction() != null);
+        Assert.assertTrue(abiDefinition.getReceiveFunction().getType().equals("receive"));
+
+        // check serialization and deserialization
+        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+        byte[] encodedABIDefinitions = objectMapper.writeValueAsBytes(abiDefinition.getFallbackFunction());
+        // decode
+        ABIDefinition decodedABIDefinition = objectMapper.readValue(encodedABIDefinitions, ABIDefinition.class);
+        Assert.assertTrue(decodedABIDefinition.getStateMutability().equals( "nonpayable"));
+        Assert.assertTrue(decodedABIDefinition.isPayable() == false);
+        Assert.assertTrue(decodedABIDefinition.getType().equals("fallback"));
+        // test encode/decode for all the functions
+        for(String key : abiDefinition.getFunctions().keySet())
+        {
+            List<ABIDefinition> abiDefinitions = abiDefinition.getFunctions().get(key);
+            for(int i = 0; i < abiDefinitions.size(); i++) {
+                ABIDefinition functionAbiDefinition = abiDefinitions.get(i);
+                        encodedABIDefinitions = objectMapper.writeValueAsBytes(functionAbiDefinition);
+                decodedABIDefinition = objectMapper.readValue(encodedABIDefinitions, ABIDefinition.class);
+            }
+        }
+
         List<String> args = new ArrayList<String>();
         args.add("100");
         // [{"name": "Hello world!", "count": 100, "items": [{"a": 1, "b": 2, "c": 3}]}, {"name":
@@ -347,6 +393,42 @@ public class ABICodecTest {
     }
 
     @Test
+    public void testEncodeFromStringWithInvalidParams() {
+        List<String> args = new ArrayList<String>();
+        ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
+        try {
+            abiCodec.encodeMethodFromString(abiDesc, "test", args);
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof ABICodecException);
+        }
+    }
+
+    @Test
+    public void testEncodeConsctructor() {
+        List<String> args = new ArrayList<String>();
+        ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
+        try {
+            abiCodec.encodeConstructorFromString(abiDesc, "BIN", args);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+    @Test
+    public void testEncodeConsctructorWithInvalidParams() {
+        List<String> args = new ArrayList<String>();
+        args.add("invalid");
+        ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
+        try {
+            abiCodec.encodeConstructorFromString(abiDesc, "BIN", args);
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof ABICodecException);
+        }
+    }
+
+
+    @Test
     public void testEncodeByInterface() {
         ABICodec abiCodec = new ABICodec(Utils.getCryptoSuite());
         List<Object> argsObjects = new ArrayList<Object>();
@@ -365,9 +447,21 @@ public class ABICodecTest {
         argsObjects.add(a);
         try {
             String s1 = abiCodec.encodeMethodByInterface("call(uint256[2],uint256[],bytes,address)", argsObjects);
-            String abi = "[{\"constant\":false,\"inputs\":[{\"name\":\"u1\",\"type\":\"uint256[2]\"},{\"name\":\"u2\",\"type\":\"uint256[]\"},{\"name\":\"b\",\"type\":\"bytes\"},{\"name\":\"a\",\"type\":\"address\"}],\"name\":\"call\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"name\":\"u\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"a\",\"type\":\"uint256\"},{\"name\":\"s\",\"type\":\"string\"}],\"name\":\"add\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd1\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd2\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"a\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogAdd3\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd4\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd5\",\"type\":\"event\"}]";
+            String abi = "[{\"inputs\":[{\"name\":\"u1\",\"type\":\"uint256[2]\"},{\"name\":\"u2\",\"type\":\"uint256[]\"},{\"name\":\"b\",\"type\":\"bytes\"},{\"name\":\"a\",\"type\":\"address\"}],\"name\":\"call\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"name\":\"u\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"a\",\"type\":\"uint256\"},{\"name\":\"s\",\"type\":\"string\"}],\"name\":\"add\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd1\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd2\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"a\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogAdd3\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd4\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd5\",\"type\":\"event\"}]";
             String s2 = abiCodec.encodeMethod(abi, "call", argsObjects);
             Assert.assertEquals(s1, s2);
+            // test ABIDefinition
+            // check constant
+            CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+            ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
+            ContractABIDefinition abiDefinition = abiDefinitionFactory.loadABI(abi);
+            Map<String, List<ABIDefinition>> functions =  abiDefinition.getFunctions();
+            Assert.assertTrue(functions.containsKey("call"));
+            List<ABIDefinition> callABIDefinition = functions.get("call");
+            Assert.assertEquals(1, callABIDefinition.size());
+            Assert.assertTrue(callABIDefinition.get(0).isConstant());
+            // check without
+
         } catch (ABICodecException e) {
             Assert.fail(e.getMessage());
         }

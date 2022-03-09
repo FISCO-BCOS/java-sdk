@@ -48,9 +48,25 @@ public interface GroupService {
      */
     void updatePeersBlockNumberInfo(String peerIpAndPort, BigInteger blockNumber);
 
+    /**
+     * Get latest block number of this group
+     *
+     * @return block number
+     */
     BigInteger getLatestBlockNumber();
 
+    /**
+     * Get node which has the latest block number
+     *
+     * @return the node
+     */
     String getNodeWithTheLatestBlockNumber();
 
+    /**
+     * Check the node is exit in the group
+     *
+     * @param peer ip and port
+     * @return whether peer exit
+     */
     boolean existPeer(String peer);
 }

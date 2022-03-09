@@ -19,6 +19,7 @@ package org.fisco.bcos.sdk;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.concurrent.Semaphore;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.channel.model.ChannelPrococolExceiption;
 import org.fisco.bcos.sdk.channel.model.EnumNodeVersion;
@@ -53,8 +54,10 @@ import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.NodeVersion;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.service.GroupManagerService;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.junit.Assert;
 import org.junit.Test;
@@ -67,7 +70,7 @@ public class BcosSDKTest {
                     .getPath();
 
     @Test
-    public void testClient() throws ConfigException {
+    public void test1Client() throws ConfigException {
         BcosSDK sdk = BcosSDK.build(configFile);
         // check groupList
         Assert.assertTrue(sdk.getChannel().getAvailablePeer().size() >= 1);
@@ -141,13 +144,6 @@ public class BcosSDKTest {
 
         // get groupPeers
         client.getGroupPeers();
-        // get PendingTxSize
-        PendingTxSize pendingTxSize = client.getPendingTxSize();
-        Assert.assertEquals(BigInteger.valueOf(0), pendingTxSize.getPendingTxSize());
-
-        // get pendingTransactions
-        PendingTransactions pendingTransactions = client.getPendingTransaction();
-        Assert.assertEquals(0, pendingTransactions.getPendingTransactions().size());
 
         // get pbftView
         client.getPbftView();
@@ -155,7 +151,6 @@ public class BcosSDKTest {
         // getSyncStatus
         BlockHash latestHash = client.getBlockHashByNumber(blockNumber.getBlockNumber());
         SyncStatus syncStatus = client.getSyncStatus();
-        Assert.assertEquals("0", syncStatus.getSyncStatus().getTxPoolSize());
         Assert.assertEquals(
                 latestHash.getBlockHashByNumber(),
                 "0x" + syncStatus.getSyncStatus().getLatestHash());
@@ -236,7 +231,7 @@ public class BcosSDKTest {
             block = client.getBlockByNumber(blockNumber.getBlockNumber(), false);
             calculatedHash = block.getBlock().calculateHash(client.getCryptoSuite());
             Assert.assertEquals(block.getBlock().getHash(), calculatedHash);
-            testSendTransactions();
+            test2SendTransactions();
         } catch (ClientException | ContractException e) {
             System.out.println("testClient exception, error info: " + e.getMessage());
         }
@@ -269,7 +264,33 @@ public class BcosSDKTest {
         }
     }
 
-    public void testSendTransactions() throws ConfigException, ContractException {
+    class TransactionCallbackTest extends TransactionCallback {
+        public TransactionReceipt receipt;
+        public Semaphore semaphore = new Semaphore(1, true);
+
+        TransactionCallbackTest() {
+            try {
+                semaphore.acquire(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        @Override
+        public void onTimeout() {
+            super.onTimeout();
+            semaphore.release();
+        }
+
+        // wait until get the transactionReceipt
+        @Override
+        public void onResponse(TransactionReceipt receipt) {
+            this.receipt = receipt;
+            semaphore.release();
+        }
+    }
+
+    public void test2SendTransactions() throws ConfigException, ContractException {
         try {
             System.out.println("#### testSendTransactions");
             BcosSDK sdk = BcosSDK.build(configFile);
@@ -302,6 +323,19 @@ public class BcosSDKTest {
             String settedString = "Hello, FISCO";
             TransactionReceipt receipt = helloWorld.set(settedString);
             Assert.assertTrue(receipt != null);
+            TransactionCallbackTest callback = new TransactionCallbackTest();
+            byte[] transactionHash = helloWorld.set(settedString, callback);
+            // wait here
+            try {
+                callback.semaphore.acquire(1);
+                callback.semaphore.release();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // check the hash
+            Assert.assertEquals(
+                    "0x" + Hex.toHexString(transactionHash), callback.receipt.getTransactionHash());
+
             checkReceipt(helloWorld, client, blockNumber.add(BigInteger.valueOf(2)), receipt, true);
             // wait the blocknumber notification
             Thread.sleep(1000);
@@ -583,5 +617,12 @@ public class BcosSDKTest {
         fakedPublicKey = vrfInterface.createKeyPair().getVrfPublicKey();
         result = curve25519VRFVerifyTest.curve25519VRFVerify(input, fakedPublicKey, vrfProof);
         Assert.assertTrue(result.getValue1() == false);
+        // get PendingTxSize
+        PendingTxSize pendingTxSize = client.getPendingTxSize();
+        Assert.assertEquals(BigInteger.valueOf(0), pendingTxSize.getPendingTxSize());
+
+        // get pendingTransactions
+        PendingTransactions pendingTransactions = client.getPendingTransaction();
+        Assert.assertEquals(0, pendingTransactions.getPendingTransactions().size());
     }
 }

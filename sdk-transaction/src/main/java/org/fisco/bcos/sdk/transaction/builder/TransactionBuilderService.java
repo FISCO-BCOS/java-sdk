@@ -39,6 +39,19 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
         this.client = client;
     }
 
+    /**
+     * Create fisco bcos transaction
+     *
+     * @param cryptoSuite @See CryptoSuite
+     * @param groupId the group that need create transaction
+     * @param chainId default 1
+     * @param blockLimit, cached limited block number
+     * @param abi, compiled contract abi
+     * @param to target address
+     * @param functionName function name
+     * @param params object list of function paramater
+     * @return RawTransaction the signed transaction hexed string
+     */
     public static String createSignedTransaction(
             CryptoSuite cryptoSuite,
             int groupId,
@@ -79,9 +92,31 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
             BigInteger chainId,
             BigInteger groupId,
             String extraData) {
+        return createTransaction(
+                client.getBlockLimit(),
+                gasPrice,
+                gasLimit,
+                to,
+                data,
+                value,
+                chainId,
+                groupId,
+                extraData);
+    }
+
+    @Override
+    public RawTransaction createTransaction(
+            BigInteger blockLimit,
+            BigInteger gasPrice,
+            BigInteger gasLimit,
+            String to,
+            String data,
+            BigInteger value,
+            BigInteger chainId,
+            BigInteger groupId,
+            String extraData) {
         Random r = ThreadLocalRandom.current();
         BigInteger randomId = new BigInteger(250, r);
-        BigInteger blockLimit = client.getBlockLimit();
         return RawTransaction.createTransaction(
                 randomId,
                 gasPrice,
@@ -97,6 +132,12 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
 
     @Override
     public RawTransaction createTransaction(String to, String data, BigInteger groupId) {
+        return createTransaction(to, data, BigInteger.ONE, groupId);
+    }
+
+    @Override
+    public RawTransaction createTransaction(
+            String to, String data, BigInteger chainId, BigInteger groupId) {
 
         return createTransaction(
                 DefaultGasProvider.GAS_PRICE,
@@ -104,7 +145,22 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
                 to,
                 data,
                 BigInteger.ZERO,
-                BigInteger.ONE,
+                chainId,
+                groupId,
+                null);
+    }
+
+    @Override
+    public RawTransaction createTransaction(
+            BigInteger blockLimit, String to, String data, BigInteger chainId, BigInteger groupId) {
+        return createTransaction(
+                blockLimit,
+                DefaultGasProvider.GAS_PRICE,
+                DefaultGasProvider.GAS_LIMIT,
+                to,
+                data,
+                BigInteger.ZERO,
+                chainId,
                 groupId,
                 null);
     }

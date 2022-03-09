@@ -55,7 +55,10 @@ public class PrecompiledRetCode {
             new RetCode(-52010, "The account is already available");
     public static final RetCode CODE_INVALID_ACCOUNT_ADDRESS =
             new RetCode(-52009, "Invalid account address");
-    public static final RetCode CODE_ACCOUNT_NOT_EXIST = new RetCode(-52008, "Account not exist");
+    public static final RetCode CODE_ACCOUNT_NOT_EXIST =
+            new RetCode(
+                    -52008,
+                    "Account not exist, you can create a blockchain account by using this account to deploy contracts on the chain");
     public static final RetCode CODE_OPERATOR_NOT_EXIST =
             new RetCode(-52007, "The operator not exist");
     public static final RetCode CODE_OPERATOR_EXIST =
@@ -63,7 +66,7 @@ public class PrecompiledRetCode {
     public static final RetCode CODE_COMMITTEE_MEMBER_CANNOT_BE_OPERATOR =
             new RetCode(-52005, "The committee member cannot be operator");
     public static final RetCode CODE_OPERATOR_CANNOT_BE_COMMITTEE_MEMBER =
-            new RetCode(-52004, "The operator cannot be committee member");
+            new RetCode(-52004, "The operator or cnsManager cannot be committee member");
     public static final RetCode CODE_INVALID_THRESHOLD =
             new RetCode(-52003, "Invalid threshold, threshold should from 0 to 99");
     public static final RetCode CODE_INVALID_REQUEST_PERMISSION_DENIED =
@@ -76,7 +79,8 @@ public class PrecompiledRetCode {
     // ContractLifeCyclePrecompiled -51999 ~ -51900
     public static final RetCode CODE_INVALID_REVOKE_LAST_AUTHORIZATION =
             new RetCode(
-                    -51907, "The permission of the last contract status manager can't be revoked");
+                    -51907,
+                    "There is only one contract status manager left, and the revoke operation cannot be performed");
     public static final RetCode CODE_INVALID_NON_EXIST_AUTHORIZATION =
             new RetCode(-51906, "The contract status manager doesn't exist");
     public static final RetCode CODE_INVALID_NO_AUTHORIZED =

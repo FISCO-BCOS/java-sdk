@@ -37,6 +37,10 @@ public class TransactionResponse extends CommonResponse {
     private List<Object> returnObject;
     private List<ABIObject> returnABIObject;
 
+    private String inputData;
+    private List<Object> inputObject;
+    private List<ABIObject> inputABIObject;
+
     public TransactionResponse() {
         super();
     }
@@ -157,5 +161,29 @@ public class TransactionResponse extends CommonResponse {
                 + ", returnABIObject="
                 + returnABIObject
                 + '}';
+    }
+
+    public List<Object> getInputObject() {
+        return inputObject;
+    }
+
+    public void setInputObject(List<Object> inputObject) {
+        this.inputObject = inputObject;
+    }
+
+    public List<ABIObject> getInputABIObject() {
+        return inputABIObject;
+    }
+
+    public void setInputABIObject(List<ABIObject> inputABIObject) {
+        this.inputABIObject = inputABIObject;
+    }
+
+    public String getInputData() {
+        return inputData;
+    }
+
+    public void setInputData(String inputData) {
+        this.inputData = inputData;
     }
 }
