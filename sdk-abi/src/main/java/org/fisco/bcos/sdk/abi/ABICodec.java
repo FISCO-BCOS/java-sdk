@@ -20,13 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.fisco.bcos.sdk.abi.wrapper.ABICodecJsonWrapper;
-import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
-import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
-import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
-import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.abi.wrapper.*;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.slf4j.Logger;
@@ -516,9 +510,9 @@ public class ABICodec {
 
     public List<Object> decodeEventByInterface(String ABI, String eventSignature, EventLog log)
             throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
-        String methodId = functionEncoder.buildMethodId(eventSignature);
-        return decodeEventByTopic(ABI, methodId, log);
+        EventEncoder eventEncoder = new EventEncoder(cryptoSuite);
+        String eventTopic = eventEncoder.buildEventTopic(eventSignature);
+        return decodeEventByTopic(ABI, eventTopic, log);
     }
 
     public List<String> decodeEventToString(String ABI, String eventName, EventLog log)
@@ -578,9 +572,9 @@ public class ABICodec {
 
     public List<String> decodeEventByInterfaceToString(
             String ABI, String eventSignature, EventLog log) throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
-        String methodId = functionEncoder.buildMethodId(eventSignature);
-        return decodeEventByTopicToString(ABI, methodId, log);
+        EventEncoder eventEncoder = new EventEncoder(cryptoSuite);
+        String eventTopic = eventEncoder.buildEventTopic(eventSignature);
+        return decodeEventByTopicToString(ABI, eventTopic, log);
     }
 
     private String addHexPrefixToString(String s) {
