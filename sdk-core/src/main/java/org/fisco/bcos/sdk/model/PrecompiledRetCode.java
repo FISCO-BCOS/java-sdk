@@ -19,6 +19,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PrecompiledRetCode {
+
+    // GasChargerManagePrecompiled -53099 ~ -53000
+    public static final RetCode CODE_GCM_UNDEFINED_FUNCTION =
+            new RetCode(-53008, "Undefined function call to GasChargeManagePrecompiled");
+    public static final RetCode CODE_GCM_CHARGER_NOT_EXISTS =
+            new RetCode(-53007, "The revoked account does not exists in the charger list");
+    public static final RetCode CODE_GCM_CHARGER_ALREADY_EXISTS =
+            new RetCode(-53006, "The granted account is already the charger");
+    public static final RetCode CODE_GCM_REVOKE_PERMISSION_DENIED =
+            new RetCode(
+                    -53005,
+                    "Have no permission to revoke the charger, only the committees can revoke chargers");
+    public static final RetCode CODE_GCM_GRANT_PERMISSION_DENIED =
+            new RetCode(
+                    -53004,
+                    "Have no permission to grant the charger, only the committees can grant chargers");
+    public static final RetCode CODE_GCM_NOT_ENOUGH_REMAIN_GAS =
+            new RetCode(
+                    -53003, "Deduct gas failed for the remain gas is less than the deducted gas");
+    public static final RetCode CODE_GCM_CHARGED_GAS_OVERFLOW =
+            new RetCode(-53002, "Charge gas failed for integer overflow");
+    public static final RetCode CODE_GCM_INVALID_ZERO_GAS_VALUE =
+            new RetCode(-53001, "The charged/deducted gas must be positive value");
+    public static final RetCode CODE_GCM_PERMISSION_DENIED =
+            new RetCode(
+                    -53000,
+                    "The account has no permission to charge/deduct gas, only chargers has the permission");
+
     // ChainGovernancePrecompiled -52099 ~ -52000
     public static final RetCode CODE_CURRENT_VALUE_IS_EXPECTED_VALUE =
             new RetCode(-52012, "The current value is expected");
