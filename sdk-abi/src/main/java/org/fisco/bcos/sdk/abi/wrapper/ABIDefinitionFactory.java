@@ -48,7 +48,8 @@ public class ABIDefinitionFactory {
                         if (contractABIDefinition.hasReceiveFunction()) {
                             throw new ABICodecException("only single receive is allowed");
                         }
-                        if (!"payable".equals(abiDefinition.getStateMutability()) && !abiDefinition.isPayable()) {
+                        if (!"payable".equals(abiDefinition.getStateMutability())
+                                && !abiDefinition.isPayable()) {
                             throw new ABICodecException(
                                     "the statemutability of receive can only be payable");
                         }

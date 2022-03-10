@@ -15,6 +15,9 @@
 
 package org.fisco.bcos.sdk.abi;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.wrapper.*;
@@ -23,13 +26,7 @@ import org.fisco.bcos.sdk.model.EventLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * ABI encode and decode tool
- */
+/** ABI encode and decode tool */
 public class ABICodec {
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodec.class);

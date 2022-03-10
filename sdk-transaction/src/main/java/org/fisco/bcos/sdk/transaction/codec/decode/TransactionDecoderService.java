@@ -14,6 +14,12 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.ABICodec;
 import org.fisco.bcos.sdk.abi.ABICodecException;
@@ -31,13 +37,6 @@ import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.fisco.bcos.sdk.transaction.tools.ReceiptStatusUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TransactionDecoderService implements TransactionDecoderInterface {
     protected static Logger logger = LoggerFactory.getLogger(TransactionDecoderService.class);
@@ -157,8 +156,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                         ABICodecObject abiCodecObject = new ABICodecObject();
                         for (Logs log : logs) {
                             String eventTopic =
-                                    eventEncoder.buildEventTopic(
-                                            decodeMethodSign(abiDefinition));
+                                    eventEncoder.buildEventTopic(decodeMethodSign(abiDefinition));
                             if (log.getTopics().isEmpty()
                                     || !log.getTopics().contains(eventTopic)) {
                                 continue;

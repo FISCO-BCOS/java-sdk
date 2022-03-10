@@ -1,12 +1,11 @@
 package org.fisco.bcos.sdk.abi;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.abi.datatypes.Event;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.utils.Numeric;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Ethereum filter encoding. Further limited details are available <a
