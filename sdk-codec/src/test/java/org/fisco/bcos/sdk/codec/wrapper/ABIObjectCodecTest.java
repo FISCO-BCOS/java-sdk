@@ -261,22 +261,21 @@ public class ABIObjectCodecTest {
           + "48656c6c6f20776f726c64210000000000000000000000000000000000000000";
 
   @Test
-  public void testLoadABIJSON() throws IOException {
+  public void testLoadABIJSON() throws IOException, ClassNotFoundException {
     ContractABIDefinition contractABIDefinition = TestUtils.getContractABIDefinition(this.abiDesc);
 
     Assert.assertEquals(2, contractABIDefinition.getFunctions().size());
     Assert.assertEquals(1, contractABIDefinition.getEvents().size());
 
     List<ABIDefinition> functions = contractABIDefinition.getFunctions().get("test");
-    ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
     ABIObject inputABIObject = ABIObjectFactory.createInputObject(functions.get(0));
-    ABIObject obj = inputABIObject.decode(Hex.decode(this.encoded));
+    ABIObject obj = inputABIObject.decode(Hex.decode(this.encoded),false);
     ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
     // List<String> decodeJson = abiCodecJsonWrapper.decode(obj, encoded);
     // Assert.assertEquals(Arrays.toString(decodeJson.toArray(new String[0])), "[ [ \"Hello
     // world!\", 100, [ [ 1, 2, 3 ] ] ], [ \"Hello world2\", 200, [ [ 5, 6, 7 ] ] ], [ \"Hello
     // world!\", 100, [ [ 1, 2, 3 ] ] ], [ \"Hello world2\", 200, [ [ 5, 6, 7 ] ] ] ]");
-    String buffer = Hex.toHexString(obj.encode());
+    String buffer = Hex.toHexString(obj.encode(false));
 
     Assert.assertEquals(this.encoded, buffer);
   }
@@ -303,10 +302,10 @@ public class ABIObjectCodecTest {
     ABIObject encodedObj = abiCodecJsonWrapper.encode(inputABIObject, args);
 
     ABIObject inputABIObject0 = ABIObjectFactory.createInputObject(functions.get(0));
-    List<String> decodeArgs = abiCodecJsonWrapper.decode(inputABIObject0, Hex.decode(this.encoded));
+    List<String> decodeArgs = abiCodecJsonWrapper.decode(inputABIObject0, Hex.decode(this.encoded),false);
 
     // Assert.assertArrayEquals(args.toArray(), decodeArgs.toArray());
-    Assert.assertEquals(this.encoded, Hex.toHexString(encodedObj.encode()));
+    Assert.assertEquals(this.encoded, Hex.toHexString(encodedObj.encode(false)));
   }
 
   @Test
@@ -567,7 +566,7 @@ public class ABIObjectCodecTest {
 
     ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
     ABIObject encodedObj = abiCodecJsonWrapper.encode(inputABIObject, args);
-    List<String> decodeArgs = abiCodecJsonWrapper.decode(inputABIObject, encodedObj.encode());
+    List<String> decodeArgs = abiCodecJsonWrapper.decode(inputABIObject, encodedObj.encode(false),false);
     Assert.assertArrayEquals(args.toArray(), decodeArgs.toArray());
 
     List<ABIDefinition> functions0 = contractABIDefinition.getFunctions().get("commitTransaction");
@@ -579,7 +578,7 @@ public class ABIObjectCodecTest {
 
     ABIObject encodedObj0 = abiCodecJsonWrapper.encode(inputABIObject0, args0);
 
-    List<String> decodeArgs0 = abiCodecJsonWrapper.decode(inputABIObject0, encodedObj0.encode());
+    List<String> decodeArgs0 = abiCodecJsonWrapper.decode(inputABIObject0, encodedObj0.encode(false),false);
 
     // Assert.assertArrayEquals(decodeArgs.toArray(new String[0]), args0.get(0));
 

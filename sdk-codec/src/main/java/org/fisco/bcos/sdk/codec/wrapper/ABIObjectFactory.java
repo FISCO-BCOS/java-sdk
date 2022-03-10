@@ -11,17 +11,14 @@ public class ABIObjectFactory {
     private static final Logger logger = LoggerFactory.getLogger(ABIObjectFactory.class);
 
     public static ABIObject createInputObject(ABIDefinition abiDefinition) {
-        return createObject(
-                abiDefinition.getName(), abiDefinition.getType(), abiDefinition.getInputs());
+        return createObject(abiDefinition.getName(), abiDefinition.getInputs());
     }
 
     public static ABIObject createOutputObject(ABIDefinition abiDefinition) {
-        return createObject(
-                abiDefinition.getName(), abiDefinition.getType(), abiDefinition.getOutputs());
+        return createObject(abiDefinition.getName(), abiDefinition.getOutputs());
     }
 
-    private static ABIObject createObject(
-            String name, String type, List<ABIDefinition.NamedType> namedTypes) {
+    private static ABIObject createObject(String name, List<ABIDefinition.NamedType> namedTypes) {
         try {
             ABIObject abiObject = new ABIObject(ABIObject.ObjectType.STRUCT);
 
@@ -101,7 +98,7 @@ public class ABIObjectFactory {
     }
 
     private static ABIObject buildTupleObject(ABIDefinition.NamedType namedType) {
-        return createObject(namedType.getName(), namedType.getType(), namedType.getComponents());
+        return createObject(namedType.getName(), namedType.getComponents());
     }
 
     private static ABIObject buildListObject(
@@ -137,7 +134,7 @@ public class ABIObjectFactory {
             ABIDefinition.Type typeObj = new ABIDefinition.Type(type);
             String rawType = typeObj.getRawType();
 
-            ABIObject abiObject = null;
+            ABIObject abiObject;
             if (typeObj.isList()) {
                 abiObject = buildListObject(typeObj, namedType);
             } else if (rawType.startsWith("tuple")) {
