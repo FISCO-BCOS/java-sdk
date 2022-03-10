@@ -329,8 +329,7 @@ public class ABICodecTest {
             ABIObject inputObject =
                     ABIObjectFactory.createInputObject(
                             contractABIDefinition.getFunctions().get("test").get(0));
-            ABICodecObject abiCodecObject = new ABICodecObject();
-            List<Object> abiObjects = abiCodecObject.decodeJavaObject(inputObject, this.encoded);
+            List<Object> abiObjects = ABICodecObject.decodeJavaObject(inputObject, this.encoded,false);
             Assert.assertEquals(
                     this.encodedWithMethodId,
                     Hex.toHexString(abiCodec.encodeMethod(this.abiDesc, "test", abiObjects)));
@@ -346,7 +345,7 @@ public class ABICodecTest {
                     Hex.toHexString(
                             abiCodec.encodeMethodById(
                                     this.abiDesc, test.getMethodId(TestUtils.getCryptoSuite()), abiObjects)));
-        } catch (ABICodecException e) {
+        } catch (ABICodecException | ClassNotFoundException e) {
             Assert.fail(e.getMessage());
         }
     }

@@ -45,10 +45,15 @@ public class TypeDecoder {
         }
     }
 
+    public static <T extends Type> T decode(byte[] input, TypeReference<T> typeReference)
+            throws ClassNotFoundException {
+        ScaleCodecReader scaleCodecReader = new ScaleCodecReader(input);
+        return decode(scaleCodecReader, typeReference);
+    }
+
     public static <T extends Type> T decode(String input, TypeReference<T> typeReference)
             throws ClassNotFoundException {
-        ScaleCodecReader scaleCodecReader = new ScaleCodecReader(Hex.decode(input));
-        return decode(scaleCodecReader, typeReference);
+        return decode(Hex.decode(input), typeReference);
     }
 
     public static Address decodeAddress(ScaleCodecReader reader) {
@@ -214,7 +219,6 @@ public class TypeDecoder {
             ScaleCodecReader reader, TypeReference<T> typeReference) {
         try {
             Class<T> classType = typeReference.getClassType();
-            Constructor<?>[] declaredConstructors = classType.getDeclaredConstructors();
             Constructor<?> constructor =
                     Arrays.stream(classType.getDeclaredConstructors())
                             .filter(

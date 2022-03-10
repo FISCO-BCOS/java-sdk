@@ -13,7 +13,7 @@ import java.math.BigInteger;
 public class ABIObjectTest {
 
   @Test
-  public void testMixedTypeEncode0() throws IOException {
+  public void testMixedTypeEncode0() throws IOException, ClassNotFoundException {
     // int a, Info[] memory b, string memory c
     /*
      	 * {
@@ -285,7 +285,7 @@ public class ABIObjectTest {
     abiObject.getStructFields().add(listParams);
     abiObject.getStructFields().add(new ABIObject(new Utf8String("Hello world!")));
 
-    byte[] encodeBytes = abiObject.encode();
+    byte[] encodeBytes = abiObject.encode(false);
     String encodeHex = Hex.toHexString(encodeBytes);
 
     Assert.assertEquals(
@@ -320,13 +320,13 @@ public class ABIObjectTest {
     ABIDefinition abiDefinition =
         TestUtils.getContractABIDefinition(abiDesc).getFunctions().get("test").get(0);
     ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
-    ABIObject decodeObject = inputObject.decode(encodeBytes);
+    ABIObject decodeObject = inputObject.decode(encodeBytes,false);
 
-    Assert.assertEquals(encodeHex, Hex.toHexString(decodeObject.encode()));
+    Assert.assertEquals(encodeHex, Hex.toHexString(decodeObject.encode(false)));
 
     ABIObject newObjectWithoutValue = inputObject.newObjectWithoutValue();
     Assert.assertEquals(
-        encodeHex, Hex.toHexString(newObjectWithoutValue.decode(encodeBytes).encode()));
+        encodeHex, Hex.toHexString(newObjectWithoutValue.decode(encodeBytes,false).encode(false)));
   }
 
   @Test
@@ -335,7 +335,7 @@ public class ABIObjectTest {
     ABIObject structObject = new ABIObject(ABIObject.ObjectType.STRUCT);
     structObject.getStructFields().add(abiObject);
     Assert.assertEquals(
-        Hex.toHexString(structObject.encode()),
+        Hex.toHexString(structObject.encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000020"
             + "000000000000000000000000000000000000000000000000000000000000000a"
             + "4772656574696e67732100000000000000000000000000000000000000000000");
@@ -349,7 +349,7 @@ public class ABIObjectTest {
     abiObject.getStructFields().add(new ABIObject(new Bool(true)));
 
     Assert.assertEquals(
-        Hex.toHexString(abiObject.encode()),
+        Hex.toHexString(abiObject.encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000045"
             + "0000000000000000000000000000000000000000000000000000000000000001");
 
@@ -358,7 +358,7 @@ public class ABIObjectTest {
     abiObject.getStructFields().add(new ABIObject(new Bytes(3, "def".getBytes())));
 
     Assert.assertEquals(
-        Hex.toHexString(abiObject.encode()),
+        Hex.toHexString(abiObject.encode(false)),
         "6162630000000000000000000000000000000000000000000000000000000000"
             + "6465660000000000000000000000000000000000000000000000000000000000");
 
@@ -374,7 +374,7 @@ public class ABIObjectTest {
     abiObject.getStructFields().add(listObject);
 
     Assert.assertEquals(
-        Hex.toHexString(abiObject.encode()),
+        Hex.toHexString(abiObject.encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000060"
             + "0000000000000000000000000000000000000000000000000000000000000001"
             + "00000000000000000000000000000000000000000000000000000000000000a0"
@@ -397,7 +397,7 @@ public class ABIObjectTest {
     abiObject.getStructFields().add(new ABIObject(new DynamicBytes("Hello, world!".getBytes())));
 
     Assert.assertEquals(
-        Hex.toHexString(abiObject.encode()),
+        Hex.toHexString(abiObject.encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000123"
             + "0000000000000000000000000000000000000000000000000000000000000080"
             + "3132333435363738393000000000000000000000000000000000000000000000"
@@ -410,6 +410,12 @@ public class ABIObjectTest {
 
     abiObject.getStructFields().clear();
 
+    /*
+    struct A1 {
+      u256[][] l1;
+      string[] l2;
+    };
+     */
     ABIObject listObject1 = new ABIObject(ABIObject.ListType.DYNAMIC);
     ABIObject listObject1_0 = new ABIObject(ABIObject.ListType.DYNAMIC);
     ABIObject listObject1_1 = new ABIObject(ABIObject.ListType.DYNAMIC);
@@ -431,7 +437,7 @@ public class ABIObjectTest {
     abiObject.getStructFields().add(listObject2);
 
     Assert.assertEquals(
-        Hex.toHexString(abiObject.encode()),
+        Hex.toHexString(abiObject.encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000040"
             + "0000000000000000000000000000000000000000000000000000000000000140"
             + "0000000000000000000000000000000000000000000000000000000000000002"
@@ -457,29 +463,29 @@ public class ABIObjectTest {
   @Test
   public void testBoolTypeEncode() throws IOException {
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(new Bool(false)).encode()),
+        Hex.toHexString(new ABIObject(new Bool(false)).encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000000");
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(new Bool(true)).encode()),
+        Hex.toHexString(new ABIObject(new Bool(true)).encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000001");
   }
 
   @Test
   public void testIntTypeEncode() throws IOException {
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(new Uint256(BigInteger.ZERO)).encode()),
+        Hex.toHexString(new ABIObject(new Uint256(BigInteger.ZERO)).encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000000");
 
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(new Int256(BigInteger.ZERO)).encode()),
+        Hex.toHexString(new ABIObject(new Int256(BigInteger.ZERO)).encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000000");
 
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(new Uint256(Long.MAX_VALUE)).encode()),
+        Hex.toHexString(new ABIObject(new Uint256(Long.MAX_VALUE)).encode(false)),
         "0000000000000000000000000000000000000000000000007fffffffffffffff");
 
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(new Int256(Long.MAX_VALUE)).encode()),
+        Hex.toHexString(new ABIObject(new Int256(Long.MAX_VALUE)).encode(false)),
         "0000000000000000000000000000000000000000000000007fffffffffffffff");
 
     Assert.assertEquals(
@@ -489,7 +495,7 @@ public class ABIObjectTest {
                         new BigInteger(
                             "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe",
                             16)))
-                .encode()),
+                .encode(false)),
         "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe");
   }
 
@@ -497,19 +503,19 @@ public class ABIObjectTest {
   public void testEmptyListEncode() throws IOException {
 
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(ABIObject.ListType.DYNAMIC).encode()),
+        Hex.toHexString(new ABIObject(ABIObject.ListType.DYNAMIC).encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000000");
   }
 
   @Test
   public void testStringEncode() throws IOException {
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(new Utf8String("Hello, world!")).encode()),
+        Hex.toHexString(new ABIObject(new Utf8String("Hello, world!")).encode(false)),
         "000000000000000000000000000000000000000000000000000000000000000d"
             + "48656c6c6f2c20776f726c642100000000000000000000000000000000000000");
 
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(new Utf8String("")).encode()),
+        Hex.toHexString(new ABIObject(new Utf8String("")).encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000000");
   }
 
@@ -517,7 +523,7 @@ public class ABIObjectTest {
   public void testAddressEncode() throws IOException {
     Address address = new Address("0xbe5422d15f39373eb0a97ff8c10fbd0e40e29338");
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(address).encode()),
+        Hex.toHexString(new ABIObject(address).encode(false)),
         "000000000000000000000000be5422d15f39373eb0a97ff8c10fbd0e40e29338");
   }
 
@@ -525,17 +531,17 @@ public class ABIObjectTest {
   public void testStaticBytesEncode() throws IOException {
     Bytes staticBytes = new Bytes6(new byte[] {0, 1, 2, 3, 4, 5});
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(staticBytes).encode()),
+        Hex.toHexString(new ABIObject(staticBytes).encode(false)),
         "0001020304050000000000000000000000000000000000000000000000000000");
 
     Bytes empty = new Bytes1(new byte[] {0});
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(empty).encode()),
+        Hex.toHexString(new ABIObject(empty).encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000000");
 
     Bytes dave = new Bytes4("dave".getBytes());
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(dave).encode()),
+        Hex.toHexString(new ABIObject(dave).encode(false)),
         "6461766500000000000000000000000000000000000000000000000000000000");
   }
 
@@ -543,19 +549,19 @@ public class ABIObjectTest {
   public void testDynamicBytesEncode() throws IOException {
     DynamicBytes dynamicBytes = new DynamicBytes(new byte[] {0, 1, 2, 3, 4, 5});
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(dynamicBytes).encode()),
+        Hex.toHexString(new ABIObject(dynamicBytes).encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000006"
             + "0001020304050000000000000000000000000000000000000000000000000000");
 
     DynamicBytes empty = new DynamicBytes(new byte[] {0});
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(empty).encode()),
+        Hex.toHexString(new ABIObject(empty).encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000001"
             + "0000000000000000000000000000000000000000000000000000000000000000");
 
     DynamicBytes dave = new DynamicBytes("dave".getBytes());
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(dave).encode()),
+        Hex.toHexString(new ABIObject(dave).encode(false)),
         "0000000000000000000000000000000000000000000000000000000000000004"
             + "6461766500000000000000000000000000000000000000000000000000000000");
 
@@ -570,7 +576,7 @@ public class ABIObjectTest {
                     + "deserunt mollit anim id est laborum.")
                 .getBytes());
     Assert.assertEquals(
-        Hex.toHexString(new ABIObject(loremIpsum).encode()),
+        Hex.toHexString(new ABIObject(loremIpsum).encode(false)),
         "00000000000000000000000000000000000000000000000000000000000001bd"
             + "4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73"
             + "656374657475722061646970697363696e6720656c69742c2073656420646f20"
