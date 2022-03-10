@@ -20,6 +20,11 @@ import java.util.Map;
 
 public class PrecompiledRetCode {
     // FileSystemPrecompiled -53099 ~ -53000
+    public static final RetCode CODE_ADDRESS_OR_VERSION_ERROR =
+            new RetCode(-51202, "The contract name or version is invalid");
+    public static final RetCode CODE_VERSION_LENGTH_OVERFLOW =
+            new RetCode(-51201, "The version string length exceeds the maximum limit");
+
     public static final RetCode CODE_FILE_INVALID_PATH = new RetCode(-53005, "Invalid path");
     public static final RetCode CODE_FILE_SET_WASM_FAILED =
             new RetCode(-53004, "Deploy WASM contract failed");
@@ -110,12 +115,6 @@ public class PrecompiledRetCode {
     // SystemConfigPrecompiled -51399 ~ -51300
     public static final RetCode CODE_INVALID_CONFIGURATION_VALUES =
             new RetCode(-51300, "Invalid configuration value");
-
-    // CNSPrecompiled -51299 ~ -51200
-    public static final RetCode CODE_VERSION_LENGTH_OVERFLOW =
-            new RetCode(-51201, "The version string length exceeds the maximum limit");
-    public static final RetCode CODE_ADDRESS_AND_VERSION_EXIST =
-            new RetCode(-51200, "The contract name and version already exist");
 
     // ConsensusPrecompiled -51199 ~ -51100
     public static final RetCode CODE_NODE_NOT_EXIST = new RetCode(-51103, "The node is not exist");
