@@ -235,7 +235,7 @@ public class ContractTypeTest {
     private ContractABIDefinition contractABIDefinition = TestUtils.getContractABIDefinition(abiDesc);
 
     @Test
-    public void ContractFixedTypeCodecTest() throws IOException {
+    public void ContractFixedTypeCodecTest() throws IOException, ClassNotFoundException {
         ABIObject inputObject =
                 ABIObjectFactory.createInputObject(
                         contractABIDefinition.getFunctions().get("setFixedValue").get(0));
@@ -262,8 +262,9 @@ public class ContractTypeTest {
 
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         ABIObject encodeObject = abiCodecJsonWrapper.encode(inputObject, params);
-
-        List<String> decodeResult = abiCodecJsonWrapper.decode(outObject, encodeObject.encode());
+        byte[] encode = encodeObject.encode(false);
+        String s = Hex.toHexString(encode);
+        List<String> decodeResult = abiCodecJsonWrapper.decode(outObject, encode,false);
 
         Assert.assertEquals(decodeResult.get(0), "[ 1, 2, 3 ]");
         Assert.assertEquals(decodeResult.get(1), "[ true, false, true ]");
@@ -281,7 +282,7 @@ public class ContractTypeTest {
     }
 
     @Test
-    public void ContractDynamicTypeCodecTest() throws IOException {
+    public void ContractDynamicTypeCodecTest() throws IOException, ClassNotFoundException {
         ABIObject inputObject =
                 ABIObjectFactory.createInputObject(
                         contractABIDefinition.getFunctions().get("setDynamicValue").get(0));
@@ -310,7 +311,7 @@ public class ContractTypeTest {
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         ABIObject encodeObject = abiCodecJsonWrapper.encode(inputObject, params);
 
-        List<String> decodeResult = abiCodecJsonWrapper.decode(outObject, encodeObject.encode());
+        List<String> decodeResult = abiCodecJsonWrapper.decode(outObject, encodeObject.encode(false),false);
 
         Assert.assertEquals(decodeResult.get(0), "[ 1, 2, 3 ]");
         Assert.assertEquals(decodeResult.get(1), "[ true, false, true ]");
@@ -328,7 +329,7 @@ public class ContractTypeTest {
     }
 
     @Test
-    public void ContractDynamicTypeEmptyParamsCodecTest() throws IOException {
+    public void ContractDynamicTypeEmptyParamsCodecTest() throws IOException, ClassNotFoundException {
         ABIObject inputObject =
                 ABIObjectFactory.createInputObject(
                         contractABIDefinition.getFunctions().get("setDynamicValue").get(0));
@@ -342,7 +343,7 @@ public class ContractTypeTest {
         ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         ABIObject encodeObject = abiCodecJsonWrapper.encode(inputObject, params);
 
-        List<String> decodeResult = abiCodecJsonWrapper.decode(outObject, encodeObject.encode());
+        List<String> decodeResult = abiCodecJsonWrapper.decode(outObject, encodeObject.encode(false),false);
 
         Assert.assertEquals(decodeResult.get(0), "[ ]");
         Assert.assertEquals(decodeResult.get(1), "[ ]");

@@ -75,8 +75,8 @@ public class PrecompiledRetCodeTest {
                                 PrecompiledRetCode.CODE_INVALID_CONFIGURATION_VALUES.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_VERSION_LENGTH_OVERFLOW.getCode(),
                                 PrecompiledRetCode.CODE_VERSION_LENGTH_OVERFLOW.getMessage());
-                checkResponse(PrecompiledRetCode.CODE_ADDRESS_AND_VERSION_EXIST.getCode(),
-                                PrecompiledRetCode.CODE_ADDRESS_AND_VERSION_EXIST.getMessage());
+                checkResponse(PrecompiledRetCode.CODE_ADDRESS_OR_VERSION_ERROR.getCode(),
+                                PrecompiledRetCode.CODE_ADDRESS_OR_VERSION_ERROR.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_LAST_SEALER.getCode(),
                                 PrecompiledRetCode.CODE_LAST_SEALER.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_INVALID_NODEID.getCode(),

@@ -261,7 +261,7 @@ public class TableTest {
   }
 
   @Test
-  public void ABIObjectCodecTest() throws IOException {
+  public void ABIObjectCodecTest() throws IOException, ClassNotFoundException {
     ContractABIDefinition contractABIDefinition = TestUtils.getContractABIDefinition(abiDesc);
     ABIObject insertInputObject =
         ABIObjectFactory.createInputObject(
@@ -273,18 +273,18 @@ public class TableTest {
     insertInputObject.getStructFields().set(0, new ABIObject(new Utf8String("hello")));
     insertInputObject.getStructFields().set(1, new ABIObject(new Uint256(100)));
     insertInputObject.getStructFields().set(2, new ABIObject(new Utf8String("car")));
-    byte[] insertInputEncode = insertInputObject.encode();
+    byte[] insertInputEncode = insertInputObject.encode(false);
     String insertEncode =
         "0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000568656c6c6f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000036361720000000000000000000000000000000000000000000000000000000000";
     Assert.assertEquals(Hex.toHexString(insertInputEncode), insertEncode);
     Assert.assertEquals(
-        Hex.toHexString(insertInputObject.decode(insertInputEncode).encode()),
-        Hex.toHexString(insertInputObject.encode()));
+        Hex.toHexString(insertInputObject.decode(insertInputEncode,false).encode(false)),
+        Hex.toHexString(insertInputObject.encode(false)));
 
     insertOutputObject.getStructFields().set(0, new ABIObject(new Uint256(1111)));
-    byte[] insertOutputEncode = insertOutputObject.encode();
+    byte[] insertOutputEncode = insertOutputObject.encode(false);
     Assert.assertEquals(
-        Hex.toHexString(insertOutputObject.decode(insertOutputEncode).encode()),
+        Hex.toHexString(insertOutputObject.decode(insertOutputEncode,false).encode(false)),
         Hex.toHexString(insertOutputEncode));
 
     //        ABIObject updateInputObject =
@@ -304,7 +304,7 @@ public class TableTest {
   }
 
   @Test
-  public void ABIObjectCodecJsonWrapperTest() throws IOException {
+  public void ABIObjectCodecJsonWrapperTest() throws IOException, ClassNotFoundException {
     ContractABIDefinition contractABIDefinition = TestUtils.getContractABIDefinition(abiDesc);
 
     ABIObject insertInputObject =
@@ -317,19 +317,19 @@ public class TableTest {
     byte[] encode_i =
         abiCodecJsonWrapper
             .encode(insertInputObject, Arrays.asList("hello", "100", "car"))
-            .encode();
+            .encode(false);
     String encoded_i =
         "0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000568656c6c6f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000036361720000000000000000000000000000000000000000000000000000000000";
     Assert.assertEquals(Hex.toHexString(encode_i), encoded_i);
-    List<String> json_decode_i = abiCodecJsonWrapper.decode(insertInputObject, encode_i);
+    List<String> json_decode_i = abiCodecJsonWrapper.decode(insertInputObject, encode_i,false);
     Assert.assertEquals(json_decode_i.get(0), "hello");
     Assert.assertEquals(json_decode_i.get(1), "100");
     Assert.assertEquals(json_decode_i.get(2), "car");
 
-    byte[] encode_o = abiCodecJsonWrapper.encode(insertOutputObject, Arrays.asList("100")).encode();
+    byte[] encode_o = abiCodecJsonWrapper.encode(insertOutputObject, Arrays.asList("100")).encode(false);
     String encoded_o = "0000000000000000000000000000000000000000000000000000000000000064";
     Assert.assertEquals(Hex.toHexString(encode_o), encoded_o);
-    List<String> json_decode_o = abiCodecJsonWrapper.decode(insertOutputObject, encode_o);
+    List<String> json_decode_o = abiCodecJsonWrapper.decode(insertOutputObject, encode_o,false);
     Assert.assertEquals(json_decode_o.get(0), "100");
 
     ABIObject updateInputObject =
@@ -342,22 +342,22 @@ public class TableTest {
     byte[] encode_i_u =
         abiCodecJsonWrapper
             .encode(updateInputObject, Arrays.asList("hello", "100", "car"))
-            .encode();
+            .encode(false);
     String encoded_i_u =
         "0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000568656c6c6f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000036361720000000000000000000000000000000000000000000000000000000000";
     Assert.assertEquals(Hex.toHexString(encode_i_u), encoded_i_u);
 
     byte[] encode_o_u =
-        abiCodecJsonWrapper.encode(updateOutputObject, Arrays.asList("100")).encode();
+        abiCodecJsonWrapper.encode(updateOutputObject, Arrays.asList("100")).encode(false);
     String encoded_o_u = "0000000000000000000000000000000000000000000000000000000000000064";
     Assert.assertEquals(Hex.toHexString(encode_o_u), encoded_o_u);
 
-    List<String> json_decode_i_o = abiCodecJsonWrapper.decode(updateInputObject, encode_i_u);
+    List<String> json_decode_i_o = abiCodecJsonWrapper.decode(updateInputObject, encode_i_u,false);
     Assert.assertEquals(json_decode_i_o.get(0), "hello");
     Assert.assertEquals(json_decode_i_o.get(1), "100");
     Assert.assertEquals(json_decode_i_o.get(2), "car");
 
-    List<String> json_decode_o_o = abiCodecJsonWrapper.decode(updateOutputObject, encode_o_u);
+    List<String> json_decode_o_o = abiCodecJsonWrapper.decode(updateOutputObject, encode_o_u,false);
     Assert.assertEquals(json_decode_o_o.get(0), "100");
 
     ABIObject removeInputObject =
@@ -368,19 +368,19 @@ public class TableTest {
             contractABIDefinition.getFunctions().get("remove").get(0));
 
     byte[] encode_i_r =
-        abiCodecJsonWrapper.encode(removeInputObject, Arrays.asList("hello", "100")).encode();
+        abiCodecJsonWrapper.encode(removeInputObject, Arrays.asList("hello", "100")).encode(false);
     String encoded_i_r =
         "00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000";
     Assert.assertEquals(Hex.toHexString(encode_i_r), encoded_i_r);
 
     byte[] encode_o_r =
-        abiCodecJsonWrapper.encode(removeOutputObject, Arrays.asList("100")).encode();
+        abiCodecJsonWrapper.encode(removeOutputObject, Arrays.asList("100")).encode(false);
     String encoded_o_r = "0000000000000000000000000000000000000000000000000000000000000064";
     Assert.assertEquals(Hex.toHexString(encode_o_r), encoded_o_r);
 
-    List<String> json_decode_r_i = abiCodecJsonWrapper.decode(removeInputObject, encode_i_r);
+    List<String> json_decode_r_i = abiCodecJsonWrapper.decode(removeInputObject, encode_i_r,false);
     Assert.assertEquals(json_decode_r_i.get(0), "hello");
-    List<String> json_decode_r_o = abiCodecJsonWrapper.decode(updateOutputObject, encode_o_r);
+    List<String> json_decode_r_o = abiCodecJsonWrapper.decode(updateOutputObject, encode_o_r,false);
     Assert.assertEquals(json_decode_r_o.get(0), "100");
 
     ABIObject selectInputObject =
@@ -391,7 +391,7 @@ public class TableTest {
             contractABIDefinition.getFunctions().get("select").get(0));
 
     byte[] encode_i_s =
-        abiCodecJsonWrapper.encode(selectInputObject, Arrays.asList("hello")).encode();
+        abiCodecJsonWrapper.encode(selectInputObject, Arrays.asList("hello")).encode(false);
     String encoded_i_s =
         "0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000";
     Assert.assertEquals(Hex.toHexString(encode_i_s), encoded_i_s);
@@ -404,15 +404,15 @@ public class TableTest {
                     "[\"hello\",\"hello\",\"hello\"]",
                     "[100,100,100]",
                     "[\"car\",\"car\",\"car\"]"))
-            .encode();
+            .encode(false);
     String encoded_o_s =
         "000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000001a000000000000000000000000000000000000000000000000000000000000002200000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000568656c6c6f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000000363617200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003636172000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000036361720000000000000000000000000000000000000000000000000000000000";
     Assert.assertEquals(Hex.toHexString(encode_o_s), encoded_o_s);
 
-    List<String> json_decode_s_i = abiCodecJsonWrapper.decode(selectInputObject, encode_i_s);
+    List<String> json_decode_s_i = abiCodecJsonWrapper.decode(selectInputObject, encode_i_s,false);
     Assert.assertEquals(json_decode_s_i.get(0), "hello");
 
-    List<String> json_decode_s_o = abiCodecJsonWrapper.decode(selectOutputObject, encode_o_s);
+    List<String> json_decode_s_o = abiCodecJsonWrapper.decode(selectOutputObject, encode_o_s,false);
 
     Assert.assertEquals(json_decode_s_o.get(0), "[ \"hello\", \"hello\", \"hello\" ]");
     Assert.assertEquals(json_decode_s_o.get(1), "[ 100, 100, 100 ]");

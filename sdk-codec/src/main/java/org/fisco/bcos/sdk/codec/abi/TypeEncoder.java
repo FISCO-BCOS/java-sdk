@@ -156,7 +156,9 @@ public class TypeEncoder {
 
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         try {
-            result.write(encodedLength);
+            if (!value.isFixed()) {
+                result.write(encodedLength);
+            }
             result.write(valuesOffsets);
             result.write(encodedValues);
         } catch (IOException e) {
@@ -174,6 +176,8 @@ public class TypeEncoder {
                 !value.getValue().isEmpty() && value.getValue().get(0) instanceof Utf8String;
         boolean arrayOfDynamicStructs =
                 !value.getValue().isEmpty() && value.getValue().get(0) instanceof DynamicStruct;
+        boolean arrayOfDynamicArray =
+                !value.getValue().isEmpty() && value.getValue().get(0) instanceof DynamicArray;
         try {
             if (arrayOfBytes || arrayOfString) {
                 long offset = 0;
@@ -193,7 +197,7 @@ public class TypeEncoder {
                     result.write(
                             toBytesPadded(new BigInteger(Long.toString(offset)), MAX_BYTE_LENGTH));
                 }
-            } else if (arrayOfDynamicStructs) {
+            } else if (arrayOfDynamicStructs || arrayOfDynamicArray) {
                 result.write(encodeStructsArraysOffsets(value));
             }
         } catch (IOException e) {
