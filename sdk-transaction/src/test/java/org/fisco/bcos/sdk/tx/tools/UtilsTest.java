@@ -4,8 +4,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.fisco.bcos.sdk.codec.Utils;
-import org.fisco.bcos.sdk.codec.datatypes.generated.Uint256;
+import org.fisco.bcos.sdk.v3.codec.Utils;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint256;
 import org.junit.Assert;
 import org.junit.Test;
 
