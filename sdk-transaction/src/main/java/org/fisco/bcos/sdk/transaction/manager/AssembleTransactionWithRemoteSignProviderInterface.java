@@ -2,7 +2,7 @@ package org.fisco.bcos.sdk.transaction.manager;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.ContractCodecException;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.exception.NoSuchTransactionFileException;
@@ -18,7 +18,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param remoteSignCallbackInterface after signed, callback function hook
      */
     void deployAsync(long transactionData, RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, JniException;
+            throws ContractCodecException, JniException;
 
     /**
      * deploy contract to fisco bcos node asynchronously.
@@ -33,7 +33,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
             String bin,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, JniException;
+            throws ContractCodecException, JniException;
 
     /**
      * deploy contract to fisco bcos node by contract name asynchronously. The contract loader will
@@ -47,7 +47,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
             String contractName,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, NoSuchTransactionFileException, JniException;
+            throws ContractCodecException, NoSuchTransactionFileException, JniException;
 
     /**
      * deploy contract to fisco bcos node by contract name asynchronously.
@@ -64,7 +64,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
             String functionName,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, TransactionBaseException, JniException;
+            throws ContractCodecException, TransactionBaseException, JniException;
 
     /**
      * send transaction to fisco bcos node by contract name asynchronously.
@@ -81,7 +81,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
             String functionName,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, JniException;
+            throws ContractCodecException, JniException;
 
     /**
      * send transaction to fisco bcos node by contract name asynchronously. The contract loader will
@@ -95,7 +95,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      */
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             String to, String abi, String functionName, List<Object> params)
-            throws ABICodecException, JniException;
+            throws ContractCodecException, JniException;
 
     /**
      * sign based on raw transaction and send to fisco bcos node.

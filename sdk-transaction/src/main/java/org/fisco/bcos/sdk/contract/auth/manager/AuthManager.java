@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.ContractCodecException;
 import org.fisco.bcos.sdk.codec.datatypes.NumericType;
 import org.fisco.bcos.sdk.codec.datatypes.Type;
 import org.fisco.bcos.sdk.contract.auth.contracts.CommitteeManager;
@@ -62,7 +62,7 @@ public class AuthManager {
      * @return proposalId
      */
     public BigInteger updateGovernor(String account, BigInteger weight)
-            throws ABICodecException, TransactionException, IOException {
+            throws ContractCodecException, TransactionException, IOException {
         TransactionReceipt tr =
                 committeeManager.createUpdateGovernorProposal(
                         account, weight, DEFAULT_BLOCK_NUMBER_INTERVAL);
@@ -82,7 +82,7 @@ public class AuthManager {
      * @return proposalId
      */
     public BigInteger setRate(BigInteger participatesRate, BigInteger winRate)
-            throws ABICodecException, TransactionException, IOException {
+            throws ContractCodecException, TransactionException, IOException {
         TransactionReceipt tr =
                 committeeManager.createSetRateProposal(
                         participatesRate, winRate, DEFAULT_BLOCK_NUMBER_INTERVAL);
@@ -99,7 +99,7 @@ public class AuthManager {
      * @return proposalId
      */
     public BigInteger setDeployAuthType(AuthType deployAuthType)
-            throws ABICodecException, TransactionException, IOException {
+            throws ContractCodecException, TransactionException, IOException {
         TransactionReceipt tr =
                 committeeManager.createSetDeployAuthTypeProposal(
                         deployAuthType.getValue(), DEFAULT_BLOCK_NUMBER_INTERVAL);
@@ -128,7 +128,7 @@ public class AuthManager {
      * @return proposalId
      */
     public BigInteger modifyDeployAuth(String account, Boolean openFlag)
-            throws ABICodecException, TransactionException, IOException {
+            throws ContractCodecException, TransactionException, IOException {
         TransactionReceipt tr =
                 committeeManager.createModifyDeployAuthProposal(
                         account, openFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
@@ -148,7 +148,7 @@ public class AuthManager {
      * @return proposalId
      */
     public BigInteger resetAdmin(String newAdmin, String contractAddr)
-            throws ABICodecException, TransactionException, IOException {
+            throws ContractCodecException, TransactionException, IOException {
         TransactionReceipt tr =
                 committeeManager.createResetAdminProposal(
                         newAdmin, contractAddr, DEFAULT_BLOCK_NUMBER_INTERVAL);

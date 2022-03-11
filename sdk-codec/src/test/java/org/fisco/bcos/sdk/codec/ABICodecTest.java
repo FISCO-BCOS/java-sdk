@@ -1,7 +1,7 @@
 package org.fisco.bcos.sdk.codec;
 
 import org.bouncycastle.util.encoders.Hex;
-import org.fisco.bcos.sdk.codec.wrapper.ABICodecObject;
+import org.fisco.bcos.sdk.codec.wrapper.ContractCodecTools;
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.codec.wrapper.ABIObjectFactory;
@@ -314,7 +314,7 @@ public class ABICodecTest {
         argsObjects.add(listParams);
         argsObjects.add("Hello world!");
 
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
         try {
             // Method
             // encode
@@ -329,7 +329,7 @@ public class ABICodecTest {
             ABIObject inputObject =
                     ABIObjectFactory.createInputObject(
                             contractABIDefinition.getFunctions().get("test").get(0));
-            List<Object> abiObjects = ABICodecObject.decodeJavaObject(inputObject, this.encoded,false);
+            List<Object> abiObjects = ContractCodecTools.decodeJavaObject(inputObject, this.encoded,false);
             Assert.assertEquals(
                     this.encodedWithMethodId,
                     Hex.toHexString(abiCodec.encodeMethod(this.abiDesc, "test", abiObjects)));
@@ -345,7 +345,7 @@ public class ABICodecTest {
                     Hex.toHexString(
                             abiCodec.encodeMethodById(
                                     this.abiDesc, test.getMethodId(TestUtils.getCryptoSuite()), abiObjects)));
-        } catch (ABICodecException | ClassNotFoundException e) {
+        } catch (ContractCodecException | ClassNotFoundException e) {
             Assert.fail(e.getMessage());
         }
     }
@@ -353,19 +353,19 @@ public class ABICodecTest {
     @Test
     public void testEncodeFromStringWithInvalidParams() {
         List<String> args = new ArrayList<String>();
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
         try {
             abiCodec.encodeMethodFromString(this.abiDesc, "test", args);
             Assert.fail();
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof ABICodecException);
+            Assert.assertTrue(e instanceof ContractCodecException);
         }
     }
 
     @Test
     public void testEncodeConsctructor() {
         List<String> args = new ArrayList<String>();
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
         try {
             abiCodec.encodeConstructorFromString(this.abiDesc, "0xaaaaaaaa", args);
         } catch (Exception e) {
@@ -377,18 +377,18 @@ public class ABICodecTest {
     public void testEncodeConsctructorWithInvalidParams() {
         List<String> args = new ArrayList<String>();
         args.add("invalid");
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
         try {
             abiCodec.encodeConstructorFromString(this.abiDesc, "BIN", args);
             Assert.fail();
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof ABICodecException);
+            Assert.assertTrue(e instanceof ContractCodecException);
         }
     }
 
     @Test
     public void testEncodeByInterface() {
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
         List<Object> argsObjects = new ArrayList<Object>();
         List<BigInteger> b1 = new ArrayList<BigInteger>();
         b1.add(new BigInteger("100"));
@@ -410,7 +410,7 @@ public class ABICodecTest {
                     "[{\"constant\":false,\"inputs\":[{\"name\":\"u1\",\"type\":\"uint256[2]\"},{\"name\":\"u2\",\"type\":\"uint256[]\"},{\"name\":\"b\",\"type\":\"bytes\"},{\"name\":\"a\",\"type\":\"address\"}],\"name\":\"call\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"name\":\"u\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"a\",\"type\":\"uint256\"},{\"name\":\"s\",\"type\":\"string\"}],\"name\":\"add\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd1\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd2\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"u\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"a\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"s\",\"type\":\"string\"}],\"name\":\"LogAdd3\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd4\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"LogAdd5\",\"type\":\"event\"}]";
             byte[] s2 = abiCodec.encodeMethod(abi, "call", argsObjects);
             Assert.assertEquals(Hex.toHexString(s1), Hex.toHexString(s2));
-        } catch (ABICodecException e) {
+        } catch (ContractCodecException e) {
             Assert.fail(e.getMessage());
         }
     }

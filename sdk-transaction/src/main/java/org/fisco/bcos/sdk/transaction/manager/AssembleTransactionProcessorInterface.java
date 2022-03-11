@@ -17,7 +17,7 @@ package org.fisco.bcos.sdk.transaction.manager;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.ContractCodecException;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -61,7 +61,7 @@ public interface AssembleTransactionProcessorInterface {
      * @return deploy transaction hash
      */
     public String deployOnly(String abi, String bin, List<Object> params, String path)
-            throws ABICodecException;
+            throws ContractCodecException;
 
     /**
      * deploy contract to fisco bcos node only without receive any response.
@@ -71,7 +71,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param params contract construct parameters
      * @return deploy transaction hash
      */
-    public String deployOnly(String abi, String bin, List<Object> params) throws ABICodecException;
+    public String deployOnly(String abi, String bin, List<Object> params)
+            throws ContractCodecException;
 
     /**
      * deploy contract to fisco bcos node and get response.
@@ -91,7 +92,7 @@ public interface AssembleTransactionProcessorInterface {
      * @return transaction response @See TransactionResponse
      */
     public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
-            throws ABICodecException;
+            throws ContractCodecException;
 
     /**
      * deploy contract to fisco bcos node and get response.
@@ -104,7 +105,7 @@ public interface AssembleTransactionProcessorInterface {
      * @return transaction response @See TransactionResponse
      */
     public TransactionResponse deployAndGetResponse(
-            String abi, String bin, List<Object> params, String path) throws ABICodecException;
+            String abi, String bin, List<Object> params, String path) throws ContractCodecException;
 
     /**
      * deploy contract to fisco bcos node and get response.
@@ -116,7 +117,7 @@ public interface AssembleTransactionProcessorInterface {
      *     enable in wasm
      */
     public TransactionResponse deployAndGetResponseWithStringParams(
-            String abi, String bin, List<String> params, String path) throws ABICodecException;
+            String abi, String bin, List<String> params, String path) throws ContractCodecException;
 
     /**
      * deploy contract to fisco bcos node asynchronously.
@@ -129,7 +130,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public String deployAsync(
             String abi, String bin, List<Object> params, TransactionCallback callback)
-            throws ABICodecException;
+            throws ContractCodecException;
 
     /**
      * deploy contract to fisco bcos node asynchronously.
@@ -144,7 +145,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public String deployAsync(
             String abi, String bin, List<Object> params, String path, TransactionCallback callback)
-            throws ABICodecException;
+            throws ContractCodecException;
 
     /**
      * deploy contract to fisco bcos node asynchronously.
@@ -155,7 +156,8 @@ public interface AssembleTransactionProcessorInterface {
      * @return CompletableFuture wrapper transaction receipt
      */
     public CompletableFuture<TransactionReceipt> deployAsync(
-            String abi, String bin, List<Object> params) throws ABICodecException, JniException;
+            String abi, String bin, List<Object> params)
+            throws ContractCodecException, JniException;
 
     /**
      * deploy contract to fisco bcos node asynchronously.
@@ -169,7 +171,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params, String path)
-            throws ABICodecException, JniException;
+            throws ContractCodecException, JniException;
 
     /**
      * deploy contract to fisco bcos node and get response by contract name. The contract loader
@@ -180,7 +182,7 @@ public interface AssembleTransactionProcessorInterface {
      * @return transaction response
      */
     public TransactionResponse deployByContractLoader(String contractName, List<Object> params)
-            throws ABICodecException, TransactionBaseException;
+            throws ContractCodecException, TransactionBaseException;
 
     /**
      * deploy contract to fisco bcos node and get response by contract name asynchronously. The
@@ -192,7 +194,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public void deployByContractLoaderAsync(
             String contractName, List<Object> params, TransactionCallback callback)
-            throws ABICodecException, NoSuchTransactionFileException;
+            throws ContractCodecException, NoSuchTransactionFileException;
 
     /**
      * send transaction only.
@@ -213,7 +215,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> params)
-            throws ABICodecException, TransactionBaseException, JniException;
+            throws ContractCodecException, TransactionBaseException, JniException;
 
     /**
      * send transaction to fisco bcos node and get response.
@@ -226,7 +228,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, byte[] data)
-            throws TransactionBaseException, ABICodecException;
+            throws TransactionBaseException, ContractCodecException;
 
     /**
      * send transaction to fisco bcos node and get response.
@@ -239,7 +241,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
-            throws ABICodecException, TransactionBaseException;
+            throws ContractCodecException, TransactionBaseException;
 
     /**
      * send transaction to fisco bcos node and get response.
@@ -252,7 +254,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
             String to, String abi, String functionName, List<String> params)
-            throws ABICodecException, TransactionBaseException;
+            throws ContractCodecException, TransactionBaseException;
 
     /**
      * send transaction to fisco bcos node asynchronously.
@@ -278,7 +280,7 @@ public interface AssembleTransactionProcessorInterface {
             String functionName,
             List<Object> params,
             TransactionCallback callback)
-            throws TransactionBaseException, ABICodecException;
+            throws TransactionBaseException, ContractCodecException;
 
     /**
      * send transaction to fisco bcos node asynchronously.
@@ -304,7 +306,7 @@ public interface AssembleTransactionProcessorInterface {
             String functionName,
             List<Object> params,
             TransactionCallback callback)
-            throws ABICodecException, TransactionBaseException;
+            throws ContractCodecException, TransactionBaseException;
 
     /**
      * send transaction to fisco bcos node and get transaction response by contract name. The
@@ -318,7 +320,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public TransactionResponse sendTransactionAndGetResponseByContractLoader(
             String contractName, String to, String functionName, List<Object> funcParams)
-            throws ABICodecException, TransactionBaseException;
+            throws ContractCodecException, TransactionBaseException;
 
     /**
      * send call to fisco bcos node and get call response by contract name. The contract loader will
@@ -332,7 +334,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public CallResponse sendCallByContractLoader(
             String contractName, String to, String functionName, List<Object> params)
-            throws TransactionBaseException, ABICodecException;
+            throws TransactionBaseException, ContractCodecException;
 
     /**
      * send call to fisco bcos node and get call response
@@ -345,7 +347,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public CallResponse sendCall(
             String from, String to, String abi, String functionName, List<Object> params)
-            throws TransactionBaseException, ABICodecException;
+            throws TransactionBaseException, ContractCodecException;
 
     /**
      * send call to fisco bcos node and get call response
@@ -354,7 +356,7 @@ public interface AssembleTransactionProcessorInterface {
      * @return call response
      */
     public CallResponse sendCall(CallRequest callRequest)
-            throws ABICodecException, TransactionBaseException;
+            throws ContractCodecException, TransactionBaseException;
 
     /**
      * send call to fisco bcos node and get call response
@@ -367,7 +369,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     public CallResponse sendCallWithStringParams(
             String from, String to, String abi, String functionName, List<String> params)
-            throws TransactionBaseException, ABICodecException;
+            throws TransactionBaseException, ContractCodecException;
 
     /**
      * create signed constructor.
@@ -380,7 +382,7 @@ public interface AssembleTransactionProcessorInterface {
      * @return signed constructor string
      */
     public TxPair createSignedConstructor(String abi, String bin, List<Object> params, String path)
-            throws ABICodecException;
+            throws ContractCodecException;
 
     /**
      * encode function with abi and parameters.
@@ -391,7 +393,7 @@ public interface AssembleTransactionProcessorInterface {
      * @return encoded function string
      */
     public byte[] encodeFunction(String abi, String functionName, List<Object> params)
-            throws ABICodecException;
+            throws ContractCodecException;
 
     /**
      * get constructor raw transaction.
@@ -402,7 +404,7 @@ public interface AssembleTransactionProcessorInterface {
      * @return raw transaction
      */
     long getRawTransactionForConstructor(String abi, String bin, List<Object> params)
-            throws ABICodecException, JniException;
+            throws ContractCodecException, JniException;
 
     /**
      * get constructor raw transaction.
@@ -415,7 +417,7 @@ public interface AssembleTransactionProcessorInterface {
      */
     long getRawTransactionForConstructor(
             BigInteger blockLimit, String abi, String bin, List<Object> params)
-            throws ABICodecException, JniException;
+            throws ContractCodecException, JniException;
 
     /**
      * get raw transaction exclude constructor.
@@ -427,7 +429,7 @@ public interface AssembleTransactionProcessorInterface {
      * @return raw transaction
      */
     long getRawTransaction(String to, String abi, String functionName, List<Object> params)
-            throws ABICodecException, JniException;
+            throws ContractCodecException, JniException;
 
     /**
      * get raw transaction exclude constructor.
@@ -441,5 +443,5 @@ public interface AssembleTransactionProcessorInterface {
      */
     long getRawTransaction(
             BigInteger blockLimit, String to, String abi, String functionName, List<Object> params)
-            throws ABICodecException, JniException;
+            throws ContractCodecException, JniException;
 }

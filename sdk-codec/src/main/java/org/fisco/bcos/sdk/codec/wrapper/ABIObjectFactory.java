@@ -128,8 +128,6 @@ public class ABIObjectFactory {
     public static ABIObject buildTypeObject(ABIDefinition.NamedType namedType) {
         try {
             String type = namedType.getType();
-            // String name = namedType.getName();
-            // boolean indexed = namedType.isIndexed();
 
             ABIDefinition.Type typeObj = new ABIDefinition.Type(type);
             String rawType = typeObj.getRawType();

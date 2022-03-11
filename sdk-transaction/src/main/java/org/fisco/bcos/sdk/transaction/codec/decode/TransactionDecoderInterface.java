@@ -17,7 +17,7 @@ package org.fisco.bcos.sdk.transaction.codec.decode;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.ContractCodecException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
@@ -56,7 +56,7 @@ public interface TransactionDecoderInterface {
      */
     public TransactionResponse decodeReceiptWithValues(
             String abi, String functionName, TransactionReceipt receipt)
-            throws TransactionException, IOException, ABICodecException;
+            throws TransactionException, IOException, ContractCodecException;
 
     /**
      * parse the transaction information from receipt without return values
@@ -67,7 +67,7 @@ public interface TransactionDecoderInterface {
      */
     public TransactionResponse decodeReceiptWithoutValues(
             String abi, TransactionReceipt transactionReceipt)
-            throws TransactionException, IOException, ABICodecException;
+            throws TransactionException, IOException, ContractCodecException;
 
     /**
      * parse the transaction events from receipt logs
@@ -78,5 +78,5 @@ public interface TransactionDecoderInterface {
      *     the same event
      */
     public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
-            throws ABICodecException;
+            throws ContractCodecException;
 }

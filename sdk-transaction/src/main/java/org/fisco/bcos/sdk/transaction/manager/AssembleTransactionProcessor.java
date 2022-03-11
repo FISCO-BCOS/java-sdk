@@ -25,8 +25,8 @@ import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
-import org.fisco.bcos.sdk.codec.ABICodec;
-import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.ContractCodec;
+import org.fisco.bcos.sdk.codec.ContractCodecException;
 import org.fisco.bcos.sdk.codec.datatypes.Type;
 import org.fisco.bcos.sdk.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -65,7 +65,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     protected static Logger log = LoggerFactory.getLogger(AssembleTransactionProcessor.class);
     protected final TransactionDecoderInterface transactionDecoder;
     protected final TransactionPusherInterface transactionPusher;
-    protected final ABICodec abiCodec;
+    protected final ContractCodec contractCodec;
     protected ContractLoader contractLoader;
 
     public AssembleTransactionProcessor(
@@ -77,7 +77,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         super(client, cryptoKeyPair, groupId, chainId);
         this.transactionDecoder = new TransactionDecoderService(this.cryptoSuite, client.isWASM());
         this.transactionPusher = new TransactionPusherService(client);
-        this.abiCodec = new ABICodec(this.cryptoSuite, client.isWASM());
+        this.contractCodec = new ContractCodec(this.cryptoSuite, client.isWASM());
         this.contractLoader = contractLoader;
     }
 
@@ -92,20 +92,21 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         super(client, cryptoKeyPair, groupId, chainId);
         this.transactionDecoder = new TransactionDecoderService(this.cryptoSuite, client.isWASM());
         this.transactionPusher = new TransactionPusherService(client);
-        this.abiCodec = new ABICodec(this.cryptoSuite, client.isWASM());
+        this.contractCodec = new ContractCodec(this.cryptoSuite, client.isWASM());
         this.contractLoader = new ContractLoader(contractName, abi, bin);
     }
 
     @Override
     public String deployOnly(String abi, String bin, List<Object> params, String path)
-            throws ABICodecException {
+            throws ContractCodecException {
         TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
         this.transactionPusher.pushOnly(txPair.getSignedTx());
         return txPair.getTxHash();
     }
 
     @Override
-    public String deployOnly(String abi, String bin, List<Object> params) throws ABICodecException {
+    public String deployOnly(String abi, String bin, List<Object> params)
+            throws ContractCodecException {
         return deployOnly(abi, bin, params, "");
     }
 
@@ -139,7 +140,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
             return this.transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
-        } catch (TransactionException | IOException | ABICodecException e) {
+        } catch (TransactionException | IOException | ContractCodecException e) {
             log.error("deploy exception: {}", e.getMessage());
             return new TransactionResponse(
                     receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
@@ -148,20 +149,22 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionResponse deployAndGetResponse(
-            String abi, String bin, List<Object> params, String path) throws ABICodecException {
+            String abi, String bin, List<Object> params, String path)
+            throws ContractCodecException {
         TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
         return this.deployAndGetResponse(abi, txPair.getSignedTx());
     }
 
     @Override
     public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
-            throws ABICodecException {
+            throws ContractCodecException {
         return deployAndGetResponse(abi, bin, params, "");
     }
 
     @Override
     public TransactionResponse deployAndGetResponseWithStringParams(
-            String abi, String bin, List<String> params, String path) throws ABICodecException {
+            String abi, String bin, List<String> params, String path)
+            throws ContractCodecException {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
@@ -170,7 +173,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         TxPair txPair =
                 this.createDeploySignedTransaction(
                         path,
-                        this.abiCodec.encodeConstructorFromString(abi, bin, params),
+                        this.contractCodec.encodeConstructorFromString(abi, bin, params),
                         abi,
                         this.cryptoKeyPair,
                         txAttribute);
@@ -181,14 +184,14 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public String deployAsync(
             String abi, String bin, List<Object> params, TransactionCallback callback)
-            throws ABICodecException {
+            throws ContractCodecException {
         return deployAsync(abi, bin, params, "", callback);
     }
 
     @Override
     public String deployAsync(
             String abi, String bin, List<Object> params, String path, TransactionCallback callback)
-            throws ABICodecException {
+            throws ContractCodecException {
         TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
         this.transactionPusher.pushAsync(txPair.getSignedTx(), callback);
         return txPair.getTxHash();
@@ -197,14 +200,15 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params, String path)
-            throws ABICodecException, JniException {
+            throws ContractCodecException, JniException {
         TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
         return this.transactionPusher.pushAsync(txPair.getSignedTx());
     }
 
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
-            String abi, String bin, List<Object> params) throws ABICodecException, JniException {
+            String abi, String bin, List<Object> params)
+            throws ContractCodecException, JniException {
         return deployAsync(abi, bin, params, "");
     }
 
@@ -215,12 +219,12 @@ public class AssembleTransactionProcessor extends TransactionProcessor
      * @param args the params when deploy a contract
      * @return the transaction response
      * @throws TransactionBaseException send transaction exception
-     * @throws ABICodecException abi encode exception
+     * @throws ContractCodecException abi encode exception
      * @throws NoSuchTransactionFileException Files related to abi codec were not found
      */
     @Override
     public TransactionResponse deployByContractLoader(String contractName, List<Object> args)
-            throws ABICodecException, TransactionBaseException {
+            throws ContractCodecException, TransactionBaseException {
         return this.deployAndGetResponse(
                 this.contractLoader.getABIByContractName(contractName),
                 this.contractLoader.getBinaryByContractName(contractName),
@@ -230,7 +234,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public void deployByContractLoaderAsync(
             String contractName, List<Object> args, TransactionCallback callback)
-            throws ABICodecException, NoSuchTransactionFileException {
+            throws ContractCodecException, NoSuchTransactionFileException {
         this.deployAsync(
                 this.contractLoader.getABIByContractName(contractName),
                 this.contractLoader.getBinaryByContractName(contractName),
@@ -245,7 +249,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
-            String to, String abi, String functionName, byte[] data) throws ABICodecException {
+            String to, String abi, String functionName, byte[] data) throws ContractCodecException {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_SCALE_CODEC;
@@ -264,7 +268,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
-            throws ABICodecException, TransactionBaseException {
+            throws ContractCodecException, TransactionBaseException {
         byte[] data = this.encodeFunction(abi, functionName, params);
         return this.sendTransactionAndGetResponse(to, abi, functionName, data);
     }
@@ -272,8 +276,8 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
             String to, String abi, String functionName, List<String> params)
-            throws ABICodecException, TransactionBaseException {
-        byte[] data = this.abiCodec.encodeMethodFromString(abi, functionName, params);
+            throws ContractCodecException, TransactionBaseException {
+        byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, params);
         log.info("encoded data: {}", Hex.toHexString(data));
         return this.sendTransactionAndGetResponse(to, abi, functionName, data);
     }
@@ -281,9 +285,9 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> args)
-            throws ABICodecException, TransactionBaseException, JniException {
+            throws ContractCodecException, TransactionBaseException, JniException {
         byte[] data =
-                this.abiCodec.encodeMethod(
+                this.contractCodec.encodeMethod(
                         this.contractLoader.getABIByContractName(contractName), functionName, args);
         int txAttribute = 0;
         if (client.isWASM()) {
@@ -299,7 +303,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String contractAddress,
             String functionName,
             List<Object> funcParams)
-            throws ABICodecException, TransactionBaseException {
+            throws ContractCodecException, TransactionBaseException {
         return this.sendTransactionAndGetResponse(
                 contractAddress,
                 this.contractLoader.getABIByContractName(contractName),
@@ -319,7 +323,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String functionName,
             List<Object> params,
             TransactionCallback callback)
-            throws TransactionBaseException, ABICodecException {
+            throws TransactionBaseException, ContractCodecException {
         byte[] data = this.encodeFunction(abi, functionName, params);
         int txAttribute = 0;
         if (client.isWASM()) {
@@ -340,9 +344,9 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String functionName,
             List<Object> args,
             TransactionCallback callback)
-            throws ABICodecException, TransactionBaseException {
+            throws ContractCodecException, TransactionBaseException {
         String abi = this.contractLoader.getABIByContractName(contractName);
-        byte[] data = this.abiCodec.encodeMethod(abi, functionName, args);
+        byte[] data = this.contractCodec.encodeMethod(abi, functionName, args);
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_SCALE_CODEC;
@@ -353,7 +357,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public CallResponse sendCallByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> args)
-            throws TransactionBaseException, ABICodecException {
+            throws TransactionBaseException, ContractCodecException {
         return this.sendCall(
                 this.cryptoKeyPair.getAddress(),
                 contractAddress,
@@ -365,19 +369,19 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public CallResponse sendCall(
             String from, String to, String abi, String functionName, List<Object> paramsList)
-            throws TransactionBaseException, ABICodecException {
-        byte[] data = this.abiCodec.encodeMethod(abi, functionName, paramsList);
+            throws TransactionBaseException, ContractCodecException {
+        byte[] data = this.contractCodec.encodeMethod(abi, functionName, paramsList);
         return this.callAndGetResponse(from, to, abi, functionName, data);
     }
 
     @Override
     public CallResponse sendCall(CallRequest callRequest)
-            throws TransactionBaseException, ABICodecException {
+            throws TransactionBaseException, ContractCodecException {
         Call call = this.executeCall(callRequest);
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         String callOutput = call.getCallResult().getOutput();
         Pair<List<Object>, List<ABIObject>> results =
-                this.abiCodec.decodeMethodAndGetOutputObject(callRequest.getAbi(), callOutput);
+                this.contractCodec.decodeMethodAndGetOutputObject(callRequest.getAbi(), callOutput);
         callResponse.setValues(JsonUtils.toJson(results.getLeft()));
         callResponse.setReturnObject(results.getLeft());
         callResponse.setReturnABIObject(results.getRight());
@@ -387,19 +391,19 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public CallResponse sendCallWithStringParams(
             String from, String to, String abi, String functionName, List<String> paramsList)
-            throws TransactionBaseException, ABICodecException {
-        byte[] data = this.abiCodec.encodeMethodFromString(abi, functionName, paramsList);
+            throws TransactionBaseException, ContractCodecException {
+        byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, paramsList);
         log.info("encoded data: {}", Hex.toHexString(data));
         return this.callAndGetResponse(from, to, abi, functionName, data);
     }
 
     public CallResponse callAndGetResponse(
             String from, String to, String abi, String functionName, byte[] data)
-            throws ABICodecException, TransactionBaseException {
+            throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         List<Type> decodedResult =
-                this.abiCodec.decodeMethodAndGetOutputObject(
+                this.contractCodec.decodeMethodAndGetOutputObject(
                         abi, functionName, call.getCallResult().getOutput());
         callResponse.setResults(decodedResult);
         return callResponse;
@@ -407,14 +411,14 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TxPair createSignedConstructor(String abi, String bin, List<Object> params, String path)
-            throws ABICodecException {
+            throws ContractCodecException {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
         return this.createDeploySignedTransaction(
                 Objects.nonNull(path) ? path : "",
-                this.abiCodec.encodeConstructor(abi, bin, params),
+                this.contractCodec.encodeConstructor(abi, bin, params),
                 abi,
                 this.cryptoKeyPair,
                 txAttribute);
@@ -422,18 +426,18 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public byte[] encodeFunction(String abi, String functionName, List<Object> params)
-            throws ABICodecException {
-        return this.abiCodec.encodeMethod(abi, functionName, params);
+            throws ContractCodecException {
+        return this.contractCodec.encodeMethod(abi, functionName, params);
     }
 
     @Override
     public long getRawTransactionForConstructor(String abi, String bin, List<Object> params)
-            throws ABICodecException, JniException {
+            throws ContractCodecException, JniException {
         return TransactionBuilderJniObj.createTransactionData(
                 this.groupId,
                 this.chainId,
                 "",
-                Hex.toHexString(this.abiCodec.encodeConstructor(abi, bin, params)),
+                Hex.toHexString(this.contractCodec.encodeConstructor(abi, bin, params)),
                 abi,
                 client.getBlockLimit().longValue());
     }
@@ -441,26 +445,26 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public long getRawTransactionForConstructor(
             BigInteger blockLimit, String abi, String bin, List<Object> params)
-            throws ABICodecException, JniException {
+            throws ContractCodecException, JniException {
 
         return TransactionBuilderJniObj.createTransactionData(
                 this.groupId,
                 this.chainId,
                 "",
-                Hex.toHexString(this.abiCodec.encodeConstructor(abi, bin, params)),
+                Hex.toHexString(this.contractCodec.encodeConstructor(abi, bin, params)),
                 abi,
                 blockLimit.longValue());
     }
 
     @Override
     public long getRawTransaction(String to, String abi, String functionName, List<Object> params)
-            throws ABICodecException, JniException {
+            throws ContractCodecException, JniException {
 
         return TransactionBuilderJniObj.createTransactionData(
                 this.groupId,
                 this.chainId,
                 to,
-                Hex.toHexString(this.abiCodec.encodeMethod(abi, functionName, params)),
+                Hex.toHexString(this.contractCodec.encodeMethod(abi, functionName, params)),
                 "",
                 client.getBlockLimit().longValue());
     }
@@ -468,13 +472,13 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public long getRawTransaction(
             BigInteger blockLimit, String to, String abi, String functionName, List<Object> params)
-            throws ABICodecException, JniException {
+            throws ContractCodecException, JniException {
 
         return TransactionBuilderJniObj.createTransactionData(
                 this.groupId,
                 this.chainId,
                 to,
-                Hex.toHexString(this.abiCodec.encodeMethod(abi, functionName, params)),
+                Hex.toHexString(this.contractCodec.encodeMethod(abi, functionName, params)),
                 "",
                 blockLimit.longValue());
     }

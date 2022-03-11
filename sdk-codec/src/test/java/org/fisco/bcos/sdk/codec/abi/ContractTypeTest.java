@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.fisco.bcos.sdk.codec.TestUtils;
-import org.fisco.bcos.sdk.codec.wrapper.ABICodecJsonWrapper;
+import org.fisco.bcos.sdk.codec.wrapper.ContractCodecJsonWrapper;
 import org.fisco.bcos.sdk.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.codec.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.codec.wrapper.ContractABIDefinition;
@@ -260,7 +260,7 @@ public class ContractTypeTest {
                         "[\"a\",\"b\",\"c\"]",
                         "[\"" + bytes1 + "\",\"" + bytes2 + "\",\"" + bytes3 + "\"]");
 
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+        ContractCodecJsonWrapper abiCodecJsonWrapper = new ContractCodecJsonWrapper();
         ABIObject encodeObject = abiCodecJsonWrapper.encode(inputObject, params);
         byte[] encode = encodeObject.encode(false);
         String s = Hex.toHexString(encode);
@@ -308,7 +308,7 @@ public class ContractTypeTest {
                         "[\"a\",\"b\",\"c\"]",
                         "[\"" + bytes1 + "\",\"" + bytes2 + "\",\"" + bytes3 + "\"]");
 
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+        ContractCodecJsonWrapper abiCodecJsonWrapper = new ContractCodecJsonWrapper();
         ABIObject encodeObject = abiCodecJsonWrapper.encode(inputObject, params);
 
         List<String> decodeResult = abiCodecJsonWrapper.decode(outObject, encodeObject.encode(false),false);
@@ -340,7 +340,7 @@ public class ContractTypeTest {
 
         List<String> params = Arrays.asList("[]", "[]", "[]", "[]", "[]", "[]");
 
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+        ContractCodecJsonWrapper abiCodecJsonWrapper = new ContractCodecJsonWrapper();
         ABIObject encodeObject = abiCodecJsonWrapper.encode(inputObject, params);
 
         List<String> decodeResult = abiCodecJsonWrapper.decode(outObject, encodeObject.encode(false),false);

@@ -15,9 +15,9 @@
 
 package org.fisco.bcos.sdk.codec;
 
-public class ABICodecException extends Exception {
+public class ContractCodecException extends Exception {
 
-    public ABICodecException(String message) {
+    public ContractCodecException(String message) {
         super(message);
     }
 }

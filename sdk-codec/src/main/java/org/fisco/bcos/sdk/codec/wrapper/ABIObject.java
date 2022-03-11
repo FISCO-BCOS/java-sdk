@@ -304,11 +304,11 @@ public class ABIObject {
     }
 
     public byte[] encode(boolean isWasm) throws IOException {
-        return ABICodecObject.encode(this, isWasm);
+        return ContractCodecTools.encode(this, isWasm);
     }
 
     public ABIObject decode(byte[] input, boolean isWasm) throws ClassNotFoundException {
-        return ABICodecObject.decode(this, input, isWasm);
+        return ContractCodecTools.decode(this, input, isWasm);
     }
 
     public ObjectType getType() {
