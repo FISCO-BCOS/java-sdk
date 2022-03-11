@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.RespCallback;
+import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransaction;
@@ -277,6 +278,11 @@ public class BcosSDKTest {
         // getCode
         Code code = client.getCode(helloWorld.getContractAddress());
         Assert.assertNotNull(code.getResult());
+
+        // getABI
+        Abi abi = client.getABI(helloWorld.getContractAddress());
+        Assert.assertNotNull(abi.getABI());
+        System.out.println(abi.getABI());
         s = helloWorld.get();
         System.out.println("helloworld get :" + s);
 

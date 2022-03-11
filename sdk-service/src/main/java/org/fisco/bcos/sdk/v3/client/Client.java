@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
+import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfoList;
@@ -284,6 +285,40 @@ public interface Client {
      * @param callback the callback that will be called when receive the response
      */
     void getCodeAsync(String node, String address, RespCallback<Code> callback);
+
+    /**
+     * Scheduler: get abi
+     *
+     * @param address the address string
+     * @return abi string
+     */
+    Abi getABI(String address);
+
+    /**
+     * Ledger operation: get abi
+     *
+     * @param node the node rpc request send to
+     * @param address the address string
+     * @return a code instance
+     */
+    Abi getABI(String node, String address);
+
+    /**
+     * Ledger operation: async get abi
+     *
+     * @param address the address string
+     * @param callback the callback that will be called when receive the response
+     */
+    void getABIAsync(String address, RespCallback<Abi> callback);
+
+    /**
+     * Ledger operation: async get abi
+     *
+     * @param node the node rpc request send to
+     * @param address the address string
+     * @param callback the callback that will be called when receive the response
+     */
+    void getABIAsync(String node, String address, RespCallback<Abi> callback);
 
     /**
      * Ledger operation: get total transaction coun

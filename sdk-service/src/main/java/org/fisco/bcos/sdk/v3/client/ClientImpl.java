@@ -30,6 +30,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.model.GroupNodeIniInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.request.JsonRpcMethods;
 import org.fisco.bcos.sdk.v3.client.protocol.request.JsonRpcRequest;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
+import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfoList;
@@ -362,6 +363,41 @@ public class ClientImpl implements Client {
                         JsonRpcMethods.GET_CODE,
                         Arrays.asList(this.groupID, node, Hex.trimPrefix(address))),
                 Code.class,
+                callback);
+    }
+
+    @Override
+    public Abi getABI(String address) {
+        return this.getABI("", address);
+    }
+
+    @Override
+    public Abi getABI(String node, String address) {
+        node = Objects.isNull(node) ? "" : node;
+
+        // create request
+        JsonRpcRequest request =
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_ABI,
+                        Arrays.asList(this.groupID, node, Hex.trimPrefix(address)));
+        return this.callRemoteMethod(this.groupID, node, request, Abi.class);
+    }
+
+    @Override
+    public void getABIAsync(String address, RespCallback<Abi> callback) {
+        this.getABIAsync("", address, callback);
+    }
+
+    @Override
+    public void getABIAsync(String node, String address, RespCallback<Abi> callback) {
+        node = Objects.isNull(node) ? "" : node;
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                node,
+                new JsonRpcRequest(
+                        JsonRpcMethods.GET_ABI,
+                        Arrays.asList(this.groupID, node, Hex.trimPrefix(address))),
+                Abi.class,
                 callback);
     }
 
