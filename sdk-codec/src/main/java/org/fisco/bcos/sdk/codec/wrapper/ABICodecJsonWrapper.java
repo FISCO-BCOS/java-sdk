@@ -469,13 +469,14 @@ public class ABICodecJsonWrapper {
         return null;
     }
 
-    public List<String> decode(ABIObject template, byte[] buffer) {
+    public List<String> decode(ABIObject template, byte[] buffer, boolean isWasm)
+            throws ClassNotFoundException {
 
         if (logger.isTraceEnabled()) {
             logger.trace(" ABIObject: {}, abi: {}", template.toString(), buffer);
         }
 
-        ABIObject abiObject = template.decode(buffer);
+        ABIObject abiObject = ABICodecObject.decode(template, buffer, isWasm);
 
         JsonNode jsonNode = decode(abiObject);
 

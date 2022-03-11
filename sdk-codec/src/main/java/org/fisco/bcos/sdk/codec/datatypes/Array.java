@@ -8,6 +8,7 @@ import java.util.Objects;
 public abstract class Array<T extends Type> implements Type<List<T>> {
     private final Class<T> type;
     protected final List<T> value;
+    protected boolean isFixed;
 
     @SafeVarargs
     Array(Class<T> type, T... values) {
@@ -19,6 +20,7 @@ public abstract class Array<T extends Type> implements Type<List<T>> {
 
         this.type = type;
         this.value = values;
+        this.isFixed = false;
     }
 
     @Override
@@ -46,6 +48,10 @@ public abstract class Array<T extends Type> implements Type<List<T>> {
     private void valid(Class<T> type, List<T> values) {
         Objects.requireNonNull(type);
         Objects.requireNonNull(values);
+    }
+
+    public boolean isFixed() {
+        return isFixed;
     }
 
     @Override

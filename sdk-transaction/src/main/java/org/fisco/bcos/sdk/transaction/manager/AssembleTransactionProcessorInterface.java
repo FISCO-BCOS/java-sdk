@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.client.protocol.model.tars.TransactionData;
 import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.transaction.model.dto.CallRequest;
@@ -33,9 +34,33 @@ public interface AssembleTransactionProcessorInterface {
      * deploy contract to fisco bcos node and get transaction receipt.
      *
      * @param data encoded transaction data
+     * @param abi contract abi string
+     * @param path the BFS path, which the contract be deployed in exactly path, this param only
+     *     enable in wasm
+     * @return transaction receipt
+     */
+    public TransactionReceipt deployAndGetReceipt(byte[] data, String abi, String path)
+            throws JniException;
+
+    /**
+     * deploy contract to fisco bcos node and get transaction receipt.
+     *
+     * @param data encoded transaction data
      * @return transaction receipt
      */
     public TransactionReceipt deployAndGetReceipt(byte[] data);
+
+    /**
+     * deploy contract in exact BFS path to fisco bcos node only without receive any response.
+     *
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
+     * @param params contract construct parameters
+     * @param path this param only enable in wasm, the BFS path, which the contract be deployed in
+     *     exactly path
+     */
+    public void deployOnly(String abi, String bin, List<Object> params, String path)
+            throws ABICodecException;
 
     /**
      * deploy contract to fisco bcos node only without receive any response.
@@ -71,7 +96,22 @@ public interface AssembleTransactionProcessorInterface {
      *
      * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param bin contract binary, which could be obtained by compiling solidity contract.
+     * @param params contract construct parameters
+     * @param path this param only enable in wasm, the BFS path, which the contract be deployed in
+     *     exactly path
+     * @return transaction response @See TransactionResponse
+     */
+    public TransactionResponse deployAndGetResponse(
+            String abi, String bin, List<Object> params, String path) throws ABICodecException;
+
+    /**
+     * deploy contract to fisco bcos node and get response.
+     *
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct string parameters
+     * @param path the BFS path, which the contract be deployed in exactly path, this param only
+     *     enable in wasm
      */
     public TransactionResponse deployAndGetResponseWithStringParams(
             String abi, String bin, List<String> params, String path) throws ABICodecException;
@@ -94,10 +134,38 @@ public interface AssembleTransactionProcessorInterface {
      * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
+     * @param path the BFS path, which the contract be deployed in exactly path, this param only
+     *     enable in wasm
+     * @param callback transaction with callback function
+     */
+    public void deployAsync(
+            String abi, String bin, List<Object> params, String path, TransactionCallback callback)
+            throws ABICodecException;
+
+    /**
+     * deploy contract to fisco bcos node asynchronously.
+     *
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
+     * @param params contract construct parameters
      * @return CompletableFuture wrapper transaction receipt
      */
     public CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params) throws ABICodecException;
+
+    /**
+     * deploy contract to fisco bcos node asynchronously.
+     *
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
+     * @param params contract construct parameters
+     * @param path the BFS path, which the contract be deployed in exactly path, this param only
+     *     enable in wasm
+     * @return CompletableFuture wrapper transaction receipt
+     */
+    public CompletableFuture<TransactionReceipt> deployAsync(
+            String abi, String bin, List<Object> params, String path)
+            throws ABICodecException, JniException;
 
     /**
      * deploy contract to fisco bcos node and get response by contract name. The contract loader
@@ -303,9 +371,11 @@ public interface AssembleTransactionProcessorInterface {
      * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
+     * @param path the BFS path, which the contract be deployed in exactly path, this param only
+     *     enable in wasm
      * @return signed constructor string
      */
-    public String createSignedConstructor(String abi, String bin, List<Object> params)
+    public String createSignedConstructor(String abi, String bin, List<Object> params, String path)
             throws ABICodecException;
 
     /**

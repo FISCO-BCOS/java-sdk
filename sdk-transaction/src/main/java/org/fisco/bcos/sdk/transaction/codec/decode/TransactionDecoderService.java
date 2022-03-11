@@ -130,7 +130,6 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                     for (ABIDefinition abiDefinition : events) {
                         ABIObject outputObject =
                                 ABIObjectFactory.createEventInputObject(abiDefinition);
-                        ABICodecObject abiCodecObject = new ABICodecObject();
                         for (Logs log : logs) {
                             String eventSignature =
                                     eventEncoder.buildEventSignature(
@@ -141,8 +140,10 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                             }
                             try {
                                 List<Object> list =
-                                        abiCodecObject.decodeJavaObject(
-                                                outputObject, log.getData());
+                                        ABICodecObject.decodeJavaObject(
+                                                outputObject,
+                                                log.getData(),
+                                                this.abiCodec.isWasm());
                                 if (result.containsKey(name)) {
                                     result.get(name).add(list);
                                 } else {

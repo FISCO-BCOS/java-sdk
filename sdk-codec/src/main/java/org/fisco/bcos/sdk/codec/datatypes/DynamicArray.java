@@ -60,4 +60,8 @@ public class DynamicArray<T extends Type> extends Array<T> {
         }
         return type + "[]";
     }
+
+    public void setFixed(boolean fixed) {
+        this.isFixed = fixed;
+    }
 }

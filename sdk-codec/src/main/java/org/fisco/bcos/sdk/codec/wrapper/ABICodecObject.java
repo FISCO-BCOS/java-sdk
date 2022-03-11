@@ -1,5 +1,7 @@
 package org.fisco.bcos.sdk.codec.wrapper;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
@@ -7,9 +9,12 @@ import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.fisco.bcos.sdk.codec.abi.TypeDecoder;
 import org.fisco.bcos.sdk.codec.datatypes.*;
+import org.fisco.bcos.sdk.codec.datatypes.generated.Bytes32;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Uint256;
+import org.fisco.bcos.sdk.codec.scale.ScaleCodecReader;
 import org.fisco.bcos.sdk.codec.wrapper.ABIObject.ListType;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
@@ -19,7 +24,7 @@ public class ABICodecObject {
 
     private static final Logger logger = LoggerFactory.getLogger(ABICodecObject.class);
 
-    private void errorReport(String path, String expected, String actual)
+    private static void errorReport(String path, String expected, String actual)
             throws InvalidParameterException {
         String errorMessage =
                 "Arguments mismatch: " + path + ", expected: " + expected + ", actual: " + actual;
@@ -27,7 +32,7 @@ public class ABICodecObject {
         throw new InvalidParameterException(errorMessage);
     }
 
-    public ABIObject encodeList(ABIObject template, Object value) {
+    public static ABIObject decodeAbiObjectListValue(ABIObject template, Object value) {
 
         ABIObject abiObject = template.newObject();
 
@@ -62,17 +67,17 @@ public class ABICodecObject {
             switch (nodeObject.getType()) {
                 case VALUE:
                     {
-                        nodeObject = encodeValue(nodeObject, obj);
+                        nodeObject = decodeABIObjectValue(nodeObject, obj);
                         break;
                     }
                 case STRUCT:
                     {
-                        nodeObject = encodeStruct(nodeObject, obj);
+                        nodeObject = decodeAbiObjectStructValue(nodeObject, obj);
                         break;
                     }
                 case LIST:
                     {
-                        nodeObject = encodeList(nodeObject, obj);
+                        nodeObject = decodeAbiObjectListValue(nodeObject, obj);
                         break;
                     }
                 default:
@@ -87,7 +92,7 @@ public class ABICodecObject {
         return abiObject;
     }
 
-    public ABIObject encodeStruct(ABIObject template, Object value) {
+    public static ABIObject decodeAbiObjectStructValue(ABIObject template, Object value) {
         ABIObject abiObject = template.newObject();
 
         // check abi type
@@ -105,17 +110,17 @@ public class ABICodecObject {
                 switch (nodeObject.getType()) {
                     case VALUE:
                         {
-                            nodeObject = encodeValue(nodeObject, list.get(i));
+                            nodeObject = decodeABIObjectValue(nodeObject, list.get(i));
                             break;
                         }
                     case STRUCT:
                         {
-                            nodeObject = encodeStruct(nodeObject, list.get(i));
+                            nodeObject = decodeAbiObjectStructValue(nodeObject, list.get(i));
                             break;
                         }
                     case LIST:
                         {
-                            nodeObject = encodeList(nodeObject, list.get(i));
+                            nodeObject = decodeAbiObjectListValue(nodeObject, list.get(i));
                             break;
                         }
                     default:
@@ -142,17 +147,22 @@ public class ABICodecObject {
                 switch (nodeObject.getType()) {
                     case VALUE:
                         {
-                            nodeObject = encodeValue(nodeObject, v.get(nodeObject.getName()));
+                            nodeObject =
+                                    decodeABIObjectValue(nodeObject, v.get(nodeObject.getName()));
                             break;
                         }
                     case STRUCT:
                         {
-                            nodeObject = encodeStruct(nodeObject, v.get(nodeObject.getName()));
+                            nodeObject =
+                                    decodeAbiObjectStructValue(
+                                            nodeObject, v.get(nodeObject.getName()));
                             break;
                         }
                     case LIST:
                         {
-                            nodeObject = encodeList(nodeObject, v.get(nodeObject.getName()));
+                            nodeObject =
+                                    decodeAbiObjectListValue(
+                                            nodeObject, v.get(nodeObject.getName()));
                             break;
                         }
                     default:
@@ -168,12 +178,12 @@ public class ABICodecObject {
         return abiObject;
     }
 
-    public ABIObject encodeValue(ABIObject template, Object value) {
+    public static ABIObject decodeABIObjectValue(ABIObject template, Object value) {
         ABIObject abiObject = template.newObject();
         if (abiObject.getType() == ABIObject.ObjectType.LIST) {
-            abiObject = encodeList(abiObject, value);
+            abiObject = decodeAbiObjectListValue(abiObject, value);
         } else if (abiObject.getType() == ABIObject.ObjectType.STRUCT) {
-            abiObject = encodeStruct(abiObject, value);
+            abiObject = decodeAbiObjectStructValue(abiObject, value);
         } else {
             switch (abiObject.getValueType()) {
                 case BOOL:
@@ -282,23 +292,408 @@ public class ABICodecObject {
         return abiObject;
     }
 
-    public Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndOutputObject(
-            ABIObject template, String input) {
-        if (logger.isTraceEnabled()) {
-            logger.trace(" ABIObject: {}, abi: {}", template.toString(), input);
+    private static byte[] typeEncoderWrapper(Type parameter, boolean isWasm) throws IOException {
+        return isWasm
+                ? org.fisco.bcos.sdk.codec.scale.TypeEncoder.encode(parameter)
+                : org.fisco.bcos.sdk.codec.abi.TypeEncoder.encode(parameter);
+    }
+
+    private static Type getABIObjectTypeValue(ABIObject abiObject) {
+        switch (abiObject.getType()) {
+            case VALUE:
+                {
+                    ABIObject.ValueType valueType = abiObject.getValueType();
+                    switch (valueType) {
+                        case UINT:
+                        case INT:
+                            {
+                                return abiObject.getNumericValue();
+                            }
+                        case BOOL:
+                            {
+                                return abiObject.getBoolValue();
+                            }
+                        case FIXED:
+                        case UFIXED:
+                            {
+                                throw new UnsupportedOperationException(
+                                        " Unsupported fixed/unfixed type. ");
+                            }
+                        case BYTES:
+                            {
+                                return abiObject.getBytesValue();
+                            }
+                        case ADDRESS:
+                            {
+                                return abiObject.getAddressValue();
+                            }
+                        case DBYTES:
+                            {
+                                return abiObject.getDynamicBytesValue();
+                            }
+                        case STRING:
+                            {
+                                return abiObject.getStringValue();
+                            }
+                        default:
+                            {
+                                throw new UnsupportedOperationException(
+                                        " Unrecognized valueType: " + valueType);
+                            }
+                    }
+                }
+            case STRUCT:
+                {
+                    List<Type> typeList = new ArrayList<>();
+                    for (ABIObject structField : abiObject.getStructFields()) {
+                        typeList.add(getABIObjectTypeValue(structField));
+                    }
+                    if (abiObject.isDynamic()) {
+                        return new DynamicStruct(typeList);
+                    } else {
+                        return new StaticStruct(typeList);
+                    }
+                }
+            case LIST:
+                {
+                    List<Type> typeList = new ArrayList<>();
+                    for (ABIObject listValue : abiObject.getListValues()) {
+                        typeList.add(getABIObjectTypeValue(listValue));
+                    }
+                    // FIXME: this will cause exception when empty list
+                    if (abiObject.isDynamic()) {
+                        DynamicArray dynamicArray = null;
+                        if (typeList.isEmpty()) {
+                            dynamicArray = new DynamicArray(ABIDefinition.Type.class, typeList);
+                        } else {
+                            dynamicArray = new DynamicArray(typeList.get(0).getClass(), typeList);
+                        }
+                        dynamicArray.setFixed(abiObject.getListType() == ListType.FIXED);
+                        return dynamicArray;
+                    } else {
+                        if (typeList.isEmpty()) {
+                            return new StaticArray(ABIDefinition.Type.class, typeList);
+                        }
+                        return new StaticArray(typeList.get(0).getClass(), typeList);
+                    }
+                }
+            default:
+                {
+                    throw new UnsupportedOperationException(
+                            " Unsupported type: " + abiObject.getType());
+                }
+        }
+    }
+
+    /**
+     * encode this object
+     *
+     * @return the encoded object
+     */
+    public static byte[] encode(ABIObject abiObject, boolean isWasm) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] bytes = typeEncoderWrapper(getABIObjectTypeValue(abiObject), isWasm);
+        outputStream.write(bytes);
+        return outputStream.toByteArray();
+    }
+
+    /**
+     * decode abi object
+     *
+     * @param input the string to be decoded into ABIObject
+     * @return the decoded ABIObject
+     */
+    public static ABIObject decode(ABIObject template, byte[] input, boolean isWasm)
+            throws ClassNotFoundException {
+        if (isWasm) {
+            ScaleCodecReader reader = new ScaleCodecReader(input);
+            return decodeScale(template, reader);
+        }
+        return decodeABI(template, input, 0);
+    }
+
+    /**
+     * abi codec decode
+     *
+     * @return the decoded ABIObject
+     */
+    private static ABIObject decodeABI(ABIObject template, byte[] input, int offset) {
+
+        ABIObject abiObject = template.newObject();
+
+        switch (abiObject.getType()) {
+            case VALUE:
+                {
+                    switch (abiObject.getValueType()) {
+                        case BOOL:
+                            {
+                                abiObject.setBoolValue(
+                                        TypeDecoder.decode(input, offset, Bool.class));
+                                break;
+                            }
+                        case UINT:
+                            {
+                                abiObject.setNumericValue(
+                                        TypeDecoder.decode(input, offset, Uint256.class));
+                                break;
+                            }
+                        case INT:
+                            {
+                                abiObject.setNumericValue(
+                                        TypeDecoder.decode(input, offset, Int256.class));
+                                break;
+                            }
+                        case FIXED:
+                        case UFIXED:
+                            {
+                                throw new UnsupportedOperationException(
+                                        " Unsupported fixed/unfixed type. ");
+                            }
+                        case BYTES:
+                            {
+                                abiObject.setBytesValue(
+                                        TypeDecoder.decode(input, offset, Bytes32.class));
+                                break;
+                            }
+                        case ADDRESS:
+                            {
+                                abiObject.setAddressValue(
+                                        TypeDecoder.decode(input, offset, Address.class));
+                                break;
+                            }
+                        case DBYTES:
+                            {
+                                abiObject.setDynamicBytesValue(
+                                        TypeDecoder.decode(input, offset, DynamicBytes.class));
+                                break;
+                            }
+                        case STRING:
+                            {
+                                abiObject.setStringValue(
+                                        TypeDecoder.decode(input, offset, Utf8String.class));
+                                break;
+                            }
+                    }
+                    break;
+                }
+            case STRUCT:
+                {
+                    int structOffset = offset;
+                    int initialOffset = offset;
+
+                    for (int i = 0; i < abiObject.getStructFields().size(); ++i) {
+                        ABIObject structObject = abiObject.getStructFields().get(i);
+                        ABIObject itemObject = null;
+                        if (structObject.isDynamic()) {
+                            int structValueOffset =
+                                    TypeDecoder.decode(input, structOffset, Uint256.class)
+                                            .getValue()
+                                            .intValue();
+                            itemObject =
+                                    decodeABI(
+                                            structObject, input, initialOffset + structValueOffset);
+                        } else {
+                            itemObject = decodeABI(structObject, input, structOffset);
+                        }
+
+                        abiObject.getStructFields().set(i, itemObject);
+                        structOffset += structObject.offsetAsByteLength();
+                    }
+                    break;
+                }
+            case LIST:
+                {
+                    int listOffset = offset;
+                    int initialOffset = offset;
+
+                    int listLength = 0;
+                    if (abiObject.getListType() == ListType.DYNAMIC) {
+                        // dynamic list length
+                        listLength =
+                                TypeDecoder.decode(input, listOffset, Uint256.class)
+                                        .getValue()
+                                        .intValue();
+                        listOffset += Type.MAX_BYTE_LENGTH;
+                        initialOffset += Type.MAX_BYTE_LENGTH;
+                    } else {
+                        // fixed list length
+                        listLength = abiObject.getListLength();
+                    }
+
+                    if (logger.isTraceEnabled()) {
+                        logger.trace(
+                                " listType: {}, listLength: {}",
+                                abiObject.getListType(),
+                                listLength);
+                    }
+
+                    ABIObject listValueObject = abiObject.getListValueType();
+
+                    for (int i = 0; i < listLength; i++) {
+                        ABIObject itemABIObject = null;
+
+                        if (listValueObject.isDynamic()) {
+                            int listValueOffset =
+                                    TypeDecoder.decode(input, listOffset, Uint256.class)
+                                            .getValue()
+                                            .intValue();
+                            itemABIObject =
+                                    decodeABI(
+                                            abiObject.getListValueType(),
+                                            input,
+                                            initialOffset + listValueOffset);
+                        } else {
+                            itemABIObject =
+                                    decodeABI(abiObject.getListValueType(), input, listOffset);
+                        }
+
+                        listOffset += listValueObject.offsetAsByteLength();
+
+                        abiObject.getListValues().add(itemABIObject);
+                    }
+                    break;
+                }
         }
 
-        ABIObject abiObject = template.decode(Hex.decode(input));
+        return abiObject;
+    }
+
+    /**
+     * scale codec decode
+     *
+     * @return the decoded ABIObject
+     */
+    private static ABIObject decodeScale(ABIObject template, ScaleCodecReader reader)
+            throws ClassNotFoundException {
+
+        ABIObject abiObject = template.newObject();
+
+        switch (abiObject.getType()) {
+            case VALUE:
+                {
+                    switch (abiObject.getValueType()) {
+                        case BOOL:
+                            {
+                                abiObject.setBoolValue(
+                                        org.fisco.bcos.sdk.codec.scale.TypeDecoder.decode(
+                                                reader, TypeReference.create(Bool.class)));
+                                break;
+                            }
+                        case UINT:
+                            {
+                                abiObject.setNumericValue(
+                                        org.fisco.bcos.sdk.codec.scale.TypeDecoder.decode(
+                                                reader, TypeReference.create(Uint256.class)));
+                                break;
+                            }
+                        case INT:
+                            {
+                                abiObject.setNumericValue(
+                                        org.fisco.bcos.sdk.codec.scale.TypeDecoder.decode(
+                                                reader, TypeReference.create(Int256.class)));
+                                break;
+                            }
+                        case FIXED:
+                        case UFIXED:
+                            {
+                                throw new UnsupportedOperationException(
+                                        " Unsupported fixed/unfixed type. ");
+                            }
+                        case BYTES:
+                            {
+                                abiObject.setBytesValue(
+                                        org.fisco.bcos.sdk.codec.scale.TypeDecoder.decode(
+                                                reader, TypeReference.create(Bytes32.class)));
+                                break;
+                            }
+                        case ADDRESS:
+                            {
+                                abiObject.setAddressValue(
+                                        org.fisco.bcos.sdk.codec.scale.TypeDecoder.decode(
+                                                reader, TypeReference.create(Address.class)));
+                                break;
+                            }
+                        case DBYTES:
+                            {
+                                abiObject.setDynamicBytesValue(
+                                        org.fisco.bcos.sdk.codec.scale.TypeDecoder.decode(
+                                                reader, TypeReference.create(DynamicBytes.class)));
+                                break;
+                            }
+                        case STRING:
+                            {
+                                abiObject.setStringValue(
+                                        org.fisco.bcos.sdk.codec.scale.TypeDecoder.decode(
+                                                reader, TypeReference.create(Utf8String.class)));
+                                break;
+                            }
+                    }
+                    break;
+                }
+            case STRUCT:
+                {
+                    for (int i = 0; i < abiObject.getStructFields().size(); ++i) {
+                        ABIObject structObject = abiObject.getStructFields().get(i);
+                        ABIObject itemObject = null;
+                        itemObject = decodeScale(structObject, reader);
+                        abiObject.getStructFields().set(i, itemObject);
+                    }
+                    break;
+                }
+            case LIST:
+                {
+                    int listLength;
+                    if (abiObject.getListType() == ListType.DYNAMIC) {
+                        // dynamic list length
+                        listLength =
+                                org.fisco.bcos.sdk.codec.scale.TypeDecoder.decode(
+                                                reader, TypeReference.create(Uint256.class))
+                                        .getValue()
+                                        .intValue();
+                    } else {
+                        // fixed list length
+                        listLength = abiObject.getListLength();
+                    }
+
+                    if (logger.isTraceEnabled()) {
+                        logger.trace(
+                                " listType: {}, listLength: {}",
+                                abiObject.getListType(),
+                                listLength);
+                    }
+                    for (int i = 0; i < listLength; i++) {
+                        ABIObject itemABIObject;
+
+                        itemABIObject = decodeScale(abiObject.getListValueType(), reader);
+
+                        abiObject.getListValues().add(itemABIObject);
+                    }
+                    break;
+                }
+        }
+
+        return abiObject;
+    }
+
+    public static Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndOutputObject(
+            ABIObject template, String input, boolean isWasm) throws ClassNotFoundException {
+        if (logger.isTraceEnabled()) {
+            logger.trace(" ABIObject: {}, abi: {}", template, input);
+        }
+
+        ABIObject abiObject = decode(template, Hex.decode(input), isWasm);
 
         // ABIObject -> java List<Object>
         return decodeJavaObjectAndGetOutputObject(abiObject);
     }
 
-    public List<Object> decodeJavaObject(ABIObject template, String input) {
-        return decodeJavaObjectAndOutputObject(template, input).getLeft();
+    public static List<Object> decodeJavaObject(ABIObject template, String input, boolean isWasm)
+            throws ClassNotFoundException {
+        return decodeJavaObjectAndOutputObject(template, input, isWasm).getLeft();
     }
 
-    private List<Object> decodeJavaObject(ABIObject template) throws UnsupportedOperationException {
+    private static List<Object> decodeJavaObject(ABIObject template)
+            throws UnsupportedOperationException {
         return decodeJavaObjectAndGetOutputObject(template).getLeft();
     }
 
@@ -314,7 +709,7 @@ public class ABICodecObject {
         }
     }
 
-    private Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndGetOutputObject(
+    private static Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndGetOutputObject(
             ABIObject template) throws UnsupportedOperationException {
         List<Object> result = new ArrayList<Object>();
         List<ABIObject> argObjects;
