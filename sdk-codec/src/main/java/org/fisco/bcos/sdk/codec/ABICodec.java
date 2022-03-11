@@ -77,12 +77,10 @@ public class ABICodec {
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
         ABIObject inputABIObject = ABIObjectFactory.createInputObject(abiDefinition);
         try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            outputStream.write(Hex.decode(bin));
-            outputStream.write(
+            byte[] encodeParams =
                     ABICodecObject.encode(
-                            ABICodecObject.decodeABIObjectValue(inputABIObject, params), isWasm));
-            return outputStream.toByteArray();
+                            ABICodecObject.decodeABIObjectValue(inputABIObject, params), isWasm);
+            return encodeConstructorFromBytes(bin, encodeParams, abi);
         } catch (Exception e) {
             logger.error(" exception in encodeConstructor : {}", e.getMessage());
         }
