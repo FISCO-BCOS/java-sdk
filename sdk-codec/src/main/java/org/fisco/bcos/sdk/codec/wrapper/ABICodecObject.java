@@ -1,6 +1,5 @@
 package org.fisco.bcos.sdk.codec.wrapper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
@@ -391,10 +390,7 @@ public class ABICodecObject {
      * @return the encoded object
      */
     public static byte[] encode(ABIObject abiObject, boolean isWasm) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] bytes = typeEncoderWrapper(getABIObjectTypeValue(abiObject), isWasm);
-        outputStream.write(bytes);
-        return outputStream.toByteArray();
+        return typeEncoderWrapper(getABIObjectTypeValue(abiObject), isWasm);
     }
 
     /**
