@@ -78,13 +78,10 @@ public class ContractCodec {
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
         ABIObject inputABIObject = ABIObjectFactory.createInputObject(abiDefinition);
         try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            outputStream.write(Hex.decode(bin));
-            outputStream.write(
+            byte[] encodeParams =
                     ContractCodecTools.encode(
-                            ContractCodecTools.decodeABIObjectValue(inputABIObject, params),
-                            isWasm));
-            return outputStream.toByteArray();
+                            ContractCodecTools.decodeABIObjectValue(inputABIObject, params), isWasm);
+            return encodeConstructorFromBytes(bin, encodeParams, abi);
         } catch (Exception e) {
             logger.error(" exception in encodeConstructor : {}", e.getMessage());
         }
