@@ -3,8 +3,8 @@ package org.fisco.bcos.sdk.codec.abi;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.fisco.bcos.sdk.codec.ABICodec;
-import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.ContractCodec;
+import org.fisco.bcos.sdk.codec.ContractCodecException;
 import org.fisco.bcos.sdk.codec.TestUtils;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.junit.Assert;
@@ -18,7 +18,7 @@ public class ABIEventTest {
 
     @Test
     public void testDecode() {
-        ABICodec abiCodec = new ABICodec(TestUtils.getCryptoSuite(), false);
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
         try {
             EventLog log = new EventLog(encoded, new ArrayList<>());
             List<Object> list = abiCodec.decodeEvent(abi, "LogSetValues", log);
@@ -28,7 +28,7 @@ public class ABIEventTest {
                     list.get(1).toString(),
                     "[0x0000000000000000000000000000000000000001, 0x0000000000000000000000000000000000000002, 0x0000000000000000000000000000000000000003]");
             System.out.println("decode event log content, " + list);
-        } catch (ABICodecException e) {
+        } catch (ContractCodecException e) {
             Assert.fail(e.getMessage());
         }
     }

@@ -19,10 +19,10 @@ import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ABICodecJsonWrapper {
+public class ContractCodecJsonWrapper {
     public static final String HexEncodedDataPrefix = "hex://";
 
-    private static final Logger logger = LoggerFactory.getLogger(ABICodecJsonWrapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(ContractCodecJsonWrapper.class);
 
     private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
@@ -476,7 +476,7 @@ public class ABICodecJsonWrapper {
             logger.trace(" ABIObject: {}, abi: {}", template.toString(), buffer);
         }
 
-        ABIObject abiObject = ABICodecObject.decode(template, buffer, isWasm);
+        ABIObject abiObject = ContractCodecTools.decode(template, buffer, isWasm);
 
         JsonNode jsonNode = decode(abiObject);
 
@@ -507,7 +507,7 @@ public class ABICodecJsonWrapper {
                                 }
                             case BYTES:
                                 {
-                                    byte[] value = ABICodecObject.formatBytesN(argObject);
+                                    byte[] value = ContractCodecTools.formatBytesN(argObject);
                                     byte[] hexBytes = Hex.encode(value);
                                     result.add(HexEncodedDataPrefix + new String(hexBytes));
                                     break;

@@ -179,7 +179,7 @@ public class Contract {
     private static <T extends Contract> T create(
             T contract, String binary, String abi, byte[] encodedConstructor, String path)
             throws ContractException {
-        ABICodec codec = new ABICodec(contract.cryptoSuite, contract.client.isWASM());
+        ContractCodec codec = new ContractCodec(contract.cryptoSuite, contract.client.isWASM());
         TransactionReceipt transactionReceipt;
         try {
             if (contract.client.isWASM()) {
@@ -201,7 +201,7 @@ public class Contract {
                 }
                 contract.setContractAddress(contractAddress);
             }
-        } catch (ABICodecException e) {
+        } catch (ContractCodecException e) {
             throw new ContractException("Deploy contract failed, error message: " + e);
         }
         contract.setDeployReceipt(transactionReceipt);

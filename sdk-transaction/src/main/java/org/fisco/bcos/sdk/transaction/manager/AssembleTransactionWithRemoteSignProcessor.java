@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.bouncycastle.util.encoders.Hex;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.ContractCodecException;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.jni.common.JniException;
@@ -54,7 +54,8 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
 
     @Override
     public TransactionResponse deployAndGetResponse(
-            String abi, String bin, List<Object> params, String path) throws ABICodecException {
+            String abi, String bin, List<Object> params, String path)
+            throws ContractCodecException {
         TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
         return this.deployAndGetResponse(abi, txPair.getSignedTx());
     }
@@ -62,7 +63,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     @Override
     public void deployAsync(
             long transactionData, RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, JniException {
+            throws ContractCodecException, JniException {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
@@ -78,7 +79,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             String bin,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, JniException {
+            throws ContractCodecException, JniException {
         long transactionData = this.getRawTransactionForConstructor(abi, bin, params);
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(transactionData);
         this.transactionSignProvider.requestForSignAsync(
@@ -87,7 +88,8 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
 
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
-            String abi, String bin, List<Object> params) throws ABICodecException, JniException {
+            String abi, String bin, List<Object> params)
+            throws ContractCodecException, JniException {
         long transactionData = this.getRawTransactionForConstructor(abi, bin, params);
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(transactionData);
         int txAttribute = 0;
@@ -102,7 +104,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             String contractName,
             List<Object> args,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, NoSuchTransactionFileException, JniException {
+            throws ContractCodecException, NoSuchTransactionFileException, JniException {
         this.deployAsync(
                 super.contractLoader.getABIByContractName(contractName),
                 super.contractLoader.getBinaryByContractName(contractName),
@@ -117,7 +119,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             String functionName,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, TransactionBaseException, JniException {
+            throws ContractCodecException, TransactionBaseException, JniException {
         this.sendTransactionAsync(
                 to,
                 super.contractLoader.getABIByContractName(contractName),
@@ -133,7 +135,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             String functionName,
             List<Object> params,
             RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ABICodecException, JniException {
+            throws ContractCodecException, JniException {
         long transactionData = this.getRawTransaction(to, abi, functionName, params);
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(transactionData);
         this.transactionSignProvider.requestForSignAsync(
@@ -143,7 +145,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     @Override
     public CompletableFuture<TransactionReceipt> sendTransactionAsync(
             String to, String abi, String functionName, List<Object> params)
-            throws ABICodecException, JniException {
+            throws ContractCodecException, JniException {
         long transactionData = this.getRawTransaction(to, abi, functionName, params);
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(transactionData);
         int txAttribute = 0;

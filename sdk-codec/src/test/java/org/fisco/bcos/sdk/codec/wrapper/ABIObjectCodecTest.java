@@ -270,7 +270,7 @@ public class ABIObjectCodecTest {
     List<ABIDefinition> functions = contractABIDefinition.getFunctions().get("test");
     ABIObject inputABIObject = ABIObjectFactory.createInputObject(functions.get(0));
     ABIObject obj = inputABIObject.decode(Hex.decode(this.encoded),false);
-    ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+    ContractCodecJsonWrapper abiCodecJsonWrapper = new ContractCodecJsonWrapper();
     // List<String> decodeJson = abiCodecJsonWrapper.decode(obj, encoded);
     // Assert.assertEquals(Arrays.toString(decodeJson.toArray(new String[0])), "[ [ \"Hello
     // world!\", 100, [ [ 1, 2, 3 ] ] ], [ \"Hello world2\", 200, [ [ 5, 6, 7 ] ] ], [ \"Hello
@@ -298,7 +298,7 @@ public class ABIObjectCodecTest {
         "[{\"name\": \"Hello world!\", \"count\": 100, \"items\": [{\"a\": 1, \"b\": 2, \"c\": 3}]}, {\"name\": \"Hello world2\", \"count\": 200, \"items\": [{\"a\": 5, \"b\": 6, \"c\": 7}]}]");
     args.add("Hello world!");
 
-    ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+    ContractCodecJsonWrapper abiCodecJsonWrapper = new ContractCodecJsonWrapper();
     ABIObject encodedObj = abiCodecJsonWrapper.encode(inputABIObject, args);
 
     ABIObject inputABIObject0 = ABIObjectFactory.createInputObject(functions.get(0));
@@ -562,9 +562,9 @@ public class ABIObjectCodecTest {
     String bytesValue = "0x123456789874321";
     byte[] encode = Hex.encode(bytesValue.getBytes());
 
-    args.add(ABICodecJsonWrapper.HexEncodedDataPrefix + new String(encode));
+    args.add(ContractCodecJsonWrapper.HexEncodedDataPrefix + new String(encode));
 
-    ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
+    ContractCodecJsonWrapper abiCodecJsonWrapper = new ContractCodecJsonWrapper();
     ABIObject encodedObj = abiCodecJsonWrapper.encode(inputABIObject, args);
     List<String> decodeArgs = abiCodecJsonWrapper.decode(inputABIObject, encodedObj.encode(false),false);
     Assert.assertArrayEquals(args.toArray(), decodeArgs.toArray());
@@ -587,7 +587,7 @@ public class ABIObjectCodecTest {
     }
 
     byte[] decode =
-            Hex.decode(decodeArgs.get(args.size() - 1).substring(ABICodecJsonWrapper.HexEncodedDataPrefix.length()));
+            Hex.decode(decodeArgs.get(args.size() - 1).substring(ContractCodecJsonWrapper.HexEncodedDataPrefix.length()));
 
     Assert.assertEquals(new String(decode), bytesValue);
   }

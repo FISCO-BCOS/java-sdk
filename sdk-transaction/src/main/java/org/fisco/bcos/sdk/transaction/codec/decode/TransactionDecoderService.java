@@ -20,17 +20,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.fisco.bcos.sdk.codec.ABICodec;
-import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.ContractCodec;
+import org.fisco.bcos.sdk.codec.ContractCodecException;
 import org.fisco.bcos.sdk.codec.EventEncoder;
 import org.fisco.bcos.sdk.codec.datatypes.Type;
-import org.fisco.bcos.sdk.codec.wrapper.ABICodecObject;
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinition.NamedType;
 import org.fisco.bcos.sdk.codec.wrapper.ABIDefinitionFactory;
 import org.fisco.bcos.sdk.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.codec.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.codec.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.codec.wrapper.ContractCodecTools;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -47,7 +47,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     protected static Logger logger = LoggerFactory.getLogger(TransactionDecoderService.class);
 
     private CryptoSuite cryptoSuite;
-    private final ABICodec abiCodec;
+    private final ContractCodec contractCodec;
     private final EventEncoder eventEncoder;
 
     /**
@@ -59,7 +59,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     public TransactionDecoderService(CryptoSuite cryptoSuite, boolean isWasm) {
         super();
         this.cryptoSuite = cryptoSuite;
-        this.abiCodec = new ABICodec(cryptoSuite, isWasm);
+        this.contractCodec = new ContractCodec(cryptoSuite, isWasm);
         this.eventEncoder = new EventEncoder(cryptoSuite);
     }
 
@@ -71,12 +71,12 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     @Override
     public TransactionResponse decodeReceiptWithValues(
             String abi, String functionName, TransactionReceipt transactionReceipt)
-            throws IOException, ABICodecException, TransactionException {
+            throws IOException, ContractCodecException, TransactionException {
         TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
         // only successful tx has return values.
         if (transactionReceipt.getStatus() == 0) {
             List<Type> results =
-                    abiCodec.decodeMethodAndGetOutputObject(
+                    contractCodec.decodeMethodAndGetOutputObject(
                             abi, functionName, transactionReceipt.getOutput());
             response.setResults(results);
         }
@@ -86,7 +86,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     @Override
     public TransactionResponse decodeReceiptWithoutValues(
             String abi, TransactionReceipt transactionReceipt)
-            throws TransactionException, IOException, ABICodecException {
+            throws TransactionException, IOException, ContractCodecException {
         TransactionResponse response = decodeReceiptStatus(transactionReceipt);
         response.setTransactionReceipt(transactionReceipt);
         response.setContractAddress(transactionReceipt.getContractAddress());
@@ -117,7 +117,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
 
     @Override
     public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
-            throws ABICodecException {
+            throws ContractCodecException {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(abi);
         Map<String, List<ABIDefinition>> eventsMap = contractABIDefinition.getEvents();
@@ -140,10 +140,10 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                             }
                             try {
                                 List<Object> list =
-                                        ABICodecObject.decodeJavaObject(
+                                        ContractCodecTools.decodeJavaObject(
                                                 outputObject,
                                                 log.getData(),
-                                                this.abiCodec.isWasm());
+                                                this.contractCodec.isWasm());
                                 if (result.containsKey(name)) {
                                     result.get(name).add(list);
                                 } else {

@@ -25,7 +25,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.codec.ABICodecException;
+import org.fisco.bcos.sdk.codec.ContractCodecException;
 import org.fisco.bcos.sdk.codec.datatypes.DynamicBytes;
 import org.fisco.bcos.sdk.codec.datatypes.Type;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Bytes4;
@@ -295,7 +295,7 @@ public class AssembleTransactionProcessorTest {
                                             Lists.newArrayList());
                             System.out.println(JsonUtils.toJson(callResponse3));
                             Assert.assertEquals("Success", callResponse3.getReturnMessage());
-                        } catch (TransactionBaseException | ABICodecException e) {
+                        } catch (TransactionBaseException | ContractCodecException e) {
                             System.out.println(e.getMessage());
                         }
                     }

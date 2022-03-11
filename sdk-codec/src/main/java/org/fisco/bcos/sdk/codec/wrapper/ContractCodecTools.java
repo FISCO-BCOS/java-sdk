@@ -20,9 +20,9 @@ import org.fisco.bcos.sdk.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ABICodecObject {
+public class ContractCodecTools {
 
-    private static final Logger logger = LoggerFactory.getLogger(ABICodecObject.class);
+    private static final Logger logger = LoggerFactory.getLogger(ContractCodecTools.class);
 
     private static void errorReport(String path, String expected, String actual)
             throws InvalidParameterException {

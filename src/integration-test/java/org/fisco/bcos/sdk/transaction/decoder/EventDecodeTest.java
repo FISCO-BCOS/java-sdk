@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.codec.ABICodec;
+import org.fisco.bcos.sdk.codec.ContractCodec;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -51,7 +51,7 @@ public class EventDecodeTest {
         AssembleTransactionProcessor manager =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, client.getCryptoSuite().getCryptoKeyPair(), abiFile, binFile);
-        ABICodec abiCodec = new ABICodec(client.getCryptoSuite(), client.isWASM());
+        ContractCodec contractCodec = new ContractCodec(client.getCryptoSuite(), client.isWASM());
         // deploy
         List<Object> params = Lists.newArrayList();
         params.add(1);
@@ -60,7 +60,7 @@ public class EventDecodeTest {
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         TransactionReceipt.Logs log = response.getTransactionReceipt().getLogEntries().get(0);
         EventLog eventLog = new EventLog(log.getData(), log.getTopics());
-        List<Object> list = abiCodec.decodeEvent(this.abi, "LogInit", eventLog);
+        List<Object> list = contractCodec.decodeEvent(this.abi, "LogInit", eventLog);
         Assert.assertEquals("test2", list.get(1));
         Map<String, List<List<Object>>> map = response.getEventResultMap();
         Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
