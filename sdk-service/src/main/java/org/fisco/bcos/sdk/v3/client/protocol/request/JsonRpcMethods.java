@@ -32,6 +32,7 @@ public class JsonRpcMethods {
     public static final String CALL = "call";
     public static final String SEND_TRANSACTION = "sendTransaction";
     public static final String GET_CODE = "getCode";
+    public static final String GET_ABI = "getABI";
     public static final String GET_TOTAL_TRANSACTION_COUNT = "getTotalTransactionCount";
     public static final String GET_NODE_INFO = "getNodeInfo";
     public static final String GET_PEERS = "getPeers";
