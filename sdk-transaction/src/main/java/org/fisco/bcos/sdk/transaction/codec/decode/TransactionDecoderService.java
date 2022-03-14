@@ -156,7 +156,8 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                         ABICodecObject abiCodecObject = new ABICodecObject();
                         for (Logs log : logs) {
                             String eventTopic =
-                                    eventEncoder.buildEventTopic(decodeMethodSign(abiDefinition));
+                                    eventEncoder.buildEventSignature(
+                                            decodeMethodSign(abiDefinition));
                             if (log.getTopics().isEmpty()
                                     || !log.getTopics().contains(eventTopic)) {
                                 continue;

@@ -20,7 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.fisco.bcos.sdk.abi.wrapper.*;
+import org.fisco.bcos.sdk.abi.wrapper.ABICodecJsonWrapper;
+import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
+import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
+import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
+import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.EventLog;
 import org.slf4j.Logger;
@@ -511,7 +517,7 @@ public class ABICodec {
     public List<Object> decodeEventByInterface(String ABI, String eventSignature, EventLog log)
             throws ABICodecException {
         EventEncoder eventEncoder = new EventEncoder(cryptoSuite);
-        String eventTopic = eventEncoder.buildEventTopic(eventSignature);
+        String eventTopic = eventEncoder.buildEventSignature(eventSignature);
         return decodeEventByTopic(ABI, eventTopic, log);
     }
 
@@ -573,7 +579,7 @@ public class ABICodec {
     public List<String> decodeEventByInterfaceToString(
             String ABI, String eventSignature, EventLog log) throws ABICodecException {
         EventEncoder eventEncoder = new EventEncoder(cryptoSuite);
-        String eventTopic = eventEncoder.buildEventTopic(eventSignature);
+        String eventTopic = eventEncoder.buildEventSignature(eventSignature);
         return decodeEventByTopicToString(ABI, eventTopic, log);
     }
 
