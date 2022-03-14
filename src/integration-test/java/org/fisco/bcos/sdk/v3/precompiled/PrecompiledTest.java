@@ -30,15 +30,12 @@ import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.BcosSDKTest;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.config.Config;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.v3.contract.precompiled.bfs.BFSPrecompiled;
 import org.fisco.bcos.sdk.v3.contract.precompiled.bfs.BFSService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
-import org.fisco.bcos.sdk.v3.contract.precompiled.cns.CnsInfo;
-import org.fisco.bcos.sdk.v3.contract.precompiled.cns.CnsService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.consensus.ConsensusService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.KVTableService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService;
@@ -52,8 +49,6 @@ import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
-import org.fisco.bcos.sdk.v3.utils.Hex;
-import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.fisco.bcos.sdk.v3.utils.ThreadPoolService;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -151,86 +146,6 @@ public class PrecompiledTest {
         List<String> observerList4 = client.getObserverList().getResult();
         System.out.println("observerList4: " + observerList4);
         Assert.assertFalse(observerList4.contains(selectedNode.getNodeID()));
-    }
-
-    // @Test
-    public void test2CnsService() throws ConfigException, ContractException, JniException {
-        ConfigOption configOption = Config.load(configFile);
-        Client client = Client.build(GROUP, configOption);
-
-        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
-        HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
-        String contractAddress = Hex.trimPrefix(helloWorld.getContractAddress().toLowerCase());
-        String contractName = "HelloWorld";
-        String contractVersion = String.valueOf(Math.random());
-        CnsService cnsService = new CnsService(client, cryptoKeyPair);
-        RetCode retCode =
-                cnsService.registerCNS(contractName, contractVersion, contractAddress, "");
-        // query the cns information
-        List<CnsInfo> cnsInfos = cnsService.selectByName(contractName);
-        if (!cnsInfos.isEmpty()) {
-            boolean containContractAddress = false;
-            for (CnsInfo cnsInfo : cnsInfos) {
-                if (cnsInfo.getAddress().equals(contractAddress)) {
-                    containContractAddress = true;
-                    break;
-                }
-            }
-            Assert.assertTrue(containContractAddress);
-        }
-
-        Tuple2<String, String> cnsTuple =
-                cnsService.selectByNameAndVersion(contractName, contractVersion);
-        Assert.assertTrue(
-                Numeric.cleanHexPrefix(cnsTuple.getValue1()).equals(contractAddress)); // address
-        Assert.assertTrue(cnsTuple.getValue2().equals("")); // abi
-
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            boolean containContractAddress = false;
-            for (CnsInfo cnsInfo : cnsInfos) {
-                if (cnsInfo.getAddress().equals(contractAddress)) {
-                    containContractAddress = true;
-                }
-            }
-            Assert.assertTrue(containContractAddress);
-        }
-        Assert.assertTrue(cnsInfos.get(0).getName().equals(contractName));
-
-        // query contractAddress
-        cnsService.getContractAddress(contractName, contractVersion);
-        // insert another cns info
-        String contractVersion2 = String.valueOf(Math.random());
-        retCode = cnsService.registerCNS(contractName, contractVersion2, contractAddress, "");
-
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            List<CnsInfo> cnsInfos2 = cnsService.selectByName(contractName);
-            Assert.assertTrue(cnsInfos2.size() == cnsInfos.size() + 1);
-            Assert.assertTrue(
-                    Numeric.cleanHexPrefix(
-                                    cnsService.getContractAddress(contractName, contractVersion))
-                            .equals(contractAddress));
-            Assert.assertTrue(
-                    Numeric.cleanHexPrefix(
-                                    cnsService.getContractAddress(contractName, contractVersion2))
-                            .equals(contractAddress));
-        }
-        // insert anther cns for other contract
-        HelloWorld helloWorld2 = HelloWorld.deploy(client, cryptoKeyPair);
-        String contractAddress2 = Hex.trimPrefix(helloWorld2.getContractAddress().toLowerCase());
-        String contractName2 = "hello";
-        retCode = cnsService.registerCNS(contractName2, contractVersion, contractAddress2, "");
-        if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
-            String abc = cnsService.getContractAddress(contractName, "abc");
-            Assert.assertTrue(abc.equals("0x0000000000000000000000000000000000000000"));
-            Assert.assertTrue(
-                    Numeric.cleanHexPrefix(
-                                    cnsService.getContractAddress(contractName2, contractVersion))
-                            .equals(contractAddress2));
-            Assert.assertTrue(
-                    Numeric.cleanHexPrefix(
-                                    cnsService.getContractAddress(contractName, contractVersion))
-                            .equals(contractAddress));
-        }
     }
 
     @Test
