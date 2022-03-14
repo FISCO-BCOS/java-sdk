@@ -30,7 +30,7 @@ public class AuthManager {
     // is about a week.
     private BigInteger DEFAULT_BLOCK_NUMBER_INTERVAL = BigInteger.valueOf(3600 * 24 * 7);
 
-    public AuthManager(Client client, CryptoKeyPair credential) throws ContractException {
+    public AuthManager(Client client, CryptoKeyPair credential) {
         this.committeeManager =
                 CommitteeManager.load(
                         PrecompiledAddress.COMMITTEE_MANAGER_ADDRESS, client, credential);
@@ -40,8 +40,7 @@ public class AuthManager {
         this.decoder = new TransactionDecoderService(client.getCryptoSuite(), client.isWASM());
     }
 
-    public AuthManager(Client client, CryptoKeyPair credential, BigInteger blockNumberInterval)
-            throws ContractException {
+    public AuthManager(Client client, CryptoKeyPair credential, BigInteger blockNumberInterval) {
         this(client, credential);
         this.DEFAULT_BLOCK_NUMBER_INTERVAL = blockNumberInterval;
     }
