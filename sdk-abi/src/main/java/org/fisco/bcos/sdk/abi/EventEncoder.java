@@ -23,7 +23,7 @@ public class EventEncoder {
 
         String methodSignature = buildMethodSignature(event.getName(), event.getParameters());
 
-        return buildEventTopic(methodSignature);
+        return buildEventSignature(methodSignature);
     }
 
     private <T extends Type> String buildMethodSignature(
@@ -39,7 +39,13 @@ public class EventEncoder {
         return result.toString();
     }
 
-    public String buildEventTopic(String methodSignature) {
+    /**
+     * build event topic
+     *
+     * @param methodSignature eventSignature
+     * @return event topic
+     */
+    public String buildEventSignature(String methodSignature) {
         byte[] input = methodSignature.getBytes();
         byte[] hash = cryptoSuite.hash(input);
         return Numeric.toHexString(hash);

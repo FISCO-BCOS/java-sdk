@@ -143,6 +143,7 @@ public class ABIDefinition {
      * @return the method id
      */
     public String getMethodId(CryptoSuite cryptoSuite) {
+        // from FunctionEncoder get eventTopic signature hash not substring
         FunctionEncoder encoder = new FunctionEncoder(cryptoSuite);
         return encoder.buildMethodId(getMethodSignatureAsString());
     }
@@ -154,8 +155,9 @@ public class ABIDefinition {
      * @return the event topic
      */
     public String getEventTopic(CryptoSuite cryptoSuite) {
+        // from EventEncoder get eventTopic signature hash substring
         EventEncoder encoder = new EventEncoder(cryptoSuite);
-        return encoder.buildEventTopic(getMethodSignatureAsString());
+        return encoder.buildEventSignature(getMethodSignatureAsString());
     }
 
     public boolean isConstant() {
