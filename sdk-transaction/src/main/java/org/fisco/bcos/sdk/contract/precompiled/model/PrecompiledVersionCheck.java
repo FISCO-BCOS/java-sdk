@@ -34,4 +34,7 @@ public class PrecompiledVersionCheck {
             new Version("revokeWrite", "2.3.0");
     public static final Version QUERY_WRITE_PERMISSION_PRECOMPILED_VERSION =
             new Version("queryPermission", "2.3.0");
+
+    public static final Version GAS_CHARGE_MANAGE_PRECOMPILED_VERSION =
+            new Version("gasChargeManagePrecompiled", "2.8.0");
 }
