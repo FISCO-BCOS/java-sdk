@@ -49,4 +49,8 @@ public class BFSService {
         return ReceiptParser.parseTransactionReceipt(
                 bfsPrecompiled.link(name, version, address, abi));
     }
+
+    public String readlink(String absolutePath) throws ContractException {
+        return bfsPrecompiled.readlink(absolutePath);
+    }
 }
