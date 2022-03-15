@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.codec.abi;
+package org.fisco.bcos.sdk.v3.codec;
 
 import java.util.List;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;

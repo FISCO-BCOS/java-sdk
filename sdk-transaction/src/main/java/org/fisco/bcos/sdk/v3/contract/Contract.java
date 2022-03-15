@@ -28,20 +28,17 @@ import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.Transaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
-import org.fisco.bcos.sdk.v3.codec.*;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.EventEncoder;
+import org.fisco.bcos.sdk.v3.codec.EventValues;
 import org.fisco.bcos.sdk.v3.codec.FunctionEncoderInterface;
 import org.fisco.bcos.sdk.v3.codec.FunctionReturnDecoderInterface;
-import org.fisco.bcos.sdk.v3.codec.abi.EventValues;
-import org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Event;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
-import org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.RetCode;
@@ -99,10 +96,12 @@ public class Contract {
         this.cryptoSuite = client.getCryptoSuite();
         this.functionEncoder =
                 client.isWASM()
-                        ? new FunctionEncoder(cryptoSuite)
+                        ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder(cryptoSuite)
                         : new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite);
         this.functionReturnDecoder =
-                client.isWASM() ? new FunctionReturnDecoder() : new FunctionReturnDecoder();
+                client.isWASM()
+                        ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionReturnDecoder()
+                        : new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
         this.eventEncoder = new EventEncoder(cryptoSuite);
     }
 
@@ -417,7 +416,7 @@ public class Contract {
         List<TypeReference<Type>> indexedParameters = event.getIndexedParameters();
         for (int i = 0; i < indexedParameters.size(); i++) {
             Type value =
-                    FunctionReturnDecoder.decodeIndexedValue(
+                    functionReturnDecoder.decodeIndexedValue(
                             topics.get(i + 1), indexedParameters.get(i));
             indexedValues.add(value);
         }

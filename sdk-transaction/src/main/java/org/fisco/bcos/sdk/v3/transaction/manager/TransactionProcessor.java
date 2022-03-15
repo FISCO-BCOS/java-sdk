@@ -100,7 +100,6 @@ public class TransactionProcessor implements TransactionProcessorInterface {
 
     @Override
     public Call executeCall(String from, String to, byte[] encodedFunction) {
-        log.info("encoded function: {}", Hex.toHexString(encodedFunction));
         return this.client.call(new Transaction(from, to, encodedFunction));
     }
 
@@ -110,7 +109,11 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         try {
 
             if (log.isDebugEnabled()) {
-                log.debug("to: {}, abi: {}, attr: {}", to, abi, txAttribute);
+                log.debug(
+                        "createDeploySignedTransaction to: {}, abi: {}, attr: {}",
+                        to,
+                        abi,
+                        txAttribute);
             }
 
             return TransactionBuilderJniObj.createSignedTransaction(
@@ -134,7 +137,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         try {
 
             if (log.isDebugEnabled()) {
-                log.debug("to: {}, abi: {}, attr: {}", to, txAttribute);
+                log.debug("createSignedTransaction to: {}, attr: {}", to, txAttribute);
             }
 
             return TransactionBuilderJniObj.createSignedTransaction(
