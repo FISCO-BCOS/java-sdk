@@ -364,8 +364,8 @@ public class Contract {
     public static EventValues staticExtractEventParameters(
             EventEncoder eventEncoder, Event event, TransactionReceipt.Logs log) {
         List<String> topics = log.getTopics();
-        String encodedEventSignature = eventEncoder.encode(event);
-        if (!topics.get(0).equals(encodedEventSignature)) {
+        String eventTopic = eventEncoder.encode(event);
+        if (!topics.get(0).equals(eventTopic)) {
             return null;
         }
 
