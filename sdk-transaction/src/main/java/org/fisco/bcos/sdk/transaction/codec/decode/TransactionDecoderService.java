@@ -160,11 +160,11 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                                 abiObjectFactory.createEventInputObject(abiDefinition);
                         ABICodecObject abiCodecObject = new ABICodecObject();
                         for (Logs log : logs) {
-                            String eventSignature =
+                            String eventTopic =
                                     eventEncoder.buildEventSignature(
                                             decodeMethodSign(abiDefinition));
                             if (log.getTopics().isEmpty()
-                                    || !log.getTopics().contains(eventSignature)) {
+                                    || !log.getTopics().contains(eventTopic)) {
                                 continue;
                             }
                             try {

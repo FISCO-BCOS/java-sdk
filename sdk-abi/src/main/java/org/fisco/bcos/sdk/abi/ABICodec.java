@@ -516,9 +516,9 @@ public class ABICodec {
 
     public List<Object> decodeEventByInterface(String ABI, String eventSignature, EventLog log)
             throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
-        String methodId = functionEncoder.buildMethodId(eventSignature);
-        return decodeEventByTopic(ABI, methodId, log);
+        EventEncoder eventEncoder = new EventEncoder(cryptoSuite);
+        String eventTopic = eventEncoder.buildEventSignature(eventSignature);
+        return decodeEventByTopic(ABI, eventTopic, log);
     }
 
     public List<String> decodeEventToString(String ABI, String eventName, EventLog log)
@@ -578,9 +578,9 @@ public class ABICodec {
 
     public List<String> decodeEventByInterfaceToString(
             String ABI, String eventSignature, EventLog log) throws ABICodecException {
-        FunctionEncoder functionEncoder = new FunctionEncoder(cryptoSuite);
-        String methodId = functionEncoder.buildMethodId(eventSignature);
-        return decodeEventByTopicToString(ABI, methodId, log);
+        EventEncoder eventEncoder = new EventEncoder(cryptoSuite);
+        String eventTopic = eventEncoder.buildEventSignature(eventSignature);
+        return decodeEventByTopicToString(ABI, eventTopic, log);
     }
 
     private String addHexPrefixToString(String s) {

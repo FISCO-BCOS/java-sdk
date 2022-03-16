@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.fisco.bcos.sdk.abi.EventEncoder;
 import org.fisco.bcos.sdk.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 
@@ -142,11 +143,21 @@ public class ABIDefinition {
      * @return the method id
      */
     public String getMethodId(CryptoSuite cryptoSuite) {
-        if (getType().equals(ABIDefinition.FUNCTION_TYPE)) {
-            FunctionEncoder encoder = new FunctionEncoder(cryptoSuite);
-            return encoder.buildMethodId(getMethodSignatureAsString());
-        }
-        return "";
+        // from FunctionEncoder get methodId signature hash substring
+        FunctionEncoder encoder = new FunctionEncoder(cryptoSuite);
+        return encoder.buildMethodId(getMethodSignatureAsString());
+    }
+
+    /**
+     * calculate the event topic
+     *
+     * @param cryptoSuite the crypto suite used for hash calculation
+     * @return the event topic
+     */
+    public String getEventTopic(CryptoSuite cryptoSuite) {
+        // from EventEncoder get eventTopic signature hash not substring
+        EventEncoder encoder = new EventEncoder(cryptoSuite);
+        return encoder.buildEventSignature(getMethodSignatureAsString());
     }
 
     public boolean isConstant() {
