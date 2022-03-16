@@ -49,6 +49,7 @@ import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.utils.StringUtils;
 import org.fisco.bcos.sdk.v3.utils.ThreadPoolService;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -434,6 +435,10 @@ public class PrecompiledTest {
             bfsService.link("HelloWorld", version, contractAddress, HelloWorld.ABI);
             List<BFSPrecompiled.BfsInfo> listLink = bfsService.list("/apps/HelloWorld");
             System.out.println(listLink);
+            String readlink = bfsService.readlink("/apps/HelloWorld" + "/" + version);
+            System.out.println(readlink);
+            Assert.assertEquals(readlink, StringUtils.toLowerCase(contractAddress));
+
             flag = false;
             for (BFSPrecompiled.BfsInfo bfsInfo : listLink) {
                 if (bfsInfo.getFileType().equals("link") && bfsInfo.getFileName().equals(version)) {
