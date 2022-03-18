@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import org.fisco.bcos.sdk.channel.Channel;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
+import org.fisco.bcos.sdk.client.protocol.response.AddPeers;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
@@ -30,6 +31,7 @@ import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.client.protocol.response.Code;
 import org.fisco.bcos.sdk.client.protocol.response.ConsensusStatus;
+import org.fisco.bcos.sdk.client.protocol.response.ErasePeers;
 import org.fisco.bcos.sdk.client.protocol.response.GenerateGroup;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.client.protocol.response.GroupPeers;
@@ -41,6 +43,7 @@ import org.fisco.bcos.sdk.client.protocol.response.Peers;
 import org.fisco.bcos.sdk.client.protocol.response.PendingTransactions;
 import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
 import org.fisco.bcos.sdk.client.protocol.response.QueryGroupStatus;
+import org.fisco.bcos.sdk.client.protocol.response.QueryPeers;
 import org.fisco.bcos.sdk.client.protocol.response.RecoverGroup;
 import org.fisco.bcos.sdk.client.protocol.response.RemoveGroup;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
@@ -728,6 +731,21 @@ public interface Client {
      * @param callback the callback instance
      */
     void getPeersAsync(RespCallback<Peers> callback);
+
+    /** @param peerIpPort */
+    QueryPeers queryPeers(String peerIpPort);
+
+    /**
+     * @param peerIpPort
+     * @param peers
+     */
+    ErasePeers erasePeers(String peerIpPort, List<String> peers);
+
+    /**
+     * @param peerIpPort
+     * @param peers
+     */
+    AddPeers addPeers(String peerIpPort, List<String> peers);
 
     /**
      * Peer operation: get node information
