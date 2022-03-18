@@ -23,6 +23,18 @@ public class ErasePeers extends JsonRpcResponse<ErasePeers.ErasePeersStatus> {
         public void setMessage(String message) {
             this.message = message;
         }
+
+        @Override
+        public String toString() {
+            return "ErasePeersStatus{"
+                    + "code='"
+                    + code
+                    + '\''
+                    + ", message='"
+                    + message
+                    + '\''
+                    + '}';
+        }
     }
 
     public ErasePeersStatus getErasePeersStatus() {
