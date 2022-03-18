@@ -447,6 +447,27 @@ public class PrecompiledTest {
                 }
             }
             Assert.assertTrue(flag);
+        } else {
+            org.fisco.bcos.sdk.v3.contract.liquid.HelloWorld helloWorld =
+                    org.fisco.bcos.sdk.v3.contract.liquid.HelloWorld.deploy(
+                            client, cryptoKeyPair, "test" + random.nextInt(123231), "Alice");
+            String contractAddress = helloWorld.getContractAddress();
+            String version = String.valueOf(random.nextInt(10000));
+            bfsService.link("HelloWorld", version, contractAddress, HelloWorld.ABI);
+            List<BFSPrecompiled.BfsInfo> listLink = bfsService.list("/apps/HelloWorld");
+            System.out.println(listLink);
+            String readlink = bfsService.readlink("/apps/HelloWorld" + "/" + version);
+            System.out.println(readlink);
+            Assert.assertEquals(readlink, StringUtils.toLowerCase(contractAddress));
+
+            flag = false;
+            for (BFSPrecompiled.BfsInfo bfsInfo : listLink) {
+                if (bfsInfo.getFileType().equals("link") && bfsInfo.getFileName().equals(version)) {
+                    flag = true;
+                    break;
+                }
+            }
+            Assert.assertTrue(flag);
         }
     }
 }
