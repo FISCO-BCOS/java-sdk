@@ -278,7 +278,6 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String to, String abi, String functionName, List<String> params)
             throws ContractCodecException, TransactionBaseException {
         byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, params);
-        log.info("encoded data: {}", Hex.toHexString(data));
         return this.sendTransactionAndGetResponse(to, abi, functionName, data);
     }
 
@@ -378,7 +377,8 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public CallResponse sendCall(CallRequest callRequest)
             throws TransactionBaseException, ContractCodecException {
         Call call = this.executeCall(callRequest);
-        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
+        CallResponse callResponse =
+                this.parseCallResponseStatus(call.getCallResult(), callRequest.getTo());
         String callOutput = call.getCallResult().getOutput();
         Pair<List<Object>, List<ABIObject>> results =
                 this.contractCodec.decodeMethodAndGetOutputObject(callRequest.getAbi(), callOutput);
@@ -393,7 +393,6 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String from, String to, String abi, String functionName, List<String> paramsList)
             throws TransactionBaseException, ContractCodecException {
         byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, paramsList);
-        log.info("encoded data: {}", Hex.toHexString(data));
         return this.callAndGetResponse(from, to, abi, functionName, data);
     }
 
@@ -401,7 +400,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String from, String to, String abi, String functionName, byte[] data)
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
-        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
+        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult(), to);
         List<Type> decodedResult =
                 this.contractCodec.decodeMethodAndGetOutputObject(
                         abi, functionName, call.getCallResult().getOutput());
@@ -483,10 +482,10 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 blockLimit.longValue());
     }
 
-    private CallResponse parseCallResponseStatus(Call.CallOutput callOutput)
+    private CallResponse parseCallResponseStatus(Call.CallOutput callOutput, String callAddress)
             throws TransactionBaseException {
         CallResponse callResponse = new CallResponse();
-        RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
+        RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "", callAddress);
         callResponse.setReturnCode(callOutput.getStatus());
         callResponse.setReturnMessage(retCode.getMessage());
         if (!retCode.getMessage().equals(PrecompiledRetCode.CODE_SUCCESS.getMessage())) {

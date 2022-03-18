@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.v3.transaction.codec.decode;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,11 @@ import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.EventEncoder;
+import org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
+import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition.NamedType;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinitionFactory;
@@ -39,7 +44,6 @@ import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionException;
 import org.fisco.bcos.sdk.v3.transaction.tools.JsonUtils;
-import org.fisco.bcos.sdk.v3.transaction.tools.ReceiptStatusUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +69,20 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
 
     @Override
     public String decodeReceiptMessage(String output) {
-        return ReceiptStatusUtil.decodeReceiptMessage(output);
+        if (output.length() <= 10) {
+            return null;
+        } else {
+            Function function =
+                    new Function(
+                            "Error",
+                            Collections.emptyList(),
+                            Collections.singletonList(new TypeReference<Utf8String>() {}));
+            FunctionReturnDecoder functionReturnDecoder = new FunctionReturnDecoder();
+            List<Type> r =
+                    functionReturnDecoder.decode(
+                            output.substring(10), function.getOutputParameters());
+            return ((Type) r.get(0)).toString();
+        }
     }
 
     @Override
