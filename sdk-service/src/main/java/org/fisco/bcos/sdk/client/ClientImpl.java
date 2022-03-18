@@ -759,7 +759,7 @@ public class ClientImpl implements Client {
     @Override
     public ErasePeers erasePeers(String peerIpPort, List<String> peers) {
         return this.jsonRpcService.sendRequestToPeer(
-                new JsonRpcRequest(JsonRpcMethods.ERASE_PEERS, Arrays.asList(DefaultGroupId)),
+                new JsonRpcRequest(JsonRpcMethods.ERASE_PEERS, Arrays.asList(peers)),
                 peerIpPort,
                 ErasePeers.class);
     }
@@ -767,7 +767,7 @@ public class ClientImpl implements Client {
     @Override
     public AddPeers addPeers(String peerIpPort, List<String> peers) {
         return this.jsonRpcService.sendRequestToPeer(
-                new JsonRpcRequest(JsonRpcMethods.ADD_PEERS, Arrays.asList(DefaultGroupId)),
+                new JsonRpcRequest(JsonRpcMethods.ADD_PEERS, Arrays.asList(peers)),
                 peerIpPort,
                 AddPeers.class);
     }

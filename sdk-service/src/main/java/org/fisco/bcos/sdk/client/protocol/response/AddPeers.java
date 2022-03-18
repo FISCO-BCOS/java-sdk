@@ -23,6 +23,18 @@ public class AddPeers extends JsonRpcResponse<AddPeers.AddPeersStatus> {
         public void setMessage(String message) {
             this.message = message;
         }
+
+        @Override
+        public String toString() {
+            return "AddPeersStatus{"
+                    + "code='"
+                    + code
+                    + '\''
+                    + ", message='"
+                    + message
+                    + '\''
+                    + '}';
+        }
     }
 
     public AddPeersStatus getAddPeersStatus() {
