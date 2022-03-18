@@ -199,10 +199,6 @@ public class PrecompiledRetCode {
     public static final String ALREADY_REMOVED_FROM_THE_GROUP =
             "The node already has been removed from the group";
 
-    public static final String OVER_CONTRACT_VERSION_LEN_LIMIT =
-            "The length of contract version over the limit, must be smaller than "
-                    + PrecompiledConstant.CNS_MAX_VERSION_LENGTH;
-
     public static final String OVER_TABLE_KEY_LENGTH_LIMIT =
             "The length of the table key exceeds the maximum limit "
                     + PrecompiledConstant.TABLE_KEY_MAX_LENGTH;

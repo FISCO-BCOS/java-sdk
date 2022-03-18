@@ -24,7 +24,6 @@ public class PrecompiledAddress {
 
     public static final String CONSENSUS_PRECOMPILED_ADDRESS =
             "0000000000000000000000000000000000001003";
-    public static final String CNS_PRECOMPILED_ADDRESS = "0000000000000000000000000000000000001004";
     public static final String BFS_PRECOMPILED_ADDRESS = "000000000000000000000000000000000000100e";
     public static final String COMMITTEE_MANAGER_ADDRESS =
             "0000000000000000000000000000000000010001";
@@ -34,7 +33,6 @@ public class PrecompiledAddress {
 
     public static final String SYS_CONFIG_PRECOMPILED_NAME = "/sys/status";
     public static final String CONSENSUS_PRECOMPILED_NAME = "/sys/consensus";
-    public static final String CNS_PRECOMPILED_NAME = "/sys/cns";
     public static final String BFS_PRECOMPILED_NAME = "/sys/bfs";
     public static final String KV_TABLE_PRECOMPILED_NAME = "/sys/kv_storage";
     @Deprecated public static final String TABLE_FACTORY_PRECOMPILED_NAME = "/sys/table_storage";
