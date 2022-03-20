@@ -21,7 +21,7 @@ import java.util.Map;
 public class PrecompiledRetCode {
     // FileSystemPrecompiled -53099 ~ -53000
     public static final RetCode CODE_ADDRESS_OR_VERSION_ERROR =
-            new RetCode(-51202, "The contract name or version is invalid");
+            new RetCode(-51202, "The contract address or version is invalid");
     public static final RetCode CODE_VERSION_LENGTH_OVERFLOW =
             new RetCode(-51201, "The version string length exceeds the maximum limit");
 
