@@ -37,10 +37,11 @@ public class TransactionReceiptStatus {
     public static final RetCode GasOverflow = new RetCode(20, "GasOverflow");
     public static final RetCode ContractFrozen = new RetCode(21, "ContractFrozen");
     public static final RetCode AccountFrozen = new RetCode(22, "AccountFrozen");
-    public static final RetCode WASMValidationFailure = new RetCode(32, "WASMValidationFailure");
+    public static final RetCode WASMValidationFailure =
+            new RetCode(32, "WASMValidationFailure, check the bin file is valid");
     public static final RetCode WASMArgumentOutOfRange = new RetCode(33, "WASMArgumentOutOfRange");
-    public static final RetCode WASMUnreacheableInstruction =
-            new RetCode(34, "WASMUnreacheableInstruction");
+    public static final RetCode WASMUnreachableInstruction =
+            new RetCode(34, "WASMUnreachableInstruction");
     public static final RetCode WASMTrap = new RetCode(35, "WASMTrap");
     public static final RetCode NonceCheckFail = new RetCode(1000, "NonceCheckFail");
     public static final RetCode BlockLimitCheckFail = new RetCode(1001, "BlockLimitCheckFail");

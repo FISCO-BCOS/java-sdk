@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 
 /**
@@ -122,7 +121,8 @@ public class ABIDefinition {
      * @return the method id
      */
     public byte[] getMethodId(CryptoSuite cryptoSuite) {
-        FunctionEncoder encoder = new FunctionEncoder(cryptoSuite);
+        org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder encoder =
+                new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite);
         return encoder.buildMethodId(this.getMethodSignatureAsString());
     }
 

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.EventEncoder;
-import org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder;
+import org.fisco.bcos.sdk.v3.codec.FunctionReturnDecoderInterface;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
@@ -77,9 +77,12 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                             "Error",
                             Collections.emptyList(),
                             Collections.singletonList(new TypeReference<Utf8String>() {}));
-            FunctionReturnDecoder functionReturnDecoder = new FunctionReturnDecoder();
+            FunctionReturnDecoderInterface functionReturnDecoderInterface =
+                    contractCodec.isWasm()
+                            ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionReturnDecoder()
+                            : new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
             List<Type> r =
-                    functionReturnDecoder.decode(
+                    functionReturnDecoderInterface.decode(
                             output.substring(10), function.getOutputParameters());
             return ((Type) r.get(0)).toString();
         }
