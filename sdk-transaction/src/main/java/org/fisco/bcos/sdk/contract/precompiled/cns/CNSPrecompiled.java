@@ -68,12 +68,19 @@ public class CNSPrecompiled extends Contract {
     public Tuple2<String, String> selectByNameAndVersion(String name, String version)
             throws ContractException {
         final Function function =
-                new Function(
-                        FUNC_SELECTBYNAMEANDVERSION,
-                        Arrays.<Type>asList(new Utf8String(name), new Utf8String(version)),
-                        Arrays.<TypeReference<?>>asList(
-                                new TypeReference<Address>() {},
-                                new TypeReference<Utf8String>() {}));
+                client.isWASM()
+                        ? new Function(
+                                FUNC_SELECTBYNAMEANDVERSION,
+                                Arrays.<Type>asList(new Utf8String(name), new Utf8String(version)),
+                                Arrays.<TypeReference<?>>asList(
+                                        new TypeReference<Utf8String>() {},
+                                        new TypeReference<Utf8String>() {}))
+                        : new Function(
+                                FUNC_SELECTBYNAMEANDVERSION,
+                                Arrays.<Type>asList(new Utf8String(name), new Utf8String(version)),
+                                Arrays.<TypeReference<?>>asList(
+                                        new TypeReference<Address>() {},
+                                        new TypeReference<Utf8String>() {}));
         List<Type> results = executeCallWithMultipleValueReturn(function);
         return new Tuple2<String, String>(
                 (String) results.get(0).getValue(), (String) results.get(1).getValue());
@@ -155,10 +162,15 @@ public class CNSPrecompiled extends Contract {
 
     public String getContractAddress(String name, String version) throws ContractException {
         final Function function =
-                new Function(
-                        FUNC_GETCONTRACTADDRESS,
-                        Arrays.<Type>asList(new Utf8String(name), new Utf8String(version)),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
+                client.isWASM()
+                        ? new Function(
+                                FUNC_GETCONTRACTADDRESS,
+                                Arrays.<Type>asList(new Utf8String(name), new Utf8String(version)),
+                                Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}))
+                        : new Function(
+                                FUNC_GETCONTRACTADDRESS,
+                                Arrays.<Type>asList(new Utf8String(name), new Utf8String(version)),
+                                Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
         return executeCallWithSingleValueReturn(function, String.class);
     }
 
