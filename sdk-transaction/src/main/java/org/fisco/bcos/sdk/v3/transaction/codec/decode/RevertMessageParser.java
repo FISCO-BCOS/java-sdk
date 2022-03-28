@@ -27,7 +27,6 @@ contract Revert {
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
-import org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
@@ -100,7 +99,9 @@ public class RevertMessageParser {
                     Numeric.containsHexPrefix(output)
                             ? output.substring(RevertMethodWithHexPrefix.length())
                             : output.substring(RevertMethod.length());
-            FunctionReturnDecoder functionReturnDecoder = new FunctionReturnDecoder();
+            // revert message always use abi codec
+            org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder functionReturnDecoder =
+                    new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
             List<Type> result =
                     functionReturnDecoder.decode(rawOutput, revertFunction.getOutputParameters());
             if (result.get(0) instanceof Utf8String) {
