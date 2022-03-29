@@ -817,7 +817,7 @@ public class ContractWrapper {
                             + "        "
                             + componentType
                             + ".class,\n"
-                            + "        org.fisco.bcos.sdk.codec.Utils.typeMap("
+                            + "        org.fisco.bcos.sdk.v3.codec.Utils.typeMap("
                             + parameterSpec.name
                             + ", "
                             + typeMapInput
