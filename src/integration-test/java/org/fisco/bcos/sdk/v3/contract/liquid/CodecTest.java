@@ -1098,7 +1098,7 @@ public class CodecTest extends Contract {
                 FUNC_SET_VEC,
                 Arrays.<Type>asList(new DynamicArray<Tuple2>(
                         Tuple2.class,
-                        org.fisco.bcos.sdk.codec.Utils.typeMap(v, Tuple2.class))),
+                        org.fisco.bcos.sdk.v3.codec.Utils.typeMap(v, Tuple2.class))),
                 Collections.<TypeReference<?>>emptyList());
         return executeTransaction(function);
     }
@@ -1108,7 +1108,7 @@ public class CodecTest extends Contract {
                 FUNC_SET_VEC,
                 Arrays.<Type>asList(new DynamicArray<Tuple2>(
                         Tuple2.class,
-                        org.fisco.bcos.sdk.codec.Utils.typeMap(v, Tuple2.class))),
+                        org.fisco.bcos.sdk.v3.codec.Utils.typeMap(v, Tuple2.class))),
                 Collections.<TypeReference<?>>emptyList());
         asyncExecuteTransaction(function, callback);
     }
