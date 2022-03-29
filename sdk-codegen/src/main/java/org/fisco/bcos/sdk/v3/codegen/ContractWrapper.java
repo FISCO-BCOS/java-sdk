@@ -12,7 +12,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.Transaction;
-import org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Bool;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
@@ -606,7 +605,9 @@ public class ContractWrapper {
                         "byte[] encodedConstructor = $T.encodeConstructor("
                                 + "$T.<$T>asList($L)"
                                 + ")",
-                        isWasm ? FunctionEncoder.class : FunctionEncoder.class,
+                        isWasm
+                                ? org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder.class
+                                : org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder.class,
                         Arrays.class,
                         Type.class,
                         inputParams)
