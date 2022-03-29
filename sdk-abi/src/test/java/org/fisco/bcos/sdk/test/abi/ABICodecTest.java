@@ -246,7 +246,7 @@ public class ABICodecTest {
     // int a, Info[] memory b, string memory c
     /*
     	 * {
-        "0": "int256: a 100",
+        "0": "int256: a -100",
         "1": "tuple(string,int256,tuple(int256,int256,int256)[])[]: b Hello world!,100,1,2,3,Hello world2!,200,5,6,7",
         "2": "string: c Hello world!"
     }
@@ -339,7 +339,7 @@ public class ABICodecTest {
         }
 
         List<String> args = new ArrayList<String>();
-        args.add("100");
+        args.add("-100");
         // [{"name": "Hello world!", "count": 100, "items": [{"a": 1, "b": 2, "c": 3}]}, {"name":
         // "Hello world2", "count": 200, "items": [{"a": 1, "b": 2, "c": 3}]}]
         args.add(
@@ -347,7 +347,7 @@ public class ABICodecTest {
         args.add("Hello world!");
 
         List<Object> argsObjects = new ArrayList<Object>();
-        argsObjects.add(new BigInteger("100"));
+        argsObjects.add(new BigInteger("-100"));
         List<Info> listParams = new ArrayList<Info>();
         Item item1 = new Item(new BigInteger("1"), new BigInteger("2"), new BigInteger("3"));
         Item[] listItem1 = {item1};
