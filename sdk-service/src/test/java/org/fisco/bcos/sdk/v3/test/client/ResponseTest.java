@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fisco.bcos.sdk.v3.client.protocol.model.GroupStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlockHeader;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BlockHash;
@@ -1137,4 +1138,86 @@ public class ResponseTest {
         //        bcosBlockHeader.getBlockHeader().getHash());
     }
 
+    @Test
+    public void testBcosGroupInfo() throws IOException {
+        String groupInfoStr = "{\n" +
+                "    \"id\":1,\n" +
+                "    \"jsonrpc\":\"2.0\",\n" +
+                "    \"result\":{\n" +
+                "        \"chainID\":\"chain\",\n" +
+                "        \"genesisConfig\":\"{\\\"blockTxCountLimit\\\":1000,\\\"consensusLeaderPeriod\\\":1,\\\"consensusType\\\":\\\"pbft\\\",\\\"sealerList\\\":[{\\\"nodeID\\\":\\\"c18c224d3704d1d74228d26f4c37ffc9ec9c546f4ba4f005840b1c5d5b1d906cb6cc9229b03df089642e298b5f5be57e1402ea7bfb508530f9af3e500dd94886\\\",\\\"weight\\\":1},{\\\"nodeID\\\":\\\"1a58ede2927112ebbc0416fadb41bb537cb9a93afa76b59af4fd8bae9d3b642269316a8e6dcb75079f054184500da55361adf6fd98f7fafbe75c08bdaebf7e23\\\",\\\"weight\\\":1},{\\\"nodeID\\\":\\\"714765a10d9d067fc60f6f845a1d38f3f7269bb1f838c6136061b6adb2c578bce890c4d16a53af0ce9d8987605880b5f46d43cb11b6c1cbe8256a39a363fa0eb\\\",\\\"weight\\\":1},{\\\"nodeID\\\":\\\"6b084e82f58d009dbb17acbaf9655624b1415694b955a9644fffbbe734002c5ee66014cee2b16f507284102a35cbdde0d53bac23391b7b69615187c15b0dafee\\\",\\\"weight\\\":1}],\\\"txGasLimit\\\":300000000}\\n\",\n" +
+                "        \"groupID\":\"group\",\n" +
+                "        \"iniConfig\":\"\",\n" +
+                "        \"nodeList\":[\n" +
+                "            {\n" +
+                "                \"iniConfig\":\"{\\\"binaryInfo\\\":{\\\"buildTime\\\":\\\"20220330 20:17:43\\\",\\\"gitCommitHash\\\":\\\"8c54a02f0159469ab39025f0dfe99b7c97565211\\\",\\\"platform\\\":\\\"Darwin/appleclang\\\",\\\"version\\\":\\\"3.0.0-rc4\\\"},\\\"chainID\\\":\\\"chain\\\",\\\"gatewayServiceName\\\":\\\"\\\",\\\"groupID\\\":\\\"group\\\",\\\"isAuthCheck\\\":false,\\\"isWasm\\\":false,\\\"nodeID\\\":\\\"1a58ede2927112ebbc0416fadb41bb537cb9a93afa76b59af4fd8bae9d3b642269316a8e6dcb75079f054184500da55361adf6fd98f7fafbe75c08bdaebf7e23\\\",\\\"nodeName\\\":\\\"1a58ede2927112ebbc0416fadb41bb537cb9a93afa76b59af4fd8bae9d3b642269316a8e6dcb75079f054184500da55361adf6fd98f7fafbe75c08bdaebf7e23\\\",\\\"rpcServiceName\\\":\\\"\\\",\\\"smCryptoType\\\":false}\\n\",\n" +
+                "                \"name\":\"1a58ede2927112ebbc0416fadb41bb537cb9a93afa76b59af4fd8bae9d3b642269316a8e6dcb75079f054184500da55361adf6fd98f7fafbe75c08bdaebf7e23\",\n" +
+                "                \"protocol\":{\n" +
+                "                    \"maxVersion\":1,\n" +
+                "                    \"minVersion\":1,\n" +
+                "                    \"sysVersion\":3\n" +
+                "                },\n" +
+                "                \"serviceInfo\":[\n" +
+                "                    {\n" +
+                "                        \"serviceName\":\".\",\n" +
+                "                        \"type\":2\n" +
+                "                    },\n" +
+                "                    {\n" +
+                "                        \"serviceName\":\".\",\n" +
+                "                        \"type\":3\n" +
+                "                    },\n" +
+                "                    {\n" +
+                "                        \"serviceName\":\".\",\n" +
+                "                        \"type\":4\n" +
+                "                    },\n" +
+                "                    {\n" +
+                "                        \"serviceName\":\".\",\n" +
+                "                        \"type\":5\n" +
+                "                    },\n" +
+                "                    {\n" +
+                "                        \"serviceName\":\".\",\n" +
+                "                        \"type\":8\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"type\":0\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"iniConfig\":\"{\\\"binaryInfo\\\":{\\\"buildTime\\\":\\\"20220330 20:17:43\\\",\\\"gitCommitHash\\\":\\\"8c54a02f0159469ab39025f0dfe99b7c97565211\\\",\\\"platform\\\":\\\"Darwin/appleclang\\\",\\\"version\\\":\\\"3.0.0-rc4\\\"},\\\"chainID\\\":\\\"chain\\\",\\\"gatewayServiceName\\\":\\\"\\\",\\\"groupID\\\":\\\"group\\\",\\\"isAuthCheck\\\":false,\\\"isWasm\\\":false,\\\"nodeID\\\":\\\"c18c224d3704d1d74228d26f4c37ffc9ec9c546f4ba4f005840b1c5d5b1d906cb6cc9229b03df089642e298b5f5be57e1402ea7bfb508530f9af3e500dd94886\\\",\\\"nodeName\\\":\\\"c18c224d3704d1d74228d26f4c37ffc9ec9c546f4ba4f005840b1c5d5b1d906cb6cc9229b03df089642e298b5f5be57e1402ea7bfb508530f9af3e500dd94886\\\",\\\"rpcServiceName\\\":\\\"\\\",\\\"smCryptoType\\\":false}\\n\",\n" +
+                "                \"name\":\"c18c224d3704d1d74228d26f4c37ffc9ec9c546f4ba4f005840b1c5d5b1d906cb6cc9229b03df089642e298b5f5be57e1402ea7bfb508530f9af3e500dd94886\",\n" +
+                "                \"protocol\":{\n" +
+                "                    \"maxVersion\":1,\n" +
+                "                    \"minVersion\":1,\n" +
+                "                    \"sysVersion\":3\n" +
+                "                },\n" +
+                "                \"serviceInfo\":[\n" +
+                "                    {\n" +
+                "                        \"serviceName\":\".\",\n" +
+                "                        \"type\":2\n" +
+                "                    },\n" +
+                "                    {\n" +
+                "                        \"serviceName\":\".\",\n" +
+                "                        \"type\":3\n" +
+                "                    },\n" +
+                "                    {\n" +
+                "                        \"serviceName\":\".\",\n" +
+                "                        \"type\":4\n" +
+                "                    },\n" +
+                "                    {\n" +
+                "                        \"serviceName\":\".\",\n" +
+                "                        \"type\":5\n" +
+                "                    },\n" +
+                "                    {\n" +
+                "                        \"serviceName\":\".\",\n" +
+                "                        \"type\":8\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"type\":842087796\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"smCryptoType\":false,\n" +
+                "        \"wasm\":false\n" +
+                "    }\n" +
+                "}";
+        objectMapper.readValue(groupInfoStr.getBytes(), BcosGroupInfo.class);
+    }
 }
