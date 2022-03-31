@@ -12,6 +12,7 @@ java-sdk.iml
 .project
 */.settings/**
 out/
+bin/
 */dist/**
 */build/**
 conf/
