@@ -274,7 +274,7 @@ public class ABICodecTest {
     }
     	 */
     private String encoded =
-            "0000000000000000000000000000000000000000000000000000000000000064"
+            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9c"
                     + "0000000000000000000000000000000000000000000000000000000000000060"
                     + "0000000000000000000000000000000000000000000000000000000000000300"
                     + "0000000000000000000000000000000000000000000000000000000000000002"
@@ -340,7 +340,7 @@ public class ABICodecTest {
 
         List<String> args = new ArrayList<String>();
         args.add("-100");
-        // [{"name": "Hello world!", "count": 100, "items": [{"a": 1, "b": 2, "c": 3}]}, {"name":
+        // [{"name": "Hello world!", "count": -100, "items": [{"a": 1, "b": 2, "c": 3}]}, {"name":
         // "Hello world2", "count": 200, "items": [{"a": 1, "b": 2, "c": 3}]}]
         args.add(
                 "[{\"name\": \"Hello world!\", \"count\": 100, \"items\": [{\"a\": 1, \"b\": 2, \"c\": 3}]}, {\"name\": \"Hello world2\", \"count\": 200, \"items\": [{\"a\": 5, \"b\": 6, \"c\": 7}]}]");

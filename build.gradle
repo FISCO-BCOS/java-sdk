@@ -15,7 +15,7 @@ ext {
         ossrhPassword="xxx"
     }
     // jackson version
-    jacksonVersion = "2.11.0"
+    jacksonVersion = "2.13.2.2"
     commonsIOVersion = "2.4"
     commonsLang3Version = "3.1"
     javapoetVersion = "1.7.0"
@@ -26,7 +26,7 @@ ext {
     webankJavaCryptoVersion = "1.0.0"
     webankHsmCryptoVersion = "1.0.0-GMT0018"
 
-    slf4jVersion = "1.7.30"
+    slf4jVersion = "1.7.32"
     junitVersion = "4.12"
     commonsCollections4Version = "4.4"
     guavaVersion = "29.0-jre"
@@ -71,7 +71,7 @@ allprojects {
 
     dependencies {
         compile ("org.slf4j:slf4j-api:${slf4jVersion}")
-        compile ("org.slf4j:slf4j-log4j12:${slf4jVersion}")
+        testCompile ("org.slf4j:slf4j-log4j12:${slf4jVersion}")
 	    testCompile ("junit:junit:${junitVersion}")
     }
 
