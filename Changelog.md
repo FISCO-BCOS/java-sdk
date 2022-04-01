@@ -1,3 +1,69 @@
+## v3.0.0-rc3
+(2022-03-31)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+* 支持Solidity合约并行冲突字段解析
+* 添加getABI接口
+### 更新
+
+* 调用`bcos-c-sdk`的接口实现交易编解码功能
+* 调用`bcos-c-sdk`的接口实现密码算法
+* 升级`bcos-sdk-jni`到`3.0.0-rc3`
+* `org.fisco.bcos.sdk`包路径修改为`org.fisco.bcos.sdk.v3`
+* sdk-abi代码重构
+* BFS link取代CNS
+
+### 修复
+
+* 修复AMOP `getTopics`返回null导致的异常
+* 修复[#issue 510](https://github.com/FISCO-BCOS/java-sdk/issues/510)，解决windows环境无法找不到`libbcos-sdk-jni.dll`动态库的问题
+* 修复ABI/Scale编解码相关的bug
+
+
+### 兼容性说明
+
+- 不兼容 FISCO BCOS 2.0+ 版本
+- 兼容java-sdk v3.x的历史版本
+- 支持[3.0.0-rc3](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0-rc3)版本和[3.0.0-rc2](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0-rc2)版本的FISCO BCOS区块链
+- 不支持[3.0.0-rc1](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0-rc1)版本的FISCO BCOS区块链
+
+----
+
+Please read documentation of Java SDK v3.x.
+
+* English User Handbook：Working in progress...
+* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### Added
+
+* Support Solidity contract parallel conflict field analyze
+* support getABI interface
+### Changed
+
+* Call the interface of `bcos-c-sdk` to implement transaction encoding and decoding functions
+* Call the interface of `bcos-c-sdk` to implement the cryptographic algorithm
+* Upgrade `bcos-sdk-jni` to `3.0.0-rc3`
+* `org.fisco.bcos.sdk` package path is modified to `org.fisco.bcos.sdk.v3`
+* sdk-abi code refactor
+* use BFS link to replace CNS
+
+### Fixed
+
+* Fix exception caused by AMOP `getTopics` returning null
+* Fix [#issue 510](https://github.com/FISCO-BCOS/java-sdk/issues/510) to solve the problem that `libbcos-sdk-jni.dll` dynamic library cannot be found in windows environment
+* Fix bugs related to ABI/Scale codec
+### Compatibility Notes
+
+- Not compatible with FISCO BCOS version 2.0+
+- Incompatible with the historical version of java-sdk v3.x
+- Support [3.0.0-rc3](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0-rc3) version and [3.0.0-rc2](https://github .com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0-rc2) FISCO BCOS
+- [3.0.0-rc1](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0-rc1) FISCO BCOS blockchain is not supported
+
 ## v3.0.0-rc2
 (2022-02-23)
 
