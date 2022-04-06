@@ -56,10 +56,10 @@ public class ABIDefinition {
     private String stateMutability;
 
     @JsonProperty("inputs")
-    private List<NamedType> inputs;
+    private List<NamedType> inputs = new ArrayList<>();;
 
     @JsonProperty("outputs")
-    private List<NamedType> outputs;
+    private List<NamedType> outputs = new ArrayList<>();;
 
     public static List<String> CONSTANT_KEY = Arrays.asList("view");
 
@@ -377,10 +377,13 @@ public class ABIDefinition {
     }
 
     public static class NamedType {
+        private static String DEFAULT_INTERNAL_TYPE = "";
+
         private String name;
         private String type;
+        private String internalType = DEFAULT_INTERNAL_TYPE;
         private boolean indexed;
-        private List<NamedType> components;
+        private List<NamedType> components = new ArrayList<>();;
 
         public NamedType() {}
 
@@ -392,6 +395,19 @@ public class ABIDefinition {
             this.name = name;
             this.type = type;
             this.indexed = indexed;
+        }
+
+        public NamedType(
+                String name,
+                String type,
+                String internalType,
+                boolean indexed,
+                List<NamedType> components) {
+            this.name = name;
+            this.type = type;
+            this.internalType = internalType;
+            this.indexed = indexed;
+            this.components = components;
         }
 
         public Type newType() {
@@ -434,6 +450,48 @@ public class ABIDefinition {
 
         public void setType(String type) {
             this.type = type;
+        }
+
+        public String getInternalType() {
+            return this.internalType;
+        }
+
+        public void setInternalType(String internalType) {
+            this.internalType = internalType;
+        }
+
+        public int structIdentifier() {
+            String typeIdentifier =
+                    (internalType == null || internalType.isEmpty()) ? type : internalType;
+            if ("tuple[]".equals(typeIdentifier)) {
+                typeIdentifier = "tuple";
+            }
+
+            return (typeIdentifier
+                            + components
+                                    .stream()
+                                    .map(namedType -> String.valueOf(namedType.structIdentifier()))
+                                    .collect(Collectors.joining()))
+                    .hashCode();
+        }
+
+        public int nestedness() {
+            if (getComponents().size() == 0) {
+                return 0;
+            }
+            return 1 + getComponents().stream().mapToInt(NamedType::nestedness).max().getAsInt();
+        }
+
+        public boolean isDynamic() {
+            if (getType().equals("string")
+                    || getType().equals("bytes")
+                    || getType().contains("[]")) {
+                return true;
+            }
+            if (components.stream().anyMatch(NamedType::isDynamic)) {
+                return true;
+            }
+            return false;
         }
 
         public boolean isIndexed() {
