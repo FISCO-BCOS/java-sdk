@@ -98,6 +98,7 @@ public class Contract {
                         client.getGroupManagerService(),
                         client.getEventResource(),
                         client.getGroupId());
+        this.eventSubscribe.start();
     }
 
     /**
