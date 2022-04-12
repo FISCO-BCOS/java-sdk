@@ -126,6 +126,8 @@ public class CryptoSuite {
                             + CryptoType.SM_HSM_TYPE
                             + " crypto type");
         }
+        // Set config for 'keyPairFactory'
+        this.keyPairFactory.setConfig(config);
         // create keyPair randomly
         if (cryptoTypeConfig != CryptoType.SM_HSM_TYPE) {
             createKeyPair();
