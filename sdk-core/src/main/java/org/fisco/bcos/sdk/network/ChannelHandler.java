@@ -91,12 +91,11 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
                 }
             } else {
                 logger.error(
-                        " handshake failed, host: {}, port: {}, message: {}, cause: {} ",
+                        " handshake failed, host: {}, port: {}, reason: {}, error stack: {} ",
                         host,
                         port,
-                        e.cause().getMessage(),
+                        e.cause().getLocalizedMessage(),
                         e.cause());
-
                 ctx.disconnect();
                 ctx.close();
             }

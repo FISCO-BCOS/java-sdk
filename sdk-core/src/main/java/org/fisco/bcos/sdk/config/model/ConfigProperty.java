@@ -110,10 +110,6 @@ public class ConfigProperty {
                 return inputStream;
             }
         } catch (IOException e) {
-            logger.warn(
-                    "Load config from {} failed, trying to load from the classpath, e: {}",
-                    configFilePath,
-                    e);
             if (inputStream != null) {
                 try {
                     inputStream.close();
@@ -124,6 +120,10 @@ public class ConfigProperty {
         }
         // try to load from the class path
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        logger.info(
+                "Load config from {} failed, trying to load from the resourcePath {}",
+                configFilePath,
+                classLoader.getResource("").getPath());
         inputStream = classLoader.getResourceAsStream(configFilePath);
         return inputStream;
     }

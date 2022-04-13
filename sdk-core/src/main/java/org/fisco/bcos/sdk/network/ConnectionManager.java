@@ -36,6 +36,8 @@ import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +48,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.SSLHandshakeException;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.model.CryptoType;
 import org.fisco.bcos.sdk.model.RetCode;
+import org.fisco.bcos.sdk.utils.SystemInformation;
 import org.fisco.bcos.sdk.utils.ThreadPoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +72,7 @@ public class ConnectionManager {
     private Bootstrap bootstrap = new Bootstrap();
     private List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
     private ScheduledExecutorService reconnSchedule = new ScheduledThreadPoolExecutor(1);
+    private int cryptoType;
 
     public ConnectionManager(ConfigOption configOption, MsgHandler msgHandler) {
         this(configOption.getNetworkConfig().getPeers(), msgHandler);
@@ -114,7 +119,7 @@ public class ConnectionManager {
         for (int i = 0; i < connectionInfoList.size(); i++) {
             ConnectionInfo connInfo = connectionInfoList.get(i);
             ChannelFuture connectFuture = connChannelFuture.get(i);
-            if (checkConnectionResult(connInfo, connectFuture, errorMessageList)) {
+            if (checkConnectionResult(cryptoType, connInfo, connectFuture, errorMessageList)) {
                 atLeastOneConnectSuccess = true;
             }
         }
@@ -124,20 +129,20 @@ public class ConnectionManager {
             logger.error(" all connections have failed, {} ", errorMessageList);
             String errorMessageString = "";
             for (RetCode errorRetCode : errorMessageList) {
-                errorMessageString += errorRetCode.getMessage() + "\n";
+                errorMessageString += "* " + errorRetCode.getMessage() + "\n";
             }
             for (RetCode errorRetCode : errorMessageList) {
                 if (errorRetCode.getCode() == NetworkException.SSL_HANDSHAKE_FAILED) {
                     throw new NetworkException(
-                            " Failed to connect to all the nodes! errorMessage: \n"
-                                    + errorMessageString,
+                            "Failed to connect to all the nodes!\n" + errorMessageString,
                             NetworkException.SSL_HANDSHAKE_FAILED);
                 }
             }
             throw new NetworkException(
-                    " Failed to connect to all the nodes! errorMessage: \n" + errorMessageString,
+                    "Failed to connect to all the nodes!\n" + errorMessageString,
                     NetworkException.CONNECT_FAILED);
         }
+        cryptoType = configOption.getCryptoMaterialConfig().getSslCryptoType();
         logger.debug(" start connect end. ");
     }
 
@@ -191,7 +196,8 @@ public class ConnectionManager {
             ChannelFuture connectFuture =
                     bootstrap.connect(connectionInfo.getIp(), connectionInfo.getPort());
             List<RetCode> errorMessageList = new ArrayList<>();
-            if (checkConnectionResult(connectionInfo, connectFuture, errorMessageList)) {
+            if (checkConnectionResult(
+                    cryptoType, connectionInfo, connectFuture, errorMessageList)) {
                 logger.info(
                         " reconnect to {}:{} success",
                         connectionInfo.getIp(),
@@ -350,27 +356,26 @@ public class ConnectionManager {
     }
 
     private boolean checkConnectionResult(
-            ConnectionInfo connInfo, ChannelFuture connectFuture, List<RetCode> errorMessageList) {
+            int cryptoType,
+            ConnectionInfo connInfo,
+            ChannelFuture connectFuture,
+            List<RetCode> errorMessageList) {
         connectFuture.awaitUninterruptibly();
         if (!connectFuture.isSuccess()) {
+            String errorMessage =
+                    "connect to "
+                            + connInfo.getIp()
+                            + ":"
+                            + connInfo.getPort()
+                            + " failed! Please make sure the nodes have been started, and the network between the SDK and the nodes are connected normally.";
             /** connect failed. */
             if (Objects.isNull(connectFuture.cause())) {
-                logger.error("connect to {}:{} failed. ", connInfo.getIp(), connInfo.getPort());
+                logger.error("{}", errorMessage);
             } else {
-                logger.error(
-                        "connect to {}:{} failed. {}",
-                        connInfo.getIp(),
-                        connInfo.getPort(),
-                        connectFuture.cause().getMessage());
+                errorMessage += "reason: " + connectFuture.cause().getLocalizedMessage() + "\n";
+                logger.error("{}, cause: {}", errorMessage, connectFuture.cause().getMessage());
             }
-            errorMessageList.add(
-                    new RetCode(
-                            NetworkException.CONNECT_FAILED,
-                            "connect to "
-                                    + connInfo.getIp()
-                                    + ":"
-                                    + connInfo.getPort()
-                                    + " failed"));
+            errorMessageList.add(new RetCode(NetworkException.CONNECT_FAILED, errorMessage));
             return false;
         } else {
             /** connect success, check ssl handshake result. */
@@ -379,7 +384,7 @@ public class ConnectionManager {
                     "! Please make sure the certificate is correctly configured and copied, ensure that the SDK and the node are in the same agency!";
             if (Objects.isNull(sslhandler)) {
                 String sslHandshakeFailedMessage =
-                        " ssl handshake failed:/"
+                        "ssl handshake failed:/"
                                 + connInfo.getIp()
                                 + ":"
                                 + connInfo.getPort()
@@ -391,18 +396,48 @@ public class ConnectionManager {
                 return false;
             }
 
-            Future<Channel> sshHandshakeFuture =
+            Future<Channel> sslHandshakeFuture =
                     sslhandler.handshakeFuture().awaitUninterruptibly();
-            if (sshHandshakeFuture.isSuccess()) {
-                logger.trace(" ssl handshake success {}:{}", connInfo.getIp(), connInfo.getPort());
+            if (sslHandshakeFuture.isSuccess()) {
+                logger.info(" ssl handshake success {}:{}", connInfo.getIp(), connInfo.getPort());
                 return true;
             } else {
                 String sslHandshakeFailedMessage =
-                        " ssl handshake failed:/"
+                        "ssl handshake failed:/"
                                 + connInfo.getIp()
                                 + ":"
                                 + connInfo.getPort()
-                                + checkerMessage;
+                                + "\n";
+                if (sslHandshakeFuture.cause() instanceof SSLHandshakeException) {
+                    if (cryptoType == CryptoType.ECDSA_TYPE
+                            && !SystemInformation.supportSecp256K1) {
+                        sslHandshakeFailedMessage +=
+                                " reason: secp256k1 algorithm is disabled by the current jdk. Please enable secp256k1 or replace to jdk that supports secp256k1.";
+                    } else {
+                        SSLHandshakeException e =
+                                (SSLHandshakeException) sslHandshakeFuture.cause();
+                        sslHandshakeFailedMessage +=
+                                " reason: "
+                                        + e.getLocalizedMessage()
+                                        + ". Please make sure the certificate are correctly configured and copied.";
+                    }
+                } else if (sslHandshakeFuture.cause() instanceof ClosedChannelException) {
+                    ClosedChannelException e = (ClosedChannelException) sslHandshakeFuture.cause();
+                    if (cryptoType == CryptoType.ECDSA_TYPE) {
+                        sslHandshakeFailedMessage +=
+                                " reason: The node closes the connection. Maybe connect to the sm node with ecdsa context or the node and the SDK are not belong to the same agency.";
+                    } else {
+                        sslHandshakeFailedMessage +=
+                                " reason: The node closes the connection. Maybe connect to the ecdsa node with sm context or the node and the SDK are not belong to the same agency.";
+                    }
+                } else {
+                    sslHandshakeFailedMessage +=
+                            " reason: "
+                                    + sslHandshakeFuture.cause().getLocalizedMessage()
+                                    + " Please check if there is a netty conflict, the netty version currently supported by the sdk is:"
+                                    + SystemInformation.nettyVersion;
+                }
+
                 logger.error(sslHandshakeFailedMessage);
                 errorMessageList.add(
                         new RetCode(
