@@ -41,6 +41,10 @@ public class TransactionReceipt {
     private String message;
 
     public boolean isStatusOK() {
+        if (Objects.isNull(status)) {
+            return false;
+        }
+
         return status.equals("0x0") || status.equals("0");
     }
 
