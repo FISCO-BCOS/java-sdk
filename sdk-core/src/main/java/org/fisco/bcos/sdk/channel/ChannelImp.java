@@ -89,11 +89,11 @@ public class ChannelImp implements Channel {
             network.start();
             checkConnectionsToStartPeriodTask();
             running = true;
-            logger.debug("Start the channel success");
+            logger.debug("====> Start the channel success");
         } catch (NetworkException e) {
             network.stop();
-            logger.error("init channel network error, {} ", e.getMessage());
-            throw new ChannelException("init channel network error: " + e.getMessage(), e);
+            logger.error("====> init channel network error, {} ", e.getMessage());
+            throw new ChannelException("init channel network error!\n" + e.getMessage(), e);
         }
     }
 
@@ -115,13 +115,7 @@ public class ChannelImp implements Channel {
                 connectionInfoStr += peer + ", ";
             }
 
-            String baseMessage =
-                    " nodes: "
-                            + connectionInfoStr
-                            + "java version: "
-                            + System.getProperty("java.version")
-                            + " ,java vendor: "
-                            + System.getProperty("java.vm.vendor");
+            String baseMessage = " nodes: " + connectionInfoStr;
 
             if (getAvailablePeer().size() == 0) {
                 String errorMessage = " Failed to connect to " + baseMessage;
