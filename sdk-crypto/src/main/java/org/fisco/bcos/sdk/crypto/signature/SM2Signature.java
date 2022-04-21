@@ -38,6 +38,11 @@ public class SM2Signature implements Signature {
     }
 
     public String signMessage(String message, CryptoKeyPair keyPair) {
+
+        if (!keyPair.getCurveName().equals(CryptoKeyPair.SM2_CURVE_NAME)) {
+            throw new SignatureException("sm2 sign with " + keyPair.getCurveName() + " keypair");
+        }
+
         CryptoResult signatureResult =
                 NativeInterface.sm2SignWithPub(
                         keyPair.getHexPrivateKey(),
