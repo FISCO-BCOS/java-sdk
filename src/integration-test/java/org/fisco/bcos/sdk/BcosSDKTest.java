@@ -231,8 +231,14 @@ public class BcosSDKTest {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
+        // CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+        // CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
         CryptoSuite cryptoSuite = client.getCryptoSuite();
-        CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
+
+        CryptoKeyPair cryptoKeyPair = cryptoSuite.getCryptoKeyPair();
+
+        System.out.println("account address:" + cryptoKeyPair.getAddress());
+
         BigInteger blockLimit = client.getBlockLimit();
         System.out.println("blockLimit:" + blockLimit);
         org.fisco.bcos.sdk.contract.solidity.HelloWorld helloWorld = null;

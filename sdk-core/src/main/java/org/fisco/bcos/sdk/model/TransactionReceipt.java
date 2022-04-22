@@ -24,7 +24,7 @@ public class TransactionReceipt {
     private String version;
     private String contractAddress;
     private String gasUsed;
-    private int status;
+    private int status = -1;
     private String blockNumber;
     private String output;
     private String transactionHash;
