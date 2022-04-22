@@ -141,6 +141,10 @@ public abstract class CryptoKeyPair {
      */
     public abstract CryptoKeyPair generateKeyPair();
 
+    public String getCurveName() {
+        return this.curveName;
+    }
+
     /**
      * Abstract function of create keyPair randomly
      *
