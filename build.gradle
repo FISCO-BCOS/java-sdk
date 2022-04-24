@@ -32,7 +32,7 @@ ext {
     guavaVersion = '30.1.1-jre'
 
     config2Version = '2.7'
-    bcosSdkJniVersion = "3.0.0-rc4-SNAPSHOT"
+    bcosSdkJniVersion = "3.0.0-adapteBoostssl-SNAPSHOT"
 }
 
 // check.dependsOn integrationTest
@@ -181,9 +181,9 @@ googleJavaFormat {
 }
 
 dependencies {
-//    api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")
-    implementation fileTree(dir:'lib',include:['*.jar'])
-    implementation files("lib/bcos-sdk-jni-3.0.0-adapteBoostssl-SNAPSHOT.jar")
+    api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")
+//    implementation fileTree(dir:'lib',include:['*.jar'])
+//    implementation files("lib/bcos-sdk-jni-3.0.0-adapteBoostssl-SNAPSHOT.jar")
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
