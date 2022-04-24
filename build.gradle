@@ -182,8 +182,6 @@ googleJavaFormat {
 
 dependencies {
     api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")
-//    implementation fileTree(dir:'lib',include:['*.jar'])
-//    implementation files("lib/bcos-sdk-jni-3.0.0-adapteBoostssl-SNAPSHOT.jar")
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
@@ -199,10 +197,6 @@ dependencies {
     testImplementation("com.google.guava:guava:${guavaVersion}")
 
     integrationTestImplementation project
-
-    api ("org.slf4j:slf4j-api:1.7.32")
-
-    testImplementation ("org.slf4j:slf4j-log4j12:1.7.32")
 }
 
 configurations.all {
