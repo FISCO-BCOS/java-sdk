@@ -42,6 +42,11 @@ public class ECDSASignature implements Signature {
     }
 
     public static String signMessage(final String message, final CryptoKeyPair keyPair) {
+
+        if (!keyPair.getCurveName().equals(CryptoKeyPair.ECDSA_CURVE_NAME)) {
+            throw new SignatureException("ecdsa sign with " + keyPair.getCurveName() + " keypair");
+        }
+
         String inputMessage = Numeric.cleanHexPrefix(message);
         checkInputMessage(inputMessage);
         CryptoResult signatureResult =
