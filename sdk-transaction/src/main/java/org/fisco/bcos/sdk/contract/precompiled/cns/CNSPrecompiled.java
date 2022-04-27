@@ -13,7 +13,6 @@ import org.fisco.bcos.sdk.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.codec.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple1;
 import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple2;
-import org.fisco.bcos.sdk.codec.datatypes.generated.tuples.generated.Tuple4;
 import org.fisco.bcos.sdk.contract.Contract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
@@ -90,11 +89,17 @@ public class CNSPrecompiled extends Contract {
         final Function function =
                 new Function(
                         FUNC_INSERT,
-                        Arrays.<Type>asList(
-                                new Utf8String(name),
-                                new Utf8String(version),
-                                new Address(addr),
-                                new Utf8String(abi)),
+                        client.isWASM()
+                                ? Arrays.<Type>asList(
+                                        new Utf8String(name),
+                                        new Utf8String(version),
+                                        new Utf8String(addr),
+                                        new Utf8String(abi))
+                                : Arrays.<Type>asList(
+                                        new Utf8String(name),
+                                        new Utf8String(version),
+                                        new Address(addr),
+                                        new Utf8String(abi)),
                         Collections.<TypeReference<?>>emptyList());
         return executeTransaction(function);
     }
@@ -104,11 +109,17 @@ public class CNSPrecompiled extends Contract {
         final Function function =
                 new Function(
                         FUNC_INSERT,
-                        Arrays.<Type>asList(
-                                new Utf8String(name),
-                                new Utf8String(version),
-                                new Utf8String(addr),
-                                new Utf8String(abi)),
+                        client.isWASM()
+                                ? Arrays.<Type>asList(
+                                        new Utf8String(name),
+                                        new Utf8String(version),
+                                        new Utf8String(addr),
+                                        new Utf8String(abi))
+                                : Arrays.<Type>asList(
+                                        new Utf8String(name),
+                                        new Utf8String(version),
+                                        new Address(addr),
+                                        new Utf8String(abi)),
                         Collections.<TypeReference<?>>emptyList());
         asyncExecuteTransaction(function, callback);
     }
@@ -118,34 +129,19 @@ public class CNSPrecompiled extends Contract {
         final Function function =
                 new Function(
                         FUNC_INSERT,
-                        Arrays.<Type>asList(
-                                new Utf8String(name),
-                                new Utf8String(version),
-                                new Utf8String(addr),
-                                new Utf8String(abi)),
+                        client.isWASM()
+                                ? Arrays.<Type>asList(
+                                        new Utf8String(name),
+                                        new Utf8String(version),
+                                        new Utf8String(addr),
+                                        new Utf8String(abi))
+                                : Arrays.<Type>asList(
+                                        new Utf8String(name),
+                                        new Utf8String(version),
+                                        new Address(addr),
+                                        new Utf8String(abi)),
                         Collections.<TypeReference<?>>emptyList());
         return createSignedTransaction(function);
-    }
-
-    public Tuple4<String, String, String, String> getInsertInput(
-            TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getInput().substring(10);
-        final Function function =
-                new Function(
-                        FUNC_INSERT,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(
-                                new TypeReference<Utf8String>() {},
-                                new TypeReference<Utf8String>() {},
-                                new TypeReference<Utf8String>() {},
-                                new TypeReference<Utf8String>() {}));
-        List<Type> results =
-                this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple4<String, String, String, String>(
-                (String) results.get(0).getValue(),
-                (String) results.get(1).getValue(),
-                (String) results.get(2).getValue(),
-                (String) results.get(3).getValue());
     }
 
     public Tuple1<BigInteger> getInsertOutput(TransactionReceipt transactionReceipt) {
