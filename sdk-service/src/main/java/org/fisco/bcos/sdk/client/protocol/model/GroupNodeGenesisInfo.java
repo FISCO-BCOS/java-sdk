@@ -15,6 +15,7 @@
 package org.fisco.bcos.sdk.client.protocol.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.math.BigInteger;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -50,7 +51,7 @@ public class GroupNodeGenesisInfo {
 
     private String consensusType;
     private Integer blockTxCountLimit;
-    private Integer txGasLimit;
+    private BigInteger txGasLimit;
     private Integer consensusLeaderPeriod;
     List<Sealer> sealerList;
 
@@ -70,11 +71,11 @@ public class GroupNodeGenesisInfo {
         this.blockTxCountLimit = blockTxCountLimit;
     }
 
-    public Integer getTxGasLimit() {
+    public BigInteger getTxGasLimit() {
         return txGasLimit;
     }
 
-    public void setTxGasLimit(Integer txGasLimit) {
+    public void setTxGasLimit(BigInteger txGasLimit) {
         this.txGasLimit = txGasLimit;
     }
 
