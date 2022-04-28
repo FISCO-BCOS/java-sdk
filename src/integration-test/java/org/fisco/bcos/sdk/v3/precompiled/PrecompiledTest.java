@@ -18,7 +18,7 @@ package org.fisco.bcos.sdk.v3.precompiled;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -39,12 +39,13 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.v3.contract.precompiled.consensus.ConsensusService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.KVTableService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService;
-import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Entry;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.UpdateFields;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.v3.contract.solidity.HelloWorld;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
+import org.fisco.bcos.sdk.v3.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
@@ -176,8 +177,7 @@ public class PrecompiledTest {
         Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(100))));
     }
 
-    // FIXME: no use in FISCO BCOS v3.0.0-rc1
-    // @Test
+    @Test
     public void test5CRUDService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -185,7 +185,7 @@ public class PrecompiledTest {
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         TableCRUDService tableCRUDService = new TableCRUDService(client, cryptoKeyPair);
         // create a user table
-        String tableName = "test" + (int) (Math.random() * 1000);
+        String tableName = "test" + new Random().nextInt(10000);
         String key = "key";
         List<String> valueFields = new ArrayList<>(5);
         for (int i = 0; i < 5; i++) {
@@ -194,44 +194,40 @@ public class PrecompiledTest {
         RetCode code = tableCRUDService.createTable(tableName, key, valueFields);
         Assert.assertEquals(0, code.getCode());
         // desc
-        List<Map<String, String>> desc = tableCRUDService.desc(tableName);
-        Assert.assertEquals(desc.get(0).get("value_field"), "field0,field1,field2,field3,field4");
+        Map<String, List<String>> desc = tableCRUDService.desc(tableName);
+        Assert.assertEquals(desc.get(PrecompiledConstant.VALUE_FIELD_NAME), valueFields);
 
         // insert
-        Map<String, String> fieldNameToValue = new HashMap<>();
+        LinkedHashMap<String, String> fieldNameToValue = new LinkedHashMap<>();
         for (int i = 0; i < valueFields.size(); i++) {
             fieldNameToValue.put("field" + i, "value" + i);
         }
-        fieldNameToValue.put(key, "key1");
-        Entry fieldNameToValueEntry = new Entry(fieldNameToValue);
+        Entry fieldNameToValueEntry = new Entry("key1", fieldNameToValue);
         tableCRUDService.insert(tableName, fieldNameToValueEntry);
-        // select
-        Condition condition = new Condition();
-        condition.EQ(key, "key1");
-        List<Map<String, String>> result = tableCRUDService.select(tableName, condition);
+        // select key
+        Map<String, String> result = tableCRUDService.select(tableName, "key1");
         // field value result + key result
-        if (!result.isEmpty()) {
-            Assert.assertEquals(result.get(0).size(), valueFields.size());
-        }
+        Assert.assertEquals(result.size(), valueFields.size() + 1);
         System.out.println("tableCRUDService select result: " + result);
+
         // update
         fieldNameToValue.clear();
         fieldNameToValue.put("field1", "value123");
-        fieldNameToValueEntry.setFieldNameToValue(fieldNameToValue);
-        tableCRUDService.update(tableName, fieldNameToValueEntry, condition);
-        result = tableCRUDService.select(tableName, condition);
-        Assert.assertEquals(result.get(0).size(), valueFields.size());
-        Assert.assertEquals(result.get(0).get("field1"), "value123");
+        UpdateFields updateFields = new UpdateFields(fieldNameToValue);
+        RetCode update = tableCRUDService.update(tableName, "key1", updateFields);
+
+        result = tableCRUDService.select(tableName, "key1");
+        Assert.assertEquals(result.size(), valueFields.size() + 1);
+        Assert.assertEquals(result.get("field1"), "value123");
         System.out.println("tableCRUDService select result: " + result);
 
         // remove
-        tableCRUDService.remove(tableName, condition);
-        result = tableCRUDService.select(tableName, condition);
+        tableCRUDService.remove(tableName, "key1");
+        result = tableCRUDService.select(tableName, "key1");
         Assert.assertTrue(result.isEmpty());
         System.out.println("testCRUDPrecompiled tableCRUDService.remove size : " + result.size());
     }
 
-    // FIXME: no use in FISCO BCOS v3.0.0-rc1
     // @Test
     public void test51SyncCRUDService() throws ConfigException, ContractException, JniException {
 
@@ -240,7 +236,7 @@ public class PrecompiledTest {
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
-        String tableName = "test_sync" + new Random().nextInt(100);
+        String tableName = "test_sync" + new Random().nextInt(10000);
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         RetCode retCode = crudService.createTable(tableName, "key", valueFiled);
@@ -260,21 +256,19 @@ public class PrecompiledTest {
             threadPool.execute(
                     () -> {
                         try {
-                            Map<String, String> value = new HashMap<>();
+                            LinkedHashMap<String, String> value = new LinkedHashMap<>();
                             value.put("field", "field" + index);
-                            value.put("key", "key" + index);
                             // insert
-                            crudService.insert(tableName, new Entry(value));
+                            crudService.insert(tableName, new Entry("key" + index, value));
                             // select
-                            Condition condition = new Condition();
-                            condition.EQ("key", "key" + index);
-                            crudService.select(tableName, condition);
+                            crudService.select(tableName, "key" + index);
                             // update
                             value.clear();
                             value.put("field", "field" + index + 100);
-                            crudService.update(tableName, new Entry(value), condition);
+                            UpdateFields updateFields = new UpdateFields(value);
+                            crudService.update(tableName, "key" + index, updateFields);
                             // remove
-                            crudService.remove(tableName, condition);
+                            crudService.remove(tableName, "key" + index);
                         } catch (ContractException e) {
                             System.out.println(
                                     "call crudService failed, error information: "
@@ -314,7 +308,7 @@ public class PrecompiledTest {
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
         // create table
-        String tableName = "send_async" + new Random().nextInt(1000);
+        String tableName = "send_async" + new Random().nextInt(10000);
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         String key = "key";
@@ -331,23 +325,22 @@ public class PrecompiledTest {
             threadPool.execute(
                     () -> {
                         try {
-                            Map<String, String> value = new HashMap<>();
+                            LinkedHashMap<String, String> value = new LinkedHashMap<>();
                             value.put("field", "field" + index);
-                            value.put("key", "key" + index);
                             // insert
                             FakeTransactionCallback callback = new FakeTransactionCallback();
-                            crudService.asyncInsert(tableName, new Entry(value), callback);
+                            crudService.asyncInsert(
+                                    tableName, new Entry("key" + index, value), callback);
                             // update
-                            Condition condition = new Condition();
-                            condition.EQ(key, "key" + index);
                             value.clear();
                             value.put("field", "field" + index + 100);
+                            UpdateFields updateFields = new UpdateFields(value);
                             FakeTransactionCallback callback2 = new FakeTransactionCallback();
                             crudService.asyncUpdate(
-                                    tableName, new Entry(value), condition, callback2);
+                                    tableName, "key" + index, updateFields, callback2);
                             // remove
                             FakeTransactionCallback callback3 = new FakeTransactionCallback();
-                            crudService.asyncRemove(tableName, condition, callback3);
+                            crudService.asyncRemove(tableName, "key" + index, callback3);
                         } catch (ContractException e) {
                             System.out.println(
                                     "call crudService failed, error information: "
@@ -378,29 +371,19 @@ public class PrecompiledTest {
         // create a user table
         String tableName = "test" + (int) (Math.random() * 1000);
         String key = "key";
-        List<String> valueFields = new ArrayList<>(5);
-        for (int i = 0; i < 5; i++) {
-            valueFields.add(i, "field" + i);
-        }
-        RetCode code = kvTableService.createTable(tableName, key, valueFields);
+        RetCode code = kvTableService.createTable(tableName, key, "field");
         Assert.assertEquals(0, code.getCode());
         // desc
         Map<String, String> desc = kvTableService.desc(tableName);
-        Assert.assertEquals(desc.get("value_field"), "field0,field1,field2,field3,field4");
+        Assert.assertEquals(desc.get(PrecompiledConstant.VALUE_FIELD_NAME), "field");
 
         // set
-        Map<String, String> fieldNameToValue = new HashMap<>();
-        for (int i = 0; i < valueFields.size(); i++) {
-            fieldNameToValue.put("field" + i, "value" + i);
-        }
-        Entry fieldNameToValueEntry = new Entry(fieldNameToValue);
-        kvTableService.set(tableName, "key1", fieldNameToValueEntry);
+
+        kvTableService.set(tableName, "key1", "value1");
         // get
-        Map<String, String> key1 = kvTableService.get(tableName, "key1");
+        String key1 = kvTableService.get(tableName, "key1");
         // field value result + key result
-        if (!key1.isEmpty()) {
-            Assert.assertEquals(key1.size(), valueFields.size());
-        }
+        Assert.assertEquals(key1, "value1");
         System.out.println("kvTableService select result: " + key1);
     }
 

@@ -14,77 +14,83 @@
  */
 package org.fisco.bcos.sdk.v3.contract.precompiled.crud.common;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TablePrecompiled;
 
-@Deprecated
 public class Condition {
 
-    private Map<String, Map<ConditionOperator, String>> conditions;
+    private Map<ConditionOperator, String> conditions;
+    private TablePrecompiled.Limit limit;
 
     public Condition() {
         conditions = new HashMap<>();
+        limit = new TablePrecompiled.Limit();
     }
 
-    public void EQ(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.eq, value);
-        conditions.put(key, map);
+    public void GT(String value) {
+        conditions.put(ConditionOperator.gt, value);
     }
 
-    public void NE(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.ne, value);
-        conditions.put(key, map);
+    public void GE(String value) {
+        conditions.put(ConditionOperator.ge, value);
     }
 
-    public void GT(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.gt, value);
-        conditions.put(key, map);
+    public void LT(String value) {
+        conditions.put(ConditionOperator.lt, value);
     }
 
-    public void GE(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.ge, value);
-        conditions.put(key, map);
+    public void LE(String value) {
+        conditions.put(ConditionOperator.le, value);
     }
 
-    public void LT(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.lt, value);
-        conditions.put(key, map);
+    public void setLimit(int offset, int count) {
+        limit.setOffset(BigInteger.valueOf(offset));
+        limit.setCount(BigInteger.valueOf(count));
     }
 
-    public void LE(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.le, value);
-        conditions.put(key, map);
+    public void setLimit(BigInteger offset, BigInteger count) {
+        limit.setOffset(offset);
+        limit.setCount(count);
     }
 
-    public Map<String, Map<ConditionOperator, String>> getConditions() {
+    public Map<ConditionOperator, String> getConditions() {
         return conditions;
     }
 
-    public TablePrecompiled.Condition getTableCondition() {
-        List<TablePrecompiled.CompareTriple> compareTripleList = new ArrayList<>();
-        this.conditions.forEach(
-                (String key, Map<ConditionOperator, String> cmpValue) -> {
-                    cmpValue.forEach(
-                            (ConditionOperator cmp, String value) -> {
-                                TablePrecompiled.CompareTriple compareTriple =
-                                        new TablePrecompiled.CompareTriple(
-                                                key, value, cmp.getBigIntegerValue());
-                                compareTripleList.add(compareTriple);
-                            });
-                });
-        return new TablePrecompiled.Condition(compareTripleList);
+    public List<TablePrecompiled.Condition> getTableConditions() {
+        List<TablePrecompiled.Condition> tableConditions = new ArrayList<>();
+        conditions.forEach(
+                (op, value) ->
+                        tableConditions.add(
+                                new TablePrecompiled.Condition(op.getBigIntValue(), value)));
+        return tableConditions;
     }
 
-    public void setConditions(Map<String, Map<ConditionOperator, String>> conditions) {
-        this.conditions = conditions;
+    public TablePrecompiled.Limit getLimit() {
+        return limit;
+    }
+
+    public enum ConditionOperator {
+        gt(0),
+        ge(1),
+        lt(2),
+        le(3);
+        private final int value;
+
+        private ConditionOperator(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public BigInteger getBigIntValue() {
+            return BigInteger.valueOf(value);
+        }
     }
 }
