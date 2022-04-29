@@ -1,3 +1,24 @@
+## v2.8.1
+(2022-04-29)
+Added:
+* add decodeTransactionInput to ABICodec (FISCO-BCOS#360)
+
+Update:
+* optimize java-sdk connection error message (java-sdk#536)
+
+Fix:
+* fix serialize ABIDefinition with fallback failed (java-sdk#302)
+
+----
+添加:
+* ABICodec支持decodeTransactionInput
+
+更新：
+* 优化java-sdk初始化失败错误提示
+
+修复:
+* 修复ABI fallback接口序列化失败的问题
+
 ## v2.8.0
 (2021-07-27)
 Added:
