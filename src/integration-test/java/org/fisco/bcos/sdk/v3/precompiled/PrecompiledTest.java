@@ -214,7 +214,7 @@ public class PrecompiledTest {
         fieldNameToValue.clear();
         fieldNameToValue.put("field1", "value123");
         UpdateFields updateFields = new UpdateFields(fieldNameToValue);
-        RetCode update = tableCRUDService.update(tableName, "key1", updateFields);
+        tableCRUDService.update(tableName, "key1", updateFields);
 
         result = tableCRUDService.select(tableName, "key1");
         Assert.assertEquals(result.size(), valueFields.size() + 1);
@@ -228,7 +228,7 @@ public class PrecompiledTest {
         System.out.println("testCRUDPrecompiled tableCRUDService.remove size : " + result.size());
     }
 
-    // @Test
+    @Test
     public void test51SyncCRUDService() throws ConfigException, ContractException, JniException {
 
         ConfigOption configOption = Config.load(configFile);
@@ -297,8 +297,7 @@ public class PrecompiledTest {
         }
     }
 
-    // FIXME: no use in FISCO BCOS v3.0.0-rc1
-    // @Test
+    @Test
     public void test52AsyncCRUDService()
             throws ConfigException, ContractException, InterruptedException, JniException {
 

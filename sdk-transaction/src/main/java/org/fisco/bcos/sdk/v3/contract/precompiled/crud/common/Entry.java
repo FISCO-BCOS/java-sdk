@@ -68,12 +68,12 @@ public class Entry {
         return new TablePrecompiled.Entry(key, new ArrayList<>(fieldNameToValue.values()));
     }
 
-    public TablePrecompiled.Entry covertToUpdateField(String key) {
-        return new TablePrecompiled.Entry(key, new ArrayList<>(fieldNameToValue.values()));
-    }
-
     public void setFieldNameToValue(LinkedHashMap<String, String> fieldNameToValue) {
         this.fieldNameToValue = fieldNameToValue;
+    }
+
+    public LinkedHashMap<String, String> getFieldNameToValue() {
+        return fieldNameToValue;
     }
 
     public void putFieldNameToValue(String key, String value) {
@@ -86,5 +86,10 @@ public class Entry {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        return "Entry{" + "key='" + key + '\'' + ", fieldNameToValue=" + fieldNameToValue + '}';
     }
 }

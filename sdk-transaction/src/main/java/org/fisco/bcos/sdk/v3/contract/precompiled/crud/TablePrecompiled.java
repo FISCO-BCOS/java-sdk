@@ -13,9 +13,8 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.StaticStruct;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int256;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint128;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint256;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int32;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint32;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint8;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple1;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
@@ -41,7 +40,7 @@ public class TablePrecompiled extends Contract {
             org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
-        "[{\"inputs\":[],\"name\":\"desc\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"keyColumn\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"valueColumns\",\"type\":\"string[]\"}],\"internalType\":\"struct TableInfo\",\"name\":\"\",\"type\":\"tuple\"}],\"selector\":[1441878257,1966441124],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry\",\"name\":\"entry\",\"type\":\"tuple\"}],\"name\":\"insert\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[1550717023,1284216112],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"remove\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[2153356875,2260153337],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"offset\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"}],\"name\":\"remove\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[4115950576,4212943453],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"offset\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"}],\"name\":\"select\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"selector\":[1181197915,3336676491],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"select\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry\",\"name\":\"\",\"type\":\"tuple\"}],\"selector\":[4242006977,1530027384],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct UpdateField[]\",\"name\":\"updateFields\",\"type\":\"tuple[]\"}],\"name\":\"update\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[146372353,2184687559],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"offset\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct UpdateField[]\",\"name\":\"updateFields\",\"type\":\"tuple[]\"}],\"name\":\"update\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[615317943,1360754138],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+        "[{\"inputs\":[],\"name\":\"desc\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"keyColumn\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"valueColumns\",\"type\":\"string[]\"}],\"internalType\":\"struct TableInfo\",\"name\":\"\",\"type\":\"tuple\"}],\"selector\":[1441878257,1966441124],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry\",\"name\":\"entry\",\"type\":\"tuple\"}],\"name\":\"insert\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[1550717023,1284216112],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"offset\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"count\",\"type\":\"uint32\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"}],\"name\":\"remove\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[1751202047,277135530],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"remove\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[2153356875,2260153337],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"offset\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"count\",\"type\":\"uint32\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"}],\"name\":\"select\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"selector\":[1020609838,1062557692],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"select\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry\",\"name\":\"\",\"type\":\"tuple\"}],\"selector\":[4242006977,1530027384],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"index\",\"type\":\"uint32\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct UpdateField[]\",\"name\":\"updateFields\",\"type\":\"tuple[]\"}],\"name\":\"update\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[2229475699,3686798800],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"offset\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"count\",\"type\":\"uint32\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"index\",\"type\":\"uint32\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct UpdateField[]\",\"name\":\"updateFields\",\"type\":\"tuple[]\"}],\"name\":\"update\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[3945761853,2722537016],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", ABI_ARRAY);
@@ -125,61 +124,7 @@ public class TablePrecompiled extends Contract {
                 new Function(
                         FUNC_INSERT,
                         Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
-        List<Type> results =
-                this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
-    }
-
-    public TransactionReceipt remove(String key) {
-        final Function function =
-                new Function(
-                        FUNC_REMOVE,
-                        Arrays.<Type>asList(new Utf8String(key)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        0);
-        return executeTransaction(function);
-    }
-
-    public String remove(String key, TransactionCallback callback) {
-        final Function function =
-                new Function(
-                        FUNC_REMOVE,
-                        Arrays.<Type>asList(new Utf8String(key)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        0);
-        return asyncExecuteTransaction(function, callback);
-    }
-
-    public String getSignedTransactionForRemove(String key) {
-        final Function function =
-                new Function(
-                        FUNC_REMOVE,
-                        Arrays.<Type>asList(new Utf8String(key)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        0);
-        return createSignedTransaction(function);
-    }
-
-    public Tuple1<String> getRemoveStringInput(TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getInput().substring(10);
-        final Function function =
-                new Function(
-                        FUNC_REMOVE,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
-        List<Type> results =
-                this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple1<String>((String) results.get(0).getValue());
-    }
-
-    public Tuple1<BigInteger> getRemoveStringOutput(TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getOutput();
-        final Function function =
-                new Function(
-                        FUNC_REMOVE,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int32>() {}));
         List<Type> results =
                 this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
@@ -190,7 +135,9 @@ public class TablePrecompiled extends Contract {
                 new Function(
                         FUNC_REMOVE,
                         Arrays.<Type>asList(
-                                new DynamicArray<Condition>(Condition.class, conditions), limit),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<Condition>(
+                                        Condition.class, conditions),
+                                limit),
                         Collections.<TypeReference<?>>emptyList(),
                         0);
         return executeTransaction(function);
@@ -201,18 +148,21 @@ public class TablePrecompiled extends Contract {
                 new Function(
                         FUNC_REMOVE,
                         Arrays.<Type>asList(
-                                new DynamicArray<Condition>(Condition.class, conditions), limit),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<Condition>(
+                                        Condition.class, conditions),
+                                limit),
                         Collections.<TypeReference<?>>emptyList(),
                         0);
         return asyncExecuteTransaction(function, callback);
     }
 
-    public String getSignedTransactionForRemove(DynamicArray<Condition> conditions, Limit limit) {
+    public String getSignedTransactionForRemove(List<Condition> conditions, Limit limit) {
         final Function function =
                 new Function(
                         FUNC_REMOVE,
                         Arrays.<Type>asList(
-                                new DynamicArray<Condition>(Condition.class, conditions.getValue()),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<Condition>(
+                                        Condition.class, conditions),
                                 limit),
                         Collections.<TypeReference<?>>emptyList(),
                         0);
@@ -243,7 +193,64 @@ public class TablePrecompiled extends Contract {
                 new Function(
                         FUNC_REMOVE,
                         Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int32>() {}));
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
+    }
+
+    public TransactionReceipt remove(String key) {
+        final Function function =
+                new Function(
+                        FUNC_REMOVE,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String(key)),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return executeTransaction(function);
+    }
+
+    public String remove(String key, TransactionCallback callback) {
+        final Function function =
+                new Function(
+                        FUNC_REMOVE,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String(key)),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return asyncExecuteTransaction(function, callback);
+    }
+
+    public String getSignedTransactionForRemove(String key) {
+        final Function function =
+                new Function(
+                        FUNC_REMOVE,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String(key)),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return createSignedTransaction(function);
+    }
+
+    public Tuple1<String> getRemoveStringInput(TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getInput().substring(10);
+        final Function function =
+                new Function(
+                        FUNC_REMOVE,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple1<String>((String) results.get(0).getValue());
+    }
+
+    public Tuple1<BigInteger> getRemoveStringOutput(TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getOutput();
+        final Function function =
+                new Function(
+                        FUNC_REMOVE,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int32>() {}));
         List<Type> results =
                 this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
@@ -294,15 +301,14 @@ public class TablePrecompiled extends Contract {
         return asyncExecuteTransaction(function, callback);
     }
 
-    public String getSignedTransactionForUpdate(
-            String key, DynamicArray<UpdateField> updateFields) {
+    public String getSignedTransactionForUpdate(String key, List<UpdateField> updateFields) {
         final Function function =
                 new Function(
                         FUNC_UPDATE,
                         Arrays.<Type>asList(
-                                new Utf8String(key),
-                                new DynamicArray<UpdateField>(
-                                        UpdateField.class, updateFields.getValue())),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String(key),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<UpdateField>(
+                                        UpdateField.class, updateFields)),
                         Collections.<TypeReference<?>>emptyList(),
                         0);
         return createSignedTransaction(function);
@@ -332,7 +338,7 @@ public class TablePrecompiled extends Contract {
                 new Function(
                         FUNC_UPDATE,
                         Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int32>() {}));
         List<Type> results =
                 this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
@@ -370,17 +376,16 @@ public class TablePrecompiled extends Contract {
     }
 
     public String getSignedTransactionForUpdate(
-            DynamicArray<Condition> conditions,
-            Limit limit,
-            DynamicArray<UpdateField> updateFields) {
+            List<Condition> conditions, Limit limit, List<UpdateField> updateFields) {
         final Function function =
                 new Function(
                         FUNC_UPDATE,
                         Arrays.<Type>asList(
-                                new DynamicArray<Condition>(Condition.class, conditions.getValue()),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<Condition>(
+                                        Condition.class, conditions),
                                 limit,
-                                new DynamicArray<UpdateField>(
-                                        UpdateField.class, updateFields.getValue())),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<UpdateField>(
+                                        UpdateField.class, updateFields)),
                         Collections.<TypeReference<?>>emptyList(),
                         0);
         return createSignedTransaction(function);
@@ -412,7 +417,7 @@ public class TablePrecompiled extends Contract {
                 new Function(
                         FUNC_UPDATE,
                         Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int32>() {}));
         List<Type> results =
                 this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
@@ -511,25 +516,25 @@ public class TablePrecompiled extends Contract {
         private BigInteger count;
 
         public Limit() {
-            super(new Uint128(0), new Uint128(0));
+            super(new Uint32(0), new Uint32(0));
             this.offset = BigInteger.ZERO;
             this.count = BigInteger.ZERO;
         }
 
-        public Limit(Uint128 offset, Uint128 count) {
+        public Limit(Uint32 offset, Uint32 count) {
             super(offset, count);
             this.offset = offset.getValue();
             this.count = count.getValue();
         }
 
         public Limit(BigInteger offset, BigInteger count) {
-            super(new Uint128(offset), new Uint128(count));
+            super(new Uint32(offset), new Uint32(count));
             this.offset = offset;
             this.count = count;
         }
 
         public Limit(int offset, int count) {
-            super(new Uint128(offset), new Uint128(count));
+            super(new Uint32(offset), new Uint32(count));
             this.offset = BigInteger.valueOf(offset);
             this.count = BigInteger.valueOf(count);
         }
@@ -548,14 +553,14 @@ public class TablePrecompiled extends Contract {
 
         public String value;
 
-        public UpdateField(Uint256 index, Utf8String value) {
+        public UpdateField(Uint32 index, Utf8String value) {
             super(index, value);
             this.index = index.getValue();
             this.value = value.getValue();
         }
 
         public UpdateField(BigInteger index, String value) {
-            super(new Uint256(index), new Utf8String(value));
+            super(new Uint32(index), new Utf8String(value));
             this.index = index;
             this.value = value;
         }

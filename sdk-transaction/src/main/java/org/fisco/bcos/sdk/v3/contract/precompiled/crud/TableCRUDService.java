@@ -120,6 +120,9 @@ public class TableCRUDService {
 
         TablePrecompiled.Entry selectEntry = tablePrecompiled.select(key);
         Map<String, String> result = new HashMap<>();
+        if (selectEntry.fields.isEmpty()) {
+            return result;
+        }
         result.put(tableInfo.keyColumn, selectEntry.key);
         for (int i = 0; i < selectEntry.fields.size(); i++) {
             result.put(tableInfo.valueColumns.get(i), selectEntry.fields.get(i));
