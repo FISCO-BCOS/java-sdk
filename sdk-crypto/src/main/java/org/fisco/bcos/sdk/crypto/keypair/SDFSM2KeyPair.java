@@ -52,11 +52,7 @@ public class SDFSM2KeyPair extends CryptoKeyPair {
             throw new KeyPairException(
                     "get sdf sm2 internal key public key failed:" + pkResult.getSdfErrorMessage());
         }
-        this.hexPublicKey =
-                Numeric.getHexKeyWithPrefix(
-                        pkResult.getPublicKey(),
-                        CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
-                        CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX);
+        this.hexPublicKey = getPublicKeyNoPrefix(pkResult.getPublicKey());
         this.isInternalKey = true;
     }
 

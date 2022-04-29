@@ -50,7 +50,7 @@ public class Curve25519VRF implements VRFInterface {
     public boolean verify(String publicKey, String vrfInput, String vrfProof) {
         SdkResult result = NativeInterface.curve25519VrfVerifyUtf8(publicKey, vrfInput, vrfProof);
         if (result.wedprErrorMessage != null && !result.wedprErrorMessage.isEmpty()) {
-            throw new VRFException("verify VRF Proof failed: " + result.wedprErrorMessage);
+            return false;
         }
         return result.booleanResult;
     }
@@ -87,7 +87,7 @@ public class Curve25519VRF implements VRFInterface {
     public boolean isValidVRFPublicKey(String vrfPublicKey) {
         SdkResult result = NativeInterface.curve25519VrfIsValidPublicKey(vrfPublicKey);
         if (result.wedprErrorMessage != null && !result.wedprErrorMessage.isEmpty()) {
-            throw new VRFException("invalid VRF public key:" + result.wedprErrorMessage);
+            return false;
         }
         return result.booleanResult;
     }

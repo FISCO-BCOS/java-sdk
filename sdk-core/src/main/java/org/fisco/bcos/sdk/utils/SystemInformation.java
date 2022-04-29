@@ -19,6 +19,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SystemInformation {
+    // Note: must update the version if publish new-version
+    private static final String sdkVersion = "2.8.1";
+    public static final String connectionFaqIssueUrl =
+            "https://github.com/FISCO-BCOS/java-sdk/issues/536";
+    public static final String connectionFaqDocUrl =
+            "https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/faq/connect.html";
+    public static final String nettyVersion = "4.1.53.Final";
+
     public static class InformationProperty {
         private String key;
         private String value;
@@ -47,57 +55,55 @@ public class SystemInformation {
 
     public static final InformationProperty JAVA_VERSION =
             new InformationProperty("Java Version", System.getProperty("java.version"));
-    public static final InformationProperty OS_NAME =
-            new InformationProperty("OS Name", System.getProperty("os.name"));
-    public static final InformationProperty OS_ARCH =
-            new InformationProperty("OS Arch", System.getProperty("os.arch"));
-    public static final InformationProperty OS_VERSION =
-            new InformationProperty("OS Version", System.getProperty("os.version"));
-    public static final InformationProperty VENDOR_NAME =
-            new InformationProperty("Vendor Name", System.getProperty("java.vendor"));
-    public static final InformationProperty VENDOR_URL =
-            new InformationProperty("Vendor URL", System.getProperty("java.vendor.url"));
-    public static final InformationProperty JVM_VERSION =
-            new InformationProperty("JVM Version", System.getProperty("java.vm.version"));
-    public static final InformationProperty JVM_NAME =
-            new InformationProperty("JVM Name", System.getProperty("java.vm.name"));
-    public static final InformationProperty JVM_VENDOR =
-            new InformationProperty("JVM Vendor", System.getProperty("java.vm.vendor"));
-    public static final InformationProperty JAVA_LIB_PATH =
-            new InformationProperty("JAVA Library Path", System.getProperty("java.library.path"));
     public static final InformationProperty JDK_DISABLED_NAMED_CURVES =
             new InformationProperty(
                     "JDK Disabled NamedCurves", System.getProperty("jdk.disabled.namedCurves"));
     public static final InformationProperty JDK_DISABLE_NATIVE_OPTION =
             new InformationProperty(
                     "JDK DisableNative Option", System.getProperty("jdk.sunec.disableNative"));
-
+    public static final InformationProperty OS_NAME =
+            new InformationProperty("OS Name", System.getProperty("os.name"));
+    public static final InformationProperty OS_ARCH =
+            new InformationProperty("OS Arch", System.getProperty("os.arch"));
+    public static final InformationProperty OS_VERSION =
+            new InformationProperty("OS Version", System.getProperty("os.version"));
+    public static final InformationProperty JVM_VERSION =
+            new InformationProperty("JVM Version", System.getProperty("java.vm.version"));
+    public static final InformationProperty JAVA_VENDOR =
+            new InformationProperty("JVM Vendor", System.getProperty("java.vendor"));
+    public static final InformationProperty JAVA_VENDOR_URL =
+            new InformationProperty("JVM Vendor URL", System.getProperty("java.vendor.url"));
     private static String systemInformation;
-    public static List<String> EXPECTED_CURVES = Arrays.asList("secp256k1", "secp256r1");
+    public static List<String> EXPECTED_CURVES = Arrays.asList("secp256k1");
+    public static boolean supportSecp256K1 = false;
 
     static {
-        systemInformation = "[System Information]:\n";
+        systemInformation += "--------- System Information --------- \n";
+        systemInformation = "* FISCO BCOS Java SDK Version: " + sdkVersion + "\n";
+        String supportedCurves =
+                Security.getProviders("AlgorithmParameters.EC")[0]
+                        .getService("AlgorithmParameters", "EC")
+                        .getAttribute("SupportedCurves");
+        if (supportedCurves.contains("secp256k1")) {
+            supportSecp256K1 = true;
+        }
+        for (String curve : EXPECTED_CURVES) {
+            if (supportedCurves.contains(curve)) {
+                systemInformation += "* Support " + curve + " : true\n";
+            } else {
+                systemInformation += "* Support " + curve + " : false\n";
+            }
+        }
         Field[] fields = SystemInformation.class.getDeclaredFields();
         for (Field field : fields) {
             if (field.getType().equals(InformationProperty.class)) {
                 try {
                     InformationProperty property = (InformationProperty) field.get(null);
                     systemInformation +=
-                            "[" + property.getKey() + "] : " + property.getValue() + "\n";
+                            "* " + property.getKey() + " : " + property.getValue() + "\n";
                 } catch (IllegalAccessException e) {
                     continue;
                 }
-            }
-        }
-        String supportedCurves =
-                Security.getProviders("AlgorithmParameters.EC")[0]
-                        .getService("AlgorithmParameters", "EC")
-                        .getAttribute("SupportedCurves");
-        for (String curve : EXPECTED_CURVES) {
-            if (supportedCurves.contains(curve)) {
-                systemInformation += "[Support " + curve + "] : true\n";
-            } else {
-                systemInformation += "[Support " + curve + "] : false\n";
             }
         }
     }

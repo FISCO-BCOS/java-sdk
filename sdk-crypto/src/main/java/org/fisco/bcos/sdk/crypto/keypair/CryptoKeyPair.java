@@ -88,7 +88,7 @@ public abstract class CryptoKeyPair {
      */
     CryptoKeyPair(final CryptoResult nativeResult) {
         this.hexPrivateKey = nativeResult.privateKey;
-        this.hexPublicKey = nativeResult.publicKey;
+        this.hexPublicKey = getPublicKeyNoPrefix(nativeResult.publicKey);
     }
 
     /**
@@ -164,7 +164,7 @@ public abstract class CryptoKeyPair {
         return createKeyPair(keyPair);
     }
 
-    protected static String getPublicKeyNoPrefix(String publicKeyStr) {
+    public static String getPublicKeyNoPrefix(String publicKeyStr) {
         String publicKeyNoPrefix = Numeric.cleanHexPrefix(publicKeyStr);
         if (publicKeyNoPrefix.startsWith(UNCOMPRESSED_PUBLICKEY_FLAG_STR)
                 && publicKeyNoPrefix.length()
@@ -188,7 +188,7 @@ public abstract class CryptoKeyPair {
     public String getAddress() {
         // Note: The generated publicKey is prefixed with 04, When calculate the address, need to
         // remove 04
-        return getAddress(this.getHexPublicKey().substring(2));
+        return getAddress(getPublicKeyNoPrefix(this.hexPublicKey));
     }
 
     public String getAddress(String publicKey) {

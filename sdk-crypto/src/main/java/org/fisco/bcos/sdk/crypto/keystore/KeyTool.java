@@ -138,7 +138,7 @@ public abstract class KeyTool {
         byte[] publicKeyBytes = ((BCECPublicKey) publicKey).getQ().getEncoded(false);
         BigInteger publicKeyValue =
                 new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
-        return ("04" + Numeric.toHexStringNoPrefixZeroPadded(publicKeyValue, 128));
+        return Numeric.toHexStringNoPrefixZeroPadded(publicKeyValue, 128);
     }
 
     /**
@@ -306,7 +306,7 @@ public abstract class KeyTool {
         try {
             return ec5UtilClass.getDeclaredMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException e) {
-            logger.warn("get method for EC5Util failed, method name: {}", methodName);
+            logger.debug("try to get method for EC5Util failed, method name: {}", methodName);
             return null;
         }
     }

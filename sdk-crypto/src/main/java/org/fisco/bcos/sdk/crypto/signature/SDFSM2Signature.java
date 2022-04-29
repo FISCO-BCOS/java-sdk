@@ -38,7 +38,10 @@ public class SDFSM2Signature implements Signature {
     public String signMessage(String message, CryptoKeyPair keyPair) {
         CryptoResult hashResult =
                 NativeInterface.sm2ComputeHashE(
-                        Numeric.cleanHexPrefix(keyPair.getHexPublicKey()),
+                        Numeric.getHexKeyWithPrefix(
+                                keyPair.getHexPublicKey(),
+                                UNCOMPRESSED_PUBLICKEY_FLAG_STR,
+                                PUBLIC_KEY_LENGTH_IN_HEX),
                         Numeric.cleanHexPrefix(message));
         checkCryptoResult(hashResult);
         SDFCryptoResult signatureResult;
