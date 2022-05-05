@@ -15,60 +15,81 @@
 package org.fisco.bcos.sdk.v3.contract.precompiled.crud.common;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.fisco.bcos.sdk.v3.contract.precompiled.crud.KVTablePrecompiled;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TablePrecompiled;
 
 public class Entry {
-    private Map<String, String> fieldNameToValue = new HashMap<>();
+    private String key;
+    private LinkedHashMap<String, String> fieldNameToValue = new LinkedHashMap<>();
 
-    public Entry() {}
-
-    public Entry(Map<String, String> fieldNameToValue) {
+    public Entry(String key, LinkedHashMap<String, String> fieldNameToValue) {
+        this.key = key;
         this.fieldNameToValue = fieldNameToValue;
     }
 
-    @Deprecated
+    public Entry(
+            TablePrecompiled.TableInfo tableInfo,
+            String key,
+            Map<String, String> fieldNameToValue) {
+        this.key = key;
+        for (String column : tableInfo.valueColumns) {
+            this.fieldNameToValue.put(column, fieldNameToValue.get(column));
+        }
+    }
+
+    public Entry(List<String> valueColumns, String key, Map<String, String> fieldNameToValue) {
+        this.key = key;
+        for (String column : valueColumns) {
+            this.fieldNameToValue.put(column, fieldNameToValue.get(column));
+        }
+    }
+
+    public Entry(TablePrecompiled.TableInfo tableInfo, TablePrecompiled.Entry entry) {
+        key = entry.key;
+        for (int i = 0; i < tableInfo.valueColumns.size(); i++) {
+            fieldNameToValue.put(tableInfo.valueColumns.get(i), entry.fields.get(i));
+        }
+    }
+
     public Entry(TablePrecompiled.Entry entry) {
-        for (TablePrecompiled.KVField field : entry.fields.getValue()) {
-            this.fieldNameToValue.put(field.key, field.value);
+        key = entry.key;
+        for (String field : entry.fields) {
+            fieldNameToValue.put("", field);
         }
     }
 
-    public Entry(KVTablePrecompiled.Entry entry) {
-        for (KVTablePrecompiled.KVField field : entry.fields.getValue()) {
-            this.fieldNameToValue.put(field.key, field.value);
-        }
+    public TablePrecompiled.Entry covertToEntry(String key) {
+        return new TablePrecompiled.Entry(key, new ArrayList<>(fieldNameToValue.values()));
     }
 
-    public Map<String, String> getFieldNameToValue() {
+    public TablePrecompiled.Entry covertToEntry() {
+        return new TablePrecompiled.Entry(key, new ArrayList<>(fieldNameToValue.values()));
+    }
+
+    public void setFieldNameToValue(LinkedHashMap<String, String> fieldNameToValue) {
+        this.fieldNameToValue = fieldNameToValue;
+    }
+
+    public LinkedHashMap<String, String> getFieldNameToValue() {
         return fieldNameToValue;
     }
 
-    @Deprecated
-    public TablePrecompiled.Entry getTablePrecompiledEntry() {
-        List<TablePrecompiled.KVField> fields = new ArrayList<>();
-        fieldNameToValue.forEach(
-                (String k, String v) -> {
-                    TablePrecompiled.KVField kvField = new TablePrecompiled.KVField(k, v);
-                    fields.add(kvField);
-                });
-        return new TablePrecompiled.Entry(fields);
+    public void putFieldNameToValue(String key, String value) {
+        fieldNameToValue.put(key, value);
     }
 
-    public KVTablePrecompiled.Entry getKVPrecompiledEntry() {
-        List<KVTablePrecompiled.KVField> fields = new ArrayList<>();
-        fieldNameToValue.forEach(
-                (String k, String v) -> {
-                    KVTablePrecompiled.KVField kvField = new KVTablePrecompiled.KVField(k, v);
-                    fields.add(kvField);
-                });
-        return new KVTablePrecompiled.Entry(fields);
+    public String getKey() {
+        return key;
     }
 
-    public void setFieldNameToValue(Map<String, String> fieldNameToValue) {
-        this.fieldNameToValue = fieldNameToValue;
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        return "Entry{" + "key='" + key + '\'' + ", fieldNameToValue=" + fieldNameToValue + '}';
     }
 }

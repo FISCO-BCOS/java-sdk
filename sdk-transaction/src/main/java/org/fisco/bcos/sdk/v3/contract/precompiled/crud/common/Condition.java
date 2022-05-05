@@ -14,77 +14,124 @@
  */
 package org.fisco.bcos.sdk.v3.contract.precompiled.crud.common;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TablePrecompiled;
 
-@Deprecated
 public class Condition {
 
-    private Map<String, Map<ConditionOperator, String>> conditions;
+    private final Map<ConditionOperator, String> conditions;
+    private final TablePrecompiled.Limit limit;
+    private String eqValue = "";
 
     public Condition() {
         conditions = new HashMap<>();
+        limit = new TablePrecompiled.Limit();
     }
 
-    public void EQ(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.eq, value);
-        conditions.put(key, map);
+    public void GT(String value) {
+        conditions.put(ConditionOperator.GT, value);
     }
 
-    public void NE(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.ne, value);
-        conditions.put(key, map);
+    public void GE(String value) {
+        conditions.put(ConditionOperator.GE, value);
     }
 
-    public void GT(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.gt, value);
-        conditions.put(key, map);
+    public void LT(String value) {
+        conditions.put(ConditionOperator.LT, value);
     }
 
-    public void GE(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.ge, value);
-        conditions.put(key, map);
+    public void LE(String value) {
+        conditions.put(ConditionOperator.LE, value);
     }
 
-    public void LT(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.lt, value);
-        conditions.put(key, map);
+    public void EQ(String value) {
+        eqValue = value;
     }
 
-    public void LE(String key, String value) {
-        HashMap<ConditionOperator, String> map = new HashMap<>();
-        map.put(ConditionOperator.le, value);
-        conditions.put(key, map);
+    public void setLimit(int offset, int count) {
+        limit.setOffset(BigInteger.valueOf(offset));
+        limit.setCount(BigInteger.valueOf(count));
     }
 
-    public Map<String, Map<ConditionOperator, String>> getConditions() {
+    public void setLimit(BigInteger offset, BigInteger count) {
+        limit.setOffset(offset);
+        limit.setCount(count);
+    }
+
+    public Map<ConditionOperator, String> getConditions() {
         return conditions;
     }
 
-    public TablePrecompiled.Condition getTableCondition() {
-        List<TablePrecompiled.CompareTriple> compareTripleList = new ArrayList<>();
-        this.conditions.forEach(
-                (String key, Map<ConditionOperator, String> cmpValue) -> {
-                    cmpValue.forEach(
-                            (ConditionOperator cmp, String value) -> {
-                                TablePrecompiled.CompareTriple compareTriple =
-                                        new TablePrecompiled.CompareTriple(
-                                                key, value, cmp.getBigIntegerValue());
-                                compareTripleList.add(compareTriple);
-                            });
-                });
-        return new TablePrecompiled.Condition(compareTripleList);
+    public String getEqValue() {
+        return eqValue;
     }
 
-    public void setConditions(Map<String, Map<ConditionOperator, String>> conditions) {
-        this.conditions = conditions;
+    public List<TablePrecompiled.Condition> getTableConditions() {
+        List<TablePrecompiled.Condition> tableConditions = new ArrayList<>();
+        conditions.forEach(
+                (op, value) ->
+                        tableConditions.add(
+                                new TablePrecompiled.Condition(op.getBigIntValue(), value)));
+        return tableConditions;
+    }
+
+    public TablePrecompiled.Limit getLimit() {
+        return limit;
+    }
+
+    @Override
+    public String toString() {
+        return "Condition{"
+                + "conditions="
+                + conditions
+                + ", limit="
+                + limit
+                + ", eqValue='"
+                + eqValue
+                + '\''
+                + '}';
+    }
+
+    public enum ConditionOperator {
+        GT(0),
+        GE(1),
+        LT(2),
+        LE(3),
+        EQ(4);
+        private final int value;
+
+        private ConditionOperator(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public BigInteger getBigIntValue() {
+            return BigInteger.valueOf(value);
+        }
+
+        @Override
+        public String toString() {
+            switch (value) {
+                case 0:
+                    return "GT";
+                case 1:
+                    return "GE";
+                case 2:
+                    return "LT";
+                case 3:
+                    return "LE";
+                case 4:
+                    return "EQ";
+                default:
+                    return "";
+            }
+        }
     }
 }
