@@ -16,6 +16,8 @@ package org.fisco.bcos.sdk.contract.precompiled.cns;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Objects;
+import org.fisco.bcos.sdk.utils.AddressUtils;
+import org.fisco.bcos.sdk.utils.Hex;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CnsInfo {
@@ -45,7 +47,11 @@ public class CnsInfo {
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        if (AddressUtils.isValidAddress(address)) {
+            this.address = Hex.addPrefix(address);
+        } else {
+            this.address = address;
+        }
     }
 
     public String getAbi() {
