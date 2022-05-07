@@ -22,22 +22,7 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TablePrecompiled;
 
 public class Entry {
     private String key;
-    private LinkedHashMap<String, String> fieldNameToValue = new LinkedHashMap<>();
-
-    public Entry(String key, LinkedHashMap<String, String> fieldNameToValue) {
-        this.key = key;
-        this.fieldNameToValue = fieldNameToValue;
-    }
-
-    public Entry(
-            TablePrecompiled.TableInfo tableInfo,
-            String key,
-            Map<String, String> fieldNameToValue) {
-        this.key = key;
-        for (String column : tableInfo.valueColumns) {
-            this.fieldNameToValue.put(column, fieldNameToValue.get(column));
-        }
-    }
+    private Map<String, String> fieldNameToValue = new LinkedHashMap<>();
 
     public Entry(List<String> valueColumns, String key, Map<String, String> fieldNameToValue) {
         this.key = key;
@@ -46,33 +31,23 @@ public class Entry {
         }
     }
 
-    public Entry(TablePrecompiled.TableInfo tableInfo, TablePrecompiled.Entry entry) {
+    public Entry(List<String> valueColumns, TablePrecompiled.Entry entry) {
         key = entry.key;
-        for (int i = 0; i < tableInfo.valueColumns.size(); i++) {
-            fieldNameToValue.put(tableInfo.valueColumns.get(i), entry.fields.get(i));
+        for (int i = 0; i < valueColumns.size(); i++) {
+            fieldNameToValue.put(valueColumns.get(i), entry.fields.get(i));
         }
-    }
-
-    public Entry(TablePrecompiled.Entry entry) {
-        key = entry.key;
-        for (String field : entry.fields) {
-            fieldNameToValue.put("", field);
-        }
-    }
-
-    public TablePrecompiled.Entry covertToEntry(String key) {
-        return new TablePrecompiled.Entry(key, new ArrayList<>(fieldNameToValue.values()));
     }
 
     public TablePrecompiled.Entry covertToEntry() {
-        return new TablePrecompiled.Entry(key, new ArrayList<>(fieldNameToValue.values()));
+        List<String> values = new ArrayList<>(fieldNameToValue.values());
+        return new TablePrecompiled.Entry(key, values);
     }
 
-    public void setFieldNameToValue(LinkedHashMap<String, String> fieldNameToValue) {
+    public void setFieldNameToValue(Map<String, String> fieldNameToValue) {
         this.fieldNameToValue = fieldNameToValue;
     }
 
-    public LinkedHashMap<String, String> getFieldNameToValue() {
+    public Map<String, String> getFieldNameToValue() {
         return fieldNameToValue;
     }
 

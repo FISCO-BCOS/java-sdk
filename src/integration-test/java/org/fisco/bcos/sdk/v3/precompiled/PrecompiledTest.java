@@ -39,6 +39,7 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.v3.contract.precompiled.consensus.ConsensusService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.KVTableService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.UpdateFields;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
@@ -202,10 +203,16 @@ public class PrecompiledTest {
         for (int i = 0; i < valueFields.size(); i++) {
             fieldNameToValue.put("field" + i, "value" + i);
         }
-        Entry fieldNameToValueEntry = new Entry("key1", fieldNameToValue);
+        Entry fieldNameToValueEntry =
+                new Entry(desc.get(PrecompiledConstant.VALUE_FIELD_NAME), "key1", fieldNameToValue);
         tableCRUDService.insert(tableName, fieldNameToValueEntry);
         // select key
         Map<String, String> result = tableCRUDService.select(tableName, "key1");
+
+        Condition condition = new Condition();
+        condition.EQ("990");
+        condition.setLimit(0, 10);
+        List<Map<String, String>> select = tableCRUDService.select(tableName, condition);
         // field value result + key result
         Assert.assertEquals(result.size(), valueFields.size() + 1);
         System.out.println("tableCRUDService select result: " + result);
@@ -214,7 +221,7 @@ public class PrecompiledTest {
         fieldNameToValue.clear();
         fieldNameToValue.put("field1", "value123");
         UpdateFields updateFields = new UpdateFields(fieldNameToValue);
-        tableCRUDService.update(tableName, "key1", updateFields);
+        RetCode update = tableCRUDService.update(tableName, "key1", updateFields);
 
         result = tableCRUDService.select(tableName, "key1");
         Assert.assertEquals(result.size(), valueFields.size() + 1);
@@ -259,7 +266,8 @@ public class PrecompiledTest {
                             LinkedHashMap<String, String> value = new LinkedHashMap<>();
                             value.put("field", "field" + index);
                             // insert
-                            crudService.insert(tableName, new Entry("key" + index, value));
+                            crudService.insert(
+                                    tableName, new Entry(valueFiled, "key" + index, value));
                             // select
                             crudService.select(tableName, "key" + index);
                             // update
@@ -329,7 +337,9 @@ public class PrecompiledTest {
                             // insert
                             FakeTransactionCallback callback = new FakeTransactionCallback();
                             crudService.asyncInsert(
-                                    tableName, new Entry("key" + index, value), callback);
+                                    tableName,
+                                    new Entry(valueFiled, "key" + index, value),
+                                    callback);
                             // update
                             value.clear();
                             value.put("field", "field" + index + 100);

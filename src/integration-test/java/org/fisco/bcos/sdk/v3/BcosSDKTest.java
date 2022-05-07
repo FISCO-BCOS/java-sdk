@@ -258,7 +258,7 @@ public class BcosSDKTest {
         BigInteger blockLimit = client.getBlockLimit();
         System.out.println("blockLimit:" + blockLimit);
         HelloWorld helloWorld = null;
-        helloWorld = HelloWorld.deploy(client, keyPair);
+        helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
         assert helloWorld != null;
         System.out.println("helloworld address :" + helloWorld.getContractAddress());
         BlockNumber blockNumber = client.getBlockNumber();
