@@ -24,7 +24,7 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TablePrecompiled;
 public class Condition {
 
     private final Map<ConditionOperator, String> conditions;
-    private final TablePrecompiled.Limit limit;
+    private TablePrecompiled.Limit limit;
     private String eqValue = "";
 
     public Condition() {
@@ -53,13 +53,11 @@ public class Condition {
     }
 
     public void setLimit(int offset, int count) {
-        limit.setOffset(BigInteger.valueOf(offset));
-        limit.setCount(BigInteger.valueOf(count));
+        limit = new TablePrecompiled.Limit(offset, count);
     }
 
     public void setLimit(BigInteger offset, BigInteger count) {
-        limit.setOffset(offset);
-        limit.setCount(count);
+        limit = new TablePrecompiled.Limit(offset, count);
     }
 
     public Map<ConditionOperator, String> getConditions() {

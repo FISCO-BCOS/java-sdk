@@ -445,6 +445,10 @@ public class TablePrecompiled extends Contract {
 
         public List<String> valueColumns;
 
+        public TableInfo() {
+            super(new Utf8String(""), new DynamicArray<Utf8String>());
+        }
+
         public TableInfo(Utf8String keyColumn, DynamicArray<Utf8String> valueColumns) {
             super(keyColumn, valueColumns);
             this.keyColumn = keyColumn.getValue();
@@ -472,6 +476,10 @@ public class TablePrecompiled extends Contract {
 
         public List<String> fields;
 
+        public Entry() {
+            super(new Utf8String(""), new DynamicArray<Utf8String>());
+        }
+
         public Entry(Utf8String key, DynamicArray<Utf8String> fields) {
             super(key, fields);
             this.key = key.getValue();
@@ -497,6 +505,10 @@ public class TablePrecompiled extends Contract {
 
         public String value;
 
+        public Condition() {
+            super(new Uint8(0), new Utf8String(""));
+        }
+
         public Condition(Uint8 op, Utf8String value) {
             super(op, value);
             this.op = op.getValue();
@@ -507,6 +519,11 @@ public class TablePrecompiled extends Contract {
             super(new Uint8(op), new Utf8String(value));
             this.op = op;
             this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "Condition{" + "op=" + op + ", value='" + value + '\'' + '}';
         }
     }
 
@@ -546,12 +563,21 @@ public class TablePrecompiled extends Contract {
         public void setCount(BigInteger count) {
             this.count = count;
         }
+
+        @Override
+        public String toString() {
+            return "Limit{" + "offset=" + offset + ", count=" + count + '}';
+        }
     }
 
     public static class UpdateField extends DynamicStruct {
         public BigInteger index;
 
         public String value;
+
+        public UpdateField() {
+            super(new Uint32(0), new Utf8String(""));
+        }
 
         public UpdateField(Uint32 index, Utf8String value) {
             super(index, value);
@@ -563,6 +589,11 @@ public class TablePrecompiled extends Contract {
             super(new Uint32(index), new Utf8String(value));
             this.index = index;
             this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "UpdateField{" + "index=" + index + ", value='" + value + '\'' + '}';
         }
     }
 }

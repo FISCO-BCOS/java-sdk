@@ -95,6 +95,8 @@ public class PrecompiledRetCode {
             new RetCode(-51600, "Execute PaillierAdd failed");
 
     // CRUDPrecompiled -51599 ~ -51500
+    public static final RetCode CODE_REMOVE_KEY_NOT_EXIST =
+            new RetCode(-51508, "Key not exist in table, please check again");
     public static final RetCode CODE_UPDATE_KEY_NOT_EXIST =
             new RetCode(-51507, "Key not exist in table, use insert method");
     public static final RetCode CODE_INSERT_KEY_EXIST =
@@ -110,7 +112,7 @@ public class PrecompiledRetCode {
     public static final RetCode CODE_PARSE_CONDITION_ERROR =
             new RetCode(-51501, "Parse the input of Condition Precompiled failed");
     public static final RetCode CODE_PARSE_ENTRY_ERROR =
-            new RetCode(-51500, "Parse the inpput of the Entriy Precompiled failed");
+            new RetCode(-51500, "Parse the input of the Entry Precompiled failed");
 
     // SystemConfigPrecompiled -51399 ~ -51300
     public static final RetCode CODE_INVALID_CONFIGURATION_VALUES =

@@ -22,7 +22,7 @@ public class UpdateFields {
         return fieldNameToValue;
     }
 
-    public List<TablePrecompiled.UpdateField> getUpdateFields(List<String> columns) {
+    public List<TablePrecompiled.UpdateField> convertToUpdateFields(List<String> columns) {
         List<TablePrecompiled.UpdateField> updateFields = new ArrayList<>();
         fieldNameToValue.forEach(
                 (fieldName, value) -> {
