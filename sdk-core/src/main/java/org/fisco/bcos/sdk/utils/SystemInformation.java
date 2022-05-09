@@ -20,7 +20,7 @@ import java.util.List;
 
 public class SystemInformation {
     // Note: must update the version if publish new-version
-    private static final String sdkVersion = "2.8.1";
+    private static final String sdkVersion = "2.9.0";
     public static final String connectionFaqIssueUrl =
             "https://github.com/FISCO-BCOS/java-sdk/issues/536";
     public static final String connectionFaqDocUrl =
@@ -69,6 +69,10 @@ public class SystemInformation {
             new InformationProperty("OS Version", System.getProperty("os.version"));
     public static final InformationProperty JVM_VERSION =
             new InformationProperty("JVM Version", System.getProperty("java.vm.version"));
+    public static final InformationProperty JAVA_VENDOR =
+            new InformationProperty("JVM Vendor", System.getProperty("java.vendor"));
+    public static final InformationProperty JAVA_VENDOR_URL =
+            new InformationProperty("JVM Vendor URL", System.getProperty("java.vendor.url"));
     private static String systemInformation;
     public static List<String> EXPECTED_CURVES = Arrays.asList("secp256k1");
     public static boolean supportSecp256K1 = false;
