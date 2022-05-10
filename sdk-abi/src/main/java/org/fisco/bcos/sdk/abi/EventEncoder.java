@@ -39,6 +39,12 @@ public class EventEncoder {
         return result.toString();
     }
 
+    /**
+     * build event topic
+     *
+     * @param methodSignature eventSignature
+     * @return event topic
+     */
     public String buildEventSignature(String methodSignature) {
         byte[] input = methodSignature.getBytes();
         byte[] hash = cryptoSuite.hash(input);

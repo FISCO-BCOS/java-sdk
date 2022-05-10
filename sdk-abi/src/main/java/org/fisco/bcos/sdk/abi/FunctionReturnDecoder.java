@@ -7,7 +7,9 @@ import org.fisco.bcos.sdk.abi.datatypes.Array;
 import org.fisco.bcos.sdk.abi.datatypes.Bytes;
 import org.fisco.bcos.sdk.abi.datatypes.BytesType;
 import org.fisco.bcos.sdk.abi.datatypes.DynamicArray;
+import org.fisco.bcos.sdk.abi.datatypes.DynamicStruct;
 import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
+import org.fisco.bcos.sdk.abi.datatypes.StaticStruct;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Bytes32;
@@ -93,10 +95,25 @@ public class FunctionReturnDecoder {
                 int hexStringDataOffset = getDataOffset(input, offset, typeReference.getType());
 
                 Type result;
-                if (DynamicArray.class.isAssignableFrom(cls)) {
+                if (DynamicStruct.class.isAssignableFrom(cls)) {
+                    result =
+                            TypeDecoder.decodeDynamicStruct(
+                                    input, hexStringDataOffset, typeReference);
+                    offset += TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING;
+                } else if (DynamicArray.class.isAssignableFrom(cls)) {
                     result =
                             TypeDecoder.decodeDynamicArray(
                                     input, hexStringDataOffset, typeReference.getType());
+                    offset +=
+                            Utils.getOffset(typeReference.getType())
+                                    * TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING;
+                } else if (StaticStruct.class.isAssignableFrom(cls)) {
+                    result =
+                            TypeDecoder.decodeStaticStruct(
+                                    input, hexStringDataOffset, typeReference);
+                    offset +=
+                            Utils.staticStructNestedPublicFieldsFlatList(cls).size()
+                                    * TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING;
                 } else if (StaticArray.class.isAssignableFrom(cls)) {
                     int length =
                             Integer.parseInt(
@@ -105,15 +122,30 @@ public class FunctionReturnDecoder {
                     result =
                             TypeDecoder.decodeStaticArray(
                                     input, hexStringDataOffset, typeReference.getType(), length);
+
+                    if (DynamicStruct.class.isAssignableFrom(
+                            Utils.getParameterizedTypeFromArray(typeReference.getType()))) {
+                        offset += TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING;
+                    } else if (StaticStruct.class.isAssignableFrom(
+                            Utils.getParameterizedTypeFromArray(typeReference.getType()))) {
+                        offset +=
+                                Utils.staticStructNestedPublicFieldsFlatList(
+                                                        Utils.getParameterizedTypeFromArray(
+                                                                typeReference.getType()))
+                                                .size()
+                                        * length
+                                        * TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING;
+                    } else {
+                        offset += TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING * length;
+                    }
                 } else {
                     result = TypeDecoder.decode(input, hexStringDataOffset, cls);
+                    offset +=
+                            Utils.getOffset(typeReference.getType())
+                                    * TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING;
                 }
 
                 results.add(result);
-
-                offset +=
-                        Utils.getOffset(typeReference.getType())
-                                * TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING;
 
             } catch (ClassNotFoundException e) {
                 throw new UnsupportedOperationException("Invalid class reference provided", e);
@@ -122,7 +154,7 @@ public class FunctionReturnDecoder {
         return results;
     }
 
-    private static <T extends Type> int getDataOffset(
+    public static <T extends Type> int getDataOffset(
             String input, int offset, java.lang.reflect.Type type) throws ClassNotFoundException {
         if (Utils.dynamicType(type)) {
             return TypeDecoder.decodeUintAsInt(input, offset) << 1;

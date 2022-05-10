@@ -51,9 +51,12 @@ public class JsonRpcMethods {
     // the interface related to the node
     public static final String GET_CLIENT_VERSION = "getClientVersion";
     public static final String GET_NODE_INFO = "getNodeInfo";
-    public static final String GET_PEERS = "getPeers";
     public static final String GET_GROUP_LIST = "getGroupList";
     public static final String GET_NODEIDLIST = "getNodeIDList";
+    public static final String GET_PEERS = "getPeers";
+    public static final String QUERY_PEERS = "queryPeers";
+    public static final String ADD_PEERS = "addPeers";
+    public static final String ERASE_PEERS = "erasePeers";
 
     // the interface related to group-runtime-manager
     public static final String GENERATE_GROUP = "generateGroup";

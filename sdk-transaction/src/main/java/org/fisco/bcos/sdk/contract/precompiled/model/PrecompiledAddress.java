@@ -33,6 +33,8 @@ public class PrecompiledAddress {
             "0x0000000000000000000000000000000000001008";
     public static final String KVTABLEFACTORY_PRECOMPILED_ADDRESS =
             "0x0000000000000000000000000000000000001010";
+    public static final String GAS_CHARGE_MANAGE_PRECOMPILED_ADDRESS =
+            "0x0000000000000000000000000000000000001009";
 
     private PrecompiledAddress() {}
 }

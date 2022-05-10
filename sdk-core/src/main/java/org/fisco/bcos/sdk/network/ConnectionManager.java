@@ -232,6 +232,7 @@ public class ConnectionManager {
         try {
             Security.setProperty("jdk.disabled.namedCurves", "");
             System.setProperty("jdk.sunec.disableNative", "false");
+
             // Get file, file existence is already checked when check config file.
             // Init SslContext
             logger.info(" build ECDSA ssl context with configured certificates ");

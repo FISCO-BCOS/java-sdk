@@ -1,16 +1,22 @@
 package org.fisco.bcos.sdk.abi;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.fisco.bcos.sdk.abi.datatypes.DynamicArray;
 import org.fisco.bcos.sdk.abi.datatypes.DynamicBytes;
 import org.fisco.bcos.sdk.abi.datatypes.Fixed;
 import org.fisco.bcos.sdk.abi.datatypes.Int;
 import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
+import org.fisco.bcos.sdk.abi.datatypes.StaticStruct;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.abi.datatypes.Ufixed;
 import org.fisco.bcos.sdk.abi.datatypes.Uint;
@@ -145,7 +151,7 @@ public class Utils {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Type> Class<T> getParameterizedTypeFromArray(
+    public static <T extends Type> Class<T> getParameterizedTypeFromArray(
             java.lang.reflect.Type type) throws ClassNotFoundException {
 
         java.lang.reflect.Type[] types = ((ParameterizedType) type).getActualTypeArguments();
@@ -221,5 +227,30 @@ public class Utils {
             }
         }
         return result;
+    }
+
+    public static List<Field> staticStructNestedPublicFieldsFlatList(Class<Type> classType) {
+        return staticStructsNestedFieldsFlatList(classType)
+                .stream()
+                .filter(field -> Modifier.isPublic(field.getModifiers()))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Field> staticStructsNestedFieldsFlatList(Class<Type> classType) {
+        List<Field> canonicalFields =
+                Arrays.stream(classType.getDeclaredFields())
+                        .filter(field -> !StaticStruct.class.isAssignableFrom(field.getType()))
+                        .collect(Collectors.toList());
+        List<Field> nestedFields =
+                Arrays.stream(classType.getDeclaredFields())
+                        .filter(field -> StaticStruct.class.isAssignableFrom(field.getType()))
+                        .map(
+                                field ->
+                                        staticStructsNestedFieldsFlatList(
+                                                (Class<Type>) field.getType()))
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toList());
+        return Stream.concat(canonicalFields.stream(), nestedFields.stream())
+                .collect(Collectors.toList());
     }
 }

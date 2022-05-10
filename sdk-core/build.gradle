@@ -4,7 +4,6 @@ plugins {
 }
 dependencies {
     compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
-    compile ("io.netty:netty-all:${nettyVersion}")
     compile ("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}")
     compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     compile ("com.moandjiezana.toml:toml4j:${toml4jVersion}")

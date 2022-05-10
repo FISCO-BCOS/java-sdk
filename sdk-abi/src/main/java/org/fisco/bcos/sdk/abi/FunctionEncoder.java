@@ -70,6 +70,12 @@ public class FunctionEncoder {
         return result.toString();
     }
 
+    /**
+     * build method id
+     *
+     * @param methodSignature methodSignature
+     * @return methodId
+     */
     public String buildMethodId(String methodSignature) {
         byte[] input = methodSignature.getBytes();
         byte[] hash = cryptoSuite.hash(input);
