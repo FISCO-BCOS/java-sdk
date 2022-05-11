@@ -16,7 +16,6 @@
 package org.fisco.bcos.sdk.v3.precompiled;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,8 +67,6 @@ public class PrecompiledTest {
     public AtomicLong receiptCount = new AtomicLong();
     private static final String GROUP = "group0";
     private Random random = new Random();
-
-    public PrecompiledTest() throws NoSuchAlgorithmException {}
 
     @Test
     public void test1ConsensusService() throws ConfigException, ContractException, JniException {
