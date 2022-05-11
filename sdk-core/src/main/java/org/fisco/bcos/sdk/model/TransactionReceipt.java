@@ -16,7 +16,6 @@ package org.fisco.bcos.sdk.model;
 
 import java.util.List;
 import java.util.Objects;
-import org.fisco.bcos.sdk.utils.Numeric;
 
 public class TransactionReceipt {
     private String transactionHash;
@@ -344,10 +343,10 @@ public class TransactionReceipt {
                 + to
                 + '\''
                 + ", gasUsed='"
-                + Numeric.decodeQuantity(gasUsed)
+                + gasUsed
                 + '\''
                 + ", remainGas='"
-                + Numeric.decodeQuantity(remainGas)
+                + remainGas
                 + '\''
                 + ", contractAddress='"
                 + contractAddress
