@@ -324,6 +324,26 @@ public class ABICodec {
         return decodeDataByMethodId(ABI, methodId, input.substring(10), false);
     }
 
+    public Pair<List<Object>, List<ABIObject>> decodeConstructorInput(
+            String ABI, String binary, String input, String methodName) throws ABICodecException {
+        ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
+        List<ABIDefinition> methods;
+        ABICodecObject abiCodecObject = new ABICodecObject();
+        ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
+        if (StringUtils.equals(methodName, "constructor")) {
+            String paramsInput = StringUtils.substringAfter(input, binary);
+            // remove methodId of input
+            return abiCodecObject.decodeJavaObjectAndOutputObject(
+                    abiObjectFactory.createInputObject(contractABIDefinition.getConstructor()),
+                    paramsInput);
+        }
+        String errorMsg = " cannot decode in decodeConstructorInput with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ABICodecException(errorMsg);
+    }
+
+    /* This method can only used in transaction send. Do not use in constructor!
+     *  In case of extends constructor, it won't work correct. */
     public Pair<List<Object>, List<ABIObject>> decodeMethodInput(
             String ABI, String input, String methodName, String code) throws ABICodecException {
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);

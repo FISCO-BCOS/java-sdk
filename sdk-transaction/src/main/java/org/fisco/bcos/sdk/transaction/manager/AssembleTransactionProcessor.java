@@ -101,6 +101,21 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
+    public TransactionResponse deployAndGetResponse(String abi, String binary, String signedData) {
+        TransactionReceipt receipt = transactionPusher.push(signedData);
+        try {
+            return transactionDecoder.decodeConstructorReceipt(abi, binary, receipt);
+        } catch (TransactionException | IOException | ABICodecException e) {
+            log.error("decode transaction receipt exception: {}", e);
+            return new TransactionResponse(
+                    receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
+        }
+    }
+
+    /*
+     *  In case of extends constructor, it won't work correct. */
+    @Override
+    @Deprecated
     public TransactionResponse deployAndGetResponse(String abi, String signedData) {
         TransactionReceipt receipt = transactionPusher.push(signedData);
 
@@ -127,7 +142,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
             throws ABICodecException {
-        return deployAndGetResponse(abi, createSignedConstructor(abi, bin, params));
+        return deployAndGetResponse(abi, bin, createSignedConstructor(abi, bin, params));
     }
 
     @Override
@@ -135,6 +150,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String abi, String bin, List<String> params) throws ABICodecException {
         return deployAndGetResponse(
                 abi,
+                bin,
                 createSignedTransaction(
                         null,
                         abiCodec.encodeConstructorFromString(abi, bin, params),
