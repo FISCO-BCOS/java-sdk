@@ -53,7 +53,18 @@ public interface AssembleTransactionProcessorInterface {
      * @param signedData signed and encoded constructor data
      * @return transaction response @See TransactionResponse
      */
+    @Deprecated
     public TransactionResponse deployAndGetResponse(String abi, String signedData);
+
+    /**
+     * deploy contract to fisco bcos node and get response.
+     *
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
+     * @param signedData signed and encoded constructor data
+     * @return transaction response @See TransactionResponse
+     */
+    public TransactionResponse deployAndGetResponse(String abi, String bin, String signedData);
 
     /**
      * deploy contract to fisco bcos node and get response.

@@ -51,7 +51,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     @Override
     public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
             throws ABICodecException {
-        return deployAndGetResponse(abi, createSignedConstructor(abi, bin, params));
+        return deployAndGetResponse(abi, bin, createSignedConstructor(abi, bin, params));
     }
 
     @Override
