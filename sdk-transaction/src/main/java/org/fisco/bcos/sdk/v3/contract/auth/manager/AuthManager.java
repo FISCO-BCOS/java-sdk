@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.datatypes.NumericType;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
@@ -15,6 +16,7 @@ import org.fisco.bcos.sdk.v3.contract.auth.po.CommitteeInfo;
 import org.fisco.bcos.sdk.v3.contract.auth.po.ProposalInfo;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
@@ -26,6 +28,7 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionException;
 
 public class AuthManager {
 
+    private final Client client;
     private final CommitteeManager committeeManager;
     private final ContractAuthPrecompiled contractAuthPrecompiled;
     private final TransactionDecoderInterface decoder;
@@ -34,6 +37,7 @@ public class AuthManager {
     private BigInteger DEFAULT_BLOCK_NUMBER_INTERVAL = BigInteger.valueOf(3600 * 24 * 7);
 
     public AuthManager(Client client, CryptoKeyPair credential) {
+        this.client = client;
         this.committeeManager =
                 CommitteeManager.load(
                         PrecompiledAddress.COMMITTEE_MANAGER_ADDRESS, client, credential);
@@ -169,7 +173,11 @@ public class AuthManager {
      * @return proposal ID
      */
     public BigInteger createRmNodeProposal(String node)
-            throws TransactionException, ContractCodecException, IOException {
+            throws TransactionException, ContractCodecException, IOException, ContractException {
+        // check the nodeId exists in the nodeList or not
+        if (!existsInNodeList(node)) {
+            throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
+        }
         TransactionReceipt rmNodeProposal =
                 committeeManager.createRmNodeProposal(node, DEFAULT_BLOCK_NUMBER_INTERVAL);
         TransactionResponse transactionResponse =
@@ -190,7 +198,31 @@ public class AuthManager {
      */
     public BigInteger createSetConsensusWeightProposal(
             String node, BigInteger weight, boolean addFlag)
-            throws TransactionException, ContractCodecException, IOException {
+            throws TransactionException, ContractCodecException, IOException, ContractException {
+        // check the nodeId exists in the nodeList or not
+        if (!existsInNodeList(node)) {
+            throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
+        }
+
+        if (addFlag) {
+            if (weight.compareTo(BigInteger.ZERO) > 0) {
+                // check the node exists in the sealerList or not
+                List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
+
+                for (SealerList.Sealer sealer : sealerList) {
+                    if (sealer.getNodeID().equals(node)) {
+                        throw new ContractException(
+                                PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST);
+                    }
+                }
+            } else {
+                List<String> observerList = client.getObserverList().getResult();
+                if (observerList.contains(node)) {
+                    throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
+                }
+            }
+        }
+
         TransactionReceipt tr =
                 committeeManager.createSetConsensusWeightProposal(
                         node, weight, addFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
@@ -413,5 +445,10 @@ public class AuthManager {
      */
     public BigInteger proposalCount() throws ContractException {
         return committeeManager.getProposalManager()._proposalCount();
+    }
+
+    private boolean existsInNodeList(String nodeId) {
+        List<String> nodeIdList = client.getGroupPeers().getGroupPeers();
+        return nodeIdList.contains(nodeId);
     }
 }
