@@ -1,5 +1,65 @@
+## v2.9.0
+(2022-05-12)
+
+Please read documentation of Java SDK.
+
+* [English User Handbook](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [Chinese WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
+Added：
+* `JavaSDK` support `APPLE M1`
+* `CodeGen` contract code generator support `Struct` params type
+* Added interface to dynamically update 'P2P' connection list:
+   - `addPeers`
+   - `queryPeers`
+   - `erasePeers`
+
+Update:
+* upgrade Netty to `4.1.77`
+* other dependent version upgrades
+
+Fixed:
+* Fixed an issue where `getCode` was called after deployment contract failure and the node returned 'RPC' request parameter type did not match
+* Fixed null pointer exception when calling `isStatusOK` in empty object transaction receipt
+* Fixed issue where `Linux ARM` environment could not load cryptography dynamic library
+* Fixed `ABICodec` resolving contract constructor argument exception
+* Fixed `ABICodec` failing to parse transaction receipt `event` [#352](https://github.com/FISCO-BCOS/java-sdk/issues/352) [#498](https://github.com/FISCO-BCOS/java-sdk/issues/498)
+
+----
+请参考文档：
+* [英文版用户手册](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [中文版用户手册](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [中文版WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
+添加：
+* `JavaSDK`支持`APPLE M1`
+* `CodeGen`合约代码生成支持`Struct`参数类型
+* 新增动态更新节点`P2P`连接列表接口:
+    - `addPeers`
+    - `queryPeers`
+    - `erasePeers`
+
+更新:
+* 升级Netty至`4.1.77`
+* 其他的依赖升级
+
+修复:
+* 修复部署合约失败后调用`getCode`，节点返回`RPC`请求参数类型不匹配的问题 
+* 修复在交易回执会对象调用`isStatusOK`空指针异常的问题
+* 修复`linux arm`环境加载密码学动态库失败的问题
+* 修复`ABICodec`解析合约构造函数参数异常的问题
+* 修复`ABICodec`解析交易回执`event`失败的问题[#352](https://github.com/FISCO-BCOS/java-sdk/issues/352) [#498](https://github.com/FISCO-BCOS/java-sdk/issues/498)
+
 ## v2.8.1
 (2022-04-29)
+
+Please read documentation of Java SDK.
+
+* [English User Handbook](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [Chinese WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
 Added:
 * add decodeTransactionInput to ABICodec (FISCO-BCOS#360)
 
