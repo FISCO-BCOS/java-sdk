@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.datatypes.NumericType;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.CommitteeManager;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.ContractAuthPrecompiled;
 import org.fisco.bcos.sdk.v3.contract.auth.po.AuthType;
@@ -14,7 +16,10 @@ import org.fisco.bcos.sdk.v3.contract.auth.po.CommitteeInfo;
 import org.fisco.bcos.sdk.v3.contract.auth.po.ProposalInfo;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
+import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
@@ -23,6 +28,7 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionException;
 
 public class AuthManager {
 
+    private final Client client;
     private final CommitteeManager committeeManager;
     private final ContractAuthPrecompiled contractAuthPrecompiled;
     private final TransactionDecoderInterface decoder;
@@ -31,6 +37,7 @@ public class AuthManager {
     private BigInteger DEFAULT_BLOCK_NUMBER_INTERVAL = BigInteger.valueOf(3600 * 24 * 7);
 
     public AuthManager(Client client, CryptoKeyPair credential) {
+        this.client = client;
         this.committeeManager =
                 CommitteeManager.load(
                         PrecompiledAddress.COMMITTEE_MANAGER_ADDRESS, client, credential);
@@ -160,6 +167,96 @@ public class AuthManager {
     }
 
     /**
+     * submit a proposal of remove consensus node, only governor can call it
+     *
+     * @param node node ID
+     * @return proposal ID
+     */
+    public BigInteger createRmNodeProposal(String node)
+            throws TransactionException, ContractCodecException, IOException, ContractException {
+        // check the nodeId exists in the nodeList or not
+        if (!existsInNodeList(node)) {
+            throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
+        }
+        TransactionReceipt rmNodeProposal =
+                committeeManager.createRmNodeProposal(node, DEFAULT_BLOCK_NUMBER_INTERVAL);
+        TransactionResponse transactionResponse =
+                decoder.decodeReceiptWithValues(
+                        CommitteeManager.getABI(),
+                        CommitteeManager.FUNC_CREATERMNODEPROPOSAL,
+                        rmNodeProposal);
+        return getProposal(transactionResponse);
+    }
+
+    /**
+     * submit a proposal of set consensus node weight, only governor can call it
+     *
+     * @param node node ID
+     * @param weight consensus weight: weigh > 0, sealer; weight = 0, observer
+     * @param addFlag flag to distinguish add a node or set node's weight,
+     * @return proposal ID
+     */
+    public BigInteger createSetConsensusWeightProposal(
+            String node, BigInteger weight, boolean addFlag)
+            throws TransactionException, ContractCodecException, IOException, ContractException {
+        // check the nodeId exists in the nodeList or not
+        if (!existsInNodeList(node)) {
+            throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
+        }
+
+        if (addFlag) {
+            if (weight.compareTo(BigInteger.ZERO) > 0) {
+                // check the node exists in the sealerList or not
+                List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
+
+                for (SealerList.Sealer sealer : sealerList) {
+                    if (sealer.getNodeID().equals(node)) {
+                        throw new ContractException(
+                                PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST);
+                    }
+                }
+            } else {
+                List<String> observerList = client.getObserverList().getResult();
+                if (observerList.contains(node)) {
+                    throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
+                }
+            }
+        }
+
+        TransactionReceipt tr =
+                committeeManager.createSetConsensusWeightProposal(
+                        node, weight, addFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
+        TransactionResponse transactionResponse =
+                decoder.decodeReceiptWithValues(
+                        CommitteeManager.getABI(),
+                        CommitteeManager.FUNC_CREATESETCONSENSUSWEIGHTPROPOSAL,
+                        tr);
+        return getProposal(transactionResponse);
+    }
+
+    /**
+     * submit a proposal of set system config, only governor can call it
+     *
+     * @param key system config key, only support
+     *     (tx_gas_limit,tx_count_limit,consensus_leader_period)
+     * @param value system config value, notice that tx_gas_limit > 10,000, tx_count_limit > 1,
+     *     consensus_leader_period > 1
+     * @return proposal ID
+     */
+    public BigInteger createSetSysConfigProposal(String key, BigInteger value)
+            throws TransactionException, ContractCodecException, IOException {
+        TransactionReceipt tr =
+                committeeManager.createSetSysConfigProposal(
+                        key, value.toString(), DEFAULT_BLOCK_NUMBER_INTERVAL);
+        TransactionResponse transactionResponse =
+                decoder.decodeReceiptWithValues(
+                        CommitteeManager.getABI(),
+                        CommitteeManager.FUNC_CREATESETSYSCONFIGPROPOSAL,
+                        tr);
+        return getProposal(transactionResponse);
+    }
+
+    /**
      * revoke proposal, only governor can call it
      *
      * @param proposalId id
@@ -210,8 +307,20 @@ public class AuthManager {
      *     address[] agreeVoters, address[] againstVoters }
      */
     public ProposalInfo getProposalInfo(BigInteger proposalId) throws ContractException {
-        return new ProposalInfo()
-                .fromTuple(committeeManager.getProposalManager().getProposalInfo(proposalId));
+        return new ProposalInfo(committeeManager.getProposalManager().getProposalInfo(proposalId));
+    }
+
+    /**
+     * get proposal info list, range in [from,to]
+     *
+     * @param from begin proposal id
+     * @param to end proposal id
+     * @return return ProposalInfo list {id, proposer, proposalType, blockNumberInterval, status,
+     *     address[] agreeVoters, address[] againstVoters }[]
+     */
+    public List<ProposalInfo> getProposalInfoList(BigInteger from, BigInteger to)
+            throws ContractException {
+        return committeeManager.getProposalManager().getProposalInfoList(from, to);
     }
 
     /**
@@ -247,6 +356,22 @@ public class AuthManager {
     }
 
     /**
+     * get auth of specific contract's method func
+     *
+     * @param path contract address
+     * @param func method interface func selector, contains 4 bytes: hash(selector()).getBytes(0,4)
+     * @return get a tuple of values: method auth type, access account list, block account list
+     * @throws ContractException AuthType.valueOf will throw this exception
+     */
+    public Tuple3<AuthType, List<String>, List<String>> getMethodAuth(String path, byte[] func)
+            throws ContractException {
+        Tuple3<BigInteger, List<String>, List<String>> methodAuth =
+                contractAuthPrecompiled.getMethodAuth(path, func);
+        AuthType authType = AuthType.valueOf(methodAuth.getValue1().intValue());
+        return new Tuple3<>(authType, methodAuth.getValue2(), methodAuth.getValue3());
+    }
+
+    /**
      * get a specific contract admin
      *
      * @param contractAddress the contract to get admin
@@ -264,10 +389,11 @@ public class AuthManager {
      * @param authType white_list or black_list
      * @return set result, 0 is success
      */
-    public BigInteger setMethodAuthType(String contractAddr, byte[] func, AuthType authType) {
+    public RetCode setMethodAuthType(String contractAddr, byte[] func, AuthType authType)
+            throws ContractException {
         TransactionReceipt transactionReceipt =
                 contractAuthPrecompiled.setMethodAuthType(contractAddr, func, authType.getValue());
-        return contractAuthPrecompiled.getSetMethodAuthTypeOutput(transactionReceipt).getValue1();
+        return ReceiptParser.parseTransactionReceipt(transactionReceipt);
     }
 
     /**
@@ -280,16 +406,36 @@ public class AuthManager {
      *     white_list type is false, black_list is true;
      * @return set result, 0 is success
      */
-    public BigInteger setMethodAuth(
-            String contractAddr, byte[] func, String account, boolean isOpen) {
-        TransactionReceipt receipt;
-        if (isOpen) {
-            receipt = contractAuthPrecompiled.openMethodAuth(contractAddr, func, account);
-            return contractAuthPrecompiled.getOpenMethodAuthOutput(receipt).getValue1();
-        } else {
-            receipt = contractAuthPrecompiled.closeMethodAuth(contractAddr, func, account);
-            return contractAuthPrecompiled.getCloseMethodAuthOutput(receipt).getValue1();
-        }
+    public RetCode setMethodAuth(String contractAddr, byte[] func, String account, boolean isOpen)
+            throws ContractException {
+        TransactionReceipt receipt =
+                isOpen
+                        ? contractAuthPrecompiled.openMethodAuth(contractAddr, func, account)
+                        : contractAuthPrecompiled.closeMethodAuth(contractAddr, func, account);
+        return ReceiptParser.parseTransactionReceipt(receipt);
+    }
+
+    /**
+     * set a contract status, freeze or normal, only contract manager can call
+     *
+     * @param address contract address
+     * @param isFreeze is freeze or normal
+     * @return 0 is success, otherwise is error
+     */
+    public RetCode setContractStatus(String address, boolean isFreeze) throws ContractException {
+        TransactionReceipt transactionReceipt =
+                contractAuthPrecompiled.setContractStatus(address, isFreeze);
+        return ReceiptParser.parseTransactionReceipt(transactionReceipt);
+    }
+
+    /**
+     * check contract is available, if normal then return true
+     *
+     * @param address contract address
+     * @return if true, then this contract can be called
+     */
+    public Boolean contractAvailable(String address) throws ContractException {
+        return contractAuthPrecompiled.contractAvailable(address);
     }
 
     /**
@@ -299,5 +445,10 @@ public class AuthManager {
      */
     public BigInteger proposalCount() throws ContractException {
         return committeeManager.getProposalManager()._proposalCount();
+    }
+
+    private boolean existsInNodeList(String nodeId) {
+        List<String> nodeIdList = client.getGroupPeers().getGroupPeers();
+        return nodeIdList.contains(nodeId);
     }
 }
