@@ -276,8 +276,7 @@ public class CommitteeManager extends Contract {
                 new Function(
                         FUNC_CREATERMNODEPROPOSAL,
                         Arrays.<Type>asList(new Utf8String(node), new Uint256(blockNumberInterval)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return executeTransaction(function);
     }
 
@@ -287,8 +286,7 @@ public class CommitteeManager extends Contract {
                 new Function(
                         FUNC_CREATERMNODEPROPOSAL,
                         Arrays.<Type>asList(new Utf8String(node), new Uint256(blockNumberInterval)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return asyncExecuteTransaction(function, callback);
     }
 
@@ -298,8 +296,7 @@ public class CommitteeManager extends Contract {
                 new Function(
                         FUNC_CREATERMNODEPROPOSAL,
                         Arrays.<Type>asList(new Utf8String(node), new Uint256(blockNumberInterval)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return createSignedTransaction(function);
     }
 
@@ -341,8 +338,7 @@ public class CommitteeManager extends Contract {
                                 new Uint32(weight),
                                 new Bool(addFlag),
                                 new Uint256(blockNumberInterval)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return executeTransaction(function);
     }
 
@@ -360,8 +356,7 @@ public class CommitteeManager extends Contract {
                                 new Uint32(weight),
                                 new Bool(addFlag),
                                 new Uint256(blockNumberInterval)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return asyncExecuteTransaction(function, callback);
     }
 
@@ -375,8 +370,7 @@ public class CommitteeManager extends Contract {
                                 new Uint32(weight),
                                 new Bool(addFlag),
                                 new Uint256(blockNumberInterval)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return createSignedTransaction(function);
     }
 
@@ -560,8 +554,7 @@ public class CommitteeManager extends Contract {
                                 new Utf8String(key),
                                 new Utf8String(value),
                                 new Uint256(blockNumberInterval)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return executeTransaction(function);
     }
 
@@ -577,8 +570,7 @@ public class CommitteeManager extends Contract {
                                 new Utf8String(key),
                                 new Utf8String(value),
                                 new Uint256(blockNumberInterval)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return asyncExecuteTransaction(function, callback);
     }
 
@@ -591,8 +583,7 @@ public class CommitteeManager extends Contract {
                                 new Utf8String(key),
                                 new Utf8String(value),
                                 new Uint256(blockNumberInterval)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return createSignedTransaction(function);
     }
 

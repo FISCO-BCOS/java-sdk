@@ -439,8 +439,7 @@ public class ContractAuthPrecompiled extends Contract {
                 new Function(
                         FUNC_SETCONTRACTSTATUS,
                         Arrays.<Type>asList(new Address(address), new Bool(isFreeze)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return executeTransaction(function);
     }
 
@@ -450,8 +449,7 @@ public class ContractAuthPrecompiled extends Contract {
                 new Function(
                         FUNC_SETCONTRACTSTATUS,
                         Arrays.<Type>asList(new Address(address), new Bool(isFreeze)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.emptyList());
         return asyncExecuteTransaction(function, callback);
     }
 
@@ -460,8 +458,7 @@ public class ContractAuthPrecompiled extends Contract {
                 new Function(
                         FUNC_SETCONTRACTSTATUS,
                         Arrays.<Type>asList(new Address(address), new Bool(isFreeze)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        4);
+                        Collections.<TypeReference<?>>emptyList());
         return createSignedTransaction(function);
     }
 
