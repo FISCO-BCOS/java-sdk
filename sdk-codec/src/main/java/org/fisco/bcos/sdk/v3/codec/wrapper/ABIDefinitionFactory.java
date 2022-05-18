@@ -38,15 +38,13 @@ public class ABIDefinitionFactory {
                     // skip and do nothing
                 }
 
-                if (logger.isInfoEnabled()) {
-                    logger.info(" abiDefinition: {}", abiDefinition);
-                }
+                logger.debug(" abiDefinition: {}", abiDefinition);
             }
             if (contractABIDefinition.getConstructor() == null) {
                 contractABIDefinition.setConstructor(
                         ABIDefinition.createDefaultConstructorABIDefinition());
             }
-            logger.info(" contractABIDefinition {} ", contractABIDefinition);
+            logger.debug(" contractABIDefinition {} ", contractABIDefinition);
 
             return contractABIDefinition;
 

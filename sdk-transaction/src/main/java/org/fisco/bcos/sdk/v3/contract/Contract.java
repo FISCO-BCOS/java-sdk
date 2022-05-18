@@ -299,6 +299,8 @@ public class Contract {
         Object value = result.getValue();
         if (returnType.isAssignableFrom(value.getClass())) {
             return (R) value;
+        } else if (returnType.isAssignableFrom(result.getClass())) {
+            return (R) result;
         } else if (result.getClass().equals(Address.class) && returnType.equals(String.class)) {
             return (R) result.toString(); // cast isn't necessary
         } else {

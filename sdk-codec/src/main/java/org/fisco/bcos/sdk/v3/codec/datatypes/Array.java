@@ -6,7 +6,7 @@ import java.util.Objects;
 
 /** Fixed size array. */
 public abstract class Array<T extends Type> implements Type<List<T>> {
-    private final Class<T> type;
+    protected final Class<T> type;
     protected final List<T> value;
     protected boolean isFixed;
 

@@ -52,13 +52,21 @@ public class DynamicArray<T extends Type> extends Array<T> {
 
     @Override
     public String getTypeAsString() {
-        String type;
+        String paramsType;
         if (!value.isEmpty() && StructType.class.isAssignableFrom(value.get(0).getClass())) {
-            type = value.get(0).getTypeAsString();
+            paramsType = value.get(0).getTypeAsString();
+        } else if (StructType.class.isAssignableFrom(this.type)) {
+            try {
+                T t = this.type.newInstance();
+                paramsType = t.getTypeAsString();
+            } catch (InstantiationException | IllegalAccessException e) {
+                // struct type is not defined default constructor
+                paramsType = AbiTypes.getTypeAString(getComponentType());
+            }
         } else {
-            type = AbiTypes.getTypeAString(getComponentType());
+            paramsType = AbiTypes.getTypeAString(getComponentType());
         }
-        return type + "[]";
+        return paramsType + "[]";
     }
 
     public void setFixed(boolean fixed) {

@@ -41,18 +41,10 @@ public class ReceiptParser {
      */
     public static RetCode parseTransactionReceipt(TransactionReceipt receipt)
             throws ContractException {
-        RetCode retCode;
         try {
             int status = receipt.getStatus();
             if (status != 0) {
-                retCode = TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
-                Tuple2<Boolean, String> errorOutput =
-                        RevertMessageParser.tryResolveRevertMessage(receipt);
-                if (errorOutput.getValue1()) {
-                    throw new ContractException(
-                            errorOutput.getValue2(), retCode.getCode(), receipt);
-                }
-                throw new ContractException(retCode.getMessage(), retCode.getCode(), receipt);
+                getErrorStatus(receipt);
             } else {
                 if (Hex.trimPrefix(receipt.getTo()).startsWith(ReceiptParser.PRECOMPILED_PREFIX)
                         || receipt.getTo().startsWith(ReceiptParser.PRECOMPILED_NAME_PREFIX)) {
@@ -77,9 +69,21 @@ public class ReceiptParser {
                             + ", error info: "
                             + e.getMessage());
         }
+        return PrecompiledRetCode.CODE_SUCCESS;
     }
 
-    private static RetCode getPrecompiledRetCode(String output, String message) {
+    public static void getErrorStatus(TransactionReceipt receipt) throws ContractException {
+        RetCode retCode =
+                TransactionReceiptStatus.getStatusMessage(
+                        receipt.getStatus(), receipt.getMessage());
+        Tuple2<Boolean, String> errorOutput = RevertMessageParser.tryResolveRevertMessage(receipt);
+        if (errorOutput.getValue1()) {
+            throw new ContractException(errorOutput.getValue2(), retCode.getCode(), receipt);
+        }
+        throw new ContractException(retCode.getMessage(), retCode.getCode(), receipt);
+    }
+
+    public static RetCode getPrecompiledRetCode(String output, String message) {
         RetCode retCode;
         try {
             // output with prefix
