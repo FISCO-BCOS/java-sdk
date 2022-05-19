@@ -59,7 +59,8 @@ public interface TransactionDecoderInterface {
             throws TransactionException, IOException, ABICodecException;
 
     /**
-     * parse the transaction information from receipt without return values
+     * parse the transaction information from receipt without return values NOTE: Only used to
+     * decode transaction. If you want to decode constructor, please see decodeConstructorReceipt.
      *
      * @param abi contract abi
      * @param transactionReceipt transaction receipt
@@ -67,6 +68,18 @@ public interface TransactionDecoderInterface {
      */
     public TransactionResponse decodeReceiptWithoutValues(
             String abi, TransactionReceipt transactionReceipt)
+            throws TransactionException, IOException, ABICodecException;
+
+    /**
+     * parse the transaction information from receipt without return values
+     *
+     * @param abi contract abi
+     * @param binary contract binary
+     * @param transactionReceipt transaction receipt
+     * @return the resolved status and other transaction detail
+     */
+    TransactionResponse decodeConstructorReceipt(
+            String abi, String binary, TransactionReceipt transactionReceipt)
             throws TransactionException, IOException, ABICodecException;
 
     /**

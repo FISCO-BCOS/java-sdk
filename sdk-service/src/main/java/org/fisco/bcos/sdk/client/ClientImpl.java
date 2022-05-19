@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.client.protocol.request.GenerateGroupParam;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcMethods;
 import org.fisco.bcos.sdk.client.protocol.request.JsonRpcRequest;
 import org.fisco.bcos.sdk.client.protocol.request.Transaction;
+import org.fisco.bcos.sdk.client.protocol.response.AddPeers;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
@@ -32,6 +33,7 @@ import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.client.protocol.response.Code;
 import org.fisco.bcos.sdk.client.protocol.response.ConsensusStatus;
+import org.fisco.bcos.sdk.client.protocol.response.ErasePeers;
 import org.fisco.bcos.sdk.client.protocol.response.GenerateGroup;
 import org.fisco.bcos.sdk.client.protocol.response.GroupList;
 import org.fisco.bcos.sdk.client.protocol.response.GroupPeers;
@@ -43,6 +45,7 @@ import org.fisco.bcos.sdk.client.protocol.response.Peers;
 import org.fisco.bcos.sdk.client.protocol.response.PendingTransactions;
 import org.fisco.bcos.sdk.client.protocol.response.PendingTxSize;
 import org.fisco.bcos.sdk.client.protocol.response.QueryGroupStatus;
+import org.fisco.bcos.sdk.client.protocol.response.QueryPeers;
 import org.fisco.bcos.sdk.client.protocol.response.RecoverGroup;
 import org.fisco.bcos.sdk.client.protocol.response.RemoveGroup;
 import org.fisco.bcos.sdk.client.protocol.response.SealerList;
@@ -743,6 +746,30 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest(JsonRpcMethods.GET_PEERS, Arrays.asList(this.groupId)),
                 Peers.class,
                 callback);
+    }
+
+    @Override
+    public QueryPeers queryPeers(String peerIpPort) {
+        return this.jsonRpcService.sendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.QUERY_PEERS, Arrays.asList(DefaultGroupId)),
+                peerIpPort,
+                QueryPeers.class);
+    }
+
+    @Override
+    public ErasePeers erasePeers(String peerIpPort, List<String> peers) {
+        return this.jsonRpcService.sendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.ERASE_PEERS, Arrays.asList(peers)),
+                peerIpPort,
+                ErasePeers.class);
+    }
+
+    @Override
+    public AddPeers addPeers(String peerIpPort, List<String> peers) {
+        return this.jsonRpcService.sendRequestToPeer(
+                new JsonRpcRequest(JsonRpcMethods.ADD_PEERS, Arrays.asList(peers)),
+                peerIpPort,
+                AddPeers.class);
     }
 
     @Override

@@ -98,6 +98,7 @@ public class Contract {
                         client.getGroupManagerService(),
                         client.getEventResource(),
                         client.getGroupId());
+        this.eventSubscribe.start();
     }
 
     /**
@@ -258,6 +259,8 @@ public class Contract {
         Object value = result.getValue();
         if (returnType.isAssignableFrom(value.getClass())) {
             return (R) value;
+        } else if (returnType.isAssignableFrom(result.getClass())) {
+            return (R) result;
         } else if (result.getClass().equals(Address.class) && returnType.equals(String.class)) {
             return (R) result.toString(); // cast isn't necessary
         } else {
@@ -364,8 +367,8 @@ public class Contract {
     public static EventValues staticExtractEventParameters(
             EventEncoder eventEncoder, Event event, TransactionReceipt.Logs log) {
         List<String> topics = log.getTopics();
-        String encodedEventSignature = eventEncoder.encode(event);
-        if (!topics.get(0).equals(encodedEventSignature)) {
+        String eventTopic = eventEncoder.encode(event);
+        if (!topics.get(0).equals(eventTopic)) {
             return null;
         }
 

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
@@ -199,7 +199,7 @@ public class ABICodecObject {
                     {
                         if (value instanceof BigInteger) {
                             abiObject.setNumericValue(new Uint256((BigInteger) value));
-                        } else if (StringUtils.isNumeric(value.toString())) {
+                        } else if (NumberUtils.isNumber(value.toString())) {
                             abiObject.setNumericValue(
                                     new Uint256((new BigInteger(value.toString()))));
                         } else {
@@ -214,7 +214,7 @@ public class ABICodecObject {
                     {
                         if (value instanceof BigInteger) {
                             abiObject.setNumericValue(new Int256((BigInteger) value));
-                        } else if (StringUtils.isNumeric(value.toString())) {
+                        } else if (NumberUtils.isNumber(value.toString())) {
                             abiObject.setNumericValue(
                                     new Uint256((new BigInteger(value.toString()))));
                         } else {

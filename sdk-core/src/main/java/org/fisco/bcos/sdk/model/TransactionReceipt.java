@@ -26,6 +26,7 @@ public class TransactionReceipt {
     private String from;
     private String to;
     private String gasUsed;
+    private String remainGas;
     private String contractAddress;
     private List<Logs> logs;
     private String logsBloom;
@@ -39,6 +40,10 @@ public class TransactionReceipt {
     private String message;
 
     public boolean isStatusOK() {
+        if (Objects.isNull(status)) {
+            return false;
+        }
+
         return status.equals("0x0") || status.equals("0");
     }
 
@@ -247,35 +252,38 @@ public class TransactionReceipt {
         this.txProof = txProof;
     }
 
+    public String getRemainGas() {
+        return remainGas;
+    }
+
+    public void setRemainGas(String remainGas) {
+        this.remainGas = remainGas;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TransactionReceipt that = (TransactionReceipt) o;
-        return Objects.equals(transactionHash, that.transactionHash)
-                && Objects.equals(transactionIndex, that.transactionIndex)
-                && Objects.equals(root, that.root)
-                && Objects.equals(blockNumber, that.blockNumber)
-                && Objects.equals(blockHash, that.blockHash)
-                && Objects.equals(from, that.from)
-                && Objects.equals(to, that.to)
-                && Objects.equals(gasUsed, that.gasUsed)
-                && Objects.equals(contractAddress, that.contractAddress)
-                && Objects.equals(logs, that.logs)
-                && Objects.equals(logsBloom, that.logsBloom)
-                && Objects.equals(status, that.status)
-                && Objects.equals(input, that.input)
-                && Objects.equals(output, that.output)
-                && Objects.equals(txProof, that.txProof)
-                && Objects.equals(receiptProof, that.receiptProof);
-    }
-
-    public String getStatusMsg() {
-        return statusMsg;
-    }
-
-    public void setStatusMsg(String statusMsg) {
-        this.statusMsg = statusMsg;
+        TransactionReceipt receipt = (TransactionReceipt) o;
+        return Objects.equals(transactionHash, receipt.transactionHash)
+                && Objects.equals(transactionIndex, receipt.transactionIndex)
+                && Objects.equals(root, receipt.root)
+                && Objects.equals(blockNumber, receipt.blockNumber)
+                && Objects.equals(blockHash, receipt.blockHash)
+                && Objects.equals(from, receipt.from)
+                && Objects.equals(to, receipt.to)
+                && Objects.equals(gasUsed, receipt.gasUsed)
+                && Objects.equals(remainGas, receipt.remainGas)
+                && Objects.equals(contractAddress, receipt.contractAddress)
+                && Objects.equals(logs, receipt.logs)
+                && Objects.equals(logsBloom, receipt.logsBloom)
+                && Objects.equals(status, receipt.status)
+                && Objects.equals(statusMsg, receipt.statusMsg)
+                && Objects.equals(input, receipt.input)
+                && Objects.equals(output, receipt.output)
+                && Objects.equals(txProof, receipt.txProof)
+                && Objects.equals(receiptProof, receipt.receiptProof)
+                && Objects.equals(message, receipt.message);
     }
 
     @Override
@@ -289,14 +297,25 @@ public class TransactionReceipt {
                 from,
                 to,
                 gasUsed,
+                remainGas,
                 contractAddress,
                 logs,
                 logsBloom,
                 status,
+                statusMsg,
                 input,
                 output,
                 txProof,
-                receiptProof);
+                receiptProof,
+                message);
+    }
+
+    public String getStatusMsg() {
+        return statusMsg;
+    }
+
+    public void setStatusMsg(String statusMsg) {
+        this.statusMsg = statusMsg;
     }
 
     @Override
@@ -326,6 +345,9 @@ public class TransactionReceipt {
                 + ", gasUsed='"
                 + gasUsed
                 + '\''
+                + ", remainGas='"
+                + remainGas
+                + '\''
                 + ", contractAddress='"
                 + contractAddress
                 + '\''
@@ -350,6 +372,9 @@ public class TransactionReceipt {
                 + txProof
                 + ", receiptProof="
                 + receiptProof
+                + ", message='"
+                + message
+                + '\''
                 + '}';
     }
 
