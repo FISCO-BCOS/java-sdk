@@ -32,11 +32,81 @@ public class BcosGroupNodeInfo extends JsonRpcResponse<BcosGroupNodeInfo.GroupNo
         super.setResult(result);
     }
 
+    public static class Protocol {
+
+        private long compatibilityVersion;
+        private long minSupportedVersion;
+        private long maxSupportedVersion;
+
+        public long getCompatibilityVersion() {
+            return compatibilityVersion;
+        }
+
+        public void setCompatibilityVersion(long compatibilityVersion) {
+            this.compatibilityVersion = compatibilityVersion;
+        }
+
+        public long getMinSupportedVersion() {
+            return minSupportedVersion;
+        }
+
+        public void setMinSupportedVersion(long minSupportedVersion) {
+            this.minSupportedVersion = minSupportedVersion;
+        }
+
+        public long getMaxSupportedVersion() {
+            return maxSupportedVersion;
+        }
+
+        public void setMaxSupportedVersion(long maxSupportedVersion) {
+            this.maxSupportedVersion = maxSupportedVersion;
+        }
+
+        @Override
+        public String toString() {
+            return "Protocol{"
+                    + "compatibilityVersion="
+                    + compatibilityVersion
+                    + ", minSupportedVersion="
+                    + minSupportedVersion
+                    + ", maxSupportedVersion="
+                    + maxSupportedVersion
+                    + '}';
+        }
+    }
+
     public static class GroupNodeInfo {
         private int type;
         private GroupNodeIniInfo iniConfig;
         private String name;
+
+        @Override
+        public String toString() {
+            return "GroupNodeInfo{"
+                    + "type="
+                    + type
+                    + ", iniConfig="
+                    + iniConfig
+                    + ", name='"
+                    + name
+                    + '\''
+                    + ", serviceInfoList="
+                    + serviceInfoList
+                    + ", protocol="
+                    + protocol
+                    + '}';
+        }
+
+        public Protocol getProtocol() {
+            return protocol;
+        }
+
+        public void setProtocol(Protocol protocol) {
+            this.protocol = protocol;
+        }
+
         private List<ServiceInfo> serviceInfoList;
+        private Protocol protocol;
 
         public GroupNodeIniInfo getIniConfig() {
             return iniConfig;
@@ -69,21 +139,6 @@ public class BcosGroupNodeInfo extends JsonRpcResponse<BcosGroupNodeInfo.GroupNo
 
         public void setServiceInfoList(List<ServiceInfo> serviceInfoList) {
             this.serviceInfoList = serviceInfoList;
-        }
-
-        @Override
-        public String toString() {
-            return "GroupNodeInfo{"
-                    + "type="
-                    + type
-                    + ", iniConfig="
-                    + iniConfig
-                    + ", name='"
-                    + name
-                    + '\''
-                    + ", serviceInfoList="
-                    + serviceInfoList
-                    + '}';
         }
 
         static class ServiceInfo {
