@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -390,20 +391,23 @@ public class GroupManagerServiceImpl implements GroupManagerService {
             Message transactionMessage,
             TransactionCallback callback,
             ResponseCallback responseCallback) {
-        if (callback.getTimeout() > 0) {
-            callback.setTimeoutHandler(
-                    timeoutHandler.newTimeout(
-                            new TimerTask() {
-                                @Override
-                                public void run(Timeout timeout) throws Exception {
-                                    callback.onTimeout();
-                                    logger.info(
-                                            "Transaction timeout: {}", transactionMessage.getSeq());
-                                    seq2TransactionCallback.remove(transactionMessage.getSeq());
-                                }
-                            },
-                            callback.getTimeout(),
-                            TimeUnit.MILLISECONDS));
+        if (Objects.nonNull(callback)) {
+            if (callback.getTimeout() > 0) {
+                callback.setTimeoutHandler(
+                        timeoutHandler.newTimeout(
+                                new TimerTask() {
+                                    @Override
+                                    public void run(Timeout timeout) throws Exception {
+                                        callback.onTimeout();
+                                        logger.info(
+                                                "Transaction timeout: {}",
+                                                transactionMessage.getSeq());
+                                        seq2TransactionCallback.remove(transactionMessage.getSeq());
+                                    }
+                                },
+                                callback.getTimeout(),
+                                TimeUnit.MILLISECONDS));
+            }
         }
         seq2TransactionCallback.put(transactionMessage.getSeq(), callback);
         asyncSendMessageToGroup(groupId, transactionMessage, responseCallback);
