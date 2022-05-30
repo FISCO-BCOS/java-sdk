@@ -1,6 +1,5 @@
 package org.fisco.bcos.sdk.v3.contract.precompiled.crud.common;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,13 +21,11 @@ public class UpdateFields {
         return fieldNameToValue;
     }
 
-    public List<TablePrecompiled.UpdateField> convertToUpdateFields(List<String> columns) {
+    public List<TablePrecompiled.UpdateField> convertToUpdateFields() {
         List<TablePrecompiled.UpdateField> updateFields = new ArrayList<>();
         fieldNameToValue.forEach(
                 (fieldName, value) -> {
-                    int index = columns.indexOf(fieldName);
-                    updateFields.add(
-                            new TablePrecompiled.UpdateField(BigInteger.valueOf(index), value));
+                    updateFields.add(new TablePrecompiled.UpdateField(fieldName, value));
                 });
         return updateFields;
     }

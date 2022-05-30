@@ -10,6 +10,7 @@ import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.utils.AddressUtils;
 
 public class BFSService {
     private final BFSPrecompiled bfsPrecompiled;
@@ -44,10 +45,13 @@ public class BFSService {
         }
     }
 
-    public RetCode link(String name, String version, String address, String abi)
+    public RetCode link(String name, String version, String contractAddress, String abi)
             throws ContractException {
+        if (AddressUtils.isValidAddress(contractAddress)) {
+            throw new ContractException("Invalid address: " + contractAddress);
+        }
         return ReceiptParser.parseTransactionReceipt(
-                bfsPrecompiled.link(name, version, address, abi));
+                bfsPrecompiled.link(name, version, contractAddress, abi));
     }
 
     public String readlink(String absolutePath) throws ContractException {

@@ -33,25 +33,25 @@ public class Collection {
     }
 
     public static <T> String join(List<T> list, String separator, Function<T, String> function) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
-            result += function.apply(list.get(i)).trim();
+            result.append(function.apply(list.get(i)).trim());
             if (i + 1 < list.size()) {
-                result += separator;
+                result.append(separator);
             }
         }
-        return result;
+        return result.toString();
     }
 
     public static String join(List<String> list, String separator) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
-            result += list.get(i).trim();
+            result.append(list.get(i).trim());
             if (i + 1 < list.size()) {
-                result += separator;
+                result.append(separator);
             }
         }
-        return result;
+        return result.toString();
     }
 
     public interface Function<R, S> {

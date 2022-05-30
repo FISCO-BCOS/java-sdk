@@ -109,7 +109,7 @@ public class ByteUtils {
      */
     public static int matchingNibbleLength(byte[] a, byte[] b) {
         int i = 0;
-        int length = a.length < b.length ? a.length : b.length;
+        int length = Math.min(a.length, b.length);
         while (i < length) {
             if (a[i] != b[i]) {
                 return i;

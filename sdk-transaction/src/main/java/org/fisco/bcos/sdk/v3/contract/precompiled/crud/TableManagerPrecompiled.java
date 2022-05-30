@@ -38,7 +38,7 @@ public class TableManagerPrecompiled extends Contract {
             org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
-        "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"path\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"newColumns\",\"type\":\"string[]\"}],\"name\":\"appendColumns\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[808169184,3960100422],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"tableName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"keyField\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"valueField\",\"type\":\"string\"}],\"name\":\"createKVTable\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[2968034011,2488634795],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"path\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"keyColumn\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"valueColumns\",\"type\":\"string[]\"}],\"internalType\":\"struct TableInfo\",\"name\":\"tableInfo\",\"type\":\"tuple\"}],\"name\":\"createTable\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[832939294,3403375714],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"path\",\"type\":\"string\"}],\"name\":\"openTable\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"selector\":[4064240585,1503955813],\"stateMutability\":\"view\",\"type\":\"function\"}]"
+        "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"path\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"newColumns\",\"type\":\"string[]\"}],\"name\":\"appendColumns\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[808169184,3960100422],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"tableName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"keyField\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"valueField\",\"type\":\"string\"}],\"name\":\"createKVTable\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[2968034011,2488634795],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"path\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"keyColumn\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"valueColumns\",\"type\":\"string[]\"}],\"internalType\":\"struct TableInfo\",\"name\":\"tableInfo\",\"type\":\"tuple\"}],\"name\":\"createTable\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[832939294,3403375714],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"tableName\",\"type\":\"string\"}],\"name\":\"desc\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"keyColumn\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"valueColumns\",\"type\":\"string[]\"}],\"internalType\":\"struct TableInfo\",\"name\":\"\",\"type\":\"tuple\"}],\"selector\":[1561161044,3095778732],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"path\",\"type\":\"string\"}],\"name\":\"openTable\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"selector\":[4064240585,1503955813],\"stateMutability\":\"view\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", ABI_ARRAY);
@@ -48,6 +48,8 @@ public class TableManagerPrecompiled extends Contract {
     public static final String FUNC_CREATEKVTABLE = "createKVTable";
 
     public static final String FUNC_CREATETABLE = "createTable";
+
+    public static final String FUNC_DESC = "desc";
 
     public static final String FUNC_OPENTABLE = "openTable";
 
@@ -268,6 +270,16 @@ public class TableManagerPrecompiled extends Contract {
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
+    public TableInfo desc(String tableName) throws ContractException {
+        final Function function =
+                new Function(
+                        FUNC_DESC,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String(tableName)),
+                        Arrays.<TypeReference<?>>asList(new TypeReference<TableInfo>() {}));
+        return executeCallWithSingleValueReturn(function, TableInfo.class);
+    }
+
     public String openTable(String path) throws ContractException {
         final Function function =
                 new Function(
@@ -282,22 +294,14 @@ public class TableManagerPrecompiled extends Contract {
         return new TableManagerPrecompiled(contractAddress, client, credential);
     }
 
-    public static TableManagerPrecompiled deploy(Client client, CryptoKeyPair credential)
-            throws ContractException {
-        return deploy(
-                TableManagerPrecompiled.class,
-                client,
-                credential,
-                getBinary(client.getCryptoSuite()),
-                getABI(),
-                null,
-                null);
-    }
-
     public static class TableInfo extends DynamicStruct {
         public String keyColumn;
 
         public List<String> valueColumns;
+
+        public TableInfo() {
+            super(new Utf8String(""), new DynamicArray<Utf8String>());
+        }
 
         public TableInfo(Utf8String keyColumn, DynamicArray<Utf8String> valueColumns) {
             super(keyColumn, valueColumns);
