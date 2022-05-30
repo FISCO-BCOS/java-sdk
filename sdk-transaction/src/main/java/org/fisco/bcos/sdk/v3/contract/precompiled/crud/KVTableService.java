@@ -105,12 +105,7 @@ public class KVTableService {
     }
 
     public Map<String, String> desc(String tableName) throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        KVTablePrecompiled kvTablePrecompiled =
-                KVTablePrecompiled.load(
-                        address, client, client.getCryptoSuite().getCryptoKeyPair());
-
-        KVTablePrecompiled.TableInfo desc = kvTablePrecompiled.desc();
+        TableManagerPrecompiled.TableInfo desc = tableManagerPrecompiled.desc(tableName);
         Map<String, String> tableDesc = new HashMap<>();
         tableDesc.put(PrecompiledConstant.KEY_FIELD_NAME, desc.keyColumn);
         tableDesc.put(PrecompiledConstant.VALUE_FIELD_NAME, desc.valueColumns.get(0));

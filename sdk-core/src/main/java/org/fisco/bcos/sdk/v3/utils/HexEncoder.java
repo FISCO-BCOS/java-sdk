@@ -15,6 +15,7 @@ package org.fisco.bcos.sdk.v3.utils;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /** A streaming Hex encoder. */
 public class HexEncoder {
@@ -31,9 +32,7 @@ public class HexEncoder {
     protected final byte[] decodingTable = new byte[128];
 
     protected void initialiseDecodingTable() {
-        for (int i = 0; i < decodingTable.length; i++) {
-            decodingTable[i] = (byte) 0xff;
-        }
+        Arrays.fill(decodingTable, (byte) 0xff);
 
         for (int i = 0; i < encodingTable.length; i++) {
             decodingTable[encodingTable[i]] = (byte) i;
@@ -88,7 +87,8 @@ public class HexEncoder {
      * @return the number of bytes produced.
      */
     public int decode(byte[] data, int off, int length, OutputStream out) throws IOException {
-        byte field1, field2;
+        byte field1;
+        byte field2;
         int outLen = 0;
 
         int end = off + length;
@@ -137,7 +137,8 @@ public class HexEncoder {
      * @return the number of bytes produced.
      */
     public int decode(String data, OutputStream out) throws IOException {
-        byte b1, b2;
+        byte b1;
+        byte b2;
         int length = 0;
 
         int end = data.length();

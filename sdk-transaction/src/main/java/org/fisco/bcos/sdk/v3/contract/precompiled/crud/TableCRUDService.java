@@ -126,7 +126,7 @@ public class TableCRUDService {
         TablePrecompiled tablePrecompiled =
                 TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
 
-        TablePrecompiled.TableInfo tableInfo = tablePrecompiled.desc();
+        TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
 
         List<TablePrecompiled.Entry> selectEntry =
                 tablePrecompiled.select(condition.getTableConditions(), condition.getLimit());
@@ -184,7 +184,7 @@ public class TableCRUDService {
         TablePrecompiled tablePrecompiled =
                 TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
 
-        TablePrecompiled.TableInfo tableInfo = tablePrecompiled.desc();
+        TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
 
         TablePrecompiled.Entry selectEntry = tablePrecompiled.select(key);
         Map<String, String> result = new HashMap<>();
@@ -299,31 +299,9 @@ public class TableCRUDService {
      */
     public RetCode update(TablePrecompiled tablePrecompiled, String key, UpdateFields updateFields)
             throws ContractException {
-        TablePrecompiled.TableInfo tableInfo = tablePrecompiled.desc();
-        TransactionReceipt transactionReceipt =
-                tablePrecompiled.update(
-                        key, updateFields.convertToUpdateFields(tableInfo.valueColumns));
-        return getCurdRetCode(transactionReceipt);
-    }
 
-    /**
-     * update data to a specific table with table name, single key, updateFields and table value
-     * columns info. this method will reduce table.desc() overhead.
-     *
-     * @param tableName specific table name, table should exist
-     * @param key specific key, key should exist
-     * @param updateFields update specific fields' data
-     * @param valueColumns table value columns, can get by desc()
-     * @return if success then return 0; otherwise is failed then see the retCode message
-     */
-    public RetCode update(
-            String tableName, String key, UpdateFields updateFields, List<String> valueColumns)
-            throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
         TransactionReceipt transactionReceipt =
-                tablePrecompiled.update(key, updateFields.convertToUpdateFields(valueColumns));
+                tablePrecompiled.update(key, updateFields.convertToUpdateFields());
         return getCurdRetCode(transactionReceipt);
     }
 
@@ -355,39 +333,11 @@ public class TableCRUDService {
     public RetCode update(
             TablePrecompiled tablePrecompiled, Condition condition, UpdateFields updateFields)
             throws ContractException {
-        TablePrecompiled.TableInfo tableInfo = tablePrecompiled.desc();
         TransactionReceipt transactionReceipt =
                 tablePrecompiled.update(
                         condition.getTableConditions(),
                         condition.getLimit(),
-                        updateFields.convertToUpdateFields(tableInfo.valueColumns));
-        return getCurdRetCode(transactionReceipt);
-    }
-
-    /**
-     * update data to a specific table with table name, key condition, updateFields and table value
-     * columns info. this method will reduce table.desc() overhead.
-     *
-     * @param tableName specific table name, table should exist
-     * @param condition key condition
-     * @param updateFields update specific fields' data
-     * @param valueColumns table value columns, can get by desc()
-     * @return if success then return 0; otherwise is failed then see the retCode message
-     */
-    public RetCode update(
-            String tableName,
-            Condition condition,
-            UpdateFields updateFields,
-            List<String> valueColumns)
-            throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
-        TransactionReceipt transactionReceipt =
-                tablePrecompiled.update(
-                        condition.getTableConditions(),
-                        condition.getLimit(),
-                        updateFields.convertToUpdateFields(valueColumns));
+                        updateFields.convertToUpdateFields());
         return getCurdRetCode(transactionReceipt);
     }
 
@@ -405,11 +355,8 @@ public class TableCRUDService {
         String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
         TablePrecompiled tablePrecompiled =
                 TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
-        TablePrecompiled.TableInfo tableInfo = tablePrecompiled.desc();
         tablePrecompiled.update(
-                key,
-                updateFields.convertToUpdateFields(tableInfo.valueColumns),
-                createTransactionCallback(callback));
+                key, updateFields.convertToUpdateFields(), createTransactionCallback(callback));
     }
 
     /**
@@ -429,11 +376,10 @@ public class TableCRUDService {
         String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
         TablePrecompiled tablePrecompiled =
                 TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
-        TablePrecompiled.TableInfo tableInfo = tablePrecompiled.desc();
         tablePrecompiled.update(
                 condition.getTableConditions(),
                 condition.getLimit(),
-                updateFields.convertToUpdateFields(tableInfo.valueColumns),
+                updateFields.convertToUpdateFields(),
                 createTransactionCallback(callback));
     }
 
@@ -535,10 +481,7 @@ public class TableCRUDService {
      * @return table key field and value fields info, [("key_field": [""]),("value_fields": [""])]
      */
     public Map<String, List<String>> desc(String tableName) throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
-        TablePrecompiled.TableInfo tableInfo = tablePrecompiled.desc();
+        TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
         Map<String, List<String>> descMap = new HashMap<>();
         descMap.put(
                 PrecompiledConstant.KEY_FIELD_NAME, Collections.singletonList(tableInfo.keyColumn));

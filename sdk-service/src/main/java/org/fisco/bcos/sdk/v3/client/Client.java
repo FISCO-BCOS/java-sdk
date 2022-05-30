@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.v3.client;
 
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
-import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
@@ -61,7 +60,7 @@ public interface Client {
      * @param configOption the config
      * @return a client instance
      */
-    static Client build(ConfigOption configOption) throws JniException {
+    static Client build(ConfigOption configOption) {
         logger.info("build, configOption: {}", configOption);
         return build(null, configOption);
     }
@@ -73,7 +72,7 @@ public interface Client {
      * @param configOption the config
      * @return a client instance
      */
-    static Client build(String groupId, ConfigOption configOption) throws JniException {
+    static Client build(String groupId, ConfigOption configOption) {
         logger.info("build, groupID: {}, configOption: {}", groupId, configOption);
         long nativePointer = BcosSDKJniObj.create(configOption.getJniConfig());
         return build(groupId, configOption, nativePointer);
@@ -88,8 +87,7 @@ public interface Client {
      * @param nativePointer jni impl native handler
      * @return a client instance
      */
-    static Client build(String groupId, ConfigOption configOption, long nativePointer)
-            throws JniException {
+    static Client build(String groupId, ConfigOption configOption, long nativePointer) {
         logger.info(
                 "build, groupID: {}, configOption: {}, nativePointer: {}",
                 groupId,

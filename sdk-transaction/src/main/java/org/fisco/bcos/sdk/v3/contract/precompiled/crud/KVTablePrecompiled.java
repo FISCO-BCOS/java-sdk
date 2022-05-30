@@ -4,11 +4,8 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Bool;
-import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
-import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicStruct;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
@@ -37,12 +34,10 @@ public class KVTablePrecompiled extends Contract {
             org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
-        "[{\"inputs\":[],\"name\":\"desc\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"keyColumn\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"valueColumns\",\"type\":\"string[]\"}],\"internalType\":\"struct TableInfo\",\"name\":\"\",\"type\":\"tuple\"}],\"selector\":[1441878257,1966441124],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"get\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry\",\"name\":\"\",\"type\":\"tuple\"}],\"selector\":[1765722206,2065403395],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"name\":\"set\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[3913463062,439950516],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+        "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"get\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"selector\":[1765722206,2065403395],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"name\":\"set\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[3913463062,439950516],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", ABI_ARRAY);
-
-    public static final String FUNC_DESC = "desc";
 
     public static final String FUNC_GET = "get";
 
@@ -58,15 +53,6 @@ public class KVTablePrecompiled extends Contract {
 
     public static String getABI() {
         return ABI;
-    }
-
-    public TableInfo desc() throws ContractException {
-        final Function function =
-                new Function(
-                        FUNC_DESC,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<TableInfo>() {}));
-        return executeCallWithSingleValueReturn(function, TableInfo.class);
     }
 
     public Tuple2<Boolean, String> get(String key) throws ContractException {
@@ -142,44 +128,5 @@ public class KVTablePrecompiled extends Contract {
     public static KVTablePrecompiled load(
             String contractAddress, Client client, CryptoKeyPair credential) {
         return new KVTablePrecompiled(contractAddress, client, credential);
-    }
-
-    public static KVTablePrecompiled deploy(Client client, CryptoKeyPair credential)
-            throws ContractException {
-        return deploy(
-                KVTablePrecompiled.class,
-                client,
-                credential,
-                getBinary(client.getCryptoSuite()),
-                getABI(),
-                null,
-                null);
-    }
-
-    public static class TableInfo extends DynamicStruct {
-        public String keyColumn;
-
-        public List<String> valueColumns;
-
-        public TableInfo(Utf8String keyColumn, DynamicArray<Utf8String> valueColumns) {
-            super(keyColumn, valueColumns);
-            this.keyColumn = keyColumn.getValue();
-            this.valueColumns =
-                    valueColumns.getValue().stream()
-                            .map(Utf8String::getValue)
-                            .collect(Collectors.toList());
-        }
-
-        public TableInfo(String keyColumn, List<String> valueColumns) {
-            super(
-                    new Utf8String(keyColumn),
-                    new DynamicArray<>(
-                            Utf8String.class,
-                            valueColumns.stream()
-                                    .map(Utf8String::new)
-                                    .collect(Collectors.toList())));
-            this.keyColumn = keyColumn;
-            this.valueColumns = valueColumns;
-        }
     }
 }
