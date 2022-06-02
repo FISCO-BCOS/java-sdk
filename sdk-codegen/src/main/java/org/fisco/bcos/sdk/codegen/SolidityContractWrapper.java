@@ -482,8 +482,7 @@ public class SolidityContractWrapper {
             MethodSpec.Builder methodBuilder, List<ABIDefinition.NamedType> namedTypes) {
         List<ParameterSpec> inputParameterTypes = buildParameterTypes(namedTypes);
         List<ParameterSpec> nativeInputParameterTypes = new ArrayList<>(inputParameterTypes.size());
-        int i = 0;
-        for (ParameterSpec parameterSpec : inputParameterTypes) {
+        for (int i = 0; i < inputParameterTypes.size(); i++) {
             final TypeName typeName;
             if (namedTypes.get(i).getType().equals("tuple")) {
                 typeName = structClassNameMap.get(namedTypes.get(i).structIdentifier());
@@ -495,7 +494,7 @@ public class SolidityContractWrapper {
             }
 
             nativeInputParameterTypes.add(
-                    ParameterSpec.builder(typeName, parameterSpec.name).build());
+                    ParameterSpec.builder(typeName, inputParameterTypes.get(i).name).build());
         }
         methodBuilder.addParameters(nativeInputParameterTypes);
         return Collection.join(
