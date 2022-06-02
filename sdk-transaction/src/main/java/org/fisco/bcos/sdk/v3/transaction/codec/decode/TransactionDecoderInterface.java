@@ -36,7 +36,7 @@ public interface TransactionDecoderInterface {
      * @param input the input of transaction receipt
      * @return the resolved revert message information
      */
-    public String decodeReceiptMessage(String input);
+    String decodeRevertMessage(String input);
 
     /**
      * parse the status and transaction detail from receipt
@@ -44,7 +44,7 @@ public interface TransactionDecoderInterface {
      * @param receipt transaction receipt
      * @return the resolved status and other transaction detail
      */
-    public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt);
+    TransactionResponse decodeReceiptStatus(TransactionReceipt receipt);
 
     /**
      * parse the transaction information of the function from receipt with return values
@@ -54,7 +54,7 @@ public interface TransactionDecoderInterface {
      * @param receipt transaction receipt
      * @return the resolved status and other transaction detail
      */
-    public TransactionResponse decodeReceiptWithValues(
+    TransactionResponse decodeReceiptWithValues(
             String abi, String functionName, TransactionReceipt receipt)
             throws TransactionException, IOException, ContractCodecException;
 
@@ -65,7 +65,7 @@ public interface TransactionDecoderInterface {
      * @param transactionReceipt transaction receipt
      * @return the resolved status and other transaction detail
      */
-    public TransactionResponse decodeReceiptWithoutValues(
+    TransactionResponse decodeReceiptWithoutValues(
             String abi, TransactionReceipt transactionReceipt)
             throws TransactionException, IOException, ContractCodecException;
 
@@ -77,6 +77,6 @@ public interface TransactionDecoderInterface {
      * @return Map<K,V>, K is event name, V is list of events in Json. May have several events of
      *     the same event
      */
-    public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
+    Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
             throws ContractCodecException;
 }

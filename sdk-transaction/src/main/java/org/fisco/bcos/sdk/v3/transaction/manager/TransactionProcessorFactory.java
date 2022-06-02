@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TransactionProcessorFactory {
+    private TransactionProcessorFactory() {}
+
     private static final Logger logger = LoggerFactory.getLogger(TransactionProcessorFactory.class);
 
     public static Pair<String, String> getChainIdAndGroupId(Client client) {

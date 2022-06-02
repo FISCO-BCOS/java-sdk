@@ -47,7 +47,7 @@ public class BFSService {
 
     public RetCode link(String name, String version, String contractAddress, String abi)
             throws ContractException {
-        if (AddressUtils.isValidAddress(contractAddress)) {
+        if (!AddressUtils.isValidAddress(contractAddress)) {
             throw new ContractException("Invalid address: " + contractAddress);
         }
         return ReceiptParser.parseTransactionReceipt(

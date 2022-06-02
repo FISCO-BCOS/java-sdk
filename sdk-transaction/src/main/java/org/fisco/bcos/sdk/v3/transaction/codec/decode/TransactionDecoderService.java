@@ -14,7 +14,6 @@
  */
 package org.fisco.bcos.sdk.v3.transaction.codec.decode;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,7 +24,7 @@ import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.EventEncoder;
 import org.fisco.bcos.sdk.v3.codec.FunctionReturnDecoderInterface;
-import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
+import org.fisco.bcos.sdk.v3.codec.Utils;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
@@ -42,8 +41,8 @@ import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionException;
 import org.fisco.bcos.sdk.v3.transaction.tools.JsonUtils;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,30 +67,28 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     }
 
     @Override
-    public String decodeReceiptMessage(String output) {
-        if (output.length() <= 10) {
+    public String decodeRevertMessage(String output) {
+        output = Hex.trimPrefix(output);
+        if (output.length() <= 8) {
             return null;
         } else {
-            Function function =
-                    new Function(
-                            "Error",
-                            Collections.emptyList(),
-                            Collections.singletonList(new TypeReference<Utf8String>() {}));
+            // This revert msg encoder/decoder only use ABI
             FunctionReturnDecoderInterface functionReturnDecoderInterface =
-                    contractCodec.isWasm()
-                            ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionReturnDecoder()
-                            : new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
+                    new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
+            // substring(8) cut off "Error(string)" selector 4 bytes
             List<Type> r =
                     functionReturnDecoderInterface.decode(
-                            output.substring(10), function.getOutputParameters());
-            return ((Type) r.get(0)).toString();
+                            output.substring(8),
+                            Utils.convert(
+                                    Collections.singletonList(new TypeReference<Utf8String>() {})));
+            return (r.get(0)).toString();
         }
     }
 
     @Override
     public TransactionResponse decodeReceiptWithValues(
             String abi, String functionName, TransactionReceipt transactionReceipt)
-            throws IOException, ContractCodecException, TransactionException {
+            throws ContractCodecException {
         TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
         // only successful tx has return values.
         if (transactionReceipt.getStatus() == 0) {
@@ -105,8 +102,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
 
     @Override
     public TransactionResponse decodeReceiptWithoutValues(
-            String abi, TransactionReceipt transactionReceipt)
-            throws TransactionException, IOException, ContractCodecException {
+            String abi, TransactionReceipt transactionReceipt) {
         TransactionResponse response = decodeReceiptStatus(transactionReceipt);
         response.setTransactionReceipt(transactionReceipt);
         response.setContractAddress(transactionReceipt.getContractAddress());
@@ -136,8 +132,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     }
 
     @Override
-    public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
-            throws ContractCodecException {
+    public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs) {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(abi);
         Map<String, List<ABIDefinition>> eventsMap = contractABIDefinition.getEvents();
@@ -172,8 +167,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                                     result.put(name, l);
                                 }
                             } catch (Exception e) {
-                                logger.error(
-                                        " exception in decodeEventToObject : {}", e.getMessage());
+                                logger.error(" exception in decodeEventToObject: ", e);
                             }
                         }
                     }

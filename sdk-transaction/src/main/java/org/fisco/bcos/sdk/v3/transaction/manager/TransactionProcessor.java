@@ -29,6 +29,7 @@ import org.fisco.bcos.sdk.v3.transaction.codec.encode.TransactionEncoderInterfac
 import org.fisco.bcos.sdk.v3.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.v3.utils.Hex;
+import org.fisco.bcos.sdk.v3.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +74,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         TransactionReceipt transactionReceipt =
                 this.client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
         if (Objects.nonNull(transactionReceipt)
-                && (Objects.isNull(transactionReceipt.getTransactionHash())
-                        || "".equals(transactionReceipt.getTransactionHash()))) {
+                && StringUtils.isEmpty(transactionReceipt.getTransactionHash())) {
             transactionReceipt.setTransactionHash(txPair.getTxHash());
         }
         return transactionReceipt;

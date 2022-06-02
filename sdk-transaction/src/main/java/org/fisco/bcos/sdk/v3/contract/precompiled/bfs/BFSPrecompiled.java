@@ -226,18 +226,6 @@ public class BFSPrecompiled extends Contract {
         return new BFSPrecompiled(contractAddress, client, credential);
     }
 
-    public static BFSPrecompiled deploy(Client client, CryptoKeyPair credential)
-            throws ContractException {
-        return deploy(
-                BFSPrecompiled.class,
-                client,
-                credential,
-                getBinary(client.getCryptoSuite()),
-                getABI(),
-                null,
-                null);
-    }
-
     public static class BfsInfo extends DynamicStruct {
         public String fileName;
 

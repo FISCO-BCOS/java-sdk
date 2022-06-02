@@ -19,7 +19,7 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.NoSuchTransactionFileEx
 import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.v3.transaction.signer.RemoteSignCallbackInterface;
 import org.fisco.bcos.sdk.v3.transaction.signer.RemoteSignProviderInterface;
-import org.fisco.bcos.sdk.v3.transaction.signer.TransactionSignerServcie;
+import org.fisco.bcos.sdk.v3.transaction.signer.TransactionSignerService;
 import org.fisco.bcos.sdk.v3.transaction.tools.ContractLoader;
 
 public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransactionProcessor
@@ -63,11 +63,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     @Override
     public void deployAsync(
             long transactionData, RemoteSignCallbackInterface remoteSignCallbackInterface)
-            throws ContractCodecException, JniException {
-        int txAttribute = 0;
-        if (client.isWASM()) {
-            txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
-        }
+            throws JniException {
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(transactionData);
         this.transactionSignProvider.requestForSignAsync(
                 rawTxHash, this.cryptoSuite.getCryptoTypeConfig(), remoteSignCallbackInterface);
@@ -159,7 +155,7 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     public TransactionReceipt encodeAndPush(
             long transactionData, String signatureStr, int txAttribute) throws JniException {
         SignatureResult signatureResult =
-                TransactionSignerServcie.decodeSignatureString(
+                TransactionSignerService.decodeSignatureString(
                         signatureStr,
                         this.cryptoSuite.getCryptoTypeConfig(),
                         this.cryptoSuite.getCryptoKeyPair().getHexPublicKey());

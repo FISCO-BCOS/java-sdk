@@ -27,18 +27,18 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 public interface TransactionPusherInterface {
 
     /**
-     * push signed transaction transaction to fisco bcos node only, without receive any response.
+     * push signed transaction to fisco bcos node only, without receive any response.
      *
      * @param signedTransaction signed transaction string
      */
-    public void pushOnly(String signedTransaction);
+    void pushOnly(String signedTransaction);
 
     /**
-     * push signed transaction transaction to fisco bcos node and receive transaction receipt.
+     * push signed transaction to fisco bcos node and receive transaction receipt.
      *
      * @param signedTransaction signed transaction string
      */
-    public TransactionReceipt push(String signedTransaction);
+    TransactionReceipt push(String signedTransaction);
 
     /**
      * push encoded function call to fisco bcos node and receive call response.
@@ -48,21 +48,21 @@ public interface TransactionPusherInterface {
      * @param encodedFunction signed transaction string
      * @return Call hexed string of encoded function
      */
-    public Call push(String from, String to, byte[] encodedFunction);
+    Call push(String from, String to, byte[] encodedFunction);
 
     /**
-     * push signed transaction transaction to fisco bcos node asynchronously
+     * push signed transaction to fisco bcos node asynchronously
      *
      * @param signedTransaction signed transaction string
      * @return wrapper Transaction receipt with CompletableFuture
      */
-    public CompletableFuture<TransactionReceipt> pushAsync(String signedTransaction);
+    CompletableFuture<TransactionReceipt> pushAsync(String signedTransaction);
 
     /**
-     * push signed transaction transaction to fisco bcos node asynchronously
+     * push signed transaction to fisco bcos node asynchronously
      *
      * @param signedTransaction signed transaction string
      * @param callback define hook handle function
      */
-    public void pushAsync(String signedTransaction, TransactionCallback callback);
+    void pushAsync(String signedTransaction, TransactionCallback callback);
 }

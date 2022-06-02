@@ -4,8 +4,12 @@ import org.fisco.bcos.sdk.v3.crypto.signature.Signature;
 
 public class TransactionSignerFactory {
 
+    private TransactionSignerFactory() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static TransactionSignerInterface createTransactionSigner(Signature signature) {
-        return new TransactionSignerServcie(signature);
+        return new TransactionSignerService(signature);
     }
 
     public static TransactionSignerInterface createTransactionSigner(

@@ -81,7 +81,7 @@ public class FunctionReturnDecoder implements FunctionReturnDecoderInterface {
                     || Utf8String.class.isAssignableFrom(type)) {
                 return TypeDecoder.decodeBytes(Hex.decode(input), Bytes32.class);
             } else {
-                return TypeDecoder.decode(Hex.decode(input), 0, type);
+                return TypeDecoder.decode(Hex.decode(input), 0, typeReference);
             }
         } catch (ClassNotFoundException e) {
             throw new UnsupportedOperationException("Invalid class reference provided", e);
@@ -143,7 +143,7 @@ public class FunctionReturnDecoder implements FunctionReturnDecoderInterface {
                         offset += Type.MAX_BYTE_LENGTH * length;
                     }
                 } else {
-                    result = TypeDecoder.decode(rawInput, dataOffset, classType);
+                    result = TypeDecoder.decode(rawInput, dataOffset, typeReference);
                     offset += Type.MAX_BYTE_LENGTH;
                 }
                 results.add(result);

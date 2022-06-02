@@ -19,7 +19,6 @@ import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.utils.StringUtils;
 
 @SuppressWarnings("unchecked")
@@ -272,17 +271,5 @@ public class ConsensusPrecompiled extends Contract {
     public static ConsensusPrecompiled load(
             String contractAddress, Client client, CryptoKeyPair credential) {
         return new ConsensusPrecompiled(contractAddress, client, credential);
-    }
-
-    public static ConsensusPrecompiled deploy(Client client, CryptoKeyPair credential)
-            throws ContractException {
-        return deploy(
-                ConsensusPrecompiled.class,
-                client,
-                credential,
-                getBinary(client.getCryptoSuite()),
-                null,
-                null,
-                null);
     }
 }

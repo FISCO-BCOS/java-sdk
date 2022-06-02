@@ -9,5 +9,5 @@ public interface RemoteSignCallbackInterface {
      * @param signature
      * @return result code
      */
-    public int handleSignedTransaction(SignatureResult signature);
+    int handleSignedTransaction(SignatureResult signature);
 }

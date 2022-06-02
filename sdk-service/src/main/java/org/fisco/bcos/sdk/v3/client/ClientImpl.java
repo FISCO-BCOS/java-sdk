@@ -210,16 +210,13 @@ public class ClientImpl implements Client {
     public BcosTransactionReceipt sendTransaction(
             String node, String signedTransactionData, boolean withProof) {
         node = Objects.isNull(node) ? "" : node;
-        BcosTransactionReceipt bcosTransactionReceipt =
-                this.callRemoteMethod(
-                        this.groupID,
-                        node,
-                        new JsonRpcRequest(
-                                JsonRpcMethods.SEND_TRANSACTION,
-                                Arrays.asList(
-                                        this.groupID, node, signedTransactionData, withProof)),
-                        BcosTransactionReceipt.class);
-        return bcosTransactionReceipt;
+        return this.callRemoteMethod(
+                this.groupID,
+                node,
+                new JsonRpcRequest(
+                        JsonRpcMethods.SEND_TRANSACTION,
+                        Arrays.asList(this.groupID, node, signedTransactionData, withProof)),
+                BcosTransactionReceipt.class);
     }
 
     @Override

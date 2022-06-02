@@ -38,7 +38,7 @@ public interface TransactionProcessorInterface {
      * @param cryptoKeyPair key pair
      * @return transaction receipt
      */
-    public TransactionReceipt deployAndGetReceipt(
+    TransactionReceipt deployAndGetReceipt(
             String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute)
             throws JniException;
 
@@ -50,7 +50,7 @@ public interface TransactionProcessorInterface {
      * @param cryptoKeyPair key pair
      * @return transaction receipt
      */
-    public TransactionReceipt sendTransactionAndGetReceipt(
+    TransactionReceipt sendTransactionAndGetReceipt(
             String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute)
             throws JniException;
 
@@ -62,7 +62,7 @@ public interface TransactionProcessorInterface {
      * @param cryptoKeyPair key pair
      * @param callback define hook function
      */
-    public String sendTransactionAsync(
+    String sendTransactionAsync(
             String to,
             byte[] data,
             CryptoKeyPair cryptoKeyPair,
@@ -75,7 +75,7 @@ public interface TransactionProcessorInterface {
      * @param callRequest signed transaction string
      * @return Call
      */
-    public Call executeCall(CallRequest callRequest);
+    Call executeCall(CallRequest callRequest);
 
     /**
      * send encoded function call to fisco bcos node and receive call response.
@@ -85,7 +85,7 @@ public interface TransactionProcessorInterface {
      * @param encodedFunction signed transaction string
      * @return Call
      */
-    public Call executeCall(String from, String to, byte[] encodedFunction);
+    Call executeCall(String from, String to, byte[] encodedFunction);
 
     /**
      * create deploy signed transaction
@@ -96,7 +96,7 @@ public interface TransactionProcessorInterface {
      * @param cryptoKeyPair key pair
      * @return hexed data of signed transaction
      */
-    public TxPair createDeploySignedTransaction(
+    TxPair createDeploySignedTransaction(
             String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute)
             throws JniException;
 
@@ -108,7 +108,7 @@ public interface TransactionProcessorInterface {
      * @param cryptoKeyPair key pair
      * @return hexed data of signed transaction
      */
-    public TxPair createSignedTransaction(
+    TxPair createSignedTransaction(
             String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute)
             throws JniException;
 }
