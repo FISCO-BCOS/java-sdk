@@ -7,5 +7,5 @@ public interface AsyncTransactionSignercInterface {
      * @param hash raw transaction hash string to be signed
      * @param transactionSignCallback after signed, callback hook
      */
-    public void signAsync(byte[] hash, RemoteSignCallbackInterface transactionSignCallback);
+    void signAsync(byte[] hash, RemoteSignCallbackInterface transactionSignCallback);
 }

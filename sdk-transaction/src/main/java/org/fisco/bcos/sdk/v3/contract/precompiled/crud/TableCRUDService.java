@@ -482,6 +482,9 @@ public class TableCRUDService {
      */
     public Map<String, List<String>> desc(String tableName) throws ContractException {
         TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
+        if (tableInfo.keyColumn.isEmpty() || tableInfo.valueColumns.isEmpty()) {
+            throw new ContractException("Table " + tableName + " does not exist.");
+        }
         Map<String, List<String>> descMap = new HashMap<>();
         descMap.put(
                 PrecompiledConstant.KEY_FIELD_NAME, Collections.singletonList(tableInfo.keyColumn));

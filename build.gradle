@@ -76,6 +76,7 @@ allprojects {
         testImplementation("junit:junit:${junitVersion}")
         testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
         testImplementation("com.google.guava:guava:${guavaVersion}")
+        testImplementation("org.mockito:mockito-core:4.6.0")
     }
 
     clean.doLast {

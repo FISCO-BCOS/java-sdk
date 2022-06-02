@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.datatypes.NumericType;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
@@ -221,20 +220,7 @@ public class AuthManager {
         }
         weight = weight.compareTo(BigInteger.ZERO) < 0 ? BigInteger.ZERO : weight;
 
-        if (addFlag) {
-            if (weight.compareTo(BigInteger.ZERO) > 0) {
-                // check the node exists in the sealerList or not
-                List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
-                if (sealerList.stream().anyMatch(sealer -> sealer.getNodeID().equals(node))) {
-                    throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST);
-                }
-            } else {
-                List<String> observerList = client.getObserverList().getResult();
-                if (observerList.contains(node)) {
-                    throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
-                }
-            }
-        }
+        checkSetConsensusWeightParams(node, weight, addFlag);
 
         TransactionReceipt tr =
                 committeeManager.createSetConsensusWeightProposal(
@@ -245,6 +231,32 @@ public class AuthManager {
                         CommitteeManager.FUNC_CREATESETCONSENSUSWEIGHTPROPOSAL,
                         tr);
         return getProposal(transactionResponse);
+    }
+
+    private void checkSetConsensusWeightParams(String node, BigInteger weight, boolean addFlag)
+            throws ContractException {
+        boolean existence =
+                (weight.compareTo(BigInteger.ZERO) > 0)
+                        ? client.getSealerList().getResult().stream()
+                                .anyMatch(sealer -> sealer.getNodeID().equals(node))
+                        : client.getObserverList().getResult().contains(node);
+
+        if (addFlag) {
+            if (existence) {
+                throw new ContractException(
+                        (weight.compareTo(BigInteger.ZERO) > 0)
+                                ? PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST
+                                : PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
+            }
+        } else {
+            if (weight.compareTo(BigInteger.ZERO) > 0) {
+                if (!existence) {
+                    throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
+                }
+            } else {
+                throw new ContractException(PrecompiledRetCode.CODE_INVALID_WEIGHT.getMessage());
+            }
+        }
     }
 
     /**
@@ -391,7 +403,7 @@ public class AuthManager {
      */
     public Boolean checkMethodAuth(String contractAddress, byte[] func, String account)
             throws ContractException {
-        if (AddressUtils.isValidAddress(contractAddress)) {
+        if (!AddressUtils.isValidAddress(contractAddress)) {
             throw new ContractException("Invalid address: " + contractAddress);
         }
         return contractAuthPrecompiled.checkMethodAuth(contractAddress, func, account);
@@ -407,7 +419,7 @@ public class AuthManager {
      */
     public Tuple3<AuthType, List<String>, List<String>> getMethodAuth(
             String contractAddress, byte[] func) throws ContractException {
-        if (AddressUtils.isValidAddress(contractAddress)) {
+        if (!AddressUtils.isValidAddress(contractAddress)) {
             throw new ContractException("Invalid address: " + contractAddress);
         }
         Tuple3<BigInteger, List<String>, List<String>> methodAuth =
@@ -423,7 +435,7 @@ public class AuthManager {
      * @return admin address
      */
     public String getAdmin(String contractAddress) throws ContractException {
-        if (AddressUtils.isValidAddress(contractAddress)) {
+        if (!AddressUtils.isValidAddress(contractAddress)) {
             throw new ContractException("Invalid address: " + contractAddress);
         }
         return contractAuthPrecompiled.getAdmin(contractAddress);
@@ -439,7 +451,7 @@ public class AuthManager {
      */
     public RetCode setMethodAuthType(String contractAddress, byte[] func, AuthType authType)
             throws ContractException {
-        if (AddressUtils.isValidAddress(contractAddress)) {
+        if (!AddressUtils.isValidAddress(contractAddress)) {
             throw new ContractException("Invalid address: " + contractAddress);
         }
         TransactionReceipt transactionReceipt =
@@ -461,7 +473,7 @@ public class AuthManager {
     public RetCode setMethodAuth(
             String contractAddress, byte[] func, String account, boolean isOpen)
             throws ContractException {
-        if (AddressUtils.isValidAddress(contractAddress)) {
+        if (!AddressUtils.isValidAddress(contractAddress)) {
             throw new ContractException("Invalid address: " + contractAddress);
         }
         TransactionReceipt receipt =
@@ -480,7 +492,7 @@ public class AuthManager {
      */
     public RetCode setContractStatus(String contractAddress, boolean isFreeze)
             throws ContractException {
-        if (AddressUtils.isValidAddress(contractAddress)) {
+        if (!AddressUtils.isValidAddress(contractAddress)) {
             throw new ContractException("Invalid address: " + contractAddress);
         }
         TransactionReceipt transactionReceipt =
@@ -495,7 +507,7 @@ public class AuthManager {
      * @return if true, then this contract can be called
      */
     public Boolean contractAvailable(String contractAddress) throws ContractException {
-        if (AddressUtils.isValidAddress(contractAddress)) {
+        if (!AddressUtils.isValidAddress(contractAddress)) {
             throw new ContractException("Invalid address: " + contractAddress);
         }
         return contractAuthPrecompiled.contractAvailable(contractAddress);

@@ -111,8 +111,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
-    public TransactionReceipt deployAndGetReceipt(byte[] data, String abi, String path)
-            throws JniException {
+    public TransactionReceipt deployAndGetReceipt(byte[] data, String abi, String path) {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
@@ -131,7 +130,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
-    public TransactionReceipt deployAndGetReceipt(byte[] data) throws JniException {
+    public TransactionReceipt deployAndGetReceipt(byte[] data) {
         return deployAndGetReceipt(data, "", "");
     }
 
@@ -141,7 +140,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         try {
             return this.transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
         } catch (TransactionException | IOException | ContractCodecException e) {
-            log.error("deploy exception: {}", e.getMessage());
+            log.error("deploy exception: ", e);
             return new TransactionResponse(
                     receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
         }
@@ -200,7 +199,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params, String path)
-            throws ContractCodecException, JniException {
+            throws ContractCodecException {
         TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
         return this.transactionPusher.pushAsync(txPair.getSignedTx());
     }
@@ -259,7 +258,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         try {
             return this.transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
         } catch (TransactionException | IOException e) {
-            log.error("sendTransaction exception: {}", e.getMessage());
+            log.error("sendTransaction exception: ", e);
             return new TransactionResponse(
                     receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
         }
@@ -268,7 +267,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
-            throws ContractCodecException, TransactionBaseException {
+            throws ContractCodecException {
         byte[] data = this.encodeFunction(abi, functionName, params);
         return this.sendTransactionAndGetResponse(to, abi, functionName, data);
     }
@@ -276,7 +275,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
             String to, String abi, String functionName, List<String> params)
-            throws ContractCodecException, TransactionBaseException {
+            throws ContractCodecException {
         byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, params);
         return this.sendTransactionAndGetResponse(to, abi, functionName, data);
     }
@@ -284,7 +283,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> args)
-            throws ContractCodecException, TransactionBaseException, JniException {
+            throws ContractCodecException, TransactionBaseException {
         byte[] data =
                 this.contractCodec.encodeMethod(
                         this.contractLoader.getABIByContractName(contractName), functionName, args);
@@ -322,7 +321,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String functionName,
             List<Object> params,
             TransactionCallback callback)
-            throws TransactionBaseException, ContractCodecException {
+            throws ContractCodecException {
         byte[] data = this.encodeFunction(abi, functionName, params);
         int txAttribute = 0;
         if (client.isWASM()) {

@@ -28,7 +28,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param params contract construct parameters
      * @param remoteSignCallbackInterface after signed, callback function hook
      */
-    public void deployAsync(
+    void deployAsync(
             String abi,
             String bin,
             List<Object> params,
@@ -75,7 +75,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param params contract function parameters
      * @param remoteSignCallbackInterface after signed, callback function hook
      */
-    public void sendTransactionAsync(
+    void sendTransactionAsync(
             String to,
             String abi,
             String functionName,
@@ -93,7 +93,7 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param params contract function parameters
      * @return CompletableFuture of transaction receipt
      */
-    public CompletableFuture<TransactionReceipt> sendTransactionAsync(
+    CompletableFuture<TransactionReceipt> sendTransactionAsync(
             String to, String abi, String functionName, List<Object> params)
             throws ContractCodecException, JniException;
 

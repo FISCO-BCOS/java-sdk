@@ -423,7 +423,8 @@ public class ContractCodecTools {
      *
      * @return the decoded ABIObject
      */
-    private static ABIObject decodeABI(ABIObject template, byte[] input, int offset) {
+    private static ABIObject decodeABI(ABIObject template, byte[] input, int offset)
+            throws ClassNotFoundException {
 
         ABIObject abiObject = template.newObject();
 
@@ -435,21 +436,23 @@ public class ContractCodecTools {
                             {
                                 abiObject.setBoolValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Bool.class));
+                                                input, offset, TypeReference.create(Bool.class)));
                                 break;
                             }
                         case UINT:
                             {
                                 abiObject.setNumericValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Uint256.class));
+                                                input,
+                                                offset,
+                                                TypeReference.create(Uint256.class)));
                                 break;
                             }
                         case INT:
                             {
                                 abiObject.setNumericValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Int256.class));
+                                                input, offset, TypeReference.create(Int256.class)));
                                 break;
                             }
                         case FIXED:
@@ -462,28 +465,36 @@ public class ContractCodecTools {
                             {
                                 abiObject.setBytesValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Bytes32.class));
+                                                input,
+                                                offset,
+                                                TypeReference.create(Bytes32.class)));
                                 break;
                             }
                         case ADDRESS:
                             {
                                 abiObject.setAddressValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Address.class));
+                                                input,
+                                                offset,
+                                                TypeReference.create(Address.class)));
                                 break;
                             }
                         case DBYTES:
                             {
                                 abiObject.setDynamicBytesValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, DynamicBytes.class));
+                                                input,
+                                                offset,
+                                                TypeReference.create(DynamicBytes.class)));
                                 break;
                             }
                         case STRING:
                             {
                                 abiObject.setStringValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Utf8String.class));
+                                                input,
+                                                offset,
+                                                TypeReference.create(Utf8String.class)));
                                 break;
                             }
                     }
@@ -500,7 +511,9 @@ public class ContractCodecTools {
                         if (structObject.isDynamic()) {
                             int structValueOffset =
                                     org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                    input, structOffset, Uint256.class)
+                                                    input,
+                                                    structOffset,
+                                                    TypeReference.create(Uint256.class))
                                             .getValue()
                                             .intValue();
                             itemObject =
@@ -525,7 +538,9 @@ public class ContractCodecTools {
                         // dynamic list length
                         listLength =
                                 org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, listOffset, Uint256.class)
+                                                input,
+                                                listOffset,
+                                                TypeReference.create(Uint256.class))
                                         .getValue()
                                         .intValue();
                         listOffset += Type.MAX_BYTE_LENGTH;
@@ -550,7 +565,9 @@ public class ContractCodecTools {
                         if (listValueObject.isDynamic()) {
                             int listValueOffset =
                                     org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                    input, listOffset, Uint256.class)
+                                                    input,
+                                                    listOffset,
+                                                    TypeReference.create(Uint256.class))
                                             .getValue()
                                             .intValue();
                             itemABIObject =

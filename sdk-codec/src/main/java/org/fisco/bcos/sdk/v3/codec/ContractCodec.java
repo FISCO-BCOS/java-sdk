@@ -100,7 +100,7 @@ public class ContractCodec {
                     ContractCodecTools.encode(
                             ContractCodecTools.decodeABIObjectValue(inputABIObject, params),
                             isWasm);
-            return encodeConstructorFromBytes(bin, encodeParams, abi);
+            return encodeConstructorFromBytes(bin, encodeParams);
         } catch (Exception e) {
             logger.error(" exception in encodeConstructor : {}", e.getMessage());
         }
@@ -330,7 +330,7 @@ public class ContractCodec {
                 paramBytes =
                         org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder.encodeConstructor(types);
             }
-            return encodeConstructorFromBytes(bin, paramBytes, abi);
+            return encodeConstructorFromBytes(bin, paramBytes);
         } catch (Exception e) {
             String errorMsg =
                     " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"
@@ -340,7 +340,7 @@ public class ContractCodec {
         }
     }
 
-    public byte[] encodeConstructorFromBytes(String bin, byte[] params, String abi)
+    public byte[] encodeConstructorFromBytes(String bin, byte[] params)
             throws ContractCodecException {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -358,7 +358,6 @@ public class ContractCodec {
                 } else {
                     deployParams.add(new Uint8(0));
                 }
-                // deployParams.add(new Utf8String(abi));
                 outputStream.write(FunctionEncoder.encodeParameters(deployParams, null));
             }
             return outputStream.toByteArray();

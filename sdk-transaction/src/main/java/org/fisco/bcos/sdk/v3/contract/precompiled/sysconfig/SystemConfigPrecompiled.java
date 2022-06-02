@@ -18,7 +18,6 @@ import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.utils.StringUtils;
 
 @SuppressWarnings("unchecked")
@@ -105,17 +104,5 @@ public class SystemConfigPrecompiled extends Contract {
     public static SystemConfigPrecompiled load(
             String contractAddress, Client client, CryptoKeyPair credential) {
         return new SystemConfigPrecompiled(contractAddress, client, credential);
-    }
-
-    public static SystemConfigPrecompiled deploy(Client client, CryptoKeyPair credential)
-            throws ContractException {
-        return deploy(
-                SystemConfigPrecompiled.class,
-                client,
-                credential,
-                getBinary(client.getCryptoSuite()),
-                null,
-                null,
-                null);
     }
 }

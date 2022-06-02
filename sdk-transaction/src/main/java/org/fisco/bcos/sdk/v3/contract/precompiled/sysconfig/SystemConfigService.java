@@ -42,12 +42,12 @@ public class SystemConfigService {
                         value.compareTo(BigInteger.ONE) >= 0
                                 && value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0);
         predicateMap.put(
-                TX_GAS_LIMIT,
+                CONSENSUS_PERIOD,
                 value ->
                         value.compareTo(BigInteger.ONE) >= 0
                                 && value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0);
         predicateMap.put(
-                CONSENSUS_PERIOD,
+                TX_GAS_LIMIT,
                 value ->
                         value.compareTo(BigInteger.valueOf(TX_GAS_LIMIT_MIN)) >= 0
                                 && value.compareTo(TX_GAS_LIMIT_MAX) <= 0);
@@ -73,10 +73,10 @@ public class SystemConfigService {
         try {
             bigInteger = new BigInteger(value);
         } catch (NumberFormatException ignored) {
-            throw new ContractException("Invalid value \" " + value + " \" for " + key);
+            throw new ContractException("Invalid value \"" + value + "\", this is not a number.");
         }
         if (!checkSysValueValidation(key, bigInteger)) {
-            throw new ContractException("Invalid value \" " + value + " \" for " + key);
+            throw new ContractException("Invalid value \"" + value + "\" for " + key);
         }
         return ReceiptParser.parseTransactionReceipt(
                 systemConfigPrecompiled.setValueByKey(key, value));

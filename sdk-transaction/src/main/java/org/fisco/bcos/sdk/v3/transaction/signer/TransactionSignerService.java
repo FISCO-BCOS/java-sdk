@@ -21,14 +21,15 @@ import org.fisco.bcos.sdk.v3.crypto.signature.Signature;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 
-public class TransactionSignerServcie implements TransactionSignerInterface {
+public class TransactionSignerService implements TransactionSignerInterface {
     private Signature signature;
+
     /**
-     * create the TransactionSignerService according the the given signature
+     * create the TransactionSignerService according the given signature
      *
      * @param signature the signature
      */
-    public TransactionSignerServcie(Signature signature) {
+    public TransactionSignerService(Signature signature) {
         super();
         this.signature = signature;
     }
@@ -66,8 +67,10 @@ public class TransactionSignerServcie implements TransactionSignerInterface {
         SignatureResult signature;
         if (cryptoType == CryptoType.ECDSA_TYPE) {
             signature = new ECDSASignatureResult(signatureStr);
-        } else {
+        } else if (cryptoType == CryptoType.SM_TYPE) {
             signature = new SM2SignatureResult(publicKey, signatureStr);
+        } else {
+            throw new IllegalStateException("Error cryptoType: " + cryptoType);
         }
         return signature;
     }

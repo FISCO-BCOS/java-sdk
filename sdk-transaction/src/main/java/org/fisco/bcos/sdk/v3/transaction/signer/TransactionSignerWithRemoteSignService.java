@@ -19,8 +19,8 @@ import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 
 public class TransactionSignerWithRemoteSignService
         implements TransactionSignerInterface, AsyncTransactionSignercInterface {
-    private RemoteSignProviderInterface transactionSignProvider;
-    private int encryptType;
+    private final RemoteSignProviderInterface transactionSignProvider;
+    private final int encryptType;
 
     public TransactionSignerWithRemoteSignService(
             RemoteSignProviderInterface transactionSignProvider, int encryptType) {

@@ -300,7 +300,7 @@ public class TableManagerPrecompiled extends Contract {
         public List<String> valueColumns;
 
         public TableInfo() {
-            super(new Utf8String(""), new DynamicArray<Utf8String>());
+            super(new Utf8String(""), new DynamicArray<>(Utf8String.class, new Utf8String("")));
         }
 
         public TableInfo(Utf8String keyColumn, DynamicArray<Utf8String> valueColumns) {

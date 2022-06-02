@@ -24,7 +24,6 @@ contract Revert {
 "c703cb12": "Error(string)" // SM Method
 */
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
@@ -33,20 +32,20 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
-import org.fisco.bcos.sdk.v3.utils.Numeric;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RevertMessageParser {
 
+    private RevertMessageParser() {}
+
     private static final Logger logger = LoggerFactory.getLogger(RevertMessageParser.class);
 
-    public static final String RevertMethod = "08c379a0";
-    public static final String RevertMethodWithHexPrefix = "0x08c379a0";
+    public static final String REVERT_METHOD = "08c379a0";
 
-    public static final String SMRevertMethod = "c703cb12";
-    public static final String SMRevertMethodWithHexPrefix = "0xc703cb12";
+    public static final String SM_REVERT_METHOD = "c703cb12";
 
     // Error(String)
     public static final Function revertFunction =
@@ -62,9 +61,8 @@ public class RevertMessageParser {
      * @return true/false
      */
     public static boolean isOutputStartWithRevertMethod(String output) {
-        return output.startsWith(RevertMethodWithHexPrefix)
-                || output.startsWith(SMRevertMethodWithHexPrefix)
-                || (output.startsWith(RevertMethod) || output.startsWith(SMRevertMethod));
+        String trimPrefix = Hex.trimPrefix(output);
+        return (trimPrefix.startsWith(REVERT_METHOD) || trimPrefix.startsWith(SM_REVERT_METHOD));
     }
 
     /**
@@ -76,12 +74,7 @@ public class RevertMessageParser {
         if (StringUtils.isEmpty(output)) {
             return false;
         }
-        try {
-            BigInteger statusQuantity = BigInteger.valueOf(status);
-            return !BigInteger.ZERO.equals(statusQuantity) && isOutputStartWithRevertMethod(output);
-        } catch (Exception e) {
-            return false;
-        }
+        return status != 0 && isOutputStartWithRevertMethod(output);
     }
 
     /**
@@ -95,10 +88,7 @@ public class RevertMessageParser {
         }
 
         try {
-            String rawOutput =
-                    Numeric.containsHexPrefix(output)
-                            ? output.substring(RevertMethodWithHexPrefix.length())
-                            : output.substring(RevertMethod.length());
+            String rawOutput = Hex.trimPrefix(output).substring(REVERT_METHOD.length());
             // revert message always use abi codec
             org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder functionReturnDecoder =
                     new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
@@ -112,7 +102,7 @@ public class RevertMessageParser {
                 return new Tuple2<>(true, message);
             }
         } catch (Exception e) {
-            logger.warn(" ABI: {}, e: {}", output, e);
+            logger.warn(" ABI: {}, e: ", output, e);
         }
 
         return new Tuple2<>(false, null);

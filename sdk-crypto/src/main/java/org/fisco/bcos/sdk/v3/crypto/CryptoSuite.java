@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 public class CryptoSuite {
 
-    private static Logger logger = LoggerFactory.getLogger(CryptoSuite.class);
+    private static final Logger logger = LoggerFactory.getLogger(CryptoSuite.class);
 
     public final int cryptoTypeConfig;
 
