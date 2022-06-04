@@ -15,6 +15,9 @@
 
 package org.fisco.bcos.sdk.utils;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class AddressUtils {
     public static final int ADDRESS_SIZE = 160;
     public static final int ADDRESS_LENGTH_IN_HEX = ADDRESS_SIZE >> 2;
@@ -23,4 +26,22 @@ public class AddressUtils {
         String addressNoPrefix = Numeric.cleanHexPrefix(address);
         return addressNoPrefix.length() == ADDRESS_LENGTH_IN_HEX;
     }
+
+
+    /**
+     *
+     *    通过域名得到IP
+     *     Params:
+     *     hostName – HOST
+     *     Returns:
+     *     ip address or hostName if UnknownHostException
+     */
+    public static String getIpByHost(String hostName) {
+        try {
+            return InetAddress.getByName(hostName).getHostAddress();
+        } catch (UnknownHostException e) {
+            return hostName;
+        }
+    }
+
 }
