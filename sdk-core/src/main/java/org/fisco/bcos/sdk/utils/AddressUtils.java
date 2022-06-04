@@ -27,15 +27,6 @@ public class AddressUtils {
         return addressNoPrefix.length() == ADDRESS_LENGTH_IN_HEX;
     }
 
-
-    /**
-     *
-     *    通过域名得到IP
-     *     Params:
-     *     hostName – HOST
-     *     Returns:
-     *     ip address or hostName if UnknownHostException
-     */
     public static String getIpByHost(String hostName) {
         try {
             return InetAddress.getByName(hostName).getHostAddress();
