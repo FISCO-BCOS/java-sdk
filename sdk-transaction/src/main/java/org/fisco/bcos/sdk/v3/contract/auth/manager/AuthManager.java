@@ -1,12 +1,8 @@
 package org.fisco.bcos.sdk.v3.contract.auth.manager;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
-import org.fisco.bcos.sdk.v3.codec.datatypes.NumericType;
-import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.CommitteeManager;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.ContractAuthPrecompiled;
@@ -22,10 +18,7 @@ import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
-import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionException;
-import org.fisco.bcos.sdk.v3.utils.AddressUtils;
 
 public class AuthManager {
 
@@ -68,20 +61,11 @@ public class AuthManager {
      * @param weight 0-delete, >0-update or insert
      * @return proposalId
      */
-    public BigInteger updateGovernor(String account, BigInteger weight)
-            throws ContractCodecException, TransactionException, IOException, ContractException {
-        if (weight.compareTo(BigInteger.ZERO) < 0) {
-            throw new ContractException("Error input weight: " + weight);
-        }
+    public BigInteger updateGovernor(String account, BigInteger weight) {
         TransactionReceipt tr =
                 committeeManager.createUpdateGovernorProposal(
                         account, weight, DEFAULT_BLOCK_NUMBER_INTERVAL);
-        TransactionResponse transactionResponse =
-                decoder.decodeReceiptWithValues(
-                        CommitteeManager.getABI(),
-                        CommitteeManager.FUNC_CREATEUPDATEGOVERNORPROPOSAL,
-                        tr);
-        return getProposal(transactionResponse);
+        return committeeManager.getCreateUpdateGovernorProposalOutput(tr).getValue1();
     }
 
     /**
@@ -91,23 +75,11 @@ public class AuthManager {
      * @param winRate [0,100].
      * @return proposalId
      */
-    public BigInteger setRate(BigInteger participatesRate, BigInteger winRate)
-            throws ContractCodecException, TransactionException, IOException, ContractException {
-        if (participatesRate.compareTo(BigInteger.ZERO) < 0
-                || participatesRate.compareTo(BigInteger.valueOf(100)) >= 0) {
-            throw new ContractException("Error input participatesRate: " + participatesRate);
-        }
-        if (winRate.compareTo(BigInteger.ZERO) < 0
-                || winRate.compareTo(BigInteger.valueOf(100)) >= 0) {
-            throw new ContractException("Error input winRate: " + winRate);
-        }
+    public BigInteger setRate(BigInteger participatesRate, BigInteger winRate) {
         TransactionReceipt tr =
                 committeeManager.createSetRateProposal(
                         participatesRate, winRate, DEFAULT_BLOCK_NUMBER_INTERVAL);
-        TransactionResponse transactionResponse =
-                decoder.decodeReceiptWithValues(
-                        CommitteeManager.getABI(), CommitteeManager.FUNC_CREATESETRATEPROPOSAL, tr);
-        return getProposal(transactionResponse);
+        return committeeManager.getCreateSetRateProposalOutput(tr).getValue1();
     }
 
     /**
@@ -116,17 +88,11 @@ public class AuthManager {
      * @param deployAuthType 1-whitelist; 2-blacklist
      * @return proposalId
      */
-    public BigInteger setDeployAuthType(AuthType deployAuthType)
-            throws ContractCodecException, TransactionException, IOException {
+    public BigInteger setDeployAuthType(AuthType deployAuthType) {
         TransactionReceipt tr =
                 committeeManager.createSetDeployAuthTypeProposal(
                         deployAuthType.getValue(), DEFAULT_BLOCK_NUMBER_INTERVAL);
-        TransactionResponse transactionResponse =
-                decoder.decodeReceiptWithValues(
-                        CommitteeManager.getABI(),
-                        CommitteeManager.FUNC_CREATESETDEPLOYAUTHTYPEPROPOSAL,
-                        tr);
-        return getProposal(transactionResponse);
+        return committeeManager.getCreateSetDeployAuthTypeProposalOutput(tr).getValue1();
     }
 
     /**
@@ -145,17 +111,11 @@ public class AuthManager {
      * @param openFlag true-open; false-close
      * @return proposalId
      */
-    public BigInteger modifyDeployAuth(String account, Boolean openFlag)
-            throws ContractCodecException, TransactionException, IOException {
+    public BigInteger modifyDeployAuth(String account, Boolean openFlag) {
         TransactionReceipt tr =
                 committeeManager.createModifyDeployAuthProposal(
                         account, openFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
-        TransactionResponse transactionResponse =
-                decoder.decodeReceiptWithValues(
-                        CommitteeManager.getABI(),
-                        CommitteeManager.FUNC_CREATEMODIFYDEPLOYAUTHPROPOSAL,
-                        tr);
-        return getProposal(transactionResponse);
+        return committeeManager.getCreateModifyDeployAuthProposalOutput(tr).getValue1();
     }
 
     /**
@@ -165,20 +125,11 @@ public class AuthManager {
      * @param contractAddr the address of contract which will propose to reset admin
      * @return proposalId
      */
-    public BigInteger resetAdmin(String newAdmin, String contractAddr)
-            throws ContractCodecException, TransactionException, IOException, ContractException {
-        if (!AddressUtils.isValidAddress(contractAddr)) {
-            throw new ContractException("Invalid address : " + contractAddr);
-        }
+    public BigInteger resetAdmin(String newAdmin, String contractAddr) {
         TransactionReceipt tr =
                 committeeManager.createResetAdminProposal(
                         newAdmin, contractAddr, DEFAULT_BLOCK_NUMBER_INTERVAL);
-        TransactionResponse transactionResponse =
-                decoder.decodeReceiptWithValues(
-                        CommitteeManager.getABI(),
-                        CommitteeManager.FUNC_CREATEMODIFYDEPLOYAUTHPROPOSAL,
-                        tr);
-        return getProposal(transactionResponse);
+        return committeeManager.getCreateResetAdminProposalOutput(tr).getValue1();
     }
 
     /**
@@ -187,20 +138,14 @@ public class AuthManager {
      * @param node node ID
      * @return proposal ID
      */
-    public BigInteger createRmNodeProposal(String node)
-            throws TransactionException, ContractCodecException, IOException, ContractException {
+    public BigInteger createRmNodeProposal(String node) throws ContractException {
         // check the nodeId exists in the nodeList or not
         if (!existsInNodeList(node)) {
             throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
         }
         TransactionReceipt rmNodeProposal =
                 committeeManager.createRmNodeProposal(node, DEFAULT_BLOCK_NUMBER_INTERVAL);
-        TransactionResponse transactionResponse =
-                decoder.decodeReceiptWithValues(
-                        CommitteeManager.getABI(),
-                        CommitteeManager.FUNC_CREATERMNODEPROPOSAL,
-                        rmNodeProposal);
-        return getProposal(transactionResponse);
+        return committeeManager.getCreateRmNodeProposalOutput(rmNodeProposal).getValue1();
     }
 
     /**
@@ -212,8 +157,7 @@ public class AuthManager {
      * @return proposal ID
      */
     public BigInteger createSetConsensusWeightProposal(
-            String node, BigInteger weight, boolean addFlag)
-            throws TransactionException, ContractCodecException, IOException, ContractException {
+            String node, BigInteger weight, boolean addFlag) throws ContractException {
         // check the nodeId exists in the nodeList or not
         if (!existsInNodeList(node)) {
             throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
@@ -225,12 +169,7 @@ public class AuthManager {
         TransactionReceipt tr =
                 committeeManager.createSetConsensusWeightProposal(
                         node, weight, addFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
-        TransactionResponse transactionResponse =
-                decoder.decodeReceiptWithValues(
-                        CommitteeManager.getABI(),
-                        CommitteeManager.FUNC_CREATESETCONSENSUSWEIGHTPROPOSAL,
-                        tr);
-        return getProposal(transactionResponse);
+        return committeeManager.getCreateSetConsensusWeightProposalOutput(tr).getValue1();
     }
 
     private void checkSetConsensusWeightParams(String node, BigInteger weight, boolean addFlag)
@@ -269,20 +208,15 @@ public class AuthManager {
      * @return proposal ID
      */
     public BigInteger createSetSysConfigProposal(String key, BigInteger value)
-            throws TransactionException, ContractCodecException, IOException, ContractException {
-        if (SystemConfigService.checkSysValueValidation(key, value)) {
+            throws ContractException {
+        if (SystemConfigService.checkSysNumberValueValidation(key, value)) {
             throw new ContractException(
                     "Invalid value \" " + value + " \" for " + key + ", please check valid range.");
         }
         TransactionReceipt tr =
                 committeeManager.createSetSysConfigProposal(
                         key, value.toString(), DEFAULT_BLOCK_NUMBER_INTERVAL);
-        TransactionResponse transactionResponse =
-                decoder.decodeReceiptWithValues(
-                        CommitteeManager.getABI(),
-                        CommitteeManager.FUNC_CREATESETSYSCONFIGPROPOSAL,
-                        tr);
-        return getProposal(transactionResponse);
+        return committeeManager.getCreateSetSysConfigProposalOutput(tr).getValue1();
     }
 
     /**
@@ -291,20 +225,11 @@ public class AuthManager {
      * @param address vote computer address
      * @return proposal ID
      */
-    public BigInteger createUpgradeVoteComputerProposal(String address)
-            throws TransactionException, ContractCodecException, IOException {
-        if (!AddressUtils.isValidAddress(address)) {
-            throw new TransactionException("Invalid address : " + address);
-        }
+    public BigInteger createUpgradeVoteComputerProposal(String address) {
         TransactionReceipt tr =
                 committeeManager.createUpgradeVoteComputerProposal(
                         address, DEFAULT_BLOCK_NUMBER_INTERVAL);
-        TransactionResponse transactionResponse =
-                decoder.decodeReceiptWithValues(
-                        CommitteeManager.getABI(),
-                        CommitteeManager.FUNC_CREATEUPGRADEVOTECOMPUTERPROPOSAL,
-                        tr);
-        return getProposal(transactionResponse);
+        return committeeManager.getCreateUpgradeVoteComputerProposalOutput(tr).getValue1();
     }
 
     /**
@@ -324,30 +249,6 @@ public class AuthManager {
      */
     public TransactionReceipt voteProposal(BigInteger proposalId, Boolean agree) {
         return committeeManager.voteProposal(proposalId, agree);
-    }
-
-    /**
-     * getProposal return value in transactionResponse
-     *
-     * @param transactionResponse which get proposal from
-     * @return proposal id
-     */
-    private BigInteger getProposal(TransactionResponse transactionResponse)
-            throws TransactionException {
-        if (transactionResponse == null) {
-            throw new TransactionException("Decode transaction response error");
-        }
-        if (transactionResponse.getTransactionReceipt().getStatus() != 0) {
-            throw new TransactionException(
-                    transactionResponse.getReceiptMessages(),
-                    transactionResponse.getTransactionReceipt().getStatus());
-        }
-        List<Type> valuesList = transactionResponse.getResults();
-        if (valuesList == null || valuesList.isEmpty()) {
-            throw new TransactionException("Decode transaction response error");
-        }
-        NumericType value = (NumericType) valuesList.get(0);
-        return value.getValue();
     }
 
     /**
@@ -403,9 +304,6 @@ public class AuthManager {
      */
     public Boolean checkMethodAuth(String contractAddress, byte[] func, String account)
             throws ContractException {
-        if (!AddressUtils.isValidAddress(contractAddress)) {
-            throw new ContractException("Invalid address: " + contractAddress);
-        }
         return contractAuthPrecompiled.checkMethodAuth(contractAddress, func, account);
     }
 
@@ -419,9 +317,6 @@ public class AuthManager {
      */
     public Tuple3<AuthType, List<String>, List<String>> getMethodAuth(
             String contractAddress, byte[] func) throws ContractException {
-        if (!AddressUtils.isValidAddress(contractAddress)) {
-            throw new ContractException("Invalid address: " + contractAddress);
-        }
         Tuple3<BigInteger, List<String>, List<String>> methodAuth =
                 contractAuthPrecompiled.getMethodAuth(contractAddress, func);
         AuthType authType = AuthType.valueOf(methodAuth.getValue1().intValue());
@@ -435,9 +330,6 @@ public class AuthManager {
      * @return admin address
      */
     public String getAdmin(String contractAddress) throws ContractException {
-        if (!AddressUtils.isValidAddress(contractAddress)) {
-            throw new ContractException("Invalid address: " + contractAddress);
-        }
         return contractAuthPrecompiled.getAdmin(contractAddress);
     }
 
@@ -451,9 +343,6 @@ public class AuthManager {
      */
     public RetCode setMethodAuthType(String contractAddress, byte[] func, AuthType authType)
             throws ContractException {
-        if (!AddressUtils.isValidAddress(contractAddress)) {
-            throw new ContractException("Invalid address: " + contractAddress);
-        }
         TransactionReceipt transactionReceipt =
                 contractAuthPrecompiled.setMethodAuthType(
                         contractAddress, func, authType.getValue());
@@ -473,9 +362,6 @@ public class AuthManager {
     public RetCode setMethodAuth(
             String contractAddress, byte[] func, String account, boolean isOpen)
             throws ContractException {
-        if (!AddressUtils.isValidAddress(contractAddress)) {
-            throw new ContractException("Invalid address: " + contractAddress);
-        }
         TransactionReceipt receipt =
                 isOpen
                         ? contractAuthPrecompiled.openMethodAuth(contractAddress, func, account)
@@ -492,9 +378,6 @@ public class AuthManager {
      */
     public RetCode setContractStatus(String contractAddress, boolean isFreeze)
             throws ContractException {
-        if (!AddressUtils.isValidAddress(contractAddress)) {
-            throw new ContractException("Invalid address: " + contractAddress);
-        }
         TransactionReceipt transactionReceipt =
                 contractAuthPrecompiled.setContractStatus(contractAddress, isFreeze);
         return ReceiptParser.parseTransactionReceipt(transactionReceipt);
@@ -507,9 +390,6 @@ public class AuthManager {
      * @return if true, then this contract can be called
      */
     public Boolean contractAvailable(String contractAddress) throws ContractException {
-        if (!AddressUtils.isValidAddress(contractAddress)) {
-            throw new ContractException("Invalid address: " + contractAddress);
-        }
         return contractAuthPrecompiled.contractAvailable(contractAddress);
     }
 

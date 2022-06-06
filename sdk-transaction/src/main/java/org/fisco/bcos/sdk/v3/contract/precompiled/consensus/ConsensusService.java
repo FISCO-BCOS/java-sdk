@@ -47,9 +47,6 @@ public class ConsensusService {
     }
 
     public RetCode addSealer(String nodeId, BigInteger weight) throws ContractException {
-        if (weight.compareTo(BigInteger.ZERO) <= 0) {
-            throw new ContractException("Invalid weight: " + weight);
-        }
         // check the nodeId exists in the nodeList or not
         if (!existsInNodeList(nodeId)) {
             throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
@@ -96,9 +93,6 @@ public class ConsensusService {
     }
 
     public RetCode setWeight(String nodeId, BigInteger weight) throws ContractException {
-        if (weight.compareTo(BigInteger.ZERO) < 0) {
-            throw new ContractException("Invalid weight: " + weight);
-        }
         return ReceiptParser.parseTransactionReceipt(
                 consensusPrecompiled.setWeight(nodeId, weight));
     }

@@ -7,10 +7,10 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
-import org.fisco.bcos.sdk.v3.utils.AddressUtils;
 
 public class BFSService {
     private final BFSPrecompiled bfsPrecompiled;
@@ -30,26 +30,23 @@ public class BFSService {
     }
 
     public List<BFSPrecompiled.BfsInfo> list(String path) throws ContractException {
-        try {
-            Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
-                    bfsPrecompiled.list(path);
-            if (!listOutput.getValue1().equals(BigInteger.ZERO)) {
-                throw new ContractException(
-                        "BfsService: list return error code: "
-                                + listOutput.getValue1()
-                                + ", check error msg in blockchain node.");
-            }
-            return listOutput.getValue2().getValue();
-        } catch (ContractException e) {
-            throw ReceiptParser.parseExceptionCall(e);
+        Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
+                bfsPrecompiled.list(path);
+        if (!listOutput.getValue1().equals(BigInteger.ZERO)) {
+            RetCode precompiledResponse =
+                    PrecompiledRetCode.getPrecompiledResponse(
+                            listOutput.getValue1().intValue(), "");
+            throw new ContractException(
+                    "BfsService: list return error code: "
+                            + listOutput.getValue1()
+                            + ", check error msg in blockchain node.",
+                    precompiledResponse.getCode());
         }
+        return listOutput.getValue2().getValue();
     }
 
     public RetCode link(String name, String version, String contractAddress, String abi)
             throws ContractException {
-        if (!AddressUtils.isValidAddress(contractAddress)) {
-            throw new ContractException("Invalid address: " + contractAddress);
-        }
         return ReceiptParser.parseTransactionReceipt(
                 bfsPrecompiled.link(name, version, contractAddress, abi));
     }

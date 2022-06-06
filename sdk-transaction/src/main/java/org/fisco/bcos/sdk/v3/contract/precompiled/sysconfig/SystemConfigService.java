@@ -30,32 +30,14 @@ public class SystemConfigService {
     public static final String TX_COUNT_LIMIT = "tx_count_limit";
     public static final String TX_GAS_LIMIT = "tx_gas_limit";
     public static final String CONSENSUS_PERIOD = "consensus_leader_period";
-    public static final String COMPATIBILITY_VERSION = "compatibility_version";
     public static final int TX_GAS_LIMIT_MIN = 100000;
-    public static final BigInteger TX_GAS_LIMIT_MAX = BigInteger.valueOf(3000000000L);
     private static final Map<String, Predicate<BigInteger>> predicateMap = new HashMap<>();
 
     static {
+        predicateMap.put(TX_COUNT_LIMIT, value -> value.compareTo(BigInteger.ONE) >= 0);
+        predicateMap.put(CONSENSUS_PERIOD, value -> value.compareTo(BigInteger.ONE) >= 0);
         predicateMap.put(
-                TX_COUNT_LIMIT,
-                value ->
-                        value.compareTo(BigInteger.ONE) >= 0
-                                && value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0);
-        predicateMap.put(
-                CONSENSUS_PERIOD,
-                value ->
-                        value.compareTo(BigInteger.ONE) >= 0
-                                && value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0);
-        predicateMap.put(
-                TX_GAS_LIMIT,
-                value ->
-                        value.compareTo(BigInteger.valueOf(TX_GAS_LIMIT_MIN)) >= 0
-                                && value.compareTo(TX_GAS_LIMIT_MAX) <= 0);
-        predicateMap.put(
-                COMPATIBILITY_VERSION,
-                value ->
-                        value.compareTo(BigInteger.ZERO) >= 0
-                                && value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0);
+                TX_GAS_LIMIT, value -> value.compareTo(BigInteger.valueOf(TX_GAS_LIMIT_MIN)) >= 0);
     }
 
     public SystemConfigService(Client client, CryptoKeyPair credential) {
@@ -69,24 +51,14 @@ public class SystemConfigService {
     }
 
     public RetCode setValueByKey(String key, String value) throws ContractException {
-        BigInteger bigInteger;
-        try {
-            bigInteger = new BigInteger(value);
-        } catch (NumberFormatException ignored) {
-            throw new ContractException("Invalid value \"" + value + "\", this is not a number.");
-        }
-        if (!checkSysValueValidation(key, bigInteger)) {
-            throw new ContractException("Invalid value \"" + value + "\" for " + key);
-        }
         return ReceiptParser.parseTransactionReceipt(
                 systemConfigPrecompiled.setValueByKey(key, value));
     }
 
-    public static boolean checkSysValueValidation(String key, BigInteger value)
-            throws ContractException {
+    public static boolean checkSysNumberValueValidation(String key, BigInteger value) {
         Predicate<BigInteger> valuePredicate = predicateMap.get(key);
         if (valuePredicate == null) {
-            throw new ContractException("Unsupported sys key: " + key);
+            return true;
         }
         return valuePredicate.test(value);
     }
