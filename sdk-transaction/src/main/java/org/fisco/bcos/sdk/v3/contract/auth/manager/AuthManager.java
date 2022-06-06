@@ -14,7 +14,6 @@ import org.fisco.bcos.sdk.v3.contract.auth.po.AuthType;
 import org.fisco.bcos.sdk.v3.contract.auth.po.CommitteeInfo;
 import org.fisco.bcos.sdk.v3.contract.auth.po.ProposalInfo;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
-import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
@@ -270,10 +269,6 @@ public class AuthManager {
      */
     public BigInteger createSetSysConfigProposal(String key, BigInteger value)
             throws TransactionException, ContractCodecException, IOException, ContractException {
-        if (SystemConfigService.checkSysValueValidation(key, value)) {
-            throw new ContractException(
-                    "Invalid value \" " + value + " \" for " + key + ", please check valid range.");
-        }
         TransactionReceipt tr =
                 committeeManager.createSetSysConfigProposal(
                         key, value.toString(), DEFAULT_BLOCK_NUMBER_INTERVAL);
