@@ -266,8 +266,7 @@ public class TablePrecompiled extends Contract {
                                 new DynamicArray<Condition>(Condition.class, conditions), limit),
                         Arrays.<TypeReference<?>>asList(
                                 new TypeReference<DynamicArray<Entry>>() {}));
-        List<Type> result = (List<Type>) executeCallWithSingleValueReturn(function, List.class);
-        return result;
+        return (List<Type>) executeCallWithSingleValueReturn(function, List.class);
     }
 
     public Entry select(String key) throws ContractException {

@@ -67,6 +67,10 @@ public class CommitteeManager extends Contract {
 
     public static final String FUNC_VOTEPROPOSAL = "voteProposal";
 
+    private Committee committee = null;
+
+    private ProposalManager proposalManager = null;
+
     protected CommitteeManager(String contractAddress, Client client, CryptoKeyPair credential) {
         super("", contractAddress, client, credential);
     }
@@ -94,12 +98,19 @@ public class CommitteeManager extends Contract {
     }
 
     public Committee getCommittee() throws ContractException {
-        return Committee.load(_committee(), client, client.getCryptoSuite().getCryptoKeyPair());
+        if (committee == null)
+            committee =
+                    Committee.load(
+                            _committee(), client, client.getCryptoSuite().getCryptoKeyPair());
+        return committee;
     }
 
     public ProposalManager getProposalManager() throws ContractException {
-        return ProposalManager.load(
-                _proposalMgr(), client, client.getCryptoSuite().getCryptoKeyPair());
+        if (proposalManager == null)
+            proposalManager =
+                    ProposalManager.load(
+                            _proposalMgr(), client, client.getCryptoSuite().getCryptoKeyPair());
+        return proposalManager;
     }
 
     public TransactionReceipt createModifyDeployAuthProposal(

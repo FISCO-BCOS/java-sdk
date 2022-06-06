@@ -27,7 +27,6 @@ import static org.mockito.Mockito.*;
 public class ContractTest {
     private Client mockClient;
     private final CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
-    private final CryptoSuite smCryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
     private MockContract mockContract;
 
     public ContractTest() {
