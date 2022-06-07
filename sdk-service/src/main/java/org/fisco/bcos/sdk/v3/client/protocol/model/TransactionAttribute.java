@@ -5,7 +5,9 @@
 
 package org.fisco.bcos.sdk.v3.client.protocol.model;
 
-public class Transaction {
+public class TransactionAttribute {
+    private TransactionAttribute() {}
+
     public static final int EVM_ABI_CODEC = 0x1;
     public static final int LIQUID_SCALE_CODEC = 0x2;
     public static final int DAG = 0x4;

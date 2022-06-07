@@ -792,7 +792,7 @@ public interface Client {
     /**
      * async get consensus status
      *
-     * @param callback
+     * @param callback callback when get consensus status
      */
     void getConsensusStatusAsync(RespCallback<ConsensusStatus> callback);
 

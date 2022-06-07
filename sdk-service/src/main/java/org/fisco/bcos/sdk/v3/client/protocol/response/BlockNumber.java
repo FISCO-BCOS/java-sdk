@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
 
-/** getblockNumber. */
+/** getBlockNumber. */
 public class BlockNumber extends JsonRpcResponse<String> {
     public BigInteger getBlockNumber() {
         return Numeric.decodeQuantity(getResult());

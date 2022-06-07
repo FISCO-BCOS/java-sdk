@@ -25,21 +25,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BcosSDK {
-    private static Logger logger = LoggerFactory.getLogger(BcosSDK.class);
+    private static final Logger logger = LoggerFactory.getLogger(BcosSDK.class);
 
     private final ConfigOption config;
-    private BcosSDKJniObj bcosSDKJniObj;
+    private final BcosSDKJniObj bcosSDKJniObj;
 
     public ConfigOption getConfig() {
         return config;
     }
 
     /**
-     * Build BcosSDK instance
+     * Build BcosSDK instance from toml config path
      *
      * @param tomlConfigFilePath the Toml type config file
      * @return BcosSDK instance
-     * @throws BcosSDKException
+     * @throws BcosSDKException create sdk instance failed
      */
     public static BcosSDK build(String tomlConfigFilePath) throws BcosSDKException {
         try {
@@ -55,21 +55,20 @@ public class BcosSDK {
      * Constructor, init by ConfigOption
      *
      * @param configOption the ConfigOption
-     * @throws BcosSDKException
+     * @throws BcosSDKException create sdk instance failed
      */
     public BcosSDK(ConfigOption configOption) throws BcosSDKException {
         try {
             this.config = configOption;
             this.bcosSDKJniObj = BcosSDKJniObj.build(this.config.getJniConfig());
         } catch (Exception e) {
-            logger.error("error: {}", e);
-            throw new BcosSDKException("create BcosSDK failed, error: " + e.getMessage());
+            throw new BcosSDKException("create BcosSDK failed, error: " + e.getMessage(), e);
         }
     }
 
     /**
-     * @param groupID
-     * @param blockNotifier
+     * @param groupID group id
+     * @param blockNotifier block notifier instance
      */
     public void registerBlockNotifier(String groupID, BlockNotifier blockNotifier) {
         this.bcosSDKJniObj.registerBlockNotifier(groupID, blockNotifier);
@@ -84,8 +83,8 @@ public class BcosSDK {
         try {
             return Client.build(groupId, config, bcosSDKJniObj.getNativePointer());
         } catch (Exception e) {
-            logger.warn("create client for failed, error: {}", e);
-            throw new BcosSDKException("get Client failed, e: " + e.getMessage());
+            logger.warn("create client for failed, error: ", e);
+            throw new BcosSDKException("get Client failed, e: " + e.getMessage(), e);
         }
     }
 
@@ -98,7 +97,7 @@ public class BcosSDK {
         try {
             String groupId = config.getNetworkConfig().getDefaultGroup();
             if ((groupId == null) || groupId.isEmpty()) {
-                throw new RuntimeException(
+                throw new BcosSDKException(
                         "The default group is not set, please set it in config.toml: defaultGroup field");
             }
             return Client.build(
@@ -106,37 +105,35 @@ public class BcosSDK {
                     config,
                     bcosSDKJniObj.getNativePointer());
         } catch (Exception e) {
-            logger.warn("create client for failed, error: {}", e);
-            throw new BcosSDKException("get Client failed, e: " + e.getMessage());
+            logger.warn("create client for failed, error: ", e);
+            throw new BcosSDKException("get Client failed, e: " + e.getMessage(), e);
         }
     }
 
     /**
-     * Get a amop instance of a specific group
+     * Get an amop instance of a specific group
      *
      * @return Client
      */
     public Amop getAmop() throws BcosSDKException {
         try {
-            Amop amop = Amop.build(config);
-            return amop;
+            return Amop.build(config);
         } catch (Exception e) {
-            logger.error("create amop for failed, error: {}", e);
+            logger.error("create amop for failed, error: ", e);
             throw new BcosSDKException("get amop failed, e: " + e.getMessage());
         }
     }
 
     /**
-     * Get a event subscribe instance of a specific group
+     * Get an event subscribe instance of a specific group
      *
      * @return Client
      */
     public EventSubscribe getEventSubscribe(String groupId) throws BcosSDKException {
         try {
-            EventSubscribe eventSubscribe = EventSubscribe.build(groupId, config);
-            return eventSubscribe;
+            return EventSubscribe.build(groupId, config);
         } catch (Exception e) {
-            logger.warn("create event sub for failed, error: {}", e);
+            logger.warn("create event sub for failed, error: ", e);
             throw new BcosSDKException("get event sub failed, e: " + e.getMessage());
         }
     }

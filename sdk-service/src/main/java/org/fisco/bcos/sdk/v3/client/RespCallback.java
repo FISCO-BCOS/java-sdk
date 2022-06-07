@@ -34,7 +34,7 @@ public interface RespCallback<T> {
     /**
      * onError is called when get error
      *
-     * @param errorResponse
+     * @param errorResponse callback error response
      */
     void onError(Response errorResponse);
 }
