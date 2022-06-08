@@ -125,9 +125,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         try {
             // lost the connection, get ip info
-            String host =
-                    ((SocketChannel) ctx.channel()).remoteAddress().getAddress().getHostAddress();
-            Integer port = ((SocketChannel) ctx.channel()).remoteAddress().getPort();
+            InetSocketAddress inetSocketAddress = ((SocketChannel) ctx.channel()).remoteAddress();
+            String host = inetSocketAddress.getAddress().getHostName();
+            Integer port = inetSocketAddress.getPort();
 
             logger.debug(
                     " channelInactive, disconnect "

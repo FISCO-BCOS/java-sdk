@@ -9,6 +9,8 @@ import org.fisco.bcos.sdk.channel.model.EnumSocketChannelAttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+
 public class ChannelVersionNegotiation {
 
     private static Logger logger = LoggerFactory.getLogger(ChannelVersionNegotiation.class);
@@ -53,9 +55,9 @@ public class ChannelVersionNegotiation {
 
     public static String getPeerHost(ChannelHandlerContext ctx) {
 
-        SocketChannel socketChannel = (SocketChannel) ctx.channel();
-        String hostAddress = socketChannel.remoteAddress().getAddress().getHostAddress();
-        int port = socketChannel.remoteAddress().getPort();
+        InetSocketAddress inetSocketAddress = ((SocketChannel) ctx.channel()).remoteAddress();
+        String hostAddress = inetSocketAddress.getAddress().getHostName();
+        Integer port = inetSocketAddress.getPort();
         return hostAddress + ":" + port;
     }
 

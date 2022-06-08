@@ -15,6 +15,8 @@
 
 package org.fisco.bcos.sdk.utils;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,5 +68,19 @@ public class Host {
         int index = IPAndPort.lastIndexOf(':');
         String port = IPAndPort.substring(index + 1);
         return port;
+    }
+
+    /**
+     * Get ip from Host
+     *
+     * @param hostName the hostName
+     * @return String of hostName.
+     */
+    public static String getIpFromHost(String hostName) {
+        try {
+            return InetAddress.getByName(hostName).getHostAddress();
+        } catch (UnknownHostException e) {
+            return hostName;
+        }
     }
 }

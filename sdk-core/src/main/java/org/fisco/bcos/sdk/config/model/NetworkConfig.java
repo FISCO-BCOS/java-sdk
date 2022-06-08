@@ -16,11 +16,11 @@
 package org.fisco.bcos.sdk.config.model;
 
 import io.netty.util.NetUtil;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.utils.Host;
+
 import java.util.List;
 import java.util.Map;
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.utils.AddressUtils;
-import org.fisco.bcos.sdk.utils.Host;
 
 /** Network configuration, include the peers */
 public class NetworkConfig {
@@ -46,7 +46,7 @@ public class NetworkConfig {
                         " Invalid configuration, the peer value should in IP:Port format(eg: 127.0.0.1:1111), value: "
                                 + peer);
             }
-            String IP = AddressUtils.getIpByHost(peer.substring(0, index));
+            String IP = Host.getIpFromHost(peer.substring(0, index));
             String port = peer.substring(index + 1);
 
             if (!(NetUtil.isValidIpV4Address(IP) || NetUtil.isValidIpV6Address(IP))) {
