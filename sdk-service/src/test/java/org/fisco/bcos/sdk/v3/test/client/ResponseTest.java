@@ -13,19 +13,20 @@
  */
 package org.fisco.bcos.sdk.v3.test.client;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fisco.bcos.sdk.v3.client.protocol.model.GroupStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfoList;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupNodeInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BlockHash;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
+import org.fisco.bcos.sdk.v3.client.protocol.response.ConsensusStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Peers;
@@ -46,75 +47,80 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 public class ResponseTest {
-    private static ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+    private static final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
     @Test
-    public void testBlockHeaderResponse() {
+    public void testBlockHeaderResponse() throws IOException {
         String blockHeaderString =
-                "{\n"
-                        + "  \"id\": 1,\n"
-                        + "  \"jsonrpc\": \"2.0\",\n"
-                        + "  \"result\": {\n"
-                        + "    \"dbHash\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "    \"extraData\": \"\",\n"
-                        + "    \"gasLimit\": \"0x100\",\n"
-                        + "    \"gasUsed\": \"0x200\",\n"
-                        + "    \"hash\": \"0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82\",\n"
-                        + "    \"logsBloom\": \"0x0000abc123\",\n"
-                        + "    \"number\": 1,\n"
-                        + "    \"receiptRoot\": \"0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2\",\n"
-                        + "    \"sealer\": \"3\",\n"
-                        + "    \"sealerList\": [\n"
-                        + "      \"11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f\",\n"
-                        + "      \"b8acb51b9fe84f88d670646be36f31c52e67544ce56faf3dc8ea4cf1b0ebff0864c6b218fdcd9cf9891ebd414a995847911bd26a770f429300085f37e1131f36\"\n"
-                        + "    ],\n"
-                        + "    \"signatureList\": [\n"
-                        + "      {\n"
-                        + "        \"index\": \"0\",\n"
-                        + "        \"signature\": \"0x2e491c54f75c3b501745e1b2c92898f9434751326a17e4bcd37b93d5930405e14a461cff9ea7857da33fbf8b5ae6450ff0e281953553193aefb298b66d45b38401\"\n"
-                        + "      },\n"
-                        + "      {\n"
-                        + "        \"index\": \"3\",\n"
-                        + "        \"signature\": \"0x5cf59da9e2f580f0b62f8a43f0debe85a209a1c0e3bf66da58913841cb0daf50439baf9807c63a2cebcbac72a5ba679447a9101e39f7c08f1634ca5c99da970c01\"\n"
-                        + "      }\n"
-                        + "    ],\n"
-                        + "    \"stateRoot\": \"0x000000000000000000000000000000000000000000000000000c000000000000\",\n"
-                        + "    \"timestamp\": \"0x1736f190efb\",\n"
-                        + "    \"txsRootCoped\": \"0x9eec1be2effb2d7934928d4ccab1bd2886b920b1cf29f8744e3be1d253102cd7\",\n"
-                        + "    \"txsRoot\": \"0x9eec1be2effb2d7934928d4ccab1bd2886b920b1cf29f8744e3be1d253102cd7\"\n"
-                        + "  }\n"
-                        + "}";
-        try {
+                "{\n" +
+                        "  \"id\": 3,\n" +
+                        "  \"jsonrpc\": \"2.0\",\n" +
+                        "  \"result\": {\n" +
+                        "    \"consensusWeights\": [\n" +
+                        "      1,\n" +
+                        "      1\n" +
+                        "    ],\n" +
+                        "    \"extraData\": \"0x\",\n" +
+                        "    \"gasUsed\": \"24363\",\n" +
+                        "    \"hash\": \"0xc3c038f6fdb78602dc82ad7dc7d7dd90816c767362ef0bc069c16d04b91dbfe7\",\n" +
+                        "    \"number\": 1,\n" +
+                        "    \"parentInfo\": [\n" +
+                        "      {\n" +
+                        "        \"blockHash\": \"0x4d3695d385084e56c814d078a987427e743e92b4164b42a8aa01bc24c82ab223\",\n" +
+                        "        \"blockNumber\": 0\n" +
+                        "      }\n" +
+                        "    ],\n" +
+                        "    \"receiptsRoot\": \"0xfceec39f7894f52d3a35b4bf8cb24e6d34f6ca7847ca45a2b3d99deed63007a1\",\n" +
+                        "    \"sealer\": 0,\n" +
+                        "    \"sealerList\": [\n" +
+                        "      \"0x63a2e45b2d84f83b32342f0741ffc51069c74fb7c82b8eb0247b12230d50169b86545ecf84420adeec86c57dbc48db1342f4afebc6a127b481eeaaa23722fff0\",\n" +
+                        "      \"0x6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\"\n" +
+                        "    ],\n" +
+                        "    \"signatureList\": [\n" +
+                        "      {\n" +
+                        "        \"sealerIndex\": 0,\n" +
+                        "        \"signature\": \"0xf04f80b74a4b0c945a716c11b01794ae7bf1c7aa67e1b226a1dabc0f15b47d6316b8b08f56f846d676da66496dee1c23deb62ac091be06f3b50e01c998f672b501\"\n" +
+                        "      },\n" +
+                        "      {\n" +
+                        "        \"sealerIndex\": 1,\n" +
+                        "        \"signature\": \"0x939a87e660057db39a691bc74c869011e74fdd148b885a59a774b4b85c207a3c1133b1a8605a7acc2cc43a2544086a16ab62ff490453da5cc09f1d7d7167254300\"\n" +
+                        "      }\n" +
+                        "    ],\n" +
+                        "    \"stateRoot\": \"0x5b64771638bc22c555b1a0e7597e2cf2afb0bab977eb39cd473e96bcf5235dd1\",\n" +
+                        "    \"timestamp\": 1654587389123,\n" +
+                        "    \"txsRoot\": \"0x6608f7090b3d014cc37571d505b4067cbbf381e9afa8999ccb44a15d5bb54dd2\",\n" +
+                        "    \"version\": 4\n" +
+                        "  }\n" +
+                        "}";
             // decode the block header
             BcosBlockHeader blockHeader =
                     objectMapper.readValue(blockHeaderString.getBytes(), BcosBlockHeader.class);
             // check the value field of the blockHeader
             Assert.assertEquals("2.0", blockHeader.getJsonrpc());
-            Assert.assertEquals(1, blockHeader.getId());
-            Assert.assertEquals(BigInteger.valueOf(1), blockHeader.getBlockHeader().getNumber());
+            Assert.assertEquals(3, blockHeader.getId());
+            Assert.assertEquals(1, blockHeader.getBlockHeader().getNumber());
             Assert.assertEquals(
-                    "0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82",
+                    "0xc3c038f6fdb78602dc82ad7dc7d7dd90816c767362ef0bc069c16d04b91dbfe7",
                     blockHeader.getBlockHeader().getHash());
-            Assert.assertEquals("0x0000abc123", blockHeader.getBlockHeader().getLogsBloom());
             Assert.assertEquals(
-                    "0x9eec1be2effb2d7934928d4ccab1bd2886b920b1cf29f8744e3be1d253102cd7",
+                    "0x6608f7090b3d014cc37571d505b4067cbbf381e9afa8999ccb44a15d5bb54dd2",
                     blockHeader.getBlockHeader().getTransactionsRoot());
-            Assert.assertEquals("0x1736f190efb", blockHeader.getBlockHeader().getTimestamp());
+            Assert.assertEquals(1654587389123L, blockHeader.getBlockHeader().getTimestamp());
             Assert.assertEquals(
-                    "11e1be251ca08bb44f36fdeedfaeca40894ff80dfd80084607a75509edeaf2a9c6fee914f1e9efda571611cf4575a1577957edfd2baa9386bd63eb034868625f",
+                    "0x63a2e45b2d84f83b32342f0741ffc51069c74fb7c82b8eb0247b12230d50169b86545ecf84420adeec86c57dbc48db1342f4afebc6a127b481eeaaa23722fff0",
                     blockHeader.getBlockHeader().getSealerList().get(0));
             Assert.assertEquals(
-                    "0x2e491c54f75c3b501745e1b2c92898f9434751326a17e4bcd37b93d5930405e14a461cff9ea7857da33fbf8b5ae6450ff0e281953553193aefb298b66d45b38401",
+                    "0xf04f80b74a4b0c945a716c11b01794ae7bf1c7aa67e1b226a1dabc0f15b47d6316b8b08f56f846d676da66496dee1c23deb62ac091be06f3b50e01c998f672b501",
                     blockHeader.getBlockHeader().getSignatureList().get(0).getSignature());
             Assert.assertEquals(
-                    "0x3", blockHeader.getBlockHeader().getSignatureList().get(1).getIndex());
-            Assert.assertEquals("0x3", blockHeader.getBlockHeader().getSealer());
+                    Integer.valueOf(1), blockHeader.getBlockHeader().getSignatureList().get(1).getIndex());
+            Assert.assertEquals(0, blockHeader.getBlockHeader().getSealer());
             Assert.assertEquals(
-                    "0x69a04fa6073e4fc0947bac7ee6990e788d1e2c5ec0fe6c2436d0892e7f3c09d2",
+                    "0xfceec39f7894f52d3a35b4bf8cb24e6d34f6ca7847ca45a2b3d99deed63007a1",
                     blockHeader.getBlockHeader().getReceiptsRoot());
-            Assert.assertEquals("0x200", blockHeader.getBlockHeader().getGasUsed());
+            Assert.assertEquals("24363", blockHeader.getBlockHeader().getGasUsed());
             Assert.assertEquals(
-                    "0x000000000000000000000000000000000000000000000000000c000000000000",
+                    "0x5b64771638bc22c555b1a0e7597e2cf2afb0bab977eb39cd473e96bcf5235dd1",
                     blockHeader.getBlockHeader().getStateRoot());
             Assert.assertEquals(2, blockHeader.getBlockHeader().getSignatureList().size());
 
@@ -129,55 +135,48 @@ public class ResponseTest {
             Assert.assertEquals(
                     blockHeader.getBlockHeader().hashCode(),
                     decodedBlockHeader.getBlockHeader().hashCode());
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
     public void testTransaction() throws IOException {
         String transactionString =
-                "{\n"
-                        + "  \"id\": 100,\n"
-                        + "  \"jsonrpc\": \"2.0\",\n"
-                        + "  \"result\": {\n"
-                        + "    \"blockHash\": \"0xc558dd020df46dd3c2753dc8e1f85b79bf7849005dd4b84e3c8b5c1f6f642a82\",\n"
-                        + "    \"blockNumber\": \"0x1001\",\n"
-                        + "    \"from\": \"0x2d6300a8f067872ebc87252d711b83a0c9325d35\",\n"
-                        + "    \"gas\": \"0x2faf080\",\n"
-                        + "    \"gasPrice\": \"0xa\",\n"
-                        + "    \"hash\": \"0x83ae369e15e1aafb18df7da2ff30de009bf53a1ff72ced3d1c342182409c4f87\",\n"
-                        + "    \"input\": \"0x4ed3885e0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a464953434f2042434f5300000000000000000000000000000000000000000000\",\n"
-                        + "    \"nonce\": \"0x3eb675ec791c2d19858c91d0046821c27d815e2e9c151595296779000016038\",\n"
-                        + "    \"to\": \"0x8c17cf316c1063ab6c89df875e96c9f0f5b2f744\",\n"
-                        + "    \"transactionIndex\": \"0x199\",\n"
-                        + "    \"value\": \"0x010\"\n"
-                        + "  }\n"
-                        + "}";
+                "{\n" +
+                        "  \"id\": 4,\n" +
+                        "  \"jsonrpc\": \"2.0\",\n" +
+                        "  \"result\": {\n" +
+                        "    \"abi\": \"[{\\\"inputs\\\":[],\\\"stateMutability\\\":\\\"nonpayable\\\",\\\"type\\\":\\\"constructor\\\"},{\\\"inputs\\\":[],\\\"name\\\":\\\"get\\\",\\\"outputs\\\":[{\\\"internalType\\\":\\\"string\\\",\\\"name\\\":\\\"\\\",\\\"type\\\":\\\"string\\\"}],\\\"stateMutability\\\":\\\"view\\\",\\\"type\\\":\\\"function\\\"},{\\\"inputs\\\":[{\\\"internalType\\\":\\\"string\\\",\\\"name\\\":\\\"n\\\",\\\"type\\\":\\\"string\\\"}],\\\"name\\\":\\\"set\\\",\\\"outputs\\\":[],\\\"stateMutability\\\":\\\"nonpayable\\\",\\\"type\\\":\\\"function\\\"}]\",\n" +
+                        "    \"blockLimit\": 501,\n" +
+                        "    \"chainID\": \"chain0\",\n" +
+                        "    \"from\": \"0xebf98be58e190cab7ebed61295b0321d55bb8163\",\n" +
+                        "    \"groupID\": \"group0\",\n" +
+                        "    \"hash\": \"0x4da85a5350adf7676c8a81d7ba5cf26a5041af68324c6018ebbf1dcfaf2dfa8f\",\n" +
+                        "    \"importTime\": 1654587909356,\n" +
+                        "    \"input\": \"0x12312312312396ee40c32b317e1dede0be7f6c1a976a111e319d50f936d04721a28aeb2c181b8cafa15d0a6035c261aede2b3d8cb9ad1791da28c7ab700\",\n" +
+                        "    \"nonce\": \"115329848189538643633069930310086039866817189149861952393622337769039905453838\",\n" +
+                        "    \"signature\": \"0x36b38271936016813d596ee40c32b317e1dede0be7f6c1a976a111e319d50f936d04721a28aeb2c181b8cafa15d0a6035c261aede2b3d8cb9ad1791da28c7ab700\",\n" +
+                        "    \"to\": \"0xebf98be58e190cab7ebed61295b0321d55bb8123\",\n" +
+                        "    \"version\": 0\n" +
+                        "  }\n" +
+                        "}";
         // decode the BcosTransaction object from the given string
         BcosTransaction transaction =
                 objectMapper.readValue(transactionString.getBytes(), BcosTransaction.class);
         Assert.assertEquals("2.0", transaction.getJsonrpc());
-        Assert.assertEquals(100, transaction.getId());
-        Assert.assertEquals(null, transaction.getError());
+        Assert.assertEquals(4, transaction.getId());
         Assert.assertEquals(
-                "0x2d6300a8f067872ebc87252d711b83a0c9325d35",
+                "0xebf98be58e190cab7ebed61295b0321d55bb8163",
                 transaction.getTransaction().get().getFrom());
         Assert.assertEquals(
-                "0x83ae369e15e1aafb18df7da2ff30de009bf53a1ff72ced3d1c342182409c4f87",
+                "0x4da85a5350adf7676c8a81d7ba5cf26a5041af68324c6018ebbf1dcfaf2dfa8f",
                 transaction.getTransaction().get().getHash());
         Assert.assertEquals(
-                "0x4ed3885e0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a464953434f2042434f5300000000000000000000000000000000000000000000",
+                "0x12312312312396ee40c32b317e1dede0be7f6c1a976a111e319d50f936d04721a28aeb2c181b8cafa15d0a6035c261aede2b3d8cb9ad1791da28c7ab700",
                 transaction.getTransaction().get().getInput());
         Assert.assertEquals(
-                "0x3eb675ec791c2d19858c91d0046821c27d815e2e9c151595296779000016038",
+                "115329848189538643633069930310086039866817189149861952393622337769039905453838",
                 transaction.getTransaction().get().getNonce());
         Assert.assertEquals(
-                "0x8c17cf316c1063ab6c89df875e96c9f0f5b2f744",
+                "0xebf98be58e190cab7ebed61295b0321d55bb8123",
                 transaction.getTransaction().get().getTo());
 
         // encode the transaction
@@ -393,11 +392,11 @@ public class ResponseTest {
                 "{\n"
                         + "  \"id\": 11,\n"
                         + "  \"jsonrpc\": \"2.0\",\n"
-                        + "  \"result\": \"0x200\"\n"
+                        + "  \"result\": \"2\"\n"
                         + "}";
         BlockNumber blockNumber =
                 objectMapper.readValue(blockNumberString.getBytes(), BlockNumber.class);
-        Assert.assertEquals(BigInteger.valueOf(0x200), blockNumber.getBlockNumber());
+        Assert.assertEquals(BigInteger.valueOf(2), blockNumber.getBlockNumber());
         Assert.assertEquals("2.0", blockNumber.getJsonrpc());
         Assert.assertEquals(11, blockNumber.getId());
 
@@ -527,10 +526,10 @@ public class ResponseTest {
                 "{\n"
                         + "    \"id\": 1,\n"
                         + "    \"jsonrpc\": \"2.0\",\n"
-                        + "    \"result\": \"0x1a0\"\n"
+                        + "    \"result\": \"3\"\n"
                         + "}";
         PbftView pbftView = objectMapper.readValue(pbftViewStr.getBytes(), PbftView.class);
-        Assert.assertEquals(BigInteger.valueOf(0x1a0), pbftView.getPbftView());
+        Assert.assertEquals(BigInteger.valueOf(3), pbftView.getPbftView());
     }
 
     @Test
@@ -601,11 +600,11 @@ public class ResponseTest {
                 "{\n"
                         + "  \"id\": 1,\n"
                         + "  \"jsonrpc\": \"2.0\",\n"
-                        + "  \"result\": \"0x100\"\n"
+                        + "  \"result\": \"100\"\n"
                         + "}";
         PendingTxSize pendingTxSize =
                 objectMapper.readValue(pendingTxSizeStr.getBytes(), PendingTxSize.class);
-        Assert.assertEquals(BigInteger.valueOf(0x100), pendingTxSize.getPendingTxSize());
+        Assert.assertEquals(BigInteger.valueOf(100), pendingTxSize.getPendingTxSize());
     }
 
     @Test
@@ -645,68 +644,40 @@ public class ResponseTest {
     @Test
     public void testSyncStatus() throws JsonProcessingException,IOException {
         // FIXME: this unit test is wired
-//        String syncStatusStr =
-//                "{\n" +
-//                        "  \"id\": 14,\n" +
-//                        "  \"jsonrpc\": \"2.0\",\n" +
-//                        "  \"result\": {\n" +
-//                        "    \"blockNumber\": 0,\n" +
-//                        "    \"genesisHash\": \"ee6d901cf8127bc16df2a97a7e6e036d986ab5a8e007d73d0cd1e801af334b4c\",\n" +
-//                        "    \"isSyncing\": false,\n" +
-//                        "    \"knownHighestNumber\": 0,\n" +
-//                        "    \"knownLatestHash\": \"ee6d901cf8127bc16df2a97a7e6e036d986ab5a8e007d73d0cd1e801af334b4c\",\n" +
-//                        "    \"latestHash\": \"ee6d901cf8127bc16df2a97a7e6e036d986ab5a8e007d73d0cd1e801af334b4c\",\n" +
-//                        "    \"nodeID\": \"204fb43da3190191bea1aea99396a8397789830914d2173b80627b025baf609ada69e61676af3371b5ec4d33af5e724dca71b6a95b187026a4a279cd095355bf\",\n" +
-//                        "    \"peers\": [\n" +
-//                        "      {\n" +
-//                        "        \"blockNumber\": 0,\n" +
-//                        "        \"genesisHash\": \"ee6d901cf8127bc16df2a97a7e6e036d986ab5a8e007d73d0cd1e801af334b4c\",\n" +
-//                        "        \"latestHash\": \"ee6d901cf8127bc16df2a97a7e6e036d986ab5a8e007d73d0cd1e801af334b4c\",\n" +
-//                        "        \"nodeID\": \"06d1c259e116fbfa9c1a3554098dfec3d8bb8a7cf9e74c1f411c4af3a84300a8b727ec7b4a4b429ef8482337845301ea89a9166c77ca29ee4aa8b7bee970727c\"\n" +
-//                        "      },\n" +
-//                        "      {\n" +
-//                        "        \"blockNumber\": 0,\n" +
-//                        "        \"genesisHash\": \"ee6d901cf8127bc16df2a97a7e6e036d986ab5a8e007d73d0cd1e801af334b4c\",\n" +
-//                        "        \"latestHash\": \"ee6d901cf8127bc16df2a97a7e6e036d986ab5a8e007d73d0cd1e801af334b4c\",\n" +
-//                        "        \"nodeID\": \"9a52f228155a94e6ee7a63245b5d0d7b5a1d55c355e67cfd22b650dfd3a5d40c84d0f078a8c163bd3b9b1d0a88cea3443ee5f36f11404df3c4e1946ffc441e9f\"\n" +
-//                        "      },\n" +
-//                        "      {\n" +
-//                        "        \"blockNumber\": 0,\n" +
-//                        "        \"genesisHash\": \"ee6d901cf8127bc16df2a97a7e6e036d986ab5a8e007d73d0cd1e801af334b4c\",\n" +
-//                        "        \"latestHash\": \"ee6d901cf8127bc16df2a97a7e6e036d986ab5a8e007d73d0cd1e801af334b4c\",\n" +
-//                        "        \"nodeID\": \"ed31b944b490a9989a563d6c74f6548f4efdde384e9ad94c5ac7a77349e175f990a365add0c31bac1eb8f129beb871fa70f1ea1ab80f6c8bb3f885a19de8371c\"\n" +
-//                        "      }\n" +
-//                        "    ]\n" +
-//                        "  }\n" +
-//                        "}";
-//        SyncStatus syncStatus = objectMapper.readValue(syncStatusStr.getBytes(), SyncStatus.class);
-//        Assert.assertEquals(0L, syncStatus.getSyncStatus().getBlockNumber());
-//        Assert.assertEquals(
-//                "c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad",
-//                syncStatus.getSyncStatus().getGenesisHash());
-//        Assert.assertEquals(false, syncStatus.getSyncStatus().getIsSyncing());
-//        Assert.assertEquals(0, syncStatus.getSyncStatus().getKnownHighestNumber());
-//        Assert.assertEquals(
-//                "c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad",
-//                syncStatus.getSyncStatus().getKnownLatestHash());
-//        Assert.assertEquals(
-//                "c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad",
-//                syncStatus.getSyncStatus().getLatestHash());
-//        Assert.assertEquals(
-//                "8d1751c88d7074bf80afa3c4c2cbd8e6e72e45928877957203eaff98bb11a6c82a6def474c5ce8b6e3e0cbcbcae69593e64c68e7d2dd8c067370cecfae77b221",
-//                syncStatus.getSyncStatus().getNodeId());
-//        // check peers
-//        Assert.assertEquals(3, syncStatus.getSyncStatus().getPeers().size());
-//        Assert.assertEquals(0L, syncStatus.getSyncStatus().getPeers().get(2).getBlockNumber());
-//        Assert.assertEquals(
-//                "c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad",
-//                syncStatus.getSyncStatus().getPeers().get(2).getGenesisHash());
-//        Assert.assertEquals(
-//                "c02f53b63a055b921a83c3d74ef2cc7a76038ff50fe8e93e312b8746a5ef38ad",
-//                syncStatus.getSyncStatus().getPeers().get(2).getLatestHash());
-//        Assert.assertEquals(
-//                "eb64cca1736744fafbd4678aecd7c7dcb4226cf36f76690ff0725d24b3e42203fa7142714c1c49c894f9c31e6d5b856d35e27c2efc7ba7f8159a9606d79e60b8",
-//                syncStatus.getSyncStatus().getPeers().get(2).getNodeId());
+        String syncStatusStr =
+                "{\n" +
+                        "  \"id\": 37,\n" +
+                        "  \"jsonrpc\": \"2.0\",\n" +
+                        "  \"result\": \"{\\\"blockNumber\\\":3,\\\"genesisHash\\\":\\\"4d3695d385084e56c814d078a987427e743e92b4164b42a8aa01bc24c82ab223\\\",\\\"isSyncing\\\":false,\\\"knownHighestNumber\\\":3,\\\"knownLatestHash\\\":\\\"16b0b5b407cfb16a76c1d14d9231c1ae9422e4ec2032144edd12c4b59c33d7ea\\\",\\\"latestHash\\\":\\\"16b0b5b407cfb16a76c1d14d9231c1ae9422e4ec2032144edd12c4b59c33d7ea\\\",\\\"nodeID\\\":\\\"63a2e45b2d84f83b32342f0741ffc51069c74fb7c82b8eb0247b12230d50169b86545ecf84420adeec86c57dbc48db1342f4afebc6a127b481eeaaa23722fff0\\\",\\\"peers\\\":[{\\\"blockNumber\\\":3,\\\"genesisHash\\\":\\\"4d3695d385084e56c814d078a987427e743e92b4164b42a8aa01bc24c82ab223\\\",\\\"latestHash\\\":\\\"16b0b5b407cfb16a76c1d14d9231c1ae9422e4ec2032144edd12c4b59c33d7ea\\\",\\\"nodeID\\\":\\\"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\\\"}]}\\n\"\n" +
+                        "}";
+        SyncStatus syncStatus = objectMapper.readValue(syncStatusStr.getBytes(), SyncStatus.class);
+        Assert.assertEquals(3L, syncStatus.getSyncStatus().getBlockNumber());
+        Assert.assertEquals(
+                "4d3695d385084e56c814d078a987427e743e92b4164b42a8aa01bc24c82ab223",
+                syncStatus.getSyncStatus().getGenesisHash());
+        Assert.assertEquals(false, syncStatus.getSyncStatus().getIsSyncing());
+        Assert.assertEquals(3, syncStatus.getSyncStatus().getKnownHighestNumber());
+        Assert.assertEquals(
+                "16b0b5b407cfb16a76c1d14d9231c1ae9422e4ec2032144edd12c4b59c33d7ea",
+                syncStatus.getSyncStatus().getKnownLatestHash());
+        Assert.assertEquals(
+                "16b0b5b407cfb16a76c1d14d9231c1ae9422e4ec2032144edd12c4b59c33d7ea",
+                syncStatus.getSyncStatus().getLatestHash());
+        Assert.assertEquals(
+                "63a2e45b2d84f83b32342f0741ffc51069c74fb7c82b8eb0247b12230d50169b86545ecf84420adeec86c57dbc48db1342f4afebc6a127b481eeaaa23722fff0",
+                syncStatus.getSyncStatus().getNodeId());
+        // check peers
+        Assert.assertEquals(1, syncStatus.getSyncStatus().getPeers().size());
+        Assert.assertEquals(3L, syncStatus.getSyncStatus().getPeers().get(0).getBlockNumber());
+        Assert.assertEquals(
+                "4d3695d385084e56c814d078a987427e743e92b4164b42a8aa01bc24c82ab223",
+                syncStatus.getSyncStatus().getPeers().get(0).getGenesisHash());
+        Assert.assertEquals(
+                "16b0b5b407cfb16a76c1d14d9231c1ae9422e4ec2032144edd12c4b59c33d7ea",
+                syncStatus.getSyncStatus().getPeers().get(0).getLatestHash());
+        Assert.assertEquals(
+                "6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8",
+                syncStatus.getSyncStatus().getPeers().get(0).getNodeId());
     }
 
     @Test
@@ -728,20 +699,20 @@ public class ResponseTest {
     @Test
     public void testTotalTransactionCount() throws JsonProcessingException {
         String totalTxCountStr =
-                "{\n"
-                        + "    \"id\": 1,\n"
-                        + "    \"jsonrpc\": \"2.0\",\n"
-                        + "    \"result\": {\n"
-                        + "      \"blockNumber\": \"0x1\",\n"
-                        + "      \"failedTransactionCount\": \"0x0\",\n"
-                        + "      \"transactionCount\": \"0x20\"\n"
-                        + "    }\n"
-                        + "}";
+                "{\n" +
+                        "  \"id\": 24,\n" +
+                        "  \"jsonrpc\": \"2.0\",\n" +
+                        "  \"result\": {\n" +
+                        "    \"blockNumber\": 321453545645654,\n" +
+                        "    \"failedTransactionCount\": 1231232131231,\n" +
+                        "    \"transactionCount\": 65464768432423432456436\n" +
+                        "  }\n" +
+                        "}";
         TotalTransactionCount txCount =
                 objectMapper.readValue(totalTxCountStr, TotalTransactionCount.class);
-        Assert.assertEquals("0x1", txCount.getTotalTransactionCount().getBlockNumber());
-        Assert.assertEquals("0x0", txCount.getTotalTransactionCount().getFailedTransactionCount());
-        Assert.assertEquals("0x20", txCount.getTotalTransactionCount().getTransactionCount());
+        Assert.assertEquals("321453545645654", txCount.getTotalTransactionCount().getBlockNumber());
+        Assert.assertEquals("1231232131231", txCount.getTotalTransactionCount().getFailedTransactionCount());
+        Assert.assertEquals("65464768432423432456436", txCount.getTotalTransactionCount().getTransactionCount());
     }
 
     @Test
@@ -932,8 +903,7 @@ public class ResponseTest {
         Assert.assertEquals(
                 "0xd6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f",
                 receiptWithProof.getTransactionReceipt().getTo());
-        Assert.assertEquals(
-                null, receiptWithProof.getTransactionReceipt().getTransactionProof());
+        Assert.assertNull(receiptWithProof.getTransactionReceipt().getTransactionProof());
     }
 
     @Test
@@ -997,57 +967,6 @@ public class ResponseTest {
     }
 
     @Test
-    public void testSMGetBlockAndCalculateHash() throws IOException {
-        String blockHeaderStr = "{\n" +
-                "  \"id\": 12,\n" +
-                "  \"jsonrpc\": \"2.0\",\n" +
-                "  \"result\": {\n" +
-                "    \"consensusWeights\": [\n" +
-                "      1,\n" +
-                "      1\n" +
-                "    ],\n" +
-                "    \"extraData\": \"0x\",\n" +
-                "    \"gasUsed\": \"40488\",\n" +
-                "    \"hash\": \"0xc5a884ef6d4025bdd674574f82747de132fb615266f4ac01c726e1048350a591\",\n" +
-                "    \"number\": 2,\n" +
-                "    \"parentInfo\": [\n" +
-                "      {\n" +
-                "        \"blockHash\": \"0x571d5b233405eab3fae832b73bd268a6253d9f622a7cdf9819c952ee09977395\",\n" +
-                "        \"blockNumber\": 1\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"receiptsRoot\": \"0xc2de3ab29139de8708238e851a58c68233ebfa41134d5309d2ac0439f70ff508\",\n" +
-                "    \"sealer\": 1,\n" +
-                "    \"sealerList\": [\n" +
-                "      \"0x6c5911d6ba3080fd22f0b58680c4cb122e33ca95b1c1dd8cf18e79d03853a2d7392f58f7e6b4dd7b99a83d9ab490d2d32fd98ed77a7ebc75c37adc8b6de65a1e\",\n" +
-                "      \"0x6cc479308738951ea2f32e4b2d7f6a4e916b849e6559441bfd366ac44bdc277ba428375fa4862c4fed28fb5c30c79587e627d2a342c9ac86083fcc76d5cf36ee\"\n" +
-                "    ],\n" +
-                "    \"signatureList\": [\n" +
-                "      {\n" +
-                "        \"sealerIndex\": 0,\n" +
-                "        \"signature\": \"0x19330ad0f7307b9efac50f297922af6e850be9800e1d2c3526d28b9448ce5193de686d128aba0a090ef2454c1917832c856c33bb656e7187626191223a4805e1\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"sealerIndex\": 1,\n" +
-                "        \"signature\": \"0x854635f29c3bb2af14ac16626229de6607f760cb8a5eae18beedd09e3fade535088bca1cf2b9d9750c4eda401f4a9ae674fd6468897511c73f84f17a80a89dc0\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"stateRoot\": \"0xe6fa667ea86614a0aee150942ffc2030fb52bcea5953315e7317b7dadd75d611\",\n" +
-                "    \"timestamp\": 1642577548192,\n" +
-                "    \"txsRoot\": \"0xfc06d70729538508110611c10b219e4e17a949411ec80865ed277421ed67ddf4\",\n" +
-                "    \"version\": 0\n" +
-                "  }\n" +
-                "}";
-
-        BcosBlockHeader bcosBlockHeader = objectMapper.readValue(blockHeaderStr.getBytes(), BcosBlockHeader.class);
-        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
-        // Assert.assertEquals(
-        //        bcosBlockHeader.getBlockHeader().calculateHash(cryptoSuite),
-        //        bcosBlockHeader.getBlockHeader().getHash());
-
-    }
-
-    @Test
     public void testECDSAGetTransactionAndCalculateHash() throws IOException {
         String transactionStr = "{\n" +
                 "  \"id\": 12,\n" +
@@ -1072,70 +991,6 @@ public class ResponseTest {
         // Assert.assertEquals(
         //         bcosTransaction.getTransaction().get().calculateHash(cryptoSuite),
         //        bcosTransaction.getTransaction().get().getHash());
-    }
-
-    @Test
-    public void testECDSAGetBlockAndCalculateHash() throws IOException {
-        String blockHeaderStr = "{\n" +
-                "  \"id\": 10,\n" +
-                "  \"jsonrpc\": \"2.0\",\n" +
-                "  \"result\": {\n" +
-                "    \"consensusWeights\": [\n" +
-                "      1,\n" +
-                "      1\n" +
-                "    ],\n" +
-                "    \"extraData\": \"0x\",\n" +
-                "    \"gasUsed\": \"10241\",\n" +
-                "    \"hash\": \"0xffaff61daa37328340f8f37406a9477602c9013bc72dee4020b0c759abed1f56\",\n" +
-                "    \"number\": 44,\n" +
-                "    \"parentInfo\": [\n" +
-                "      {\n" +
-                "        \"blockHash\": \"0xc160d5b049f93e5d5dce4549d88d4c2c592e15ffad07cbc5655d11236e570f26\",\n" +
-                "        \"blockNumber\": 43\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"receiptsRoot\": \"0xb1bf3b5fedf6a68aed297ee8f00711e592338e47790acc8767c0457773f10a9a\",\n" +
-                "    \"sealer\": 1,\n" +
-                "    \"sealerList\": [\n" +
-                "      \"0x6da2e77c2181de646e8dd977fb6614f8eb0ecef647537895a03ea4ac532cb3e5a958eab4cf15d1355c3e09039611b80ea0a07e456ac92cf5a98b5eb42e0312c3\",\n" +
-                "      \"0xc99634f99b4fd5c570e01ec022c3fcaa81cd4797acac4b86c81521e08b225385e3cbd5f15e70b6360b9dbaf070bed7111b2f42bb1d5a33c735145be966a8ccd4\"\n" +
-                "    ],\n" +
-                "    \"signatureList\": [\n" +
-                "      {\n" +
-                "        \"sealerIndex\": 0,\n" +
-                "        \"signature\": \"0xcc04d759a0e286be367ee9339f0332d799752917ba6c8c2c5df4f5ae77dc469b285674bae7bef138c98c84c73c5384a5341616edb0d7d4c60351d6e05066bf6b01\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"sealerIndex\": 1,\n" +
-                "        \"signature\": \"0x678eef1c50c3fcd876d3f2a79012ca4eaa1765d8e78cb08407b5fcbc6cdef3df3a71ce2359d946d2d81ce86d8ee270d74db6460eb00f3deb1dbeb0e3c9eabe0b01\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"stateRoot\": \"0xbcf31ce042e80ab45720e751d544c1df2bddc9aacb7d66ec2d14b05638b1718d\",\n" +
-                "    \"timestamp\": 1642493461037,\n" +
-                "    \"transactions\": [\n" +
-                "      {\n" +
-                "        \"blockLimit\": 543,\n" +
-                "        \"chainID\": \"chain\",\n" +
-                "        \"from\": \"0x9036450ed747ef3b0423734f36ed6472d35cac6f\",\n" +
-                "        \"groupID\": \"group0\",\n" +
-                "        \"hash\": \"0xbd5121a964a0f14414e4f7ef99e91943baa830bdbb2e345b7eae56c94b8e8386\",\n" +
-                "        \"importTime\": 1642493461036,\n" +
-                "        \"input\": \"0x4ed3885e000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000033132330000000000000000000000000000000000000000000000000000000000\",\n" +
-                "        \"nonce\": \"815106147678017284033451788138572352403714561031581276615138411883384218839\",\n" +
-                "        \"signature\": \"0x5fb225c4d87c5db55e2416412550b6fa6b874f421f7bd345566bba08bd443d3970dd0ce526d06ed6628990cdb607800776922e19fcdeee7365582919f21887e900\",\n" +
-                "        \"to\": \"dCDECd228F59A234287FECe68aD8fB94f016B124\",\n" +
-                "        \"version\": 0\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"txsRoot\": \"0x6ed09587e47ff677552830b014835e55a189ba80f0dd8a9de3c3e7938d752286\",\n" +
-                "    \"version\": 0\n" +
-                "  }\n" +
-                "}";
-        // BcosBlockHeader bcosBlockHeader = objectMapper.readValue(blockHeaderStr.getBytes(), BcosBlockHeader.class);
-        // CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
-        // Assert.assertEquals(
-        //        bcosBlockHeader.getBlockHeader().calculateHash(cryptoSuite),
-        //        bcosBlockHeader.getBlockHeader().getHash());
     }
 
     @Test
@@ -1219,5 +1074,102 @@ public class ResponseTest {
                 "    }\n" +
                 "}";
         objectMapper.readValue(groupInfoStr.getBytes(), BcosGroupInfo.class);
+
+        String groupListStr = "{\n" +
+                "  \"id\": 33,\n" +
+                "  \"jsonrpc\": \"2.0\",\n" +
+                "  \"result\": [\n" +
+                "    {\n" +
+                "      \"chainID\": \"chain0\",\n" +
+                "      \"genesisConfig\": \"{\\\"blockTxCountLimit\\\":1000,\\\"consensusLeaderPeriod\\\":1,\\\"consensusType\\\":\\\"pbft\\\",\\\"sealerList\\\":[{\\\"nodeID\\\":\\\"63a2e45b2d84f83b32342f0741ffc51069c74fb7c82b8eb0247b12230d50169b86545ecf84420adeec86c57dbc48db1342f4afebc6a127b481eeaaa23722fff0\\\",\\\"weight\\\":1},{\\\"nodeID\\\":\\\"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\\\",\\\"weight\\\":1}],\\\"txGasLimit\\\":3000000000}\\n\",\n" +
+                "      \"groupID\": \"group0\",\n" +
+                "      \"iniConfig\": \"\",\n" +
+                "      \"nodeList\": [\n" +
+                "        {\n" +
+                "          \"iniConfig\": \"{\\\"binaryInfo\\\":{\\\"buildTime\\\":\\\"20220607 15:32:55\\\",\\\"gitCommitHash\\\":\\\"fe4301244c50956db779d0965ed39064c7984f86\\\",\\\"platform\\\":\\\"Darwin/appleclang\\\",\\\"version\\\":\\\"3.0.0-rc4\\\"},\\\"chainID\\\":\\\"chain0\\\",\\\"gatewayServiceName\\\":\\\"\\\",\\\"groupID\\\":\\\"group0\\\",\\\"isAuthCheck\\\":false,\\\"isWasm\\\":false,\\\"nodeID\\\":\\\"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\\\",\\\"nodeName\\\":\\\"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\\\",\\\"rpcServiceName\\\":\\\"\\\",\\\"smCryptoType\\\":false}\\n\",\n" +
+                "          \"microService\": false,\n" +
+                "          \"name\": \"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\",\n" +
+                "          \"nodeID\": \"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\",\n" +
+                "          \"protocol\": {\n" +
+                "            \"compatibilityVersion\": 4,\n" +
+                "            \"maxSupportedVersion\": 1,\n" +
+                "            \"minSupportedVersion\": 0\n" +
+                "          },\n" +
+                "          \"serviceInfo\": [\n" +
+                "            {\n" +
+                "              \"serviceName\": \"LedgerServiceObj\",\n" +
+                "              \"type\": 2\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"serviceName\": \"SchedulerServiceObj\",\n" +
+                "              \"type\": 3\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"serviceName\": \"FrontServiceObj\",\n" +
+                "              \"type\": 4\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"serviceName\": \"\",\n" +
+                "              \"type\": 6\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"serviceName\": \"\",\n" +
+                "              \"type\": 7\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"serviceName\": \"TxPoolServiceObj\",\n" +
+                "              \"type\": 8\n" +
+                "            }\n" +
+                "          ],\n" +
+                "          \"type\": 0\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+        objectMapper.readValue(groupListStr.getBytes(), BcosGroupInfoList.class);
+    }
+
+    @Test
+    public void testGroupNodeInfo() throws IOException {
+        String groupNodeInfoStr = "{\n" +
+                "    \"type\":0,\n" +
+                "    \"iniConfig\":{\n" +
+                "        \"binaryInfo\":{\n" +
+                "            \"version\":\"3.0.0-rc4\",\n" +
+                "            \"gitCommitHash\":\"fe4301244c50956db779d0965ed39064c7984f86\",\n" +
+                "            \"platform\":\"Darwin/appleclang\",\n" +
+                "            \"buildTime\":\"20220607 15:32:55\"\n" +
+                "        },\n" +
+                "        \"chainID\":\"chain0\",\n" +
+                "        \"groupID\":\"group0\",\n" +
+                "        \"smCryptoType\":false,\n" +
+                "        \"nodeID\":\"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\",\n" +
+                "        \"nodeName\":\"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\",\n" +
+                "        \"rpcServiceName\":\"\",\n" +
+                "        \"gatewayServiceName\":\"\",\n" +
+                "        \"authCheck\":false,\n" +
+                "        \"isWasm\":false,\n" +
+                "        \"isAuthCheck\":false\n" +
+                "    },\n" +
+                "    \"name\":\"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\",\n" +
+                "    \"serviceInfoList\":null,\n" +
+                "    \"protocol\":{\n" +
+                "        \"compatibilityVersion\":4,\n" +
+                "        \"minSupportedVersion\":0,\n" +
+                "        \"maxSupportedVersion\":1\n" +
+                "    }\n" +
+                "}";
+        objectMapper.readValue(groupNodeInfoStr.getBytes(), BcosGroupNodeInfo.class);
+    }
+
+    @Test
+    public void testConsensusStatus() throws IOException {
+        String consensusStr = "{\n" +
+                "  \"id\": 35,\n" +
+                "  \"jsonrpc\": \"2.0\",\n" +
+                "  \"result\": \"{\\\"blockNumber\\\":3,\\\"changeCycle\\\":0,\\\"connectedNodeList\\\":2,\\\"consensusNodeList\\\":[{\\\"index\\\":0,\\\"nodeID\\\":\\\"63a2e45b2d84f83b32342f0741ffc51069c74fb7c82b8eb0247b12230d50169b86545ecf84420adeec86c57dbc48db1342f4afebc6a127b481eeaaa23722fff0\\\",\\\"weight\\\":1},{\\\"index\\\":1,\\\"nodeID\\\":\\\"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\\\",\\\"weight\\\":1}],\\\"consensusNodesNum\\\":2,\\\"hash\\\":\\\"16b0b5b407cfb16a76c1d14d9231c1ae9422e4ec2032144edd12c4b59c33d7ea\\\",\\\"index\\\":1,\\\"isConsensusNode\\\":true,\\\"leaderIndex\\\":1,\\\"maxFaultyQuorum\\\":0,\\\"minRequiredQuorum\\\":2,\\\"nodeID\\\":\\\"6471685bb764ddd625c8855809ae23ae803fcf2890977def7c3d4353e22633cdea92471ba0859fc0538679c31b89577e1dd13b292d6538acff42ac4c599d5ce8\\\",\\\"timeout\\\":false,\\\"view\\\":3}\\n\"\n" +
+                "}";
+        objectMapper.readValue(consensusStr.getBytes(), ConsensusStatus.class);
     }
 }

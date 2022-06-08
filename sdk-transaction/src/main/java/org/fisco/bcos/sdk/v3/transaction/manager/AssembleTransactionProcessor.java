@@ -14,8 +14,8 @@
  */
 package org.fisco.bcos.sdk.v3.transaction.manager;
 
-import static org.fisco.bcos.sdk.v3.client.protocol.model.Transaction.LIQUID_CREATE;
-import static org.fisco.bcos.sdk.v3.client.protocol.model.Transaction.LIQUID_SCALE_CODEC;
+import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_CREATE;
+import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_SCALE_CODEC;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -376,8 +376,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public CallResponse sendCall(CallRequest callRequest)
             throws TransactionBaseException, ContractCodecException {
         Call call = this.executeCall(callRequest);
-        CallResponse callResponse =
-                this.parseCallResponseStatus(call.getCallResult(), callRequest.getTo());
+        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         String callOutput = call.getCallResult().getOutput();
         Pair<List<Object>, List<ABIObject>> results =
                 this.contractCodec.decodeMethodAndGetOutputObject(callRequest.getAbi(), callOutput);
@@ -399,7 +398,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String from, String to, String abi, String functionName, byte[] data)
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
-        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult(), to);
+        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         List<Type> decodedResult =
                 this.contractCodec.decodeMethodAndGetOutputObject(
                         abi, functionName, call.getCallResult().getOutput());
@@ -481,10 +480,10 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 blockLimit.longValue());
     }
 
-    private CallResponse parseCallResponseStatus(Call.CallOutput callOutput, String callAddress)
+    private CallResponse parseCallResponseStatus(Call.CallOutput callOutput)
             throws TransactionBaseException {
         CallResponse callResponse = new CallResponse();
-        RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "", callAddress);
+        RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
         callResponse.setReturnCode(callOutput.getStatus());
         callResponse.setReturnMessage(retCode.getMessage());
         if (!retCode.getMessage().equals(PrecompiledRetCode.CODE_SUCCESS.getMessage())) {

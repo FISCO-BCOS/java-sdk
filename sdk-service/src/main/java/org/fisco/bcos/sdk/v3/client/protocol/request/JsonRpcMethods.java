@@ -27,7 +27,7 @@ public class JsonRpcMethods {
     public static final String GET_BLOCK_BY_NUMBER = "getBlockByNumber";
     public static final String GET_BLOCKHASH_BY_NUMBER = "getBlockHashByNumber";
     public static final String GET_TRANSACTION_BY_HASH = "getTransaction";
-    public static final String GET_TRANSACTIONRECEIPT = "getTransactionReceipt";
+    public static final String GET_TRANSACTION_RECEIPT = "getTransactionReceipt";
     public static final String GET_PENDING_TX_SIZE = "getPendingTxSize";
     public static final String CALL = "call";
     public static final String SEND_TRANSACTION = "sendTransaction";

@@ -3,9 +3,14 @@ package org.fisco.bcos.sdk.v3.test.transaction.codec;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.v3.codec.FunctionReturnDecoderInterface;
+import org.fisco.bcos.sdk.v3.codec.Utils;
 import org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
+import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int32;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
@@ -19,7 +24,9 @@ import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.Collections;
+import java.util.List;
 
 public class TransactionDecodeTest {
     private final CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
@@ -29,6 +36,8 @@ public class TransactionDecodeTest {
     private static TransactionReceipt normalReceipt;
     private static TransactionReceipt sysReceipt;
     private static TransactionReceipt sysErrorReceipt;
+    FunctionReturnDecoderInterface abiDecoder = new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
+    FunctionReturnDecoderInterface scaleDecoder = new org.fisco.bcos.sdk.v3.codec.scale.FunctionReturnDecoder();
 
     public TransactionDecodeTest() throws JsonProcessingException {
         String receiptStr =
@@ -87,29 +96,43 @@ public class TransactionDecodeTest {
 
     @Test
     public void parseTransactionReceiptTest() throws ContractException {
-        RetCode retCode = ReceiptParser.parseTransactionReceipt(normalReceipt);
+        RetCode retCode = ReceiptParser.parseTransactionReceipt(normalReceipt, null);
         Assert.assertEquals(retCode.getCode(), PrecompiledRetCode.CODE_SUCCESS.code);
 
         Assert.assertThrows(ContractException.class,
-                () -> ReceiptParser.parseTransactionReceipt(errorReceipt));
+                () -> ReceiptParser.parseTransactionReceipt(errorReceipt, null));
 
         try {
-            ReceiptParser.parseTransactionReceipt(errorReceipt);
+            ReceiptParser.parseTransactionReceipt(errorReceipt, null);
         } catch (ContractException exception) {
             Assert.assertEquals("test string", exception.getMessage());
             Assert.assertEquals(12, exception.getErrorCode());
         }
 
         Assert.assertThrows(ContractException.class,
-                () -> ReceiptParser.parseTransactionReceipt(sysErrorReceipt));
+                () -> ReceiptParser.parseTransactionReceipt(sysErrorReceipt, null));
         try {
-            ReceiptParser.parseTransactionReceipt(sysErrorReceipt);
+            ReceiptParser.parseTransactionReceipt(sysErrorReceipt, null);
         } catch (ContractException exception) {
             Assert.assertEquals("test string", exception.getMessage());
             Assert.assertEquals(15, exception.getErrorCode());
         }
 
-        RetCode retCode1 = ReceiptParser.parseTransactionReceipt(sysReceipt);
+        RetCode retCode1 = ReceiptParser.parseTransactionReceipt(sysReceipt, transactionReceipt -> {
+            List<Type> result = abiDecoder.decode(transactionReceipt.getOutput(),
+                    Utils.convert(Collections.singletonList(new TypeReference<Int32>() {
+            })));
+            return (BigInteger)result.get(0).getValue();
+        });
         Assert.assertEquals(123, retCode1.getCode());
+
+        sysReceipt.setOutput("01ffffff");
+        RetCode retCode2 = ReceiptParser.parseTransactionReceipt(sysReceipt, transactionReceipt -> {
+            List<Type> result = scaleDecoder.decode(transactionReceipt.getOutput(),
+                    Utils.convert(Collections.singletonList(new TypeReference<Int32>() {
+                    })));
+            return (BigInteger)result.get(0).getValue();
+        });
+        Assert.assertEquals(-255, retCode2.getCode());
     }
 }

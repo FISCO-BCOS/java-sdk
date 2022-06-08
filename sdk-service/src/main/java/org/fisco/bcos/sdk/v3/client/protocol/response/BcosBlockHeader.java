@@ -19,11 +19,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader> {
-    private static final Logger logger = LoggerFactory.getLogger(BcosBlockHeader.class);
 
     @Override
     public void setResult(BlockHeader result) {

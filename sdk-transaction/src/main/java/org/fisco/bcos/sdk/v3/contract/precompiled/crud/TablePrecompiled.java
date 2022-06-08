@@ -188,19 +188,6 @@ public class TablePrecompiled extends Contract {
                 (Limit) results.get(1).getValue());
     }
 
-    public Tuple1<BigInteger> getRemoveTupletupleTupleOutput(
-            TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getOutput();
-        final Function function =
-                new Function(
-                        FUNC_REMOVE,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int32>() {}));
-        List<Type> results =
-                this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
-    }
-
     public TransactionReceipt remove(String key) {
         final Function function =
                 new Function(
@@ -246,7 +233,7 @@ public class TablePrecompiled extends Contract {
         return new Tuple1<String>((String) results.get(0).getValue());
     }
 
-    public Tuple1<BigInteger> getRemoveStringOutput(TransactionReceipt transactionReceipt) {
+    public Tuple1<BigInteger> getRemoveOutput(TransactionReceipt transactionReceipt) {
         String data = transactionReceipt.getOutput();
         final Function function =
                 new Function(
@@ -332,19 +319,6 @@ public class TablePrecompiled extends Contract {
                 (DynamicArray<UpdateField>) results.get(1).getValue());
     }
 
-    public Tuple1<BigInteger> getUpdateStringTupletupleOutput(
-            TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getOutput();
-        final Function function =
-                new Function(
-                        FUNC_UPDATE,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int32>() {}));
-        List<Type> results =
-                this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
-    }
-
     public TransactionReceipt update(
             List<Condition> conditions, Limit limit, List<UpdateField> updateFields) {
         final Function function =
@@ -411,8 +385,7 @@ public class TablePrecompiled extends Contract {
                 (DynamicArray<UpdateField>) results.get(2).getValue());
     }
 
-    public Tuple1<BigInteger> getUpdateTupletupleTupleTupletupleOutput(
-            TransactionReceipt transactionReceipt) {
+    public Tuple1<BigInteger> getUpdateOutput(TransactionReceipt transactionReceipt) {
         String data = transactionReceipt.getOutput();
         final Function function =
                 new Function(

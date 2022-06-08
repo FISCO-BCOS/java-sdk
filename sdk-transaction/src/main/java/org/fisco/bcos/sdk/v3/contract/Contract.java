@@ -14,8 +14,8 @@
  */
 package org.fisco.bcos.sdk.v3.contract;
 
-import static org.fisco.bcos.sdk.v3.client.protocol.model.Transaction.LIQUID_CREATE;
-import static org.fisco.bcos.sdk.v3.client.protocol.model.Transaction.LIQUID_SCALE_CODEC;
+import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_CREATE;
+import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_SCALE_CODEC;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.protocol.model.Transaction;
+import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
@@ -40,7 +40,6 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
@@ -185,19 +184,23 @@ public class Contract {
             constructor.setAccessible(true);
             T contract = constructor.newInstance(null, client, credential);
 
-            ContractCodec codec = new ContractCodec(contract.cryptoSuite, contract.client.isWASM());
+            ContractCodec codec = new ContractCodec(contract.cryptoSuite, client.isWASM());
+            if (client.isWASM()) {
+                // NOTE: it should set address first, contract.executeDeployTransaction will use it
+                // as 'to'
+                contract.setContractAddress(path);
+            }
             TransactionReceipt transactionReceipt =
                     contract.executeDeployTransaction(
                             codec.encodeConstructorFromBytes(binary, encodedConstructor), abi);
             String contractAddress = transactionReceipt.getContractAddress();
             if (contractAddress == null
-                    || transactionReceipt.getStatus() != TransactionReceiptStatus.Success.code) {
+                    || transactionReceipt.getStatus()
+                            != TransactionReceiptStatus.Success.getCode()) {
                 // parse the receipt
-                RetCode retCode = ReceiptParser.parseTransactionReceipt(transactionReceipt);
-                throw new ContractException(
-                        "Deploy contract failed, error message: " + retCode.getMessage());
+                ReceiptParser.getErrorStatus(transactionReceipt);
             }
-            contract.setContractAddress(contract.client.isWASM() ? path : contractAddress);
+            contract.setContractAddress(client.isWASM() ? path : contractAddress);
             contract.setDeployReceipt(transactionReceipt);
             return contract;
         } catch (InstantiationException
@@ -217,7 +220,7 @@ public class Contract {
                 attribute |= LIQUID_CREATE;
             }
         } else {
-            attribute |= Transaction.EVM_ABI_CODEC;
+            attribute |= TransactionAttribute.EVM_ABI_CODEC;
         }
 
         return attribute;
@@ -296,7 +299,7 @@ public class Contract {
         int dagFlag = dagAttribute;
         // enforce dag
         if (enableDAG) {
-            dagFlag = Transaction.DAG;
+            dagFlag = TransactionAttribute.DAG;
         }
         txAttribute |= dagFlag;
         return txAttribute;

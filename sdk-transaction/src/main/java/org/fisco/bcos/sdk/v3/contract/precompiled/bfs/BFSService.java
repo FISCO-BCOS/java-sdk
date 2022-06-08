@@ -9,6 +9,7 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
+import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
@@ -26,7 +27,9 @@ public class BFSService {
     }
 
     public RetCode mkdir(String path) throws ContractException {
-        return ReceiptParser.parseTransactionReceipt(bfsPrecompiled.mkdir(path));
+        TransactionReceipt transactionReceipt = bfsPrecompiled.mkdir(path);
+        return ReceiptParser.parseTransactionReceipt(
+                transactionReceipt, tr -> bfsPrecompiled.getMkdirOutput(tr).getValue1());
     }
 
     public List<BFSPrecompiled.BfsInfo> list(String path) throws ContractException {
@@ -47,8 +50,10 @@ public class BFSService {
 
     public RetCode link(String name, String version, String contractAddress, String abi)
             throws ContractException {
+        TransactionReceipt transactionReceipt =
+                bfsPrecompiled.link(name, version, contractAddress, abi);
         return ReceiptParser.parseTransactionReceipt(
-                bfsPrecompiled.link(name, version, contractAddress, abi));
+                transactionReceipt, tr -> bfsPrecompiled.getLinkOutput(tr).getValue1());
     }
 
     public String readlink(String absolutePath) throws ContractException {

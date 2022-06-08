@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.RetCode;
+import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
@@ -51,8 +52,9 @@ public class SystemConfigService {
     }
 
     public RetCode setValueByKey(String key, String value) throws ContractException {
+        TransactionReceipt receipt = systemConfigPrecompiled.setValueByKey(key, value);
         return ReceiptParser.parseTransactionReceipt(
-                systemConfigPrecompiled.setValueByKey(key, value));
+                receipt, tr -> systemConfigPrecompiled.getSetValueByKeyOutput(receipt).getValue1());
     }
 
     public static boolean checkSysNumberValueValidation(String key, BigInteger value) {

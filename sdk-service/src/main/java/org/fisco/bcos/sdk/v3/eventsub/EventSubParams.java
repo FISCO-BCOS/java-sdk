@@ -17,23 +17,18 @@ package org.fisco.bcos.sdk.v3.eventsub;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.codec.abi.tools.TopicTools;
+import org.fisco.bcos.sdk.v3.utils.AddressUtils;
 
 public class EventSubParams {
 
     private BigInteger fromBlock = BigInteger.valueOf(-1);
     private BigInteger toBlock = BigInteger.valueOf(-1);
-    private List<String> addresses = new ArrayList<>();
-    private List<List<String>> topics =
-            new ArrayList<List<String>>() {
-                {
-                    add(null);
-                    add(null);
-                    add(null);
-                    add(null);
-                }
-            };
+    private final List<String> addresses = new ArrayList<>();
+    private final List<List<String>> topics =
+            new ArrayList<>(Arrays.asList(null, null, null, null));
 
     public BigInteger getFromBlock() {
         return fromBlock;
@@ -60,7 +55,9 @@ public class EventSubParams {
     }
 
     public boolean addAddress(String addr) {
-        // TODO: check address valid
+        if (!AddressUtils.isValidAddress(addr)) {
+            return false;
+        }
         return this.addresses.add(addr);
     }
 
@@ -84,7 +81,6 @@ public class EventSubParams {
     }
 
     /** @return check params */
-    @SuppressWarnings("unchecked")
     public boolean checkParams() {
         if (fromBlock.compareTo(BigInteger.ZERO) > 0 && toBlock.compareTo(BigInteger.ZERO) > 0) {
             return fromBlock.compareTo(toBlock) <= 0;
