@@ -14,11 +14,15 @@
  */
 package org.fisco.bcos.sdk.v3.contract.precompiled.crud;
 
+import static org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Common.TABLE_PREFIX;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
@@ -27,15 +31,20 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.UpdateFields;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledConstant;
+import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TableCRUDService {
     private final Client client;
     private final TableManagerPrecompiled tableManagerPrecompiled;
+    private final Logger logger = LoggerFactory.getLogger(TableCRUDService.class);
 
     public TableCRUDService(Client client, CryptoKeyPair credential) {
         this.client = client;
@@ -61,8 +70,9 @@ public class TableCRUDService {
             throws ContractException {
         TableManagerPrecompiled.TableInfo tableInfo =
                 new TableManagerPrecompiled.TableInfo(keyFieldName, valueFields);
+        TransactionReceipt receipt = tableManagerPrecompiled.createTable(tableName, tableInfo);
         return ReceiptParser.parseTransactionReceipt(
-                tableManagerPrecompiled.createTable(tableName, tableInfo));
+                receipt, tr -> tableManagerPrecompiled.getCreateTableOutput(tr).getValue1());
     }
 
     /**
@@ -82,7 +92,14 @@ public class TableCRUDService {
         TableManagerPrecompiled.TableInfo tableInfo =
                 new TableManagerPrecompiled.TableInfo(keyFieldName, valueFields);
         this.tableManagerPrecompiled.createTable(
-                tableName, tableInfo, createTransactionCallback(callback));
+                tableName,
+                tableInfo,
+                createTransactionCallback(
+                        callback,
+                        transactionReceipt ->
+                                tableManagerPrecompiled
+                                        .getCreateTableOutput(transactionReceipt)
+                                        .getValue1()));
     }
 
     /**
@@ -95,8 +112,9 @@ public class TableCRUDService {
      */
     public RetCode appendColumns(String tableName, List<String> newColumns)
             throws ContractException {
+        TransactionReceipt receipt = tableManagerPrecompiled.appendColumns(tableName, newColumns);
         return ReceiptParser.parseTransactionReceipt(
-                this.tableManagerPrecompiled.appendColumns(tableName, newColumns));
+                receipt, tr -> tableManagerPrecompiled.getAppendColumnsOutput(tr).getValue1());
     }
 
     /**
@@ -110,7 +128,14 @@ public class TableCRUDService {
     public void asyncAppendColumns(
             String tableName, List<String> newColumns, PrecompiledCallback callback) {
         this.tableManagerPrecompiled.appendColumns(
-                tableName, newColumns, createTransactionCallback(callback));
+                tableName,
+                newColumns,
+                createTransactionCallback(
+                        callback,
+                        transactionReceipt ->
+                                tableManagerPrecompiled
+                                        .getAppendColumnsOutput(transactionReceipt)
+                                        .getValue1()));
     }
 
     /**
@@ -122,9 +147,7 @@ public class TableCRUDService {
      */
     public List<Map<String, String>> select(String tableName, Condition condition)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
 
         TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
 
@@ -154,9 +177,7 @@ public class TableCRUDService {
     public List<Map<String, String>> select(
             String tableName, Map<String, List<String>> desc, Condition condition)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
 
         List<TablePrecompiled.Entry> selectEntry =
                 tablePrecompiled.select(condition.getTableConditions(), condition.getLimit());
@@ -180,9 +201,7 @@ public class TableCRUDService {
      * @return return select result which key in table matches the key given
      */
     public Map<String, String> select(String tableName, String key) throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
 
         TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
 
@@ -209,10 +228,7 @@ public class TableCRUDService {
      */
     public Map<String, String> select(String tableName, Map<String, List<String>> desc, String key)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
-
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
         TablePrecompiled.Entry selectEntry = tablePrecompiled.select(key);
         Map<String, String> result = new HashMap<>();
         if (selectEntry.fields.isEmpty()) {
@@ -236,9 +252,7 @@ public class TableCRUDService {
      * @return if success then return 0; otherwise is failed then see the retCode message
      */
     public RetCode insert(String tableName, Entry entry) throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
         return insert(tablePrecompiled, entry);
     }
 
@@ -253,7 +267,8 @@ public class TableCRUDService {
      */
     public RetCode insert(TablePrecompiled tablePrecompiled, Entry entry) throws ContractException {
         TransactionReceipt transactionReceipt = tablePrecompiled.insert(entry.covertToEntry());
-        return getCurdRetCode(transactionReceipt);
+        return getCurdRetCode(
+                transactionReceipt, tr -> tablePrecompiled.getInsertOutput(tr).getValue1());
     }
 
     /**
@@ -266,10 +281,13 @@ public class TableCRUDService {
      */
     public void asyncInsert(String tableName, Entry entry, PrecompiledCallback callback)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
-        tablePrecompiled.insert(entry.covertToEntry(), createTransactionCallback(callback));
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+        tablePrecompiled.insert(
+                entry.covertToEntry(),
+                createTransactionCallback(
+                        callback,
+                        transactionReceipt ->
+                                tablePrecompiled.getInsertOutput(transactionReceipt).getValue1()));
     }
 
     /**
@@ -282,9 +300,8 @@ public class TableCRUDService {
      */
     public RetCode update(String tableName, String key, UpdateFields updateFields)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
         return update(tablePrecompiled, key, updateFields);
     }
 
@@ -302,7 +319,8 @@ public class TableCRUDService {
 
         TransactionReceipt transactionReceipt =
                 tablePrecompiled.update(key, updateFields.convertToUpdateFields());
-        return getCurdRetCode(transactionReceipt);
+        return getCurdRetCode(
+                transactionReceipt, tr -> tablePrecompiled.getUpdateOutput(tr).getValue1());
     }
 
     /**
@@ -315,9 +333,8 @@ public class TableCRUDService {
      */
     public RetCode update(String tableName, Condition condition, UpdateFields updateFields)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
         return update(tablePrecompiled, condition, updateFields);
     }
 
@@ -338,7 +355,8 @@ public class TableCRUDService {
                         condition.getTableConditions(),
                         condition.getLimit(),
                         updateFields.convertToUpdateFields());
-        return getCurdRetCode(transactionReceipt);
+        return getCurdRetCode(
+                transactionReceipt, tr -> tablePrecompiled.getUpdateOutput(tr).getValue1());
     }
 
     /**
@@ -352,11 +370,15 @@ public class TableCRUDService {
     public void asyncUpdate(
             String tableName, String key, UpdateFields updateFields, PrecompiledCallback callback)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
         tablePrecompiled.update(
-                key, updateFields.convertToUpdateFields(), createTransactionCallback(callback));
+                key,
+                updateFields.convertToUpdateFields(),
+                createTransactionCallback(
+                        callback,
+                        transactionReceipt ->
+                                tablePrecompiled.getUpdateOutput(transactionReceipt).getValue1()));
     }
 
     /**
@@ -373,14 +395,16 @@ public class TableCRUDService {
             UpdateFields updateFields,
             PrecompiledCallback callback)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
         tablePrecompiled.update(
                 condition.getTableConditions(),
                 condition.getLimit(),
                 updateFields.convertToUpdateFields(),
-                createTransactionCallback(callback));
+                createTransactionCallback(
+                        callback,
+                        transactionReceipt ->
+                                tablePrecompiled.getUpdateOutput(transactionReceipt).getValue1()));
     }
 
     /**
@@ -391,9 +415,8 @@ public class TableCRUDService {
      * @return if success then return 0; otherwise is failed then see the retCode message
      */
     public RetCode remove(String tableName, String key) throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
         return remove(tablePrecompiled, key);
     }
 
@@ -407,7 +430,8 @@ public class TableCRUDService {
      */
     public RetCode remove(TablePrecompiled tablePrecompiled, String key) throws ContractException {
         TransactionReceipt transactionReceipt = tablePrecompiled.remove(key);
-        return getCurdRetCode(transactionReceipt);
+        return getCurdRetCode(
+                transactionReceipt, tr -> tablePrecompiled.getRemoveOutput(tr).getValue1());
     }
 
     /**
@@ -418,9 +442,8 @@ public class TableCRUDService {
      * @return if success then return 0; otherwise is failed then see the retCode message
      */
     public RetCode remove(String tableName, Condition condition) throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
         return remove(tablePrecompiled, condition);
     }
 
@@ -436,7 +459,8 @@ public class TableCRUDService {
             throws ContractException {
         TransactionReceipt transactionReceipt =
                 tablePrecompiled.remove(condition.getTableConditions(), condition.getLimit());
-        return getCurdRetCode(transactionReceipt);
+        return getCurdRetCode(
+                transactionReceipt, tr -> tablePrecompiled.getRemoveOutput(tr).getValue1());
     }
 
     /**
@@ -448,11 +472,14 @@ public class TableCRUDService {
      */
     public void asyncRemove(String tableName, String key, PrecompiledCallback callback)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
 
-        tablePrecompiled.remove(key, createTransactionCallback(callback));
+        tablePrecompiled.remove(
+                key,
+                createTransactionCallback(
+                        callback,
+                        transactionReceipt ->
+                                tablePrecompiled.getRemoveOutput(transactionReceipt).getValue1()));
     }
 
     /**
@@ -464,14 +491,14 @@ public class TableCRUDService {
      */
     public void asyncRemove(String tableName, Condition condition, PrecompiledCallback callback)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        TablePrecompiled tablePrecompiled =
-                TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
-
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
         tablePrecompiled.remove(
                 condition.getTableConditions(),
                 condition.getLimit(),
-                createTransactionCallback(callback));
+                createTransactionCallback(
+                        callback,
+                        transactionReceipt ->
+                                tablePrecompiled.getRemoveOutput(transactionReceipt).getValue1()));
     }
 
     /**
@@ -492,16 +519,16 @@ public class TableCRUDService {
         return descMap;
     }
 
-    private TransactionCallback createTransactionCallback(PrecompiledCallback callback) {
+    private TransactionCallback createTransactionCallback(
+            PrecompiledCallback callback, Function<TransactionReceipt, BigInteger> resultCaller) {
         return new TransactionCallback() {
             @Override
             public void onResponse(TransactionReceipt receipt) {
-                RetCode retCode = null;
+                RetCode retCode;
                 try {
-                    retCode = getCurdRetCode(receipt);
+                    retCode = getCurdRetCode(receipt, resultCaller);
                 } catch (ContractException e) {
-                    retCode.setCode(e.getErrorCode());
-                    retCode.setMessage(e.getMessage());
+                    retCode = new RetCode(e.getErrorCode(), e.getMessage());
                     retCode.setTransactionReceipt(receipt);
                 }
                 callback.onResponse(retCode);
@@ -509,12 +536,36 @@ public class TableCRUDService {
         };
     }
 
-    private RetCode getCurdRetCode(TransactionReceipt transactionReceipt) throws ContractException {
+    private RetCode getCurdRetCode(
+            TransactionReceipt transactionReceipt,
+            Function<TransactionReceipt, BigInteger> resultCaller)
+            throws ContractException {
         int status = transactionReceipt.getStatus();
         if (status != 0) {
             ReceiptParser.getErrorStatus(transactionReceipt);
         }
-        return ReceiptParser.getPrecompiledRetCode(
-                transactionReceipt.getOutput(), transactionReceipt.getMessage());
+        BigInteger result = resultCaller.apply(transactionReceipt);
+        return PrecompiledRetCode.getPrecompiledResponse(
+                result.intValue(), transactionReceipt.getMessage());
+    }
+
+    private String getTableName(String tableName) {
+        if (tableName.length() > TABLE_PREFIX.length() && tableName.startsWith(TABLE_PREFIX)) {
+            return tableName;
+        }
+        return TABLE_PREFIX + (tableName.startsWith("/") ? tableName.substring(1) : tableName);
+    }
+
+    private TablePrecompiled loadTablePrecompiled(String tableName) throws ContractException {
+        String address =
+                client.isWASM()
+                        ? getTableName(tableName)
+                        : tableManagerPrecompiled.openTable(tableName);
+        if (StringUtils.isEmpty(address)) {
+            logger.error("Empty address when loadTablePrecompiled, tableName: {}", tableName);
+            throw new ContractException(
+                    "Empty address when loadTablePrecompiled, tableName: " + tableName);
+        }
+        return TablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
     }
 }

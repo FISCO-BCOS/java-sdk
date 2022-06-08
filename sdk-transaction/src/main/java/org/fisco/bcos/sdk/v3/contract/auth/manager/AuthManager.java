@@ -346,7 +346,9 @@ public class AuthManager {
         TransactionReceipt transactionReceipt =
                 contractAuthPrecompiled.setMethodAuthType(
                         contractAddress, func, authType.getValue());
-        return ReceiptParser.parseTransactionReceipt(transactionReceipt);
+        return ReceiptParser.parseTransactionReceipt(
+                transactionReceipt,
+                tr -> contractAuthPrecompiled.getSetMethodAuthTypeOutput(tr).getValue1());
     }
 
     /**
@@ -366,7 +368,12 @@ public class AuthManager {
                 isOpen
                         ? contractAuthPrecompiled.openMethodAuth(contractAddress, func, account)
                         : contractAuthPrecompiled.closeMethodAuth(contractAddress, func, account);
-        return ReceiptParser.parseTransactionReceipt(receipt);
+        return ReceiptParser.parseTransactionReceipt(
+                receipt,
+                tr ->
+                        isOpen
+                                ? contractAuthPrecompiled.getOpenMethodAuthOutput(tr).getValue1()
+                                : contractAuthPrecompiled.getCloseMethodAuthOutput(tr).getValue1());
     }
 
     /**
@@ -380,7 +387,9 @@ public class AuthManager {
             throws ContractException {
         TransactionReceipt transactionReceipt =
                 contractAuthPrecompiled.setContractStatus(contractAddress, isFreeze);
-        return ReceiptParser.parseTransactionReceipt(transactionReceipt);
+        return ReceiptParser.parseTransactionReceipt(
+                transactionReceipt,
+                tr -> contractAuthPrecompiled.getSetContractStatusOutput(tr).getValue1());
     }
 
     /**

@@ -40,7 +40,6 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
@@ -196,11 +195,10 @@ public class Contract {
                             codec.encodeConstructorFromBytes(binary, encodedConstructor), abi);
             String contractAddress = transactionReceipt.getContractAddress();
             if (contractAddress == null
-                    || transactionReceipt.getStatus() != TransactionReceiptStatus.Success.code) {
+                    || transactionReceipt.getStatus()
+                            != TransactionReceiptStatus.Success.getCode()) {
                 // parse the receipt
-                RetCode retCode = ReceiptParser.parseTransactionReceipt(transactionReceipt);
-                throw new ContractException(
-                        "Deploy contract failed, error message: " + retCode.getMessage());
+                ReceiptParser.getErrorStatus(transactionReceipt);
             }
             contract.setContractAddress(client.isWASM() ? path : contractAddress);
             contract.setDeployReceipt(transactionReceipt);

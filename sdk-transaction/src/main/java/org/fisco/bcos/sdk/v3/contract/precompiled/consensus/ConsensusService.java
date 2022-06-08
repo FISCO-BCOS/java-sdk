@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
+import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
@@ -60,9 +61,9 @@ public class ConsensusService {
                 }
             }
         }
-
+        TransactionReceipt receipt = consensusPrecompiled.addSealer(nodeId, weight);
         return ReceiptParser.parseTransactionReceipt(
-                consensusPrecompiled.addSealer(nodeId, weight));
+                receipt, tr -> consensusPrecompiled.getAddSealerOutput(tr).getValue1());
     }
 
     public RetCode addObserver(String nodeId) throws ContractException {
@@ -70,30 +71,20 @@ public class ConsensusService {
         if (observerList.contains(nodeId)) {
             throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
         }
-        return ReceiptParser.parseTransactionReceipt(consensusPrecompiled.addObserver(nodeId));
+        TransactionReceipt receipt = consensusPrecompiled.addObserver(nodeId);
+        return ReceiptParser.parseTransactionReceipt(
+                receipt, tr -> consensusPrecompiled.getAddObserverOutput(tr).getValue1());
     }
 
     public RetCode removeNode(String nodeId) throws ContractException {
-        List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
-        List<String> observerList = client.getObserverList().getResult();
-        boolean exist = false;
-        if (sealerList != null) {
-            for (SealerList.Sealer sealer : sealerList) {
-                if (sealer.getNodeID().equals(nodeId)) {
-                    exist = true;
-                    break;
-                }
-            }
-        }
-
-        if (!exist && !observerList.contains(nodeId)) {
-            throw new ContractException(PrecompiledRetCode.ALREADY_REMOVED_FROM_THE_GROUP);
-        }
-        return ReceiptParser.parseTransactionReceipt(consensusPrecompiled.remove(nodeId));
+        TransactionReceipt receipt = consensusPrecompiled.remove(nodeId);
+        return ReceiptParser.parseTransactionReceipt(
+                receipt, tr -> consensusPrecompiled.getRemoveOutput(tr).getValue1());
     }
 
     public RetCode setWeight(String nodeId, BigInteger weight) throws ContractException {
+        TransactionReceipt receipt = consensusPrecompiled.setWeight(nodeId, weight);
         return ReceiptParser.parseTransactionReceipt(
-                consensusPrecompiled.setWeight(nodeId, weight));
+                receipt, tr -> consensusPrecompiled.getSetWeightOutput(tr).getValue1());
     }
 }

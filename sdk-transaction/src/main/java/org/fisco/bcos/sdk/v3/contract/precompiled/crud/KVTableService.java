@@ -14,6 +14,8 @@
  */
 package org.fisco.bcos.sdk.v3.contract.precompiled.crud;
 
+import static org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Common.TABLE_PREFIX;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.fisco.bcos.sdk.v3.client.Client;
@@ -28,10 +30,14 @@ import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KVTableService {
     private final Client client;
     private final TableManagerPrecompiled tableManagerPrecompiled;
+    private final Logger logger = LoggerFactory.getLogger(KVTableService.class);
 
     public KVTableService(Client client, CryptoKeyPair credential) {
         this.client = client;
@@ -53,55 +59,42 @@ public class KVTableService {
     public RetCode createTable(String tableName, String keyFieldName, String valueField)
             throws ContractException {
         checkKey(keyFieldName);
+        TransactionReceipt transactionReceipt =
+                tableManagerPrecompiled.createKVTable(tableName, keyFieldName, valueField);
+
         return ReceiptParser.parseTransactionReceipt(
-                tableManagerPrecompiled.createKVTable(tableName, keyFieldName, valueField));
+                transactionReceipt,
+                tr -> tableManagerPrecompiled.getCreateKVTableOutput(tr).getValue1());
     }
 
     public RetCode set(String tableName, String key, String value) throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        KVTablePrecompiled kvTablePrecompiled =
-                KVTablePrecompiled.load(
-                        address, client, client.getCryptoSuite().getCryptoKeyPair());
-        return ReceiptParser.parseTransactionReceipt(kvTablePrecompiled.set(key, value));
+        KVTablePrecompiled kvTablePrecompiled = loadKVTablePrecompiled(tableName);
+
+        return set(kvTablePrecompiled, key, value);
     }
 
     public RetCode set(KVTablePrecompiled kvTablePrecompiled, String key, String value)
             throws ContractException {
-        return ReceiptParser.parseTransactionReceipt(kvTablePrecompiled.set(key, value));
+        TransactionReceipt receipt = kvTablePrecompiled.set(key, value);
+        return ReceiptParser.parseTransactionReceipt(
+                receipt, tr -> kvTablePrecompiled.getSetOutput(tr).getValue1());
     }
 
     public String get(String tableName, String key) throws ContractException {
-        try {
-            String address =
-                    client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-            KVTablePrecompiled kvTablePrecompiled =
-                    KVTablePrecompiled.load(
-                            address, client, client.getCryptoSuite().getCryptoKeyPair());
+        KVTablePrecompiled kvTablePrecompiled = loadKVTablePrecompiled(tableName);
 
-            Tuple2<Boolean, String> booleanStringTuple = kvTablePrecompiled.get(key);
-            if (!booleanStringTuple.getValue1()) {
-                throw new ContractException("get from " + tableName + " failed, return false.");
-            }
-            return booleanStringTuple.getValue2();
-        } catch (ContractException e) {
-            throw ReceiptParser.parseExceptionCall(e);
-        }
+        return get(kvTablePrecompiled, key);
     }
 
     public String get(KVTablePrecompiled kvTablePrecompiled, String key) throws ContractException {
-        try {
-
-            Tuple2<Boolean, String> booleanStringTuple = kvTablePrecompiled.get(key);
-            if (!booleanStringTuple.getValue1()) {
-                throw new ContractException(
-                        "get from "
-                                + kvTablePrecompiled.getContractAddress()
-                                + " failed, return false.");
-            }
-            return booleanStringTuple.getValue2();
-        } catch (ContractException e) {
-            throw ReceiptParser.parseExceptionCall(e);
+        Tuple2<Boolean, String> booleanStringTuple = kvTablePrecompiled.get(key);
+        if (!booleanStringTuple.getValue1()) {
+            throw new ContractException(
+                    "get from "
+                            + kvTablePrecompiled.getContractAddress()
+                            + " failed, return false.");
         }
+        return booleanStringTuple.getValue2();
     }
 
     public Map<String, String> desc(String tableName) throws ContractException {
@@ -114,28 +107,8 @@ public class KVTableService {
 
     public void asyncSet(String tableName, String key, String value, PrecompiledCallback callback)
             throws ContractException {
-        String address = client.isWASM() ? tableName : tableManagerPrecompiled.openTable(tableName);
-        KVTablePrecompiled kvTablePrecompiled =
-                KVTablePrecompiled.load(
-                        address, client, client.getCryptoSuite().getCryptoKeyPair());
-
-        kvTablePrecompiled.set(
-                key,
-                value,
-                new TransactionCallback() {
-                    @Override
-                    public void onResponse(TransactionReceipt receipt) {
-                        RetCode retCode = new RetCode();
-                        try {
-                            retCode = ReceiptParser.parseTransactionReceipt(receipt);
-                        } catch (ContractException e) {
-                            retCode.setCode(e.getErrorCode());
-                            retCode.setMessage(e.getMessage());
-                            retCode.setTransactionReceipt(receipt);
-                        }
-                        callback.onResponse(retCode);
-                    }
-                });
+        KVTablePrecompiled kvTablePrecompiled = loadKVTablePrecompiled(tableName);
+        asyncSet(kvTablePrecompiled, key, value, callback);
     }
 
     public void asyncSet(
@@ -149,16 +122,38 @@ public class KVTableService {
                 new TransactionCallback() {
                     @Override
                     public void onResponse(TransactionReceipt receipt) {
-                        RetCode retCode = new RetCode();
+                        RetCode retCode;
                         try {
-                            retCode = ReceiptParser.parseTransactionReceipt(receipt);
+                            retCode =
+                                    ReceiptParser.parseTransactionReceipt(
+                                            receipt,
+                                            tr -> kvTablePrecompiled.getSetOutput(tr).getValue1());
                         } catch (ContractException e) {
-                            retCode.setCode(e.getErrorCode());
-                            retCode.setMessage(e.getMessage());
+                            retCode = new RetCode(e.getErrorCode(), e.getMessage());
                             retCode.setTransactionReceipt(receipt);
                         }
                         callback.onResponse(retCode);
                     }
                 });
+    }
+
+    private String getTableName(String tableName) {
+        if (tableName.length() > TABLE_PREFIX.length() && tableName.startsWith(TABLE_PREFIX)) {
+            return tableName;
+        }
+        return TABLE_PREFIX + (tableName.startsWith("/") ? tableName.substring(1) : tableName);
+    }
+
+    private KVTablePrecompiled loadKVTablePrecompiled(String tableName) throws ContractException {
+        String address =
+                client.isWASM()
+                        ? getTableName(tableName)
+                        : tableManagerPrecompiled.openTable(tableName);
+        if (StringUtils.isEmpty(address)) {
+            logger.error("Empty address when loadKVTablePrecompiled, tableName: {}", tableName);
+            throw new ContractException(
+                    "Empty address when loadKVTablePrecompiled, tableName: " + tableName);
+        }
+        return KVTablePrecompiled.load(address, client, client.getCryptoSuite().getCryptoKeyPair());
     }
 }

@@ -119,7 +119,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt) {
         TransactionResponse response = new TransactionResponse();
         try {
-            RetCode retCode = ReceiptParser.parseTransactionReceipt(receipt);
+            RetCode retCode = ReceiptParser.parseTransactionReceipt(receipt, null);
             response.setReturnCode(retCode.getCode());
             response.setReceiptMessages(retCode.getMessage());
             response.setReturnMessage(retCode.getMessage());
