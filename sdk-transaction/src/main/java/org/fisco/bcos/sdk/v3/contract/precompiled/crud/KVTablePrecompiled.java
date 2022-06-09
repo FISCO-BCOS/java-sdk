@@ -10,7 +10,7 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int256;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int32;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple1;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.contract.Contract;
@@ -119,7 +119,7 @@ public class KVTablePrecompiled extends Contract {
                 new Function(
                         FUNC_SET,
                         Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int32>() {}));
         List<Type> results =
                 this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
