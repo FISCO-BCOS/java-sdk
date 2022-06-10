@@ -3,6 +3,7 @@ package org.fisco.bcos.sdk.channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.AttributeKey;
+import java.net.InetSocketAddress;
 import org.fisco.bcos.sdk.channel.model.ChannelProtocol;
 import org.fisco.bcos.sdk.channel.model.EnumChannelProtocolVersion;
 import org.fisco.bcos.sdk.channel.model.EnumSocketChannelAttributeKey;
@@ -53,9 +54,9 @@ public class ChannelVersionNegotiation {
 
     public static String getPeerHost(ChannelHandlerContext ctx) {
 
-        SocketChannel socketChannel = (SocketChannel) ctx.channel();
-        String hostAddress = socketChannel.remoteAddress().getAddress().getHostAddress();
-        int port = socketChannel.remoteAddress().getPort();
+        InetSocketAddress inetSocketAddress = ((SocketChannel) ctx.channel()).remoteAddress();
+        String hostAddress = inetSocketAddress.getAddress().getHostName();
+        Integer port = inetSocketAddress.getPort();
         return hostAddress + ":" + port;
     }
 

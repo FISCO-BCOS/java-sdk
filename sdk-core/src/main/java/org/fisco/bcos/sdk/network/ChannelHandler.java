@@ -22,6 +22,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslCloseCompletionEvent;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import io.netty.handler.timeout.IdleStateEvent;
+import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import org.fisco.bcos.sdk.model.Message;
@@ -47,8 +48,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        String host = ((SocketChannel) ctx.channel()).remoteAddress().getAddress().getHostAddress();
-        Integer port = ((SocketChannel) ctx.channel()).remoteAddress().getPort();
+        InetSocketAddress inetSocketAddress = ((SocketChannel) ctx.channel()).remoteAddress();
+        String host = inetSocketAddress.getAddress().getHostName();
+        Integer port = inetSocketAddress.getPort();
         if (evt instanceof IdleStateEvent) {
             final IdleStateEvent e = (IdleStateEvent) evt;
             switch (e.state()) {
@@ -120,9 +122,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         try {
             // lost the connection, get ip info
-            String host =
-                    ((SocketChannel) ctx.channel()).remoteAddress().getAddress().getHostAddress();
-            Integer port = ((SocketChannel) ctx.channel()).remoteAddress().getPort();
+            InetSocketAddress inetSocketAddress = ((SocketChannel) ctx.channel()).remoteAddress();
+            String host = inetSocketAddress.getAddress().getHostName();
+            Integer port = inetSocketAddress.getPort();
 
             logger.debug(
                     " channelInactive, disconnect "
