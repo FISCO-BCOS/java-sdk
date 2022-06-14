@@ -145,7 +145,7 @@ public class PrecompiledTest {
     @Test
     public void authTest() throws ContractException {
         mockGetNodeRequest("node1", "node2", "node3");
-        mockGetSealerRequest("node1","node2");
+        mockGetSealerRequest("node1", "node2");
         mockGetObserverRequest("node3");
         mockSendTxRequest("0x0000000000000000000000000000000000000000000000000000000000000001", PrecompiledAddress.CONTRACT_AUTH_ADDRESS, 0);
         BigInteger rmNodeProposal = authManager.createRmNodeProposal("node1");
@@ -155,9 +155,9 @@ public class PrecompiledTest {
         Assert.assertEquals(BigInteger.ONE, proposal);
         // add exist
         try {
-            Assert.assertThrows(ContractException.class,()-> authManager.createSetConsensusWeightProposal("node1", BigInteger.ONE, true));
+            Assert.assertThrows(ContractException.class, () -> authManager.createSetConsensusWeightProposal("node1", BigInteger.ONE, true));
             authManager.createSetConsensusWeightProposal("node1", BigInteger.ONE, true);
-        }catch (ContractException e){
+        } catch (ContractException e) {
             Assert.assertEquals(PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST, e.getMessage());
         }
 
@@ -170,19 +170,35 @@ public class PrecompiledTest {
         Assert.assertEquals(BigInteger.ONE, proposal2);
         // add exist
         try {
-            Assert.assertThrows(ContractException.class,()-> authManager.createSetConsensusWeightProposal("node3", BigInteger.ZERO, true));
+            Assert.assertThrows(ContractException.class, () -> authManager.createSetConsensusWeightProposal("node3", BigInteger.ZERO, true));
             authManager.createSetConsensusWeightProposal("node1", BigInteger.ZERO, true);
-        }catch (ContractException e){
+        } catch (ContractException e) {
             Assert.assertEquals(PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST, e.getMessage());
         }
 
         // update zero
         try {
-            Assert.assertThrows(ContractException.class,()-> authManager.createSetConsensusWeightProposal("node3", BigInteger.ZERO, false));
+            Assert.assertThrows(ContractException.class, () -> authManager.createSetConsensusWeightProposal("node3", BigInteger.ZERO, false));
             authManager.createSetConsensusWeightProposal("node3", BigInteger.ZERO, false);
-        }catch (ContractException e){
+        } catch (ContractException e) {
             Assert.assertEquals(PrecompiledRetCode.CODE_INVALID_WEIGHT.getMessage(), e.getMessage());
         }
+
+        BigInteger proposal3 = authManager.createSetSysConfigProposal(SystemConfigService.TX_GAS_LIMIT, String.valueOf(100000));
+        Assert.assertEquals(BigInteger.ONE, proposal3);
+
+        BigInteger proposal4 = authManager.createSetSysConfigProposal(SystemConfigService.TX_COUNT_LIMIT, String.valueOf(100000));
+        Assert.assertEquals(BigInteger.ONE, proposal4);
+
+        BigInteger proposal5 = authManager.createSetSysConfigProposal(SystemConfigService.CONSENSUS_PERIOD, String.valueOf(100000));
+        Assert.assertEquals(BigInteger.ONE, proposal5);
+
+        Assert.assertThrows(ContractException.class, () -> authManager.createSetSysConfigProposal(SystemConfigService.TX_GAS_LIMIT, String.valueOf(100000 - 1)));
+        Assert.assertThrows(ContractException.class, () -> authManager.createSetSysConfigProposal(SystemConfigService.TX_COUNT_LIMIT, String.valueOf(- 1)));
+        Assert.assertThrows(ContractException.class, () -> authManager.createSetSysConfigProposal(SystemConfigService.CONSENSUS_PERIOD, String.valueOf(- 1)));
+
+        BigInteger errorKey = authManager.createSetSysConfigProposal("errorKey", String.valueOf(100000));
+        Assert.assertEquals(BigInteger.ONE, errorKey);
     }
 
 }
