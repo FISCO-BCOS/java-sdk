@@ -164,13 +164,7 @@ public class PrecompiledTest {
         BigInteger proposal1 = authManager.createSetConsensusWeightProposal("node1", BigInteger.ONE, false);
         Assert.assertEquals(BigInteger.ONE, proposal1);
 
-        // update not exist
-        try {
-            Assert.assertThrows(ContractException.class,()-> authManager.createSetConsensusWeightProposal("node3", BigInteger.ONE, false));
-            authManager.createSetConsensusWeightProposal("node3", BigInteger.ONE, false);
-        }catch (ContractException e){
-            Assert.assertEquals(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST, e.getMessage());
-        }
+        // update not exist, straight set on chain
 
         BigInteger proposal2 = authManager.createSetConsensusWeightProposal("node1", BigInteger.ZERO, true);
         Assert.assertEquals(BigInteger.ONE, proposal2);

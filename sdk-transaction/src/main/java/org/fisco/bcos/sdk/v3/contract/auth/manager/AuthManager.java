@@ -15,6 +15,7 @@ import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
@@ -61,10 +62,13 @@ public class AuthManager {
      * @param weight 0-delete, >0-update or insert
      * @return proposalId
      */
-    public BigInteger updateGovernor(String account, BigInteger weight) {
+    public BigInteger updateGovernor(String account, BigInteger weight) throws ContractException {
         TransactionReceipt tr =
                 committeeManager.createUpdateGovernorProposal(
                         account, weight, DEFAULT_BLOCK_NUMBER_INTERVAL);
+        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(tr);
+        }
         return committeeManager.getCreateUpdateGovernorProposalOutput(tr).getValue1();
     }
 
@@ -75,10 +79,14 @@ public class AuthManager {
      * @param winRate [0,100].
      * @return proposalId
      */
-    public BigInteger setRate(BigInteger participatesRate, BigInteger winRate) {
+    public BigInteger setRate(BigInteger participatesRate, BigInteger winRate)
+            throws ContractException {
         TransactionReceipt tr =
                 committeeManager.createSetRateProposal(
                         participatesRate, winRate, DEFAULT_BLOCK_NUMBER_INTERVAL);
+        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(tr);
+        }
         return committeeManager.getCreateSetRateProposalOutput(tr).getValue1();
     }
 
@@ -88,10 +96,13 @@ public class AuthManager {
      * @param deployAuthType 1-whitelist; 2-blacklist
      * @return proposalId
      */
-    public BigInteger setDeployAuthType(AuthType deployAuthType) {
+    public BigInteger setDeployAuthType(AuthType deployAuthType) throws ContractException {
         TransactionReceipt tr =
                 committeeManager.createSetDeployAuthTypeProposal(
                         deployAuthType.getValue(), DEFAULT_BLOCK_NUMBER_INTERVAL);
+        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(tr);
+        }
         return committeeManager.getCreateSetDeployAuthTypeProposalOutput(tr).getValue1();
     }
 
@@ -111,10 +122,13 @@ public class AuthManager {
      * @param openFlag true-open; false-close
      * @return proposalId
      */
-    public BigInteger modifyDeployAuth(String account, Boolean openFlag) {
+    public BigInteger modifyDeployAuth(String account, Boolean openFlag) throws ContractException {
         TransactionReceipt tr =
                 committeeManager.createModifyDeployAuthProposal(
                         account, openFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
+        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(tr);
+        }
         return committeeManager.getCreateModifyDeployAuthProposalOutput(tr).getValue1();
     }
 
@@ -125,10 +139,13 @@ public class AuthManager {
      * @param contractAddr the address of contract which will propose to reset admin
      * @return proposalId
      */
-    public BigInteger resetAdmin(String newAdmin, String contractAddr) {
+    public BigInteger resetAdmin(String newAdmin, String contractAddr) throws ContractException {
         TransactionReceipt tr =
                 committeeManager.createResetAdminProposal(
                         newAdmin, contractAddr, DEFAULT_BLOCK_NUMBER_INTERVAL);
+        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(tr);
+        }
         return committeeManager.getCreateResetAdminProposalOutput(tr).getValue1();
     }
 
@@ -138,10 +155,13 @@ public class AuthManager {
      * @param node node ID
      * @return proposal ID
      */
-    public BigInteger createRmNodeProposal(String node) {
-        TransactionReceipt rmNodeProposal =
+    public BigInteger createRmNodeProposal(String node) throws ContractException {
+        TransactionReceipt tr =
                 committeeManager.createRmNodeProposal(node, DEFAULT_BLOCK_NUMBER_INTERVAL);
-        return committeeManager.getCreateRmNodeProposalOutput(rmNodeProposal).getValue1();
+        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(tr);
+        }
+        return committeeManager.getCreateRmNodeProposalOutput(tr).getValue1();
     }
 
     /**
@@ -154,10 +174,6 @@ public class AuthManager {
      */
     public BigInteger createSetConsensusWeightProposal(
             String node, BigInteger weight, boolean addFlag) throws ContractException {
-        // check the nodeId exists in the nodeList or not
-        if (addFlag && !existsInNodeList(node)) {
-            throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
-        }
         weight = weight.compareTo(BigInteger.ZERO) < 0 ? BigInteger.ZERO : weight;
 
         checkSetConsensusWeightParams(node, weight, addFlag);
@@ -165,18 +181,24 @@ public class AuthManager {
         TransactionReceipt tr =
                 committeeManager.createSetConsensusWeightProposal(
                         node, weight, addFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
+        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(tr);
+        }
         return committeeManager.getCreateSetConsensusWeightProposalOutput(tr).getValue1();
     }
 
     private void checkSetConsensusWeightParams(String node, BigInteger weight, boolean addFlag)
             throws ContractException {
-        boolean existence =
-                (weight.compareTo(BigInteger.ZERO) > 0)
-                        ? client.getSealerList().getResult().stream()
-                                .anyMatch(sealer -> sealer.getNodeID().equals(node))
-                        : client.getObserverList().getResult().contains(node);
-
         if (addFlag) {
+            // check the nodeId exists in the nodeList or not
+            if (!existsInNodeList(node)) {
+                throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
+            }
+            boolean existence =
+                    (weight.compareTo(BigInteger.ZERO) > 0)
+                            ? client.getSealerList().getResult().stream()
+                                    .anyMatch(sealer -> sealer.getNodeID().equals(node))
+                            : client.getObserverList().getResult().contains(node);
             if (existence) {
                 throw new ContractException(
                         (weight.compareTo(BigInteger.ZERO) > 0)
@@ -184,11 +206,7 @@ public class AuthManager {
                                 : PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
             }
         } else {
-            if (weight.compareTo(BigInteger.ZERO) > 0) {
-                if (!existence) {
-                    throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
-                }
-            } else {
+            if (weight.compareTo(BigInteger.ZERO) <= 0) {
                 throw new ContractException(PrecompiledRetCode.CODE_INVALID_WEIGHT.getMessage());
             }
         }
@@ -212,6 +230,9 @@ public class AuthManager {
         TransactionReceipt tr =
                 committeeManager.createSetSysConfigProposal(
                         key, value.toString(), DEFAULT_BLOCK_NUMBER_INTERVAL);
+        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(tr);
+        }
         return committeeManager.getCreateSetSysConfigProposalOutput(tr).getValue1();
     }
 
@@ -221,10 +242,13 @@ public class AuthManager {
      * @param address vote computer address
      * @return proposal ID
      */
-    public BigInteger createUpgradeVoteComputerProposal(String address) {
+    public BigInteger createUpgradeVoteComputerProposal(String address) throws ContractException {
         TransactionReceipt tr =
                 committeeManager.createUpgradeVoteComputerProposal(
                         address, DEFAULT_BLOCK_NUMBER_INTERVAL);
+        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(tr);
+        }
         return committeeManager.getCreateUpgradeVoteComputerProposalOutput(tr).getValue1();
     }
 
