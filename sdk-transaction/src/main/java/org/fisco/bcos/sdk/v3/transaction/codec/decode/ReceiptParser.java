@@ -23,13 +23,8 @@ import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ReceiptParser {
-    private static final Logger logger = LoggerFactory.getLogger(ReceiptParser.class);
-    private static final String PRECOMPILED_PREFIX = "00000000000000000000000000000000000";
-    private static final String PRECOMPILED_NAME_PREFIX = "/sys/";
 
     private ReceiptParser() {}
 
