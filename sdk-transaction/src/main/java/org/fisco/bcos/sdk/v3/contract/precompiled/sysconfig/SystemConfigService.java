@@ -57,11 +57,21 @@ public class SystemConfigService {
                 receipt, tr -> systemConfigPrecompiled.getSetValueByKeyOutput(receipt).getValue1());
     }
 
-    public static boolean checkSysNumberValueValidation(String key, BigInteger value) {
+    public static boolean checkSysNumberValueValidation(String key, String value) {
         Predicate<BigInteger> valuePredicate = predicateMap.get(key);
         if (valuePredicate == null) {
             return true;
         }
-        return valuePredicate.test(value);
+        BigInteger sysValue;
+        try {
+            sysValue = new BigInteger(value);
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
+        return valuePredicate.test(sysValue);
+    }
+
+    public static boolean isCheckableInValueValidation(String key) {
+        return predicateMap.containsKey(key);
     }
 }

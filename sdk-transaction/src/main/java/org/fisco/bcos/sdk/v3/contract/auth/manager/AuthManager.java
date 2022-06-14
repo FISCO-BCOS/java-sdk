@@ -221,15 +221,15 @@ public class AuthManager {
      *     consensus_leader_period > 1
      * @return proposal ID
      */
-    public BigInteger createSetSysConfigProposal(String key, BigInteger value)
+    public BigInteger createSetSysConfigProposal(String key, String value)
             throws ContractException {
-        if (SystemConfigService.checkSysNumberValueValidation(key, value)) {
+        if (!SystemConfigService.checkSysNumberValueValidation(key, value)) {
             throw new ContractException(
-                    "Invalid value \" " + value + " \" for " + key + ", please check valid range.");
+                    "Invalid value \"" + value + "\" for " + key + ", please check valid range.");
         }
         TransactionReceipt tr =
                 committeeManager.createSetSysConfigProposal(
-                        key, value.toString(), DEFAULT_BLOCK_NUMBER_INTERVAL);
+                        key, value, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
             ReceiptParser.getErrorStatus(tr);
         }
