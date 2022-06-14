@@ -16,13 +16,9 @@
 package org.fisco.bcos.sdk.v3.model.callback;
 
 import org.fisco.bcos.sdk.v3.model.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** ResponseCallback is to define a callback to handle response from node. */
 public abstract class ResponseCallback {
-
-    private static Logger logger = LoggerFactory.getLogger(ResponseCallback.class);
 
     private long timeoutValue = -1;
 

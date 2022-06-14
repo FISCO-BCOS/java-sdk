@@ -143,9 +143,6 @@ public class AccountConfig {
         if (accountFilePath != null && !accountFilePath.equals("")) {
             return true;
         }
-        if (accountAddress != null && !accountAddress.equals("")) {
-            return true;
-        }
-        return false;
+        return accountAddress != null && !accountAddress.equals("");
     }
 }

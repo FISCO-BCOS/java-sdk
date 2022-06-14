@@ -151,13 +151,6 @@ public class PrecompiledTest {
         BigInteger rmNodeProposal = authManager.createRmNodeProposal("node1");
         Assert.assertEquals(BigInteger.ONE, rmNodeProposal);
 
-        try {
-            Assert.assertThrows(ContractException.class, () -> authManager.createRmNodeProposal("error"));
-            authManager.createRmNodeProposal("error");
-        } catch (ContractException e) {
-            Assert.assertEquals(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST, e.getMessage());
-        }
-
         BigInteger proposal = authManager.createSetConsensusWeightProposal("node3", BigInteger.ONE, true);
         Assert.assertEquals(BigInteger.ONE, proposal);
         // add exist

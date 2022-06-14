@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 import org.fisco.bcos.sdk.v3.config.exceptions.ConfigException;
 import org.slf4j.Logger;
@@ -133,8 +134,10 @@ public class ConfigProperty {
                     Thread.currentThread()
                             .getContextClassLoader()
                             .getResourceAsStream(configFilePath)) {
-                String contents = IOUtils.toString(in, StandardCharsets.UTF_8);
-                return contents;
+                if (Objects.isNull(in)) {
+                    throw new ConfigException("File not found, path: " + configFilePath);
+                }
+                return IOUtils.toString(in, StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
             logger.warn("e: ", e);

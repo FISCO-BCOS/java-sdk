@@ -40,7 +40,7 @@ public class ThreadPoolConfig {
         String cpuNum = String.valueOf(Runtime.getRuntime().availableProcessors());
         String value = ConfigProperty.getValue(threadPoolConfig, "threadPoolSize", cpuNum);
 
-        this.threadPoolSize = Integer.valueOf(value);
+        this.threadPoolSize = Integer.parseInt(value);
         logger.debug("Init ThreadPoolConfig, threadPoolSize: {}", this.threadPoolSize);
     }
 }
