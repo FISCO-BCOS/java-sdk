@@ -67,6 +67,10 @@ public class ConsensusService {
     }
 
     public RetCode addObserver(String nodeId) throws ContractException {
+        // check the nodeId exists in the nodeList or not
+        if (!existsInNodeList(nodeId)) {
+            throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
+        }
         List<String> observerList = client.getObserverList().getResult();
         if (observerList.contains(nodeId)) {
             throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);

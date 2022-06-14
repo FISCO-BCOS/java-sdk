@@ -18,7 +18,7 @@ import java.util.List;
 
 /** Utility functions for working with Collections. */
 public class Collection {
-    private static String[] EMPTY_STRING_ARRAY = {};
+    private static final String[] EMPTY_STRING_ARRAY = {};
 
     public static String[] tail(String[] args) {
         if (args.length == 0) {
@@ -28,6 +28,7 @@ public class Collection {
         }
     }
 
+    @SafeVarargs
     public static <T> T[] create(T... args) {
         return args;
     }

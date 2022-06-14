@@ -23,21 +23,30 @@ import org.junit.Test;
 
 public class ConfigTest {
     @Test
-    public void testLoadRightConfig() {
-        try {
-            ConfigOption configOption =
-                    Config.load(
-                            "src/test/resources/config-example.toml");
-            Assert.assertTrue(configOption.getAccountConfig() != null);
-            System.out.println(
-                    "configOption.getAccountConfig: "
-                            + configOption.getAccountConfig().getKeyStoreDir());
-            // assertEquals("ecdsa", config.getAlgorithm());
-        } catch (ConfigException e) {
-            System.out.println("testLoadRightConfig failed, error message: " + e.getMessage());
-            if (!e.getMessage().contains("consumer_public_key_1.pem file not exist")) {
-                System.out.println("No exception is needed.");
-            }
-        }
+    public void testLoadRightConfig() throws ConfigException {
+        ConfigOption configOption =
+                Config.load(
+                        "src/test/resources/config-example.toml");
+        Assert.assertFalse(configOption.getCryptoMaterialConfig().getUseSmCrypto());
+        Assert.assertNotNull(configOption.getAccountConfig());
+        Assert.assertEquals("group0", configOption.getNetworkConfig().getDefaultGroup());
+        Assert.assertEquals(2, configOption.getNetworkConfig().getPeers().size());
+
+        configOption.reloadConfig();
+        Assert.assertFalse(configOption.getCryptoMaterialConfig().getUseSmCrypto());
+        Assert.assertNotNull(configOption.getAccountConfig());
+        Assert.assertEquals("group0", configOption.getNetworkConfig().getDefaultGroup());
+        Assert.assertEquals(2, configOption.getNetworkConfig().getPeers().size());
+    }
+
+    @Test
+    public void testSMConfig() throws ConfigException {
+        ConfigOption configOption =
+                Config.load(
+                        "src/test/resources/config-example-gm.toml");
+        Assert.assertTrue(configOption.getCryptoMaterialConfig().getUseSmCrypto());
+        Assert.assertNotNull(configOption.getAccountConfig());
+        Assert.assertEquals("group0", configOption.getNetworkConfig().getDefaultGroup());
+        Assert.assertEquals(2, configOption.getNetworkConfig().getPeers().size());
     }
 }

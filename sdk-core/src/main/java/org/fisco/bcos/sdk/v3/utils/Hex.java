@@ -22,6 +22,8 @@ import org.fisco.bcos.sdk.v3.utils.exceptions.EncoderException;
 
 /** Utility class for converting hex data to bytes and back again. */
 public class Hex {
+    private Hex() {}
+
     private static final HexEncoder encoder = new HexEncoder();
 
     public static boolean hasHexPrefix(String data) {

@@ -18,6 +18,8 @@ package org.fisco.bcos.sdk.v3.utils;
 import java.util.Objects;
 
 public class AddressUtils {
+    private AddressUtils() {}
+
     public static final String ADDRESS_PATTERN = "^[0-9A-Fa-f]{40}$";
 
     public static boolean isValidAddress(String address) {

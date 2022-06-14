@@ -138,11 +138,7 @@ public class AuthManager {
      * @param node node ID
      * @return proposal ID
      */
-    public BigInteger createRmNodeProposal(String node) throws ContractException {
-        // check the nodeId exists in the nodeList or not
-        if (!existsInNodeList(node)) {
-            throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
-        }
+    public BigInteger createRmNodeProposal(String node) {
         TransactionReceipt rmNodeProposal =
                 committeeManager.createRmNodeProposal(node, DEFAULT_BLOCK_NUMBER_INTERVAL);
         return committeeManager.getCreateRmNodeProposalOutput(rmNodeProposal).getValue1();
@@ -159,7 +155,7 @@ public class AuthManager {
     public BigInteger createSetConsensusWeightProposal(
             String node, BigInteger weight, boolean addFlag) throws ContractException {
         // check the nodeId exists in the nodeList or not
-        if (!existsInNodeList(node)) {
+        if (addFlag && !existsInNodeList(node)) {
             throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
         }
         weight = weight.compareTo(BigInteger.ZERO) < 0 ? BigInteger.ZERO : weight;
