@@ -20,7 +20,7 @@ import java.util.List;
 
 public class SystemInformation {
     // Note: must update the version if publish new-version
-    private static final String sdkVersion = "2.9.0";
+    private static final String sdkVersion = "2.9.1";
     public static final String connectionFaqIssueUrl =
             "https://github.com/FISCO-BCOS/java-sdk/issues/536";
     public static final String connectionFaqDocUrl =
