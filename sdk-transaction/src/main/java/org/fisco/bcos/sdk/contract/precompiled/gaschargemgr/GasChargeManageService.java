@@ -23,17 +23,17 @@ import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
 public class GasChargeManageService {
     private final GasChargeManagePrecompiled gasChargeManagePrecompiled;
     private final TransactionDecoderInterface transactionDecoder;
+    private final String currentVersion;
 
     public GasChargeManageService(Client client, CryptoKeyPair cryptoKeyPair)
             throws ContractException {
-        PrecompiledVersionCheck.GAS_CHARGE_MANAGE_PRECOMPILED_VERSION.checkVersion(
-                client.getClientNodeVersion().getNodeVersion().getSupportedVersion());
         this.gasChargeManagePrecompiled =
                 GasChargeManagePrecompiled.load(
                         PrecompiledAddress.GAS_CHARGE_MANAGE_PRECOMPILED_ADDRESS,
                         client,
                         cryptoKeyPair);
         this.transactionDecoder = new TransactionDecoderService(client.getCryptoSuite());
+        this.currentVersion = client.getClientNodeVersion().getNodeVersion().getSupportedVersion();
     }
 
     public TransactionResponse decodeReceipt(
@@ -66,6 +66,8 @@ public class GasChargeManageService {
 
     public TransactionResponse charge(String userAccount, BigInteger gasValue)
             throws ContractException {
+        PrecompiledVersionCheck.GAS_CHARGE_MANAGE_PRECOMPILED_VERSION.checkVersion(
+                this.currentVersion);
         return decodeReceipt(
                 gasChargeManagePrecompiled.charge(userAccount, gasValue),
                 gasChargeManagePrecompiled.FUNC_CHARGE,
@@ -74,6 +76,8 @@ public class GasChargeManageService {
 
     public TransactionResponse deduct(String userAccount, BigInteger gasValue)
             throws ContractException {
+        PrecompiledVersionCheck.GAS_CHARGE_MANAGE_PRECOMPILED_VERSION.checkVersion(
+                this.currentVersion);
         return decodeReceipt(
                 gasChargeManagePrecompiled.deduct(userAccount, gasValue),
                 gasChargeManagePrecompiled.FUNC_DEDUCT,
@@ -81,6 +85,8 @@ public class GasChargeManageService {
     }
 
     public BigInteger queryRemainGas(String userAccount) throws ContractException {
+        PrecompiledVersionCheck.GAS_CHARGE_MANAGE_PRECOMPILED_VERSION.checkVersion(
+                this.currentVersion);
         Tuple2<BigInteger, BigInteger> result =
                 this.gasChargeManagePrecompiled.queryRemainGas(userAccount);
         if (result.getValue1().intValue() != PrecompiledRetCode.CODE_SUCCESS.getCode()) {
@@ -92,16 +98,22 @@ public class GasChargeManageService {
     }
 
     public RetCode grantCharger(String chargerAccount) throws ContractException {
+        PrecompiledVersionCheck.GAS_CHARGE_MANAGE_PRECOMPILED_VERSION.checkVersion(
+                this.currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 gasChargeManagePrecompiled.grantCharger(chargerAccount));
     }
 
     public RetCode revokeCharger(String chargerAccount) throws ContractException {
+        PrecompiledVersionCheck.GAS_CHARGE_MANAGE_PRECOMPILED_VERSION.checkVersion(
+                this.currentVersion);
         return ReceiptParser.parseTransactionReceipt(
                 gasChargeManagePrecompiled.revokeCharger(chargerAccount));
     }
 
     public List<String> listChargers() throws ContractException {
+        PrecompiledVersionCheck.GAS_CHARGE_MANAGE_PRECOMPILED_VERSION.checkVersion(
+                this.currentVersion);
         try {
             List<String> chargerList = new ArrayList<>();
             chargerList = this.gasChargeManagePrecompiled.listChargers();
