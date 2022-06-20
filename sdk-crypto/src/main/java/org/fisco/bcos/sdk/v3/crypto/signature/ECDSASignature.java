@@ -80,12 +80,12 @@ public class ECDSASignature implements Signature {
                         CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
                         CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX);
         CryptoResult verifyResult =
-                NativeInterface.secp256k1verify(hexPubKeyWithPrefix, inputMessage, signature);
+                NativeInterface.secp256k1Verify(hexPubKeyWithPrefix, inputMessage, signature);
         // call secp256k1verify failed
         if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
                     "Verify with secp256k1 failed:" + verifyResult.wedprErrorMessage);
         }
-        return verifyResult.result;
+        return verifyResult.booleanResult;
     }
 }
