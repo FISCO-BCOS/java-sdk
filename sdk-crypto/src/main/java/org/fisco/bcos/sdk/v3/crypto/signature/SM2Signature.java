@@ -44,7 +44,7 @@ public class SM2Signature implements Signature {
         }
 
         CryptoResult signatureResult =
-                NativeInterface.sm2SignWithPub(
+                NativeInterface.sm2SignFast(
                         keyPair.getHexPrivateKey(),
                         keyPair.getHexPublicKey(),
                         Numeric.cleanHexPrefix(message));
@@ -73,12 +73,12 @@ public class SM2Signature implements Signature {
                         CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
                         CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX);
         CryptoResult verifyResult =
-                NativeInterface.sm2verify(
+                NativeInterface.sm2Verify(
                         hexPubKeyWithPrefix, Numeric.cleanHexPrefix(message), signature);
         if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
                     "Verify with sm2 failed:" + verifyResult.wedprErrorMessage);
         }
-        return verifyResult.result;
+        return verifyResult.booleanResult;
     }
 }

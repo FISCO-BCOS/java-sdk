@@ -90,7 +90,7 @@ public abstract class CryptoKeyPair {
      * @param nativeResult
      */
     CryptoKeyPair(final CryptoResult nativeResult) {
-        this.hexPrivateKey = nativeResult.privteKey;
+        this.hexPrivateKey = nativeResult.privateKey;
         this.hexPublicKey = nativeResult.publicKey;
     }
 
