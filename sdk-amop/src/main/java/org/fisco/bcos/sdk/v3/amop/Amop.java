@@ -57,6 +57,13 @@ public interface Amop {
     /**
      * Subscribe a normal topic.
      *
+     * @param topics the topic name
+     */
+    void subscribeTopic(Set<String> topics);
+
+    /**
+     * Subscribe a normal topic.
+     *
      * @param topicName the topic name
      * @param callback callback is called when receive a msg relate to this topic
      */
