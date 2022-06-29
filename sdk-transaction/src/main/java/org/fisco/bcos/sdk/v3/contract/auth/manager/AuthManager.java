@@ -2,6 +2,7 @@ package org.fisco.bcos.sdk.v3.contract.auth.manager;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.function.Function;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.CommitteeManager;
@@ -9,6 +10,7 @@ import org.fisco.bcos.sdk.v3.contract.auth.contracts.ContractAuthPrecompiled;
 import org.fisco.bcos.sdk.v3.contract.auth.po.AuthType;
 import org.fisco.bcos.sdk.v3.contract.auth.po.CommitteeInfo;
 import org.fisco.bcos.sdk.v3.contract.auth.po.ProposalInfo;
+import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
@@ -16,9 +18,8 @@ import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
+import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
-import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderInterface;
-import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class AuthManager {
@@ -26,7 +27,6 @@ public class AuthManager {
     private final Client client;
     private final CommitteeManager committeeManager;
     private final ContractAuthPrecompiled contractAuthPrecompiled;
-    private final TransactionDecoderInterface decoder;
     // default block number interval. after current block number, it will be outdated. Default value
     // is about a week.
     private BigInteger DEFAULT_BLOCK_NUMBER_INTERVAL = BigInteger.valueOf(3600 * 24 * 7L);
@@ -39,7 +39,6 @@ public class AuthManager {
         this.contractAuthPrecompiled =
                 ContractAuthPrecompiled.load(
                         PrecompiledAddress.CONTRACT_AUTH_ADDRESS, client, credential);
-        this.decoder = new TransactionDecoderService(client.getCryptoSuite(), client.isWASM());
     }
 
     public AuthManager(Client client, CryptoKeyPair credential, BigInteger blockNumberInterval) {
@@ -262,6 +261,15 @@ public class AuthManager {
     }
 
     /**
+     * async revoke proposal, only governor can call it
+     *
+     * @param proposalId id
+     */
+    public void asyncRevokeProposal(BigInteger proposalId, TransactionCallback callback) {
+        committeeManager.revokeProposal(proposalId, callback);
+    }
+
+    /**
      * unified vote, only governor can call it
      *
      * @param proposalId id
@@ -269,6 +277,17 @@ public class AuthManager {
      */
     public TransactionReceipt voteProposal(BigInteger proposalId, Boolean agree) {
         return committeeManager.voteProposal(proposalId, agree);
+    }
+
+    /**
+     * async unified vote, only governor can call it
+     *
+     * @param proposalId id
+     * @param agree true or false
+     */
+    public void asyncVoteProposal(
+            BigInteger proposalId, Boolean agree, TransactionCallback callback) {
+        committeeManager.voteProposal(proposalId, agree, callback);
     }
 
     /**
@@ -372,6 +391,24 @@ public class AuthManager {
     }
 
     /**
+     * async set a specific contract's method auth type, only contract admin can call it
+     *
+     * @param contractAddress the contract address to set auth
+     * @param func interface func selector of contract, 4 bytes
+     * @param authType white_list or black_list
+     */
+    public void asyncSetMethodAuthType(
+            String contractAddress, byte[] func, AuthType authType, PrecompiledCallback callback) {
+        contractAuthPrecompiled.setMethodAuthType(
+                contractAddress,
+                func,
+                authType.getValue(),
+                createTransactionCallback(
+                        callback,
+                        tr -> contractAuthPrecompiled.getSetMethodAuthTypeOutput(tr).getValue1()));
+    }
+
+    /**
      * set a specific contract's method ACL, only contract admin can call it
      *
      * @param contractAddress the contract address to set acl
@@ -397,6 +434,43 @@ public class AuthManager {
     }
 
     /**
+     * async set a specific contract's method ACL, only contract admin can call it
+     *
+     * @param contractAddress the contract address to set acl
+     * @param func interface func selector of contract, 4 bytes
+     * @param account the account to set
+     * @param isOpen if open, then white_list type is true, black_list is false; if close, then
+     *     white_list type is false, black_list is true;
+     */
+    public void asyncSetMethodAuth(
+            String contractAddress,
+            byte[] func,
+            String account,
+            boolean isOpen,
+            PrecompiledCallback callback) {
+        if (isOpen) {
+            contractAuthPrecompiled.openMethodAuth(
+                    contractAddress,
+                    func,
+                    account,
+                    createTransactionCallback(
+                            callback,
+                            tr -> contractAuthPrecompiled.getOpenMethodAuthOutput(tr).getValue1()));
+        } else {
+            contractAuthPrecompiled.closeMethodAuth(
+                    contractAddress,
+                    func,
+                    account,
+                    createTransactionCallback(
+                            callback,
+                            tr ->
+                                    contractAuthPrecompiled
+                                            .getCloseMethodAuthOutput(tr)
+                                            .getValue1()));
+        }
+    }
+
+    /**
      * set a contract status, freeze or normal, only contract manager can call
      *
      * @param contractAddress contract address
@@ -410,6 +484,22 @@ public class AuthManager {
         return ReceiptParser.parseTransactionReceipt(
                 transactionReceipt,
                 tr -> contractAuthPrecompiled.getSetContractStatusOutput(tr).getValue1());
+    }
+
+    /**
+     * async set a contract status, freeze or normal, only contract manager can call
+     *
+     * @param contractAddress contract address
+     * @param isFreeze is freeze or normal
+     */
+    public void asyncSetContractStatus(
+            String contractAddress, boolean isFreeze, PrecompiledCallback callback) {
+        contractAuthPrecompiled.setContractStatus(
+                contractAddress,
+                isFreeze,
+                createTransactionCallback(
+                        callback,
+                        tr -> contractAuthPrecompiled.getSetContractStatusOutput(tr).getValue1()));
     }
 
     /**
@@ -434,5 +524,35 @@ public class AuthManager {
     private boolean existsInNodeList(String nodeId) {
         List<String> nodeIdList = client.getGroupPeers().getGroupPeers();
         return nodeIdList.contains(nodeId);
+    }
+
+    private TransactionCallback createTransactionCallback(
+            PrecompiledCallback callback, Function<TransactionReceipt, BigInteger> resultCaller) {
+        return new TransactionCallback() {
+            @Override
+            public void onResponse(TransactionReceipt receipt) {
+                RetCode retCode;
+                try {
+                    retCode = getCurdRetCode(receipt, resultCaller);
+                } catch (ContractException e) {
+                    retCode = new RetCode(e.getErrorCode(), e.getMessage());
+                    retCode.setTransactionReceipt(receipt);
+                }
+                callback.onResponse(retCode);
+            }
+        };
+    }
+
+    private RetCode getCurdRetCode(
+            TransactionReceipt transactionReceipt,
+            Function<TransactionReceipt, BigInteger> resultCaller)
+            throws ContractException {
+        int status = transactionReceipt.getStatus();
+        if (status != 0) {
+            ReceiptParser.getErrorStatus(transactionReceipt);
+        }
+        BigInteger result = resultCaller.apply(transactionReceipt);
+        return PrecompiledRetCode.getPrecompiledResponse(
+                result.intValue(), transactionReceipt.getMessage());
     }
 }
