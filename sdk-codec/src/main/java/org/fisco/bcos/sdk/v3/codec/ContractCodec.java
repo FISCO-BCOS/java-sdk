@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.v3.codec.abi.Constant;
+import org.fisco.bcos.sdk.v3.codec.datatypes.AbiTypes;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Bool;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
@@ -131,7 +132,18 @@ public class ContractCodec {
                 Type element = buildType(subType, subNodeStr);
                 elements.add(element);
             }
-            type = paramType.isFixedList() ? new StaticArray(elements) : new DynamicArray(elements);
+            if (elements.isEmpty()) {
+                Class<? extends Type> arrayClass = AbiTypes.getType(paramType.rawType);
+                type =
+                        paramType.isFixedList()
+                                ? new StaticArray(arrayClass, elements)
+                                : new DynamicArray(arrayClass, elements);
+            } else {
+                type =
+                        paramType.isFixedList()
+                                ? new StaticArray(elements.get(0).getClass(), elements)
+                                : new DynamicArray(elements.get(0).getClass(), elements);
+            }
             return type;
         } else if (typeStr.equals("tuple")) {
             List<Type> components = new ArrayList<>();

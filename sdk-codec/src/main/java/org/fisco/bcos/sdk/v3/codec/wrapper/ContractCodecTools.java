@@ -23,7 +23,6 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Bytes32;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.v3.codec.scale.ScaleCodecReader;
-import org.fisco.bcos.sdk.v3.codec.scale.TypeEncoder;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject.ListType;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.slf4j.Logger;
@@ -303,7 +302,7 @@ public class ContractCodecTools {
 
     private static byte[] typeEncoderWrapper(Type parameter, boolean isWasm) throws IOException {
         return isWasm
-                ? TypeEncoder.encode(parameter)
+                ? org.fisco.bcos.sdk.v3.codec.scale.TypeEncoder.encode(parameter)
                 : org.fisco.bcos.sdk.v3.codec.abi.TypeEncoder.encode(parameter);
     }
 

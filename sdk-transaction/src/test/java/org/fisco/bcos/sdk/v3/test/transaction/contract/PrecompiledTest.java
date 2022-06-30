@@ -78,6 +78,7 @@ public class PrecompiledTest {
                     mockReceipt.setTo(to);
                     mockReceipt.setOutput(output);
                     mockReceipt.setStatus(status);
+                    mockReceipt.setLogEntries(new ArrayList<>());
                     transactionReceipt.setResult(mockReceipt);
                     return transactionReceipt;
                 }
