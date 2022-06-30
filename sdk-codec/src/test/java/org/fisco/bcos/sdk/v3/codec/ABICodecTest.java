@@ -439,11 +439,6 @@ public class ABICodecTest {
             stringsArgs.add("0x5678");
             byte[] s3 = abiCodec.encodeMethodFromString(abi, "call", stringsArgs);
             Assert.assertEquals(Hex.toHexString(s1), Hex.toHexString(s3));
-
-            // empty static array
-            stringsArgs.remove(0);
-            stringsArgs.add(0, "[]");
-            Assert.assertThrows(UnsupportedOperationException.class, () -> abiCodec.encodeMethodFromString(abi, "call", stringsArgs));
         }
     }
 }
