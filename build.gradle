@@ -33,14 +33,14 @@ ext {
     guavaVersion = '30.1.1-jre'
 
     config2Version = '2.7'
-    bcosSdkJniVersion = "3.0.0-rc4-SNAPSHOT"
+    bcosSdkJniVersion = "3.0.0-rc4"
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.0.0-rc4-SNAPSHOT'
+    version = '3.0.0-rc4'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
