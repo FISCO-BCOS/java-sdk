@@ -59,10 +59,6 @@ public class StaticArray<T extends Type> extends Array<T> {
     }
 
     private void checkValid(int expectedSize) {
-        if (expectedSize == 0) {
-            throw new UnsupportedOperationException(
-                    "Static arrays with a length not support expectedSize zero.");
-        }
         if (value.size() > MAX_SIZE_OF_STATIC_ARRAY) {
             throw new UnsupportedOperationException(
                     "Static arrays with a length greater than "
