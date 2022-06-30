@@ -102,7 +102,10 @@ public class AuthManager {
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
             ReceiptParser.getErrorStatus(tr);
         }
-        return committeeManager.getCreateSetDeployAuthTypeProposalOutput(tr).getValue1();
+        BigInteger proposalId =
+                committeeManager.getCreateSetDeployAuthTypeProposalOutput(tr).getValue1();
+        getExecEvent(tr, proposalId);
+        return proposalId;
     }
 
     /**
@@ -128,7 +131,10 @@ public class AuthManager {
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
             ReceiptParser.getErrorStatus(tr);
         }
-        return committeeManager.getCreateModifyDeployAuthProposalOutput(tr).getValue1();
+        BigInteger proposalId =
+                committeeManager.getCreateModifyDeployAuthProposalOutput(tr).getValue1();
+        getExecEvent(tr, proposalId);
+        return proposalId;
     }
 
     /**
@@ -145,7 +151,9 @@ public class AuthManager {
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
             ReceiptParser.getErrorStatus(tr);
         }
-        return committeeManager.getCreateResetAdminProposalOutput(tr).getValue1();
+        BigInteger proposalId = committeeManager.getCreateResetAdminProposalOutput(tr).getValue1();
+        getExecEvent(tr, proposalId);
+        return proposalId;
     }
 
     /**
@@ -160,7 +168,9 @@ public class AuthManager {
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
             ReceiptParser.getErrorStatus(tr);
         }
-        return committeeManager.getCreateRmNodeProposalOutput(tr).getValue1();
+        BigInteger proposalId = committeeManager.getCreateRmNodeProposalOutput(tr).getValue1();
+        getExecEvent(tr, proposalId);
+        return proposalId;
     }
 
     /**
@@ -183,7 +193,10 @@ public class AuthManager {
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
             ReceiptParser.getErrorStatus(tr);
         }
-        return committeeManager.getCreateSetConsensusWeightProposalOutput(tr).getValue1();
+        BigInteger proposalId =
+                committeeManager.getCreateSetConsensusWeightProposalOutput(tr).getValue1();
+        getExecEvent(tr, proposalId);
+        return proposalId;
     }
 
     private void checkSetConsensusWeightParams(String node, BigInteger weight, boolean addFlag)
@@ -232,7 +245,10 @@ public class AuthManager {
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
             ReceiptParser.getErrorStatus(tr);
         }
-        return committeeManager.getCreateSetSysConfigProposalOutput(tr).getValue1();
+        BigInteger proposalId =
+                committeeManager.getCreateSetSysConfigProposalOutput(tr).getValue1();
+        getExecEvent(tr, proposalId);
+        return proposalId;
     }
 
     /**
@@ -554,5 +570,24 @@ public class AuthManager {
         BigInteger result = resultCaller.apply(transactionReceipt);
         return PrecompiledRetCode.getPrecompiledResponse(
                 result.intValue(), transactionReceipt.getMessage());
+    }
+
+    private void getExecEvent(TransactionReceipt tr, BigInteger proposalId)
+            throws ContractException {
+        List<CommitteeManager.ExecResultEventResponse> execResultEvents =
+                committeeManager.getExecResultEvents(tr);
+        if (!execResultEvents.isEmpty()) {
+            BigInteger execResultParam0 = execResultEvents.get(0).execResultParam0;
+            if (!BigInteger.ZERO.equals(execResultParam0)) {
+                RetCode precompiledResponse =
+                        PrecompiledRetCode.getPrecompiledResponse(execResultParam0.intValue(), "");
+                throw new ContractException(
+                        "Exec proposal finished with error occurs, proposalId: "
+                                + proposalId
+                                + ", exec error msg: "
+                                + precompiledResponse.getMessage(),
+                        precompiledResponse.getCode());
+            }
+        }
     }
 }
