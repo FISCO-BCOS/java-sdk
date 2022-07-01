@@ -1,3 +1,30 @@
+## v3.0.0-rc4
+(2022-7-1)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+* 添加`TableCRUDService`
+
+### 更新
+
+* 使用密码库`webank-blockchain-java-crypto`替代`key-mini-toolkit`
+* 升级`bcos-sdk-jni`到`3.0.0-rc4`
+
+### 修复
+
+* 修复合约编解码相关的bug
+
+### 兼容性说明
+
+- 不兼容 FISCO BCOS 2.0+ 版本
+- 兼容java-sdk v3.x的历史版本
+- 支持[3.0.0-rc4](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0-rc4)版本
+
+
 ## v3.0.0-rc3
 (2022-03-31)
 
