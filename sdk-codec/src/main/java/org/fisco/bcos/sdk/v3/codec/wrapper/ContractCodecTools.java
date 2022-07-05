@@ -396,7 +396,10 @@ public class ContractCodecTools {
     /**
      * encode this object
      *
+     * @param abiObject abi object
+     * @param isWasm if evm or wasm vm
      * @return the encoded object
+     * @throws IOException throw when decode error
      */
     public static byte[] encode(ABIObject abiObject, boolean isWasm) throws IOException {
         return typeEncoderWrapper(getABIObjectTypeValue(abiObject), isWasm);
@@ -405,8 +408,11 @@ public class ContractCodecTools {
     /**
      * decode abi object
      *
+     * @param template decode template abi object, it means should know the actual abi type
      * @param input the string to be decoded into ABIObject
+     * @param isWasm is evm or wasm vm
      * @return the decoded ABIObject
+     * @throws ClassNotFoundException throw when decode class not found
      */
     public static ABIObject decode(ABIObject template, byte[] input, boolean isWasm)
             throws ClassNotFoundException {
@@ -420,7 +426,11 @@ public class ContractCodecTools {
     /**
      * abi codec decode
      *
+     * @param template decode template abi object, it means should know the actual abi type
+     * @param input the string to be decoded into ABIObject
+     * @param offset abi decode offset
      * @return the decoded ABIObject
+     * @throws ClassNotFoundException throw when decode class not found
      */
     private static ABIObject decodeABI(ABIObject template, byte[] input, int offset)
             throws ClassNotFoundException {
@@ -593,7 +603,10 @@ public class ContractCodecTools {
     /**
      * scale codec decode
      *
+     * @param template decode template abi object, it means should know the actual abi type
+     * @param reader scale reader
      * @return the decoded ABIObject
+     * @throws ClassNotFoundException throw when decode class not found
      */
     private static ABIObject decodeScale(ABIObject template, ScaleCodecReader reader)
             throws ClassNotFoundException {

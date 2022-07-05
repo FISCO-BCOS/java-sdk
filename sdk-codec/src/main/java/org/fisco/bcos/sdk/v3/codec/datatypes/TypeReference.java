@@ -119,6 +119,10 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.v3.codec.dataty
     /**
      * This is a helper method that only works for atomic types (uint, bytes, etc). Array types must
      * be wrapped by a {@link java.lang.reflect.ParameterizedType}.
+     *
+     * @param type type name in string
+     * @return actual class inheritance {@link org.fisco.bcos.sdk.v3.codec.datatypes.Type}
+     * @throws ClassNotFoundException throw when can not find any class match the param type
      */
     protected static Class<? extends org.fisco.bcos.sdk.v3.codec.datatypes.Type> getAtomicTypeClass(
             String type) throws ClassNotFoundException {

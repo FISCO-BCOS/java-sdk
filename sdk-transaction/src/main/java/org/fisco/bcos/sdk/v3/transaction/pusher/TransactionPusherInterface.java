@@ -37,6 +37,7 @@ public interface TransactionPusherInterface {
      * push signed transaction to fisco bcos node and receive transaction receipt.
      *
      * @param signedTransaction signed transaction string
+     * @return transaction receipt
      */
     TransactionReceipt push(String signedTransaction);
 

@@ -30,6 +30,7 @@ public interface TransactionEncoderInterface {
      *
      * @param transactionData transaction data
      * @return encoded transaction
+     * @throws JniException throw when encode transaction error
      */
     byte[] encode(long transactionData) throws JniException;
     /**
@@ -37,7 +38,10 @@ public interface TransactionEncoderInterface {
      *
      * @param transactionData data to be encoded
      * @param cryptoKeyPair keypair
-     * @return encoded & signed transaction byte array
+     * @param attribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
+     * @return encoded and signed transaction byte array
+     * @throws JniException throw when encode transaction error
      */
     byte[] encodeAndSignBytes(long transactionData, CryptoKeyPair cryptoKeyPair, int attribute)
             throws JniException;
@@ -47,7 +51,10 @@ public interface TransactionEncoderInterface {
      *
      * @param transactionData data to be encoded
      * @param cryptoKeyPair keypair
-     * @return encoded & signed transaction hexed String
+     * @param attribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
+     * @return encoded and signed transaction hexed String
+     * @throws JniException throw when encode transaction error
      */
     String encodeAndSign(long transactionData, CryptoKeyPair cryptoKeyPair, int attribute)
             throws JniException;
@@ -56,7 +63,8 @@ public interface TransactionEncoderInterface {
      * Tars encode and hash based on TransactionData
      *
      * @param transactionData data to be encoded
-     * @return encoded & hashed transaction byte array
+     * @return encoded and hashed transaction byte array
+     * @throws JniException throw when encode transaction error
      */
     byte[] encodeAndHashBytes(long transactionData) throws JniException;
 
@@ -66,7 +74,10 @@ public interface TransactionEncoderInterface {
      * @param transactionData raw transaction data
      * @param hash transaction hash
      * @param result transaction signature
+     * @param attribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
      * @return encoded bytes
+     * @throws JniException throw when encode transaction error
      */
     byte[] encodeToTransactionBytes(
             long transactionData, byte[] hash, SignatureResult result, int attribute)
@@ -77,7 +88,10 @@ public interface TransactionEncoderInterface {
      *
      * @param transactionData raw transaction data
      * @param result transaction signature
+     * @param attribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
      * @return encoded bytes
+     * @throws JniException throw when encode transaction error
      */
     byte[] encodeToTransactionBytes(long transactionData, SignatureResult result, int attribute)
             throws JniException;

@@ -37,6 +37,7 @@ public interface Amop {
      *
      * @param configOption the config object
      * @return Amop instance
+     * @throws JniException throw when build AMOP service failed
      */
     static Amop build(ConfigOption configOption) throws JniException {
         long nativePointer = BcosSDKJniObj.create(configOption.getJniConfig());
@@ -49,6 +50,7 @@ public interface Amop {
      *
      * @param nativePointer the
      * @return Amop instance
+     * @throws JniException throw when build AMOP service failed
      */
     static Amop build(long nativePointer) throws JniException {
         return new AmopImp(nativePointer);
@@ -79,7 +81,9 @@ public interface Amop {
     /**
      * Send amop msg
      *
-     * @param content the sent message
+     * @param topic topic name
+     * @param timeout timeout config
+     * @param content the message be sent
      * @param callback the callback that will be called when receive the AMOP response
      */
     void sendAmopMsg(String topic, byte[] content, int timeout, AmopResponseCallback callback);
@@ -87,16 +91,17 @@ public interface Amop {
     /**
      * Send response msg
      *
-     * @param endpoint
-     * @param seq
-     * @param conteng
+     * @param endpoint send endpoint
+     * @param seq response seq
+     * @param content response content
      */
-    void sendResponse(String endpoint, String seq, byte[] conteng);
+    void sendResponse(String endpoint, String seq, byte[] content);
 
     /**
      * Send amop msg
      *
-     * @param content the broadcasted AMOP message
+     * @param topic topic name
+     * @param content the AMOP message to be broadcast
      */
     void broadcastAmopMsg(String topic, byte[] content);
 

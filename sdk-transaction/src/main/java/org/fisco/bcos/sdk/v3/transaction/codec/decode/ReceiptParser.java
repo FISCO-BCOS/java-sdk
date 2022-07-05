@@ -31,8 +31,10 @@ public class ReceiptParser {
     /**
      * parse transaction receipt and get return code.
      *
-     * @param receipt @See TransactionReceipt
+     * @param receipt transaction receipt
+     * @param resultCaller actual decode receipt out function, from receipt to big int
      * @return return code @see RetCode
+     * @throws ContractException throw when receipt status not equal to 0
      */
     public static RetCode parseTransactionReceipt(
             TransactionReceipt receipt, Function<TransactionReceipt, BigInteger> resultCaller)

@@ -38,6 +38,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param path the BFS path, which the contract be deployed in exactly path, this param only
      *     enable in wasm
      * @return transaction receipt
+     * @throws JniException throw when encode transaction error
      */
     TransactionReceipt deployAndGetReceipt(byte[] data, String abi, String path)
             throws JniException;
@@ -47,6 +48,7 @@ public interface AssembleTransactionProcessorInterface {
      *
      * @param data encoded transaction data
      * @return transaction receipt
+     * @throws JniException throw when encode transaction error
      */
     TransactionReceipt deployAndGetReceipt(byte[] data) throws JniException;
 
@@ -59,6 +61,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param path this param only enable in wasm, the BFS path, which the contract be deployed in
      *     exactly path
      * @return deploy transaction hash
+     * @throws ContractCodecException throw when encode deploy error
      */
     String deployOnly(String abi, String bin, List<Object> params, String path)
             throws ContractCodecException;
@@ -70,6 +73,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
      * @return deploy transaction hash
+     * @throws ContractCodecException throw when encode deploy error
      */
     String deployOnly(String abi, String bin, List<Object> params) throws ContractCodecException;
 
@@ -77,8 +81,8 @@ public interface AssembleTransactionProcessorInterface {
      * deploy contract to fisco bcos node and get response.
      *
      * @param abi contract abi, which could be obtained by compiling solidity contract.
-     * @param signedData signed & encoded constructor data
-     * @return transaction response @See TransactionResponse
+     * @param signedData signed and encoded constructor data
+     * @return transaction response
      */
     TransactionResponse deployAndGetResponse(String abi, String signedData);
 
@@ -89,6 +93,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
      * @return transaction response @See TransactionResponse
+     * @throws ContractCodecException throw when encode deploy error
      */
     TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
             throws ContractCodecException;
@@ -101,7 +106,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param params contract construct parameters
      * @param path this param only enable in wasm, the BFS path, which the contract be deployed in
      *     exactly path
-     * @return transaction response @See TransactionResponse
+     * @return transaction response
+     * @throws ContractCodecException throw when encode deploy error
      */
     TransactionResponse deployAndGetResponse(
             String abi, String bin, List<Object> params, String path) throws ContractCodecException;
@@ -114,6 +120,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param params contract construct string parameters
      * @param path the BFS path, which the contract be deployed in exactly path, this param only
      *     enable in wasm
+     * @return transaction response
+     * @throws ContractCodecException throw when encode deploy error
      */
     TransactionResponse deployAndGetResponseWithStringParams(
             String abi, String bin, List<String> params, String path) throws ContractCodecException;
@@ -126,6 +134,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param params contract construct parameters
      * @param callback transaction with callback function
      * @return return deploy tx hash
+     * @throws ContractCodecException throw when encode deploy error
      */
     String deployAsync(String abi, String bin, List<Object> params, TransactionCallback callback)
             throws ContractCodecException;
@@ -140,6 +149,7 @@ public interface AssembleTransactionProcessorInterface {
      *     enable in wasm
      * @param callback transaction with callback function
      * @return return deploy tx hash
+     * @throws ContractCodecException throw when encode deploy error
      */
     String deployAsync(
             String abi, String bin, List<Object> params, String path, TransactionCallback callback)
@@ -152,6 +162,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
      * @return CompletableFuture wrapper transaction receipt
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when encode transaction error
      */
     CompletableFuture<TransactionReceipt> deployAsync(String abi, String bin, List<Object> params)
             throws ContractCodecException, JniException;
@@ -165,6 +177,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param path the BFS path, which the contract be deployed in exactly path, this param only
      *     enable in wasm
      * @return CompletableFuture wrapper transaction receipt
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when encode transaction error
      */
     CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params, String path)
@@ -172,22 +186,26 @@ public interface AssembleTransactionProcessorInterface {
 
     /**
      * deploy contract to fisco bcos node and get response by contract name. The contract loader
-     * will load the transaction abi & bin information.
+     * will load the transaction abi and bin information.
      *
      * @param contractName contract name.
      * @param params contract construct parameters
      * @return transaction response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     TransactionResponse deployByContractLoader(String contractName, List<Object> params)
             throws ContractCodecException, TransactionBaseException;
 
     /**
      * deploy contract to fisco bcos node and get response by contract name asynchronously. The
-     * contract loader will load the transaction abi & bin information.
+     * contract loader will load the transaction abi and bin information.
      *
      * @param contractName contract name.
      * @param params contract construct parameters
      * @param callback transaction with callback function
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws NoSuchTransactionFileException throw when loader get contract error
      */
     void deployByContractLoaderAsync(
             String contractName, List<Object> params, TransactionCallback callback)
@@ -196,19 +214,22 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send transaction only.
      *
-     * @param signedData signed & encoded transaction data
+     * @param signedData signed and encoded transaction data
      */
     void sendTransactionOnly(String signedData);
 
     /**
      * send transaction to fisco bcos node and get transaction receipt by contract name. The
-     * contract loader will load the transaction abi & bin information.
+     * contract loader will load the transaction abi and bin information.
      *
      * @param contractName contract name.
      * @param contractAddress contract address
      * @param functionName contract function name
      * @param params contract construct parameters
      * @return transaction receipt
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
+     * @throws JniException throw when jni encode transaction error
      */
     TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> params)
@@ -221,11 +242,10 @@ public interface AssembleTransactionProcessorInterface {
      * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param functionName contract function name.
      * @param data abi encoded transaction data
-     * @return transaction response @See TransactionResponse
+     * @return transaction response
      */
     TransactionResponse sendTransactionAndGetResponse(
-            String to, String abi, String functionName, byte[] data)
-            throws TransactionBaseException, ContractCodecException;
+            String to, String abi, String functionName, byte[] data);
 
     /**
      * send transaction to fisco bcos node and get response.
@@ -234,7 +254,9 @@ public interface AssembleTransactionProcessorInterface {
      * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param functionName contract function name.
      * @param params contract construct parameters
-     * @return transaction response @See TransactionResponse
+     * @return transaction response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
@@ -247,7 +269,9 @@ public interface AssembleTransactionProcessorInterface {
      * @param abi contract abi, which could be obtained by compiling solidity contract.
      * @param functionName contract function name.
      * @param params contract function string parameters
-     * @return transaction response @See TransactionResponse
+     * @return transaction response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     TransactionResponse sendTransactionWithStringParamsAndGetResponse(
             String to, String abi, String functionName, List<String> params)
@@ -256,7 +280,7 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send transaction to fisco bcos node asynchronously.
      *
-     * @param signedTransaction signed & encoded transaction data
+     * @param signedTransaction signed and encoded transaction data
      * @param callback transaction with callback function
      */
     void sendTransactionAsync(String signedTransaction, TransactionCallback callback);
@@ -270,6 +294,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param functionName contract function name.
      * @param params contract function parameters
      * @param callback transaction with callback function
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     void sendTransactionAsync(
             String to,
@@ -282,7 +308,7 @@ public interface AssembleTransactionProcessorInterface {
     /**
      * send transaction to fisco bcos node asynchronously.
      *
-     * @param signedData signed & encoded transaction data
+     * @param signedData signed and encoded transaction data
      * @return CompletableFuture wrapper transaction receipt
      */
     CompletableFuture<TransactionReceipt> sendTransactionAsync(String signedData);
@@ -296,6 +322,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param functionName contract function name.
      * @param params contract function parameters
      * @param callback transaction with callback function
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     void sendTransactionAndGetReceiptByContractLoaderAsync(
             String contractName,
@@ -314,6 +342,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param functionName contract function name.
      * @param funcParams contract function parameters
      * @return transaction response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     TransactionResponse sendTransactionAndGetResponseByContractLoader(
             String contractName, String to, String functionName, List<Object> funcParams)
@@ -328,6 +358,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param functionName contract function name.
      * @param params contract call parameters
      * @return call response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     CallResponse sendCallByContractLoader(
             String contractName, String to, String functionName, List<Object> params)
@@ -338,9 +370,12 @@ public interface AssembleTransactionProcessorInterface {
      *
      * @param from sender address
      * @param to the target contract address.
+     * @param abi ABI json string
      * @param functionName contract function name.
      * @param params contract call parameters
      * @return call response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     CallResponse sendCall(
             String from, String to, String abi, String functionName, List<Object> params)
@@ -351,6 +386,8 @@ public interface AssembleTransactionProcessorInterface {
      *
      * @param callRequest call request information
      * @return call response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     CallResponse sendCall(CallRequest callRequest)
             throws ContractCodecException, TransactionBaseException;
@@ -360,9 +397,12 @@ public interface AssembleTransactionProcessorInterface {
      *
      * @param from sender address
      * @param to the target contract address.
+     * @param abi ABI json string
      * @param functionName contract function name.
      * @param params contract call parameters
      * @return call response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     CallResponse sendCallWithStringParams(
             String from, String to, String abi, String functionName, List<String> params)
@@ -377,6 +417,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param path the BFS path, which the contract be deployed in exactly path, this param only
      *     enable in wasm
      * @return signed constructor string
+     * @throws ContractCodecException throw when encode deploy error
      */
     TxPair createSignedConstructor(String abi, String bin, List<Object> params, String path)
             throws ContractCodecException;
@@ -388,6 +429,7 @@ public interface AssembleTransactionProcessorInterface {
      * @param functionName contract function name
      * @param params contract function parameters
      * @return encoded function string
+     * @throws ContractCodecException throw when encode deploy error
      */
     byte[] encodeFunction(String abi, String functionName, List<Object> params)
             throws ContractCodecException;
@@ -399,6 +441,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param bin contract binary
      * @param params contract function parameters
      * @return raw transaction
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when jni encode transaction error
      */
     long getRawTransactionForConstructor(String abi, String bin, List<Object> params)
             throws ContractCodecException, JniException;
@@ -411,6 +455,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param bin contract binary
      * @param params contract function parameters
      * @return raw transaction
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when jni encode transaction error
      */
     long getRawTransactionForConstructor(
             BigInteger blockLimit, String abi, String bin, List<Object> params)
@@ -424,6 +470,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param functionName function name
      * @param params contract function parameters
      * @return raw transaction
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when jni encode transaction error
      */
     long getRawTransaction(String to, String abi, String functionName, List<Object> params)
             throws ContractCodecException, JniException;
@@ -437,6 +485,8 @@ public interface AssembleTransactionProcessorInterface {
      * @param functionName function name
      * @param params contract function parameters
      * @return raw transaction
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when jni encode transaction error
      */
     long getRawTransaction(
             BigInteger blockLimit, String to, String abi, String functionName, List<Object> params)

@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.v3.transaction.manager;
 import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_CREATE;
 import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_SCALE_CODEC;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +45,6 @@ import org.fisco.bcos.sdk.v3.transaction.model.dto.ResultCodeEnum;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionBaseException;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionException;
 import org.fisco.bcos.sdk.v3.transaction.pusher.TransactionPusherInterface;
 import org.fisco.bcos.sdk.v3.transaction.pusher.TransactionPusherService;
 import org.fisco.bcos.sdk.v3.transaction.tools.ContractLoader;
@@ -139,7 +137,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
             return this.transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
-        } catch (TransactionException | IOException | ContractCodecException e) {
+        } catch (ContractCodecException e) {
             log.error("deploy exception: ", e);
             return new TransactionResponse(
                     receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
@@ -248,7 +246,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
-            String to, String abi, String functionName, byte[] data) throws ContractCodecException {
+            String to, String abi, String functionName, byte[] data) {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_SCALE_CODEC;
@@ -257,7 +255,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         TransactionReceipt receipt = this.transactionPusher.push(txPair.getSignedTx());
         try {
             return this.transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
-        } catch (TransactionException | IOException e) {
+        } catch (ContractCodecException e) {
             log.error("sendTransaction exception: ", e);
             return new TransactionResponse(
                     receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());

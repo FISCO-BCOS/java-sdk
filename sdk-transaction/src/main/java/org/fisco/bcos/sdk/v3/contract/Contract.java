@@ -163,10 +163,12 @@ public class Contract {
      * @param type class type
      * @param client a Client object to send requests
      * @param credential key pair to use when sign transaction
+     * @param abi ABI json string
      * @param binary the contract binary code hex string
      * @param encodedConstructor constructor params
+     * @param path bfs path, this param only use in wasm vm
      * @param <T> a smart contract object extends Contract
-     * @return <T> type smart contract
+     * @return T type smart contract
      * @throws ContractException throws when deploy failed
      */
     protected static <T extends Contract> T deploy(

@@ -58,8 +58,9 @@ public class AuthManager {
      * apply for update governor, only governor can call it
      *
      * @param account new governor address
-     * @param weight 0-delete, >0-update or insert
+     * @param weight 0 == delete, bigger than 0 == update or insert
      * @return proposalId
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger updateGovernor(String account, BigInteger weight) throws ContractException {
         TransactionReceipt tr =
@@ -77,6 +78,7 @@ public class AuthManager {
      * @param participatesRate [0,100]. if 0, always succeed.
      * @param winRate [0,100].
      * @return proposalId
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger setRate(BigInteger participatesRate, BigInteger winRate)
             throws ContractException {
@@ -94,6 +96,7 @@ public class AuthManager {
      *
      * @param deployAuthType 1-whitelist; 2-blacklist
      * @return proposalId
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger setDeployAuthType(AuthType deployAuthType) throws ContractException {
         TransactionReceipt tr =
@@ -112,6 +115,7 @@ public class AuthManager {
      * get global deploy auth type
      *
      * @return deployAuthType
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger getDeployAuthType() throws ContractException {
         return this.contractAuthPrecompiled.deployType();
@@ -123,6 +127,7 @@ public class AuthManager {
      * @param account account address string
      * @param openFlag true-open; false-close
      * @return proposalId
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger modifyDeployAuth(String account, Boolean openFlag) throws ContractException {
         TransactionReceipt tr =
@@ -143,6 +148,7 @@ public class AuthManager {
      * @param newAdmin admin address
      * @param contractAddr the address of contract which will propose to reset admin
      * @return proposalId
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger resetAdmin(String newAdmin, String contractAddr) throws ContractException {
         TransactionReceipt tr =
@@ -161,6 +167,7 @@ public class AuthManager {
      *
      * @param node node ID
      * @return proposal ID
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger createRmNodeProposal(String node) throws ContractException {
         TransactionReceipt tr =
@@ -177,9 +184,10 @@ public class AuthManager {
      * submit a proposal of set consensus node weight, only governor can call it
      *
      * @param node node ID
-     * @param weight consensus weight: weigh > 0, sealer; weight = 0, observer
+     * @param weight consensus weight: weigh bigger than 0, sealer; weight = 0, observer
      * @param addFlag flag to distinguish add a node or set node's weight,
      * @return proposal ID
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger createSetConsensusWeightProposal(
             String node, BigInteger weight, boolean addFlag) throws ContractException {
@@ -229,9 +237,10 @@ public class AuthManager {
      *
      * @param key system config key, only support
      *     (tx_gas_limit,tx_count_limit,consensus_leader_period)
-     * @param value system config value, notice that tx_gas_limit > 100,000, tx_count_limit > 1,
-     *     consensus_leader_period > 1
+     * @param value system config value, notice that tx_gas_limit bigger than 100,000,
+     *     tx_count_limit bigger than 1, consensus_leader_period bigger than 1
      * @return proposal ID
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger createSetSysConfigProposal(String key, String value)
             throws ContractException {
@@ -256,6 +265,7 @@ public class AuthManager {
      *
      * @param address vote computer address
      * @return proposal ID
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger createUpgradeVoteComputerProposal(String address) throws ContractException {
         TransactionReceipt tr =
@@ -271,6 +281,7 @@ public class AuthManager {
      * revoke proposal, only governor can call it
      *
      * @param proposalId id
+     * @return transaction receipt
      */
     public TransactionReceipt revokeProposal(BigInteger proposalId) {
         return committeeManager.revokeProposal(proposalId);
@@ -280,6 +291,7 @@ public class AuthManager {
      * async revoke proposal, only governor can call it
      *
      * @param proposalId id
+     * @param callback callback when get receipt
      */
     public void asyncRevokeProposal(BigInteger proposalId, TransactionCallback callback) {
         committeeManager.revokeProposal(proposalId, callback);
@@ -290,6 +302,7 @@ public class AuthManager {
      *
      * @param proposalId id
      * @param agree true or false
+     * @return transaction receipt
      */
     public TransactionReceipt voteProposal(BigInteger proposalId, Boolean agree) {
         return committeeManager.voteProposal(proposalId, agree);
@@ -300,6 +313,7 @@ public class AuthManager {
      *
      * @param proposalId id
      * @param agree true or false
+     * @param callback callback when get receipt
      */
     public void asyncVoteProposal(
             BigInteger proposalId, Boolean agree, TransactionCallback callback) {
@@ -312,6 +326,7 @@ public class AuthManager {
      * @param proposalId proposal id
      * @return return ProposalInfo {id, proposer, proposalType, blockNumberInterval, status,
      *     address[] agreeVoters, address[] againstVoters }
+     * @throws ContractException throw when contract exec exception
      */
     public ProposalInfo getProposalInfo(BigInteger proposalId) throws ContractException {
         return new ProposalInfo(committeeManager.getProposalManager().getProposalInfo(proposalId));
@@ -324,6 +339,7 @@ public class AuthManager {
      * @param to end proposal id
      * @return return ProposalInfo list {id, proposer, proposalType, blockNumberInterval, status,
      *     address[] agreeVoters, address[] againstVoters }[]
+     * @throws ContractException throw when contract exec exception
      */
     public List<ProposalInfo> getProposalInfoList(BigInteger from, BigInteger to)
             throws ContractException {
@@ -334,6 +350,7 @@ public class AuthManager {
      * get Committee info
      *
      * @return CommitteeInfo
+     * @throws ContractException throw when contract exec exception
      */
     public CommitteeInfo getCommitteeInfo() throws ContractException {
         return new CommitteeInfo().fromTuple(committeeManager.getCommittee().getCommitteeInfo());
@@ -344,6 +361,7 @@ public class AuthManager {
      *
      * @param account the account to check
      * @return true or false
+     * @throws ContractException throw when contract exec exception
      */
     public Boolean checkDeployAuth(String account) throws ContractException {
         return contractAuthPrecompiled.hasDeployAuth(account);
@@ -356,6 +374,7 @@ public class AuthManager {
      * @param func interface func selector of contract, 4 bytes
      * @param account the account to check
      * @return true or false
+     * @throws ContractException throw when contract exec exception
      */
     public Boolean checkMethodAuth(String contractAddress, byte[] func, String account)
             throws ContractException {
@@ -383,6 +402,7 @@ public class AuthManager {
      *
      * @param contractAddress the contract to get admin
      * @return admin address
+     * @throws ContractException throw when contract exec exception
      */
     public String getAdmin(String contractAddress) throws ContractException {
         return contractAuthPrecompiled.getAdmin(contractAddress);
@@ -395,6 +415,7 @@ public class AuthManager {
      * @param func interface func selector of contract, 4 bytes
      * @param authType white_list or black_list
      * @return set result, 0 is success
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode setMethodAuthType(String contractAddress, byte[] func, AuthType authType)
             throws ContractException {
@@ -412,6 +433,7 @@ public class AuthManager {
      * @param contractAddress the contract address to set auth
      * @param func interface func selector of contract, 4 bytes
      * @param authType white_list or black_list
+     * @param callback callback when get receipt
      */
     public void asyncSetMethodAuthType(
             String contractAddress, byte[] func, AuthType authType, PrecompiledCallback callback) {
@@ -433,6 +455,7 @@ public class AuthManager {
      * @param isOpen if open, then white_list type is true, black_list is false; if close, then
      *     white_list type is false, black_list is true;
      * @return set result, 0 is success
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode setMethodAuth(
             String contractAddress, byte[] func, String account, boolean isOpen)
@@ -457,6 +480,7 @@ public class AuthManager {
      * @param account the account to set
      * @param isOpen if open, then white_list type is true, black_list is false; if close, then
      *     white_list type is false, black_list is true;
+     * @param callback callback when get receipt
      */
     public void asyncSetMethodAuth(
             String contractAddress,
@@ -492,6 +516,7 @@ public class AuthManager {
      * @param contractAddress contract address
      * @param isFreeze is freeze or normal
      * @return 0 is success, otherwise is error
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode setContractStatus(String contractAddress, boolean isFreeze)
             throws ContractException {
@@ -507,6 +532,7 @@ public class AuthManager {
      *
      * @param contractAddress contract address
      * @param isFreeze is freeze or normal
+     * @param callback callback when get receipt
      */
     public void asyncSetContractStatus(
             String contractAddress, boolean isFreeze, PrecompiledCallback callback) {
@@ -523,6 +549,7 @@ public class AuthManager {
      *
      * @param contractAddress contract address
      * @return if true, then this contract can be called
+     * @throws ContractException throw when contract exec exception
      */
     public Boolean contractAvailable(String contractAddress) throws ContractException {
         return contractAuthPrecompiled.contractAvailable(contractAddress);
@@ -532,6 +559,7 @@ public class AuthManager {
      * get proposal count
      *
      * @return count
+     * @throws ContractException throw when contract exec exception
      */
     public BigInteger proposalCount() throws ContractException {
         return committeeManager.getProposalManager()._proposalCount();

@@ -65,6 +65,7 @@ public class TableCRUDService {
      * @param keyFieldName key field name, which length should not be longer than 64
      * @param valueFields value field names, which length in total should not be longer than 1024
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode createTable(String tableName, String keyFieldName, List<String> valueFields)
             throws ContractException {
@@ -109,6 +110,7 @@ public class TableCRUDService {
      * @param newColumns new value field names, which length in total should not be longer than
      *     1024, and should not be duplicate
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode appendColumns(String tableName, List<String> newColumns)
             throws ContractException {
@@ -144,6 +146,7 @@ public class TableCRUDService {
      * @param tableName specific table name, table should exist
      * @param condition condition about key
      * @return return a list of select result which match condition
+     * @throws ContractException throw when contract exec exception
      */
     public List<Map<String, String>> select(String tableName, Condition condition)
             throws ContractException {
@@ -173,6 +176,7 @@ public class TableCRUDService {
      * @param desc table key field and value fields info, [(key_field: [""]),(value_fields: [""])]
      * @param condition condition about key
      * @return return a list of select result which match condition
+     * @throws ContractException throw when contract exec exception
      */
     public List<Map<String, String>> select(
             String tableName, Map<String, List<String>> desc, Condition condition)
@@ -199,6 +203,7 @@ public class TableCRUDService {
      * @param tableName specific table name, table should exist
      * @param key specific key
      * @return return select result which key in table matches the key given
+     * @throws ContractException throw when contract exec exception
      */
     public Map<String, String> select(String tableName, String key) throws ContractException {
         TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
@@ -225,6 +230,7 @@ public class TableCRUDService {
      * @param desc table key field and value fields info, [(key_field: [""]),(value_fields: [""])]
      * @param key specific key
      * @return return select result which key in table matches the key given
+     * @throws ContractException throw when contract exec exception
      */
     public Map<String, String> select(String tableName, Map<String, List<String>> desc, String key)
             throws ContractException {
@@ -250,6 +256,7 @@ public class TableCRUDService {
      * @param entry data entry, which contains key and values map, values size should match the
      *     table value field size
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode insert(String tableName, Entry entry) throws ContractException {
         TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
@@ -264,6 +271,7 @@ public class TableCRUDService {
      * @param entry data entry, which contains key and values map, values size should match the
      *     table value field size
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode insert(TablePrecompiled tablePrecompiled, Entry entry) throws ContractException {
         TransactionReceipt transactionReceipt = tablePrecompiled.insert(entry.covertToEntry());
@@ -278,6 +286,7 @@ public class TableCRUDService {
      * @param entry data entry, which contains key and values map, values size should match the
      *     table value field size
      * @param callback callback when get receipt
+     * @throws ContractException throw when contract exec exception
      */
     public void asyncInsert(String tableName, Entry entry, PrecompiledCallback callback)
             throws ContractException {
@@ -297,6 +306,7 @@ public class TableCRUDService {
      * @param key specific key, key should exist
      * @param updateFields update specific fields' data
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode update(String tableName, String key, UpdateFields updateFields)
             throws ContractException {
@@ -313,6 +323,7 @@ public class TableCRUDService {
      * @param key specific key, key should exist
      * @param updateFields update specific fields' data
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode update(TablePrecompiled tablePrecompiled, String key, UpdateFields updateFields)
             throws ContractException {
@@ -330,6 +341,7 @@ public class TableCRUDService {
      * @param condition key condition
      * @param updateFields update specific fields' data
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode update(String tableName, Condition condition, UpdateFields updateFields)
             throws ContractException {
@@ -346,6 +358,7 @@ public class TableCRUDService {
      * @param condition key condition
      * @param updateFields update specific fields' data
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode update(
             TablePrecompiled tablePrecompiled, Condition condition, UpdateFields updateFields)
@@ -366,6 +379,7 @@ public class TableCRUDService {
      * @param key specific key, key should exist
      * @param updateFields update specific fields' data
      * @param callback callback when get receipt
+     * @throws ContractException throw when contract exec exception
      */
     public void asyncUpdate(
             String tableName, String key, UpdateFields updateFields, PrecompiledCallback callback)
@@ -388,6 +402,7 @@ public class TableCRUDService {
      * @param condition key condition
      * @param updateFields update specific fields' data
      * @param callback callback when get receipt
+     * @throws ContractException throw when contract exec exception
      */
     public void asyncUpdate(
             String tableName,
@@ -413,6 +428,7 @@ public class TableCRUDService {
      * @param tableName specific table name, table should exist
      * @param key specific key, key should exist
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode remove(String tableName, String key) throws ContractException {
         TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
@@ -427,6 +443,7 @@ public class TableCRUDService {
      * @param tablePrecompiled specific tablePrecompiled, already load a specific contract address
      * @param key specific key, key should exist
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode remove(TablePrecompiled tablePrecompiled, String key) throws ContractException {
         TransactionReceipt transactionReceipt = tablePrecompiled.remove(key);
@@ -440,6 +457,7 @@ public class TableCRUDService {
      * @param tableName specific table name, table should exist
      * @param condition key condition
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode remove(String tableName, Condition condition) throws ContractException {
         TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
@@ -454,6 +472,7 @@ public class TableCRUDService {
      * @param tablePrecompiled specific tablePrecompiled, already load a specific contract address
      * @param condition key condition
      * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
      */
     public RetCode remove(TablePrecompiled tablePrecompiled, Condition condition)
             throws ContractException {
@@ -469,6 +488,7 @@ public class TableCRUDService {
      * @param tableName specific table name, table should exist
      * @param key specific key, key should exist
      * @param callback callback when get receipt
+     * @throws ContractException throw when contract exec exception
      */
     public void asyncRemove(String tableName, String key, PrecompiledCallback callback)
             throws ContractException {
@@ -488,6 +508,7 @@ public class TableCRUDService {
      * @param tableName specific table name, table should exist
      * @param condition key condition
      * @param callback callback when get receipt
+     * @throws ContractException throw when contract exec exception
      */
     public void asyncRemove(String tableName, Condition condition, PrecompiledCallback callback)
             throws ContractException {
@@ -506,6 +527,7 @@ public class TableCRUDService {
      *
      * @param tableName specific table name, it should exist
      * @return table key field and value fields info, [("key_field": [""]),("value_fields": [""])]
+     * @throws ContractException throw when contract exec exception
      */
     public Map<String, List<String>> desc(String tableName) throws ContractException {
         TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
