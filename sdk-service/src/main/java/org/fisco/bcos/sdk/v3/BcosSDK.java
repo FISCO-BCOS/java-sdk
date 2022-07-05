@@ -77,6 +77,7 @@ public class BcosSDK {
     /**
      * Get a Client instance of a specific group
      *
+     * @param groupId specific group id
      * @return Client
      */
     public Client getClient(String groupId) throws BcosSDKException {
@@ -127,6 +128,7 @@ public class BcosSDK {
     /**
      * Get an event subscribe instance of a specific group
      *
+     * @param groupId specific group id
      * @return Client
      */
     public EventSubscribe getEventSubscribe(String groupId) throws BcosSDKException {

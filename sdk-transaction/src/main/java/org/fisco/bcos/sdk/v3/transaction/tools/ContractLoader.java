@@ -47,12 +47,13 @@ public class ContractLoader {
     private Map<String, String> contractAbiMap = new HashMap<>();
 
     /**
-     * create ContractLoader, which load abi & binary files from configured file path
+     * create ContractLoader, which load abi and binary files from configured file path
      *
      * @param abiFilePath abi files path which are compiled by solc from solidity files. Don't
      *     support recursive directories.
-     * @param binaryFilePath binary files path which are compiled by solc from solidity files. Don't
-     *     support recursive directories
+     * @param binaryFilePath binary files' path which are compiled by solc from solidity files.
+     *     Don't support recursive directories
+     * @throws IOException throw when can not find file
      */
     public ContractLoader(String abiFilePath, String binaryFilePath) throws IOException {
         this.binInfo(binaryFilePath);
@@ -146,6 +147,7 @@ public class ContractLoader {
      * @param binaryFilePath binary file path. The binary file could be obtained by compiling
      *     solidity contract.
      * @return BinInfo, cached binary map.
+     * @throws IOException throw when get binary file error
      */
     public BinInfo binInfo(String binaryFilePath) throws IOException {
         if (StringUtils.isEmpty(binaryFilePath)) {
@@ -174,6 +176,7 @@ public class ContractLoader {
      * @param abiFilePath abi file path. The abi file could be obtained by compiling solidity
      *     contract.
      * @return BinInfo, cached binary map.
+     * @throws IOException throw when get ABI file error
      */
     public AbiInfo abiInfo(String abiFilePath) throws IOException {
         String[] s = {"abi"};
@@ -223,6 +226,7 @@ public class ContractLoader {
      *
      * @param contractName loaded contract name.
      * @return abi string
+     * @throws NoSuchTransactionFileException throw when loader not contains contract name
      */
     public String getABIByContractName(String contractName) throws NoSuchTransactionFileException {
         if (contractAbiMap.get(contractName) == null) {
@@ -237,6 +241,7 @@ public class ContractLoader {
      *
      * @param contractName loaded contract name.
      * @return binary string
+     * @throws NoSuchTransactionFileException throw when loader not contains contract name
      */
     public String getBinaryByContractName(String contractName)
             throws NoSuchTransactionFileException {
@@ -253,6 +258,7 @@ public class ContractLoader {
      *
      * @param contractName loaded contract name.
      * @return Pair, the left is abi string and the right is binary string.
+     * @throws NoSuchTransactionFileException throw when loader not contains contract name
      */
     public Pair<String, String> getABIAndBinaryByContractName(String contractName)
             throws NoSuchTransactionFileException {
@@ -273,6 +279,7 @@ public class ContractLoader {
      *
      * @param contractName contract name.
      * @return constructor abi definition.
+     * @throws NoSuchTransactionFileException throw when loader not contains contract name
      */
     public ABIDefinition getConstructorABIByContractName(String contractName)
             throws NoSuchTransactionFileException {
@@ -284,6 +291,7 @@ public class ContractLoader {
      *
      * @param contractName contract name.
      * @return function abi definition list.
+     * @throws NoSuchTransactionFileException throw when loader not contains contract name
      */
     public List<ABIDefinition> getFunctionABIListByContractName(String contractName)
             throws NoSuchTransactionFileException {
