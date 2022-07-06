@@ -459,14 +459,16 @@ public class TablePrecompiled extends Contract {
     }
 
     public static class Limit extends StaticStruct {
+        public static final long MAX_ROW_COUNT = 500;
+
         private BigInteger offset;
 
         private BigInteger count;
 
         public Limit() {
-            super(new Uint32(0), new Uint32(0));
+            super(new Uint32(0), new Uint32(MAX_ROW_COUNT));
             this.offset = BigInteger.ZERO;
-            this.count = BigInteger.ZERO;
+            this.count = BigInteger.valueOf(MAX_ROW_COUNT);
         }
 
         public Limit(Uint32 offset, Uint32 count) {
