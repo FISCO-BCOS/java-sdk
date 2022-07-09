@@ -1184,6 +1184,8 @@ public class ClientImpl implements Client {
                             this.groupID,
                             jsonRpcResponse.getError().getMessage(),
                             jsonRpcResponse.getError().getCode());
+                    response.setErrorCode(jsonRpcResponse.getError().getCode());
+                    response.setErrorMessage(jsonRpcResponse.getError().getMessage());
                     throw new ClientException(
                             jsonRpcResponse.getError().getCode(),
                             jsonRpcResponse.getError().getMessage(),
