@@ -90,7 +90,7 @@ public abstract class CryptoKeyPair {
      * @param nativeResult
      */
     CryptoKeyPair(final CryptoResult nativeResult) {
-        this.hexPrivateKey = nativeResult.privteKey;
+        this.hexPrivateKey = nativeResult.privateKey;
         this.hexPublicKey = nativeResult.publicKey;
     }
 
@@ -140,6 +140,10 @@ public abstract class CryptoKeyPair {
      * @return the generated keyPair
      */
     public abstract CryptoKeyPair generateKeyPair();
+
+    public String getCurveName() {
+        return this.curveName;
+    }
 
     /**
      * Abstract function of create keyPair randomly

@@ -1,16 +1,22 @@
 [cryptoMaterial]
 
 certPath = "conf"                           # The certification path  
+useSMCrypto = "false"                       # RPC SM crypto type
 
-# The following configurations take the certPath by default:
+# The following configurations take the certPath by default if commented
+caCert = "ca.crt.test"                    # CA cert file path
+sslCert = "sdk.crt.test"                  # SSL cert file path
+sslKey = "sdk.key.test"                   # SSL key file path
 
-# caCert = "conf/ca.crt"                    # CA cert file path    
+# caCert = "conf/ca.crt"                    # CA cert file path
 # sslCert = "conf/sdk.crt"                  # SSL cert file path
 # sslKey = "conf/sdk.key"                   # SSL key file path
 # enSslCert = "conf/gm/gmensdk.crt"         # GM encryption cert file path
 # enSslKey = "conf/gm/gmensdk.key"          # GM ssl cert file path
 
 [network]
+messageTimeout = "10000"
+defaultGroup="group0"                            # Console default group to connect
 peers=["127.0.0.1:20200", "127.0.0.1:20201"]    # The peer list to connect
 
 # Configure a private topic as a topic message sender.

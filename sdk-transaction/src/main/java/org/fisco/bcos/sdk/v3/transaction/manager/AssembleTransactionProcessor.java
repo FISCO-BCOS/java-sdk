@@ -14,10 +14,9 @@
  */
 package org.fisco.bcos.sdk.v3.transaction.manager;
 
-import static org.fisco.bcos.sdk.v3.client.protocol.model.Transaction.LIQUID_CREATE;
-import static org.fisco.bcos.sdk.v3.client.protocol.model.Transaction.LIQUID_SCALE_CODEC;
+import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_CREATE;
+import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_SCALE_CODEC;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +45,6 @@ import org.fisco.bcos.sdk.v3.transaction.model.dto.ResultCodeEnum;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionBaseException;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionException;
 import org.fisco.bcos.sdk.v3.transaction.pusher.TransactionPusherInterface;
 import org.fisco.bcos.sdk.v3.transaction.pusher.TransactionPusherService;
 import org.fisco.bcos.sdk.v3.transaction.tools.ContractLoader;
@@ -111,8 +109,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
-    public TransactionReceipt deployAndGetReceipt(byte[] data, String abi, String path)
-            throws JniException {
+    public TransactionReceipt deployAndGetReceipt(byte[] data, String abi, String path) {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
@@ -131,7 +128,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
-    public TransactionReceipt deployAndGetReceipt(byte[] data) throws JniException {
+    public TransactionReceipt deployAndGetReceipt(byte[] data) {
         return deployAndGetReceipt(data, "", "");
     }
 
@@ -140,8 +137,8 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         TransactionReceipt receipt = this.transactionPusher.push(signedData);
         try {
             return this.transactionDecoder.decodeReceiptWithoutValues(abi, receipt);
-        } catch (TransactionException | IOException | ContractCodecException e) {
-            log.error("deploy exception: {}", e.getMessage());
+        } catch (ContractCodecException e) {
+            log.error("deploy exception: ", e);
             return new TransactionResponse(
                     receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
         }
@@ -200,7 +197,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params, String path)
-            throws ContractCodecException, JniException {
+            throws ContractCodecException {
         TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
         return this.transactionPusher.pushAsync(txPair.getSignedTx());
     }
@@ -249,7 +246,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
 
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
-            String to, String abi, String functionName, byte[] data) throws ContractCodecException {
+            String to, String abi, String functionName, byte[] data) {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_SCALE_CODEC;
@@ -258,8 +255,8 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         TransactionReceipt receipt = this.transactionPusher.push(txPair.getSignedTx());
         try {
             return this.transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
-        } catch (TransactionException | IOException e) {
-            log.error("sendTransaction exception: {}", e.getMessage());
+        } catch (ContractCodecException e) {
+            log.error("sendTransaction exception: ", e);
             return new TransactionResponse(
                     receipt, ResultCodeEnum.EXCEPTION_OCCUR.getCode(), e.getMessage());
         }
@@ -268,7 +265,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, List<Object> params)
-            throws ContractCodecException, TransactionBaseException {
+            throws ContractCodecException {
         byte[] data = this.encodeFunction(abi, functionName, params);
         return this.sendTransactionAndGetResponse(to, abi, functionName, data);
     }
@@ -276,7 +273,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse sendTransactionWithStringParamsAndGetResponse(
             String to, String abi, String functionName, List<String> params)
-            throws ContractCodecException, TransactionBaseException {
+            throws ContractCodecException {
         byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, params);
         return this.sendTransactionAndGetResponse(to, abi, functionName, data);
     }
@@ -284,7 +281,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionReceipt sendTransactionAndGetReceiptByContractLoader(
             String contractName, String contractAddress, String functionName, List<Object> args)
-            throws ContractCodecException, TransactionBaseException, JniException {
+            throws ContractCodecException, TransactionBaseException {
         byte[] data =
                 this.contractCodec.encodeMethod(
                         this.contractLoader.getABIByContractName(contractName), functionName, args);
@@ -322,7 +319,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String functionName,
             List<Object> params,
             TransactionCallback callback)
-            throws TransactionBaseException, ContractCodecException {
+            throws ContractCodecException {
         byte[] data = this.encodeFunction(abi, functionName, params);
         int txAttribute = 0;
         if (client.isWASM()) {
@@ -377,8 +374,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public CallResponse sendCall(CallRequest callRequest)
             throws TransactionBaseException, ContractCodecException {
         Call call = this.executeCall(callRequest);
-        CallResponse callResponse =
-                this.parseCallResponseStatus(call.getCallResult(), callRequest.getTo());
+        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         String callOutput = call.getCallResult().getOutput();
         Pair<List<Object>, List<ABIObject>> results =
                 this.contractCodec.decodeMethodAndGetOutputObject(callRequest.getAbi(), callOutput);
@@ -400,7 +396,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String from, String to, String abi, String functionName, byte[] data)
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
-        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult(), to);
+        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         List<Type> decodedResult =
                 this.contractCodec.decodeMethodAndGetOutputObject(
                         abi, functionName, call.getCallResult().getOutput());
@@ -482,10 +478,10 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 blockLimit.longValue());
     }
 
-    private CallResponse parseCallResponseStatus(Call.CallOutput callOutput, String callAddress)
+    private CallResponse parseCallResponseStatus(Call.CallOutput callOutput)
             throws TransactionBaseException {
         CallResponse callResponse = new CallResponse();
-        RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "", callAddress);
+        RetCode retCode = ReceiptParser.parseCallOutput(callOutput, "");
         callResponse.setReturnCode(callOutput.getStatus());
         callResponse.setReturnMessage(retCode.getMessage());
         if (!retCode.getMessage().equals(PrecompiledRetCode.CODE_SUCCESS.getMessage())) {

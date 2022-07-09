@@ -16,6 +16,8 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      *
      * @param transactionData raw transaction data
      * @param remoteSignCallbackInterface after signed, callback function hook
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when jni encode transaction error
      */
     void deployAsync(long transactionData, RemoteSignCallbackInterface remoteSignCallbackInterface)
             throws ContractCodecException, JniException;
@@ -27,8 +29,10 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param bin contract binary, which could be obtained by compiling solidity contract.
      * @param params contract construct parameters
      * @param remoteSignCallbackInterface after signed, callback function hook
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when jni encode transaction error
      */
-    public void deployAsync(
+    void deployAsync(
             String abi,
             String bin,
             List<Object> params,
@@ -42,6 +46,9 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param contractName contract function name.
      * @param params contract function parameters
      * @param remoteSignCallbackInterface after signed, callback function hook
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when jni encode transaction error
+     * @throws NoSuchTransactionFileException throw when loader can not get contract
      */
     void deployByContractLoaderAsync(
             String contractName,
@@ -57,6 +64,9 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param functionName contract function name.
      * @param params contract function parameters
      * @param remoteSignCallbackInterface after signed, callback function hook
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when jni encode transaction error
+     * @throws TransactionBaseException throw when loader get contract error
      */
     void sendTransactionAndGetReceiptByContractLoaderAsync(
             String contractName,
@@ -74,8 +84,10 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param functionName contract function name.
      * @param params contract function parameters
      * @param remoteSignCallbackInterface after signed, callback function hook
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when jni encode transaction error
      */
-    public void sendTransactionAsync(
+    void sendTransactionAsync(
             String to,
             String abi,
             String functionName,
@@ -92,8 +104,10 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      * @param functionName contract function name.
      * @param params contract function parameters
      * @return CompletableFuture of transaction receipt
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws JniException throw when jni encode transaction error
      */
-    public CompletableFuture<TransactionReceipt> sendTransactionAsync(
+    CompletableFuture<TransactionReceipt> sendTransactionAsync(
             String to, String abi, String functionName, List<Object> params)
             throws ContractCodecException, JniException;
 
@@ -102,7 +116,10 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      *
      * @param transactionData raw transaction
      * @param signatureStr signature string.
+     * @param txAttribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
      * @return TransactionReceipt
+     * @throws JniException throw when jni encode transaction error
      */
     TransactionReceipt encodeAndPush(long transactionData, String signatureStr, int txAttribute)
             throws JniException;
@@ -112,6 +129,8 @@ public interface AssembleTransactionWithRemoteSignProviderInterface {
      *
      * @param transactionData raw transaction
      * @param rawTxHash signature byte array.
+     * @param txAttribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
      * @return TransactionReceipt
      */
     CompletableFuture<TransactionReceipt> signAndPush(

@@ -6,8 +6,8 @@ public interface RemoteSignCallbackInterface {
     /**
      * receive the signature,and execute the callback function later.
      *
-     * @param signature
+     * @param signature remote sign result
      * @return result code
      */
-    public int handleSignedTransaction(SignatureResult signature);
+    int handleSignedTransaction(SignatureResult signature);
 }

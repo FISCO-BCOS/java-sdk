@@ -240,7 +240,10 @@ public class TypeDecoder {
                             .filter(
                                     declaredConstructor ->
                                             Arrays.stream(declaredConstructor.getParameterTypes())
-                                                    .allMatch(Type.class::isAssignableFrom))
+                                                            .allMatch(Type.class::isAssignableFrom)
+                                                    && declaredConstructor.getParameterTypes()
+                                                                    .length
+                                                            > 0)
                             .findAny()
                             .orElseThrow(
                                     () ->

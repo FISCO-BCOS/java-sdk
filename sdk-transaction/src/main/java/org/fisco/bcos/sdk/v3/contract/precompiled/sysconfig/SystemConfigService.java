@@ -14,15 +14,32 @@
  */
 package org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig;
 
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Predicate;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.RetCode;
+import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class SystemConfigService {
     private final SystemConfigPrecompiled systemConfigPrecompiled;
+    public static final String TX_COUNT_LIMIT = "tx_count_limit";
+    public static final String TX_GAS_LIMIT = "tx_gas_limit";
+    public static final String CONSENSUS_PERIOD = "consensus_leader_period";
+    public static final int TX_GAS_LIMIT_MIN = 100000;
+    private static final Map<String, Predicate<BigInteger>> predicateMap = new HashMap<>();
+
+    static {
+        predicateMap.put(TX_COUNT_LIMIT, value -> value.compareTo(BigInteger.ONE) >= 0);
+        predicateMap.put(CONSENSUS_PERIOD, value -> value.compareTo(BigInteger.ONE) >= 0);
+        predicateMap.put(
+                TX_GAS_LIMIT, value -> value.compareTo(BigInteger.valueOf(TX_GAS_LIMIT_MIN)) >= 0);
+    }
 
     public SystemConfigService(Client client, CryptoKeyPair credential) {
         this.systemConfigPrecompiled =
@@ -35,7 +52,26 @@ public class SystemConfigService {
     }
 
     public RetCode setValueByKey(String key, String value) throws ContractException {
+        TransactionReceipt receipt = systemConfigPrecompiled.setValueByKey(key, value);
         return ReceiptParser.parseTransactionReceipt(
-                systemConfigPrecompiled.setValueByKey(key, value));
+                receipt, tr -> systemConfigPrecompiled.getSetValueByKeyOutput(receipt).getValue1());
+    }
+
+    public static boolean checkSysNumberValueValidation(String key, String value) {
+        Predicate<BigInteger> valuePredicate = predicateMap.get(key);
+        if (valuePredicate == null) {
+            return true;
+        }
+        BigInteger sysValue;
+        try {
+            sysValue = new BigInteger(value);
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
+        return valuePredicate.test(sysValue);
+    }
+
+    public static boolean isCheckableInValueValidation(String key) {
+        return predicateMap.containsKey(key);
     }
 }

@@ -10,7 +10,7 @@ public interface RemoteSignProviderInterface {
      * @param cryptoType ECDSA=0,SM=1, or self defined
      * @return signature result
      */
-    public SignatureResult requestForSign(byte[] dataToSign, int cryptoType);
+    SignatureResult requestForSign(byte[] dataToSign, int cryptoType);
 
     /**
      * request for signature provider service asynchronously
@@ -19,6 +19,6 @@ public interface RemoteSignProviderInterface {
      * @param cryptoType ECDSA=0,SM=1, or self defined
      * @param callback transaction sign callback
      */
-    public void requestForSignAsync(
+    void requestForSignAsync(
             byte[] dataToSign, int cryptoType, RemoteSignCallbackInterface callback);
 }

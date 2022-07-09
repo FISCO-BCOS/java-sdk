@@ -28,16 +28,16 @@ public interface TransactionSignerInterface {
      *
      * @param hash raw transaction hash string to be signed
      * @param cryptoKeyPair keypair
-     * @return signatrue result
+     * @return signature result
      */
-    public SignatureResult sign(String hash, CryptoKeyPair cryptoKeyPair);
+    SignatureResult sign(String hash, CryptoKeyPair cryptoKeyPair);
 
     /**
      * sign raw transaction hash byte array and get signatrue result
      *
      * @param hash raw transaction hash byte array to be signed
      * @param cryptoKeyPair keypair
-     * @return signatrue result
+     * @return signature result
      */
-    public SignatureResult sign(byte[] hash, CryptoKeyPair cryptoKeyPair);
+    SignatureResult sign(byte[] hash, CryptoKeyPair cryptoKeyPair);
 }

@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.v3.client;
 
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
-import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
@@ -61,7 +60,7 @@ public interface Client {
      * @param configOption the config
      * @return a client instance
      */
-    static Client build(ConfigOption configOption) throws JniException {
+    static Client build(ConfigOption configOption) {
         logger.info("build, configOption: {}", configOption);
         return build(null, configOption);
     }
@@ -73,7 +72,7 @@ public interface Client {
      * @param configOption the config
      * @return a client instance
      */
-    static Client build(String groupId, ConfigOption configOption) throws JniException {
+    static Client build(String groupId, ConfigOption configOption) {
         logger.info("build, groupID: {}, configOption: {}", groupId, configOption);
         long nativePointer = BcosSDKJniObj.create(configOption.getJniConfig());
         return build(groupId, configOption, nativePointer);
@@ -88,8 +87,7 @@ public interface Client {
      * @param nativePointer jni impl native handler
      * @return a client instance
      */
-    static Client build(String groupId, ConfigOption configOption, long nativePointer)
-            throws JniException {
+    static Client build(String groupId, ConfigOption configOption, long nativePointer) {
         logger.info(
                 "build, groupID: {}, configOption: {}, nativePointer: {}",
                 groupId,
@@ -143,7 +141,7 @@ public interface Client {
      */
     String getChainId();
 
-    /** */
+    /** @return return client config */
     ConfigOption getConfigOption();
 
     // ------------------------- rpc interface begin ------------------------------------------
@@ -152,7 +150,8 @@ public interface Client {
      * Ledger operation: send transaction
      *
      * @param signedTransactionData transaction string
-     * @return SendTransaction
+     * @param withProof whether contains merkle proof or not
+     * @return Transaction receipt
      */
     BcosTransactionReceipt sendTransaction(String signedTransactionData, boolean withProof);
 
@@ -161,7 +160,8 @@ public interface Client {
      *
      * @param node the node rpc request send to
      * @param signedTransactionData transaction string
-     * @return SendTransaction
+     * @param withProof whether contains merkle proof or not
+     * @return Transaction receipt
      */
     BcosTransactionReceipt sendTransaction(
             String node, String signedTransactionData, boolean withProof);
@@ -170,6 +170,7 @@ public interface Client {
      * Ledger operation: async send transaction
      *
      * @param signedTransactionData transaction string
+     * @param withProof whether contains merkle proof or not
      * @param callback the callback that will be called when receive the response
      */
     void sendTransactionAsync(
@@ -180,6 +181,7 @@ public interface Client {
      *
      * @param node the node rpc request send to
      * @param signedTransactionData transaction string
+     * @param withProof whether contains merkle proof or not
      * @param callback the callback that will be called when receive the response
      */
     void sendTransactionAsync(
@@ -354,6 +356,7 @@ public interface Client {
      * Ledger operation: get block by hash
      *
      * @param blockHash the hashcode of the block
+     * @param onlyHeader if true then only return block header
      * @param onlyTxHash the boolean define the tx is full or not
      * @return a block
      */
@@ -364,6 +367,7 @@ public interface Client {
      *
      * @param node the node rpc request send to
      * @param blockHash the hashcode of the block
+     * @param onlyHeader if true then only return block header
      * @param onlyTxHash the boolean define the tx is full or not
      * @return a block
      */
@@ -373,6 +377,7 @@ public interface Client {
      * Ledger operation: async get block by hash
      *
      * @param blockHash the hashcode of the block
+     * @param onlyHeader if true then only return block header
      * @param onlyTxHash the boolean define the tx is full or not
      * @param callback the callback that will be called when receive the response
      */
@@ -387,6 +392,7 @@ public interface Client {
      *
      * @param node the node rpc request send to
      * @param blockHash the hashcode of the block
+     * @param onlyHeader if true then only return block header
      * @param onlyTxHash the boolean define the tx is full or not
      * @param callback the callback that will be called when receive the response
      */
@@ -584,6 +590,7 @@ public interface Client {
     /**
      * Ledger operation: async get pending transaction size
      *
+     * @param node the node rpc request send to
      * @param callback the callback that will be called when receive the response
      */
     void getPendingTxSizeAsync(String node, RespCallback<PendingTxSize> callback);
@@ -642,6 +649,7 @@ public interface Client {
     /**
      * Peer operation: get observer node list
      *
+     * @param node the node rpc request send to
      * @return observer node list
      */
     ObserverList getObserverList(String node);
@@ -656,6 +664,7 @@ public interface Client {
     /**
      * Peer operation: async get observer node list
      *
+     * @param node the node rpc request send to
      * @param callback the callback instance
      */
     void getObserverList(String node, RespCallback<ObserverList> callback);
@@ -757,6 +766,7 @@ public interface Client {
     /**
      * Peer operation: get sync status
      *
+     * @param node the node rpc request send to
      * @return sync status
      */
     SyncStatus getSyncStatus(String node);
@@ -794,7 +804,7 @@ public interface Client {
     /**
      * async get consensus status
      *
-     * @param callback
+     * @param callback callback when get consensus status
      */
     void getConsensusStatusAsync(RespCallback<ConsensusStatus> callback);
 
@@ -843,6 +853,7 @@ public interface Client {
     /**
      * get group node info
      *
+     * @param node the node rpc request send to
      * @return group node info
      */
     BcosGroupNodeInfo getGroupNodeInfo(String node);

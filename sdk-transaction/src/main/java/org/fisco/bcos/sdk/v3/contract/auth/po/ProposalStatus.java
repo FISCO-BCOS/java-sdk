@@ -5,6 +5,7 @@ public enum ProposalStatus {
     FINISHED("finished"),
     FAILED("failed"),
     REVOKE("revoke"),
+    OUTDATED("outdated"),
     UNKNOWN("unknown");
 
     private final String value;
@@ -27,6 +28,8 @@ public enum ProposalStatus {
                 return FAILED;
             case 4:
                 return REVOKE;
+            case 5:
+                return OUTDATED;
             default:
                 return UNKNOWN;
         }

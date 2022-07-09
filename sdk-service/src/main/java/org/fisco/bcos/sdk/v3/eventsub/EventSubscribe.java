@@ -32,6 +32,7 @@ public interface EventSubscribe {
      * @param group group
      * @param configOption configOption
      * @return EventSubscribe Object
+     * @throws JniException throw when build event service error
      */
     static EventSubscribe build(String group, ConfigOption configOption) throws JniException {
         Client client = Client.build(group, configOption);
@@ -43,6 +44,7 @@ public interface EventSubscribe {
      *
      * @param client Client
      * @return EventSubscribe Object
+     * @throws JniException throw when build event service error
      */
     static EventSubscribe build(Client client) throws JniException {
         return new EventSubscribeImp(client, client.getConfigOption());

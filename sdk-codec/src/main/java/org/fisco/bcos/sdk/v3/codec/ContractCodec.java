@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.v3.codec.abi.Constant;
+import org.fisco.bcos.sdk.v3.codec.datatypes.AbiTypes;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Bool;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
@@ -100,7 +101,7 @@ public class ContractCodec {
                     ContractCodecTools.encode(
                             ContractCodecTools.decodeABIObjectValue(inputABIObject, params),
                             isWasm);
-            return encodeConstructorFromBytes(bin, encodeParams, abi);
+            return encodeConstructorFromBytes(bin, encodeParams);
         } catch (Exception e) {
             logger.error(" exception in encodeConstructor : {}", e.getMessage());
         }
@@ -131,7 +132,18 @@ public class ContractCodec {
                 Type element = buildType(subType, subNodeStr);
                 elements.add(element);
             }
-            type = paramType.isFixedList() ? new StaticArray(elements) : new DynamicArray(elements);
+            if (elements.isEmpty()) {
+                Class<? extends Type> arrayClass = AbiTypes.getType(paramType.rawType);
+                type =
+                        paramType.isFixedList()
+                                ? new StaticArray(arrayClass, elements)
+                                : new DynamicArray(arrayClass, elements);
+            } else {
+                type =
+                        paramType.isFixedList()
+                                ? new StaticArray(elements.get(0).getClass(), elements)
+                                : new DynamicArray(elements.get(0).getClass(), elements);
+            }
             return type;
         } else if (typeStr.equals("tuple")) {
             List<Type> components = new ArrayList<>();
@@ -330,7 +342,7 @@ public class ContractCodec {
                 paramBytes =
                         org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder.encodeConstructor(types);
             }
-            return encodeConstructorFromBytes(bin, paramBytes, abi);
+            return encodeConstructorFromBytes(bin, paramBytes);
         } catch (Exception e) {
             String errorMsg =
                     " cannot encode in encodeMethodFromObject with appropriate interface ABI, cause:"
@@ -340,7 +352,7 @@ public class ContractCodec {
         }
     }
 
-    public byte[] encodeConstructorFromBytes(String bin, byte[] params, String abi)
+    public byte[] encodeConstructorFromBytes(String bin, byte[] params)
             throws ContractCodecException {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -358,7 +370,6 @@ public class ContractCodec {
                 } else {
                     deployParams.add(new Uint8(0));
                 }
-                // deployParams.add(new Utf8String(abi));
                 outputStream.write(FunctionEncoder.encodeParameters(deployParams, null));
             }
             return outputStream.toByteArray();

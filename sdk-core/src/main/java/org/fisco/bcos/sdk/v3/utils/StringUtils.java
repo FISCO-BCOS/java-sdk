@@ -16,8 +16,8 @@ package org.fisco.bcos.sdk.v3.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 /** String utility functions. */
 public class StringUtils {
@@ -25,7 +25,6 @@ public class StringUtils {
     private StringUtils() {}
 
     public static String toCsv(List<String> src) {
-        // return src == null ? null : String.join(", ", src.toArray(new String[0]));
         return join(src, ", ");
     }
 
@@ -58,7 +57,7 @@ public class StringUtils {
     }
 
     public static boolean isEmpty(String s) {
-        return s == null || s.length() == 0;
+        return s == null || s.isEmpty();
     }
 
     public static String fromUTF8ByteArray(byte[] bytes) {
@@ -107,10 +106,7 @@ public class StringUtils {
                                         | ((bytes[i + 1] & 0x3f) << 6)
                                         | (bytes[i + 2] & 0x3f));
                 i += 3;
-            } else if ((bytes[i] & 0xd0) == 0xd0) {
-                ch = (char) (((bytes[i] & 0x1f) << 6) | (bytes[i + 1] & 0x3f));
-                i += 2;
-            } else if ((bytes[i] & 0xc0) == 0xc0) {
+            } else if ((bytes[i] & 0xd0) == 0xd0 || (bytes[i] & 0xc0) == 0xc0) {
                 ch = (char) (((bytes[i] & 0x1f) << 6) | (bytes[i + 1] & 0x3f));
                 i += 2;
             } else {
@@ -141,11 +137,10 @@ public class StringUtils {
     }
 
     public static void toUTF8ByteArray(char[] string, OutputStream sOut) throws IOException {
-        char[] c = string;
         int i = 0;
 
-        while (i < c.length) {
-            char ch = c[i];
+        while (i < string.length) {
+            char ch = string[i];
 
             if (ch < 0x0080) {
                 sOut.write(ch);
@@ -157,11 +152,11 @@ public class StringUtils {
             else if (ch >= 0xD800 && ch <= 0xDFFF) {
                 // in error - can only happen, if the Java String class has a
                 // bug.
-                if (i + 1 >= c.length) {
+                if (i + 1 >= string.length) {
                     throw new IllegalStateException("invalid UTF-16 codepoint");
                 }
                 char W1 = ch;
-                ch = c[++i];
+                ch = string[++i];
                 char W2 = ch;
                 // in error - can only happen, if the Java String class has a
                 // bug.
@@ -291,7 +286,7 @@ public class StringUtils {
     }
 
     public static String[] split(String input, char delimiter) {
-        Vector v = new Vector();
+        List<String> v = new LinkedList<>();
         boolean moreTokens = true;
         String subString;
 
@@ -299,18 +294,18 @@ public class StringUtils {
             int tokenLocation = input.indexOf(delimiter);
             if (tokenLocation > 0) {
                 subString = input.substring(0, tokenLocation);
-                v.addElement(subString);
+                v.add(subString);
                 input = input.substring(tokenLocation + 1);
             } else {
                 moreTokens = false;
-                v.addElement(input);
+                v.add(input);
             }
         }
 
         String[] res = new String[v.size()];
 
         for (int i = 0; i != res.length; i++) {
-            res[i] = (String) v.elementAt(i);
+            res[i] = v.get(i);
         }
         return res;
     }

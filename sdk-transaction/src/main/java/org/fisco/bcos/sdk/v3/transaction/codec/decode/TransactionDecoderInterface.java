@@ -14,14 +14,12 @@
  */
 package org.fisco.bcos.sdk.v3.transaction.codec.decode;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionException;
 
 /**
  * TransactionDecoderInterface @Description: TransactionDecoderInterface
@@ -36,7 +34,7 @@ public interface TransactionDecoderInterface {
      * @param input the input of transaction receipt
      * @return the resolved revert message information
      */
-    public String decodeReceiptMessage(String input);
+    String decodeRevertMessage(String input);
 
     /**
      * parse the status and transaction detail from receipt
@@ -44,7 +42,7 @@ public interface TransactionDecoderInterface {
      * @param receipt transaction receipt
      * @return the resolved status and other transaction detail
      */
-    public TransactionResponse decodeReceiptStatus(TransactionReceipt receipt);
+    TransactionResponse decodeReceiptStatus(TransactionReceipt receipt);
 
     /**
      * parse the transaction information of the function from receipt with return values
@@ -53,10 +51,11 @@ public interface TransactionDecoderInterface {
      * @param functionName referred function name
      * @param receipt transaction receipt
      * @return the resolved status and other transaction detail
+     * @throws ContractCodecException throw when decode error
      */
-    public TransactionResponse decodeReceiptWithValues(
+    TransactionResponse decodeReceiptWithValues(
             String abi, String functionName, TransactionReceipt receipt)
-            throws TransactionException, IOException, ContractCodecException;
+            throws ContractCodecException;
 
     /**
      * parse the transaction information from receipt without return values
@@ -64,19 +63,20 @@ public interface TransactionDecoderInterface {
      * @param abi contract abi
      * @param transactionReceipt transaction receipt
      * @return the resolved status and other transaction detail
+     * @throws ContractCodecException throw when decode error
      */
-    public TransactionResponse decodeReceiptWithoutValues(
-            String abi, TransactionReceipt transactionReceipt)
-            throws TransactionException, IOException, ContractCodecException;
+    TransactionResponse decodeReceiptWithoutValues(
+            String abi, TransactionReceipt transactionReceipt) throws ContractCodecException;
 
     /**
      * parse the transaction events from receipt logs
      *
      * @param abi contract abi
      * @param logs logs in the transaction receipt
-     * @return Map<K,V>, K is event name, V is list of events in Json. May have several events of
+     * @return Map(K,V), K is event name, V is list of events in Json. May have several events of
      *     the same event
+     * @throws ContractCodecException throw when decode events error
      */
-    public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
+    Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
             throws ContractCodecException;
 }

@@ -24,7 +24,7 @@ public class ObjectMapperFactory {
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = new ObjectMapper();
 
     static {
-        configureObjectMapper(DEFAULT_OBJECT_MAPPER);
+        configureObjectMapper();
     }
 
     private ObjectMapperFactory() {}
@@ -37,9 +37,10 @@ public class ObjectMapperFactory {
         return DEFAULT_OBJECT_MAPPER.reader();
     }
 
-    private static ObjectMapper configureObjectMapper(ObjectMapper objectMapper) {
-        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return objectMapper;
+    private static void configureObjectMapper() {
+        ObjectMapperFactory.DEFAULT_OBJECT_MAPPER.configure(
+                JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        ObjectMapperFactory.DEFAULT_OBJECT_MAPPER.configure(
+                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 }

@@ -37,25 +37,29 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint160;
  */
 public class TypeDecoder {
     @SuppressWarnings("unchecked")
-    public static <T extends Type> T decode(byte[] input, int offset, Class<T> type) {
-        if (NumericType.class.isAssignableFrom(type)) {
+    public static <T extends Type> T decode(byte[] input, int offset, TypeReference<T> type)
+            throws ClassNotFoundException {
+        Class<T> cls = type.getClassType();
+        if (NumericType.class.isAssignableFrom(cls)) {
             return (T)
                     decodeNumeric(
                             Arrays.copyOfRange(input, offset, input.length),
-                            (Class<NumericType>) type);
-        } else if (Address.class.isAssignableFrom(type)) {
+                            (Class<NumericType>) cls);
+        } else if (Address.class.isAssignableFrom(cls)) {
             return (T) decodeAddress(Arrays.copyOfRange(input, offset, input.length));
-        } else if (Bool.class.isAssignableFrom(type)) {
+        } else if (Bool.class.isAssignableFrom(cls)) {
             return (T) decodeBool(input, offset);
-        } else if (Bytes.class.isAssignableFrom(type)) {
-            return (T) decodeBytes(input, offset, (Class<Bytes>) type);
-        } else if (DynamicBytes.class.isAssignableFrom(type)) {
+        } else if (Bytes.class.isAssignableFrom(cls)) {
+            return (T) decodeBytes(input, offset, (Class<Bytes>) cls);
+        } else if (DynamicBytes.class.isAssignableFrom(cls)) {
             return (T) decodeDynamicBytes(input, offset);
-        } else if (Utf8String.class.isAssignableFrom(type)) {
+        } else if (Utf8String.class.isAssignableFrom(cls)) {
             return (T) decodeUtf8String(input, offset);
-        } else if (Array.class.isAssignableFrom(type)) {
-            throw new UnsupportedOperationException(
-                    "Array types must be wrapped in a TypeReference");
+        } else if (StaticArray.class.isAssignableFrom(cls)) {
+            int length = ((TypeReference.StaticArrayTypeReference<?>) type).getSize();
+            return decodeStaticArray(input, offset, type, length);
+        } else if (DynamicArray.class.isAssignableFrom(cls)) {
+            return decodeDynamicArray(input, offset, type);
         } else {
             throw new UnsupportedOperationException("Type cannot be encoded: " + type.getClass());
         }
@@ -117,7 +121,13 @@ public class TypeDecoder {
 
     public static int decodeUintAsInt(byte[] rawInput, int offset) {
         byte[] input = Arrays.copyOfRange(rawInput, offset, offset + Type.MAX_BYTE_LENGTH);
-        return decode(input, 0, Uint.class).getValue().intValue();
+        int result = 0;
+        try {
+            result = decode(input, 0, TypeReference.create(Uint.class)).getValue().intValue();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public static Bool decodeBool(byte[] rawInput, int offset) {
@@ -251,10 +261,10 @@ public class TypeDecoder {
                         int getOffset =
                                 FunctionReturnDecoder.getDataOffset(
                                         input, currOffset, typeReference);
-                        value = decode(input, offset + getOffset, cls);
+                        value = decode(input, offset + getOffset, TypeReference.create(cls));
                         currOffset += Type.MAX_BYTE_LENGTH;
                     } else {
-                        value = decode(input, currOffset, cls);
+                        value = decode(input, currOffset, TypeReference.create(cls));
                         currOffset +=
                                 getSingleElementLength(input, currOffset, cls)
                                         * Type.MAX_BYTE_LENGTH;
@@ -317,7 +327,10 @@ public class TypeDecoder {
                             .filter(
                                     declaredConstructor ->
                                             Arrays.stream(declaredConstructor.getParameterTypes())
-                                                    .allMatch(Type.class::isAssignableFrom))
+                                                            .allMatch(Type.class::isAssignableFrom)
+                                                    && declaredConstructor.getParameterTypes()
+                                                                    .length
+                                                            > 0)
                             .findAny()
                             .orElseThrow(
                                     () ->
@@ -344,7 +357,10 @@ public class TypeDecoder {
                             .filter(
                                     declaredConstructor ->
                                             Arrays.stream(declaredConstructor.getParameterTypes())
-                                                    .allMatch(Type.class::isAssignableFrom))
+                                                            .allMatch(Type.class::isAssignableFrom)
+                                                    && declaredConstructor.getParameterTypes()
+                                                                    .length
+                                                            > 0)
                             .findAny()
                             .orElseThrow(
                                     () ->
@@ -357,6 +373,8 @@ public class TypeDecoder {
             final List<Integer> parameterOffsets = new ArrayList<>();
             for (int i = 0; i < length; ++i) {
                 final Class<T> declaredField = (Class<T>) constructor.getParameterTypes()[i];
+                TypeReference<T> typeReferenceElement =
+                        TypeReference.create(constructor.getGenericParameterTypes()[i]);
                 final T value;
                 final int beginIndex = offset + staticOffset;
                 if (isDynamic(declaredField)) {
@@ -373,8 +391,7 @@ public class TypeDecoder {
                     if (StaticStruct.class.isAssignableFrom(declaredField)) {
                         value =
                                 decodeStaticStruct(
-                                        Arrays.copyOfRange(
-                                                input, beginIndex, input.length - beginIndex),
+                                        Arrays.copyOfRange(input, beginIndex, input.length),
                                         0,
                                         TypeReference.create(declaredField));
                         staticOffset +=
@@ -385,10 +402,9 @@ public class TypeDecoder {
                     } else {
                         value =
                                 decode(
-                                        Arrays.copyOfRange(
-                                                input, beginIndex, input.length - beginIndex),
+                                        Arrays.copyOfRange(input, beginIndex, input.length),
                                         0,
-                                        declaredField);
+                                        typeReferenceElement);
                         staticOffset += value.bytes32PaddedLength();
                     }
                     parameters.put(i, value);
@@ -460,7 +476,7 @@ public class TypeDecoder {
         } else if (DynamicArray.class.isAssignableFrom(typeReference.getClassType())) {
             value = decodeDynamicArray(dynamicElementData, 0, typeReference);
         } else {
-            value = decode(dynamicElementData, 0, typeReference.getClassType());
+            value = decode(dynamicElementData, 0, typeReference);
         }
         return value;
     }
@@ -493,7 +509,10 @@ public class TypeDecoder {
                             .filter(
                                     declaredConstructor ->
                                             Arrays.stream(declaredConstructor.getParameterTypes())
-                                                    .allMatch(Type.class::isAssignableFrom))
+                                                            .allMatch(Type.class::isAssignableFrom)
+                                                    && declaredConstructor.getParameterTypes()
+                                                                    .length
+                                                            > 0)
                             .findAny()
                             .orElseThrow(
                                     () ->
@@ -505,7 +524,8 @@ public class TypeDecoder {
             for (int i = 0, currOffset = offset; i < length; i++) {
                 T value;
                 final Class<T> declaredField = (Class<T>) constructor.getParameterTypes()[i];
-
+                TypeReference<T> typeReferenceElement =
+                        TypeReference.create(constructor.getGenericParameterTypes()[i]);
                 if (StaticStruct.class.isAssignableFrom(declaredField)) {
                     final int nestedStructLength =
                             classType
@@ -528,7 +548,7 @@ public class TypeDecoder {
                                     Arrays.copyOfRange(
                                             input, currOffset, currOffset + Type.MAX_BYTE_LENGTH),
                                     0,
-                                    declaredField);
+                                    typeReferenceElement);
                     currOffset += Type.MAX_BYTE_LENGTH;
                 }
                 elements.add(value);

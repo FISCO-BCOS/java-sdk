@@ -18,12 +18,13 @@ package org.fisco.bcos.sdk.v3.utils;
 import java.util.Objects;
 
 public class AddressUtils {
-    public static final int ADDRESS_SIZE = 160;
-    public static final int ADDRESS_LENGTH_IN_HEX = ADDRESS_SIZE >> 2;
+    private AddressUtils() {}
+
+    public static final String ADDRESS_PATTERN = "^[0-9A-Fa-f]{40}$";
 
     public static boolean isValidAddress(String address) {
         String addressNoPrefix = Numeric.cleanHexPrefix(address);
-        return addressNoPrefix.length() == ADDRESS_LENGTH_IN_HEX;
+        return addressNoPrefix.matches(ADDRESS_PATTERN);
     }
 
     public static String addHexPrefixToAddress(String address) {

@@ -1,3 +1,38 @@
+## v3.0.0-rc4
+(2022-7-1)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+* 新增`TableCRUDService`，适配v3.0.0-rc4节点的CRUD Table的接口
+* `AuthManger`
+  * 新增共识节点变更提案、系统配置变更提案、升级计算逻辑提案等的接口
+  * 新增冻结、解冻合约功能接口
+  * 新增创建提案、修改合约ACL状态的异步接口
+  * 新增批量获取提案的接口
+  * 新增提案执行结果的事件监听接口
+
+### 更新
+
+* 使用密码库`webank-blockchain-java-crypto`替代`key-mini-toolkit`
+* 升级`bcos-sdk-jni`到`3.0.0-rc4`
+
+### 修复
+
+* 修复合约编解码相关的bug
+* 修复ReceiptParser获取预编译合约返回值时出现的编码问题
+* 增加单测覆盖率，修复大部分不合理的代码
+
+### 兼容性说明
+
+- 不兼容 FISCO BCOS 2.0+ 版本
+- 兼容java-sdk v3.x的历史版本
+- 支持[3.0.0-rc4](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0-rc4)版本
+
+
 ## v3.0.0-rc3
 (2022-03-31)
 

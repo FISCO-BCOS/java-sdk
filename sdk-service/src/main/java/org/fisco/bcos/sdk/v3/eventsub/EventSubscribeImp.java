@@ -37,7 +37,7 @@ public class EventSubscribeImp implements EventSubscribe {
     private CryptoSuite cryptoSuite;
     private EventSubJniObj eventSubJniObj;
 
-    private ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+    private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
     public EventSubscribeImp(Client client, ConfigOption configOption) throws JniException {
         this.groupId = client.getGroup();
@@ -94,38 +94,35 @@ public class EventSubscribeImp implements EventSubscribe {
         return eventSubJniObj.subscribeEvent(
                 groupId,
                 strParams,
-                (response) -> {
-                    {
-                        if (response.getErrorCode() != 0) {
-                            logger.error(
-                                    "subscribeEvent response error, errorCode: {}, errorMessage: {}",
-                                    response.getErrorCode(),
-                                    response.getErrorMessage());
-                            callback.onReceiveLog("", response.getErrorCode(), null);
-                            return;
-                        }
-
-                        String strResp = new String(response.getData());
-                        logger.debug(
-                                "subscribeEvent response, errorCode: {}, errorMessage: {}, data: {}",
+                response -> {
+                    if (response.getErrorCode() != 0) {
+                        logger.error(
+                                "subscribeEvent response error, errorCode: {}, errorMessage: {}",
                                 response.getErrorCode(),
-                                response.getErrorMessage(),
-                                strResp);
+                                response.getErrorMessage());
+                        callback.onReceiveLog("", response.getErrorCode(), null);
+                        return;
+                    }
 
-                        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-                        try {
-                            EventSubResponse eventSubResponse =
-                                    objectMapper.readValue(strResp, EventSubResponse.class);
-                            callback.onReceiveLog(
-                                    eventSubResponse.getId(),
-                                    eventSubResponse.getStatus(),
-                                    eventSubResponse.getLogs());
-                        } catch (JsonProcessingException e) {
-                            logger.error(
-                                    "subscribeEvent response parser json error, resp: {}, e: {}",
-                                    strResp,
-                                    e);
-                        }
+                    String strResp = new String(response.getData());
+                    logger.debug(
+                            "subscribeEvent response, errorCode: {}, errorMessage: {}, data: {}",
+                            response.getErrorCode(),
+                            response.getErrorMessage(),
+                            strResp);
+
+                    try {
+                        EventSubResponse eventSubResponse =
+                                objectMapper.readValue(strResp, EventSubResponse.class);
+                        callback.onReceiveLog(
+                                eventSubResponse.getId(),
+                                eventSubResponse.getStatus(),
+                                eventSubResponse.getLogs());
+                    } catch (JsonProcessingException e) {
+                        logger.error(
+                                "subscribeEvent response parser json error, resp: {}, e: {}",
+                                strResp,
+                                e);
                     }
                 });
     }

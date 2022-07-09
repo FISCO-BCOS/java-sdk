@@ -74,7 +74,7 @@ public class ConfigOption {
         this.configProperty = configProperty;
     }
 
-    public void reloadConfig(int cryptoType) throws ConfigException {
+    public void reloadConfig() throws ConfigException {
         this.cryptoMaterialConfig = new CryptoMaterialConfig(this.configProperty);
     }
 

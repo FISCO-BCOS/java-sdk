@@ -1,8 +1,9 @@
-pragma solidity ^0.4.24;
+// SPDX-License-Identifier: Apache-2.0
+pragma solidity ^0.6.0;
 
 contract ConsensusPrecompiled {
-    function addSealer(string, uint256) public returns (int256);
-    function addObserver(string) public returns (int256);
-    function remove(string) public returns (int256);
-    function setWeight(string, uint256) returns (int256);
+    function addSealer(string memory,uint256) public returns (int256){}
+    function addObserver(string memory) public returns (int256){}
+    function remove(string memory) public returns (int256){}
+    function setWeight(string memory,uint256) public returns (int256){}
 }

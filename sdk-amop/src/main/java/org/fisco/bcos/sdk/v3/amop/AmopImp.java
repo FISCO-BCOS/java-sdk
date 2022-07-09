@@ -39,6 +39,11 @@ public class AmopImp implements Amop {
     }
 
     @Override
+    public void subscribeTopic(Set<String> topics) {
+        amopJni.subscribeTopic(topics);
+    }
+
+    @Override
     public void subscribeTopic(String topicName, AmopRequestCallback callback) {
         amopJni.subscribeTopic(topicName, callback);
     }

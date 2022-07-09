@@ -37,7 +37,7 @@ public final class Numeric {
     public static BigInteger decodeQuantity(String value) {
         if (!isValidHexQuantity(value)) {
             try {
-                if (value == null) return new BigInteger("0");
+                if (value == null) return BigInteger.ZERO;
                 return new BigInteger(value);
             } catch (NumberFormatException e) {
                 throw new MessageDecodingException("Negative ", e);
@@ -211,9 +211,7 @@ public final class Numeric {
     }
 
     public static String toHexString(byte[] input) {
-        StringBuilder stringBuilder = new StringBuilder(2 + input.length * 2);
-        stringBuilder.append("0x").append(Hex.toHexString(input));
-        return stringBuilder.toString();
+        return "0x" + Hex.toHexString(input);
     }
 
     public static byte asByte(int m, int n) {

@@ -22,19 +22,17 @@ import org.fisco.bcos.sdk.v3.utils.exceptions.EncoderException;
 
 /** Utility class for converting hex data to bytes and back again. */
 public class Hex {
+    private Hex() {}
+
     private static final HexEncoder encoder = new HexEncoder();
 
     public static boolean hasHexPrefix(String data) {
-        if ((data != null) && (data.startsWith("0x") || data.startsWith("0X"))) {
-            return true;
-        }
-
-        return false;
+        return (data != null) && (data.startsWith("0x") || data.startsWith("0X"));
     }
 
     public static String addPrefix(String data) {
         if (Objects.isNull(data)) {
-            return data;
+            return null;
         }
 
         if (data.startsWith("0x")) {

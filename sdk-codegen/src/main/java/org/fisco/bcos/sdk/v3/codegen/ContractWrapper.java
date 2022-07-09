@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.protocol.model.Transaction;
+import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Bool;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
@@ -1266,7 +1266,7 @@ public class ContractWrapper {
                     return dagAttribute;
                 }
             }
-            dagAttribute = Transaction.DAG;
+            dagAttribute = TransactionAttribute.DAG;
         }
         return dagAttribute;
     }

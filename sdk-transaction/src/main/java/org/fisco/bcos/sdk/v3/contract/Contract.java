@@ -14,19 +14,18 @@
  */
 package org.fisco.bcos.sdk.v3.contract;
 
-import static org.fisco.bcos.sdk.v3.client.protocol.model.Transaction.LIQUID_CREATE;
-import static org.fisco.bcos.sdk.v3.client.protocol.model.Transaction.LIQUID_SCALE_CODEC;
+import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_CREATE;
+import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_SCALE_CODEC;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.protocol.model.Transaction;
+import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
@@ -41,8 +40,8 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
@@ -126,109 +125,6 @@ public class Contract {
                 TransactionProcessorFactory.createTransactionProcessor(client, credential));
     }
 
-    /**
-     * Deploy contract
-     *
-     * @param type
-     * @param client a Client object to send requests
-     * @param credential key pair to use when sign transaction
-     * @param transactionManager TransactionProcessor
-     * @param binary the contract binary code hex string
-     * @param encodedConstructor
-     * @param <T> a smart contract object extends Contract
-     * @return <T> type smart contract
-     * @throws ContractException
-     */
-    protected static <T extends Contract> T deploy(
-            Class<T> type,
-            Client client,
-            CryptoKeyPair credential,
-            TransactionProcessor transactionManager,
-            String binary,
-            String ABI,
-            byte[] encodedConstructor,
-            String path)
-            throws ContractException {
-        try {
-            Constructor<T> constructor =
-                    type.getDeclaredConstructor(String.class, Client.class, CryptoKeyPair.class);
-            constructor.setAccessible(true);
-            T contract = constructor.newInstance(null, client, credential);
-            return create(contract, binary, ABI, encodedConstructor, path);
-        } catch (InstantiationException
-                | InvocationTargetException
-                | NoSuchMethodException
-                | IllegalAccessException e) {
-            throw new ContractException("deploy contract failed, error info: " + e.getMessage());
-        }
-    }
-
-    protected static <T extends Contract> T deploy(
-            Class<T> type,
-            Client client,
-            CryptoKeyPair credential,
-            String binary,
-            String ABI,
-            byte[] encodedConstructor,
-            String path)
-            throws ContractException {
-        return deploy(
-                type,
-                client,
-                credential,
-                TransactionProcessorFactory.createTransactionProcessor(client, credential),
-                binary,
-                ABI,
-                encodedConstructor,
-                path);
-    }
-
-    private static <T extends Contract> T create(
-            T contract, String binary, String abi, byte[] encodedConstructor, String path)
-            throws ContractException {
-        ContractCodec codec = new ContractCodec(contract.cryptoSuite, contract.client.isWASM());
-        TransactionReceipt transactionReceipt;
-        try {
-            if (contract.client.isWASM()) {
-                contract.setContractAddress(path);
-            }
-            transactionReceipt =
-                    contract.executeDeployTransaction(
-                            codec.encodeConstructorFromBytes(binary, encodedConstructor, abi),
-                            FUNC_DEPLOY,
-                            abi,
-                            0);
-            if (!contract.client.isWASM()) {
-                String contractAddress = transactionReceipt.getContractAddress();
-                if (contractAddress == null) {
-                    // parse the receipt
-                    RetCode retCode = ReceiptParser.parseTransactionReceipt(transactionReceipt);
-                    throw new ContractException(
-                            "Deploy contract failed, error message: " + retCode.getMessage());
-                }
-                contract.setContractAddress(contractAddress);
-            }
-        } catch (ContractCodecException e) {
-            throw new ContractException("Deploy contract failed, error message: " + e);
-        }
-        contract.setDeployReceipt(transactionReceipt);
-        return contract;
-    }
-
-    private int generateTransactionAttribute(String funcName) {
-        int attribute = 0;
-        if (client.isWASM()) {
-            attribute = LIQUID_SCALE_CODEC;
-            if (funcName == FUNC_DEPLOY) {
-                attribute |= LIQUID_CREATE;
-            }
-        } else {
-            attribute |= Transaction.EVM_ABI_CODEC;
-        }
-
-        return attribute;
-    }
-
     public String getContractAddress() {
         return this.contractAddress;
     }
@@ -243,6 +139,93 @@ public class Contract {
 
     public void setDeployReceipt(TransactionReceipt deployReceipt) {
         this.deployReceipt = deployReceipt;
+    }
+
+    public TransactionProcessor getTransactionProcessor() {
+        return this.transactionProcessor;
+    }
+
+    public String getCurrentExternalAccountAddress() {
+        return this.credential.getAddress();
+    }
+
+    public boolean isEnableDAG() {
+        return enableDAG;
+    }
+
+    public void setEnableDAG(boolean enableDAG) {
+        this.enableDAG = enableDAG;
+    }
+
+    /**
+     * Deploy contract
+     *
+     * @param type class type
+     * @param client a Client object to send requests
+     * @param credential key pair to use when sign transaction
+     * @param abi ABI json string
+     * @param binary the contract binary code hex string
+     * @param encodedConstructor constructor params
+     * @param path bfs path, this param only use in wasm vm
+     * @param <T> a smart contract object extends Contract
+     * @return T type smart contract
+     * @throws ContractException throws when deploy failed
+     */
+    protected static <T extends Contract> T deploy(
+            Class<T> type,
+            Client client,
+            CryptoKeyPair credential,
+            String binary,
+            String abi,
+            byte[] encodedConstructor,
+            String path)
+            throws ContractException {
+        try {
+            Constructor<T> constructor =
+                    type.getDeclaredConstructor(String.class, Client.class, CryptoKeyPair.class);
+            constructor.setAccessible(true);
+            T contract = constructor.newInstance(null, client, credential);
+
+            ContractCodec codec = new ContractCodec(contract.cryptoSuite, client.isWASM());
+            if (client.isWASM()) {
+                // NOTE: it should set address first, contract.executeDeployTransaction will use it
+                // as 'to'
+                contract.setContractAddress(path);
+            }
+            TransactionReceipt transactionReceipt =
+                    contract.executeDeployTransaction(
+                            codec.encodeConstructorFromBytes(binary, encodedConstructor), abi);
+            String contractAddress = transactionReceipt.getContractAddress();
+            if (contractAddress == null
+                    || transactionReceipt.getStatus()
+                            != TransactionReceiptStatus.Success.getCode()) {
+                // parse the receipt
+                ReceiptParser.getErrorStatus(transactionReceipt);
+            }
+            contract.setContractAddress(client.isWASM() ? path : contractAddress);
+            contract.setDeployReceipt(transactionReceipt);
+            return contract;
+        } catch (InstantiationException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | IllegalAccessException
+                | ContractCodecException e) {
+            throw new ContractException("deploy contract failed, error info: " + e.getMessage(), e);
+        }
+    }
+
+    private int generateTransactionAttribute(String funcName) {
+        int attribute = 0;
+        if (client.isWASM()) {
+            attribute = LIQUID_SCALE_CODEC;
+            if (Objects.equals(funcName, FUNC_DEPLOY)) {
+                attribute |= LIQUID_CREATE;
+            }
+        } else {
+            attribute |= TransactionAttribute.EVM_ABI_CODEC;
+        }
+
+        return attribute;
     }
 
     private List<Type> executeCall(Function function) throws ContractException {
@@ -265,24 +248,25 @@ public class Contract {
             logger.warn(
                     "status of executeCall is non-success, status: {}, callResult: {}",
                     response.getCallResult().getStatus(),
-                    response.getCallResult().toString());
+                    response.getCallResult());
             throw ReceiptParser.parseExceptionCall(contractException);
         }
         try {
             return functionReturnDecoder.decode(callResult, function.getOutputParameters());
         } catch (Exception e) {
             throw new ContractException(
-                    "decode callResult failed, error info:" + e.getMessage(),
+                    "decode callResult failed, error info: " + e.getMessage(),
                     e,
                     response.getCallResult());
         }
     }
 
-    protected <T extends Type> T executeCallWithSingleValueReturn(Function function)
-            throws ContractException {
+    protected <T extends Type, R> R executeCallWithSingleValueReturn(
+            Function function, Class<R> returnType) throws ContractException {
+        T result;
         List<Type> values = this.executeCall(function);
         if (!values.isEmpty()) {
-            return (T) values.get(0);
+            result = (T) values.get(0);
         } else {
             throw new ContractException(
                     "executeCall for function "
@@ -290,15 +274,12 @@ public class Contract {
                             + " failed for empty returned value from the contract "
                             + this.contractAddress);
         }
-    }
-
-    protected <T extends Type, R> R executeCallWithSingleValueReturn(
-            Function function, Class<R> returnType) throws ContractException {
-        T result = this.executeCallWithSingleValueReturn(function);
         // cast the value into returnType
         Object value = result.getValue();
         if (returnType.isAssignableFrom(value.getClass())) {
             return (R) value;
+        } else if (returnType.isAssignableFrom(result.getClass())) {
+            return (R) result;
         } else if (result.getClass().equals(Address.class) && returnType.equals(String.class)) {
             return (R) result.toString(); // cast isn't necessary
         } else {
@@ -320,7 +301,7 @@ public class Contract {
         int dagFlag = dagAttribute;
         // enforce dag
         if (enableDAG) {
-            dagFlag = Transaction.DAG;
+            dagFlag = TransactionAttribute.DAG;
         }
         txAttribute |= dagFlag;
         return txAttribute;
@@ -353,9 +334,8 @@ public class Contract {
                 txAttribute);
     }
 
-    protected TransactionReceipt executeDeployTransaction(
-            byte[] data, String functionName, String abi, int dagAttribute) {
-        int txAttribute = generateTxAttributeWithDagFlag(functionName, dagAttribute);
+    protected TransactionReceipt executeDeployTransaction(byte[] data, String abi) {
+        int txAttribute = generateTxAttributeWithDagFlag(Contract.FUNC_DEPLOY, 0);
 
         return this.transactionProcessor.deployAndGetReceipt(
                 this.contractAddress, data, abi, this.credential, txAttribute);
@@ -460,25 +440,9 @@ public class Contract {
 
     public static <S extends Type, T> List<T> convertToNative(List<S> arr) {
         List<T> out = new ArrayList<T>();
-        for (Iterator<S> it = arr.iterator(); it.hasNext(); ) {
-            out.add((T) it.next().getValue());
+        for (S s : arr) {
+            out.add((T) s.getValue());
         }
         return out;
-    }
-
-    public TransactionProcessor getTransactionProcessor() {
-        return this.transactionProcessor;
-    }
-
-    public String getCurrentExternalAccountAddress() {
-        return this.credential.getAddress();
-    }
-
-    public boolean isEnableDAG() {
-        return enableDAG;
-    }
-
-    public void setEnableDAG(boolean enableDAG) {
-        this.enableDAG = enableDAG;
     }
 }

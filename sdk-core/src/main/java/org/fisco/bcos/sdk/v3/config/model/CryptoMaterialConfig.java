@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 /** Crypto material configuration, include certs and keys */
 public class CryptoMaterialConfig {
-    private static Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
 
     private Boolean useSmCrypto = false;
     private String certPath = "conf";

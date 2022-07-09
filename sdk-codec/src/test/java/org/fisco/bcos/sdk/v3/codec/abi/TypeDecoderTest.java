@@ -26,7 +26,7 @@ public class TypeDecoderTest {
 
 
     @Test
-    public void testBoolDecodeGivenOffset() {
+    public void testBoolDecodeGivenOffset() throws ClassNotFoundException {
         // Decode second parameter as Bool
         assertEquals(
                 TypeDecoder.decode(
@@ -34,7 +34,7 @@ public class TypeDecoderTest {
                                 + "0000000000000000000000000000000000000000000000000000000000000000"
                                 + "0000000000000000000000000000000000000000000000007fffffffffffffff"),
                         32,
-                        Bool.class),
+                        TypeReference.create(Bool.class)),
                 (new Bool(false)));
 
         assertEquals(
@@ -43,7 +43,7 @@ public class TypeDecoderTest {
                                 + "0000000000000000000000000000000000000000000000000000000000000001"
                                 + "0000000000000000000000000000000000000000000000007fffffffffffffff"),
                         32,
-                        Bool.class),
+                        TypeReference.create(Bool.class)),
                 (new Bool(true)));
     }
 

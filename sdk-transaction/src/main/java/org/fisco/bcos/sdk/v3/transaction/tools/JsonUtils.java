@@ -13,11 +13,9 @@
  */
 package org.fisco.bcos.sdk.v3.transaction.tools;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,9 +32,12 @@ import org.slf4j.LoggerFactory;
  * @author maojiayu
  */
 public class JsonUtils {
+
+    private JsonUtils() {}
+
     protected static Logger log = LoggerFactory.getLogger(JsonUtils.class);
 
-    private static ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+    private static final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
@@ -68,28 +69,27 @@ public class JsonUtils {
         try {
             return objectMapper.readValue(json, typeReference);
         } catch (Exception e) {
-            log.error("json is: " + json, e);
+            log.error("json is: {}, e:", json, e);
             return null;
         }
     }
 
     public static <T> T fromJsonWithException(String json, Class<T> clazz)
-            throws JsonParseException, JsonMappingException, IOException {
+            throws JsonProcessingException {
         return objectMapper.readValue(json, clazz);
     }
 
     @SuppressWarnings("rawtypes")
     public static <T> T fromJsonWithException(String json, Class<T> c, Class... t)
-            throws JsonParseException, JsonMappingException, IOException {
+            throws IOException {
         JavaType javaType = objectMapper.getTypeFactory().constructParametricType(c, t);
         return objectMapper.readValue(json, javaType);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T fromJsonWithException(String json, JavaType type)
-            throws JsonParseException, JsonMappingException, IOException {
-        T ret = (T) objectMapper.readValue(json, type);
-        return ret;
+            throws JsonProcessingException {
+        return (T) objectMapper.readValue(json, type);
     }
 
     public static <T> List<T> fromJsonList(String json, Class<T> c) {
@@ -127,13 +127,9 @@ public class JsonUtils {
 
     public static <T, K> Map<T, K> convertValue(
             Object req, Class<T> keyClazz, Class<K> valueClazz) {
-        Map<T, K> ret =
-                objectMapper.convertValue(
-                        req,
-                        objectMapper
-                                .getTypeFactory()
-                                .constructMapType(Map.class, keyClazz, valueClazz));
-        return ret;
+        return objectMapper.convertValue(
+                req,
+                objectMapper.getTypeFactory().constructMapType(Map.class, keyClazz, valueClazz));
     }
 
     @SuppressWarnings("rawtypes")

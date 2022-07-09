@@ -15,6 +15,7 @@
 package org.fisco.bcos.sdk.v3.transaction.codec.decode;
 
 import java.math.BigInteger;
+import java.util.function.Function;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
@@ -22,78 +23,55 @@ import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
-import org.fisco.bcos.sdk.v3.utils.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ReceiptParser {
-    private static final Logger logger = LoggerFactory.getLogger(ReceiptParser.class);
-    private static final String PRECOMPILED_PREFIX = "00000000000000000000000000000000000";
-    private static final String PRECOMPILED_NAME_PREFIX = "/sys/";
 
     private ReceiptParser() {}
 
     /**
      * parse transaction receipt and get return code.
      *
-     * @param receipt @See TransactionReceipt
+     * @param receipt transaction receipt
+     * @param resultCaller actual decode receipt out function, from receipt to big int
      * @return return code @see RetCode
+     * @throws ContractException throw when receipt status not equal to 0
      */
-    public static RetCode parseTransactionReceipt(TransactionReceipt receipt)
+    public static RetCode parseTransactionReceipt(
+            TransactionReceipt receipt, Function<TransactionReceipt, BigInteger> resultCaller)
             throws ContractException {
-        RetCode retCode;
-        try {
-            int status = receipt.getStatus();
-            if (status != 0) {
-                retCode = TransactionReceiptStatus.getStatusMessage(status, receipt.getMessage());
-                Tuple2<Boolean, String> errorOutput =
-                        RevertMessageParser.tryResolveRevertMessage(receipt);
-                if (errorOutput.getValue1()) {
-                    throw new ContractException(
-                            errorOutput.getValue2(), retCode.getCode(), receipt);
-                }
-                throw new ContractException(retCode.getMessage(), retCode.getCode(), receipt);
-            } else {
-                if (Hex.trimPrefix(receipt.getTo()).startsWith(ReceiptParser.PRECOMPILED_PREFIX)
-                        || receipt.getTo().startsWith(ReceiptParser.PRECOMPILED_NAME_PREFIX)) {
-                    String output = receipt.getOutput();
-                    RetCode precompiledRetCode = PrecompiledRetCode.CODE_SUCCESS;
-                    if (output.equals("0x")) {
-                        return precompiledRetCode;
-                    }
-                    precompiledRetCode = getPrecompiledRetCode(output, receipt.getMessage());
-                    if (receipt.getMessage() == null || receipt.getMessage().isEmpty()) {
-                        receipt.setMessage(PrecompiledRetCode.CODE_SUCCESS.getMessage());
-                    }
-                    precompiledRetCode.setTransactionReceipt(receipt);
-                    return precompiledRetCode;
-                }
-                return PrecompiledRetCode.CODE_SUCCESS;
+        int status = receipt.getStatus();
+        if (status != 0) {
+            getErrorStatus(receipt);
+        } else {
+            RetCode precompiledRetCode = PrecompiledRetCode.CODE_SUCCESS;
+            if (receipt.getOutput().equals("0x") || resultCaller == null) {
+                return precompiledRetCode;
             }
-        } catch (NumberFormatException e) {
-            throw new ContractException(
-                    "NumberFormatException when parse receipt, receipt info: "
-                            + receipt
-                            + ", error info: "
-                            + e.getMessage());
+            BigInteger apply = resultCaller.apply(receipt);
+            precompiledRetCode =
+                    PrecompiledRetCode.getPrecompiledResponse(
+                            apply.intValue(), receipt.getMessage());
+            precompiledRetCode.setTransactionReceipt(receipt);
+            return precompiledRetCode;
         }
+        return PrecompiledRetCode.CODE_SUCCESS;
     }
 
-    private static RetCode getPrecompiledRetCode(String output, String message) {
-        RetCode retCode;
-        try {
-            // output with prefix
-            int statusValue = new BigInteger(output.substring(2), 16).intValue();
-            retCode = PrecompiledRetCode.getPrecompiledResponse(statusValue, message);
-            return retCode;
-        } catch (Exception e) {
-            logger.debug(
-                    "try to parse the output failed, output: {}, exception: {}",
-                    output,
-                    e.getMessage());
-            retCode = PrecompiledRetCode.CODE_SUCCESS;
-            return retCode;
+    /**
+     * get revert message when receipt status is not success
+     *
+     * @param receipt receipt which status not equal to 0
+     * @throws ContractException always throw exception with specific error message
+     */
+    public static void getErrorStatus(TransactionReceipt receipt) throws ContractException {
+        RetCode retCode =
+                TransactionReceiptStatus.getStatusMessage(
+                        receipt.getStatus(), receipt.getMessage());
+        Tuple2<Boolean, String> errorOutput = RevertMessageParser.tryResolveRevertMessage(receipt);
+        if (errorOutput.getValue1()) {
+            throw new ContractException(errorOutput.getValue2(), retCode.getCode(), receipt);
         }
+        throw new ContractException(retCode.getMessage(), retCode.getCode(), receipt);
     }
 
     /**
@@ -105,13 +83,9 @@ public class ReceiptParser {
     public static ContractException parseExceptionCall(ContractException exception) {
         Call.CallOutput callResult = exception.getResponseOutput();
         if (callResult == null) {
-            return new ContractException(exception.getMessage(), exception);
+            return exception;
         }
-        RetCode retCode =
-                parseCallOutput(
-                        callResult,
-                        exception.getMessage(),
-                        exception.getReceipt() == null ? "" : exception.getReceipt().getTo());
+        RetCode retCode = parseCallOutput(callResult, exception.getMessage());
         return new ContractException(retCode.getMessage(), retCode.getCode());
     }
 
@@ -122,7 +96,7 @@ public class ReceiptParser {
      * @param message revert message if exists
      * @return return code @see RetCode
      */
-    public static RetCode parseCallOutput(Call.CallOutput callResult, String message, String to) {
+    public static RetCode parseCallOutput(Call.CallOutput callResult, String message) {
         if (callResult.getStatus() != 0) {
             Tuple2<Boolean, String> errorOutput =
                     RevertMessageParser.tryResolveRevertMessage(
@@ -132,18 +106,6 @@ public class ReceiptParser {
             }
             return TransactionReceiptStatus.getStatusMessage(callResult.getStatus(), message);
         }
-        try {
-            if (to == null || to.isEmpty()) {
-                return PrecompiledRetCode.CODE_UNKNOWN_FAILED;
-            }
-            logger.info("parseCallOutput: to:{}", to);
-            if (Hex.trimPrefix(to).startsWith(ReceiptParser.PRECOMPILED_PREFIX)
-                    || to.startsWith(ReceiptParser.PRECOMPILED_NAME_PREFIX)) {
-                return getPrecompiledRetCode(callResult.getOutput(), message);
-            }
-            return PrecompiledRetCode.CODE_SUCCESS;
-        } catch (Exception e) {
-            return PrecompiledRetCode.CODE_SUCCESS;
-        }
+        return PrecompiledRetCode.CODE_SUCCESS;
     }
 }

@@ -23,7 +23,6 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Bytes32;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint256;
 import org.fisco.bcos.sdk.v3.codec.scale.ScaleCodecReader;
-import org.fisco.bcos.sdk.v3.codec.scale.TypeEncoder;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject.ListType;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.slf4j.Logger;
@@ -303,7 +302,7 @@ public class ContractCodecTools {
 
     private static byte[] typeEncoderWrapper(Type parameter, boolean isWasm) throws IOException {
         return isWasm
-                ? TypeEncoder.encode(parameter)
+                ? org.fisco.bcos.sdk.v3.codec.scale.TypeEncoder.encode(parameter)
                 : org.fisco.bcos.sdk.v3.codec.abi.TypeEncoder.encode(parameter);
     }
 
@@ -397,7 +396,10 @@ public class ContractCodecTools {
     /**
      * encode this object
      *
+     * @param abiObject abi object
+     * @param isWasm if evm or wasm vm
      * @return the encoded object
+     * @throws IOException throw when decode error
      */
     public static byte[] encode(ABIObject abiObject, boolean isWasm) throws IOException {
         return typeEncoderWrapper(getABIObjectTypeValue(abiObject), isWasm);
@@ -406,8 +408,11 @@ public class ContractCodecTools {
     /**
      * decode abi object
      *
+     * @param template decode template abi object, it means should know the actual abi type
      * @param input the string to be decoded into ABIObject
+     * @param isWasm is evm or wasm vm
      * @return the decoded ABIObject
+     * @throws ClassNotFoundException throw when decode class not found
      */
     public static ABIObject decode(ABIObject template, byte[] input, boolean isWasm)
             throws ClassNotFoundException {
@@ -421,9 +426,14 @@ public class ContractCodecTools {
     /**
      * abi codec decode
      *
+     * @param template decode template abi object, it means should know the actual abi type
+     * @param input the string to be decoded into ABIObject
+     * @param offset abi decode offset
      * @return the decoded ABIObject
+     * @throws ClassNotFoundException throw when decode class not found
      */
-    private static ABIObject decodeABI(ABIObject template, byte[] input, int offset) {
+    private static ABIObject decodeABI(ABIObject template, byte[] input, int offset)
+            throws ClassNotFoundException {
 
         ABIObject abiObject = template.newObject();
 
@@ -435,21 +445,23 @@ public class ContractCodecTools {
                             {
                                 abiObject.setBoolValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Bool.class));
+                                                input, offset, TypeReference.create(Bool.class)));
                                 break;
                             }
                         case UINT:
                             {
                                 abiObject.setNumericValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Uint256.class));
+                                                input,
+                                                offset,
+                                                TypeReference.create(Uint256.class)));
                                 break;
                             }
                         case INT:
                             {
                                 abiObject.setNumericValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Int256.class));
+                                                input, offset, TypeReference.create(Int256.class)));
                                 break;
                             }
                         case FIXED:
@@ -462,28 +474,36 @@ public class ContractCodecTools {
                             {
                                 abiObject.setBytesValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Bytes32.class));
+                                                input,
+                                                offset,
+                                                TypeReference.create(Bytes32.class)));
                                 break;
                             }
                         case ADDRESS:
                             {
                                 abiObject.setAddressValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Address.class));
+                                                input,
+                                                offset,
+                                                TypeReference.create(Address.class)));
                                 break;
                             }
                         case DBYTES:
                             {
                                 abiObject.setDynamicBytesValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, DynamicBytes.class));
+                                                input,
+                                                offset,
+                                                TypeReference.create(DynamicBytes.class)));
                                 break;
                             }
                         case STRING:
                             {
                                 abiObject.setStringValue(
                                         org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, offset, Utf8String.class));
+                                                input,
+                                                offset,
+                                                TypeReference.create(Utf8String.class)));
                                 break;
                             }
                     }
@@ -500,7 +520,9 @@ public class ContractCodecTools {
                         if (structObject.isDynamic()) {
                             int structValueOffset =
                                     org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                    input, structOffset, Uint256.class)
+                                                    input,
+                                                    structOffset,
+                                                    TypeReference.create(Uint256.class))
                                             .getValue()
                                             .intValue();
                             itemObject =
@@ -525,7 +547,9 @@ public class ContractCodecTools {
                         // dynamic list length
                         listLength =
                                 org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                input, listOffset, Uint256.class)
+                                                input,
+                                                listOffset,
+                                                TypeReference.create(Uint256.class))
                                         .getValue()
                                         .intValue();
                         listOffset += Type.MAX_BYTE_LENGTH;
@@ -550,7 +574,9 @@ public class ContractCodecTools {
                         if (listValueObject.isDynamic()) {
                             int listValueOffset =
                                     org.fisco.bcos.sdk.v3.codec.abi.TypeDecoder.decode(
-                                                    input, listOffset, Uint256.class)
+                                                    input,
+                                                    listOffset,
+                                                    TypeReference.create(Uint256.class))
                                             .getValue()
                                             .intValue();
                             itemABIObject =
@@ -577,7 +603,10 @@ public class ContractCodecTools {
     /**
      * scale codec decode
      *
+     * @param template decode template abi object, it means should know the actual abi type
+     * @param reader scale reader
      * @return the decoded ABIObject
+     * @throws ClassNotFoundException throw when decode class not found
      */
     private static ABIObject decodeScale(ABIObject template, ScaleCodecReader reader)
             throws ClassNotFoundException {

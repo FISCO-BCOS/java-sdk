@@ -18,7 +18,7 @@ import java.util.List;
 
 /** Utility functions for working with Collections. */
 public class Collection {
-    private static String[] EMPTY_STRING_ARRAY = {};
+    private static final String[] EMPTY_STRING_ARRAY = {};
 
     public static String[] tail(String[] args) {
         if (args.length == 0) {
@@ -28,30 +28,31 @@ public class Collection {
         }
     }
 
+    @SafeVarargs
     public static <T> T[] create(T... args) {
         return args;
     }
 
     public static <T> String join(List<T> list, String separator, Function<T, String> function) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
-            result += function.apply(list.get(i)).trim();
+            result.append(function.apply(list.get(i)).trim());
             if (i + 1 < list.size()) {
-                result += separator;
+                result.append(separator);
             }
         }
-        return result;
+        return result.toString();
     }
 
     public static String join(List<String> list, String separator) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
-            result += list.get(i).trim();
+            result.append(list.get(i).trim());
             if (i + 1 < list.size()) {
-                result += separator;
+                result.append(separator);
             }
         }
-        return result;
+        return result.toString();
     }
 
     public interface Function<R, S> {

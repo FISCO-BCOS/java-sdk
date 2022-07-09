@@ -432,7 +432,7 @@ public class ABIDefinition {
             StringBuilder result = new StringBuilder();
             String params =
                     this.getComponents().stream()
-                            .map(abi -> abi.getTypeAsString())
+                            .map(NamedType::getTypeAsString)
                             .collect(Collectors.joining(","));
             result.append(params);
             return result.toString();
@@ -445,8 +445,7 @@ public class ABIDefinition {
             }
 
             String tupleRawString = this.getTupleRawTypeAsString();
-            String result = this.type.replaceAll("tuple", "(" + tupleRawString + ")");
-            return result;
+            return this.type.replaceAll("tuple", "(" + tupleRawString + ")");
         }
 
         public String getName() {
