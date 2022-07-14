@@ -36,11 +36,11 @@ import org.slf4j.LoggerFactory;
 public class TransactionProcessor implements TransactionProcessorInterface {
     protected static Logger log = LoggerFactory.getLogger(TransactionProcessor.class);
     protected final CryptoSuite cryptoSuite;
-    protected final CryptoKeyPair cryptoKeyPair;
     protected final Client client;
     protected final String groupId;
     protected final String chainId;
     protected TransactionEncoderInterface transactionEncoder;
+    protected CryptoKeyPair cryptoKeyPair;
 
     public TransactionProcessor(
             Client client, CryptoKeyPair cryptoKeyPair, String groupId, String chainId) {
@@ -52,11 +52,24 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         this.transactionEncoder = new TransactionEncoderService(client.getCryptoSuite());
     }
 
+    public CryptoKeyPair getCryptoKeyPair() {
+        return cryptoKeyPair;
+    }
+
+    public void setCryptoKeyPair(CryptoKeyPair cryptoKeyPair) {
+        this.cryptoKeyPair = cryptoKeyPair;
+    }
+
     @Override
     public TransactionReceipt deployAndGetReceipt(
             String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute) {
         TxPair txPair =
-                this.createDeploySignedTransaction(to, data, abi, cryptoKeyPair, txAttribute);
+                this.createDeploySignedTransaction(
+                        to,
+                        data,
+                        abi,
+                        cryptoKeyPair == null ? this.cryptoKeyPair : cryptoKeyPair,
+                        txAttribute);
         TransactionReceipt transactionReceipt =
                 this.client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
         if (Objects.nonNull(transactionReceipt)
@@ -68,9 +81,20 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     }
 
     @Override
+    public TransactionReceipt deployAndGetReceipt(
+            String to, byte[] data, String abi, int txAttribute) throws JniException {
+        return deployAndGetReceipt(to, data, abi, this.cryptoKeyPair, txAttribute);
+    }
+
+    @Override
     public TransactionReceipt sendTransactionAndGetReceipt(
             String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
-        TxPair txPair = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
+        TxPair txPair =
+                this.createSignedTransaction(
+                        to,
+                        data,
+                        cryptoKeyPair == null ? this.cryptoKeyPair : cryptoKeyPair,
+                        txAttribute);
         TransactionReceipt transactionReceipt =
                 this.client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
         if (Objects.nonNull(transactionReceipt)
@@ -78,6 +102,12 @@ public class TransactionProcessor implements TransactionProcessorInterface {
             transactionReceipt.setTransactionHash(txPair.getTxHash());
         }
         return transactionReceipt;
+    }
+
+    @Override
+    public TransactionReceipt sendTransactionAndGetReceipt(String to, byte[] data, int txAttribute)
+            throws JniException {
+        return sendTransactionAndGetReceipt(to, data, this.cryptoKeyPair, txAttribute);
     }
 
     @Override
@@ -90,6 +120,12 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         TxPair txPair = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
         this.client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
         return txPair.getTxHash();
+    }
+
+    @Override
+    public String sendTransactionAsync(
+            String to, byte[] data, int txAttribute, TransactionCallback callback) {
+        return sendTransactionAsync(to, data, this.cryptoKeyPair, txAttribute, callback);
     }
 
     @Override
