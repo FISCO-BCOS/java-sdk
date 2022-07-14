@@ -4,14 +4,34 @@ import static org.fisco.bcos.sdk.abi.datatypes.Type.MAX_BYTE_LENGTH;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import org.fisco.bcos.sdk.abi.datatypes.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.fisco.bcos.sdk.abi.datatypes.Address;
+import org.fisco.bcos.sdk.abi.datatypes.Array;
+import org.fisco.bcos.sdk.abi.datatypes.Bool;
+import org.fisco.bcos.sdk.abi.datatypes.Bytes;
+import org.fisco.bcos.sdk.abi.datatypes.BytesType;
+import org.fisco.bcos.sdk.abi.datatypes.DynamicArray;
+import org.fisco.bcos.sdk.abi.datatypes.DynamicBytes;
+import org.fisco.bcos.sdk.abi.datatypes.DynamicStruct;
+import org.fisco.bcos.sdk.abi.datatypes.NumericType;
+import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
+import org.fisco.bcos.sdk.abi.datatypes.Type;
+import org.fisco.bcos.sdk.abi.datatypes.Ufixed;
+import org.fisco.bcos.sdk.abi.datatypes.Uint;
+import org.fisco.bcos.sdk.abi.datatypes.Utf8String;
 import org.fisco.bcos.sdk.utils.Numeric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Ethereum Contract Application Binary Interface (ABI) encoding for types. Further details are
  * available <a href= "https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI">here</a>.
  */
 public class TypeEncoder {
+
+    private static final Logger logger = LoggerFactory.getLogger(TypeEncoder.class);
 
     private TypeEncoder() {}
 
@@ -30,7 +50,14 @@ public class TypeEncoder {
         } else if (parameter instanceof Utf8String) {
             return encodeString((Utf8String) parameter);
         } else if (parameter instanceof StaticArray) {
-            return encodeArrayValues((StaticArray) parameter);
+            if (DynamicStruct.class.isAssignableFrom(
+                    ((StaticArray) parameter).getValue().get(0).getClass())) {
+                return encodeStaticArrayWithDynamicStruct((StaticArray) parameter);
+            } else {
+                return encodeArrayValues((StaticArray) parameter);
+            }
+        } else if (parameter instanceof DynamicStruct) {
+            return encodeDynamicStruct((DynamicStruct) parameter);
         } else if (parameter instanceof DynamicArray) {
             return encodeDynamicArray((DynamicArray) parameter);
         } else {
@@ -169,6 +196,100 @@ public class TypeEncoder {
         result.append(encodedOffset);
         result.append(encodedValue);
 
+        return result.toString();
+    }
+
+    public static String encodeDynamicStruct(final DynamicStruct value) {
+        String encodedValues = encodeDynamicStructValues(value);
+        return encodedValues;
+    }
+
+    private static String encodeDynamicStructValues(final DynamicStruct value) {
+        int staticSize = 0;
+        for (int i = 0; i < value.getValue().size(); ++i) {
+            final Type type = value.getValue().get(i);
+            if (type.dynamicType()) {
+                staticSize += MAX_BYTE_LENGTH;
+            } else {
+                staticSize += type.offset() * MAX_BYTE_LENGTH;
+            }
+        }
+        int dynamicOffset = staticSize;
+        final List<String> offsetsAndStaticValues = new ArrayList<>();
+        final List<String> dynamicValues = new ArrayList<>();
+        for (int i = 0; i < value.getValue().size(); ++i) {
+            final Type type = value.getValue().get(i);
+            if (type.dynamicType()) {
+                offsetsAndStaticValues.add(
+                        toBytesPadded(
+                                new BigInteger(Long.toString(dynamicOffset)), MAX_BYTE_LENGTH));
+                String encodedValue = encode(type);
+                dynamicValues.add(encodedValue);
+                dynamicOffset += (encodedValue.length() >> 1);
+            } else {
+                offsetsAndStaticValues.add(encode(type));
+            }
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (String offsetsAndStaticValue : offsetsAndStaticValues) {
+            result.append(offsetsAndStaticValue);
+        }
+
+        for (String dynamicValue : dynamicValues) {
+            result.append(dynamicValue);
+        }
+
+        return result.toString();
+    }
+
+    static String toBytesPadded(BigInteger value, int length) {
+        byte[] result = new byte[length];
+        byte[] bytes = value.toByteArray();
+
+        int bytesLength;
+        int srcOffset;
+        if (bytes[0] == 0) {
+            bytesLength = bytes.length - 1;
+            srcOffset = 1;
+        } else {
+            bytesLength = bytes.length;
+            srcOffset = 0;
+        }
+
+        if (bytesLength > length) {
+            throw new RuntimeException("Input is too large to put in byte array of size " + length);
+        }
+
+        int destOffset = length - bytesLength;
+        System.arraycopy(bytes, srcOffset, result, destOffset, bytesLength);
+        return Numeric.toHexStringNoPrefix(result);
+    }
+
+    static <T extends Type> String encodeStaticArrayWithDynamicStruct(Array<T> value) {
+        String valuesOffsets = encodeStructsArraysOffsets(value);
+        String encodedValues = encodeArrayValues(value);
+
+        StringBuilder result = new StringBuilder();
+        result.append(valuesOffsets);
+        result.append(encodedValues);
+
+        return result.toString();
+    }
+
+    static <T extends Type> String encodeStructsArraysOffsets(Array<T> value) {
+        StringBuilder result = new StringBuilder();
+        long offset = value.getValue().size();
+        List<String> tailsEncoding =
+                value.getValue().stream().map(TypeEncoder::encode).collect(Collectors.toList());
+        for (int i = 0; i < value.getValue().size(); i++) {
+            if (i == 0) {
+                offset = offset * MAX_BYTE_LENGTH;
+            } else {
+                offset += (tailsEncoding.get(i - 1).length() >> 1);
+            }
+            result.append(toBytesPadded(new BigInteger(Long.toString(offset)), MAX_BYTE_LENGTH));
+        }
         return result.toString();
     }
 }

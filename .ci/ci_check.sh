@@ -30,7 +30,8 @@ download_tassl()
 download_build_chain()
 {
   LOG_INFO "--- current tag: $tag"
-  curl -LO "https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/${tag}/build_chain.sh" && chmod u+x build_chain.sh
+#  curl -LO "https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/${tag}/build_chain.sh" && chmod u+x build_chain.sh
+  curl -LO "https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master-2.0/tools/build_chain.sh" && chmod u+x build_chain.sh
 }
 
 get_sed_cmd()
@@ -75,11 +76,11 @@ build_node()
 {
   local node_type="${1}"
   if [ "${node_type}" == "sm" ];then
-      ./build_chain.sh -l 127.0.0.1:4 -g
+      bash -x build_chain.sh -l 127.0.0.1:4 -g
       sed_cmd=$(get_sed_cmd)
       $sed_cmd 's/sm_crypto_channel=false/sm_crypto_channel=true/g' nodes/127.0.0.1/node*/config.ini
   else
-      ./build_chain.sh -l 127.0.0.1:4
+      bash -x build_chain.sh -l 127.0.0.1:4
   fi
   ./nodes/127.0.0.1/fisco-bcos -v
   ./nodes/127.0.0.1/start_all.sh

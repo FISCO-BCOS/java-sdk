@@ -45,7 +45,7 @@ public class NetworkConfig {
                         " Invalid configuration, the peer value should in IP:Port format(eg: 127.0.0.1:1111), value: "
                                 + peer);
             }
-            String IP = peer.substring(0, index);
+            String IP = Host.getIpFromHost(peer.substring(0, index));
             String port = peer.substring(index + 1);
 
             if (!(NetUtil.isValidIpV4Address(IP) || NetUtil.isValidIpV6Address(IP))) {

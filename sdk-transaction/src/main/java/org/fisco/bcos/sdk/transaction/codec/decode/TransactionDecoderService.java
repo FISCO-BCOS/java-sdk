@@ -110,6 +110,9 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         return response;
     }
 
+    /*
+     *  In case of extends constructor, it won't work correct. */
+    @Deprecated
     @Override
     public TransactionResponse decodeReceiptWithoutOutputValues(
             String abi, TransactionReceipt transactionReceipt, String constructorCode)
@@ -120,6 +123,24 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
             Pair<List<Object>, List<ABIObject>> inputObject =
                     abiCodec.decodeMethodInput(
                             abi, transactionReceipt.getInput(), "constructor", constructorCode);
+            String inputValues = JsonUtils.toJson(inputObject.getLeft());
+            response.setInputData(inputValues);
+            response.setInputObject(inputObject.getLeft());
+            response.setInputABIObject(inputObject.getRight());
+        }
+        return response;
+    }
+
+    @Override
+    public TransactionResponse decodeConstructorReceipt(
+            String abi, String binary, TransactionReceipt transactionReceipt)
+            throws TransactionException, IOException, ABICodecException {
+        TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
+        // parse the input
+        if (transactionReceipt.getInput() != null && transactionReceipt.isStatusOK()) {
+            Pair<List<Object>, List<ABIObject>> inputObject =
+                    abiCodec.decodeConstructorInput(
+                            abi, binary, transactionReceipt.getInput(), "constructor");
             String inputValues = JsonUtils.toJson(inputObject.getLeft());
             response.setInputData(inputValues);
             response.setInputObject(inputObject.getLeft());
@@ -160,11 +181,11 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                                 abiObjectFactory.createEventInputObject(abiDefinition);
                         ABICodecObject abiCodecObject = new ABICodecObject();
                         for (Logs log : logs) {
-                            String eventSignature =
+                            String eventTopic =
                                     eventEncoder.buildEventSignature(
                                             decodeMethodSign(abiDefinition));
                             if (log.getTopics().isEmpty()
-                                    || !log.getTopics().contains(eventSignature)) {
+                                    || !log.getTopics().contains(eventTopic)) {
                                 continue;
                             }
                             try {

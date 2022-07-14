@@ -21,11 +21,8 @@ import static org.fisco.bcos.sdk.amop.topic.TopicManager.verifyChannelPrefix;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.SocketChannel;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.net.InetSocketAddress;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import org.fisco.bcos.sdk.amop.Amop;
 import org.fisco.bcos.sdk.amop.AmopCallback;
@@ -34,11 +31,7 @@ import org.fisco.bcos.sdk.channel.ResponseCallback;
 import org.fisco.bcos.sdk.channel.model.Options;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
-import org.fisco.bcos.sdk.model.AmopMsg;
-import org.fisco.bcos.sdk.model.CryptoType;
-import org.fisco.bcos.sdk.model.Message;
-import org.fisco.bcos.sdk.model.MsgType;
-import org.fisco.bcos.sdk.model.Response;
+import org.fisco.bcos.sdk.model.*;
 import org.fisco.bcos.sdk.network.MsgHandler;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
@@ -70,8 +63,9 @@ public class AmopMsgHandler implements MsgHandler {
             return;
         }
 
-        String host = ((SocketChannel) ctx.channel()).remoteAddress().getAddress().getHostAddress();
-        Integer port = ((SocketChannel) ctx.channel()).remoteAddress().getPort();
+        InetSocketAddress inetSocketAddress = ((SocketChannel) ctx.channel()).remoteAddress();
+        String host = inetSocketAddress.getAddress().getHostName();
+        Integer port = inetSocketAddress.getPort();
         String ipAndPort = host + ":" + port;
         logger.info("Node connected, update topics to node. node:" + ipAndPort);
         try {
