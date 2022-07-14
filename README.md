@@ -9,7 +9,30 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/fisco-bcos/java-sdk/badge)](https://www.codefactor.io/repository/github/fisco-bcos/java-sdk)
 [![GitHub All Releases](https://img.shields.io/github/downloads/FISCO-BCOS/java-sdk/total.svg)](https://github.com/FISCO-BCOS/java-sdk)
 
-这是FISCO BCOS客户端的Java SDK，提供了访问FISCO BCOS节点的Java API，支持节点状态查询、部署和调用合约等功能，基于Java SDK可开发区块链应用，目前支持FISCO BCOS 2.0+。
+这是FISCO BCOS客户端的Java SDK，提供了访问FISCO BCOS节点的Java API，支持节点状态查询、部署和调用合约等功能，基于Java SDK可开发区块链应用。
+
+**注意：当前分支为v3.x版本java-sdk，仅适配于FISCO BCOS 3.0+; FISCO BCOS 2.0+ 适配版本请手动切换至[master-2.0](https://github.com/FISCO-BCOS/java-sdk/tree/master-2.0)分支**
+
+## 版本及兼容性说明
+
+**v3.x版本仅适用于FISCO BCOS v3.x，不兼容FISCO BCOS v2.x**。
+
+### **v2.x**
+
+- [文档](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+- **代码**: [GitHub](https://github.com/FISCO-BCOS/java-sdk/tree/master-2.0), [Gitee](https://gitee.com/FISCO-BCOS/java-sdk/tree/master-2.0/)
+
+- **FISCO BCOS v2.x**: [GitHub](https://github.com/FISCO-BCOS/FISCO-BCOS/tree/master-2.0), [Gitee](https://gitee.com/FISCO-BCOS/FISCO-BCOS/tree/master-2.0/)
+
+### **v3.x**
+
+- [文档](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+- **代码**: [GitHub](https://github.com/FISCO-BCOS/java-sdk/tree/master), [Gitee](https://gitee.com/FISCO-BCOS/java-sdk/tree/master)
+
+- **FISCO BCOS v3.x**: [GitHub](https://github.com/FISCO-BCOS/FISCO-BCOS/tree/master), [Gitee](https://gitee.com/FISCO-BCOS/FISCO-BCOS/tree/master)
+
 
 ## 功能
 * 提供合约编译功能，将Solidity合约文件转换成Java合约文件。

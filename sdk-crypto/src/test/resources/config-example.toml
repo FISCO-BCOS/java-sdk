@@ -53,9 +53,6 @@ accountFileFormat = "pem"       # The storage format of account file (Default is
 # password = ""                 # The password used to load the account file
 
 [threadPool]
-# channelProcessorThreadSize = "16"         # The size of the thread pool to process channel callback
-                                            # Default is the number of cpu cores
-
 # receiptProcessorThreadSize = "16"         # The size of the thread pool to process transaction receipt notification
                                             # Default is the number of cpu cores
 

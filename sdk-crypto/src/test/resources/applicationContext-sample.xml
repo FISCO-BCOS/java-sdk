@@ -4,7 +4,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
-	<bean id="defaultConfigProperty" class="org.fisco.bcos.sdk.config.model.ConfigProperty">
+	<bean id="defaultConfigProperty" class="ConfigProperty">
 		<property name="cryptoMaterial">
 			<map>
 			<entry key="certPath" value="conf" />
@@ -30,7 +30,7 @@
 		<!--
 		<property name="amop">
 			<list>
-				<bean id="amopTopic1" class="org.fisco.bcos.sdk.config.model.AmopTopic">
+				<bean id="amopTopic1" class="AmopTopic">
 					<property name="topicName" value="PrivateTopic1" />
 					<property name="password" value="" />
 					<property name="privateKey" value="" />
@@ -54,20 +54,19 @@
 		</property>
 		<property name="threadPool">
 			<map>
-			<entry key="channelProcessorThreadSize" value="16" />
 			<entry key="receiptProcessorThreadSize" value="16" />
 			<entry key="maxBlockingQueueSize" value="102400" />
 			</map>
 		</property>
 	</bean>
 
-	<bean id="defaultConfigOption" class="org.fisco.bcos.sdk.config.ConfigOption">
+	<bean id="defaultConfigOption" class="ConfigOption">
 		<constructor-arg name="configProperty">
 				<ref bean="defaultConfigProperty"/>
 		</constructor-arg>
 	</bean>
 
-	<bean id="bcosSDK" class="org.fisco.bcos.sdk.BcosSDK">
+	<bean id="bcosSDK" class="org.fisco.bcos.sdk.v3.BcosSDK">
 		<constructor-arg name="configOption">
 			<ref bean="defaultConfigOption"/>
 		</constructor-arg>
