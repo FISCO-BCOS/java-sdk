@@ -32,40 +32,6 @@
 - 兼容java-sdk v3.x的历史版本
 - 支持[3.0.0-rc4](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0-rc4)版本
 
-----
-
-Please read documentation of Java SDK v3.x.
-
-* English User Handbook：Working in progress...
-* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
-
-### Added
-
-* Added `TableCRUDService` to adapt the interface of CRUD Table of FISCO BCOS v3.0.0-rc4
-* `AuthManger`
-   * Add consensus node changes and system configuration changes to the governance contract system, upgrade calculation logic of governance contract, etc.
-   * Added contract freeze/unfreeze contract interface
-   * Added interface for creating proposals and modifying contract ACL status
-   * Added interface to get proposals in batches
-   * Added event listener interface for proposal execution result
-  
-### Changed
-
-* Use the cryptographic library `webank-blockchain-java-crypto` instead of `key-mini-toolkit`
-* Upgrade `bcos-sdk-jni` to `3.0.0-rc4`
-
-### Fixed
-
-* Fix bugs related to contract encoding and decoding
-* Fix the encoding bug of ReceiptParser for the getting return value of precompiled contracts
-* Increase single test coverage and fix unreasonable codes
-
-### Compatibility Notes
-
-- Not compatible with FISCO BCOS version 2.0+
-- Compatible with the historical version of java-sdk v3.x
-- Support [3.0.0-rc4](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0-rc4)
-
 
 ## v3.0.0-rc3
 (2022-03-31)
