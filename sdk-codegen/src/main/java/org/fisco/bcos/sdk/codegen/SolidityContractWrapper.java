@@ -575,7 +575,7 @@ public class SolidityContractWrapper {
                             + "        "
                             + componentType
                             + ".class,\n"
-                            + "        org.fisco.bcos.sdk.codec.Utils.typeMap("
+                            + "        org.fisco.bcos.sdk.abi.Utils.typeMap("
                             + parameterSpec.name
                             + ", "
                             + typeMapInput
