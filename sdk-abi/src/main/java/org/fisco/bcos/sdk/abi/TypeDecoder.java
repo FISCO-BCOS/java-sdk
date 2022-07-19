@@ -435,9 +435,10 @@ public class TypeDecoder {
             int dynamicParametersToProcess =
                     getDynamicStructDynamicParametersCount(constructor.getParameterTypes());
             for (int i = 0; i < length; ++i) {
+                java.lang.reflect.Type genericParameterType =
+                        constructor.getGenericParameterTypes()[i];
                 TypeReference<T> typeReferenceElement =
-                        TypeReference.create(
-                                Utils.getClassType(constructor.getGenericParameterTypes()[i]));
+                        TypeReference.create(Utils.getClassType(genericParameterType));
                 if (isDynamic(typeReferenceElement.getClassType())) {
                     final boolean isLastParameterInStruct =
                             dynamicParametersProcessed == (dynamicParametersToProcess - 1);
@@ -453,7 +454,8 @@ public class TypeDecoder {
                                     input,
                                     parameterOffsets.get(dynamicParametersProcessed),
                                     parameterLength,
-                                    typeReferenceElement));
+                                    typeReferenceElement,
+                                    genericParameterType));
                     dynamicParametersProcessed++;
                 }
             }
@@ -571,7 +573,8 @@ public class TypeDecoder {
             final String input,
             final int parameterOffset,
             final int parameterLength,
-            TypeReference<T> typeReference)
+            TypeReference<T> typeReference,
+            java.lang.reflect.Type genericParameterType)
             throws ClassNotFoundException {
         final String dynamicElementData =
                 input.substring(parameterOffset, parameterOffset + parameterLength);
@@ -580,7 +583,7 @@ public class TypeDecoder {
         if (DynamicStruct.class.isAssignableFrom(typeReference.getClassType())) {
             value = decodeDynamicStruct(dynamicElementData, 0, typeReference);
         } else if (DynamicArray.class.isAssignableFrom(typeReference.getClassType())) {
-            value = decodeDynamicArray(dynamicElementData, 0, typeReference.getType());
+            value = decodeDynamicArray(dynamicElementData, 0, genericParameterType);
         } else {
             value = decode(dynamicElementData, 0, typeReference.getClassType());
         }

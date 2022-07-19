@@ -136,34 +136,35 @@ public class SolidityContractWrapper {
         classBuilder.addMethod(buildConstructor(CryptoKeyPair.class, CREDENTIAL));
 
         classBuilder.addFields(buildFuncNameConstants(abiDefinitions));
+        scanABIDefinitions(abiDefinitions);
         classBuilder.addTypes(this.buildStructTypes(abiDefinitions));
-        structsNamedTypeList.addAll(
-                abiDefinitions
-                        .stream()
-                        .flatMap(
-                                definition -> {
-                                    List<ABIDefinition.NamedType> parameters = new ArrayList<>();
-                                    if (definition.getInputs() != null) {
-                                        parameters.addAll(definition.getInputs());
-                                    }
-
-                                    if (definition.getOutputs() != null) {
-                                        parameters.addAll(definition.getOutputs());
-                                    }
-                                    return parameters
-                                            .stream()
-                                            .filter(
-                                                    namedType ->
-                                                            namedType
-                                                                    .getType()
-                                                                    .startsWith("tuple"));
-                                })
-                        .collect(Collectors.toList()));
         classBuilder.addMethods(buildFunctionDefinitions(classBuilder, abiDefinitions));
         classBuilder.addMethod(buildLoad(className, CryptoKeyPair.class, CREDENTIAL));
         classBuilder.addMethods(buildDeployMethods(className, abiDefinitions));
 
         write(basePackageName, classBuilder.build(), destinationDir);
+    }
+
+    private void scanABIDefinitions(List<ABIDefinition> abiDefinitions) {
+        for (ABIDefinition abiDefinition : abiDefinitions) {
+            scanParameters(abiDefinition.getInputs());
+            scanParameters(abiDefinition.getOutputs());
+        }
+    }
+
+    private void scanParameters(List<ABIDefinition.NamedType> parameters) {
+        if (parameters != null) {
+            for (ABIDefinition.NamedType namedType : parameters) {
+                scanNameType(namedType);
+            }
+        }
+    }
+
+    private void scanNameType(ABIDefinition.NamedType namedType) {
+        if (namedType.getType().startsWith("tuple")) {
+            structsNamedTypeList.add(namedType);
+        }
+        scanParameters(namedType.getComponents());
     }
 
     protected void write(String packageName, TypeSpec typeSpec, String destinationDir)
@@ -621,6 +622,8 @@ public class SolidityContractWrapper {
             return TypeName.get(byte[].class);
         } else if (simpleName.startsWith(Bool.class.getSimpleName())) {
             return TypeName.get(Boolean.class); // boolean cannot be a parameterized type
+        } else if (simpleName.startsWith("Struct")) {
+            return typeName;
         } else {
             throw new UnsupportedOperationException(
                     "Unsupported type: " + typeName + ", no native type mapping exists.");
@@ -1383,7 +1386,7 @@ public class SolidityContractWrapper {
                 .add("$>$>");
 
         String resultStringSimple = "\n($T) results.get($L)";
-        resultStringSimple += ".getValue()";
+        String resultGetValue = ".getValue()";
 
         String resultStringNativeList = "\nconvertToNative(($T) results.get($L).getValue())";
 
@@ -1394,11 +1397,14 @@ public class SolidityContractWrapper {
             TypeName param = outputParameterTypes.get(i);
             TypeName convertTo = typeArguments.get(i);
 
-            String resultString = resultStringSimple;
+            String resultString = resultStringSimple + resultGetValue;
 
-            // If we use native java types we need to convert
-            // elements of arrays to native java types too
+            if (param.equals(convertTo)) {
+                resultString = resultStringSimple;
+            }
             if (param instanceof ParameterizedTypeName) {
+                // If we use native java types we need to convert
+                // elements of arrays to native java types too
                 ParameterizedTypeName oldContainer = (ParameterizedTypeName) param;
                 ParameterizedTypeName newContainer = (ParameterizedTypeName) convertTo;
                 if (newContainer.rawType.compareTo(classList) == 0
@@ -1439,11 +1445,11 @@ public class SolidityContractWrapper {
 
             String resultString = resultStringSimple + resultGetValue;
 
-            // If we use native java types we need to convert
-            // elements of arrays to native java types too
             if (param.equals(convertTo)) {
                 resultString = resultStringSimple;
             } else if (param instanceof ParameterizedTypeName) {
+                // If we use native java types we need to convert
+                // elements of arrays to native java types too
                 ParameterizedTypeName oldContainer = (ParameterizedTypeName) param;
                 ParameterizedTypeName newContainer = (ParameterizedTypeName) convertTo;
                 if (newContainer.rawType.compareTo(classList) == 0
@@ -1597,32 +1603,47 @@ public class SolidityContractWrapper {
                     builder.addField(typeName, component.getName(), Modifier.PUBLIC);
                     constructorBuilder.addParameter(typeName, component.getName());
                     nativeConstructorBuilder.addParameter(typeName, component.getName());
+
+                    nativeConstructorBuilder.addStatement(
+                            "this." + component.getName() + " = " + component.getName());
+                    constructorBuilder.addStatement(
+                            "this." + component.getName() + " = " + component.getName());
                 } else if (component.getType().startsWith("tuple")
                         && component.getType().endsWith("[]")) {
                     final TypeName typeName = buildStructArrayTypeName(component);
                     builder.addField(typeName, component.getName(), Modifier.PUBLIC);
                     constructorBuilder.addParameter(typeName, component.getName());
                     nativeConstructorBuilder.addParameter(typeName, component.getName());
+
+                    nativeConstructorBuilder.addStatement(
+                            "this." + component.getName() + " = " + component.getName());
+                    constructorBuilder.addStatement(
+                            "this." + component.getName() + " = " + component.getName());
                 } else {
                     final TypeName typeName = buildTypeName(component.getType());
                     final TypeName nativeTypeName = getNativeType(typeName);
                     builder.addField(nativeTypeName, component.getName(), Modifier.PUBLIC);
                     constructorBuilder.addParameter(typeName, component.getName());
                     nativeConstructorBuilder.addParameter(nativeTypeName, component.getName());
+
+                    nativeConstructorBuilder.addStatement(
+                            "this." + component.getName() + " = " + component.getName());
+                    if (component.getType().endsWith("[]")) {
+                        constructorBuilder.addStatement(
+                                "this."
+                                        + component.getName()
+                                        + " = "
+                                        + component.getName()
+                                        + ".getNativeValue()");
+                    } else {
+                        constructorBuilder.addStatement(
+                                "this."
+                                        + component.getName()
+                                        + " = "
+                                        + component.getName()
+                                        + ".getValue()");
+                    }
                 }
-                nativeConstructorBuilder.addStatement(
-                        "this." + component.getName() + " = " + component.getName());
-                constructorBuilder.addStatement(
-                        "this."
-                                + component.getName()
-                                + " = "
-                                + component.getName()
-                                + (structClassNameMap
-                                                .keySet()
-                                                .stream()
-                                                .noneMatch(i -> i == component.structIdentifier())
-                                        ? ".getValue()"
-                                        : ""));
             }
 
             builder.superclass(namedType.isDynamic() ? DynamicStruct.class : StaticStruct.class);
@@ -1744,14 +1765,29 @@ public class SolidityContractWrapper {
             final ABIDefinition.NamedType component = components.get(i);
             stringBuilder.append(i > 0 ? "," : "");
             if (useNativeJavaTypes) {
-                stringBuilder.append(
-                        !component.getType().startsWith("tuple")
-                                ? "new "
-                                        + buildTypeName(component.getType())
-                                        + "("
-                                        + component.getName()
-                                        + ")"
-                                : component.getName());
+                if (component.getType().startsWith("tuple")) {
+                    stringBuilder.append(component.getName());
+                } else if (component.getType().endsWith("[]")) {
+                    TypeName typeName = buildTypeName(component.getType());
+                    TypeName baseType = ((ParameterizedTypeName) typeName).typeArguments.get(0);
+
+                    stringBuilder.append(
+                            "new "
+                                    + buildTypeName(component.getType())
+                                    + "("
+                                    + component.getName()
+                                    + ".stream().map(obj -> new "
+                                    + baseType
+                                    + "(obj)).collect(java.util.stream.Collectors.toList())"
+                                    + ")");
+                } else {
+                    stringBuilder.append(
+                            "new "
+                                    + buildTypeName(component.getType())
+                                    + "("
+                                    + component.getName()
+                                    + ")");
+                }
             } else {
                 stringBuilder.append(component.getName());
             }
