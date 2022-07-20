@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
+import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallRequest;
@@ -66,6 +67,10 @@ public interface AssembleTransactionProcessorInterface {
     String deployOnly(String abi, String bin, List<Object> params, String path)
             throws ContractCodecException;
 
+    String deployOnly(
+            String abi, String bin, List<Object> params, String path, CryptoKeyPair cryptoKeyPair)
+            throws ContractCodecException;
+
     /**
      * deploy contract to fisco bcos node only without receive any response.
      *
@@ -85,6 +90,10 @@ public interface AssembleTransactionProcessorInterface {
      * @return transaction response
      */
     TransactionResponse deployAndGetResponse(String abi, String signedData);
+
+    TransactionResponse deployAndGetResponse(
+            String abi, String bin, List<Object> params, String path, CryptoKeyPair cryptoKeyPair)
+            throws ContractCodecException;
 
     /**
      * deploy contract to fisco bcos node and get response.
@@ -125,6 +134,10 @@ public interface AssembleTransactionProcessorInterface {
      */
     TransactionResponse deployAndGetResponseWithStringParams(
             String abi, String bin, List<String> params, String path) throws ContractCodecException;
+
+    TransactionResponse deployAndGetResponseWithStringParams(
+            String abi, String bin, List<String> params, String path, CryptoKeyPair cryptoKeyPair)
+            throws ContractCodecException;
 
     /**
      * deploy contract to fisco bcos node asynchronously.
@@ -168,6 +181,15 @@ public interface AssembleTransactionProcessorInterface {
     CompletableFuture<TransactionReceipt> deployAsync(String abi, String bin, List<Object> params)
             throws ContractCodecException, JniException;
 
+    String deployAsync(
+            String abi,
+            String bin,
+            List<Object> params,
+            String path,
+            CryptoKeyPair cryptoKeyPair,
+            TransactionCallback callback)
+            throws ContractCodecException;
+
     /**
      * deploy contract to fisco bcos node asynchronously.
      *
@@ -183,6 +205,10 @@ public interface AssembleTransactionProcessorInterface {
     CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params, String path)
             throws ContractCodecException, JniException;
+
+    CompletableFuture<TransactionReceipt> deployAsync(
+            String abi, String bin, List<Object> params, String path, CryptoKeyPair cryptoKeyPair)
+            throws ContractCodecException;
 
     /**
      * deploy contract to fisco bcos node and get response by contract name. The contract loader
@@ -246,6 +272,9 @@ public interface AssembleTransactionProcessorInterface {
      */
     TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, byte[] data);
+
+    TransactionResponse sendTransactionAndGetResponse(
+            String to, String abi, String functionName, byte[] data, CryptoKeyPair cryptoKeyPair);
 
     /**
      * send transaction to fisco bcos node and get response.
@@ -420,6 +449,22 @@ public interface AssembleTransactionProcessorInterface {
      * @throws ContractCodecException throw when encode deploy error
      */
     TxPair createSignedConstructor(String abi, String bin, List<Object> params, String path)
+            throws ContractCodecException;
+
+    /**
+     * create signed constructor, use specific keyPair
+     *
+     * @param abi contract abi, which could be obtained by compiling solidity contract.
+     * @param bin contract binary, which could be obtained by compiling solidity contract.
+     * @param params contract construct parameters
+     * @param path the BFS path, which the contract be deployed in exactly path, this param only
+     *     enable in wasm
+     * @param keyPair specific keyPair, not use default keyPair
+     * @return signed constructor string
+     * @throws ContractCodecException throw when encode deploy error
+     */
+    TxPair createSignedConstructor(
+            String abi, String bin, List<Object> params, String path, CryptoKeyPair keyPair)
             throws ContractCodecException;
 
     /**

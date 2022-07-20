@@ -97,27 +97,43 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public String deployOnly(String abi, String bin, List<Object> params, String path)
             throws ContractCodecException {
-        TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
-        this.transactionPusher.pushOnly(txPair.getSignedTx());
-        return txPair.getTxHash();
+        return deployOnly(abi, bin, params, path, this.cryptoKeyPair);
     }
 
     @Override
     public String deployOnly(String abi, String bin, List<Object> params)
             throws ContractCodecException {
-        return deployOnly(abi, bin, params, "");
+        return deployOnly(abi, bin, params, "", this.cryptoKeyPair);
+    }
+
+    @Override
+    public String deployOnly(
+            String abi, String bin, List<Object> params, String path, CryptoKeyPair cryptoKeyPair)
+            throws ContractCodecException {
+        TxPair txPair = this.createSignedConstructor(abi, bin, params, path, cryptoKeyPair);
+        this.transactionPusher.pushOnly(txPair.getSignedTx());
+        return txPair.getTxHash();
     }
 
     @Override
     public TransactionReceipt deployAndGetReceipt(byte[] data, String abi, String path) {
+        return deployAndGetReceipt(data, abi, path, this.cryptoKeyPair);
+    }
+
+    @Override
+    public TransactionReceipt deployAndGetReceipt(byte[] data) {
+        return deployAndGetReceipt(data, "", "", this.cryptoKeyPair);
+    }
+
+    public TransactionReceipt deployAndGetReceipt(
+            byte[] data, String abi, String path, CryptoKeyPair cryptoKeyPair) {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
 
         TxPair txPair =
-                this.createDeploySignedTransaction(
-                        path, data, abi, this.cryptoKeyPair, txAttribute);
+                this.createDeploySignedTransaction(path, data, abi, cryptoKeyPair, txAttribute);
         TransactionReceipt transactionReceipt = this.transactionPusher.push(txPair.getSignedTx());
         if (Objects.nonNull(transactionReceipt)
                 && ((Objects.isNull(transactionReceipt.getTransactionHash()))
@@ -125,11 +141,6 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             transactionReceipt.setTransactionHash(txPair.getTxHash());
         }
         return transactionReceipt;
-    }
-
-    @Override
-    public TransactionReceipt deployAndGetReceipt(byte[] data) {
-        return deployAndGetReceipt(data, "", "");
     }
 
     @Override
@@ -148,19 +159,33 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public TransactionResponse deployAndGetResponse(
             String abi, String bin, List<Object> params, String path)
             throws ContractCodecException {
-        TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
+        return deployAndGetResponse(abi, bin, params, path, this.cryptoKeyPair);
+    }
+
+    @Override
+    public TransactionResponse deployAndGetResponse(
+            String abi, String bin, List<Object> params, String path, CryptoKeyPair cryptoKeyPair)
+            throws ContractCodecException {
+        TxPair txPair = this.createSignedConstructor(abi, bin, params, path, cryptoKeyPair);
         return this.deployAndGetResponse(abi, txPair.getSignedTx());
     }
 
     @Override
     public TransactionResponse deployAndGetResponse(String abi, String bin, List<Object> params)
             throws ContractCodecException {
-        return deployAndGetResponse(abi, bin, params, "");
+        return deployAndGetResponse(abi, bin, params, "", this.cryptoKeyPair);
     }
 
     @Override
     public TransactionResponse deployAndGetResponseWithStringParams(
             String abi, String bin, List<String> params, String path)
+            throws ContractCodecException {
+        return deployAndGetResponseWithStringParams(abi, bin, params, path, this.cryptoKeyPair);
+    }
+
+    @Override
+    public TransactionResponse deployAndGetResponseWithStringParams(
+            String abi, String bin, List<String> params, String path, CryptoKeyPair cryptoKeyPair)
             throws ContractCodecException {
         int txAttribute = 0;
         if (client.isWASM()) {
@@ -172,7 +197,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                         path,
                         this.contractCodec.encodeConstructorFromString(abi, bin, params),
                         abi,
-                        this.cryptoKeyPair,
+                        cryptoKeyPair,
                         txAttribute);
 
         return this.deployAndGetResponse(abi, txPair.getSignedTx());
@@ -182,14 +207,26 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public String deployAsync(
             String abi, String bin, List<Object> params, TransactionCallback callback)
             throws ContractCodecException {
-        return deployAsync(abi, bin, params, "", callback);
+        return deployAsync(abi, bin, params, "", this.cryptoKeyPair, callback);
     }
 
     @Override
     public String deployAsync(
             String abi, String bin, List<Object> params, String path, TransactionCallback callback)
             throws ContractCodecException {
-        TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
+        return deployAsync(abi, bin, params, path, this.cryptoKeyPair, callback);
+    }
+
+    @Override
+    public String deployAsync(
+            String abi,
+            String bin,
+            List<Object> params,
+            String path,
+            CryptoKeyPair cryptoKeyPair,
+            TransactionCallback callback)
+            throws ContractCodecException {
+        TxPair txPair = this.createSignedConstructor(abi, bin, params, path, cryptoKeyPair);
         this.transactionPusher.pushAsync(txPair.getSignedTx(), callback);
         return txPair.getTxHash();
     }
@@ -198,15 +235,22 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params, String path)
             throws ContractCodecException {
-        TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
-        return this.transactionPusher.pushAsync(txPair.getSignedTx());
+        return deployAsync(abi, bin, params, path, this.cryptoKeyPair);
     }
 
     @Override
     public CompletableFuture<TransactionReceipt> deployAsync(
             String abi, String bin, List<Object> params)
             throws ContractCodecException, JniException {
-        return deployAsync(abi, bin, params, "");
+        return deployAsync(abi, bin, params, "", this.cryptoKeyPair);
+    }
+
+    @Override
+    public CompletableFuture<TransactionReceipt> deployAsync(
+            String abi, String bin, List<Object> params, String path, CryptoKeyPair cryptoKeyPair)
+            throws ContractCodecException {
+        TxPair txPair = this.createSignedConstructor(abi, bin, params, path, cryptoKeyPair);
+        return this.transactionPusher.pushAsync(txPair.getSignedTx());
     }
 
     /**
@@ -247,11 +291,17 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TransactionResponse sendTransactionAndGetResponse(
             String to, String abi, String functionName, byte[] data) {
+        return sendTransactionAndGetResponse(to, abi, functionName, data, this.cryptoKeyPair);
+    }
+
+    @Override
+    public TransactionResponse sendTransactionAndGetResponse(
+            String to, String abi, String functionName, byte[] data, CryptoKeyPair cryptoKeyPair) {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_SCALE_CODEC;
         }
-        TxPair txPair = this.createSignedTransaction(to, data, this.cryptoKeyPair, txAttribute);
+        TxPair txPair = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
         TransactionReceipt receipt = this.transactionPusher.push(txPair.getSignedTx());
         try {
             return this.transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
@@ -407,6 +457,13 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     @Override
     public TxPair createSignedConstructor(String abi, String bin, List<Object> params, String path)
             throws ContractCodecException {
+        return createSignedConstructor(abi, bin, params, path, this.cryptoKeyPair);
+    }
+
+    @Override
+    public TxPair createSignedConstructor(
+            String abi, String bin, List<Object> params, String path, CryptoKeyPair cryptoKeyPair)
+            throws ContractCodecException {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
@@ -415,7 +472,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 Objects.nonNull(path) ? path : "",
                 this.contractCodec.encodeConstructor(abi, bin, params),
                 abi,
-                this.cryptoKeyPair,
+                cryptoKeyPair == null ? this.cryptoKeyPair : cryptoKeyPair,
                 txAttribute);
     }
 
