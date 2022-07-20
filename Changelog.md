@@ -43,12 +43,12 @@ Please read documentation of Java SDK v3.x.
 
 * Added `TableCRUDService` to adapt the interface of CRUD Table of FISCO BCOS v3.0.0-rc4
 * `AuthManger`
-   * Add consensus node changes and system configuration changes to the governance contract system, upgrade calculation logic of governance contract, etc.
-   * Added contract freeze/unfreeze contract interface
-   * Added interface for creating proposals and modifying contract ACL status
-   * Added interface to get proposals in batches
-   * Added event listener interface for proposal execution result
-  
+  * Add consensus node changes and system configuration changes to the governance contract system, upgrade calculation logic of governance contract, etc.
+  * Added contract freeze/unfreeze contract interface
+  * Added interface for creating proposals and modifying contract ACL status
+  * Added interface to get proposals in batches
+  * Added event listener interface for proposal execution result
+
 ### Changed
 
 * Use the cryptographic library `webank-blockchain-java-crypto` instead of `key-mini-toolkit`
