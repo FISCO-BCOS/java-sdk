@@ -33,7 +33,7 @@ ext {
     guavaVersion = '30.1.1-jre'
 
     config2Version = '2.8.0'
-    bcosSdkJniVersion = "3.0.0-rc4"
+    bcosSdkJniVersion = "3.0.0-SNAPSHOT"
 }
 
 // check.dependsOn integrationTest
