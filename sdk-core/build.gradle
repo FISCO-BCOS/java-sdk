@@ -4,7 +4,10 @@ plugins {
 }
 
 dependencies {
-    api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")
+    api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}") {
+        exclude group : "org.slf4j"
+        exclude group : "com.fasterxml.jackson.core"
+    }
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     api("com.moandjiezana.toml:toml4j:${toml4jVersion}")

@@ -6,7 +6,10 @@ dependencies {
     api project(':sdk-core')
     implementation project(':sdk-core')
     implementation ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
-    implementation("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")
+    implementation("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}") {
+        exclude group : "org.slf4j"
+        exclude group : "com.fasterxml.jackson.core"
+    }
 }
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
