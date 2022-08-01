@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Maggie
  */
 public interface Amop {
-    static final Logger logger = LoggerFactory.getLogger(Amop.class);
+    Logger logger = LoggerFactory.getLogger(Amop.class);
 
     /**
      * Create a Amop object.
@@ -46,7 +46,7 @@ public interface Amop {
     }
 
     /**
-     * Create a Amop object.
+     * Create an Amop object.
      *
      * @param nativePointer the
      * @return Amop instance

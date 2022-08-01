@@ -1,9 +1,8 @@
 package org.fisco.bcos.sdk.v3.codec.datatypes.generated;
 
+import java.util.List;
 import org.fisco.bcos.sdk.v3.codec.datatypes.StaticArray;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
-
-import java.util.List;
 
 /**
  * Auto generated code.
