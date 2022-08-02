@@ -19,13 +19,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 import java.util.List;
 import java.util.Objects;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
+import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 
 public class ConsensusStatus extends JsonRpcResponse<ConsensusStatus.ConsensusStatusInfo> {
     public ConsensusStatus.ConsensusStatusInfo getConsensusStatus() {
@@ -310,7 +310,7 @@ public class ConsensusStatus extends JsonRpcResponse<ConsensusStatus.ConsensusSt
         @Override
         public ConsensusStatus.ConsensusStatusInfo convert(String value) {
             try {
-                return new ObjectMapper()
+                return ObjectMapperFactory.getObjectMapper()
                         .readValue(value, ConsensusStatus.ConsensusStatusInfo.class);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
