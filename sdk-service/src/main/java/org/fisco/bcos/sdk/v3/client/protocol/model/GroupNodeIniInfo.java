@@ -87,7 +87,7 @@ public class GroupNodeIniInfo {
     @JsonProperty("isAuthCheck")
     private Boolean isAuthCheck = false;
 
-    private Boolean isSerialExecute;
+    private Boolean isSerialExecute = false;
 
     private String nodeID;
     private String nodeName;
