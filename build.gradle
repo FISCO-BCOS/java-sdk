@@ -24,7 +24,7 @@ ext {
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = '1.69'
     // keyMiniToolkit = "1.0.4"
-    webankJavaCryptoVersion = "1.0.2"
+    webankJavaCryptoVersion = "1.0.3-SNAPSHOT"
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
     guavaVersion = '30.1.1-jre'
