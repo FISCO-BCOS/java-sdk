@@ -11,7 +11,7 @@ dependencies {
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     api("com.moandjiezana.toml:toml4j:${toml4jVersion}")
-    api("commons-io:commons-io:${commonIOVersion}")
+    api("commons-io:commons-io:${commonsIOVersion}")
 }
 
 task sourcesJar(type: Jar) {

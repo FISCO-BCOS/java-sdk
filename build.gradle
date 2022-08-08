@@ -16,20 +16,18 @@ ext {
     if (!project.hasProperty("ossrhPassword")) {
         ossrhPassword = "xxx"
     }
-    // jackson version
     jacksonVersion = '2.13.2.2'
     commonsIOVersion = '2.4'
     commonsLang3Version = '3.12.0'
-    commonIOVersion = '2.4'
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = '1.69'
-    // keyMiniToolkit = "1.0.4"
     webankJavaCryptoVersion = "1.0.3-SNAPSHOT"
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
     guavaVersion = '30.1.1-jre'
-    config2Version = '2.8.0'
     bcosSdkJniVersion = "3.0.0-SNAPSHOT"
+    slf4jApiVerison = "1.7.36"
+    mockitoVersion = "4.6.1"
 }
 
 // check.dependsOn integrationTest
@@ -70,11 +68,11 @@ allprojects {
     }
 
     dependencies {
-        api("org.slf4j:slf4j-api:1.7.32")
+        api("org.slf4j:slf4j-api:${slf4jApiVerison}")
         testImplementation("junit:junit:${junitVersion}")
         testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
         testImplementation("com.google.guava:guava:${guavaVersion}")
-        testImplementation("org.mockito:mockito-core:4.6.0")
+        testImplementation("org.mockito:mockito-core:${mockitoVersion}")
     }
 
     clean.doLast {
@@ -190,11 +188,9 @@ dependencies {
     // api("com.webank:key-mini-toolkit:${keyMiniToolkit}")
     api("com.webank:webank-blockchain-java-crypto:${webankJavaCryptoVersion}")
     api("com.moandjiezana.toml:toml4j:${toml4jVersion}")
-    api("org.apache.commons:commons-configuration2:${config2Version}")
-
-    testImplementation("junit:junit:${junitVersion}")
-    testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
-    testImplementation("com.google.guava:guava:${guavaVersion}")
+//    api("org.apache.commons:commons-configuration2:${config2Version}"){
+//        exclude group: "commons-logging"
+//    }
 
     integrationTestImplementation project
 }

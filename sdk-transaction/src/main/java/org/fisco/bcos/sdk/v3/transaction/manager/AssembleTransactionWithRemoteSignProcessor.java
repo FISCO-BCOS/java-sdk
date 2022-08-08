@@ -5,7 +5,6 @@ import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.L
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.bouncycastle.util.encoders.Hex;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
@@ -21,6 +20,7 @@ import org.fisco.bcos.sdk.v3.transaction.signer.RemoteSignCallbackInterface;
 import org.fisco.bcos.sdk.v3.transaction.signer.RemoteSignProviderInterface;
 import org.fisco.bcos.sdk.v3.transaction.signer.TransactionSignerService;
 import org.fisco.bcos.sdk.v3.transaction.tools.ContractLoader;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 
 public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransactionProcessor
         implements AssembleTransactionWithRemoteSignProviderInterface {
