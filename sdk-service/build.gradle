@@ -7,7 +7,11 @@ dependencies {
         exclude group : "org.slf4j"
         exclude group : "com.fasterxml.jackson.core"
     }
-    api("org.apache.commons:commons-configuration2:2.7")
+//    api("org.apache.commons:commons-configuration2:${config2Version}") {
+//        exclude group: "commons-logging"
+//        exclude group: "org.dbunit"
+//        exclude group: "org.apache.commons", module: "commons-vfs2"
+//    }
 
     implementation project(':sdk-amop')
     implementation project(':sdk-codec')
