@@ -46,7 +46,10 @@ public class SM2Signature implements Signature {
         CryptoResult signatureResult =
                 NativeInterface.sm2SignFast(
                         keyPair.getHexPrivateKey(),
-                        keyPair.getHexPublicKey(),
+                        Numeric.getHexKeyWithPrefix(
+                                keyPair.getHexPublicKey(),
+                                CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
+                                CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX),
                         Numeric.cleanHexPrefix(message));
         if (signatureResult.wedprErrorMessage != null
                 && !signatureResult.wedprErrorMessage.isEmpty()) {
