@@ -347,7 +347,7 @@ public abstract class KeyTool {
             logger.error(
                     "convertToECParamSpec exception, error: {}, e: {}",
                     e.getMessage(),
-                    e.getStackTrace().toString());
+                    Arrays.toString(e.getStackTrace()));
             throw new LoadKeyStoreException("convertToECParamSpec exception for " + e.getMessage());
         }
     }
