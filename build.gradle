@@ -34,13 +34,14 @@ ext {
 
     config2Version = '2.7'
     bcosSdkJniVersion = "3.0.0-rc3-bugfix"
+    slf4jApiVerison = "1.7.36"
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.0.0-rc3-bugfix'
+    version = '3.0.0-rc3-bugfix-SNAPSHOT'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
@@ -74,6 +75,7 @@ allprojects {
     }
 
     dependencies {
+        api("org.slf4j:slf4j-api:${slf4jApiVerison}")
         testImplementation("junit:junit:${junitVersion}")
         testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
         testImplementation("com.google.guava:guava:${guavaVersion}")
