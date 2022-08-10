@@ -79,13 +79,8 @@ public class ECDSASignature implements Signature {
     public static boolean verifyMessage(String publicKey, String message, String signature) {
         String inputMessage = Numeric.cleanHexPrefix(message);
         checkInputMessage(inputMessage);
-        String hexPubKeyWithPrefix =
-                Numeric.getHexKeyWithPrefix(
-                        publicKey,
-                        CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
-                        CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX);
         CryptoResult verifyResult =
-                NativeInterface.secp256k1Verify(hexPubKeyWithPrefix, inputMessage, signature);
+                NativeInterface.secp256k1Verify(publicKey, inputMessage, signature);
         // call secp256k1verify failed
         if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(

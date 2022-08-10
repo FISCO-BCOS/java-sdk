@@ -42,14 +42,10 @@ public class SM2Signature implements Signature {
         if (!keyPair.getCurveName().equals(CryptoKeyPair.SM2_CURVE_NAME)) {
             throw new SignatureException("sm2 sign with " + keyPair.getCurveName() + " keypair");
         }
-
         CryptoResult signatureResult =
                 NativeInterface.sm2SignFast(
                         keyPair.getHexPrivateKey(),
-                        Numeric.getHexKeyWithPrefix(
-                                keyPair.getHexPublicKey(),
-                                CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
-                                CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX),
+                        keyPair.getHexPublicKey(),
                         Numeric.cleanHexPrefix(message));
         if (signatureResult.wedprErrorMessage != null
                 && !signatureResult.wedprErrorMessage.isEmpty()) {
@@ -70,14 +66,8 @@ public class SM2Signature implements Signature {
     }
 
     public static boolean verifyMessage(String publicKey, String message, String signature) {
-        String hexPubKeyWithPrefix =
-                Numeric.getHexKeyWithPrefix(
-                        publicKey,
-                        CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
-                        CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX);
         CryptoResult verifyResult =
-                NativeInterface.sm2Verify(
-                        hexPubKeyWithPrefix, Numeric.cleanHexPrefix(message), signature);
+                NativeInterface.sm2Verify(publicKey, Numeric.cleanHexPrefix(message), signature);
         if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
                     "Verify with sm2 failed:" + verifyResult.wedprErrorMessage);
