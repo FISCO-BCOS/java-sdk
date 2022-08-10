@@ -15,14 +15,22 @@ package org.fisco.bcos.sdk.v3.crypto.signature;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.utils.Hex;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 
 public class SM2SignatureResult extends SignatureResult {
     protected byte[] pub;
 
     public SM2SignatureResult(final String hexPublicKey, final String signatureString) {
         super(signatureString);
-        this.pub = Hex.decode(hexPublicKey.substring(2));
+        // clean 04 prefix
+        this.pub =
+                Hex.decode(
+                        Numeric.getKeyNoPrefix(
+                                CryptoKeyPair.UNCOMPRESSED_PUBLICKEY_FLAG_STR,
+                                hexPublicKey,
+                                CryptoKeyPair.PUBLIC_KEY_LENGTH_IN_HEX));
     }
 
     public SM2SignatureResult(byte[] pub, byte[] r, byte[] s) {
