@@ -26,6 +26,7 @@ public class CryptoMaterialConfig {
     private static final Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
 
     private Boolean useSmCrypto = false;
+    private Boolean disableSsl = false;
     private String certPath = "conf";
 
     private String caCertPath;
@@ -46,8 +47,15 @@ public class CryptoMaterialConfig {
 
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
         String useSMCrypto = (String) cryptoMaterialProperty.get("useSMCrypto");
+        String disableSsl = (String) cryptoMaterialProperty.get("disableSsl");
 
         this.useSmCrypto = Boolean.valueOf(useSMCrypto);
+        this.disableSsl = Boolean.valueOf(disableSsl);
+
+        if (this.disableSsl) {
+            logger.info("Load cryptoMaterial, disableSsl has been set");
+            return;
+        }
 
         int cryptoType = this.useSmCrypto ? CryptoType.SM_TYPE : CryptoType.ECDSA_TYPE;
         this.certPath =
@@ -190,6 +198,14 @@ public class CryptoMaterialConfig {
 
     public Boolean getUseSmCrypto() {
         return this.useSmCrypto;
+    }
+
+    public Boolean getDisableSsl() {
+        return disableSsl;
+    }
+
+    public void setDisableSsl(Boolean disableSsl) {
+        this.disableSsl = disableSsl;
     }
 
     public void setUseSmCrypto(Boolean useSmCrypto) {
