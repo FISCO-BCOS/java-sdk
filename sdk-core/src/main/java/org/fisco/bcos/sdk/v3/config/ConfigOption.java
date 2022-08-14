@@ -84,6 +84,9 @@ public class ConfigOption {
         jniConfig.setPeers(networkConfig.getPeers());
 
         boolean disableSsl = DISABLE_SSL;
+        if (!disableSsl) {
+            disableSsl = cryptoMaterialConfig.getDisableSsl();
+        }
         // if disable ssl, default false
         jniConfig.setDisableSsl(disableSsl);
         jniConfig.setThreadPoolSize(threadPoolConfig.getThreadPoolSize());
