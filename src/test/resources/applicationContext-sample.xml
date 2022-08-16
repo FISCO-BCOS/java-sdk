@@ -15,11 +15,11 @@
 			<!-- entry key="sslCert" value="conf/sdk.crt" /-->
 			<!-- entry key="sslKey" value="conf/sdk.key" /-->
 			<!-- GM SSL certificate configuration -->
-			<!-- entry key="caCert" value="conf/gm/gmca.crt" /-->
-			<!-- entry key="sslCert" value="conf/gm/gmsdk.crt" /-->
-			<!-- entry key="sslKey" value="conf/gm/gmsdk.key" /-->
-			<!--entry key="enSslCert" value="conf/gm/gmensdk.crt" /-->
-			<!--entry key="enSslKey" value="conf/gm/gmensdk.key" /-->
+			<!-- entry key="caCert" value="conf/sm_ca.crt" /-->
+			<!-- entry key="sslCert" value="conf/sm_sdk.crt" /-->
+			<!-- entry key="sslKey" value="conf/sm_sdk.key" /-->
+			<!--entry key="enSslCert" value="conf/sm_ensdk.crt" /-->
+			<!--entry key="enSslKey" value="conf/sm_ensdk.key" /-->
 			</map>
 		</property>
 		<property name="network">

@@ -23,6 +23,7 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.RespCallback;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
@@ -47,10 +48,14 @@ import org.fisco.bcos.sdk.v3.contract.liquid.HelloWorld2;
 import org.fisco.bcos.sdk.v3.contract.solidity.HelloWorld;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.transaction.pusher.TransactionPusherService;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -259,7 +264,6 @@ public class BcosSDKTest {
         System.out.println("blockLimit:" + blockLimit);
         HelloWorld helloWorld = null;
         helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
-        assert helloWorld != null;
         System.out.println("helloworld address :" + helloWorld.getContractAddress());
         BlockNumber blockNumber = client.getBlockNumber();
         BcosBlock block1 = client.getBlockByNumber(blockNumber.getBlockNumber(), false, false);
@@ -294,6 +298,51 @@ public class BcosSDKTest {
 
         blockLimit = client.getBlockLimit();
         System.out.println("blockLimit:" + blockLimit);
+    }
+
+    @Test
+    public void testTransactionAssemble() throws ConfigException, JniException, ContractException {
+
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(GROUP, configOption);
+
+        HelloWorld helloWorld =
+                HelloWorld.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
+        TransactionReceipt receipt = helloWorld.set("fisco hello");
+        Assert.assertEquals(receipt.getStatus(), 0);
+        String input = receipt.getInput();
+
+        long transactionData =
+                TransactionBuilderJniObj.createTransactionData(
+                        GROUP,
+                        client.getChainId(),
+                        helloWorld.getContractAddress(),
+                        input,
+                        "",
+                        client.getBlockLimit().longValue());
+
+        String transactionDataHash =
+                TransactionBuilderJniObj.calcTransactionDataHash(
+                        client.getCryptoType(), transactionData);
+
+        SignatureResult sign =
+                client.getCryptoSuite()
+                        .sign(transactionDataHash, client.getCryptoSuite().getCryptoKeyPair());
+
+        String transactionDataHashSignedData2 = Hex.toHexString(sign.encode());
+        String signedMessage =
+                TransactionBuilderJniObj.createSignedTransaction(
+                        transactionData, transactionDataHashSignedData2, transactionDataHash, 0);
+
+        TransactionPusherService txPusher = new TransactionPusherService(client);
+        TransactionReceipt receipt2 = txPusher.push(signedMessage);
+
+        TransactionDecoderService txDecoder =
+                new TransactionDecoderService(client.getCryptoSuite(), client.isWASM());
+        String receiptMsg = txDecoder.decodeReceiptStatus(receipt2).getReceiptMessages();
+        receipt2.setMessage(receiptMsg);
+
+        System.out.println(receipt2);
     }
 
     // FIXME: not use in CI integration test
