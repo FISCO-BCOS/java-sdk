@@ -41,9 +41,11 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.config.Config;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.v3.contract.liquid.Asset;
 import org.fisco.bcos.sdk.v3.contract.liquid.HelloWorld2;
 import org.fisco.bcos.sdk.v3.contract.solidity.HelloWorld;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
@@ -347,7 +349,7 @@ public class BcosSDKTest {
 
     // FIXME: not use in CI integration test
     // @Test
-    public void testHelloWorldInLiquid() throws ConfigException, JniException, ContractException {
+    public void testHelloWorldInLiquid() throws ConfigException, ContractException {
 
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -415,6 +417,40 @@ public class BcosSDKTest {
         System.out.println("helloworld2 get :" + s2);
         s2 = helloWorld.get();
         System.out.println("helloworld get :" + s2);
+    }
+
+    @Test
+    public void testAssetEventInLiquid() throws ConfigException, ContractException {
+
+        ConfigOption configOption = Config.load(configFile);
+        Client client = Client.build(GROUP, configOption);
+
+        String hash = client.getCryptoSuite().hash("RegisterEvent");
+
+        CryptoSuite cryptoSuite = client.getCryptoSuite();
+        CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
+        BigInteger blockLimit = client.getBlockLimit();
+        System.out.println("blockLimit:" + blockLimit);
+        org.fisco.bcos.sdk.v3.contract.liquid.Asset asset =
+                org.fisco.bcos.sdk.v3.contract.liquid.Asset.deploy(
+                        client, keyPair, "/asset" + new Random().nextInt(1000));
+
+        System.out.println("asset address :" + asset.getContractAddress());
+
+        TransactionReceipt assetAccount0 =
+                asset.register("assetAccount0", BigInteger.valueOf(10000));
+        TransactionReceipt assetAccount1 =
+                asset.register("assetAccount1", BigInteger.valueOf(10000));
+        List<Asset.RegisterEventEventResponse> registerEventEvents0 =
+                asset.getRegisterEventEvents(assetAccount0);
+        List<Asset.RegisterEventEventResponse> registerEventEvents1 =
+                asset.getRegisterEventEvents(assetAccount1);
+        Assert.assertTrue(registerEventEvents0.size() > 0);
+        Assert.assertTrue(registerEventEvents1.size() > 0);
+
+        Tuple2<Boolean, BigInteger> selectOutput = asset.select("assetAccount0");
+        Assert.assertEquals(selectOutput.getValue1(), true);
+        Assert.assertEquals(selectOutput.getValue2(), BigInteger.valueOf(10000));
     }
 
     @Test
