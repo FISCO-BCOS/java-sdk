@@ -9,6 +9,7 @@
 			<map>
 			<entry key="certPath" value="conf" />
 			<entry key="useSMCrypto" value="false" />
+			<entry key="disableSsl" value="false" />
 			<!-- SSL certificate configuration -->
 			<!-- entry key="caCert" value="conf/ca.crt" /-->
 			<!-- entry key="sslCert" value="conf/sdk.crt" /-->
