@@ -73,6 +73,7 @@ public class ClientImpl implements Client {
     private String chainID;
     private Boolean wasm;
     private Boolean authCheck = false;
+    private boolean serialExecute;
     private Boolean smCrypto;
     // ------------basic group info --------------
 
@@ -113,16 +114,18 @@ public class ClientImpl implements Client {
         this.groupNodeIniConfig = GroupNodeIniConfig.newIniConfig(nodeIniConfig);
         this.chainID = groupNodeIniConfig.getChain().getChainID();
         this.wasm = groupNodeIniConfig.getExecutor().isWasm();
+        this.serialExecute = groupNodeIniConfig.getExecutor().isSerialExecute();
         this.authCheck = groupNodeIniConfig.getExecutor().isAuthCheck();
         this.smCrypto = groupNodeIniConfig.getChain().isSmCrypto();
         this.blockNumber = this.getBlockNumber().getBlockNumber().longValue();
 
         logger.info(
-                "init group info in rpc, chainID: {}, smCrypto: {}, wasm: {}, authCheck:{}, blockNumber: {}, GroupNodeIniConfig: {}",
+                "init group info in rpc, chainID: {}, smCrypto: {}, wasm: {}, authCheck:{}, serialExecute:{}, blockNumber: {}, GroupNodeIniConfig: {}",
                 chainID,
                 smCrypto,
                 wasm,
                 authCheck,
+                serialExecute,
                 blockNumber,
                 groupNodeIniConfig);
     }
@@ -199,6 +202,10 @@ public class ClientImpl implements Client {
     @Override
     public Boolean isAuthCheck() {
         return this.authCheck;
+    }
+
+    public Boolean isSerialExecute() {
+        return this.serialExecute;
     }
 
     @Override

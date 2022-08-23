@@ -127,6 +127,7 @@ public interface Client {
      */
     Boolean isAuthCheck();
 
+    Boolean isSerialExecute();
     /**
      * get groupId of the client
      *

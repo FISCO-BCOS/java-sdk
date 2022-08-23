@@ -34,7 +34,7 @@ public interface TransactionProcessorInterface {
      *
      * @param to target contract address
      * @param data ABI encoded transaction data
-     * @param abi ABI
+     * @param abi ABI json string, deploy into chain with code, can be empty string
      * @param cryptoKeyPair key pair
      * @param txAttribute transaction attribute, see more in {@link
      *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
@@ -43,6 +43,21 @@ public interface TransactionProcessorInterface {
      */
     TransactionReceipt deployAndGetReceipt(
             String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute)
+            throws JniException;
+
+    /**
+     * send deploy transaction to fisco bcos node and get transaction receipt. this method use
+     * default keyPair
+     *
+     * @param to target contract address
+     * @param data ABI encoded transaction data
+     * @param abi ABI json string, deploy into chain with code, can be empty string
+     * @param txAttribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
+     * @return transaction receipt
+     * @throws JniException throw when jni encode transaction error
+     */
+    TransactionReceipt deployAndGetReceipt(String to, byte[] data, String abi, int txAttribute)
             throws JniException;
 
     /**
@@ -58,6 +73,20 @@ public interface TransactionProcessorInterface {
      */
     TransactionReceipt sendTransactionAndGetReceipt(
             String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute)
+            throws JniException;
+
+    /**
+     * send transaction to fisco bcos node and get transaction receipt. this method use default
+     * keyPair
+     *
+     * @param to target contract address
+     * @param data ABI encoded transaction data
+     * @param txAttribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
+     * @return transaction receipt
+     * @throws JniException throw when jni encode transaction error
+     */
+    TransactionReceipt sendTransactionAndGetReceipt(String to, byte[] data, int txAttribute)
             throws JniException;
 
     /**
@@ -77,6 +106,20 @@ public interface TransactionProcessorInterface {
             CryptoKeyPair cryptoKeyPair,
             int txAttribute,
             TransactionCallback callback);
+
+    /**
+     * send transaction to fisco bcos node and get transaction receipt asynchronously. this method
+     * use default keyPair
+     *
+     * @param to target contract address
+     * @param data ABI encoded transaction data
+     * @param txAttribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
+     * @param callback define hook function
+     * @return transaction hash
+     */
+    String sendTransactionAsync(
+            String to, byte[] data, int txAttribute, TransactionCallback callback);
 
     /**
      * send call to fisco bcos node and receive call response.

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -110,7 +109,8 @@ public class BcosGroupInfo extends JsonRpcResponse<BcosGroupInfo.GroupInfo> {
         @Override
         public GroupNodeGenesisInfo convert(String value) {
             try {
-                return new ObjectMapper().readValue(value, GroupNodeGenesisInfo.class);
+                return ObjectMapperFactory.getObjectMapper()
+                        .readValue(value, GroupNodeGenesisInfo.class);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
