@@ -3,11 +3,12 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
     struct StructA {
-        string value_str;
+        string[] value_str;
         bytes32[] bytes32_in_struct;
     }
 
     struct StructB {
+        string[][] d_str;
         StructA[] a_struct;
     }
 
@@ -25,13 +26,15 @@ contract ComplexCodecTest {
 
     StructA a_struct;
 
-    function setAStruct(string memory value_str, bytes32[] memory _b) public returns (StructA memory)
+    function buildStructA(string memory value_str, bytes32[] memory _b) public returns (StructA memory)
     {
-        a_struct = StructA(value_str, _b);
+        string[] memory s = new string[](1);
+        s[0] = value_str;
+        a_struct = StructA(s, _b);
         return a_struct;
     }
 
-    function setBStruct(StructA memory a) public returns (StructB memory){
+    function buildStructB(StructA memory a) public returns (StructB memory){
         StructB memory b_struct;
         a_struct = a;
         b_struct.a_struct = new StructA[](2);
@@ -40,7 +43,7 @@ contract ComplexCodecTest {
         return b_struct;
     }
 
-    function setBStruct2(StructB memory b) public returns (StructA memory){
+    function getStructAInStructB(StructB memory b) public returns (StructA memory){
         require(b.a_struct.length > 0);
         a_struct = b.a_struct[0];
         return a_struct;
@@ -66,8 +69,13 @@ contract ComplexCodecTest {
         return b32_s_array_array;
     }
 
-    function staticStruct(int128 i1, uint128 u1) public pure returns(StaticStruct memory){
-        StaticStruct memory s1 = staticStruct(i1,u1);
+    function buildStaticStruct(int128 i1, uint128 u1) public pure returns(StaticStruct memory){
+        StaticStruct memory s1 = StaticStruct(i1,u1);
+        return s1;
+    }
+
+    function buildStaticStruct(StaticStruct memory b) public pure returns(StaticStruct memory){
+        StaticStruct memory s1 = StaticStruct(b.i1+1,b.u1+1);
         return s1;
     }
 }
