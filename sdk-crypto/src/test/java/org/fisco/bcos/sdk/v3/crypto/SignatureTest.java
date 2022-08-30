@@ -53,12 +53,12 @@ public class SignatureTest {
         // generate keyPair
         CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
         CryptoSuite cryptoSuite2 = new CryptoSuite(CryptoType.ECDSA_TYPE, keyPair);
-        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
-        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPublicKey(), cryptoSuite.getCryptoKeyPair().getHexPublicKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey(), cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
 
         cryptoSuite2 = new CryptoSuite(CryptoType.ECDSA_TYPE, cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
-        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
-        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPublicKey(), cryptoSuite.getCryptoKeyPair().getHexPublicKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey(), cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
 
         // test signature
         this.testSignature(cryptoSuite, keyPair);
@@ -75,7 +75,7 @@ public class SignatureTest {
         System.out.println("hexedPublicKey: " + hexedPublicKey);
         System.out.println("keyPair.getHexPublicKey(): " + keyPair.getHexPublicKey());
         System.out.println("keyPair.getHexPrivate(): " + keyPair.getHexPrivateKey());
-        Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey().substring(2));
+        Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey());
         this.testSignature(cryptoSuite, keyPair);
 
         String hexedPrivateKeyStr = "bcec428d5205abe0f0cc8a734083908d9eb8563e31f943d760786edf42ad67dd";
@@ -90,12 +90,12 @@ public class SignatureTest {
         CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
 
         CryptoSuite cryptoSuite2 = new CryptoSuite(CryptoType.SM_TYPE, keyPair);
-        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
-        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPublicKey(), cryptoSuite.getCryptoKeyPair().getHexPublicKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey(), cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
 
         cryptoSuite2 = new CryptoSuite(CryptoType.SM_TYPE, cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
-        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPublicKey().equals(cryptoSuite.getCryptoKeyPair().getHexPublicKey()));
-        Assert.assertTrue(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey().equals(cryptoSuite.getCryptoKeyPair().getHexPrivateKey()));
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPublicKey(), cryptoSuite.getCryptoKeyPair().getHexPublicKey());
+        Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey(), cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
         // test signature
         this.testSignature(cryptoSuite, keyPair);
     }
@@ -298,7 +298,7 @@ public class SignatureTest {
                     signature.verify(
                             keyPair.getHexPublicKey(), hexMessageWithPrefix, signResult.convertToString()));
             //verify
-            String hexPublicKeyWithoutPrefix = keyPair.getHexPublicKey().substring(2);
+            String hexPublicKeyWithoutPrefix = keyPair.getHexPublicKey();
             Assert.assertTrue(
                     signature.verify(
                             hexPublicKeyWithoutPrefix, message, signResult.convertToString()));
@@ -314,7 +314,7 @@ public class SignatureTest {
             String plainText = "abcd---" + Integer.toString(i + 1);
             String invalidMessage = hasher.hash(plainText);
             byte[] invalidBytes = hasher.hash(plainText.getBytes());
-            Assert.assertTrue(invalidMessage.equals(Hex.toHexString(invalidBytes)));
+            Assert.assertEquals(invalidMessage, Hex.toHexString(invalidBytes));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify
@@ -361,7 +361,7 @@ public class SignatureTest {
             String plainText = "abcd----" + Integer.toString(i);
             message = signature.hash(plainText);
             messageBytes = signature.hash(plainText.getBytes());
-            Assert.assertTrue(message.equals(Hex.toHexString(messageBytes)));
+            Assert.assertEquals(message, Hex.toHexString(messageBytes));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify
@@ -380,7 +380,7 @@ public class SignatureTest {
             String plainText = "abcd---" + Integer.toString(i + 1);
             String invalidMessage = signature.hash(plainText);
             byte[] invalidMessageBytes = signature.hash(plainText.getBytes());
-            Assert.assertTrue(invalidMessage.equals(Hex.toHexString(invalidMessageBytes)));
+            Assert.assertEquals(invalidMessage, Hex.toHexString(invalidMessageBytes));
             // sign
             SignatureResult signResult = signature.sign(message, keyPair);
             // verify
@@ -501,10 +501,8 @@ public class SignatureTest {
         System.out.println("P12   orgKeyPair   pri: " + orgKeyPair.getHexPrivateKey());
         System.out.println("P12 decodedKeyPair pr: " + decodedCryptoKeyPair.getHexPrivateKey());
 
-        Assert.assertTrue(
-                orgKeyPair.getHexPrivateKey().equals(decodedCryptoKeyPair.getHexPrivateKey()));
-        Assert.assertTrue(
-                orgKeyPair.getHexPublicKey().equals(decodedCryptoKeyPair.getHexPublicKey()));
+        Assert.assertEquals(orgKeyPair.getHexPrivateKey(), decodedCryptoKeyPair.getHexPrivateKey());
+        Assert.assertEquals(orgKeyPair.getHexPublicKey(), decodedCryptoKeyPair.getHexPublicKey());
 
         // test sign and verify message with
         String publicP12Path = p12FilePath + ".pub";

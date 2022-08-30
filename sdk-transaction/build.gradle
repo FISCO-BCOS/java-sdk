@@ -10,7 +10,6 @@ dependencies {
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("commons-io:commons-io:${commonsIOVersion}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
-    api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
 }
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava

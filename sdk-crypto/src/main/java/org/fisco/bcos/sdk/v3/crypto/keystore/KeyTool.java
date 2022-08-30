@@ -138,7 +138,7 @@ public abstract class KeyTool {
         byte[] publicKeyBytes = ((BCECPublicKey) publicKey).getQ().getEncoded(false);
         BigInteger publicKeyValue =
                 new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
-        return ("04" + Numeric.toHexStringNoPrefixZeroPadded(publicKeyValue, 128));
+        return Numeric.toHexStringNoPrefixZeroPadded(publicKeyValue, 128);
     }
 
     /**
@@ -347,7 +347,7 @@ public abstract class KeyTool {
             logger.error(
                     "convertToECParamSpec exception, error: {}, e: {}",
                     e.getMessage(),
-                    e.getStackTrace().toString());
+                    Arrays.toString(e.getStackTrace()));
             throw new LoadKeyStoreException("convertToECParamSpec exception for " + e.getMessage());
         }
     }

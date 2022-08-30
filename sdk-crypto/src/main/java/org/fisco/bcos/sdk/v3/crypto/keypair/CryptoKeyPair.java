@@ -25,7 +25,6 @@ import org.fisco.bcos.sdk.v3.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.v3.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
-import org.fisco.bcos.sdk.v3.utils.StringUtils;
 import org.fisco.bcos.sdk.v3.utils.exceptions.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +90,7 @@ public abstract class CryptoKeyPair {
      */
     CryptoKeyPair(final CryptoResult nativeResult) {
         this.hexPrivateKey = nativeResult.privateKey;
-        this.hexPublicKey = nativeResult.publicKey;
+        this.hexPublicKey = getPublicKeyNoPrefix(nativeResult.publicKey);
     }
 
     public long getJniKeyPair() {
@@ -176,20 +175,8 @@ public abstract class CryptoKeyPair {
     }
 
     protected static String getPublicKeyNoPrefix(String publicKeyStr) {
-        String publicKeyNoPrefix = Numeric.cleanHexPrefix(publicKeyStr);
-        if (publicKeyNoPrefix.startsWith(UNCOMPRESSED_PUBLICKEY_FLAG_STR)
-                && publicKeyNoPrefix.length()
-                        == PUBLIC_KEY_LENGTH_IN_HEX + UNCOMPRESSED_PUBLICKEY_FLAG_STR.length()) {
-            publicKeyNoPrefix =
-                    publicKeyNoPrefix.substring(UNCOMPRESSED_PUBLICKEY_FLAG_STR.length());
-        }
-        // Hexadecimal public key length is less than 128, add 0 in front
-        if (publicKeyNoPrefix.length() < PUBLIC_KEY_LENGTH_IN_HEX) {
-            publicKeyNoPrefix =
-                    StringUtils.zeros(PUBLIC_KEY_LENGTH_IN_HEX - publicKeyNoPrefix.length())
-                            + publicKeyNoPrefix;
-        }
-        return publicKeyNoPrefix;
+        return Numeric.getKeyNoPrefix(
+                UNCOMPRESSED_PUBLICKEY_FLAG_STR, publicKeyStr, PUBLIC_KEY_LENGTH_IN_HEX);
     }
     /**
      * get the address according to the public key
@@ -199,7 +186,7 @@ public abstract class CryptoKeyPair {
     public String getAddress() {
         // Note: The generated publicKey is prefixed with 04, When calculate the address, need to
         // remove 04
-        return getAddress(this.getHexPublicKey().substring(2));
+        return getAddress(this.getHexPublicKey());
     }
 
     public String getAddress(String publicKey) {

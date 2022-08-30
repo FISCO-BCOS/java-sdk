@@ -11,15 +11,22 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fisco.bcos.sdk.v3.codegen.exceptions;
+package org.fisco.bcos.sdk.v3.crypto.vrf;
 
-/** Throw exception when calling hash. */
-public class CodeGenException extends Exception {
-    public CodeGenException(String message) {
-        super(message);
-    }
+import java.math.BigInteger;
 
-    public CodeGenException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public interface VRFInterface {
+    VRFKeyPair createKeyPair();
+
+    String generateVRFProof(String privateKey, String vrfInput);
+
+    boolean verify(String publicKey, String vrfInput, String vrfProof);
+
+    String getPublicKeyFromPrivateKey(String privateKey);
+
+    String vrfProofToHash(String vrfProof);
+
+    BigInteger vrfProofToRandomValue(String vrfProof);
+
+    boolean isValidVRFPublicKey(String vrfPublicKey);
 }

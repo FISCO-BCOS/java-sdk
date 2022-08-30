@@ -85,10 +85,14 @@ public class PrecompiledTest {
         );
     }
 
-    public void mockGetNodeRequest(String... nodeID) {
+    public void mockGetNodeRequest(boolean isEmpty, String... nodeID) {
         when(mockClient.getGroupPeers()).then(
                 invocation -> {
                     GroupPeers groupPeers = new GroupPeers();
+                    if (isEmpty) {
+                        groupPeers.setResult(null);
+                        return groupPeers;
+                    }
                     List<String> nodeList = new ArrayList<>(Arrays.asList(nodeID));
                     groupPeers.setResult(nodeList);
                     return groupPeers;
@@ -145,7 +149,7 @@ public class PrecompiledTest {
 
     @Test
     public void authTest() throws ContractException {
-        mockGetNodeRequest("node1", "node2", "node3");
+        mockGetNodeRequest(false, "node1", "node2", "node3");
         mockGetSealerRequest("node1", "node2");
         mockGetObserverRequest("node3");
         mockSendTxRequest("0x0000000000000000000000000000000000000000000000000000000000000001", PrecompiledAddress.CONTRACT_AUTH_ADDRESS, 0);
@@ -195,11 +199,18 @@ public class PrecompiledTest {
         Assert.assertEquals(BigInteger.ONE, proposal5);
 
         Assert.assertThrows(ContractException.class, () -> authManager.createSetSysConfigProposal(SystemConfigService.TX_GAS_LIMIT, String.valueOf(100000 - 1)));
-        Assert.assertThrows(ContractException.class, () -> authManager.createSetSysConfigProposal(SystemConfigService.TX_COUNT_LIMIT, String.valueOf(- 1)));
-        Assert.assertThrows(ContractException.class, () -> authManager.createSetSysConfigProposal(SystemConfigService.CONSENSUS_PERIOD, String.valueOf(- 1)));
+        Assert.assertThrows(ContractException.class, () -> authManager.createSetSysConfigProposal(SystemConfigService.TX_COUNT_LIMIT, String.valueOf(-1)));
+        Assert.assertThrows(ContractException.class, () -> authManager.createSetSysConfigProposal(SystemConfigService.CONSENSUS_PERIOD, String.valueOf(-1)));
 
         BigInteger errorKey = authManager.createSetSysConfigProposal("errorKey", String.valueOf(100000));
         Assert.assertEquals(BigInteger.ONE, errorKey);
     }
 
+    @Test
+    public void consensusTest() throws ContractException {
+        // empty group test
+        mockGetNodeRequest(true);
+        Assert.assertThrows(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST,
+                ContractException.class, () -> consensusService.addObserver("node0"));
+    }
 }

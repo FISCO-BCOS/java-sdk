@@ -35,9 +35,8 @@ public class KeyToolTest {
                         CryptoType.ECDSA_TYPE,
                         "0x0fc3c4bb89bd90299db4c62be0174c4966286c00");
         // check the public key and the privateKey
-        // Note the 04 prefix
         Assert.assertEquals(
-                "04dbbfee4f76f5a3bc3dbc2e6127c4a1f50b7614bff4138a44a79aed3d42f67f9c7aa70570205f9b60a5888c6415b6a830012677b4415a79ccd1533fe5637861df",
+                "dbbfee4f76f5a3bc3dbc2e6127c4a1f50b7614bff4138a44a79aed3d42f67f9c7aa70570205f9b60a5888c6415b6a830012677b4415a79ccd1533fe5637861df",
                 cryptoKeyPair.getHexPublicKey());
         Assert.assertEquals(
                 "bc516b2600eec3a216f457dc14cf83a01ed22d0fc2149fc911dc2ec486fe57a3",
@@ -53,7 +52,7 @@ public class KeyToolTest {
                         CryptoType.SM_TYPE,
                         "0x40b3558746e8f9a47a474774e8c4a9e67d4e3174");
         Assert.assertEquals(
-                "043b72cd28244c856d3d89b67d1c5ff22e1f26835bafcd63e9a4ad3424a2a57f2b759149f46c696df08b9d9473686675fc6dade744d0c82bdc5598d759e015fd96",
+                "3b72cd28244c856d3d89b67d1c5ff22e1f26835bafcd63e9a4ad3424a2a57f2b759149f46c696df08b9d9473686675fc6dade744d0c82bdc5598d759e015fd96",
                 cryptoKeyPair.getHexPublicKey());
         Assert.assertEquals(
                 "901744c34e2adffc9fd7fb12e8cba2d88a79aaf54be9b4e11660153287489f13",
@@ -84,7 +83,7 @@ public class KeyToolTest {
                         "123456",
                         "0x45e14c53197adbcb719d915fb93342c25600faaf");
         Assert.assertEquals(
-                "04d7b9e00f56d3f79305359fa2d7db166021e73086bdcd2e7a28d6ed27345e1f2ddecf85db7438e8457fd474ef9c4ceb89abb7d5fa60a22f2902ec26dca52ad5e5",
+                "d7b9e00f56d3f79305359fa2d7db166021e73086bdcd2e7a28d6ed27345e1f2ddecf85db7438e8457fd474ef9c4ceb89abb7d5fa60a22f2902ec26dca52ad5e5",
                 cryptoKeyPair.getHexPublicKey());
         Assert.assertEquals(
                 "c0c8b4d96aa4aefaeeafa157789d528b6010f65059dee796d8757e1171bbcd2c",
@@ -101,7 +100,7 @@ public class KeyToolTest {
                         "abcd123",
                         "0x6f68461309925093236df82b51df630a55d32377");
         Assert.assertEquals(
-                "04a809a0176dc24432490697b6ed74995a6716a122a0fa5c73429a259cd73f14995934522288f226a049bbbb803d78f296289bee8fb4f5d7821514e731a57c9f2f",
+                "a809a0176dc24432490697b6ed74995a6716a122a0fa5c73429a259cd73f14995934522288f226a049bbbb803d78f296289bee8fb4f5d7821514e731a57c9f2f",
                 cryptoKeyPair.getHexPublicKey());
         Assert.assertEquals(
                 "d0cbcdfea24e206688ce6c1a63171a24d9e1e0cf5331151ed5406e07fdb38256",

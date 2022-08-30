@@ -97,53 +97,6 @@ public class ScaleCodecReader {
         return new BigInteger(data);
     }
 
-    public BigInteger decodeCompactInteger() {
-        byte firstByte = readByte();
-        int flag = ((int) (firstByte) & 0b00000011);
-        if (flag == 0b00) {
-            return BigInteger.valueOf(firstByte >> 2);
-        }
-        if (flag == 0b01) {
-            byte secondByte = readByte();
-            int value = ((firstByte & 0b11111100) + (secondByte * 256)) >> 2;
-            return BigInteger.valueOf(value);
-        }
-        if (flag == 0b10) {
-            long number = firstByte;
-            long multiplier = 256;
-            if (!hasNext()) {
-                throw new UnsupportedOperationException(
-                        "decodeCompactInteger exception for not enough data");
-            }
-            for (int i = 0; i < 3; i++) {
-                // we assured that there are 3 more bytes,
-                // no need to make checks in a loop
-                number += readByte() * multiplier;
-                multiplier = multiplier << 8;
-            }
-            number = number >> 2;
-            return BigInteger.valueOf(number);
-        }
-        if (flag == 0b11) {
-            int bytesCount = (firstByte >> 2) + 4;
-            if (!hasNext()) {
-                throw new UnsupportedOperationException(
-                        "decodeCompactInteger exception for not enough data");
-            }
-            BigInteger multiplier = BigInteger.valueOf(1);
-            BigInteger value = BigInteger.valueOf(0);
-            // we assured that there are m more bytes,
-            // no need to make checks in a loop
-            for (int i = 0; i < bytesCount; i++) {
-                value.add(multiplier.multiply(BigInteger.valueOf(readByte())));
-                multiplier.multiply(BigInteger.valueOf(256));
-            }
-            return value;
-        }
-        throw new UnsupportedOperationException(
-                "decodeCompactInteger exception for not supported flag, flag:" + flag);
-    }
-
     /**
      * Read string, encoded as UTF-8 bytes
      *

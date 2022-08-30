@@ -44,6 +44,10 @@ public class ConsensusService {
 
     private boolean existsInNodeList(String nodeId) {
         List<String> nodeIdList = client.getGroupPeers().getGroupPeers();
+        // this will cause in free nodes, which group peers is null
+        if (nodeIdList == null) {
+            return false;
+        }
         return nodeIdList.contains(nodeId);
     }
 

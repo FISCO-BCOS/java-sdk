@@ -18,4 +18,5 @@ package org.fisco.bcos.sdk.v3.model;
 public class CryptoType {
     public static final int ECDSA_TYPE = 0;
     public static final int SM_TYPE = 1;
+    public static final int ED25519_VRF_TYPE = 2;
 }
