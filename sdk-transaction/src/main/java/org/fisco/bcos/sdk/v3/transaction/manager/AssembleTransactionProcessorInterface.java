@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
+import org.fisco.bcos.sdk.v3.client.RespCallback;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
@@ -421,6 +422,17 @@ public interface AssembleTransactionProcessorInterface {
     CallResponse sendCall(CallRequest callRequest)
             throws ContractCodecException, TransactionBaseException;
 
+    void sendCallAsync(
+            String from,
+            String to,
+            String abi,
+            String functionName,
+            List<Object> params,
+            RespCallback<CallResponse> callback)
+            throws ContractCodecException;
+
+    void sendCallAsync(CallRequest callRequest, RespCallback<CallResponse> callback);
+
     /**
      * send call to fisco bcos node and get call response
      *
@@ -435,6 +447,15 @@ public interface AssembleTransactionProcessorInterface {
      */
     CallResponse sendCallWithStringParams(
             String from, String to, String abi, String functionName, List<String> params)
+            throws TransactionBaseException, ContractCodecException;
+
+    void sendCallWithStringParamsAsync(
+            String from,
+            String to,
+            String abi,
+            String functionName,
+            List<String> params,
+            RespCallback<CallResponse> callback)
             throws TransactionBaseException, ContractCodecException;
 
     /**

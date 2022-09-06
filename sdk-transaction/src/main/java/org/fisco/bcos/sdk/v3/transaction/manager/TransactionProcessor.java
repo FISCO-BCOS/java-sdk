@@ -19,6 +19,7 @@ import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.RespCallback;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
@@ -137,6 +138,21 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     @Override
     public Call executeCall(String from, String to, byte[] encodedFunction) {
         return this.client.call(new Transaction(from, to, encodedFunction));
+    }
+
+    @Override
+    public void asyncExecuteCall(
+            String from, String to, byte[] encodedFunction, RespCallback<Call> callback) {
+        this.client.callAsync(new Transaction(from, to, encodedFunction), callback);
+    }
+
+    @Override
+    public void asyncExecuteCall(CallRequest callRequest, RespCallback<Call> callback) {
+        this.asyncExecuteCall(
+                callRequest.getFrom(),
+                callRequest.getTo(),
+                callRequest.getEncodedFunction(),
+                callback);
     }
 
     @Override

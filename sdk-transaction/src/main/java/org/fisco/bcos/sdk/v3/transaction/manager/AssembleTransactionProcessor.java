@@ -26,6 +26,7 @@ import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.RespCallback;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
@@ -33,6 +34,7 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
+import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
@@ -435,11 +437,107 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
+    public void sendCallAsync(
+            String from,
+            String to,
+            String abi,
+            String functionName,
+            List<Object> params,
+            RespCallback<CallResponse> callback)
+            throws ContractCodecException {
+        byte[] data = this.contractCodec.encodeMethod(abi, functionName, params);
+        callAndGetResponseAsync(from, to, abi, functionName, data, callback);
+    }
+
+    @Override
+    public void sendCallAsync(CallRequest callRequest, RespCallback<CallResponse> callback) {
+        this.asyncExecuteCall(
+                callRequest,
+                new RespCallback<Call>() {
+                    @Override
+                    public void onResponse(Call call) {
+                        try {
+                            CallResponse callResponse =
+                                    parseCallResponseStatus(call.getCallResult());
+                            String callOutput = call.getCallResult().getOutput();
+                            Pair<List<Object>, List<ABIObject>> results =
+                                    contractCodec.decodeMethodAndGetOutputObject(
+                                            callRequest.getAbi(), callOutput);
+                            callResponse.setValues(JsonUtils.toJson(results.getLeft()));
+                            callResponse.setReturnObject(results.getLeft());
+                            callResponse.setReturnABIObject(results.getRight());
+                            callback.onResponse(callResponse);
+                        } catch (TransactionBaseException | ContractCodecException e) {
+                            Response response = new Response();
+                            response.setErrorMessage(e.getMessage());
+                            response.setErrorCode(-5000);
+                            callback.onError(response);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        callback.onError(errorResponse);
+                    }
+                });
+    }
+
+    @Override
     public CallResponse sendCallWithStringParams(
             String from, String to, String abi, String functionName, List<String> paramsList)
             throws TransactionBaseException, ContractCodecException {
         byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, paramsList);
         return this.callAndGetResponse(from, to, abi, functionName, data);
+    }
+
+    @Override
+    public void sendCallWithStringParamsAsync(
+            String from,
+            String to,
+            String abi,
+            String functionName,
+            List<String> params,
+            RespCallback<CallResponse> callback)
+            throws TransactionBaseException, ContractCodecException {
+        byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, params);
+        callAndGetResponseAsync(from, to, abi, functionName, data, callback);
+    }
+
+    private void callAndGetResponseAsync(
+            String from,
+            String to,
+            String abi,
+            String functionName,
+            byte[] data,
+            RespCallback<CallResponse> callback) {
+        this.asyncExecuteCall(
+                from,
+                to,
+                data,
+                new RespCallback<Call>() {
+                    @Override
+                    public void onResponse(Call call) {
+                        try {
+                            CallResponse callResponse =
+                                    parseCallResponseStatus(call.getCallResult());
+                            List<Type> decodedResult =
+                                    contractCodec.decodeMethodAndGetOutputObject(
+                                            abi, functionName, call.getCallResult().getOutput());
+                            callResponse.setResults(decodedResult);
+                            callback.onResponse(callResponse);
+                        } catch (TransactionBaseException | ContractCodecException e) {
+                            Response response = new Response();
+                            response.setErrorMessage(e.getMessage());
+                            response.setErrorCode(-5000);
+                            callback.onError(response);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        callback.onError(errorResponse);
+                    }
+                });
     }
 
     public CallResponse callAndGetResponse(
