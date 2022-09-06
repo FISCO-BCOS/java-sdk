@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.v3.transaction.manager;
 
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
+import org.fisco.bcos.sdk.v3.client.RespCallback;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
@@ -138,6 +139,11 @@ public interface TransactionProcessorInterface {
      * @return Call
      */
     Call executeCall(String from, String to, byte[] encodedFunction);
+
+    void asyncExecuteCall(CallRequest callRequest, RespCallback<Call> callback);
+
+    void asyncExecuteCall(
+            String from, String to, byte[] encodedFunction, RespCallback<Call> callback);
 
     /**
      * create deploy signed transaction
