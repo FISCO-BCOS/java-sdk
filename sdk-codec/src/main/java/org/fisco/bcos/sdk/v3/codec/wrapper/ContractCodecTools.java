@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
 import java.util.*;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
@@ -210,7 +210,7 @@ public class ContractCodecTools {
                     {
                         if (value instanceof BigInteger) {
                             abiObject.setNumericValue(new Uint256((BigInteger) value));
-                        } else if (StringUtils.isNumeric(value.toString())) {
+                        } else if (NumberUtils.isCreatable(value.toString())) {
                             abiObject.setNumericValue(
                                     new Uint256((new BigInteger(value.toString()))));
                         } else {
@@ -225,7 +225,7 @@ public class ContractCodecTools {
                     {
                         if (value instanceof BigInteger) {
                             abiObject.setNumericValue(new Int256((BigInteger) value));
-                        } else if (StringUtils.isNumeric(value.toString())) {
+                        } else if (NumberUtils.isCreatable(value.toString())) {
                             abiObject.setNumericValue(
                                     new Uint256((new BigInteger(value.toString()))));
                         } else {
