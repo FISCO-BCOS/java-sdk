@@ -1,24 +1,34 @@
 [cryptoMaterial]
 
 certPath = "conf"                           # The certification path  
-useSMCrypto = "true"                       # RPC SM crypto type
+useSMCrypto = "false"                       # RPC SM crypto type
 
 # The following configurations take the certPath by default if commented
+caCert = "config/ca.crt.test"                    # CA cert file path
+sslCert = "config/sdk.crt.test"                  # SSL cert file path
+sslKey = "config/sdk.key.test"                   # SSL key file path
+
 # caCert = "conf/ca.crt"                    # CA cert file path
 # sslCert = "conf/sdk.crt"                  # SSL cert file path
 # sslKey = "conf/sdk.key"                   # SSL key file path
-
-# The following configurations take the sm certPath by default if commented
-caCert = "ca.crt.test"                    # SM CA cert file path
-sslCert = "sdk.crt.test"                  # SM SSL cert file path
-sslKey = "sdk.key.test"                    # SM SSL key file path
-enSslCert = "sdk.crt.test"               # SM encryption cert file path
-enSslKey = "sdk.key.test"                # SM ssl cert file path
+# enSslCert = "conf/gm/gmensdk.crt"         # GM encryption cert file path
+# enSslKey = "conf/gm/gmensdk.key"          # GM ssl cert file path
 
 [network]
 messageTimeout = "10000"
 defaultGroup="group0"                            # Console default group to connect
 peers=["127.0.0.1:20200", "127.0.0.1:20201"]    # The peer list to connect
+
+# Configure a private topic as a topic message sender.
+# [[amop]]
+# topicName = "PrivateTopic1"
+# publicKeys = [ "conf/amop/consumer_public_key_1.pem" ]    # Public keys of the nodes that you want to send AMOP message of this topic to.
+
+# Configure a private topic as a topic subscriber.
+# [[amop]]
+# topicName = "PrivateTopic2"
+# privateKey = "conf/amop/consumer_private_key.p12"         # Your private key that used to subscriber verification.
+# password = "123456"
 
 [account]
 keyStoreDir = "account"         # The directory to load/store the account file, default is "account"

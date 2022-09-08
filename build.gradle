@@ -82,64 +82,6 @@ allprojects {
     }
 }
 
-subprojects {
-    sourceSets {
-        main {
-            java {
-                srcDir 'src/main/java'
-            }
-
-            resources {
-                srcDir 'src/main/resources'
-            }
-        }
-    }
-    jar {
-        destinationDir file("dist/apps")
-        archiveName "fisco-bcos-" + project.name + "-" + project.version + ".jar"
-
-        exclude "**/*.xml"
-        exclude "**/*.properties"
-        manifest {
-            try {
-                def repo = grgit.open(currentDir: project.rootDir)
-                if (repo != null) {
-                    def date = new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-                    def branch = repo.branch.getCurrent().getName()
-                    def commit = repo.head().getAbbreviatedId(40)
-
-                    attributes(["Implementation-Timestamp": date,
-                                "Git-Branch"              : branch,
-                                "Git-Commit"              : commit
-                    ])
-
-                    logger.info("  Commit : ")
-                    logger.info("  => date: {}", date)
-                    logger.info("  => branch: {}", branch)
-                    logger.info("  => commit: {}", commit)
-                }
-            } catch (Exception e) {
-                logger.warn(' .git not exist, cannot found commit info, e: {}', e)
-            }
-        } from sourceSets.main.output
-
-        doLast {
-            copy {
-                from file("src/test/resources/")
-                into "dist/conf"
-            }
-            copy {
-                from configurations.runtimeClasspath
-                into "dist/lib"
-            }
-            copy {
-                from file("build/libs/")
-                into "dist/apps"
-            }
-        }
-    }
-}
-
 sourceSets {
     main {
         java {
@@ -153,6 +95,24 @@ sourceSets {
         buildscript
         resources {
             srcDir 'src/main/resources'
+        }
+    }
+    test {
+        java {
+            srcDir "sdk-amop/src/test/java"
+            srcDir "sdk-core/src/test/java"
+            srcDir "sdk-crypto/src/test/java"
+            srcDir "sdk-codec/src/test/java"
+            srcDir "sdk-service/src/test/java"
+            srcDir "sdk-transaction/src/test/java"
+        }
+        resources {
+            srcDir "sdk-amop/src/test/resource"
+            srcDir "sdk-core/src/test/resource"
+            srcDir "sdk-crypto/src/test/resource"
+            srcDir "sdk-codec/src/test/resource"
+            srcDir "sdk-service/src/test/resource"
+            srcDir "sdk-transaction/src/test/resource"
         }
     }
     integrationTest {
@@ -174,6 +134,9 @@ googleJavaFormat {
     options style: 'AOSP'
     source = sourceSets*.allJava
     include '**/*.java'
+    exclude '**/*Test.java'
+    exclude '**/Test*.java'
+    exclude '**/Mock*.java'
 }
 
 dependencies {
