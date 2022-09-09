@@ -44,7 +44,7 @@ public class SignatureTest {
     private static final String configFile =
             SignatureTest.class
                     .getClassLoader()
-                    .getResource("config-example.toml")
+                    .getResource("config/config-example.toml")
                     .getPath();
 
     @Test

@@ -26,7 +26,7 @@ public class ConfigTest {
     public void testLoadRightConfig() throws ConfigException {
         ConfigOption configOption =
                 Config.load(
-                        "src/test/resources/config-example.toml");
+                        "src/test/resources/config/config-example.toml");
         Assert.assertFalse(configOption.getCryptoMaterialConfig().getUseSmCrypto());
         Assert.assertNotNull(configOption.getAccountConfig());
         Assert.assertEquals("group0", configOption.getNetworkConfig().getDefaultGroup());
@@ -43,7 +43,7 @@ public class ConfigTest {
     public void testSMConfig() throws ConfigException {
         ConfigOption configOption =
                 Config.load(
-                        "src/test/resources/config-example-gm.toml");
+                        "src/test/resources/config/config-example-gm.toml");
         Assert.assertTrue(configOption.getCryptoMaterialConfig().getUseSmCrypto());
         Assert.assertNotNull(configOption.getAccountConfig());
         Assert.assertEquals("group0", configOption.getNetworkConfig().getDefaultGroup());
