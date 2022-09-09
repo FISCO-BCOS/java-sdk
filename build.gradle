@@ -71,7 +71,7 @@ allprojects {
         api("org.slf4j:slf4j-api:${slf4jApiVerison}")
         testImplementation("junit:junit:${junitVersion}")
         testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
-//        testImplementation("com.google.guava:guava:${guavaVersion}")
+        testImplementation("com.google.guava:guava:${guavaVersion}")
         testImplementation("org.mockito:mockito-core:${mockitoVersion}")
     }
 
@@ -94,20 +94,10 @@ sourceSets {
     }
     test {
         java {
-            srcDir "sdk-amop/src/test/java"
-            srcDir "sdk-core/src/test/java"
-            srcDir "sdk-crypto/src/test/java"
-            srcDir "sdk-codec/src/test/java"
-            srcDir "sdk-service/src/test/java"
-            srcDir "sdk-transaction/src/test/java"
+            srcDir "src/test/java"
         }
         resources {
-            srcDir "sdk-amop/src/test/resource"
-            srcDir "sdk-core/src/test/resource"
-            srcDir "sdk-crypto/src/test/resource"
-            srcDir "sdk-codec/src/test/resource"
-            srcDir "sdk-service/src/test/resource"
-            srcDir "sdk-transaction/src/test/resource"
+            srcDir "src/test/resources"
         }
     }
     integrationTest {
