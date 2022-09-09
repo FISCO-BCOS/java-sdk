@@ -7,50 +7,47 @@ env:
   CCACHE_DIR: ${{ github.workspace }}/ccache
 
 jobs:
-  build-ubuntu18:
-    name: build-ubuntu18.04
-    runs-on: ubuntu-18.04
-    container:
-      image: docker.io/ubuntu:18.04
-      volumes:
-        - /__w/java-sdk:/__w/java-sdk
-        - /__w/java-sdk/java-sdk:/__w/java-sdk/java-sdk
+  build:
+    name: build
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04, windows-2019, macos-12]
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 5
       - name: install Ubuntu dependencies
-        run: apt update && apt install -y git curl libssl-dev default-jdk build-essential
-      - name: run integration testing
-        run: /bin/bash .ci/ci_check.sh
-  build-macos:
-    name: build-macos
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 5
+        if: runner.os == 'Linux'
+        run: sudo apt update && sudo apt install -y git curl libssl-dev default-jdk build-essential
       - name: install macOS dependencies
         if: runner.os == 'macOS'
         run: brew install openssl@1.1 openjdk
+      - name: run build test
+        if: runner.os == 'Windows'
+        run: ./gradlew.bat build
       - name: run integration testing
+        if: runner.os != 'Windows'
         run: /bin/bash .ci/ci_check.sh
-  build-ubuntu20:
-    name: build-ubuntu20.04
-    runs-on: ubuntu-20.04
-    container:
-      image: docker.io/ubuntu:20.04
-      volumes:
-        - /__w/java-sdk:/__w/java-sdk
-        - /__w/java-sdk/java-sdk:/__w/java-sdk/java-sdk
+
+  build-centos:
+    name: build-centos
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+    container: docker.io/centos:7
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 5
-      - name: install Ubuntu dependencies
-        run: ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && apt update && apt install -y git curl libssl-dev default-jdk build-essential
+      - name: install CentOS dependencies
+        run: yum install -y epel-release centos-release-scl which git openssl-devel openssl java java-devel
       - name: run integration testing
         run: /bin/bash .ci/ci_check.sh
+      - name: upload coverage
+        run: bash <(curl -s https://codecov.io/bash)
