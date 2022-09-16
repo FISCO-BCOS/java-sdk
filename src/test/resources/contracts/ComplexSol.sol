@@ -45,6 +45,9 @@ contract ComplexSol{
         emit LogSetValues(i, a, s);
     }
 
+    function getValues() public view returns (int, address[] memory, string memory) {
+        return (_intV,_addrDArray,_s);
+    }
 
     function setBytes(bytes memory b) public returns (bytes memory) {
         emit LogSetBytes(_bytesV, b);

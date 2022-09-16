@@ -104,7 +104,7 @@ public class TransactionDecoderServiceTest {
                             contractName, contractAddress, "setBytesMapping", paramsSetBytes2);
             TransactionResponse transactionResponse =
                     decoder.decodeReceiptWithValues(abi, "setBytesMapping", transactionReceipt);
-            Assert.assertEquals(1, transactionResponse.getReturnCode());
+            Assert.assertEquals(0, transactionResponse.getReturnCode());
 
             List<Object> paramsBytes = new ArrayList<>();
             paramsBytes.add("2".getBytes());
