@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.transaction.mock;
+package org.fisco.bcos.sdk.v3.test.transaction.mock;
 
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;

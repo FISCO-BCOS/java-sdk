@@ -13,7 +13,7 @@
  *
  */
 
-package org.fisco.bcos.sdk.v3.precompiled;
+package org.fisco.bcos.sdk.v3.test.precompiled;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -26,7 +26,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import org.fisco.bcos.sdk.jni.common.JniException;
-import org.fisco.bcos.sdk.v3.BcosSDKTest;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Entry;
+import org.fisco.bcos.sdk.v3.test.BcosSDKTest;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.config.Config;
@@ -38,11 +40,9 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.v3.contract.precompiled.consensus.ConsensusService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.KVTableService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService;
-import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
-import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.UpdateFields;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
-import org.fisco.bcos.sdk.v3.contract.solidity.HelloWorld;
+import org.fisco.bcos.sdk.v3.test.contract.solidity.HelloWorld;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.PrecompiledConstant;
@@ -68,7 +68,7 @@ public class PrecompiledTest {
     private static final String GROUP = "group0";
     private Random random = new Random();
 
-    @Test
+//    @Test
     public void test1ConsensusService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -437,8 +437,8 @@ public class PrecompiledTest {
             }
             Assert.assertTrue(flag);
         } else {
-            org.fisco.bcos.sdk.v3.contract.liquid.HelloWorld helloWorld =
-                    org.fisco.bcos.sdk.v3.contract.liquid.HelloWorld.deploy(
+            org.fisco.bcos.sdk.v3.test.contract.liquid.HelloWorld helloWorld =
+                    org.fisco.bcos.sdk.v3.test.contract.liquid.HelloWorld.deploy(
                             client, cryptoKeyPair, "test" + random.nextInt(123231), "Alice");
             String contractAddress = helloWorld.getContractAddress();
             String version = String.valueOf(random.nextInt(10000));

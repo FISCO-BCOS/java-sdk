@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.transaction.decoder;
+package org.fisco.bcos.sdk.v3.test.transaction.decoder;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -20,8 +20,8 @@ public class CodecTest {
     public void testNumericType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient("group0");
-        org.fisco.bcos.sdk.v3.contract.solidity.CodecTest codecTest =
-                org.fisco.bcos.sdk.v3.contract.solidity.CodecTest.deploy(
+        org.fisco.bcos.sdk.v3.test.contract.solidity.CodecTest codecTest =
+                org.fisco.bcos.sdk.v3.test.contract.solidity.CodecTest.deploy(
                         client, client.getCryptoSuite().getCryptoKeyPair());
         // string
         TransactionReceipt receipt = codecTest.set("Test test");
@@ -65,8 +65,8 @@ public class CodecTest {
     public void testByteType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient("group0");
-        org.fisco.bcos.sdk.v3.contract.solidity.CodecTest codecTest =
-                org.fisco.bcos.sdk.v3.contract.solidity.CodecTest.deploy(
+        org.fisco.bcos.sdk.v3.test.contract.solidity.CodecTest codecTest =
+                org.fisco.bcos.sdk.v3.test.contract.solidity.CodecTest.deploy(
                         client, client.getCryptoSuite().getCryptoKeyPair());
 
         // address
@@ -96,8 +96,8 @@ public class CodecTest {
     public void testUintNumericArrayType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient("group0");
-        org.fisco.bcos.sdk.v3.contract.solidity.CodecTest codecTest =
-                org.fisco.bcos.sdk.v3.contract.solidity.CodecTest.deploy(
+        org.fisco.bcos.sdk.v3.test.contract.solidity.CodecTest codecTest =
+                org.fisco.bcos.sdk.v3.test.contract.solidity.CodecTest.deploy(
                         client, client.getCryptoSuite().getCryptoKeyPair());
 
         List<BigInteger> uint8Arr10 = new ArrayList<>();
@@ -157,8 +157,8 @@ public class CodecTest {
     public void testIntNumericArrayType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient("group0");
-        org.fisco.bcos.sdk.v3.contract.solidity.CodecTest codecTest =
-                org.fisco.bcos.sdk.v3.contract.solidity.CodecTest.deploy(
+        org.fisco.bcos.sdk.v3.test.contract.solidity.CodecTest codecTest =
+                org.fisco.bcos.sdk.v3.test.contract.solidity.CodecTest.deploy(
                         client, client.getCryptoSuite().getCryptoKeyPair());
 
         List<BigInteger> int8Arr10 = new ArrayList<>();
@@ -218,8 +218,8 @@ public class CodecTest {
     public void testIntByteArrayType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient("group0");
-        org.fisco.bcos.sdk.v3.contract.solidity.CodecTest codecTest =
-                org.fisco.bcos.sdk.v3.contract.solidity.CodecTest.deploy(
+        org.fisco.bcos.sdk.v3.test.contract.solidity.CodecTest codecTest =
+                org.fisco.bcos.sdk.v3.test.contract.solidity.CodecTest.deploy(
                         client, client.getCryptoSuite().getCryptoKeyPair());
 
         List<byte[]> bytes1Arr = new ArrayList<>();

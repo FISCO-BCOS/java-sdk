@@ -12,7 +12,7 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.v3.transaction.decoder;
+package org.fisco.bcos.sdk.v3.test.transaction.decoder;
 
 import com.google.common.collect.Lists;
 import java.util.List;

@@ -15,7 +15,7 @@
  *
  */
 
-package org.fisco.bcos.sdk.v3;
+package org.fisco.bcos.sdk.v3.test;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
+import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.RespCallback;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
@@ -45,9 +46,9 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.config.Config;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.v3.contract.liquid.Asset;
-import org.fisco.bcos.sdk.v3.contract.liquid.HelloWorld2;
-import org.fisco.bcos.sdk.v3.contract.solidity.HelloWorld;
+import org.fisco.bcos.sdk.v3.test.contract.liquid.Asset;
+import org.fisco.bcos.sdk.v3.test.contract.liquid.HelloWorld2;
+import org.fisco.bcos.sdk.v3.test.contract.solidity.HelloWorld;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
@@ -358,9 +359,9 @@ public class BcosSDKTest {
         CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
         BigInteger blockLimit = client.getBlockLimit();
         System.out.println("blockLimit:" + blockLimit);
-        org.fisco.bcos.sdk.v3.contract.liquid.HelloWorld helloWorld = null;
+        org.fisco.bcos.sdk.v3.test.contract.liquid.HelloWorld helloWorld = null;
         helloWorld =
-                org.fisco.bcos.sdk.v3.contract.liquid.HelloWorld.deploy(
+                org.fisco.bcos.sdk.v3.test.contract.liquid.HelloWorld.deploy(
                         client,
                         keyPair,
                         "/usr/bin/HelloWorld" + new Random().nextInt(1000),
@@ -419,7 +420,7 @@ public class BcosSDKTest {
         System.out.println("helloworld get :" + s2);
     }
 
-    @Test
+    // @Test
     public void testAssetEventInLiquid() throws ConfigException, ContractException {
 
         ConfigOption configOption = Config.load(configFile);
@@ -431,8 +432,8 @@ public class BcosSDKTest {
         CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
         BigInteger blockLimit = client.getBlockLimit();
         System.out.println("blockLimit:" + blockLimit);
-        org.fisco.bcos.sdk.v3.contract.liquid.Asset asset =
-                org.fisco.bcos.sdk.v3.contract.liquid.Asset.deploy(
+        org.fisco.bcos.sdk.v3.test.contract.liquid.Asset asset =
+                org.fisco.bcos.sdk.v3.test.contract.liquid.Asset.deploy(
                         client, keyPair, "/asset" + new Random().nextInt(1000));
 
         System.out.println("asset address :" + asset.getContractAddress());

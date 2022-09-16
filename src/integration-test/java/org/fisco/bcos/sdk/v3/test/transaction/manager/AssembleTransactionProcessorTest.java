@@ -12,7 +12,7 @@
  * the License.
  *
  */
-package org.fisco.bcos.sdk.v3.transaction.manager;
+package org.fisco.bcos.sdk.v3.test.transaction.manager;
 
 import com.google.common.collect.Lists;
 import java.math.BigInteger;
@@ -36,11 +36,13 @@ import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.v3.transaction.mock.TransactionCallbackMock;
+import org.fisco.bcos.sdk.v3.test.transaction.mock.TransactionCallbackMock;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.v3.transaction.tools.JsonUtils;
+import org.fisco.bcos.sdk.v3.transaction.manager.AssembleTransactionProcessor;
+import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -134,8 +136,8 @@ public class AssembleTransactionProcessorTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
         // get the string of abi & bin
-        String abi = transactionProcessor.contractLoader.getABIByContractName("HelloWorld");
-        String bin = transactionProcessor.contractLoader.getBinaryByContractName("HelloWorld");
+        String abi = transactionProcessor.getContractLoader().getABIByContractName("HelloWorld");
+        String bin = transactionProcessor.getContractLoader().getBinaryByContractName("HelloWorld");
         Assert.assertNotNull(bin);
         // deploy with callback. @see TransactionCallbackMock. Mock a quite simple callback.
         TransactionCallbackMock callbackMock = new TransactionCallbackMock();

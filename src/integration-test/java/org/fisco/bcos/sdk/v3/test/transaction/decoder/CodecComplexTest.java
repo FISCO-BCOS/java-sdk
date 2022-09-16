@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.transaction.decoder;
+package org.fisco.bcos.sdk.v3.test.transaction.decoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple1;
-import org.fisco.bcos.sdk.v3.contract.solidity.ComplexCodecTest;
+import org.fisco.bcos.sdk.v3.test.contract.solidity.ComplexCodecTest;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.junit.Assert;

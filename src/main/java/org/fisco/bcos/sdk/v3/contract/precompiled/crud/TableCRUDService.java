@@ -153,10 +153,16 @@ public class TableCRUDService {
         TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
 
         TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
-
-        List<TablePrecompiled.Entry> selectEntry =
-                tablePrecompiled.select(condition.getTableConditions(), condition.getLimit());
+        List<TablePrecompiled.Entry> selectEntry = new ArrayList<>();
         List<Map<String, String>> result = new ArrayList<>();
+        if (!StringUtils.isEmpty(condition.getEqValue())) {
+            TablePrecompiled.Entry entry = tablePrecompiled.select(condition.getEqValue());
+            selectEntry.add(entry);
+        } else {
+            selectEntry =
+                    tablePrecompiled.select(condition.getTableConditions(), condition.getLimit());
+        }
+
         for (TablePrecompiled.Entry entry : selectEntry) {
             Map<String, String> kvs = new HashMap<>();
             kvs.put(tableInfo.keyColumn, entry.key);

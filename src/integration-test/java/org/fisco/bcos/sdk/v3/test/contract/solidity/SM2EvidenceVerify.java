@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.contract.solidity;
+package org.fisco.bcos.sdk.v3.test.contract.solidity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
