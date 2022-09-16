@@ -18,6 +18,7 @@ conf/
 
 ## integration test files
 nodes/
+src/integration-test/resources/conf**
 build_chain.sh
 account/
 conf/
