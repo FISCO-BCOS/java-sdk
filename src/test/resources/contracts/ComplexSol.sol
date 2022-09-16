@@ -1,4 +1,4 @@
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
 contract ComplexSol{
@@ -8,6 +8,7 @@ contract ComplexSol{
     address public _addr;
     string public _s;
     bytes public _bytesV;
+    bytes4 public _bytes4V;
     uint256[2] _uint8SArray;
     address[] public _addrDArray;
     mapping(bytes => bytes[]) _bytesMapping;
@@ -45,11 +46,19 @@ contract ComplexSol{
         emit LogSetValues(i, a, s);
     }
 
+    function getValues() public view returns (int, address[] memory, string memory) {
+        return (_intV,_addrDArray,_s);
+    }
 
     function setBytes(bytes memory b) public returns (bytes memory) {
         emit LogSetBytes(_bytesV, b);
         _bytesV = b;
         return b;
+    }
+
+    function setStaticByte4(bytes4 _b) public returns (bool) {
+        _bytes4V = _b;
+        return true;
     }
 
     function setBytesMapping(bytes[] memory bytesArray) public returns (bool) {
