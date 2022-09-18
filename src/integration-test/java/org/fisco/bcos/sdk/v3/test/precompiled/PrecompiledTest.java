@@ -26,9 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import org.fisco.bcos.sdk.jni.common.JniException;
-import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
-import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Entry;
-import org.fisco.bcos.sdk.v3.test.BcosSDKTest;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.config.Config;
@@ -40,15 +37,17 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.v3.contract.precompiled.consensus.ConsensusService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.KVTableService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.UpdateFields;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
-import org.fisco.bcos.sdk.v3.test.contract.solidity.HelloWorld;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.test.contract.solidity.HelloWorld;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.utils.StringUtils;
 import org.fisco.bcos.sdk.v3.utils.ThreadPoolService;
@@ -60,7 +59,7 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PrecompiledTest {
     private static final String configFile =
-            BcosSDKTest.class
+            PrecompiledTest.class
                     .getClassLoader()
                     .getResource(ConstantConfig.CONFIG_FILE_NAME)
                     .getPath();
@@ -68,7 +67,7 @@ public class PrecompiledTest {
     private static final String GROUP = "group0";
     private Random random = new Random();
 
-//    @Test
+    //    @Test
     public void test1ConsensusService() throws ConfigException, ContractException, JniException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);

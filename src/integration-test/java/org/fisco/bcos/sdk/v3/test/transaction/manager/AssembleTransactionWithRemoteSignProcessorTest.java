@@ -26,11 +26,11 @@ import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.test.transaction.mock.RemoteSignCallbackMock;
 import org.fisco.bcos.sdk.v3.test.transaction.mock.RemoteSignProviderMock;
+import org.fisco.bcos.sdk.v3.transaction.manager.AssembleTransactionWithRemoteSignProcessor;
+import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.signer.RemoteSignProviderInterface;
-import org.fisco.bcos.sdk.v3.transaction.manager.AssembleTransactionWithRemoteSignProcessor;
-import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -74,8 +74,9 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                         this.remoteSignProviderMock);
         // read HelloWorld contract abi and binary from the config file path
         String abi =
-                assembleTransactionWithRemoteSignProcessor.getContractLoader().getABIByContractName(
-                        "HelloWorld");
+                assembleTransactionWithRemoteSignProcessor
+                        .getContractLoader()
+                        .getABIByContractName("HelloWorld");
         // function1: deploy sync
         TransactionResponse response =
                 assembleTransactionWithRemoteSignProcessor.deployByContractLoader(
@@ -116,11 +117,13 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                         this.remoteSignProviderMock);
         // read HelloWorld contract abi and binary from the config file path
         String abi =
-                assembleTransactionWithRemoteSignProcessor.getContractLoader().getABIByContractName(
-                        "HelloWorld");
+                assembleTransactionWithRemoteSignProcessor
+                        .getContractLoader()
+                        .getABIByContractName("HelloWorld");
         String bin =
-                assembleTransactionWithRemoteSignProcessor.getContractLoader().getBinaryByContractName(
-                        "HelloWorld");
+                assembleTransactionWithRemoteSignProcessor
+                        .getContractLoader()
+                        .getBinaryByContractName("HelloWorld");
 
         // function1: deploy sync
         TransactionResponse response =
