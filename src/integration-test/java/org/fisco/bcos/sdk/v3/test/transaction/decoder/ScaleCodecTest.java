@@ -5,11 +5,10 @@ import java.util.Random;
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.abi.Constant;
-import org.fisco.bcos.sdk.v3.test.contract.liquid.CodecTest;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.test.contract.liquid.CodecTest;
 import org.junit.Assert;
-import org.junit.Test;
 
 public class ScaleCodecTest {
     private static final String configFile =
