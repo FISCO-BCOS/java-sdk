@@ -42,7 +42,7 @@ public interface Amop {
     static Amop build(ConfigOption configOption) throws JniException {
         long nativePointer = BcosSDKJniObj.create(configOption.getJniConfig());
         logger.info("build AMOP, configOption: {}", configOption);
-        return new AmopImp(nativePointer);
+        return build(nativePointer);
     }
 
     /**

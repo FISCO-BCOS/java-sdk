@@ -103,7 +103,8 @@ public class AmopTest {
     }
 
     @Test
-    public void amopSubAsyncTest() throws ConfigException, JniException, InterruptedException, ExecutionException {
+    public void amopSubAsyncTest()
+            throws ConfigException, JniException, InterruptedException, ExecutionException {
         String publishConfigFile =
                 AmopTest.class
                         .getClassLoader()
@@ -125,24 +126,95 @@ public class AmopTest {
         subAmop.start();
         ThreadPoolService threadPoolService = new ThreadPoolService("amop", 1000);
         final int pubTime = 5;
-        threadPoolService.getThreadPool().execute(
-                () -> subAmop.subscribeTopic(topic, (endpoint, seq, data) -> {
+        threadPoolService
+                .getThreadPool()
+                .execute(
+                        () ->
+                                subAmop.subscribeTopic(
+                                        topic,
+                                        (endpoint, seq, data) -> {
+                                            Assert.assertEquals(new String(data), message);
+                                            System.out.println(
+                                                    " ====== AMOP sub, topic: "
+                                                            + topic
+                                                            + " ,msg: "
+                                                            + new String(data));
+                                            subAmop.sendResponse(
+                                                    endpoint, seq, message2.getBytes());
+                                        }));
+
+        Thread.sleep(2000);
+
+        AtomicInteger countResponse = new AtomicInteger(pubTime);
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        pubTopic(
+                threadPoolService,
+                pubTime,
+                topic,
+                message,
+                pubAmop,
+                message2,
+                countResponse,
+                0,
+                future);
+        subAmop.stop();
+        pubAmop.stop();
+        subAmop.destroy();
+        pubAmop.destroy();
+    }
+
+    @Test
+    public void amopSubTest()
+            throws ConfigException, JniException, InterruptedException, ExecutionException {
+        String publishConfigFile =
+                AmopTest.class
+                        .getClassLoader()
+                        .getResource("amop/config-publisher-for-test.toml")
+                        .getPath();
+        String subConfigFile =
+                AmopTest.class
+                        .getClassLoader()
+                        .getResource("amop/config-subscriber-for-test.toml")
+                        .getPath();
+        ConfigOption publishConfig = Config.load(publishConfigFile);
+        Amop pubAmop = Amop.build(publishConfig);
+        String topic = "topic";
+        Set<String> topicSet = new HashSet<>();
+        topicSet.add(topic);
+        String message = "message";
+        String message2 = "message2";
+        ConfigOption subConfig = Config.load(subConfigFile);
+        Amop subAmop = Amop.build(subConfig);
+        pubAmop.start();
+        subAmop.start();
+        ThreadPoolService threadPoolService = new ThreadPoolService("amop", 1000);
+        final int pubTime = 5;
+
+        subAmop.subscribeTopic(topicSet);
+        subAmop.setCallback(
+                (endpoint, seq, data) -> {
                     Assert.assertEquals(new String(data), message);
                     System.out.println(
-                            " ====== AMOP sub, topic: "
-                                    + topic
-                                    + " ,msg: "
-                                    + new String(data));
+                            " ====== AMOP sub, topic: " + topic + " ,msg: " + new String(data));
                     subAmop.sendResponse(endpoint, seq, message2.getBytes());
-                })
-        );
+                });
 
         Thread.sleep(2000);
 
         AtomicInteger countResponse = new AtomicInteger(pubTime);
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
-        pubTopic(threadPoolService, pubTime, topic, message, pubAmop, message2, countResponse, 0, future);
+        pubTopic(
+                threadPoolService,
+                pubTime,
+                topic,
+                message,
+                pubAmop,
+                message2,
+                countResponse,
+                1,
+                future);
         subAmop.stop();
         pubAmop.stop();
         subAmop.destroy();
@@ -150,7 +222,8 @@ public class AmopTest {
     }
 
     @Test
-    public void amopSubTest() throws ConfigException, JniException, InterruptedException, ExecutionException {
+    public void amopUnsubTest()
+            throws ConfigException, JniException, InterruptedException, ExecutionException {
         String publishConfigFile =
                 AmopTest.class
                         .getClassLoader()
@@ -176,64 +249,13 @@ public class AmopTest {
         final int pubTime = 5;
 
         subAmop.subscribeTopic(topicSet);
-        subAmop.setCallback((endpoint, seq, data) -> {
-            Assert.assertEquals(new String(data), message);
-            System.out.println(
-                    " ====== AMOP sub, topic: "
-                            + topic
-                            + " ,msg: "
-                            + new String(data));
-            subAmop.sendResponse(endpoint, seq, message2.getBytes());
-        });
-
-        Thread.sleep(2000);
-
-        AtomicInteger countResponse = new AtomicInteger(pubTime);
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-
-        pubTopic(threadPoolService, pubTime, topic, message, pubAmop, message2, countResponse, 1, future);
-        subAmop.stop();
-        pubAmop.stop();
-        subAmop.destroy();
-        pubAmop.destroy();
-    }
-
-    @Test
-    public void amopUnsubTest() throws ConfigException, JniException, InterruptedException, ExecutionException {
-        String publishConfigFile =
-                AmopTest.class
-                        .getClassLoader()
-                        .getResource("amop/config-publisher-for-test.toml")
-                        .getPath();
-        String subConfigFile =
-                AmopTest.class
-                        .getClassLoader()
-                        .getResource("amop/config-subscriber-for-test.toml")
-                        .getPath();
-        ConfigOption publishConfig = Config.load(publishConfigFile);
-        Amop pubAmop = Amop.build(publishConfig);
-        String topic = "topic";
-        Set<String> topicSet = new HashSet<>();
-        topicSet.add(topic);
-        String message = "message";
-        String message2 = "message2";
-        ConfigOption subConfig = Config.load(subConfigFile);
-        Amop subAmop = Amop.build(subConfig);
-        pubAmop.start();
-        subAmop.start();
-        ThreadPoolService threadPoolService = new ThreadPoolService("amop", 1000);
-        final int pubTime = 5;
-
-        subAmop.subscribeTopic(topicSet);
-        subAmop.setCallback((endpoint, seq, data) -> {
-            Assert.assertEquals(new String(data), message);
-            System.out.println(
-                    " ====== AMOP sub, topic: "
-                            + topic
-                            + " ,msg: "
-                            + new String(data));
-            subAmop.sendResponse(endpoint, seq, message2.getBytes());
-        });
+        subAmop.setCallback(
+                (endpoint, seq, data) -> {
+                    Assert.assertEquals(new String(data), message);
+                    System.out.println(
+                            " ====== AMOP sub, topic: " + topic + " ,msg: " + new String(data));
+                    subAmop.sendResponse(endpoint, seq, message2.getBytes());
+                });
         subAmop.getSubTopics();
         subAmop.unsubscribeTopic(topic);
 
@@ -242,14 +264,33 @@ public class AmopTest {
         AtomicInteger countResponse = new AtomicInteger(pubTime);
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
-        pubTopic(threadPoolService, pubTime, topic, message, pubAmop, message2, countResponse, 1, future);
+        pubTopic(
+                threadPoolService,
+                pubTime,
+                topic,
+                message,
+                pubAmop,
+                message2,
+                countResponse,
+                1,
+                future);
         subAmop.stop();
         pubAmop.stop();
         subAmop.destroy();
         pubAmop.destroy();
     }
 
-    private void pubTopic(ThreadPoolService threadPoolService, int pubTime, String topic, String message, Amop pubAmop, String message2, AtomicInteger countResponse, int x, CompletableFuture<Boolean> future) throws InterruptedException, ExecutionException {
+    private void pubTopic(
+            ThreadPoolService threadPoolService,
+            int pubTime,
+            String topic,
+            String message,
+            Amop pubAmop,
+            String message2,
+            AtomicInteger countResponse,
+            int x,
+            CompletableFuture<Boolean> future)
+            throws InterruptedException, ExecutionException {
         threadPoolService
                 .getThreadPool()
                 .execute(
@@ -257,22 +298,24 @@ public class AmopTest {
                             int count = pubTime;
                             while (count-- > 0) {
                                 System.out.println(
-                                        " ====== AMOP pub, topic: "
-                                                + topic
-                                                + " ,msg: "
-                                                + message);
-                                pubAmop.sendAmopMsg(topic, message.getBytes(), 10000, response -> {
-                                    System.out.println(
-                                            " ====== AMOP response, topic: "
-                                                    + topic
-                                                    + " ,msg: "
-                                                    + new String(response.getData()));
+                                        " ====== AMOP pub, topic: " + topic + " ,msg: " + message);
+                                pubAmop.sendAmopMsg(
+                                        topic,
+                                        message.getBytes(),
+                                        10000,
+                                        response -> {
+                                            System.out.println(
+                                                    " ====== AMOP response, topic: "
+                                                            + topic
+                                                            + " ,msg: "
+                                                            + new String(response.getData()));
 
-                                    Assert.assertEquals(new String(response.getData()), message2);
-                                    if(countResponse.decrementAndGet() == x){
-                                        future.complete(true);
-                                    }
-                                });
+                                            Assert.assertEquals(
+                                                    new String(response.getData()), message2);
+                                            if (countResponse.decrementAndGet() == x) {
+                                                future.complete(true);
+                                            }
+                                        });
                             }
                         });
         future.get();
