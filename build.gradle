@@ -118,10 +118,8 @@ googleJavaFormat {
     toolVersion = '1.7'
     options style: 'AOSP'
     source = sourceSets*.allJava
-    include '**/*.java'
-    exclude '**/*Test.java'
-    exclude '**/Test*.java'
-    exclude '**/Mock*.java'
+    include 'src/main/**/*.java'
+    include 'src/integration-test/**/*.java'
 }
 
 dependencies {
