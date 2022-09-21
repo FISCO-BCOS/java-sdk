@@ -23,15 +23,18 @@ import org.fisco.bcos.sdk.v3.crypto.keypair.SM2KeyPair;
 import org.fisco.bcos.sdk.v3.crypto.vrf.Curve25519VRF;
 import org.fisco.bcos.sdk.v3.crypto.vrf.VRFInterface;
 import org.fisco.bcos.sdk.v3.crypto.vrf.VRFKeyPair;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.math.BigInteger;
 
 public class Curve25519VRFTest {
     @Test
     public void testCurve25519VRF()
     {
         // the valid case
-        VRFInterface vrfInterface = new Curve25519VRF();
+        Curve25519VRF vrfInterface = new Curve25519VRF();
         Hash sm3Hash = new SM3Hash();
         Hash keccak256Hash = new Keccak256();
         CryptoKeyPair ecdsaCryptoKeyPair = (new ECDSAKeyPair());
@@ -45,7 +48,7 @@ public class Curve25519VRFTest {
         testCurve25519VRFProve(vrfInterface, vrfKeyPair.getVrfPrivateKey(), sm3Hash, (vrfInterface.createKeyPair()).getVrfPrivateKey());
     }
 
-    public void testCurve25519VRFProve(VRFInterface vrfInterface, String privateKey, Hash hashImpl, String anotherPrivateKey)
+    public void testCurve25519VRFProve(Curve25519VRF vrfInterface, String privateKey, Hash hashImpl, String anotherPrivateKey)
     {
         for(int i = 0; i < 10; i++) {
             String input = "abcde" + String.valueOf(i);
@@ -55,7 +58,7 @@ public class Curve25519VRFTest {
         }
     }
 
-    public void testCurve25519VRFProve(VRFInterface vrfInterface, String privateKey, String vrfInput, String fakePrivateKey)
+    public void testCurve25519VRFProve(Curve25519VRF vrfInterface, String privateKey, String vrfInput, String fakePrivateKey)
     {
         // valid case
         System.out.println(privateKey);
@@ -66,18 +69,20 @@ public class Curve25519VRFTest {
         System.out.println("#### vrfPublicKey: " + publicKey + ", vrfProof: " + vrfProof + ", vrfInput: " + vrfInput);
         Assert.assertTrue(vrfInterface.verify(publicKey, vrfInput, vrfProof));
 
+        Numeric.toHexStringWithPrefixZeroPadded(vrfInterface.vrfProofToRandomValue(vrfProof), 128);
+
         // invalid case
         // case1: invalid public key
         String InvalidPublicKey = "abc";
-        Assert.assertTrue(vrfInterface.isValidVRFPublicKey(InvalidPublicKey) == false);
-        Assert.assertTrue(vrfInterface.verify(InvalidPublicKey, vrfInput, vrfProof) == false);
+        Assert.assertFalse(vrfInterface.isValidVRFPublicKey(InvalidPublicKey));
+        Assert.assertFalse(vrfInterface.verify(InvalidPublicKey, vrfInput, vrfProof));
 
         // case2: inconsistent vrf message
-        Assert.assertTrue(vrfInterface.verify(publicKey, vrfInput + "_wrong", vrfProof) == false);
+        Assert.assertFalse(vrfInterface.verify(publicKey, vrfInput + "_wrong", vrfProof));
 
         // case3: fake private key
         String fakePublicKey = vrfInterface.getPublicKeyFromPrivateKey(fakePrivateKey);
         Assert.assertTrue(vrfInterface.isValidVRFPublicKey(fakePublicKey));
-        Assert.assertTrue(vrfInterface.verify(fakePublicKey, vrfInput + "_wrong", vrfProof) == false);
+        Assert.assertFalse(vrfInterface.verify(fakePublicKey, vrfInput + "_wrong", vrfProof));
     }
 }

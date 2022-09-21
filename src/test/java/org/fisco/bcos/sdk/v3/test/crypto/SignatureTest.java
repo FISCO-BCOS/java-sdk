@@ -30,7 +30,9 @@ import org.fisco.bcos.sdk.v3.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.v3.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.v3.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.v3.crypto.signature.ECDSASignature;
+import org.fisco.bcos.sdk.v3.crypto.signature.ECDSASignatureResult;
 import org.fisco.bcos.sdk.v3.crypto.signature.SM2Signature;
+import org.fisco.bcos.sdk.v3.crypto.signature.SM2SignatureResult;
 import org.fisco.bcos.sdk.v3.crypto.signature.Signature;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
@@ -62,7 +64,7 @@ public class SignatureTest {
         Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey(), cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
 
         // test signature
-        this.testSignature(cryptoSuite, keyPair);
+        this.testECDSASignature(cryptoSuite, keyPair);
 
         // load KeyPair from the given privateKey
         String privateKeyStr =
@@ -77,11 +79,11 @@ public class SignatureTest {
         System.out.println("keyPair.getHexPublicKey(): " + keyPair.getHexPublicKey());
         System.out.println("keyPair.getHexPrivate(): " + keyPair.getHexPrivateKey());
         Assert.assertEquals(hexedPublicKey, keyPair.getHexPublicKey());
-        this.testSignature(cryptoSuite, keyPair);
+        this.testECDSASignature(cryptoSuite, keyPair);
 
         String hexedPrivateKeyStr = "bcec428d5205abe0f0cc8a734083908d9eb8563e31f943d760786edf42ad67dd";
         keyPair = cryptoSuite.getKeyPairFactory().createKeyPair(hexedPrivateKeyStr);
-        this.testSignature(cryptoSuite, keyPair);
+        this.testECDSASignature(cryptoSuite, keyPair);
     }
 
     @Test
@@ -98,12 +100,12 @@ public class SignatureTest {
         Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPublicKey(), cryptoSuite.getCryptoKeyPair().getHexPublicKey());
         Assert.assertEquals(cryptoSuite2.getCryptoKeyPair().getHexPrivateKey(), cryptoSuite.getCryptoKeyPair().getHexPrivateKey());
         // test signature
-        this.testSignature(cryptoSuite, keyPair);
+        this.testSMSignature(cryptoSuite, keyPair);
     }
 
     @Test
     public void testECDSASignature() {
-        Signature ecdsaSignature = new ECDSASignature();
+        ECDSASignature ecdsaSignature = new ECDSASignature();
         CryptoKeyPair keyPair = (new ECDSAKeyPair()).generateKeyPair();
         Hash hasher = new Keccak256();
         this.testSignature(hasher, ecdsaSignature, keyPair);
@@ -114,7 +116,7 @@ public class SignatureTest {
 
     @Test
     public void testSM2Signature() {
-        Signature sm2Signature = new SM2Signature();
+        SM2Signature sm2Signature = new SM2Signature();
         CryptoKeyPair keyPair = (new SM2KeyPair()).generateKeyPair();
         Hash hasher = new SM3Hash();
         this.testSignature(hasher, sm2Signature, keyPair);
@@ -353,51 +355,108 @@ public class SignatureTest {
         }
     }
 
-    public void testSignature(CryptoSuite signature, CryptoKeyPair keyPair) {
+    public void testECDSASignature(CryptoSuite cryptoSuite, CryptoKeyPair keyPair) {
         String message = "abcde";
         byte[] messageBytes = message.getBytes();
         // check valid case
         for (int i = 0; i < 10; i++) {
             // Note: the message must be hash
             String plainText = "abcd----" + Integer.toString(i);
-            message = signature.hash(plainText);
-            messageBytes = signature.hash(plainText.getBytes());
+            message = cryptoSuite.hash(plainText);
+            messageBytes = cryptoSuite.hash(plainText.getBytes());
             Assert.assertEquals(message, Hex.toHexString(messageBytes));
             // sign
-            SignatureResult signResult = signature.sign(message, keyPair);
+            ECDSASignatureResult signatureResult = (ECDSASignatureResult) cryptoSuite.sign(message, keyPair);
             // verify
             Assert.assertTrue(
-                    signature.verify(
-                            keyPair.getHexPublicKey(), message, signResult.convertToString()));
-            signResult = signature.sign(messageBytes, keyPair);
+                    cryptoSuite.verify(
+                            keyPair.getHexPublicKey(), message, signatureResult.convertToString()));
+            signatureResult = (ECDSASignatureResult) cryptoSuite.sign(messageBytes, keyPair);
             Assert.assertTrue(
-                    signature.verify(
-                            keyPair.getHexPublicKey(), message, signResult.convertToString()));
+                    cryptoSuite.verify(
+                            keyPair.getHexPublicKey(), message, signatureResult.convertToString()));
+
+            // new sign
+            ECDSASignatureResult newSign = new ECDSASignatureResult(signatureResult.getV(), signatureResult.getR(), signatureResult.getS());
+            Assert.assertTrue(
+                    cryptoSuite.verify(
+                            keyPair.getHexPublicKey(), message, newSign.convertToString()));
+            String completeSignStr = Hex.toHexString(newSign.encode());
+            Assert.assertEquals(completeSignStr, signatureResult.toString());
         }
 
         // check invalid case
         for (int i = 0; i < 10; i++) {
-            message = signature.hash("abcd----" + Integer.toString(i));
+            message = cryptoSuite.hash("abcd----" + Integer.toString(i));
             String plainText = "abcd---" + Integer.toString(i + 1);
-            String invalidMessage = signature.hash(plainText);
-            byte[] invalidMessageBytes = signature.hash(plainText.getBytes());
+            String invalidMessage = cryptoSuite.hash(plainText);
+            byte[] invalidMessageBytes = cryptoSuite.hash(plainText.getBytes());
             Assert.assertEquals(invalidMessage, Hex.toHexString(invalidMessageBytes));
             // sign
-            SignatureResult signResult = signature.sign(message, keyPair);
+            SignatureResult signResult = cryptoSuite.sign(message, keyPair);
             // verify
-            Assert.assertEquals(
-                    false,
-                    signature.verify(
-                            keyPair.getHexPublicKey(),
-                            invalidMessage,
-                            signResult.convertToString()));
-            signResult = signature.sign(messageBytes, keyPair);
-            Assert.assertEquals(
-                    false,
-                    signature.verify(
-                            keyPair.getHexPublicKey(),
-                            invalidMessage,
-                            signResult.convertToString()));
+            Assert.assertFalse(cryptoSuite.verify(
+                    keyPair.getHexPublicKey(),
+                    invalidMessage,
+                    signResult.convertToString()));
+            signResult = cryptoSuite.sign(messageBytes, keyPair);
+            Assert.assertFalse(cryptoSuite.verify(
+                    keyPair.getHexPublicKey(),
+                    invalidMessage,
+                    signResult.convertToString()));
+        }
+    }
+
+    public void testSMSignature(CryptoSuite cryptoSuite, CryptoKeyPair keyPair) {
+        String message = "abcde";
+        byte[] messageBytes = message.getBytes();
+        // check valid case
+        for (int i = 0; i < 10; i++) {
+            // Note: the message must be hash
+            String plainText = "abcd----" + Integer.toString(i);
+            message = cryptoSuite.hash(plainText);
+            messageBytes = cryptoSuite.hash(plainText.getBytes());
+            Assert.assertEquals(message, Hex.toHexString(messageBytes));
+            // sign
+            SM2SignatureResult signatureResult = (SM2SignatureResult) cryptoSuite.sign(message, keyPair);
+            // verify
+            Assert.assertTrue(
+                    cryptoSuite.verify(
+                            keyPair.getHexPublicKey(), message, signatureResult.convertToString()));
+            signatureResult = (SM2SignatureResult) cryptoSuite.sign(messageBytes, keyPair);
+            Assert.assertTrue(
+                    cryptoSuite.verify(
+                            keyPair.getHexPublicKey(), message, signatureResult.convertToString()));
+
+            // new sign
+            SM2SignatureResult newSign = new SM2SignatureResult(signatureResult.getPub(), signatureResult.getR(), signatureResult.getS());
+            Assert.assertTrue(
+                    cryptoSuite.verify(
+                            keyPair.getHexPublicKey(), message, newSign.convertToString()));
+            String completeSignStr = Hex.toHexString(newSign.encode());
+            Assert.assertEquals(completeSignStr.substring(0,128), signatureResult.toString());
+            Assert.assertEquals(completeSignStr.substring(128), Hex.toHexString(signatureResult.getPub()));
+        }
+
+        // check invalid case
+        for (int i = 0; i < 10; i++) {
+            message = cryptoSuite.hash("abcd----" + Integer.toString(i));
+            String plainText = "abcd---" + Integer.toString(i + 1);
+            String invalidMessage = cryptoSuite.hash(plainText);
+            byte[] invalidMessageBytes = cryptoSuite.hash(plainText.getBytes());
+            Assert.assertEquals(invalidMessage, Hex.toHexString(invalidMessageBytes));
+            // sign
+            SignatureResult signResult = cryptoSuite.sign(message, keyPair);
+            // verify
+            Assert.assertFalse(cryptoSuite.verify(
+                    keyPair.getHexPublicKey(),
+                    invalidMessage,
+                    signResult.convertToString()));
+            signResult = cryptoSuite.sign(messageBytes, keyPair);
+            Assert.assertFalse(cryptoSuite.verify(
+                    keyPair.getHexPublicKey(),
+                    invalidMessage,
+                    signResult.convertToString()));
         }
     }
 

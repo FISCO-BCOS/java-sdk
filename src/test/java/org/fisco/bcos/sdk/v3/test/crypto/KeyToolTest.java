@@ -156,15 +156,23 @@ public class KeyToolTest {
     private CryptoKeyPair testLoadPEMFile(
             String pemFileName, int cryptoType, String expectedAccount) {
         // get KeyPair from the pem
-        KeyTool pem = new PEMKeyStore(getFilePath(pemFileName));
+        PEMKeyStore pem = new PEMKeyStore(getFilePath(pemFileName));
         KeyPair keyPair = pem.getKeyPair();
+        testSignature(keyPair, cryptoType, expectedAccount);
+
+        pem = new PEMKeyStore(getClass().getClassLoader().getResourceAsStream(pemFileName));
+        keyPair = pem.getKeyPair();
         return testSignature(keyPair, cryptoType, expectedAccount);
     }
 
     private CryptoKeyPair testLoadP12File(
             String p12FileName, int cryptoType, String password, String expectedAccount) {
-        KeyTool p12 = new P12KeyStore(getFilePath(p12FileName), password);
+        P12KeyStore p12 = new P12KeyStore(getFilePath(p12FileName), password);
         KeyPair keyPair = p12.getKeyPair();
+        testSignature(keyPair, cryptoType, expectedAccount);
+
+        p12 = new P12KeyStore(getClass().getClassLoader().getResourceAsStream(p12FileName), password);
+        keyPair = p12.getKeyPair();
         return testSignature(keyPair, cryptoType, expectedAccount);
     }
 
@@ -175,7 +183,11 @@ public class KeyToolTest {
         Assert.assertEquals(expectedAccount, cryptoKeyPair.getAddress());
         // test signature
         SignatureTest signatureTest = new SignatureTest();
-        signatureTest.testSignature(cryptoSuite, cryptoKeyPair);
+        if(cryptoSuite.cryptoTypeConfig == CryptoType.SM_TYPE) {
+            signatureTest.testSMSignature(cryptoSuite, cryptoKeyPair);
+        }else if(cryptoSuite.cryptoTypeConfig == CryptoType.ECDSA_TYPE){
+            signatureTest.testECDSASignature(cryptoSuite, cryptoKeyPair);
+        }
         return cryptoKeyPair;
     }
 }
