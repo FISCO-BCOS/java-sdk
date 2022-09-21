@@ -101,10 +101,6 @@ sourceSets {
         }
     }
     integrationTest {
-        copy {
-            from file('src/test/resources/amop/')
-            into 'conf/amop'
-        }
         java {
             compileClasspath += main.output + test.output
             runtimeClasspath += main.output + test.output
@@ -112,14 +108,24 @@ sourceSets {
         }
         resources.srcDir file('src/integration-test/resources')
     }
+    integrationWasmTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-wasm-test/java')
+        }
+        resources.srcDir file('src/integration-wasm-test/resources')
+    }
 }
 
 googleJavaFormat {
     toolVersion = '1.7'
     options style: 'AOSP'
     source = sourceSets*.allJava
-    include 'src/main/**/*.java'
-    include 'src/integration-test/**/*.java'
+    include '**/*.java'
+    exclude '**/*Test.java'
+    exclude '**/Test*.java'
+    exclude '**/Mock*.java'
 }
 
 dependencies {
@@ -139,6 +145,7 @@ dependencies {
 //    }
 
     integrationTestImplementation project
+    integrationWasmTestImplementation project
 }
 
 configurations.all {
@@ -150,11 +157,18 @@ configurations.all {
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    integrationWasmTestImplementation.extendsFrom testImplementation
+    integrationWasmTestImplementation.extendsFrom testRuntimeOnly
 }
 
 task integrationTest(type: Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+task integrationWasmTest(type: Test) {
+    testClassesDirs = sourceSets.integrationWasmTest.output.classesDirs
+    classpath = sourceSets.integrationWasmTest.runtimeClasspath
 }
 
 javadoc {

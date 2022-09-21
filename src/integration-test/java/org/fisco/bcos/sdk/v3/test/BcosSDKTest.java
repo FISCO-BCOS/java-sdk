@@ -19,7 +19,6 @@ package org.fisco.bcos.sdk.v3.test;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.jni.common.JniException;
@@ -42,7 +41,6 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.config.Config;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.config.exceptions.ConfigException;
@@ -52,8 +50,6 @@ import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
-import org.fisco.bcos.sdk.v3.test.contract.liquid.Asset;
-import org.fisco.bcos.sdk.v3.test.contract.liquid.HelloWorld2;
 import org.fisco.bcos.sdk.v3.test.contract.solidity.HelloWorld;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
@@ -346,112 +342,6 @@ public class BcosSDKTest {
         receipt2.setMessage(receiptMsg);
 
         System.out.println(receipt2);
-    }
-
-    // FIXME: not use in CI integration test
-    // @Test
-    public void testHelloWorldInLiquid() throws ConfigException, ContractException {
-
-        ConfigOption configOption = Config.load(configFile);
-        Client client = Client.build(GROUP, configOption);
-
-        CryptoSuite cryptoSuite = client.getCryptoSuite();
-        CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
-        BigInteger blockLimit = client.getBlockLimit();
-        System.out.println("blockLimit:" + blockLimit);
-        org.fisco.bcos.sdk.v3.test.contract.liquid.HelloWorld helloWorld = null;
-        helloWorld =
-                org.fisco.bcos.sdk.v3.test.contract.liquid.HelloWorld.deploy(
-                        client,
-                        keyPair,
-                        "/usr/bin/HelloWorld" + new Random().nextInt(1000),
-                        "alice");
-
-        System.out.println("helloworld address :" + helloWorld.getContractAddress());
-        BlockNumber blockNumber = client.getBlockNumber();
-        BcosBlock block1 = client.getBlockByNumber(blockNumber.getBlockNumber(), false, false);
-        System.out.println("block=" + block1.getBlock());
-        String s = helloWorld.get();
-        System.out.println("helloworld get :" + s);
-        TransactionReceipt receipt = helloWorld.set("fisco hello");
-        System.out.println("helloworld set : fisco hello, status=" + receipt.getStatus());
-        System.out.println(receipt);
-        // get 2nd block
-        block1 =
-                client.getBlockByNumber(
-                        blockNumber.getBlockNumber().add(BigInteger.ONE), false, false);
-        System.out.println("1st header=" + block1.getBlock());
-        // getTransaction
-        BcosTransaction transaction = client.getTransaction(receipt.getTransactionHash(), true);
-        Assert.assertTrue(transaction.getTransaction() != null);
-        System.out.println("getTransaction :" + transaction.getTransaction());
-        // getTransactionReceipt
-        BcosTransactionReceipt receipt1 =
-                client.getTransactionReceipt(receipt.getTransactionHash(), true);
-        Assert.assertTrue(receipt1.getTransactionReceipt() != null);
-        System.out.println("getTransactionReceipt :" + receipt1.getTransactionReceipt());
-        // getCode
-        //        Code code = client.getCode(helloWorld.getContractAddress());
-        //        Assert.assertNotNull(code.getResult());
-        //        System.out.println("getCode :" + code.getCode());
-        s = helloWorld.get();
-        System.out.println("helloworld get :" + s);
-
-        blockLimit = client.getBlockLimit();
-        System.out.println("blockLimit:" + blockLimit);
-
-        HelloWorld2 helloWorld2 = null;
-
-        // FIXME: this liquid call liquid will core dump
-        helloWorld2 =
-                HelloWorld2.deploy(
-                        client,
-                        keyPair,
-                        "/usr/bin/HelloWorld2_" + new Random().nextInt(1000),
-                        helloWorld.getContractAddress());
-        String s2 = helloWorld2.get();
-        System.out.println("helloworld2 get :" + s2);
-        TransactionReceipt receipt2 = helloWorld2.set("fisco bye");
-        System.out.println("helloworld2 set : fisco hello, status=" + receipt2.getStatus());
-        System.out.println(receipt2);
-        s2 = helloWorld2.get();
-        System.out.println("helloworld2 get :" + s2);
-        s2 = helloWorld.get();
-        System.out.println("helloworld get :" + s2);
-    }
-
-    // @Test
-    public void testAssetEventInLiquid() throws ConfigException, ContractException {
-
-        ConfigOption configOption = Config.load(configFile);
-        Client client = Client.build(GROUP, configOption);
-
-        String hash = client.getCryptoSuite().hash("RegisterEvent");
-
-        CryptoSuite cryptoSuite = client.getCryptoSuite();
-        CryptoKeyPair keyPair = cryptoSuite.getCryptoKeyPair();
-        BigInteger blockLimit = client.getBlockLimit();
-        System.out.println("blockLimit:" + blockLimit);
-        org.fisco.bcos.sdk.v3.test.contract.liquid.Asset asset =
-                org.fisco.bcos.sdk.v3.test.contract.liquid.Asset.deploy(
-                        client, keyPair, "/asset" + new Random().nextInt(1000));
-
-        System.out.println("asset address :" + asset.getContractAddress());
-
-        TransactionReceipt assetAccount0 =
-                asset.register("assetAccount0", BigInteger.valueOf(10000));
-        TransactionReceipt assetAccount1 =
-                asset.register("assetAccount1", BigInteger.valueOf(10000));
-        List<Asset.RegisterEventEventResponse> registerEventEvents0 =
-                asset.getRegisterEventEvents(assetAccount0);
-        List<Asset.RegisterEventEventResponse> registerEventEvents1 =
-                asset.getRegisterEventEvents(assetAccount1);
-        Assert.assertTrue(registerEventEvents0.size() > 0);
-        Assert.assertTrue(registerEventEvents1.size() > 0);
-
-        Tuple2<Boolean, BigInteger> selectOutput = asset.select("assetAccount0");
-        Assert.assertEquals(selectOutput.getValue1(), true);
-        Assert.assertEquals(selectOutput.getValue2(), BigInteger.valueOf(10000));
     }
 
     @Test
