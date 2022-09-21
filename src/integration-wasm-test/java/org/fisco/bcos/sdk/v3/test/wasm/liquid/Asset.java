@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.test.contract.liquid;
+package org.fisco.bcos.sdk.v3.test.wasm.liquid;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

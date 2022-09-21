@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.test.transaction.decoder;
+package org.fisco.bcos.sdk.v3.test.wasm.transaction.decoder;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -7,14 +7,15 @@ import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.abi.Constant;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
-import org.fisco.bcos.sdk.v3.test.contract.liquid.CodecTest;
+import org.fisco.bcos.sdk.v3.test.wasm.liquid.CodecTest;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class ScaleCodecTest {
     private static final String configFile =
             "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
 
-    // @Test
+    @Test
     public void testNumericType() throws Exception {
         BcosSDK sdk = BcosSDK.build(configFile);
         Client client = sdk.getClient("group0");
