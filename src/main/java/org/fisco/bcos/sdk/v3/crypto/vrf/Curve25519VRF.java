@@ -81,7 +81,7 @@ public class Curve25519VRF implements VRFInterface {
 
     @Override
     public BigInteger vrfProofToRandomValue(String vrfProof) {
-        return new BigInteger(vrfProofToHash(vrfProof));
+        return new BigInteger(vrfProofToHash(vrfProof), 16);
     }
 
     @Override

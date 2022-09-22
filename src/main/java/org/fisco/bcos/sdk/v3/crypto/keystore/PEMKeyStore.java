@@ -109,9 +109,9 @@ public class PEMKeyStore extends KeyTool {
     protected PrivateKey getPrivateKey() {
         try {
             PKCS8EncodedKeySpec encodedKeySpec = new PKCS8EncodedKeySpec(pem.getContent());
-            KeyFactory keyFacotry =
+            KeyFactory keyFactory =
                     KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
-            return keyFacotry.generatePrivate(encodedKeySpec);
+            return keyFactory.generatePrivate(encodedKeySpec);
         } catch (InvalidKeySpecException | NoSuchProviderException | NoSuchAlgorithmException e) {
             String errorMessage =
                     "getPrivateKey from pem file "

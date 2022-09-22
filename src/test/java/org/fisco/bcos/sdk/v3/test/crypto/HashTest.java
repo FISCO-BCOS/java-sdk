@@ -122,16 +122,18 @@ public class HashTest {
 
     private void checkHash(Hash hasher, String message, String expectedHash) {
         String calculatedHash = hasher.hash(message);
-        Assert.assertEquals(true, calculatedHash.equals(expectedHash));
+        Assert.assertEquals(calculatedHash, expectedHash);
         byte[] calculatedHashBytes = hasher.hash(message.getBytes());
-        Assert.assertEquals(true, Hex.toHexString(calculatedHashBytes).equals(expectedHash));
+        Assert.assertEquals(Hex.toHexString(calculatedHashBytes), expectedHash);
+        String hashBytes = hasher.hashBytes(message.getBytes());
+        Assert.assertEquals(hashBytes,expectedHash);
     }
 
     private void checkHashWithCryptoSuite(
             CryptoSuite cryptoSuite, String message, String expectedHash) {
         String calculatedHash = cryptoSuite.hash(message);
-        Assert.assertEquals(true, calculatedHash.equals(expectedHash));
+        Assert.assertEquals(calculatedHash, expectedHash);
         byte[] calculatedHashBytes = cryptoSuite.hash(message.getBytes());
-        Assert.assertEquals(true, Hex.toHexString(calculatedHashBytes).equals(expectedHash));
+        Assert.assertEquals(Hex.toHexString(calculatedHashBytes), expectedHash);
     }
 }

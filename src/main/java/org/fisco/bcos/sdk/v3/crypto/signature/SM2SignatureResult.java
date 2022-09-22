@@ -51,11 +51,21 @@ public class SM2SignatureResult extends SignatureResult {
         return Hex.toHexString(SignatureBytes);
     }
 
+    /**
+     * covert signatureResult into String
+     *
+     * @return the signature string with [r, s]
+     */
     @Override
     public String toString() {
         return convertToString();
     }
 
+    /**
+     * covert signatureResult into byte[]
+     *
+     * @return the signature string with [r, s, pub]
+     */
     @Override
     public byte[] encode() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
