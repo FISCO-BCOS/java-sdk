@@ -23,7 +23,7 @@
 
 - 不兼容 FISCO BCOS 2.0+ 版本
 - 兼容java-sdk v3.0+的历史版本
-- 支持[FISCO BCOS 3.0.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0)版本
+- 支持[FISCO BCOS 3.0.1](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.1)版本
 
 ----
 
@@ -50,7 +50,7 @@ Please read documentation of Java SDK v3.x.
 
 - Not compatible with FISCO BCOS version 2.0+
 - Compatible with the historical version of java-sdk v3.0+
-- Support [FISCO BCOS 3.0.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0) version
+- Support [FISCO BCOS 3.0.1](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.1) version
 
 
 ## v3.0.0
