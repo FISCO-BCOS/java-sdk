@@ -1,3 +1,58 @@
+## v3.0.1
+(2022-9-26)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+- `TransactionProcessor`新增 `asyncExecuteCall` 的异步读接口
+- 增加WASM的集成测试，补充UT，增加代码覆盖率
+
+### 更新
+
+- 重构项目结构，不再分子模块
+
+### 修复
+
+- 修复decodeABI时负数报错的问题
+- 修复Client类 `getBlockByHashAsync` 接口不可用的问题
+
+### 兼容性说明
+
+- 不兼容 FISCO BCOS 2.0+ 版本
+- 兼容java-sdk v3.0+的历史版本
+- 支持[FISCO BCOS 3.0.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0)版本
+
+----
+
+Please read documentation of Java SDK v3.x.
+
+* English User Handbook：Working in progress...
+* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### Add
+
+- `TransactionProcessor` adds the asynchronous read interface of `asyncExecuteCall`
+- Increase the integration test of WASM, supplement UT, and increase code coverage
+
+### renew
+
+- Refactored project structure, no more sub-modules
+
+### Fixes
+
+- Fixed the problem of negative number error when decodeABI
+- Fixed the problem that the `getBlockByHashAsync` interface of the Client class was unavailable
+
+### Compatibility Notes
+
+- Not compatible with FISCO BCOS version 2.0+
+- Compatible with the historical version of java-sdk v3.0+
+- Support [FISCO BCOS 3.0.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0) version
+
+
 ## v3.0.0
 (2022-8-23)
 
