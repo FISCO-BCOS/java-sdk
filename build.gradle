@@ -27,14 +27,14 @@ ext {
     guavaVersion = '30.1.1-jre'
     bcosSdkJniVersion = "3.0.0"
     slf4jApiVerison = "1.7.36"
-    mockitoVersion = "4.6.1"
+    mockitoVersion = '4.7.0'
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.0.0'
+    version = '3.0.1-SNAPSHOT'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
@@ -82,90 +82,39 @@ allprojects {
     }
 }
 
-subprojects {
-    sourceSets {
-        main {
-            java {
-                srcDir 'src/main/java'
-            }
-
-            resources {
-                srcDir 'src/main/resources'
-            }
-        }
-    }
-    jar {
-        destinationDir file("dist/apps")
-        archiveName "fisco-bcos-" + project.name + "-" + project.version + ".jar"
-
-        exclude "**/*.xml"
-        exclude "**/*.properties"
-        manifest {
-            try {
-                def repo = grgit.open(currentDir: project.rootDir)
-                if (repo != null) {
-                    def date = new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-                    def branch = repo.branch.getCurrent().getName()
-                    def commit = repo.head().getAbbreviatedId(40)
-
-                    attributes(["Implementation-Timestamp": date,
-                                "Git-Branch"              : branch,
-                                "Git-Commit"              : commit
-                    ])
-
-                    logger.info("  Commit : ")
-                    logger.info("  => date: {}", date)
-                    logger.info("  => branch: {}", branch)
-                    logger.info("  => commit: {}", commit)
-                }
-            } catch (Exception e) {
-                logger.warn(' .git not exist, cannot found commit info, e: {}', e)
-            }
-        } from sourceSets.main.output
-
-        doLast {
-            copy {
-                from file("src/test/resources/")
-                into "dist/conf"
-            }
-            copy {
-                from configurations.runtimeClasspath
-                into "dist/lib"
-            }
-            copy {
-                from file("build/libs/")
-                into "dist/apps"
-            }
-        }
-    }
-}
-
 sourceSets {
     main {
         java {
-            srcDir "sdk-amop/src/main/java"
-            srcDir "sdk-core/src/main/java"
-            srcDir "sdk-crypto/src/main/java"
-            srcDir "sdk-codec/src/main/java"
-            srcDir "sdk-service/src/main/java"
-            srcDir "sdk-transaction/src/main/java"
+            srcDir "src/main/java"
         }
         buildscript
         resources {
             srcDir 'src/main/resources'
         }
     }
-    integrationTest {
-        copy {
-            from file('src/test/resources/amop/')
-            into 'conf/amop'
+    test {
+        java {
+            srcDir "src/test/java"
         }
+        resources {
+            srcDir "src/test/resources"
+        }
+    }
+    integrationTest {
         java {
             compileClasspath += main.output + test.output
             runtimeClasspath += main.output + test.output
             srcDir file('src/integration-test/java')
         }
         resources.srcDir file('src/integration-test/resources')
+    }
+    integrationWasmTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-wasm-test/java')
+        }
+        resources.srcDir file('src/integration-wasm-test/resources')
     }
 }
 
@@ -174,6 +123,9 @@ googleJavaFormat {
     options style: 'AOSP'
     source = sourceSets*.allJava
     include '**/*.java'
+    exclude '**/*Test.java'
+    exclude '**/Test*.java'
+    exclude '**/Mock*.java'
 }
 
 dependencies {
@@ -193,6 +145,7 @@ dependencies {
 //    }
 
     integrationTestImplementation project
+    integrationWasmTestImplementation project
 }
 
 configurations.all {
@@ -204,11 +157,18 @@ configurations.all {
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    integrationWasmTestImplementation.extendsFrom testImplementation
+    integrationWasmTestImplementation.extendsFrom testRuntimeOnly
 }
 
 task integrationTest(type: Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+task integrationWasmTest(type: Test) {
+    testClassesDirs = sourceSets.integrationWasmTest.output.classesDirs
+    classpath = sourceSets.integrationWasmTest.runtimeClasspath
 }
 
 javadoc {
