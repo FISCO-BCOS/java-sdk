@@ -2,7 +2,8 @@ package org.fisco.bcos.sdk.v3.model;
 
 public enum EnumNodeVersion {
     BCOS_3_0_0_RC1("3.0.0-rc1"),
-    BCOS_3_0_0("3.0.0");
+    BCOS_3_0_0("3.0.0"),
+    BCOS_3_0_1("3.0.1");
     private String version;
 
     EnumNodeVersion(String version) {
