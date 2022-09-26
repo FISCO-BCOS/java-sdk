@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.amop.Amop;
@@ -84,8 +86,8 @@ public class AmopTest {
                                             future.complete(false);
                                         });
                                 try {
-                                    future.get();
-                                } catch (InterruptedException | ExecutionException e) {
+                                    future.get(10,TimeUnit.SECONDS);
+                                } catch (InterruptedException | ExecutionException | TimeoutException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -100,7 +102,7 @@ public class AmopTest {
 
     @Test
     public void amopSubAsyncTest()
-            throws ConfigException, JniException, InterruptedException, ExecutionException {
+            throws ConfigException, JniException, InterruptedException, ExecutionException, TimeoutException {
         String publishConfigFile =
                 AmopTest.class
                         .getClassLoader()
@@ -162,7 +164,7 @@ public class AmopTest {
 
     @Test
     public void amopSubTest()
-            throws ConfigException, JniException, InterruptedException, ExecutionException {
+            throws ConfigException, JniException, InterruptedException, ExecutionException, TimeoutException {
         String publishConfigFile =
                 AmopTest.class
                         .getClassLoader()
@@ -219,7 +221,7 @@ public class AmopTest {
 
     @Test
     public void amopUnsubTest()
-            throws ConfigException, JniException, InterruptedException, ExecutionException {
+            throws ConfigException, JniException, InterruptedException, ExecutionException, TimeoutException {
         String publishConfigFile =
                 AmopTest.class
                         .getClassLoader()
@@ -286,7 +288,7 @@ public class AmopTest {
             AtomicInteger countResponse,
             int x,
             CompletableFuture<Boolean> future)
-            throws InterruptedException, ExecutionException {
+            throws InterruptedException, ExecutionException, TimeoutException {
         threadPoolService
                 .getThreadPool()
                 .execute(
@@ -314,6 +316,6 @@ public class AmopTest {
                                         });
                             }
                         });
-        future.get();
+        future.get(10, TimeUnit.SECONDS);
     }
 }

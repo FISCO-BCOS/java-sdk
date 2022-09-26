@@ -470,7 +470,7 @@ public class ClientImpl implements Client {
             boolean onlyHeader,
             boolean onlyTxHash,
             RespCallback<BcosBlock> callback) {
-        this.getBlockByHash("", blockHash, onlyHeader, onlyTxHash);
+        this.getBlockByHashAsync("", blockHash, onlyHeader, onlyTxHash, callback);
     }
 
     @Override
