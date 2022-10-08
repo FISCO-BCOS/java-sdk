@@ -31,7 +31,7 @@ import org.fisco.bcos.sdk.v3.utils.StringUtils;
 @SuppressWarnings("unchecked")
 public class CommitteeManager extends Contract {
     public static final String[] ABI_ARRAY = {
-        "[{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"initGovernors\",\"type\":\"address[]\"},{\"internalType\":\"uint32[]\",\"name\":\"weights\",\"type\":\"uint32[]\"},{\"internalType\":\"uint8\",\"name\":\"participatesRate\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"winRate\",\"type\":\"uint8\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"name\":\"execResult\",\"type\":\"event\"},{\"conflictFields\":[{\"kind\":4,\"value\":[0]}],\"inputs\":[],\"name\":\"_committee\",\"outputs\":[{\"internalType\":\"contract Committee\",\"name\":\"\",\"type\":\"address\"}],\"selector\":[408688007,2076726550],\"stateMutability\":\"view\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":4,\"value\":[1]}],\"inputs\":[],\"name\":\"_proposalMgr\",\"outputs\":[{\"internalType\":\"contract ProposalManager\",\"name\":\"\",\"type\":\"address\"}],\"selector\":[4134927786,1757083837],\"stateMutability\":\"view\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"openFlag\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createModifyDeployAuthProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[1805941004,212904153],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createResetAdminProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[1953886223,2452322566],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"string\",\"name\":\"node\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createRmNodeProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[1694573954,530010165],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"string\",\"name\":\"node\",\"type\":\"string\"},{\"internalType\":\"uint32\",\"name\":\"weight\",\"type\":\"uint32\"},{\"internalType\":\"bool\",\"name\":\"addFlag\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createSetConsensusWeightProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[2654949198,1568829248],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"deployAuthType\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createSetDeployAuthTypeProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[1631729139,3724555094],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"participatesRate\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"winRate\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createSetRateProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[66163033,3419039597],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createSetSysConfigProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[2049250093,3487605356],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint32\",\"name\":\"weight\",\"type\":\"uint32\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createUpdateGovernorProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[842330342,3532932153],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAddr\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createUpgradeVoteComputerProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[1914877096,1149847126],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":3,\"slot\":2,\"value\":[0]}],\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"proposalId\",\"type\":\"uint256\"}],\"name\":\"getProposalType\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"selector\":[3648585658,2257791149],\"stateMutability\":\"view\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isGovernor\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"selector\":[3828711864,3052548661],\"stateMutability\":\"view\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"proposalId\",\"type\":\"uint256\"}],\"name\":\"revokeProposal\",\"outputs\":[],\"selector\":[2242289809,3123570540],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"proposalId\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"agree\",\"type\":\"bool\"}],\"name\":\"voteProposal\",\"outputs\":[],\"selector\":[3170605921,1532806966],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+        "[{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"initGovernors\",\"type\":\"address[]\"},{\"internalType\":\"uint32[]\",\"name\":\"weights\",\"type\":\"uint32[]\"},{\"internalType\":\"uint8\",\"name\":\"participatesRate\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"winRate\",\"type\":\"uint8\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"name\":\"execResult\",\"type\":\"event\"},{\"conflictFields\":[{\"kind\":4,\"value\":[0]}],\"inputs\":[],\"name\":\"_committee\",\"outputs\":[{\"internalType\":\"contract Committee\",\"name\":\"\",\"type\":\"address\"}],\"selector\":[408688007,2076726550],\"stateMutability\":\"view\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":4,\"value\":[1]}],\"inputs\":[],\"name\":\"_proposalMgr\",\"outputs\":[{\"internalType\":\"contract ProposalManager\",\"name\":\"\",\"type\":\"address\"}],\"selector\":[4134927786,1757083837],\"stateMutability\":\"view\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"openFlag\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createModifyDeployAuthProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[1805941004,212904153],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createResetAdminProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[1953886223,2452322566],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"string\",\"name\":\"node\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createRmNodeProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[1694573954,530010165],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createSetAccountProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[2395986305,2467212608],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"string\",\"name\":\"node\",\"type\":\"string\"},{\"internalType\":\"uint32\",\"name\":\"weight\",\"type\":\"uint32\"},{\"internalType\":\"bool\",\"name\":\"addFlag\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createSetConsensusWeightProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[2654949198,1568829248],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"deployAuthType\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createSetDeployAuthTypeProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[1631729139,3724555094],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"participatesRate\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"winRate\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createSetRateProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[66163033,3419039597],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createSetSysConfigProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[2049250093,3487605356],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint32\",\"name\":\"weight\",\"type\":\"uint32\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createUpdateGovernorProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[842330342,3532932153],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAddr\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"blockNumberInterval\",\"type\":\"uint256\"}],\"name\":\"createUpgradeVoteComputerProposal\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"currentproposalId\",\"type\":\"uint256\"}],\"selector\":[1914877096,1149847126],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":3,\"slot\":2,\"value\":[0]}],\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"proposalId\",\"type\":\"uint256\"}],\"name\":\"getProposalType\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"selector\":[3648585658,2257791149],\"stateMutability\":\"view\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isGovernor\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"selector\":[3828711864,3052548661],\"stateMutability\":\"view\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"proposalId\",\"type\":\"uint256\"}],\"name\":\"revokeProposal\",\"outputs\":[],\"selector\":[2242289809,3123570540],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"conflictFields\":[{\"kind\":0}],\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"proposalId\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"agree\",\"type\":\"bool\"}],\"name\":\"voteProposal\",\"outputs\":[],\"selector\":[3170605921,1532806966],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = StringUtils.joinAll("", ABI_ARRAY);
@@ -46,6 +46,8 @@ public class CommitteeManager extends Contract {
     public static final String FUNC_CREATERESETADMINPROPOSAL = "createResetAdminProposal";
 
     public static final String FUNC_CREATERMNODEPROPOSAL = "createRmNodeProposal";
+
+    public static final String FUNC_CREATESETACCOUNTPROPOSAL = "createSetAccountProposal";
 
     public static final String FUNC_CREATESETCONSENSUSWEIGHTPROPOSAL =
             "createSetConsensusWeightProposal";
@@ -333,6 +335,86 @@ public class CommitteeManager extends Contract {
         final Function function =
                 new Function(
                         FUNC_CREATERMNODEPROPOSAL,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}));
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
+    }
+
+    public TransactionReceipt createSetAccountProposal(
+            String account, BigInteger status, BigInteger blockNumberInterval) {
+        final Function function =
+                new Function(
+                        FUNC_CREATESETACCOUNTPROPOSAL,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.Address(account),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint8(status),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint256(
+                                        blockNumberInterval)),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return executeTransaction(function);
+    }
+
+    public String createSetAccountProposal(
+            String account,
+            BigInteger status,
+            BigInteger blockNumberInterval,
+            TransactionCallback callback) {
+        final Function function =
+                new Function(
+                        FUNC_CREATESETACCOUNTPROPOSAL,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.Address(account),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint8(status),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint256(
+                                        blockNumberInterval)),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return asyncExecuteTransaction(function, callback);
+    }
+
+    public String getSignedTransactionForCreateSetAccountProposal(
+            String account, BigInteger status, BigInteger blockNumberInterval) {
+        final Function function =
+                new Function(
+                        FUNC_CREATESETACCOUNTPROPOSAL,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.Address(account),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint8(status),
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint256(
+                                        blockNumberInterval)),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return createSignedTransaction(function);
+    }
+
+    public Tuple3<String, BigInteger, BigInteger> getCreateSetAccountProposalInput(
+            TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getInput().substring(10);
+        final Function function =
+                new Function(
+                        FUNC_CREATESETACCOUNTPROPOSAL,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(
+                                new TypeReference<Address>() {},
+                                new TypeReference<Uint8>() {},
+                                new TypeReference<Uint256>() {}));
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple3<String, BigInteger, BigInteger>(
+                (String) results.get(0).getValue(),
+                (BigInteger) results.get(1).getValue(),
+                (BigInteger) results.get(2).getValue());
+    }
+
+    public Tuple1<BigInteger> getCreateSetAccountProposalOutput(
+            TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getOutput();
+        final Function function =
+                new Function(
+                        FUNC_CREATESETACCOUNTPROPOSAL,
                         Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}));
         List<Type> results =

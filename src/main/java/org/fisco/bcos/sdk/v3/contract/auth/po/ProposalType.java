@@ -10,6 +10,7 @@ public enum ProposalType {
     SET_CONFIG("setConfig"),
     SET_NODE_WEIGHT("setNodeWeight"),
     REMOVE_NODE("removeNode"),
+    SET_ACCOUNT_STATUS("setAccountStatus"),
     UNKNOWN("unknown");
 
     private final String value;
@@ -42,6 +43,8 @@ public enum ProposalType {
                 return ProposalType.SET_NODE_WEIGHT;
             case 52:
                 return ProposalType.REMOVE_NODE;
+            case 61:
+                return ProposalType.SET_ACCOUNT_STATUS;
             default:
                 return ProposalType.UNKNOWN;
         }
