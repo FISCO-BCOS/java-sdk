@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.function.Function;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
+import org.fisco.bcos.sdk.v3.contract.auth.contracts.AccountManager;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.CommitteeManager;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.ContractAuthPrecompiled;
+import org.fisco.bcos.sdk.v3.contract.auth.po.AccessStatus;
 import org.fisco.bcos.sdk.v3.contract.auth.po.AuthType;
 import org.fisco.bcos.sdk.v3.contract.auth.po.CommitteeInfo;
 import org.fisco.bcos.sdk.v3.contract.auth.po.ProposalInfo;
@@ -27,6 +29,7 @@ public class AuthManager {
     private final Client client;
     private final CommitteeManager committeeManager;
     private final ContractAuthPrecompiled contractAuthPrecompiled;
+    private final AccountManager accountManager;
     // default block number interval. after current block number, it will be outdated. Default value
     // is about a week.
     private BigInteger DEFAULT_BLOCK_NUMBER_INTERVAL = BigInteger.valueOf(3600 * 24 * 7L);
@@ -39,6 +42,7 @@ public class AuthManager {
         this.contractAuthPrecompiled =
                 ContractAuthPrecompiled.load(
                         PrecompiledAddress.CONTRACT_AUTH_ADDRESS, client, credential);
+        this.accountManager = AccountManager.load(client, credential);
     }
 
     public AuthManager(Client client, CryptoKeyPair credential, BigInteger blockNumberInterval) {
@@ -176,6 +180,28 @@ public class AuthManager {
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId = committeeManager.getCreateRmNodeProposalOutput(tr).getValue1();
+        getExecEvent(tr, proposalId);
+        return proposalId;
+    }
+
+    /**
+     * submit a proposal of set account status, only governor can call it. account should not in
+     * governor list, if account not exist in chain, it will create it by default
+     *
+     * @param account account address
+     * @param status account status
+     * @return proposal ID
+     * @throws ContractException throw when contract exec exception
+     */
+    public BigInteger createSetAccountProposal(String account, AccessStatus status)
+            throws ContractException {
+        TransactionReceipt tr =
+                committeeManager.createSetAccountProposal(
+                        account, status.getBigIntStatus(), DEFAULT_BLOCK_NUMBER_INTERVAL);
+        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(tr);
+        }
+        BigInteger proposalId = committeeManager.getCreateSetAccountProposalOutput(tr).getValue1();
         getExecEvent(tr, proposalId);
         return proposalId;
     }
@@ -553,6 +579,18 @@ public class AuthManager {
      */
     public Boolean contractAvailable(String contractAddress) throws ContractException {
         return contractAuthPrecompiled.contractAvailable(contractAddress);
+    }
+
+    /**
+     * check account is available, if normal then return true
+     *
+     * @param accountAddress account address
+     * @return if true, then this account can be used
+     * @throws ContractException throw when contract exec exception
+     */
+    public Boolean accountAvailable(String accountAddress) throws ContractException {
+        BigInteger accountStatus = accountManager.getAccountStatus(accountAddress);
+        return AccessStatus.getAccessStatus(accountStatus.intValue()) == AccessStatus.Normal;
     }
 
     /**
