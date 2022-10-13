@@ -119,6 +119,8 @@ public class PrecompiledRetCode {
             new RetCode(-51300, "Invalid configuration value");
 
     // ConsensusPrecompiled -51199 ~ -51100
+    public static final RetCode CODE_ADD_SEALER_SHOULD_IN_OBSERVER =
+            new RetCode(-51104, "Only observer can be set in sealer");
     public static final RetCode CODE_NODE_NOT_EXIST = new RetCode(-51103, "The node is not exist");
     public static final RetCode CODE_INVALID_WEIGHT = new RetCode(-51102, "The weight is invalid");
     public static final RetCode CODE_LAST_SEALER =

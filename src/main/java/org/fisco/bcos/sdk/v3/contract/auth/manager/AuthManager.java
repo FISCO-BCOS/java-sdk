@@ -1,9 +1,12 @@
 package org.fisco.bcos.sdk.v3.contract.auth.manager;
 
+import static org.fisco.bcos.sdk.v3.model.PrecompiledConstant.SYNC_KEEP_UP_THRESHOLD;
+
 import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Function;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.AccountManager;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.CommitteeManager;
@@ -250,6 +253,21 @@ public class AuthManager {
                         (weight.compareTo(BigInteger.ZERO) > 0)
                                 ? PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST
                                 : PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
+            }
+            SyncStatus syncStatus = client.getSyncStatus();
+            BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
+            boolean anyMatch =
+                    syncStatus.getSyncStatus().getPeers().stream()
+                            .anyMatch(
+                                    peersInfo ->
+                                            peersInfo.getNodeId().equals(node)
+                                                    && peersInfo.getBlockNumber()
+                                                            >= (blockNumber.longValue()
+                                                                    - SYNC_KEEP_UP_THRESHOLD));
+            if (!anyMatch) {
+                throw new ContractException(
+                        "Observer should keep up the block number sync threshold: "
+                                + SYNC_KEEP_UP_THRESHOLD);
             }
         } else {
             if (weight.compareTo(BigInteger.ZERO) <= 0) {
