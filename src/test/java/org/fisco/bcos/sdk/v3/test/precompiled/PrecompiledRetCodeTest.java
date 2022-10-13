@@ -77,6 +77,10 @@ public class PrecompiledRetCodeTest {
                                 PrecompiledRetCode.CODE_VERSION_LENGTH_OVERFLOW.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_ADDRESS_OR_VERSION_ERROR.getCode(),
                                 PrecompiledRetCode.CODE_ADDRESS_OR_VERSION_ERROR.getMessage());
+                checkResponse(PrecompiledRetCode.CODE_ADD_SEALER_SHOULD_IN_OBSERVER.getCode(),
+                        PrecompiledRetCode.CODE_ADD_SEALER_SHOULD_IN_OBSERVER.getMessage());
+                checkResponse(PrecompiledRetCode.CODE_NODE_NOT_EXIST.getCode(),
+                        PrecompiledRetCode.CODE_NODE_NOT_EXIST.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_LAST_SEALER.getCode(),
                                 PrecompiledRetCode.CODE_LAST_SEALER.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_INVALID_NODEID.getCode(),

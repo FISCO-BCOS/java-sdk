@@ -14,10 +14,13 @@
  */
 package org.fisco.bcos.sdk.v3.contract.precompiled.consensus;
 
+import static org.fisco.bcos.sdk.v3.model.PrecompiledConstant.SYNC_KEEP_UP_THRESHOLD;
+
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
+import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
@@ -64,6 +67,21 @@ public class ConsensusService {
                     throw new ContractException(PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST);
                 }
             }
+        }
+        SyncStatus syncStatus = client.getSyncStatus();
+        BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
+        boolean anyMatch =
+                syncStatus.getSyncStatus().getPeers().stream()
+                        .anyMatch(
+                                peersInfo ->
+                                        peersInfo.getNodeId().equals(nodeId)
+                                                && peersInfo.getBlockNumber()
+                                                        >= (blockNumber.longValue()
+                                                                - SYNC_KEEP_UP_THRESHOLD));
+        if (!anyMatch) {
+            throw new ContractException(
+                    "Observer should keep up the block number sync threshold: "
+                            + SYNC_KEEP_UP_THRESHOLD);
         }
         TransactionReceipt receipt = consensusPrecompiled.addSealer(nodeId, weight);
         return ReceiptParser.parseTransactionReceipt(
