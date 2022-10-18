@@ -20,7 +20,6 @@ import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.Signature;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
-import org.fisco.bcos.sdk.rlp.RlpDecoder;
 import org.fisco.bcos.sdk.rlp.RlpEncoder;
 import org.fisco.bcos.sdk.rlp.RlpList;
 import org.fisco.bcos.sdk.rlp.RlpString;
@@ -78,57 +77,6 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
         List<RlpType> values = asRlpValues(rawTransaction, signature);
         RlpList rlpList = new RlpList(values);
         return RlpEncoder.encode(rlpList);
-    }
-
-    @Override
-    public RawTransaction decode(byte[] encodedTx) {
-        return fromRlpValues(encodedTx);
-    }
-
-    /**
-     * @param encoded
-     * @return
-     */
-    public static RawTransaction fromRlpValues(byte[] encoded) {
-        try {;
-            RlpList rlpList = RlpDecoder.decode(encoded);
-
-            RlpList values = (RlpList) (rlpList.getValues().get(0));
-
-            RlpString randomID = (RlpString) values.getValues().get(0);
-            RlpString gasPrice = (RlpString) values.getValues().get(1);
-            RlpString gasLimit = (RlpString) values.getValues().get(2);
-            RlpString blockLimit = (RlpString) values.getValues().get(3);
-            RlpString to = (RlpString) values.getValues().get(4);
-            RlpString value = (RlpString) values.getValues().get(5);
-            RlpString data = (RlpString) values.getValues().get(6);
-            RlpString chainID = (RlpString) values.getValues().get(7);
-            RlpString groupID = (RlpString) values.getValues().get(8);
-            RlpString extraData = (RlpString) values.getValues().get(9);
-            // RlpString signData = (RlpString) rlpList.getValues().get(10);
-
-            RawTransaction rawTransaction =
-                    RawTransaction.createTransaction(
-                            randomID.asPositiveBigInteger(),
-                            gasPrice.asPositiveBigInteger(),
-                            gasLimit.asPositiveBigInteger(),
-                            blockLimit.asPositiveBigInteger(),
-                            to.asString(),
-                            value.asPositiveBigInteger(),
-                            data.asString(),
-                            chainID.asPositiveBigInteger(),
-                            groupID.asPositiveBigInteger(),
-                            extraData.asString());
-
-            logger.debug(" rawTransaction: {}", rawTransaction);
-
-            return rawTransaction;
-
-        } catch (Exception e) {
-            logger.warn(" rawTransaction: {}", e);
-        }
-
-        return null;
     }
 
     /**
