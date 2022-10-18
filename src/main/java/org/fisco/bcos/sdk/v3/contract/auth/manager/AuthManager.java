@@ -188,28 +188,6 @@ public class AuthManager {
     }
 
     /**
-     * submit a proposal of set account status, only governor can call it. account should not in
-     * governor list, if account not exist in chain, it will create it by default
-     *
-     * @param account account address
-     * @param status account status
-     * @return proposal ID
-     * @throws ContractException throw when contract exec exception
-     */
-    public BigInteger createSetAccountProposal(String account, AccessStatus status)
-            throws ContractException {
-        TransactionReceipt tr =
-                committeeManager.createSetAccountProposal(
-                        account, status.getBigIntStatus(), DEFAULT_BLOCK_NUMBER_INTERVAL);
-        if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
-            ReceiptParser.getErrorStatus(tr);
-        }
-        BigInteger proposalId = committeeManager.getCreateSetAccountProposalOutput(tr).getValue1();
-        getExecEvent(tr, proposalId);
-        return proposalId;
-    }
-
-    /**
      * submit a proposal of set consensus node weight, only governor can call it
      *
      * @param node node ID
@@ -597,6 +575,41 @@ public class AuthManager {
      */
     public Boolean contractAvailable(String contractAddress) throws ContractException {
         return contractAuthPrecompiled.contractAvailable(contractAddress);
+    }
+
+    /**
+     * Set account status, only governor can call it. And account to be set should not in governor
+     * list, if account not exist in chain, it will create it by default
+     *
+     * @param account account address
+     * @param status account status
+     * @return proposal ID
+     * @throws ContractException throw when contract exec exception
+     */
+    public RetCode setAccountStatus(String account, AccessStatus status) throws ContractException {
+        TransactionReceipt receipt =
+                accountManager.setAccountStatus(account, status.getBigIntStatus());
+        if (receipt.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(receipt);
+        }
+        return ReceiptParser.parseTransactionReceipt(
+                receipt, tr -> accountManager.getSetAccountStatusOutput(tr).getValue1());
+    }
+
+    /**
+     * async set account status, only governor can call it. And account to be set should not in
+     * governor list, if account not exist in chain, it will create it by default
+     *
+     * @param account account address
+     * @param status account status
+     */
+    public void asyncSetAccountStatus(
+            String account, AccessStatus status, PrecompiledCallback callback) {
+        accountManager.setAccountStatus(
+                account,
+                status.getBigIntStatus(),
+                createTransactionCallback(
+                        callback, tr -> accountManager.getSetAccountStatusOutput(tr).getValue1()));
     }
 
     /**
