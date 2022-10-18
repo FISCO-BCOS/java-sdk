@@ -35,12 +35,6 @@ public interface TransactionEncoderInterface {
     byte[] encode(RawTransaction rawTransaction, SignatureResult signature);
 
     /**
-     * @param encodedTx
-     * @return
-     */
-    RawTransaction decode(byte[] encodedTx);
-
-    /**
      * Rlp encode and sign based on RawTransaction
      *
      * @param rawTransaction data to be encoded
