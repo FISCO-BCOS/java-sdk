@@ -96,6 +96,36 @@ public class ABIDefinition {
                 false, new ArrayList<>(), null, null, "constructor", false, "nonpayable");
     }
 
+    public static ABIDefinition createABIDefinition(String methodSignature) {
+        {
+            int start = methodSignature.indexOf("(");
+            int end = methodSignature.lastIndexOf(")");
+            if (start == -1 || end == -1 || start >= end) {
+                throw new IllegalArgumentException(
+                        "Invalid method signature format, sig: " + methodSignature);
+            }
+
+            String name = methodSignature.substring(0, start).trim();
+            String type = methodSignature.substring(start + 1, end).trim();
+            List<ABIDefinition.NamedType> inputs = new ArrayList<ABIDefinition.NamedType>();
+
+            if (!type.isEmpty()) {
+                String[] types = type.split(",");
+                for (String s : types) {
+                    if (s.startsWith("tuple")) {
+                        throw new IllegalArgumentException(
+                                "Not support create ABIDefinition by method signature which contains tuple params, sig: "
+                                        + methodSignature);
+                    }
+                    ABIDefinition.NamedType input = new ABIDefinition.NamedType("name", s.trim());
+                    inputs.add(input);
+                }
+            }
+
+            return new ABIDefinition(false, inputs, name, null, "function", false, "nonpayable");
+        }
+    }
+
     /**
      * string method signature
      *
