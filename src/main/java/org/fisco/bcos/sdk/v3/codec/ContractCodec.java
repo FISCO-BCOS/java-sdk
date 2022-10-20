@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.v3.codec.abi.Constant;
 import org.fisco.bcos.sdk.v3.codec.datatypes.AbiTypes;
@@ -90,24 +92,8 @@ public class ContractCodec {
         return this.cryptoSuite;
     }
 
-    public byte[] encodeConstructor(String abi, String bin, List<Object> params)
-            throws ContractCodecException {
-
-        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
-        ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
-        ABIObject inputABIObject = ABIObjectFactory.createInputObject(abiDefinition);
-        try {
-            byte[] encodeParams =
-                    ContractCodecTools.encode(
-                            ContractCodecTools.decodeABIObjectValue(inputABIObject, params),
-                            isWasm);
-            return encodeConstructorFromBytes(bin, encodeParams);
-        } catch (Exception e) {
-            logger.error(" exception in encodeConstructor : {}", e.getMessage());
-        }
-        String errorMsg = " cannot encode in encodeConstructor with appropriate interface ABI";
-        logger.error(errorMsg);
-        throw new ContractCodecException(errorMsg);
+    public FunctionEncoderInterface getFunctionEncoder() {
+        return functionEncoder;
     }
 
     private Type buildType(ABIDefinition.NamedType namedType, String param)
@@ -316,6 +302,29 @@ public class ContractCodec {
         throw new ContractCodecException(errorMsg);
     }
 
+    // -------------------------------------------------------------------------------
+    //  -------------------------------  encode begin --------------------------------
+
+    public byte[] encodeConstructor(String abi, String bin, List<Object> params)
+            throws ContractCodecException {
+
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
+        ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
+        ABIObject inputABIObject = ABIObjectFactory.createInputObject(abiDefinition);
+        try {
+            byte[] encodeParams =
+                    ContractCodecTools.encode(
+                            ContractCodecTools.decodeABIObjectValue(inputABIObject, params),
+                            isWasm);
+            return encodeConstructorFromBytes(bin, encodeParams);
+        } catch (Exception e) {
+            logger.error(" exception in encodeConstructor : {}", e.getMessage());
+        }
+        String errorMsg = " cannot encode in encodeConstructor with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
     public byte[] encodeConstructorFromString(String abi, String bin, List<String> params)
             throws ContractCodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
@@ -439,29 +448,10 @@ public class ContractCodec {
         throw new ContractCodecException(errorMsg);
     }
 
-    private ABIDefinition getABIDefinition(String methodInterface) throws ContractCodecException {
-        int start = methodInterface.indexOf("(");
-        int end = methodInterface.lastIndexOf(")");
-        if (start == -1 || end == -1 || start >= end) {
-            String errorMsg = " error format";
-            logger.error(errorMsg);
-            throw new ContractCodecException(errorMsg);
-        }
-        String name = methodInterface.substring(0, start);
-        String type = methodInterface.substring(start + 1, end);
-        String[] types = type.split(",");
-        List<ABIDefinition.NamedType> inputs = new ArrayList<ABIDefinition.NamedType>();
-        for (String s : types) {
-            ABIDefinition.NamedType input = new ABIDefinition.NamedType("name", s);
-            inputs.add(input);
-        }
-
-        return new ABIDefinition(false, inputs, name, null, "function", false, "nonpayable");
-    }
-
     public byte[] encodeMethodByInterface(String methodInterface, List<Object> params)
             throws ContractCodecException {
-        ABIDefinition abiDefinition = this.getABIDefinition(methodInterface);
+
+        ABIDefinition abiDefinition = ABIDefinition.createABIDefinition(methodInterface);
         if (abiDefinition.getInputs().size() == params.size()) {
             ABIObject inputABIObject = ABIObjectFactory.createInputObject(abiDefinition);
             try {
@@ -571,7 +561,8 @@ public class ContractCodec {
 
     public byte[] encodeMethodByInterfaceFromString(String methodInterface, List<String> params)
             throws ContractCodecException {
-        ABIDefinition abiDefinition = this.getABIDefinition(methodInterface);
+
+        ABIDefinition abiDefinition = ABIDefinition.createABIDefinition(methodInterface);
         if (abiDefinition.getInputs().size() == params.size()) {
             ABIObject inputABIObject = ABIObjectFactory.createInputObject(abiDefinition);
             try {
@@ -591,6 +582,189 @@ public class ContractCodec {
         logger.error(errorMsg);
         throw new ContractCodecException(errorMsg);
     }
+
+    //  -------------------------------  encode end -----------------------------------------------
+    //  -------------------------------------------------------------------------------------------
+
+    //  -------------------------------------------------------------------------------------------
+    //  -------------------------------  decode input begin ---------------------------------------
+
+    public Pair<List<Object>, List<ABIObject>> decodeMethodAndGetInputObject(
+            ABIDefinition abiDefinition, String input) throws ContractCodecException {
+        ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+        try {
+            boolean startWithHexPrefix = input.startsWith("0x") || input.startsWith("0X");
+            return ContractCodecTools.decodeJavaObjectAndOutputObject(
+                    inputObject, input.substring(startWithHexPrefix ? 10 : 8), isWasm);
+        } catch (Exception e) {
+            logger.error(" exception in decodeMethodToObject : ", e);
+        }
+        String errorMsg =
+                " cannot decode in decodeMethodAndGetInputObject with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public List<Type> decodeMethodAndGetInputObject(String abi, String methodName, String input)
+            throws ContractCodecException {
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
+        List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        for (ABIDefinition abiDefinition : methods) {
+            List<ABIDefinition.NamedType> inputs = abiDefinition.getInputs();
+            List<TypeReference<Type>> inputTypes = new ArrayList<>();
+            try {
+                for (ABIDefinition.NamedType namedType : inputs) {
+                    inputTypes.add(TypeReference.makeTypeReference(namedType.getType(), false));
+                }
+                boolean startWithHexPrefix = input.startsWith("0x") || input.startsWith("0X");
+                return this.functionReturnDecoder.decode(
+                        input.substring(startWithHexPrefix ? 10 : 8), inputTypes);
+            } catch (Exception e) {
+                logger.error("exception in decodeMethodToObject: {}, e:", e.getMessage(), e);
+            }
+        }
+
+        String errorMsg =
+                String.format(
+                        "cannot decode in decodeMethodAndGetInputObject with appropriate interface ABI: methodName = %s",
+                        methodName);
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public List<Object> decodeConstructorInput(String abi, String bin, String input)
+            throws ContractCodecException {
+        String paramsInput = StringUtils.substringAfter(input, bin);
+        if (paramsInput.isEmpty()) { //
+            return new ArrayList<>();
+        }
+
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
+        ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
+        return this.decodeMethodAndGetInputObject(abiDefinition, paramsInput).getLeft();
+    }
+
+    public List<String> decodeConstructorInputToString(String abi, String bin, String input)
+            throws ContractCodecException {
+        String paramsInput = StringUtils.substringAfter(input, bin);
+        if (paramsInput.isEmpty()) { //
+            return new ArrayList<>();
+        }
+
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
+        ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
+        ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+        try {
+            return contractCodecJsonWrapper.decode(inputObject, Hex.decode(paramsInput), isWasm);
+        } catch (Exception e) {
+            logger.error(" exception in decodeConstructorInputToString : {}", e.getMessage());
+        }
+
+        String errorMsg =
+                " cannot decode in decodeConstructorInputToString with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public List<Object> decodeMethodInput(ABIDefinition abiDefinition, String input)
+            throws ContractCodecException {
+        return this.decodeMethodAndGetInputObject(abiDefinition, input).getLeft();
+    }
+
+    public List<Type> decodeMethodInput(String ABI, String methodName, String input)
+            throws ContractCodecException {
+        return this.decodeMethodAndGetInputObject(ABI, methodName, input);
+    }
+
+    public List<Object> decodeMethodInputById(String abi, byte[] methodId, byte[] input)
+            throws ContractCodecException {
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
+        ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
+        if (abiDefinition == null) {
+            String errorMsg = " methodId " + methodId + " is invalid";
+            logger.error(errorMsg);
+            throw new ContractCodecException(errorMsg);
+        }
+        ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+        try {
+            return ContractCodecTools.decodeJavaObject(
+                    inputObject, Hex.toHexString(input).substring(8), isWasm);
+        } catch (Exception e) {
+            logger.error(" exception in decodeMethodByIdToObject : {}", e.getMessage());
+        }
+
+        String errorMsg = " cannot decode in decodeMethodInputById with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public List<Object> decodeMethodInputByInterface(
+            String abi, String methodInterface, byte[] input) throws ContractCodecException {
+        byte[] methodId = functionEncoder.buildMethodId(methodInterface);
+        return this.decodeMethodInputById(abi, methodId, input);
+    }
+
+    public List<String> decodeMethodInputToString(String abi, String methodName, byte[] input)
+            throws ContractCodecException {
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
+        List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        if (methods == null) {
+            throw new ContractCodecException(
+                    "Invalid method "
+                            + methodName
+                            + ", supported methods are: "
+                            + contractABIDefinition.getFunctions().keySet());
+        }
+        for (ABIDefinition abiDefinition : methods) {
+            ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+            try {
+                return contractCodecJsonWrapper.decode(
+                        inputObject, Arrays.copyOfRange(input, 4, input.length), isWasm);
+            } catch (Exception e) {
+                logger.error(" exception in decodeMethodToString : {}", e.getMessage());
+            }
+        }
+
+        String errorMsg =
+                " cannot decode in decodeMethodInputToString with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public List<String> decodeMethodInputByIdToString(String abi, byte[] methodId, byte[] input)
+            throws ContractCodecException {
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
+        ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
+        if (abiDefinition == null) {
+            String errorMsg = " methodId " + methodId + " is invalid";
+            logger.error(errorMsg);
+            throw new ContractCodecException(errorMsg);
+        }
+        ABIObject outputABIObject = ABIObjectFactory.createInputObject(abiDefinition);
+        try {
+            return contractCodecJsonWrapper.decode(
+                    outputABIObject, Arrays.copyOfRange(input, 4, input.length), isWasm);
+        } catch (UnsupportedOperationException | ClassNotFoundException e) {
+            logger.error(" exception in decodeMethodInputByIdToString : {}", e.getMessage());
+        }
+
+        String errorMsg =
+                " cannot decode in decodeMethodInputByIdToString with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public List<String> decodeMethodInputByInterfaceToString(
+            String abi, String methodInterface, byte[] input) throws ContractCodecException {
+        byte[] methodId = functionEncoder.buildMethodId(methodInterface);
+        return this.decodeMethodInputByIdToString(abi, methodId, input);
+    }
+
+    //  -------------------------------  decode input end   ---------------------------------------
+    //  -------------------------------------------------------------------------------------------
+
+    //  -------------------------------------------------------------------------------------------
+    //  -------------------------------  decode output begin --------------------------------------
 
     public Pair<List<Object>, List<ABIObject>> decodeMethodAndGetOutputObject(
             ABIDefinition abiDefinition, String output) throws ContractCodecException {
@@ -721,6 +895,9 @@ public class ContractCodec {
         byte[] methodId = functionEncoder.buildMethodId(methodInterface);
         return this.decodeMethodByIdToString(abi, methodId, output);
     }
+
+    //  -------------------------------  decode output end   --------------------------------------
+    //  -------------------------------------------------------------------------------------------
 
     public List<Object> decodeEvent(String abi, String eventName, EventLog log)
             throws ContractCodecException {
