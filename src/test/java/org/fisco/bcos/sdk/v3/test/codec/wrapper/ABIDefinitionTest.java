@@ -3,7 +3,9 @@ package org.fisco.bcos.sdk.v3.test.codec.wrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.util.List;
@@ -544,4 +546,23 @@ public class ABIDefinitionTest {
         Assert.assertTrue(type3.getDimensions().size() == 0);
         Assert.assertTrue(type3.getLastDimension() == 0);
     }
+
+    @Test
+    public void testCreateABIDefinition() {
+
+        String sig0 = "fun()";
+        ABIDefinition abiDefinition0 = ABIDefinition.createABIDefinition(sig0);
+        Assert.assertEquals(abiDefinition0.getName(), "fun");
+        Assert.assertEquals(abiDefinition0.getInputs().size(), 0);
+
+        String sig1 = "f(int, string , uint)";
+        ABIDefinition abiDefinition1 = ABIDefinition.createABIDefinition(sig1);
+        Assert.assertEquals(abiDefinition1.getName(), "f");
+        Assert.assertEquals(abiDefinition1.getInputs().size(), 3);
+
+        Assert.assertEquals(abiDefinition1.getInputs().get(0).getType(), "int");
+        Assert.assertEquals(abiDefinition1.getInputs().get(1).getType(), "string");
+        Assert.assertEquals(abiDefinition1.getInputs().get(2).getType(), "uint");
+    }
+
 }
