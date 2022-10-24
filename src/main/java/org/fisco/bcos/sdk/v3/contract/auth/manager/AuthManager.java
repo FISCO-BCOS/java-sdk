@@ -218,7 +218,7 @@ public class AuthManager {
             throws ContractException {
         if (addFlag) {
             // check the nodeId exists in the nodeList or not
-            if (!existsInNodeList(node)) {
+            if (weight.compareTo(BigInteger.ZERO) > 0 && !existsInNodeList(node)) {
                 throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
             }
             boolean existence =
@@ -232,20 +232,22 @@ public class AuthManager {
                                 ? PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST
                                 : PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
             }
-            SyncStatus syncStatus = client.getSyncStatus();
-            BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
-            boolean anyMatch =
-                    syncStatus.getSyncStatus().getPeers().stream()
-                            .anyMatch(
-                                    peersInfo ->
-                                            peersInfo.getNodeId().equals(node)
-                                                    && peersInfo.getBlockNumber()
-                                                            >= (blockNumber.longValue()
-                                                                    - SYNC_KEEP_UP_THRESHOLD));
-            if (!anyMatch) {
-                throw new ContractException(
-                        "Observer should keep up the block number sync threshold: "
-                                + SYNC_KEEP_UP_THRESHOLD);
+            if (weight.compareTo(BigInteger.ZERO) > 0) {
+                SyncStatus syncStatus = client.getSyncStatus();
+                BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
+                boolean anyMatch =
+                        syncStatus.getSyncStatus().getPeers().stream()
+                                .anyMatch(
+                                        peersInfo ->
+                                                peersInfo.getNodeId().equals(node)
+                                                        && peersInfo.getBlockNumber()
+                                                                >= (blockNumber.longValue()
+                                                                        - SYNC_KEEP_UP_THRESHOLD));
+                if (!anyMatch) {
+                    throw new ContractException(
+                            "Observer should keep up the block number sync threshold: "
+                                    + SYNC_KEEP_UP_THRESHOLD);
+                }
             }
         } else {
             if (weight.compareTo(BigInteger.ZERO) <= 0) {

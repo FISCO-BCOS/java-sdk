@@ -48,10 +48,35 @@ public class BFSService {
         return listOutput.getValue2().getValue();
     }
 
+    public Tuple2<BigInteger, List<BFSPrecompiled.BfsInfo>> list(
+            String absolutePath, BigInteger offset, BigInteger limit) throws ContractException {
+        Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
+                bfsPrecompiled.list(absolutePath, offset, limit);
+        if (listOutput.getValue1().compareTo(BigInteger.ZERO) < 0) {
+            RetCode precompiledResponse =
+                    PrecompiledRetCode.getPrecompiledResponse(
+                            listOutput.getValue1().intValue(), "");
+            throw new ContractException(
+                    "BfsService: list return error code: "
+                            + listOutput.getValue1()
+                            + ", check error msg in blockchain node.",
+                    precompiledResponse.getCode());
+        }
+        return new Tuple2<>(listOutput.getValue1(), listOutput.getValue2().getValue());
+    }
+
     public RetCode link(String name, String version, String contractAddress, String abi)
             throws ContractException {
         TransactionReceipt transactionReceipt =
                 bfsPrecompiled.link(name, version, contractAddress, abi);
+        return ReceiptParser.parseTransactionReceipt(
+                transactionReceipt, tr -> bfsPrecompiled.getLinkWithVersionOutput(tr).getValue1());
+    }
+
+    public RetCode link(String absolutePath, String contractAddress, String abi)
+            throws ContractException {
+        TransactionReceipt transactionReceipt =
+                bfsPrecompiled.link(absolutePath, contractAddress, abi);
         return ReceiptParser.parseTransactionReceipt(
                 transactionReceipt, tr -> bfsPrecompiled.getLinkOutput(tr).getValue1());
     }
