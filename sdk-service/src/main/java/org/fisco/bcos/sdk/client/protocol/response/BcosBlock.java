@@ -16,12 +16,16 @@
 package org.fisco.bcos.sdk.client.protocol.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -93,11 +97,12 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
     public static class Block extends BcosBlockHeader.BlockHeader {
         private List<TransactionResult> transactions;
 
+        @JsonSerialize(using = TransactionResultSerializer.class)
         public List<TransactionResult> getTransactions() {
             return transactions;
         }
 
-        @JsonDeserialize(using = TransactionResultDeserialiser.class)
+        @JsonDeserialize(using = TransactionResultDeserializer.class)
         public void setTransactions(List<TransactionResult> transactions) {
             this.transactions = transactions;
         }
@@ -167,8 +172,30 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
         }
     }
 
+    // encode transactionResult
+    public static class TransactionResultSerializer
+            extends JsonSerializer<List<TransactionResult>> {
+
+        @Override
+        public void serialize(
+                List<TransactionResult> value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException {
+            gen.writeStartArray();
+            for (TransactionResult result : value) {
+                if (result instanceof TransactionHash) {
+                    TransactionHash transactionHash = (TransactionHash) result;
+                    gen.writeObject(transactionHash.get());
+                } else if (result instanceof TransactionObject) {
+                    TransactionObject transactionObject = (TransactionObject) result;
+                    gen.writeObject(transactionObject.get());
+                }
+            }
+            gen.writeEndArray();
+        }
+    }
+
     // decode transactionResult
-    public static class TransactionResultDeserialiser
+    public static class TransactionResultDeserializer
             extends JsonDeserializer<List<TransactionResult>> {
 
         private ObjectReader objectReader = ObjectMapperFactory.getObjectReader();
