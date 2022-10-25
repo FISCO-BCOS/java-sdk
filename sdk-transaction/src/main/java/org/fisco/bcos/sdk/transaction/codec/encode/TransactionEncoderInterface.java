@@ -14,8 +14,10 @@
  */
 package org.fisco.bcos.sdk.transaction.codec.encode;
 
+import org.fisco.bcos.sdk.channel.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.signature.SignatureResult;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 
 /**
@@ -60,4 +62,24 @@ public interface TransactionEncoderInterface {
      * @return encoded and hashed transaction byte array
      */
     byte[] encodeAndHashBytes(RawTransaction rawTransaction, CryptoKeyPair cryptoKeyPair);
+
+    /**
+     * Rlp encode based on TransactionReceipt
+     *
+     * @param transactionReceipt data to be encoded
+     * @param version version
+     * @return encoded transactionReceipt byte array
+     */
+    byte[] encodeTransactionReceipt(
+            TransactionReceipt transactionReceipt, EnumNodeVersion.Version version);
+
+    /**
+     * Rlp encode hex string based on TransactionReceipt
+     *
+     * @param transactionReceipt data to be encoded
+     * @param version version
+     * @return encoded transactionReceipt hex string
+     */
+    String encodeTransactionReceiptHexString(
+            TransactionReceipt transactionReceipt, EnumNodeVersion.Version version);
 }
