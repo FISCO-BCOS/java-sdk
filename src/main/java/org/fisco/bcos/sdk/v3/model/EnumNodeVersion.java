@@ -1,25 +1,53 @@
 package org.fisco.bcos.sdk.v3.model;
 
-public enum EnumNodeVersion {
-    BCOS_3_0_0_RC1("3.0.0-rc1"),
-    BCOS_3_0_0("3.0.0"),
-    BCOS_3_0_1("3.0.1");
-    private String version;
+import java.util.HashMap;
+import java.util.Map;
 
-    EnumNodeVersion(String version) {
+public enum EnumNodeVersion {
+    BCOS_3_0_0_RC4(4),
+    BCOS_3_0_0(0x03000000),
+    BCOS_3_1_0(0x03000001);
+
+    private final Integer version;
+    private static final Map<Integer, EnumNodeVersion> versionLookupMap = new HashMap<>();
+
+    static {
+        versionLookupMap.put(4, BCOS_3_0_0_RC4);
+        versionLookupMap.put(0x03000000, BCOS_3_0_0);
+        versionLookupMap.put(0x03000001, BCOS_3_1_0);
+    }
+
+    EnumNodeVersion(Integer version) {
         this.version = version;
     }
 
-    public String getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public String getVersionString() {
+        switch (this) {
+            case BCOS_3_0_0_RC4:
+                return "3.0.0-rc4";
+            case BCOS_3_0_0:
+                return "3.0.0";
+            case BCOS_3_1_0:
+                return "3.1.0";
+            default:
+                throw new IllegalStateException("Unexpected value: " + this.version);
+        }
+    }
+
+    public Version toVersionObj() {
+        return getClassVersion(getVersionString());
+    }
+
+    public static EnumNodeVersion valueOf(int version) {
+        return versionLookupMap.get(version);
     }
 
     // the object of node version
-    public class Version {
+    public static class Version implements Comparable<Version> {
         private int major;
         private int minor;
         private int patch;
@@ -39,7 +67,11 @@ public enum EnumNodeVersion {
         }
 
         public String toVersionString() {
-            return this.getMajor() + "." + this.getMinor();
+            String str = this.getMajor() + "." + this.getMinor() + "." + this.patch;
+            if (!ext.isEmpty()) {
+                str += "-" + ext;
+            }
+            return str;
         }
 
         public int getMajor() {
@@ -73,33 +105,50 @@ public enum EnumNodeVersion {
         public void setExt(String ext) {
             this.ext = ext;
         }
+
+        @Override
+        public int compareTo(Version v) {
+            int thisCompactVersion = this.major * 100 + this.minor * 10 + this.patch;
+            int vCompactVersion = v.major * 100 + v.major * 10 + v.patch;
+            if (thisCompactVersion > vCompactVersion) {
+                return 1;
+            } else if (thisCompactVersion < vCompactVersion) {
+                return -1;
+            }
+            return 0;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) return false;
+
+            if (this.getClass() != obj.getClass()) return false;
+            return this.compareTo((Version) obj) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode();
+        }
     }
 
-    public static Version getClassVersion(String version) throws Exception {
-        try {
-            // node version str format : "a.b.c" or "a.b.c-rcx" or gm version
-            if (version.endsWith("gm")) {
-                version = version.substring(0, version.indexOf("gm"));
-            }
-            String[] s0 = version.trim().split("-");
+    public static Version getClassVersion(String version) {
+        // node version str format : "a.b.c" or "a.b.c-rcx"
+        String[] s0 = version.trim().split("-");
 
-            Version v = EnumNodeVersion.BCOS_3_0_0.new Version();
-            if (s0.length > 1) {
-                v.setExt(s0[1]);
-            }
-
-            //
-            String[] s1 = s0[0].split("\\.");
-            if (s1.length >= 3) {
-                v.setMajor(Integer.parseInt(s1[0].trim()));
-                v.setMinor(Integer.parseInt(s1[1].trim()));
-                v.setPatch(Integer.parseInt(s1[2].trim()));
-            } else { // invaid format
-                throw new Exception(" invalid node version format, version: " + version);
-            }
-            return v;
-        } catch (Exception e) {
-            throw new Exception(" invalid node version format, version: " + version);
+        Version v = new Version();
+        if (s0.length > 1) {
+            v.setExt(s0[1]);
         }
+
+        String[] s1 = s0[0].split("\\.");
+        if (s1.length >= 3) {
+            v.setMajor(Integer.parseInt(s1[0].trim()));
+            v.setMinor(Integer.parseInt(s1[1].trim()));
+            v.setPatch(Integer.parseInt(s1[2].trim()));
+        } else { // invalid format
+            throw new IllegalStateException(" invalid node version format, version: " + version);
+        }
+        return v;
     }
 }

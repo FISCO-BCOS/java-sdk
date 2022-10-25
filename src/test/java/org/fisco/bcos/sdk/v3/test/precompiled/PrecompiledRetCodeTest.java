@@ -57,8 +57,8 @@ public class PrecompiledRetCodeTest {
                                 PrecompiledRetCode.CODE_INVALID_CONTRACT_REPEAT_AUTHORIZATION.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_INVALID_CONTRACT_AVAILABLE.getCode(),
                                 PrecompiledRetCode.CODE_INVALID_CONTRACT_AVAILABLE.getMessage());
-                checkResponse(PrecompiledRetCode.CODE_INVALID_CONTRACT_FEOZEN.getCode(),
-                                PrecompiledRetCode.CODE_INVALID_CONTRACT_FEOZEN.getMessage());
+                checkResponse(PrecompiledRetCode.CODE_ACCOUNT_ALREADY_EXIST.getCode(),
+                                PrecompiledRetCode.CODE_ACCOUNT_ALREADY_EXIST.getMessage());
                 checkResponse(PrecompiledRetCode.VERIFY_RING_SIG_FAILED.getCode(),
                                 PrecompiledRetCode.VERIFY_RING_SIG_FAILED.getMessage());
                 checkResponse(PrecompiledRetCode.VERIFY_GROUP_SIG_FAILED.getCode(),

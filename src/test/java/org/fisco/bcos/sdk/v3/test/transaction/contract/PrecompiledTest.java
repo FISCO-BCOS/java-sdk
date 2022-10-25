@@ -1,6 +1,8 @@
 package org.fisco.bcos.sdk.v3.test.transaction.contract;
 
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupNodeInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
@@ -17,6 +19,7 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
@@ -53,6 +56,17 @@ public class PrecompiledTest {
         when(mockClient.getCryptoSuite()).thenReturn(cryptoSuite);
         when(mockClient.isWASM()).thenReturn(false);
         when(mockClient.getBlockLimit()).thenReturn(BigInteger.valueOf(500));
+        when(mockClient.getGroupInfo()).then((Answer<BcosGroupInfo>) invocation -> {
+            BcosGroupInfo bcosGroupInfo = new BcosGroupInfo();
+            BcosGroupInfo.GroupInfo groupInfo = new BcosGroupInfo.GroupInfo();
+            BcosGroupNodeInfo.GroupNodeInfo groupNodeInfo = new BcosGroupNodeInfo.GroupNodeInfo();
+            BcosGroupNodeInfo.Protocol protocol = new BcosGroupNodeInfo.Protocol();
+            protocol.setCompatibilityVersion(EnumNodeVersion.BCOS_3_1_0.getVersion());
+            groupNodeInfo.setProtocol(protocol);
+            groupInfo.setNodeList(Collections.singletonList(groupNodeInfo));
+            bcosGroupInfo.setResult(groupInfo);
+            return bcosGroupInfo;
+        });
         authManager = new AuthManager(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
         bfsService = new BFSService(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
         consensusService = new ConsensusService(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
