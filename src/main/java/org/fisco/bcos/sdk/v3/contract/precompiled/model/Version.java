@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Version {
-    private static Logger logger = LoggerFactory.getLogger(Version.class);
+    private static final Logger logger = LoggerFactory.getLogger(Version.class);
     private final String minVersion;
     private String maxVersion;
     private String interfaceName;

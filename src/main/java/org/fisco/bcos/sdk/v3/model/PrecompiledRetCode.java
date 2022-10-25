@@ -79,8 +79,8 @@ public class PrecompiledRetCode {
             new RetCode(-51902, "The contract has been granted authorization with same user");
     public static final RetCode CODE_INVALID_CONTRACT_AVAILABLE =
             new RetCode(-51901, "The contract is available");
-    public static final RetCode CODE_INVALID_CONTRACT_FEOZEN =
-            new RetCode(-51900, "The contract has been frozen");
+    public static final RetCode CODE_ACCOUNT_ALREADY_EXIST =
+            new RetCode(-51900, "The account is not a valid account");
 
     // RingSigPrecompiled -51899 ~ -51800
     public static final RetCode VERIFY_RING_SIG_FAILED =
