@@ -6,6 +6,7 @@ import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
+import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
@@ -15,8 +16,11 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class BFSService {
     private final BFSPrecompiled bfsPrecompiled;
+    private final long currentVersion;
+    private final Client client;
 
     public BFSService(Client client, CryptoKeyPair credential) {
+        this.client = client;
         this.bfsPrecompiled =
                 BFSPrecompiled.load(
                         client.isWASM()
@@ -24,6 +28,13 @@ public class BFSService {
                                 : PrecompiledAddress.BFS_PRECOMPILED_ADDRESS,
                         client,
                         credential);
+        this.currentVersion =
+                client.getGroupInfo()
+                        .getResult()
+                        .getNodeList()
+                        .get(0)
+                        .getProtocol()
+                        .getCompatibilityVersion();
     }
 
     public RetCode mkdir(String path) throws ContractException {
@@ -50,6 +61,7 @@ public class BFSService {
 
     public Tuple2<BigInteger, List<BFSPrecompiled.BfsInfo>> list(
             String absolutePath, BigInteger offset, BigInteger limit) throws ContractException {
+        PrecompiledVersionCheck.LS_PAGE_VERSION.checkVersion(currentVersion);
         Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
                 bfsPrecompiled.list(absolutePath, offset, limit);
         if (listOutput.getValue1().compareTo(BigInteger.ZERO) < 0) {
@@ -75,6 +87,7 @@ public class BFSService {
 
     public RetCode link(String absolutePath, String contractAddress, String abi)
             throws ContractException {
+        PrecompiledVersionCheck.LINK_SIMPLE_VERSION.checkVersion(currentVersion);
         TransactionReceipt transactionReceipt =
                 bfsPrecompiled.link(absolutePath, contractAddress, abi);
         return ReceiptParser.parseTransactionReceipt(

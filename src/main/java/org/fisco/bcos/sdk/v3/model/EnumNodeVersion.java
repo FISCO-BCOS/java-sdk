@@ -1,11 +1,21 @@
 package org.fisco.bcos.sdk.v3.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum EnumNodeVersion {
     BCOS_3_0_0_RC4(4),
     BCOS_3_0_0(0x03000000),
     BCOS_3_1_0(0x03000001);
 
     private final Integer version;
+    private static final Map<Integer, EnumNodeVersion> versionLookupMap = new HashMap<>();
+
+    static {
+        versionLookupMap.put(4, BCOS_3_0_0_RC4);
+        versionLookupMap.put(0x03000000, BCOS_3_0_0);
+        versionLookupMap.put(0x03000001, BCOS_3_1_0);
+    }
 
     EnumNodeVersion(Integer version) {
         this.version = version;
@@ -30,6 +40,10 @@ public enum EnumNodeVersion {
 
     public Version toVersionObj() {
         return getClassVersion(getVersionString());
+    }
+
+    public static EnumNodeVersion valueOf(int version) {
+        return versionLookupMap.get(version);
     }
 
     // the object of node version
@@ -132,7 +146,7 @@ public enum EnumNodeVersion {
             v.setMajor(Integer.parseInt(s1[0].trim()));
             v.setMinor(Integer.parseInt(s1[1].trim()));
             v.setPatch(Integer.parseInt(s1[2].trim()));
-        } else { // invaid format
+        } else { // invalid format
             throw new IllegalStateException(" invalid node version format, version: " + version);
         }
         return v;
