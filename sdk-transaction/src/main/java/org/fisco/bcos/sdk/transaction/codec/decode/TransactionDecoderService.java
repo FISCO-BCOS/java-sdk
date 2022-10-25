@@ -15,6 +15,7 @@
 package org.fisco.bcos.sdk.transaction.codec.decode;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,11 +36,16 @@ import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.RetCode;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
+import org.fisco.bcos.sdk.rlp.RlpDecoder;
+import org.fisco.bcos.sdk.rlp.RlpList;
+import org.fisco.bcos.sdk.rlp.RlpString;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
+import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.fisco.bcos.sdk.transaction.tools.ReceiptStatusUtil;
+import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,6 +213,41 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                     }
                 });
         return result;
+    }
+
+    @Override
+    public RawTransaction decodeRawTransaction(String rawTxHex) {
+        byte[] rawTxHash = Numeric.hexStringToByteArray(rawTxHex);
+        return decodeRawTransaction(rawTxHash);
+    }
+
+    @Override
+    public RawTransaction decodeRawTransaction(byte[] rawTxHash) {
+        RlpList rlpList = RlpDecoder.decode(rawTxHash);
+        RlpList values = (RlpList) rlpList.getValues().get(0);
+        BigInteger randomId = ((RlpString) values.getValues().get(0)).asPositiveBigInteger();
+        BigInteger gasPrice = ((RlpString) values.getValues().get(1)).asPositiveBigInteger();
+        BigInteger gasLimit = ((RlpString) values.getValues().get(2)).asPositiveBigInteger();
+        BigInteger blockLimit = ((RlpString) values.getValues().get(3)).asPositiveBigInteger();
+        String to = ((RlpString) values.getValues().get(4)).asString();
+        BigInteger value = ((RlpString) values.getValues().get(5)).asPositiveBigInteger();
+        String data = ((RlpString) values.getValues().get(6)).asString();
+
+        // add extra data
+        BigInteger chainId = ((RlpString) values.getValues().get(7)).asPositiveBigInteger();
+        BigInteger groupId = ((RlpString) values.getValues().get(8)).asPositiveBigInteger();
+        String extraData = ((RlpString) values.getValues().get(9)).asString();
+        return RawTransaction.createTransaction(
+                randomId,
+                gasPrice,
+                gasLimit,
+                blockLimit,
+                to,
+                value,
+                data,
+                chainId,
+                groupId,
+                extraData);
     }
 
     private String decodeMethodSign(ABIDefinition ABIDefinition) {
