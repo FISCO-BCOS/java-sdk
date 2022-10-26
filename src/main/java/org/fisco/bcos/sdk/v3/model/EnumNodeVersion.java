@@ -51,7 +51,7 @@ public enum EnumNodeVersion {
         private int major;
         private int minor;
         private int patch;
-        private String ext;
+        private String ext = "";
 
         @Override
         public String toString() {
@@ -67,8 +67,8 @@ public enum EnumNodeVersion {
         }
 
         public String toVersionString() {
-            String str = this.getMajor() + "." + this.getMinor() + "." + this.patch;
-            if (!ext.isEmpty()) {
+            String str = this.getMajor() + "." + this.getMinor() + "." + this.getPatch();
+            if (ext != null && !ext.isEmpty()) {
                 str += "-" + ext;
             }
             return str;
