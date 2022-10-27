@@ -17,10 +17,8 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 public class BFSService {
     private final BFSPrecompiled bfsPrecompiled;
     private final long currentVersion;
-    private final Client client;
 
     public BFSService(Client client, CryptoKeyPair credential) {
-        this.client = client;
         this.bfsPrecompiled =
                 BFSPrecompiled.load(
                         client.isWASM()
@@ -35,6 +33,10 @@ public class BFSService {
                         .get(0)
                         .getProtocol()
                         .getCompatibilityVersion();
+    }
+
+    public long getCurrentVersion() {
+        return currentVersion;
     }
 
     public RetCode mkdir(String path) throws ContractException {
@@ -53,7 +55,8 @@ public class BFSService {
             throw new ContractException(
                     "BfsService: list return error code: "
                             + listOutput.getValue1()
-                            + ", check error msg in blockchain node.",
+                            + ", error msg: "
+                            + precompiledResponse.getMessage(),
                     precompiledResponse.getCode());
         }
         return listOutput.getValue2().getValue();
@@ -64,16 +67,6 @@ public class BFSService {
         PrecompiledVersionCheck.LS_PAGE_VERSION.checkVersion(currentVersion);
         Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
                 bfsPrecompiled.list(absolutePath, offset, limit);
-        if (listOutput.getValue1().compareTo(BigInteger.ZERO) < 0) {
-            RetCode precompiledResponse =
-                    PrecompiledRetCode.getPrecompiledResponse(
-                            listOutput.getValue1().intValue(), "");
-            throw new ContractException(
-                    "BfsService: list return error code: "
-                            + listOutput.getValue1()
-                            + ", check error msg in blockchain node.",
-                    precompiledResponse.getCode());
-        }
         return new Tuple2<>(listOutput.getValue1(), listOutput.getValue2().getValue());
     }
 

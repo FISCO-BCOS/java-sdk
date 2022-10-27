@@ -19,7 +19,7 @@ import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 
 public class ContractException extends Exception {
     private Call.CallOutput responseOutput = null;
-    private int errorCode;
+    private int errorCode = -1;
     private TransactionReceipt receipt;
 
     public ContractException(String errorMessage, int errorCode) {

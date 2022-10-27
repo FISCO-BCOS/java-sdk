@@ -108,8 +108,8 @@ public enum EnumNodeVersion {
 
         @Override
         public int compareTo(Version v) {
-            int thisCompactVersion = this.major * 100 + this.minor * 10 + this.patch;
-            int vCompactVersion = v.major * 100 + v.major * 10 + v.patch;
+            int thisCompactVersion = this.getMajor() * 100 + this.getMinor() * 10 + this.getPatch();
+            int vCompactVersion = v.getMajor() * 100 + v.getMinor() * 10 + v.getPatch();
             if (thisCompactVersion > vCompactVersion) {
                 return 1;
             } else if (thisCompactVersion < vCompactVersion) {
