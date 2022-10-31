@@ -1,5 +1,6 @@
 package org.fisco.bcos.sdk.abi.datatypes;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +40,15 @@ public abstract class Array<T extends Type> implements Type<List<T>> {
     @Override
     public List<T> getValue() {
         return value;
+    }
+
+    public List getNativeValue() {
+        List list = new ArrayList(value.size());
+        for (T t : value) {
+            list.add(t.getValue());
+        }
+
+        return list;
     }
 
     @Override

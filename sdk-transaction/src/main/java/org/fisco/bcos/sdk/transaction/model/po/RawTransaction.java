@@ -155,4 +155,35 @@ public class RawTransaction implements Serializable {
     public void setFiscoChainId(BigInteger fiscoChainId) {
         this.fiscoChainId = fiscoChainId;
     }
+
+    @Override
+    public String toString() {
+        return "RawTransaction{"
+                + "randomid="
+                + randomid
+                + ", gasPrice="
+                + gasPrice
+                + ", gasLimit="
+                + gasLimit
+                + ", blockLimit="
+                + blockLimit
+                + ", to='"
+                + to
+                + '\''
+                + ", value="
+                + value
+                + ", data='"
+                + data
+                + '\''
+                + ", fiscoChainId="
+                + fiscoChainId
+                + ", groupId="
+                + groupId
+                + ", extraData='"
+                + extraData
+                + '\''
+                + ", version="
+                + version
+                + '}';
+    }
 }
