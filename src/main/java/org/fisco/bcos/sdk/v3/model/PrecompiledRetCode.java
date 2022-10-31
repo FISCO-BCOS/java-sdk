@@ -225,7 +225,7 @@ public class PrecompiledRetCode {
 
     private PrecompiledRetCode() {}
 
-    public static RetCode getPrecompiledResponse(int responseCode, String message) {
+    public static RetCode getPrecompiledResponse(Integer responseCode, String message) {
         if (codeToMessage.containsKey(responseCode)) {
             return codeToMessage.get(responseCode);
         }

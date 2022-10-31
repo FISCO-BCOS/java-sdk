@@ -51,7 +51,7 @@ public enum EnumNodeVersion {
         private int major;
         private int minor;
         private int patch;
-        private String ext;
+        private String ext = "";
 
         @Override
         public String toString() {
@@ -67,8 +67,8 @@ public enum EnumNodeVersion {
         }
 
         public String toVersionString() {
-            String str = this.getMajor() + "." + this.getMinor() + "." + this.patch;
-            if (!ext.isEmpty()) {
+            String str = this.getMajor() + "." + this.getMinor() + "." + this.getPatch();
+            if (ext != null && !ext.isEmpty()) {
                 str += "-" + ext;
             }
             return str;
@@ -108,8 +108,8 @@ public enum EnumNodeVersion {
 
         @Override
         public int compareTo(Version v) {
-            int thisCompactVersion = this.major * 100 + this.minor * 10 + this.patch;
-            int vCompactVersion = v.major * 100 + v.major * 10 + v.patch;
+            int thisCompactVersion = this.getMajor() * 100 + this.getMinor() * 10 + this.getPatch();
+            int vCompactVersion = v.getMajor() * 100 + v.getMinor() * 10 + v.getPatch();
             if (thisCompactVersion > vCompactVersion) {
                 return 1;
             } else if (thisCompactVersion < vCompactVersion) {
