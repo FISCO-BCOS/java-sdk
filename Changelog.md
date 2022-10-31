@@ -1,3 +1,25 @@
+## v2.9.2
+
+(2022-10-31)
+
+Please read documentation of Java SDK.
+
+* [English User Handbook](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [Chinese WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
+Fix:
+
+* Fixed an issue where 'solidity' generated 'Java' contract code could not compile
+* Fix null pointer exception on class TransactionPusherService method pushOnly
+
+----
+
+修复:
+
+* TransactionEncoderInterface添加decode接口
+* 修复`solidity`生成`Java`合约代码，合约包含复杂类型时，无法编译的问题
+
 ## v2.9.1
 
 (2022-06-15)

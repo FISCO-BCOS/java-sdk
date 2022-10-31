@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt.Logs;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
+import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 
 /**
  * TransactionDecoderInterface @Description: TransactionDecoderInterface
@@ -29,6 +30,12 @@ import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
  * @author maojiayu
  */
 public interface TransactionDecoderInterface {
+
+    /**
+     * @param encodedTx
+     * @return
+     */
+    RawTransaction decode(byte[] encodedTx);
 
     /**
      * parse revert message from receipt

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-tag="v2.7.2"
+tag="v2.9.1"
 LOG_INFO() {
     local content=${1}
     echo -e "\033[32m ${content}\033[0m"
@@ -76,11 +76,11 @@ build_node()
 {
   local node_type="${1}"
   if [ "${node_type}" == "sm" ];then
-      bash -x build_chain.sh -l 127.0.0.1:4 -g
+      bash build_chain.sh -l 127.0.0.1:4 -g
       sed_cmd=$(get_sed_cmd)
       $sed_cmd 's/sm_crypto_channel=false/sm_crypto_channel=true/g' nodes/127.0.0.1/node*/config.ini
   else
-      bash -x build_chain.sh -l 127.0.0.1:4
+      bash build_chain.sh -l 127.0.0.1:4
   fi
   ./nodes/127.0.0.1/fisco-bcos -v
   ./nodes/127.0.0.1/start_all.sh
