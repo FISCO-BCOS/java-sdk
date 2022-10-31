@@ -15,7 +15,7 @@ ext {
         ossrhPassword="xxx"
     }
     // jackson version
-    jacksonVersion = "2.13.2.2"
+    jacksonVersion = "2.13.4.2"
     commonsIOVersion = "2.4"
     commonsLang3Version = "3.1"
     javapoetVersion = "1.7.0"
@@ -36,7 +36,7 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '2.9.2-SNAPSHOT'
+    version = '2.9.2'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
