@@ -789,14 +789,12 @@ public class ContractCodecTools {
                                 }
                             case BYTES:
                                 {
-                                    result.add(new String(formatBytesN(argObject)));
+                                    result.add(formatBytesN(argObject));
                                     break;
                                 }
                             case DBYTES:
                                 {
-                                    result.add(
-                                            new String(
-                                                    argObject.getDynamicBytesValue().getValue()));
+                                    result.add(argObject.getDynamicBytesValue().getValue());
                                     break;
                                 }
                             case STRING:
