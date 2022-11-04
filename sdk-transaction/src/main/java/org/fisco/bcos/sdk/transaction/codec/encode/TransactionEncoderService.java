@@ -112,7 +112,7 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
         // add extra data!!!
         result.add(RlpString.create(rawTransaction.getFiscoChainId()));
         result.add(RlpString.create(rawTransaction.getGroupId()));
-        if (rawTransaction.getExtraData() == null) {
+        if (rawTransaction.getExtraData() == null || "".equals(rawTransaction.getExtraData())) {
             result.add(RlpString.create(""));
         } else {
             result.add(

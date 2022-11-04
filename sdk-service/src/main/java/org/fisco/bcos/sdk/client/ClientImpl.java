@@ -73,6 +73,7 @@ public class ClientImpl implements Client {
     private final NodeVersion nodeVersion;
     private final GroupManagerService groupManagerService;
     private EventResource eventResource;
+    private String extraData = "";
 
     protected ClientImpl(
             GroupManagerService groupManagerService,
@@ -122,6 +123,20 @@ public class ClientImpl implements Client {
     @Override
     public Integer getGroupId() {
         return this.groupId;
+    }
+
+    @Override
+    public String getExtraData() {
+        return extraData;
+    }
+
+    @Override
+    public void setExtraData(String extraData) {
+        if (extraData != null) {
+            this.extraData = extraData;
+        }
+
+        logger.info("setExtraData: {}", extraData);
     }
 
     @Override
