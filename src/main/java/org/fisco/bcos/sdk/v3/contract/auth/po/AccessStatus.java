@@ -5,6 +5,7 @@ import java.math.BigInteger;
 public enum AccessStatus {
     Normal(0),
     Freeze(1),
+    Abolish(2),
     Unknown(-1);
 
     private final int status;
