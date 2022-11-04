@@ -155,6 +155,12 @@ public interface Client {
      */
     Integer getGroupId();
 
+    /** @return */
+    String getExtraData();
+
+    /** @param extraData */
+    void setExtraData(String extraData);
+
     /**
      * Ledger operation: send transaction
      *
