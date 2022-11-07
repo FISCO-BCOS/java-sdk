@@ -17,6 +17,7 @@ import com.webank.wedpr.crypto.CryptoResult;
 import java.io.File;
 import java.math.BigInteger;
 import java.security.KeyPair;
+import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
@@ -301,5 +302,9 @@ public abstract class CryptoKeyPair {
         }
         keyStoreFileDir = keyStoreFileDir + "/" + keyStoreSubDir + "/";
         return keyStoreFileDir + address + postFix;
+    }
+
+    public void destroy() {
+        KeyPairJniObj.destroyJniKeyPair(this.jniKeyPair);
     }
 }
