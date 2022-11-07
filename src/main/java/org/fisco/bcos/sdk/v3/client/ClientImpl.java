@@ -1085,6 +1085,10 @@ public class ClientImpl implements Client {
             BcosSDKJniObj.destroy(rpcJniObj.getNativePointer());
             rpcJniObj = null;
         }
+        if (cryptoSuite != null) {
+            cryptoSuite.destroy();
+            cryptoSuite = null;
+        }
     }
 
     private <T extends JsonRpcResponse<?>> ResponseCallback createResponseCallback(
