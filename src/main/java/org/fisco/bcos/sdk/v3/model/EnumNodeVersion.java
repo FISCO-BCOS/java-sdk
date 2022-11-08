@@ -6,7 +6,7 @@ import java.util.Map;
 public enum EnumNodeVersion {
     BCOS_3_0_0_RC4(4),
     BCOS_3_0_0(0x03000000),
-    BCOS_3_1_0(0x03000001);
+    BCOS_3_1_0(0x03010000);
 
     private final Integer version;
     private static final Map<Integer, EnumNodeVersion> versionLookupMap = new HashMap<>();
@@ -14,7 +14,7 @@ public enum EnumNodeVersion {
     static {
         versionLookupMap.put(4, BCOS_3_0_0_RC4);
         versionLookupMap.put(0x03000000, BCOS_3_0_0);
-        versionLookupMap.put(0x03000001, BCOS_3_1_0);
+        versionLookupMap.put(0x03010000, BCOS_3_1_0);
     }
 
     EnumNodeVersion(Integer version) {
@@ -43,7 +43,15 @@ public enum EnumNodeVersion {
     }
 
     public static EnumNodeVersion valueOf(int version) {
-        return versionLookupMap.get(version);
+        EnumNodeVersion enumNodeVersion = versionLookupMap.get(version);
+        if (enumNodeVersion == null) {
+            throw new IllegalStateException("Unknown version: " + version);
+        }
+        return enumNodeVersion;
+    }
+
+    public static EnumNodeVersion.Version convertToVersion(int version) {
+        return valueOf(version).toVersionObj();
     }
 
     // the object of node version
