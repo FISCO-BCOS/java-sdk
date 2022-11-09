@@ -121,20 +121,4 @@ public interface TransactionDecoderInterface {
      */
     public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs)
             throws ABICodecException;
-
-    /**
-     * decode RawTransaction base hexed String
-     *
-     * @param rawTxHex encoded and signed transaction hexed String
-     * @return RawTransaction
-     */
-    RawTransaction decodeRawTransaction(String rawTxHex);
-
-    /**
-     * decode RawTransaction base byte array
-     *
-     * @param rawTxHash encoded and hashed transaction byte array
-     * @return RawTransaction
-     */
-    RawTransaction decodeRawTransaction(byte[] rawTxHash);
 }
