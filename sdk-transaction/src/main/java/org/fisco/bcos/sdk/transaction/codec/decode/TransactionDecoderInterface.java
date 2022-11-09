@@ -32,8 +32,18 @@ import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 public interface TransactionDecoderInterface {
 
     /**
-     * @param encodedTx
-     * @return
+     * decode RawTransaction base hexed String
+     *
+     * @param encodedTxHex encoded and signed transaction hexed String
+     * @return RawTransaction
+     */
+    RawTransaction decode(String encodedTxHex);
+
+    /**
+     * decode RawTransaction base byte array
+     *
+     * @param encodedTx encoded and hashed transaction byte array
+     * @return RawTransaction
      */
     RawTransaction decode(byte[] encodedTx);
 
