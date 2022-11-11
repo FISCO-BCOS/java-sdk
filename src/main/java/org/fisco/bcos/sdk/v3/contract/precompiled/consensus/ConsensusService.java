@@ -68,6 +68,11 @@ public class ConsensusService {
                 }
             }
         }
+        List<String> observerList = client.getObserverList().getObserverList();
+        if (observerList != null && !observerList.contains(nodeId)) {
+            throw new ContractException(
+                    PrecompiledRetCode.CODE_ADD_SEALER_SHOULD_IN_OBSERVER.getMessage());
+        }
         SyncStatus syncStatus = client.getSyncStatus();
         BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
         boolean anyMatch =
