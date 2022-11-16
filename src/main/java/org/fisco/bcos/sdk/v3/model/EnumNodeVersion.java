@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum EnumNodeVersion {
+    UNKNOWN(-1),
     BCOS_3_0_0_RC4(4),
     BCOS_3_0_0(0x03000000),
     BCOS_3_1_0(0x03010000);
@@ -33,8 +34,9 @@ public enum EnumNodeVersion {
                 return "3.0.0";
             case BCOS_3_1_0:
                 return "3.1.0";
+            case UNKNOWN:
             default:
-                throw new IllegalStateException("Unexpected value: " + this.version);
+                return "0.0.0";
         }
     }
 
@@ -45,7 +47,7 @@ public enum EnumNodeVersion {
     public static EnumNodeVersion valueOf(int version) {
         EnumNodeVersion enumNodeVersion = versionLookupMap.get(version);
         if (enumNodeVersion == null) {
-            throw new IllegalStateException("Unknown version: " + version);
+            return UNKNOWN;
         }
         return enumNodeVersion;
     }

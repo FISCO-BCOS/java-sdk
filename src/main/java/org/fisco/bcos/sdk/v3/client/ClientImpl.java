@@ -1195,8 +1195,6 @@ public class ClientImpl implements Client {
                             this.groupID,
                             jsonRpcResponse.getError().getMessage(),
                             jsonRpcResponse.getError().getCode());
-                    response.setErrorCode(jsonRpcResponse.getError().getCode());
-                    response.setErrorMessage(jsonRpcResponse.getError().getMessage());
                     throw new ClientException(
                             jsonRpcResponse.getError().getCode(),
                             jsonRpcResponse.getError().getMessage(),
@@ -1218,6 +1216,12 @@ public class ClientImpl implements Client {
                                 + ", error message: "
                                 + response.getErrorMessage());
             }
+        } catch (ClientException e) {
+            logger.error(
+                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}, groupId: {}",
+                    e.getMessage(),
+                    this.groupID);
+            throw e;
         } catch (Exception e) {
             logger.error(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}, groupId: {}",
