@@ -20,17 +20,23 @@ import java.util.Objects;
 public class AddressUtils {
     private AddressUtils() {}
 
-    public static final String ADDRESS_PATTERN = "^[0-9A-Fa-f]{40}$";
+    public static final String ADDRESS_PATTERN = "^[0-9A-Fa-f]{1,40}$";
+    public static final String FULL_ADDRESS_PATTERN = "^[0-9A-Fa-f]{40}$";
 
     public static boolean isValidAddress(String address) {
         String addressNoPrefix = Numeric.cleanHexPrefix(address);
         return addressNoPrefix.matches(ADDRESS_PATTERN);
     }
 
+    public static boolean isValidFullAddress(String address) {
+        String addressNoPrefix = Numeric.cleanHexPrefix(address);
+        return addressNoPrefix.matches(FULL_ADDRESS_PATTERN);
+    }
+
     public static String addHexPrefixToAddress(String address) {
         if (!Objects.isNull(address)
                 && !(address.startsWith("0x") || address.startsWith("0X"))
-                && isValidAddress(address)) {
+                && isValidFullAddress(address)) {
             return Hex.addPrefix(address);
         }
 

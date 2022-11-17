@@ -57,8 +57,8 @@ public class PrecompiledRetCodeTest {
                                 PrecompiledRetCode.CODE_INVALID_CONTRACT_REPEAT_AUTHORIZATION.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_INVALID_CONTRACT_AVAILABLE.getCode(),
                                 PrecompiledRetCode.CODE_INVALID_CONTRACT_AVAILABLE.getMessage());
-                checkResponse(PrecompiledRetCode.CODE_INVALID_CONTRACT_FEOZEN.getCode(),
-                                PrecompiledRetCode.CODE_INVALID_CONTRACT_FEOZEN.getMessage());
+                checkResponse(PrecompiledRetCode.CODE_ACCOUNT_ALREADY_EXIST.getCode(),
+                                PrecompiledRetCode.CODE_ACCOUNT_ALREADY_EXIST.getMessage());
                 checkResponse(PrecompiledRetCode.VERIFY_RING_SIG_FAILED.getCode(),
                                 PrecompiledRetCode.VERIFY_RING_SIG_FAILED.getMessage());
                 checkResponse(PrecompiledRetCode.VERIFY_GROUP_SIG_FAILED.getCode(),
@@ -77,6 +77,10 @@ public class PrecompiledRetCodeTest {
                                 PrecompiledRetCode.CODE_VERSION_LENGTH_OVERFLOW.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_ADDRESS_OR_VERSION_ERROR.getCode(),
                                 PrecompiledRetCode.CODE_ADDRESS_OR_VERSION_ERROR.getMessage());
+                checkResponse(PrecompiledRetCode.CODE_ADD_SEALER_SHOULD_IN_OBSERVER.getCode(),
+                        PrecompiledRetCode.CODE_ADD_SEALER_SHOULD_IN_OBSERVER.getMessage());
+                checkResponse(PrecompiledRetCode.CODE_NODE_NOT_EXIST.getCode(),
+                        PrecompiledRetCode.CODE_NODE_NOT_EXIST.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_LAST_SEALER.getCode(),
                                 PrecompiledRetCode.CODE_LAST_SEALER.getMessage());
                 checkResponse(PrecompiledRetCode.CODE_INVALID_NODEID.getCode(),

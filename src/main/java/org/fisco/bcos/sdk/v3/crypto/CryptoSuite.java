@@ -354,4 +354,11 @@ public class CryptoSuite {
     public CryptoKeyPair getKeyPairFactory() {
         return this.keyPairFactory;
     }
+
+    public void destroy() {
+        if (cryptoKeyPair != null) {
+            cryptoKeyPair.destroy();
+            cryptoKeyPair = null;
+        }
+    }
 }

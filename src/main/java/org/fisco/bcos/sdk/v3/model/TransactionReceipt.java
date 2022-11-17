@@ -14,7 +14,6 @@
  */
 package org.fisco.bcos.sdk.v3.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
@@ -23,6 +22,7 @@ import org.fisco.bcos.sdk.v3.utils.AddressUtils;
 public class TransactionReceipt {
     private String version;
     private String contractAddress;
+    private String checksumContractAddress;
     private String gasUsed;
     private int status = -1;
     private String blockNumber;
@@ -39,8 +39,6 @@ public class TransactionReceipt {
     private List<MerkleProofUnit> transactionProof;
     private List<MerkleProofUnit> receiptProof;
     private String message;
-
-    @JsonIgnore private boolean wasm = false;
 
     public boolean isStatusOK() {
         return this.status == 0;
@@ -201,6 +199,14 @@ public class TransactionReceipt {
         this.contractAddress = contractAddress;
     }
 
+    public String getChecksumContractAddress() {
+        return checksumContractAddress;
+    }
+
+    public void setChecksumContractAddress(String checksumContractAddress) {
+        this.checksumContractAddress = checksumContractAddress;
+    }
+
     public void setLogEntries(List<Logs> logEntries) {
         this.logEntries = logEntries;
     }
@@ -253,6 +259,7 @@ public class TransactionReceipt {
                 && Objects.equals(this.to, that.to)
                 && Objects.equals(this.gasUsed, that.gasUsed)
                 && Objects.equals(this.contractAddress, that.contractAddress)
+                && Objects.equals(this.checksumContractAddress, that.checksumContractAddress)
                 && Objects.equals(this.logEntries, that.logEntries)
                 && Objects.equals(this.status, that.status)
                 && Objects.equals(this.input, that.input)
@@ -271,6 +278,7 @@ public class TransactionReceipt {
                 this.to,
                 this.gasUsed,
                 this.contractAddress,
+                this.checksumContractAddress,
                 this.logEntries,
                 this.status,
                 this.input,
@@ -302,6 +310,8 @@ public class TransactionReceipt {
                 + '\''
                 + ", contractAddress='"
                 + this.contractAddress
+                + ", checksumContractAddress='"
+                + this.checksumContractAddress
                 + '\''
                 + ", logs="
                 + this.logEntries

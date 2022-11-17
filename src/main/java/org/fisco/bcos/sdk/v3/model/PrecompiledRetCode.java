@@ -79,8 +79,8 @@ public class PrecompiledRetCode {
             new RetCode(-51902, "The contract has been granted authorization with same user");
     public static final RetCode CODE_INVALID_CONTRACT_AVAILABLE =
             new RetCode(-51901, "The contract is available");
-    public static final RetCode CODE_INVALID_CONTRACT_FEOZEN =
-            new RetCode(-51900, "The contract has been frozen");
+    public static final RetCode CODE_ACCOUNT_ALREADY_EXIST =
+            new RetCode(-51900, "The account is not a valid account");
 
     // RingSigPrecompiled -51899 ~ -51800
     public static final RetCode VERIFY_RING_SIG_FAILED =
@@ -119,6 +119,8 @@ public class PrecompiledRetCode {
             new RetCode(-51300, "Invalid configuration value");
 
     // ConsensusPrecompiled -51199 ~ -51100
+    public static final RetCode CODE_ADD_SEALER_SHOULD_IN_OBSERVER =
+            new RetCode(-51104, "Only observer can be set in sealer");
     public static final RetCode CODE_NODE_NOT_EXIST = new RetCode(-51103, "The node is not exist");
     public static final RetCode CODE_INVALID_WEIGHT = new RetCode(-51102, "The weight is invalid");
     public static final RetCode CODE_LAST_SEALER =
@@ -223,7 +225,7 @@ public class PrecompiledRetCode {
 
     private PrecompiledRetCode() {}
 
-    public static RetCode getPrecompiledResponse(int responseCode, String message) {
+    public static RetCode getPrecompiledResponse(Integer responseCode, String message) {
         if (codeToMessage.containsKey(responseCode)) {
             return codeToMessage.get(responseCode);
         }

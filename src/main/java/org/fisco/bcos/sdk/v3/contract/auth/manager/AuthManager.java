@@ -1,12 +1,17 @@
 package org.fisco.bcos.sdk.v3.contract.auth.manager;
 
+import static org.fisco.bcos.sdk.v3.model.PrecompiledConstant.SYNC_KEEP_UP_THRESHOLD;
+
 import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Function;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
+import org.fisco.bcos.sdk.v3.contract.auth.contracts.AccountManager;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.CommitteeManager;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.ContractAuthPrecompiled;
+import org.fisco.bcos.sdk.v3.contract.auth.po.AccessStatus;
 import org.fisco.bcos.sdk.v3.contract.auth.po.AuthType;
 import org.fisco.bcos.sdk.v3.contract.auth.po.CommitteeInfo;
 import org.fisco.bcos.sdk.v3.contract.auth.po.ProposalInfo;
@@ -27,6 +32,7 @@ public class AuthManager {
     private final Client client;
     private final CommitteeManager committeeManager;
     private final ContractAuthPrecompiled contractAuthPrecompiled;
+    private final AccountManager accountManager;
     // default block number interval. after current block number, it will be outdated. Default value
     // is about a week.
     private BigInteger DEFAULT_BLOCK_NUMBER_INTERVAL = BigInteger.valueOf(3600 * 24 * 7L);
@@ -39,6 +45,7 @@ public class AuthManager {
         this.contractAuthPrecompiled =
                 ContractAuthPrecompiled.load(
                         PrecompiledAddress.CONTRACT_AUTH_ADDRESS, client, credential);
+        this.accountManager = AccountManager.load(client, credential);
     }
 
     public AuthManager(Client client, CryptoKeyPair credential, BigInteger blockNumberInterval) {
@@ -209,25 +216,49 @@ public class AuthManager {
 
     private void checkSetConsensusWeightParams(String node, BigInteger weight, boolean addFlag)
             throws ContractException {
-        if (addFlag) {
-            // check the nodeId exists in the nodeList or not
-            if (!existsInNodeList(node)) {
-                throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
-            }
-            boolean existence =
-                    (weight.compareTo(BigInteger.ZERO) > 0)
-                            ? client.getSealerList().getResult().stream()
-                                    .anyMatch(sealer -> sealer.getNodeID().equals(node))
-                            : client.getObserverList().getResult().contains(node);
-            if (existence) {
-                throw new ContractException(
-                        (weight.compareTo(BigInteger.ZERO) > 0)
-                                ? PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST
-                                : PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
-            }
-        } else {
+        if (!addFlag) {
             if (weight.compareTo(BigInteger.ZERO) <= 0) {
                 throw new ContractException(PrecompiledRetCode.CODE_INVALID_WEIGHT.getMessage());
+            }
+            return;
+        }
+        /// add node
+        // check the nodeId exists in the nodeList or not
+        boolean isAddSealer = weight.compareTo(BigInteger.ZERO) > 0;
+        if (isAddSealer && !existsInNodeList(node)) {
+            throw new ContractException(PrecompiledRetCode.MUST_EXIST_IN_NODE_LIST);
+        }
+        boolean existence =
+                (isAddSealer)
+                        ? client.getSealerList().getResult().stream()
+                                .anyMatch(sealer -> sealer.getNodeID().equals(node))
+                        : client.getObserverList().getResult().contains(node);
+        if (existence) {
+            throw new ContractException(
+                    (isAddSealer)
+                            ? PrecompiledRetCode.ALREADY_EXISTS_IN_SEALER_LIST
+                            : PrecompiledRetCode.ALREADY_EXISTS_IN_OBSERVER_LIST);
+        }
+        if (isAddSealer) {
+            List<String> observerList = client.getObserverList().getObserverList();
+            if (observerList != null && !observerList.contains(node)) {
+                throw new ContractException(
+                        PrecompiledRetCode.CODE_ADD_SEALER_SHOULD_IN_OBSERVER.getMessage());
+            }
+            SyncStatus syncStatus = client.getSyncStatus();
+            BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
+            boolean anyMatch =
+                    syncStatus.getSyncStatus().getPeers().stream()
+                            .anyMatch(
+                                    peersInfo ->
+                                            peersInfo.getNodeId().equals(node)
+                                                    && peersInfo.getBlockNumber()
+                                                            >= (blockNumber.longValue()
+                                                                    - SYNC_KEEP_UP_THRESHOLD));
+            if (!anyMatch) {
+                throw new ContractException(
+                        "Observer should keep up the block number sync threshold: "
+                                + SYNC_KEEP_UP_THRESHOLD);
             }
         }
     }
@@ -553,6 +584,53 @@ public class AuthManager {
      */
     public Boolean contractAvailable(String contractAddress) throws ContractException {
         return contractAuthPrecompiled.contractAvailable(contractAddress);
+    }
+
+    /**
+     * Set account status, only governor can call it. And account to be set should not in governor
+     * list, if account not exist in chain, it will create it by default
+     *
+     * @param account account address
+     * @param status account status
+     * @return proposal ID
+     * @throws ContractException throw when contract exec exception
+     */
+    public RetCode setAccountStatus(String account, AccessStatus status) throws ContractException {
+        TransactionReceipt receipt =
+                accountManager.setAccountStatus(account, status.getBigIntStatus());
+        if (receipt.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(receipt);
+        }
+        return ReceiptParser.parseTransactionReceipt(
+                receipt, tr -> accountManager.getSetAccountStatusOutput(tr).getValue1());
+    }
+
+    /**
+     * async set account status, only governor can call it. And account to be set should not in
+     * governor list, if account not exist in chain, it will create it by default
+     *
+     * @param account account address
+     * @param status account status
+     */
+    public void asyncSetAccountStatus(
+            String account, AccessStatus status, PrecompiledCallback callback) {
+        accountManager.setAccountStatus(
+                account,
+                status.getBigIntStatus(),
+                createTransactionCallback(
+                        callback, tr -> accountManager.getSetAccountStatusOutput(tr).getValue1()));
+    }
+
+    /**
+     * check account is available, if normal then return true
+     *
+     * @param accountAddress account address
+     * @return if true, then this account can be used
+     * @throws ContractException throw when contract exec exception
+     */
+    public Boolean accountAvailable(String accountAddress) throws ContractException {
+        BigInteger accountStatus = accountManager.getAccountStatus(accountAddress);
+        return AccessStatus.getAccessStatus(accountStatus.intValue()) == AccessStatus.Normal;
     }
 
     /**

@@ -1,11 +1,15 @@
 package org.fisco.bcos.sdk.v3.test.transaction.contract;
 
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupNodeInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.client.protocol.response.GroupPeers;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
+import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.contract.auth.manager.AuthManager;
 import org.fisco.bcos.sdk.v3.contract.precompiled.bfs.BFSService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.consensus.ConsensusService;
@@ -15,6 +19,7 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
@@ -26,6 +31,7 @@ import org.mockito.stubbing.Answer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -50,6 +56,17 @@ public class PrecompiledTest {
         when(mockClient.getCryptoSuite()).thenReturn(cryptoSuite);
         when(mockClient.isWASM()).thenReturn(false);
         when(mockClient.getBlockLimit()).thenReturn(BigInteger.valueOf(500));
+        when(mockClient.getGroupInfo()).then((Answer<BcosGroupInfo>) invocation -> {
+            BcosGroupInfo bcosGroupInfo = new BcosGroupInfo();
+            BcosGroupInfo.GroupInfo groupInfo = new BcosGroupInfo.GroupInfo();
+            BcosGroupNodeInfo.GroupNodeInfo groupNodeInfo = new BcosGroupNodeInfo.GroupNodeInfo();
+            BcosGroupNodeInfo.Protocol protocol = new BcosGroupNodeInfo.Protocol();
+            protocol.setCompatibilityVersion(EnumNodeVersion.BCOS_3_1_0.getVersion());
+            groupNodeInfo.setProtocol(protocol);
+            groupInfo.setNodeList(Collections.singletonList(groupNodeInfo));
+            bcosGroupInfo.setResult(groupInfo);
+            return bcosGroupInfo;
+        });
         authManager = new AuthManager(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
         bfsService = new BFSService(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
         consensusService = new ConsensusService(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
@@ -116,6 +133,36 @@ public class PrecompiledTest {
         );
     }
 
+    public void mockGetBlockNumberRequest(String number) {
+        when(mockClient.getBlockNumber()).then(
+                invocation -> {
+                    BlockNumber blockNumber = new BlockNumber();
+                    blockNumber.setResult(number);
+                    return blockNumber;
+                }
+        );
+    }
+
+    public void mockGetSyncStatusRequest(long number, String... nodeIds) {
+        when(mockClient.getSyncStatus()).then(
+                invocation -> {
+                    SyncStatus syncStatus = new SyncStatus();
+                    SyncStatus.SyncStatusInfo syncStatusInfo = new SyncStatus.SyncStatusInfo();
+                    List<SyncStatus.PeersInfo> peersInfos = new ArrayList<>();
+                    for (String nodeId : nodeIds) {
+                        SyncStatus.PeersInfo peersInfo = new SyncStatus.PeersInfo();
+                        peersInfo.setBlockNumber(number);
+                        peersInfo.setNodeId(nodeId);
+                        peersInfos.add(peersInfo);
+                    }
+                    syncStatusInfo.setPeers(peersInfos);
+                    syncStatus.setResult(syncStatusInfo);
+                    return syncStatus;
+                }
+        );
+    }
+
+
     public void mockGetObserverRequest(String... nodeID) {
         when(mockClient.getObserverList()).then(
                 invocation -> {
@@ -152,6 +199,8 @@ public class PrecompiledTest {
         mockGetSealerRequest("node1", "node2");
         mockGetObserverRequest("node3");
         mockSendTxRequest("0x0000000000000000000000000000000000000000000000000000000000000001", PrecompiledAddress.CONTRACT_AUTH_ADDRESS, 0);
+        mockGetBlockNumberRequest("10");
+        mockGetSyncStatusRequest(10, "node1", "node2", "node3");
         BigInteger rmNodeProposal = authManager.createRmNodeProposal("node1");
         Assert.assertEquals(BigInteger.ONE, rmNodeProposal);
 
