@@ -44,6 +44,7 @@ import org.fisco.bcos.sdk.transaction.model.exception.TransactionException;
 import org.fisco.bcos.sdk.transaction.model.po.RawTransaction;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.fisco.bcos.sdk.transaction.tools.ReceiptStatusUtil;
+import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -211,6 +212,11 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                     }
                 });
         return result;
+    }
+
+    @Override
+    public RawTransaction decode(String encodedTxHex) {
+        return decode(Numeric.hexStringToByteArray(encodedTxHex));
     }
 
     @Override
