@@ -16,7 +16,7 @@ ext {
     if (!project.hasProperty("ossrhPassword")) {
         ossrhPassword = "xxx"
     }
-    jacksonVersion = '2.13.4'
+    jacksonVersion = '2.14.0'
     commonsIOVersion = '2.4'
     commonsLang3Version = '3.12.0'
     toml4jVersion = "0.7.2"
