@@ -9,6 +9,7 @@ env:
 jobs:
   build:
     name: build
+    continue-on-error: true
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -24,4 +25,4 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt install -y git curl libssl-dev default-jdk build-essential
       - name: run integration testing
-        run: /bin/bash .ci/ci_check.sh
+        run: /bin/bash -x .ci/ci_check.sh
