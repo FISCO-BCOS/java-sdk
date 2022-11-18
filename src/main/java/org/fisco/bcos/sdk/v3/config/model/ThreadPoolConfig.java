@@ -43,4 +43,9 @@ public class ThreadPoolConfig {
         this.threadPoolSize = Integer.parseInt(value);
         logger.debug("Init ThreadPoolConfig, threadPoolSize: {}", this.threadPoolSize);
     }
+
+    @Override
+    public String toString() {
+        return "ThreadPoolConfig{" + "threadPoolSize=" + threadPoolSize + '}';
+    }
 }

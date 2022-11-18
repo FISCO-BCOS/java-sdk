@@ -189,6 +189,12 @@ public class ContractCodecJsonWrapper {
                                 abiObject.setStringValue(new Utf8String(node.asText()));
                                 break;
                             }
+                        case FIXED:
+                        case UFIXED:
+                            {
+                                throw new UnsupportedOperationException(
+                                        " Unsupported fixed/unfixed type. ");
+                            }
                     }
                     break;
                 }
@@ -444,6 +450,12 @@ public class ContractCodecJsonWrapper {
                             {
                                 return jsonNodeFactory.textNode(
                                         abiObject.getStringValue().getValue());
+                            }
+                        case FIXED:
+                        case UFIXED:
+                            {
+                                throw new UnsupportedOperationException(
+                                        " Unsupported fixed/unfixed type. ");
                             }
                     }
                     break;

@@ -282,6 +282,35 @@ public class ABIDefinition {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "ABIDefinition{"
+                + "name='"
+                + name
+                + '\''
+                + ", type='"
+                + type
+                + '\''
+                + ", constant="
+                + constant
+                + ", payable="
+                + payable
+                + ", anonymous="
+                + anonymous
+                + ", stateMutability='"
+                + stateMutability
+                + '\''
+                + ", conflictFields="
+                + conflictFields
+                + ", inputs="
+                + inputs
+                + ", outputs="
+                + outputs
+                + ", selector="
+                + selector
+                + '}';
+    }
+
     public List<ConflictField> getConflictFields() {
         return conflictFields;
     }
@@ -417,6 +446,19 @@ public class ABIDefinition {
 
         public void setSlot(String slot) {
             this.slot = slot;
+        }
+
+        @Override
+        public String toString() {
+            return "ConflictField{"
+                    + "kind="
+                    + kind
+                    + ", slot='"
+                    + slot
+                    + '\''
+                    + ", value="
+                    + value
+                    + '}';
         }
     }
 

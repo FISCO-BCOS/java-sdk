@@ -66,6 +66,7 @@ public class FunctionReturnDecoder implements FunctionReturnDecoderInterface {
      * @param <T> type of TypeReference
      * @return the decode value
      */
+    @Override
     public <T extends Type> Type decodeIndexedValue(
             String rawInput, TypeReference<T> typeReference) {
         String input = Numeric.cleanHexPrefix(rawInput);

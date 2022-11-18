@@ -68,4 +68,17 @@ public class NetworkConfig {
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
+
+    @Override
+    public String toString() {
+        return "NetworkConfig{"
+                + "peers="
+                + peers
+                + ", defaultGroup='"
+                + defaultGroup
+                + '\''
+                + ", timeout="
+                + timeout
+                + '}';
+    }
 }

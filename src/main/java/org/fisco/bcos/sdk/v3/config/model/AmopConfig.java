@@ -68,4 +68,9 @@ public class AmopConfig {
     public void setAmopTopicConfig(List<AmopTopic> amopTopicConfig) {
         this.amopTopicConfig = amopTopicConfig;
     }
+
+    @Override
+    public String toString() {
+        return "AmopConfig{" + "amopTopicConfig=" + amopTopicConfig + '}';
+    }
 }

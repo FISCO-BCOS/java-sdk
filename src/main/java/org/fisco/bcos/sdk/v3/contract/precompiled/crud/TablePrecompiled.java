@@ -432,9 +432,9 @@ public class TablePrecompiled extends Contract {
     }
 
     public static class Condition extends DynamicStruct {
-        public BigInteger op;
+        private BigInteger op;
 
-        public String value;
+        private String condValue;
 
         public Condition() {
             super(new Uint8(0), new Utf8String(""));
@@ -443,18 +443,18 @@ public class TablePrecompiled extends Contract {
         public Condition(Uint8 op, Utf8String value) {
             super(op, value);
             this.op = op.getValue();
-            this.value = value.getValue();
+            this.condValue = value.getValue();
         }
 
         public Condition(BigInteger op, String value) {
             super(new Uint8(op), new Utf8String(value));
             this.op = op;
-            this.value = value;
+            this.condValue = value;
         }
 
         @Override
         public String toString() {
-            return "Condition{" + "op=" + op + ", value='" + value + '\'' + '}';
+            return "Condition{" + "op=" + op + ", condValue='" + condValue + '\'' + '}';
         }
     }
 
@@ -504,9 +504,9 @@ public class TablePrecompiled extends Contract {
     }
 
     public static class UpdateField extends DynamicStruct {
-        public String columnName;
+        private String columnName;
 
-        public String value;
+        private String columnValue;
 
         public UpdateField() {
             super(new Utf8String(""), new Utf8String(""));
@@ -515,7 +515,7 @@ public class TablePrecompiled extends Contract {
         public UpdateField(Utf8String columnName, Utf8String value) {
             super(columnName, value);
             this.columnName = columnName.getValue();
-            this.value = value.getValue();
+            this.columnValue = value.getValue();
         }
 
         public UpdateField(String columnName, String value) {
@@ -523,12 +523,18 @@ public class TablePrecompiled extends Contract {
                     new org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String(columnName),
                     new org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String(value));
             this.columnName = columnName;
-            this.value = value;
+            this.columnValue = value;
         }
 
         @Override
         public String toString() {
-            return "UpdateField{" + "columnName=" + columnName + ", value='" + value + '\'' + '}';
+            return "UpdateField{"
+                    + "columnName="
+                    + columnName
+                    + ", columnValue='"
+                    + columnValue
+                    + '\''
+                    + '}';
         }
     }
 }

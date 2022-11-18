@@ -53,6 +53,11 @@ public class GroupNodeIniConfig {
         this.executor = executor;
     }
 
+    @Override
+    public String toString() {
+        return "GroupNodeIniConfig{" + "chain=" + chain + ", executor=" + executor + '}';
+    }
+
     public static class Executor {
         private boolean isWasm;
         private boolean isAuthCheck;

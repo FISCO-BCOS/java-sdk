@@ -243,7 +243,8 @@ public class AuthManager {
             List<String> observerList = client.getObserverList().getObserverList();
             if (observerList != null && !observerList.contains(node)) {
                 throw new ContractException(
-                        PrecompiledRetCode.CODE_ADD_SEALER_SHOULD_IN_OBSERVER.getMessage());
+                        PrecompiledRetCode.CODE_ADD_SEALER_SHOULD_IN_OBSERVER.getMessage(),
+                        PrecompiledRetCode.CODE_ADD_SEALER_SHOULD_IN_OBSERVER.getCode());
             }
             SyncStatus syncStatus = client.getSyncStatus();
             BigInteger blockNumber = client.getBlockNumber().getBlockNumber();

@@ -176,4 +176,22 @@ public class ConfigOption {
     public void setConfigProperty(ConfigProperty configProperty) {
         this.configProperty = configProperty;
     }
+
+    @Override
+    public String toString() {
+        return "ConfigOption{"
+                + ", accountConfig="
+                + accountConfig
+                + ", amopConfig="
+                + amopConfig
+                + ", networkConfig="
+                + networkConfig
+                + ", threadPoolConfig="
+                + threadPoolConfig
+                + ", configProperty="
+                + configProperty
+                + ", jniConfig="
+                + jniConfig
+                + '}';
+    }
 }
