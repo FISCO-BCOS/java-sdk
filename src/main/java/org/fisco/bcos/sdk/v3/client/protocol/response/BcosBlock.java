@@ -61,6 +61,7 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
             this.value = value;
         }
 
+        @Override
         public String get() {
             return value;
         }

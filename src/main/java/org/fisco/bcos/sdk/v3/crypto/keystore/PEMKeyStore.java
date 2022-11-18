@@ -86,6 +86,7 @@ public class PEMKeyStore extends KeyTool {
         }
     }
 
+    @Override
     protected void load(InputStream in) {
         try {
             PemReader pemReader = new PemReader(new InputStreamReader(in));
@@ -106,6 +107,7 @@ public class PEMKeyStore extends KeyTool {
         }
     }
 
+    @Override
     protected PrivateKey getPrivateKey() {
         try {
             PKCS8EncodedKeySpec encodedKeySpec = new PKCS8EncodedKeySpec(pem.getContent());

@@ -204,6 +204,7 @@ public class ClientImpl implements Client {
         return this.authCheck;
     }
 
+    @Override
     public Boolean isSerialExecute() {
         return this.serialExecute;
     }

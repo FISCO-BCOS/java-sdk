@@ -196,7 +196,7 @@ public class TypeEncoder {
                 long offset = 0;
                 for (int i = 0; i < value.getValue().size(); i++) {
                     if (i == 0) {
-                        offset = value.getValue().size() * MAX_BYTE_LENGTH;
+                        offset = (long) value.getValue().size() * MAX_BYTE_LENGTH;
                     } else {
                         int bytesLength =
                                 arrayOfBytes

@@ -44,6 +44,7 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.v3.codec.dataty
         this.indexed = false;
     }
 
+    @Override
     public int compareTo(TypeReference<T> o) {
         // taken from the blog post comments - this results in an errror if the
         // type parameter is left out.

@@ -681,7 +681,7 @@ public class ContractCodec {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         if (abiDefinition == null) {
-            String errorMsg = " methodId " + methodId + " is invalid";
+            String errorMsg = " methodId " + Hex.toHexString(methodId) + " is invalid";
             logger.error(errorMsg);
             throw new ContractCodecException(errorMsg);
         }
@@ -736,7 +736,7 @@ public class ContractCodec {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         if (abiDefinition == null) {
-            String errorMsg = " methodId " + methodId + " is invalid";
+            String errorMsg = " methodId " + Hex.toHexString(methodId) + " is invalid";
             logger.error(errorMsg);
             throw new ContractCodecException(errorMsg);
         }
@@ -820,7 +820,7 @@ public class ContractCodec {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         if (abiDefinition == null) {
-            String errorMsg = " methodId " + methodId + " is invalid";
+            String errorMsg = " methodId " + Hex.toHexString(methodId) + " is invalid";
             logger.error(errorMsg);
             throw new ContractCodecException(errorMsg);
         }
@@ -873,7 +873,7 @@ public class ContractCodec {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         ABIDefinition abiDefinition = contractABIDefinition.getABIDefinitionByMethodId(methodId);
         if (abiDefinition == null) {
-            String errorMsg = " methodId " + methodId + " is invalid";
+            String errorMsg = " methodId " + Hex.toHexString(methodId) + " is invalid";
             logger.error(errorMsg);
             throw new ContractCodecException(errorMsg);
         }

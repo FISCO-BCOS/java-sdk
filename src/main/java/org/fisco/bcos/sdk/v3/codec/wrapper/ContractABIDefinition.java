@@ -109,4 +109,20 @@ public class ContractABIDefinition {
         // FIXME: check topic string is hex
         return this.eventTopicToEvents.get(ByteBuffer.wrap(Hex.decode(topic)));
     }
+
+    @Override
+    public String toString() {
+        return "ContractABIDefinition{"
+                + "constructor="
+                + constructor
+                + ", functions="
+                + functions
+                + ", events="
+                + events
+                + ", methodIDToFunctions="
+                + methodIDToFunctions
+                + ", eventTopicToEvents="
+                + eventTopicToEvents
+                + '}';
+    }
 }

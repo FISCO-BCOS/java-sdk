@@ -78,6 +78,7 @@ public class P12KeyStore extends KeyTool {
      *
      * @param in the input stream that should used to load keyPair
      */
+    @Override
     protected void load(InputStream in) {
         try {
             keyStore = KeyStore.getInstance("PKCS12", "BC");
@@ -107,6 +108,7 @@ public class P12KeyStore extends KeyTool {
      *
      * @return the private key
      */
+    @Override
     protected PrivateKey getPrivateKey() {
         try {
             Enumeration<String> aliases = keyStore.aliases();
@@ -150,9 +152,11 @@ public class P12KeyStore extends KeyTool {
             Certificate[] certChain = new Certificate[1];
             certChain[0] = generateSelfSignedCertificate(keyPair, signatureAlgorithm);
             keyStore.setKeyEntry(NAME, privateKey, password.toCharArray(), certChain);
-            keyStore.store(new FileOutputStream(privateKeyFilePath), password.toCharArray());
+            FileOutputStream fileOutputStream = new FileOutputStream(privateKeyFilePath);
+            keyStore.store(fileOutputStream, password.toCharArray());
             // store the public key
             storePublicKeyWithPem(privateKey, privateKeyFilePath);
+            fileOutputStream.close();
         } catch (IOException
                 | KeyStoreException
                 | NoSuchProviderException

@@ -144,4 +144,18 @@ public class ConfigProperty {
             throw new ConfigException("File not found, path: " + configFilePath);
         }
     }
+
+    @Override
+    public String toString() {
+        return "ConfigProperty{"
+                + ", network="
+                + network
+                + ", amop="
+                + amop
+                + ", account="
+                + account
+                + ", threadPool="
+                + threadPool
+                + '}';
+    }
 }
