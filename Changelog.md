@@ -1,3 +1,69 @@
+## v3.1.0
+(2022-11-21)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+- 新增账户权限管理接口，详情参考 `org.fisco.bcos.sdk.v3.contract.auth.manager.AuthManager` ，包括冻结、解冻、废除账户地址接口。
+- 新增BFS接口，`list`接口支持分页逻辑；`link`接口可以在BFS `/apps` 下任意目录下创建链接文件，不再限制输入目录格式。
+- 增加解析交易input的接口，详情参考 `org.fisco.bcos.sdk.v3.codec.ContractCodec`。
+- 交易回执新增 `checksumContractAddress` 字段，用于[EIP-55](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md)的checksum计算。
+
+### 更新
+
+- 变更加入共识节点逻辑，只有观察节点才能加入共识节点；游离节点/新增节点加入共识节点，必须先加入观察节点，且跟上目前链区块高度。
+- 变更节点版本号判断，在做兼容性判断时请参考 `org.fisco.bcos.sdk.v3.model.EnumNodeVersion`
+
+### 修复
+
+- 修复获取合约事件接口的bug，issue: [#654](https://github.com/FISCO-BCOS/java-sdk/issues/654)
+- 新增单元测试、CodeQL代码扫描覆盖，修复大多数错误。
+
+
+### 兼容性说明
+
+- 不兼容 FISCO BCOS 2.0+ 版本
+- 兼容java-sdk v3.0+的历史版本
+- 支持[FISCO BCOS 3.1.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.1.0)版本
+- 账户权限管理接口、BFS新增的list分页接口与link接口只在 FISCO BCOS 3.1.0支持使用。
+
+----
+
+## v3.1.0
+(2022-11-21)
+
+Please read the Java SDK v3.x+ documentation:
+
+- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### New
+
+- Added account authority management interface, for details, refer to `org.fisco.bcos.sdk.v3.contract.auth.manager.AuthManager`, including freezing, unfreezing, and abolishing account address interfaces.
+- Added BFS interface, the `list` interface supports pagination logic; the `link` interface can create link files in any directory under BFS `/apps`, and no longer restricts the input directory format.
+- Add an interface for parsing transaction input. For details, refer to `org.fisco.bcos.sdk.v3.codec.ContractCodec`.
+- The transaction receipt adds `checksumContractAddress` field, which is used for the checksum calculation of [EIP-55](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md).
+
+### renew
+
+- Change the logic of joining the consensus node. Only the observation node can join the consensus node; when the free node/new node joins the consensus node, it must first join the observation node and keep up with the current chain block height.
+- Change node version number judgment, please refer to `org.fisco.bcos.sdk.v3.model.EnumNodeVersion` when making compatibility judgment
+
+### fix
+
+- Fix the bug of getting contract event interface, issue: [#654](https://github.com/FISCO-BCOS/java-sdk/issues/654)
+- Added unit tests, CodeQL code scanning coverage, and fixed most errors.
+
+
+### Compatibility Notes
+
+- Not compatible with FISCO BCOS version 2.0+
+- Compatible with historical versions of java-sdk v3.0+
+- Support [FISCO BCOS 3.1.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.1.0) version
+- The account authority management interface, the newly added list paging interface and link interface of BFS are only supported in FISCO BCOS 3.1.0.
+
 ## v3.0.1
 (2022-9-26)
 
