@@ -6,6 +6,8 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Function;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.RespCallback;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
 import org.fisco.bcos.sdk.v3.contract.auth.contracts.AccountManager;
@@ -17,9 +19,11 @@ import org.fisco.bcos.sdk.v3.contract.auth.po.CommitteeInfo;
 import org.fisco.bcos.sdk.v3.contract.auth.po.ProposalInfo;
 import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
+import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
+import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
@@ -556,7 +560,10 @@ public class AuthManager {
                 contractAuthPrecompiled.setContractStatus(contractAddress, isFreeze);
         return ReceiptParser.parseTransactionReceipt(
                 transactionReceipt,
-                tr -> contractAuthPrecompiled.getSetContractStatusOutput(tr).getValue1());
+                tr ->
+                        contractAuthPrecompiled
+                                .getSetContractStatusAddressBoolOutput(tr)
+                                .getValue1());
     }
 
     /**
@@ -573,7 +580,87 @@ public class AuthManager {
                 isFreeze,
                 createTransactionCallback(
                         callback,
-                        tr -> contractAuthPrecompiled.getSetContractStatusOutput(tr).getValue1()));
+                        tr ->
+                                contractAuthPrecompiled
+                                        .getSetContractStatusAddressBoolOutput(tr)
+                                        .getValue1()));
+    }
+
+    /**
+     * set a contract status, only contract manager can call
+     *
+     * @param contractAddress contract address
+     * @param status 0 - normal, 1 - freeze, 2 - abolish
+     * @return 0 is success, otherwise is error
+     * @throws ContractException throw when contract exec exception
+     */
+    public RetCode setContractStatus(String contractAddress, AccessStatus status)
+            throws ContractException {
+        long compatibilityVersion =
+                client.getGroupInfo()
+                        .getResult()
+                        .getNodeList()
+                        .get(0)
+                        .getProtocol()
+                        .getCompatibilityVersion();
+        PrecompiledVersionCheck.SET_CONTRACT_STATUS_VERSION.checkVersion(compatibilityVersion);
+        TransactionReceipt transactionReceipt =
+                contractAuthPrecompiled.setContractStatus(
+                        contractAddress, status.getBigIntStatus());
+        return ReceiptParser.parseTransactionReceipt(
+                transactionReceipt,
+                tr ->
+                        contractAuthPrecompiled
+                                .getSetContractStatusAddressUint8Output(tr)
+                                .getValue1());
+    }
+
+    /**
+     * async set a contract status, only contract manager can call
+     *
+     * @param contractAddress contract address
+     * @param status 0 - normal, 1 - freeze, 2 - abolish
+     * @param callback callback when get receipt
+     */
+    public void asyncSetContractStatus(
+            String contractAddress, AccessStatus status, PrecompiledCallback callback) {
+        client.getGroupInfoAsync(
+                new RespCallback<BcosGroupInfo>() {
+                    @Override
+                    public void onResponse(BcosGroupInfo bcosGroupInfo) {
+                        long compatibilityVersion =
+                                bcosGroupInfo
+                                        .getResult()
+                                        .getNodeList()
+                                        .get(0)
+                                        .getProtocol()
+                                        .getCompatibilityVersion();
+                        try {
+                            PrecompiledVersionCheck.SET_CONTRACT_STATUS_VERSION.checkVersion(
+                                    compatibilityVersion);
+                            contractAuthPrecompiled.setContractStatus(
+                                    contractAddress,
+                                    status.getBigIntStatus(),
+                                    createTransactionCallback(
+                                            callback,
+                                            tr ->
+                                                    contractAuthPrecompiled
+                                                            .getSetContractStatusAddressBoolOutput(
+                                                                    tr)
+                                                            .getValue1()));
+                        } catch (ContractException e) {
+                            callback.onResponse(new RetCode(e.getErrorCode(), e.getMessage()));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        callback.onResponse(
+                                new RetCode(
+                                        errorResponse.getErrorCode(),
+                                        errorResponse.getErrorMessage()));
+                    }
+                });
     }
 
     /**
