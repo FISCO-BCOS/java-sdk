@@ -31,6 +31,8 @@ public enum AccessStatus {
                 return Normal;
             case 1:
                 return Freeze;
+            case 2:
+                return Abolish;
             default:
                 return Unknown;
         }

@@ -7,7 +7,8 @@ public enum EnumNodeVersion {
     UNKNOWN(-1),
     BCOS_3_0_0_RC4(4),
     BCOS_3_0_0(0x03000000),
-    BCOS_3_1_0(0x03010000);
+    BCOS_3_1_0(0x03010000),
+    BCOS_3_2_0(0x03020000);
 
     private final Integer version;
     private static final Map<Integer, EnumNodeVersion> versionLookupMap = new HashMap<>();
@@ -16,6 +17,7 @@ public enum EnumNodeVersion {
         versionLookupMap.put(4, BCOS_3_0_0_RC4);
         versionLookupMap.put(0x03000000, BCOS_3_0_0);
         versionLookupMap.put(0x03010000, BCOS_3_1_0);
+        versionLookupMap.put(0x03020000, BCOS_3_2_0);
     }
 
     EnumNodeVersion(Integer version) {
@@ -34,6 +36,8 @@ public enum EnumNodeVersion {
                 return "3.0.0";
             case BCOS_3_1_0:
                 return "3.1.0";
+            case BCOS_3_2_0:
+                return "3.2.0";
             case UNKNOWN:
             default:
                 return "0.0.0";
