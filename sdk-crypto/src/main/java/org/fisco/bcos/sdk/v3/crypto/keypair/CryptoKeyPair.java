@@ -17,6 +17,7 @@ import com.webank.wedpr.crypto.CryptoResult;
 import java.io.File;
 import java.math.BigInteger;
 import java.security.KeyPair;
+import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.crypto.exceptions.KeyPairException;
 import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
@@ -68,7 +69,7 @@ public abstract class CryptoKeyPair {
     protected String signatureAlgorithm;
 
     // for jni transaction sign
-    protected long jniKeyPair;
+    protected long jniKeyPair = 0;
 
     public CryptoKeyPair() {}
 
@@ -301,5 +302,28 @@ public abstract class CryptoKeyPair {
         }
         keyStoreFileDir = keyStoreFileDir + "/" + keyStoreSubDir + "/";
         return keyStoreFileDir + address + postFix;
+    }
+
+    public void releaseJni() {
+        if (this.jniKeyPair != 0) {
+            KeyPairJniObj.destroyJniKeyPair(this.jniKeyPair);
+            if (logger.isTraceEnabled()) {
+                logger.trace("finalize, jni key pair: {}", this.jniKeyPair);
+            }
+
+            this.jniKeyPair = 0;
+        }
+    }
+
+    @Override
+    protected void finalize() {
+        try {
+            super.finalize();
+            releaseJni();
+        } catch (Exception e) {
+
+        } catch (Throwable throwable) {
+            // throwable.printStackTrace();
+        }
     }
 }
