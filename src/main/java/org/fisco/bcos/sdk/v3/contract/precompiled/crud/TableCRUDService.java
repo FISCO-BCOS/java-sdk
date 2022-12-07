@@ -67,10 +67,10 @@ public class TableCRUDService {
      * @return if success then return 0; otherwise is failed then see the retCode message
      * @throws ContractException throw when contract exec exception
      */
-    public RetCode createTable(String tableName, String keyFieldName, List<String> valueFields)
+    public RetCode createTable(String tableName, int keyOrder, String keyFieldName, List<String> valueFields)
             throws ContractException {
         TableManagerPrecompiled.TableInfo tableInfo =
-                new TableManagerPrecompiled.TableInfo(keyFieldName, valueFields);
+                new TableManagerPrecompiled.TableInfo(BigInteger.valueOf(keyOrder), keyFieldName, valueFields);
         TransactionReceipt receipt = tableManagerPrecompiled.createTable(tableName, tableInfo);
         return ReceiptParser.parseTransactionReceipt(
                 receipt, tr -> tableManagerPrecompiled.getCreateTableOutput(tr).getValue1());
@@ -87,11 +87,12 @@ public class TableCRUDService {
      */
     public void asyncCreateTable(
             String tableName,
+            int keyOrder,
             String keyFieldName,
             List<String> valueFields,
             PrecompiledCallback callback) {
         TableManagerPrecompiled.TableInfo tableInfo =
-                new TableManagerPrecompiled.TableInfo(keyFieldName, valueFields);
+                new TableManagerPrecompiled.TableInfo(BigInteger.valueOf(keyOrder), keyFieldName, valueFields);
         this.tableManagerPrecompiled.createTable(
                 tableName,
                 tableInfo,
@@ -155,13 +156,7 @@ public class TableCRUDService {
         TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
         List<TablePrecompiled.Entry> selectEntry = new ArrayList<>();
         List<Map<String, String>> result = new ArrayList<>();
-        if (!StringUtils.isEmpty(condition.getEqValue())) {
-            TablePrecompiled.Entry entry = tablePrecompiled.select(condition.getEqValue());
-            selectEntry.add(entry);
-        } else {
-            selectEntry =
-                    tablePrecompiled.select(condition.getTableConditions(), condition.getLimit());
-        }
+        selectEntry = tablePrecompiled.select(condition.getTableConditions(), condition.getLimit());
 
         for (TablePrecompiled.Entry entry : selectEntry) {
             Map<String, String> kvs = new HashMap<>();

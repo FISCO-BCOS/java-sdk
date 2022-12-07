@@ -188,7 +188,7 @@ public class PrecompiledTest {
         for (int i = 0; i < 5; i++) {
             valueFields.add(i, "field" + i);
         }
-        RetCode code = tableCRUDService.createTable(tableName, key, valueFields);
+        RetCode code = tableCRUDService.createTable(tableName, 0, key, valueFields);
         Assert.assertEquals(0, code.getCode());
         // desc
         Map<String, List<String>> desc = tableCRUDService.desc(tableName);
@@ -206,7 +206,7 @@ public class PrecompiledTest {
         Map<String, String> result = tableCRUDService.select(tableName, "key1");
 
         Condition condition = new Condition();
-        condition.EQ("990");
+        condition.EQ(0,"990");
         condition.setLimit(0, 10);
         List<Map<String, String>> select = tableCRUDService.select(tableName, condition);
         // field value result + key result
@@ -242,7 +242,7 @@ public class PrecompiledTest {
         String tableName = "test_sync" + new Random().nextInt(10000);
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
-        RetCode retCode = crudService.createTable(tableName, "key", valueFiled);
+        RetCode retCode = crudService.createTable(tableName, 0, "key", valueFiled);
         System.out.println("tableName" + tableName);
         System.out.println(
                 "createResult: " + retCode.getCode() + ", message: " + retCode.getMessage());
@@ -315,7 +315,7 @@ public class PrecompiledTest {
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         String key = "key";
-        crudService.createTable(tableName, key, valueFiled);
+        crudService.createTable(tableName, 0, key, valueFiled);
         // create a thread pool to parallel insert and select
         ExecutorService threadPool = Executors.newFixedThreadPool(50);
         BigInteger orgTxCount =

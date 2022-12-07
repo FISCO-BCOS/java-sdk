@@ -19,37 +19,54 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TablePrecompiled;
 
 public class Condition {
-
-    private final Map<ConditionOperator, String> conditions;
+    private final List<Tuple3<ConditionOperator, BigInteger, String>> conditions;
+    //    private final Map<ConditionOperator, String> conditions;
     private TablePrecompiled.Limit limit;
-    private String eqValue = "";
 
     public Condition() {
-        conditions = new HashMap<>();
+        conditions = new ArrayList<>();
         limit = new TablePrecompiled.Limit();
     }
 
-    public void GT(String value) {
-        conditions.put(ConditionOperator.GT, value);
+    public void EQ(int field, String value) {
+        conditions.add(new Tuple3<>(ConditionOperator.EQ, BigInteger.valueOf(field), value));
     }
 
-    public void GE(String value) {
-        conditions.put(ConditionOperator.GE, value);
+    public void NE(int field, String value) {
+        conditions.add(new Tuple3<>(ConditionOperator.NE, BigInteger.valueOf(field), value));
     }
 
-    public void LT(String value) {
-        conditions.put(ConditionOperator.LT, value);
+    public void GT(int field, String value) {
+        conditions.add(new Tuple3<>(ConditionOperator.GT, BigInteger.valueOf(field), value));
     }
 
-    public void LE(String value) {
-        conditions.put(ConditionOperator.LE, value);
+    public void GE(int field, String value) {
+        conditions.add(new Tuple3<>(ConditionOperator.GE, BigInteger.valueOf(field), value));
     }
 
-    public void EQ(String value) {
-        eqValue = value;
+    public void LT(int field, String value) {
+        conditions.add(new Tuple3<>(ConditionOperator.LT, BigInteger.valueOf(field), value));
+    }
+
+    public void LE(int field, String value) {
+        conditions.add(new Tuple3<>(ConditionOperator.LE, BigInteger.valueOf(field), value));
+    }
+
+    public void STARTS_WITH(int field, String value) {
+        conditions.add(new Tuple3<>(ConditionOperator.STARTS_WITH, BigInteger.valueOf(field), value));
+    }
+
+    public void ENDS_WITH(int field, String value) {
+        conditions.add(new Tuple3<>(ConditionOperator.ENDS_WITH, BigInteger.valueOf(field), value));
+    }
+
+    public void CONTAINS(int field, String value) {
+        conditions.add(new Tuple3<>(ConditionOperator.CONTAINS, BigInteger.valueOf(field), value));
     }
 
     public void setLimit(int offset, int count) {
@@ -60,20 +77,18 @@ public class Condition {
         limit = new TablePrecompiled.Limit(offset, count);
     }
 
-    public Map<ConditionOperator, String> getConditions() {
+    public List<Tuple3<ConditionOperator, BigInteger, String>> getConditions() {
         return conditions;
-    }
-
-    public String getEqValue() {
-        return eqValue;
     }
 
     public List<TablePrecompiled.Condition> getTableConditions() {
         List<TablePrecompiled.Condition> tableConditions = new ArrayList<>();
         conditions.forEach(
-                (op, value) ->
+                tuple3 ->
                         tableConditions.add(
-                                new TablePrecompiled.Condition(op.getBigIntValue(), value)));
+                                new TablePrecompiled.Condition(tuple3.getValue1().getBigIntValue(),
+                                        tuple3.getValue2(),
+                                        tuple3.getValue3())));
         return tableConditions;
     }
 
@@ -88,18 +103,20 @@ public class Condition {
                 + conditions
                 + ", limit="
                 + limit
-                + ", eqValue='"
-                + eqValue
                 + '\''
                 + '}';
     }
 
     public enum ConditionOperator {
-        GT(0),
-        GE(1),
-        LT(2),
-        LE(3),
-        EQ(4);
+        EQ(0),
+        NE(1),
+        GT(2),
+        GE(3),
+        LT(4),
+        LE(5),
+        STARTS_WITH(6),
+        ENDS_WITH(7),
+        CONTAINS(8);
         private final int value;
 
         private ConditionOperator(int value) {
@@ -118,15 +135,23 @@ public class Condition {
         public String toString() {
             switch (value) {
                 case 0:
-                    return "GT";
-                case 1:
-                    return "GE";
-                case 2:
-                    return "LT";
-                case 3:
-                    return "LE";
-                case 4:
                     return "EQ";
+                case 1:
+                    return "NE";
+                case 2:
+                    return "GT";
+                case 3:
+                    return "GE";
+                case 4:
+                    return "LT";
+                case 5:
+                    return "LE";
+                case 6:
+                    return "STARTS_WITH";
+                case 7:
+                    return "ENDS_WITH";
+                case 8:
+                    return "CONTAINS";
                 default:
                     return "";
             }

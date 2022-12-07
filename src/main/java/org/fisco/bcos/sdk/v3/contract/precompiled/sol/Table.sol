@@ -3,8 +3,9 @@ pragma solidity >=0.6.10 <0.8.20;
 pragma experimental ABIEncoderV2;
 
 // KeyOrder指定Key的排序规则，字典序和数字序，如果指定为数字序，key只能为数字
-// enum KeyOrder {Lexicographic, Numerical}
+enum KeyOrder {Lexicographic, Numerical}
 struct TableInfo {
+    KeyOrder keyOrder;
     string keyColumn;
     string[] valueColumns;
 }
@@ -23,10 +24,10 @@ struct UpdateField {
 }
 
 // 筛选条件，大于、大于等于、小于、小于等于
-enum ConditionOP {GT, GE, LT, LE}
+enum ConditionOP {EQ, NE, GT, GE, LT, LE, STARTS_WITH, ENDS_WITH, CONTAINS}
 struct Condition {
     ConditionOP op;
-    // string field;
+    uint32 field;
     string value;
 }
 
