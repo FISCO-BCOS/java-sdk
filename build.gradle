@@ -35,6 +35,7 @@ ext {
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
     version = '3.1.2-SNAPSHOT'
+
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
