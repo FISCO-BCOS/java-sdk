@@ -67,10 +67,12 @@ public class TableCRUDService {
      * @return if success then return 0; otherwise is failed then see the retCode message
      * @throws ContractException throw when contract exec exception
      */
-    public RetCode createTable(String tableName, int keyOrder, String keyFieldName, List<String> valueFields)
+    public RetCode createTable(
+            String tableName, int keyOrder, String keyFieldName, List<String> valueFields)
             throws ContractException {
         TableManagerPrecompiled.TableInfo tableInfo =
-                new TableManagerPrecompiled.TableInfo(BigInteger.valueOf(keyOrder), keyFieldName, valueFields);
+                new TableManagerPrecompiled.TableInfo(
+                        BigInteger.valueOf(keyOrder), keyFieldName, valueFields);
         TransactionReceipt receipt = tableManagerPrecompiled.createTable(tableName, tableInfo);
         return ReceiptParser.parseTransactionReceipt(
                 receipt, tr -> tableManagerPrecompiled.getCreateTableOutput(tr).getValue1());
@@ -92,7 +94,8 @@ public class TableCRUDService {
             List<String> valueFields,
             PrecompiledCallback callback) {
         TableManagerPrecompiled.TableInfo tableInfo =
-                new TableManagerPrecompiled.TableInfo(BigInteger.valueOf(keyOrder), keyFieldName, valueFields);
+                new TableManagerPrecompiled.TableInfo(
+                        BigInteger.valueOf(keyOrder), keyFieldName, valueFields);
         this.tableManagerPrecompiled.createTable(
                 tableName,
                 tableInfo,

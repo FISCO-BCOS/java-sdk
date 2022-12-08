@@ -16,10 +16,7 @@ package org.fisco.bcos.sdk.v3.contract.precompiled.crud.common;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TablePrecompiled;
 
@@ -58,7 +55,8 @@ public class Condition {
     }
 
     public void STARTS_WITH(int field, String value) {
-        conditions.add(new Tuple3<>(ConditionOperator.STARTS_WITH, BigInteger.valueOf(field), value));
+        conditions.add(
+                new Tuple3<>(ConditionOperator.STARTS_WITH, BigInteger.valueOf(field), value));
     }
 
     public void ENDS_WITH(int field, String value) {
@@ -86,7 +84,8 @@ public class Condition {
         conditions.forEach(
                 tuple3 ->
                         tableConditions.add(
-                                new TablePrecompiled.Condition(tuple3.getValue1().getBigIntValue(),
+                                new TablePrecompiled.Condition(
+                                        tuple3.getValue1().getBigIntValue(),
                                         tuple3.getValue2(),
                                         tuple3.getValue3())));
         return tableConditions;
@@ -98,13 +97,7 @@ public class Condition {
 
     @Override
     public String toString() {
-        return "Condition{"
-                + "conditions="
-                + conditions
-                + ", limit="
-                + limit
-                + '\''
-                + '}';
+        return "Condition{" + "conditions=" + conditions + ", limit=" + limit + '\'' + '}';
     }
 
     public enum ConditionOperator {
