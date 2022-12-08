@@ -14,14 +14,19 @@
  */
 package org.fisco.bcos.sdk.v3.client.protocol.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.MerkleProofUnit;
 import org.fisco.bcos.sdk.v3.utils.AddressUtils;
+import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +49,23 @@ public class JsonTransactionResponse {
     private List<MerkleProofUnit> transactionProof;
 
     public JsonTransactionResponse() {}
+
+    public static JsonTransactionResponse readFromHexString(String hexString)
+            throws JniException, IOException {
+        String jsonObj = TransactionBuilderJniObj.decodeTransactionDataToJsonObj(hexString);
+        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+        return objectMapper.readValue(jsonObj.getBytes(), JsonTransactionResponse.class);
+    }
+
+    public String writeToHexString() throws JsonProcessingException, JniException {
+        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+        String json = objectMapper.writeValueAsString(this);
+        long transactionDataWithJson = TransactionBuilderJniObj.createTransactionDataWithJson(json);
+        String encodeTransactionData =
+                TransactionBuilderJniObj.encodeTransactionData(transactionDataWithJson);
+        TransactionBuilderJniObj.destroyTransactionData(transactionDataWithJson);
+        return encodeTransactionData;
+    }
 
     public String getAbi() {
         return abi;
@@ -144,18 +166,16 @@ public class JsonTransactionResponse {
     // calculate the hash for the transaction
     public String calculateHash(CryptoSuite cryptoSuite) throws ClientException {
         try {
-            long transactionData =
-                    TransactionBuilderJniObj.createTransactionData(
-                            this.groupID,
-                            this.chainID,
-                            this.to,
-                            this.input,
-                            this.abi,
-                            this.blockLimit);
+            ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+            String json = objectMapper.writeValueAsString(this);
+            long transactionData = TransactionBuilderJniObj.createTransactionDataWithJson(json);
             long jniKeyPair = cryptoSuite.getCryptoKeyPair().getJniKeyPair();
             int jniKeyPairCryptoType = KeyPairJniObj.getJniKeyPairCryptoType(jniKeyPair);
-            return TransactionBuilderJniObj.calcTransactionDataHash(
-                    jniKeyPairCryptoType, transactionData);
+            String transactionDataHash =
+                    TransactionBuilderJniObj.calcTransactionDataHash(
+                            jniKeyPairCryptoType, transactionData);
+            TransactionBuilderJniObj.destroyTransactionData(transactionData);
+            return transactionDataHash;
         } catch (Exception e) {
             logger.warn(
                     "calculate hash for the transaction failed, version: {}, transactionHash: {}, error info: {}",

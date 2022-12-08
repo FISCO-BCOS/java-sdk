@@ -15,17 +15,27 @@
 package org.fisco.bcos.sdk.v3.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
+import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
+import org.fisco.bcos.sdk.jni.utilities.receipt.ReceiptBuilderJniObj;
+import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
+import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.utils.AddressUtils;
+import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 
 public class TransactionReceipt {
-    private String version;
+    private Integer version;
     private String contractAddress;
     private String checksumContractAddress;
     private String gasUsed;
     private int status = -1;
-    private String blockNumber;
+    private BigInteger blockNumber;
     private String output;
     private String transactionHash;
 
@@ -127,6 +137,22 @@ public class TransactionReceipt {
         }
     }
 
+    public static TransactionReceipt readFromHexString(String hexString)
+            throws JniException, IOException {
+        String jsonObj = ReceiptBuilderJniObj.decodeReceiptDataToJsonObj(hexString);
+        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+        return objectMapper.readValue(jsonObj.getBytes(), TransactionReceipt.class);
+    }
+
+    public String writeToHexString() throws JsonProcessingException, JniException {
+        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+        String json = objectMapper.writeValueAsString(this);
+        long receiptDataWithJson = ReceiptBuilderJniObj.createReceiptDataWithJson(json);
+        String encodeReceiptData = ReceiptBuilderJniObj.encodeReceiptData(receiptDataWithJson);
+        ReceiptBuilderJniObj.destroyReceiptData(receiptDataWithJson);
+        return encodeReceiptData;
+    }
+
     public List<MerkleProofUnit> getReceiptProof() {
         return this.receiptProof;
     }
@@ -143,11 +169,11 @@ public class TransactionReceipt {
         this.transactionHash = transactionHash;
     }
 
-    public String getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -159,11 +185,11 @@ public class TransactionReceipt {
         this.receiptHash = receiptHash;
     }
 
-    public String getBlockNumber() {
+    public BigInteger getBlockNumber() {
         return this.blockNumber;
     }
 
-    public void setBlockNumber(String blockNumber) {
+    public void setBlockNumber(BigInteger blockNumber) {
         this.blockNumber = blockNumber;
     }
 
@@ -245,6 +271,29 @@ public class TransactionReceipt {
 
     public void setTransactionProof(List<MerkleProofUnit> transactionProof) {
         this.transactionProof = transactionProof;
+    }
+
+    public String calculateReceiptHash(CryptoSuite cryptoSuite) throws ClientException {
+        try {
+            ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+            String json = objectMapper.writeValueAsString(this);
+
+            long receiptData = ReceiptBuilderJniObj.createReceiptDataWithJson(json);
+            long jniKeyPair = cryptoSuite.getCryptoKeyPair().getJniKeyPair();
+            int jniKeyPairCryptoType = KeyPairJniObj.getJniKeyPairCryptoType(jniKeyPair);
+
+            String receiptDataHash =
+                    ReceiptBuilderJniObj.calcReceiptDataHash(jniKeyPairCryptoType, receiptData);
+            ReceiptBuilderJniObj.destroyReceiptData(receiptData);
+            return receiptDataHash;
+        } catch (Exception e) {
+            throw new ClientException(
+                    "calculate hash for receipt "
+                            + this.receiptHash
+                            + " failed for "
+                            + e.getMessage(),
+                    e);
+        }
     }
 
     @Override
