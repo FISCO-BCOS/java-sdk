@@ -15,7 +15,11 @@ package org.fisco.bcos.sdk.v3.test.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.receipt.ReceiptBuilderJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.v3.client.protocol.model.GroupStatus;
+import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlockHeader;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
@@ -39,6 +43,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.Code;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.NodeVersion;
+import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -92,49 +97,49 @@ public class ResponseTest {
                         "    \"version\": 4\n" +
                         "  }\n" +
                         "}";
-            // decode the block header
-            BcosBlockHeader blockHeader =
-                    objectMapper.readValue(blockHeaderString.getBytes(), BcosBlockHeader.class);
-            // check the value field of the blockHeader
-            Assert.assertEquals("2.0", blockHeader.getJsonrpc());
-            Assert.assertEquals(3, blockHeader.getId());
-            Assert.assertEquals(1, blockHeader.getBlockHeader().getNumber());
-            Assert.assertEquals(
-                    "0xc3c038f6fdb78602dc82ad7dc7d7dd90816c767362ef0bc069c16d04b91dbfe7",
-                    blockHeader.getBlockHeader().getHash());
-            Assert.assertEquals(
-                    "0x6608f7090b3d014cc37571d505b4067cbbf381e9afa8999ccb44a15d5bb54dd2",
-                    blockHeader.getBlockHeader().getTransactionsRoot());
-            Assert.assertEquals(1654587389123L, blockHeader.getBlockHeader().getTimestamp());
-            Assert.assertEquals(
-                    "0x63a2e45b2d84f83b32342f0741ffc51069c74fb7c82b8eb0247b12230d50169b86545ecf84420adeec86c57dbc48db1342f4afebc6a127b481eeaaa23722fff0",
-                    blockHeader.getBlockHeader().getSealerList().get(0));
-            Assert.assertEquals(
-                    "0xf04f80b74a4b0c945a716c11b01794ae7bf1c7aa67e1b226a1dabc0f15b47d6316b8b08f56f846d676da66496dee1c23deb62ac091be06f3b50e01c998f672b501",
-                    blockHeader.getBlockHeader().getSignatureList().get(0).getSignature());
-            Assert.assertEquals(
-                    Integer.valueOf(1), blockHeader.getBlockHeader().getSignatureList().get(1).getIndex());
-            Assert.assertEquals(0, blockHeader.getBlockHeader().getSealer());
-            Assert.assertEquals(
-                    "0xfceec39f7894f52d3a35b4bf8cb24e6d34f6ca7847ca45a2b3d99deed63007a1",
-                    blockHeader.getBlockHeader().getReceiptsRoot());
-            Assert.assertEquals("24363", blockHeader.getBlockHeader().getGasUsed());
-            Assert.assertEquals(
-                    "0x5b64771638bc22c555b1a0e7597e2cf2afb0bab977eb39cd473e96bcf5235dd1",
-                    blockHeader.getBlockHeader().getStateRoot());
-            Assert.assertEquals(2, blockHeader.getBlockHeader().getSignatureList().size());
+        // decode the block header
+        BcosBlockHeader blockHeader =
+                objectMapper.readValue(blockHeaderString.getBytes(), BcosBlockHeader.class);
+        // check the value field of the blockHeader
+        Assert.assertEquals("2.0", blockHeader.getJsonrpc());
+        Assert.assertEquals(3, blockHeader.getId());
+        Assert.assertEquals(1, blockHeader.getBlockHeader().getNumber());
+        Assert.assertEquals(
+                "0xc3c038f6fdb78602dc82ad7dc7d7dd90816c767362ef0bc069c16d04b91dbfe7",
+                blockHeader.getBlockHeader().getHash());
+        Assert.assertEquals(
+                "0x6608f7090b3d014cc37571d505b4067cbbf381e9afa8999ccb44a15d5bb54dd2",
+                blockHeader.getBlockHeader().getTransactionsRoot());
+        Assert.assertEquals(1654587389123L, blockHeader.getBlockHeader().getTimestamp());
+        Assert.assertEquals(
+                "0x63a2e45b2d84f83b32342f0741ffc51069c74fb7c82b8eb0247b12230d50169b86545ecf84420adeec86c57dbc48db1342f4afebc6a127b481eeaaa23722fff0",
+                blockHeader.getBlockHeader().getSealerList().get(0));
+        Assert.assertEquals(
+                "0xf04f80b74a4b0c945a716c11b01794ae7bf1c7aa67e1b226a1dabc0f15b47d6316b8b08f56f846d676da66496dee1c23deb62ac091be06f3b50e01c998f672b501",
+                blockHeader.getBlockHeader().getSignatureList().get(0).getSignature());
+        Assert.assertEquals(
+                Integer.valueOf(1), blockHeader.getBlockHeader().getSignatureList().get(1).getIndex());
+        Assert.assertEquals(0, blockHeader.getBlockHeader().getSealer());
+        Assert.assertEquals(
+                "0xfceec39f7894f52d3a35b4bf8cb24e6d34f6ca7847ca45a2b3d99deed63007a1",
+                blockHeader.getBlockHeader().getReceiptsRoot());
+        Assert.assertEquals("24363", blockHeader.getBlockHeader().getGasUsed());
+        Assert.assertEquals(
+                "0x5b64771638bc22c555b1a0e7597e2cf2afb0bab977eb39cd473e96bcf5235dd1",
+                blockHeader.getBlockHeader().getStateRoot());
+        Assert.assertEquals(2, blockHeader.getBlockHeader().getSignatureList().size());
 
-            // encode the block header
-            byte[] encodedData = objectMapper.writeValueAsBytes(blockHeader);
-            // decode the encoded block header
-            BcosBlockHeader decodedBlockHeader =
-                    objectMapper.readValue(encodedData, BcosBlockHeader.class);
+        // encode the block header
+        byte[] encodedData = objectMapper.writeValueAsBytes(blockHeader);
+        // decode the encoded block header
+        BcosBlockHeader decodedBlockHeader =
+                objectMapper.readValue(encodedData, BcosBlockHeader.class);
 
-            // check decodedBlockHeader and blockHeader
-            Assert.assertEquals(blockHeader.getBlockHeader(), decodedBlockHeader.getBlockHeader());
-            Assert.assertEquals(
-                    blockHeader.getBlockHeader().hashCode(),
-                    decodedBlockHeader.getBlockHeader().hashCode());
+        // check decodedBlockHeader and blockHeader
+        Assert.assertEquals(blockHeader.getBlockHeader(), decodedBlockHeader.getBlockHeader());
+        Assert.assertEquals(
+                blockHeader.getBlockHeader().hashCode(),
+                decodedBlockHeader.getBlockHeader().hashCode());
     }
 
     @Test
@@ -642,8 +647,7 @@ public class ResponseTest {
     }
 
     @Test
-    public void testSyncStatus() throws JsonProcessingException,IOException {
-        // FIXME: this unit test is wired
+    public void testSyncStatus() throws JsonProcessingException, IOException {
         String syncStatusStr =
                 "{\n" +
                         "  \"id\": 37,\n" +
@@ -716,52 +720,82 @@ public class ResponseTest {
     }
 
     @Test
-    public void testTransactionReceipt() throws JsonProcessingException {
+    public void testTransactionReceipt() throws IOException, JniException {
         String receiptStr =
-                "{\n"
-                        + "    \"id\": 1,\n"
-                        + "    \"jsonrpc\": \"2.0\",\n"
-                        + "    \"result\": {\n"
-                        + "        \"blockHash\": \"0x977efec48c248ea4be87016446b40d7785d7b71b7d4e3aa0b103b9cf0f5fe19e\",\n"
-                        + "        \"blockNumber\": \"0xa\",\n"
-                        + "        \"contractAddress\": \"0000000000000000000000000000000000000000\",\n"
-                        + "        \"from\": \"0xcdcce60801c0a2e6bb534322c32ae528b9dec8d2\",\n"
-                        + "        \"gasUsed\": \"0x1fb8d\",\n"
-                        + "        \"input\": \"0xb602109a000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000203078313030303030303030303030303030303030303030303030303030303030000000000000000000000000000000000000000000000000000000000000000832303139303733300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002616100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000026262000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "        \"logEntries\": [ ],\n"
-                        + "        \"logsBloom\": \"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "        \"output\": \"0x0000000000000000000000000000000000000000000000000000000000000000\",\n"
-                        + "        \"root\":\"0x38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca\",\n"
-                        + "        \"status\": \"12\",\n"
-                        + "        \"to\": \"15538acd403ac1b2ff09083c70d04856b8c0bdfd\",\n"
-                        + "        \"transactionHash\": \"0x708b5781b62166bd86e543217be6cd954fd815fd192b9a124ee9327580df8f3f\",\n"
-                        + "        \"transactionIndex\": \"0x10\"\n"
-                        + "    }\n"
-                        + "}";
+                "{\n" +
+                        "        \"id\" : 8,\n" +
+                        "        \"jsonrpc\" : \"2.0\",\n" +
+                        "        \"result\" :\n" +
+                        "        {\n" +
+                        "                \"blockNumber\" : 2,\n" +
+                        "                \"checksumContractAddress\" : \"\",\n" +
+                        "                \"contractAddress\" : \"\",\n" +
+                        "                \"from\" : \"0x3d20a4e26f41b57c2061e520c825fbfa5f321f22\",\n" +
+                        "                \"gasUsed\" : \"19413\",\n" +
+                        "                \"hash\" : \"0xb59cfe6ef607b72a6bab515042e0882213d179bd421afba353e2259b2a6396e4\",\n" +
+                        "                \"input\" : \"0x2fe99bdc000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000000574657374310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005746573743200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000057465737433000000000000000000000000000000000000000000000000000000\",\n" +
+                        "                \"logEntries\" :\n" +
+                        "                [\n" +
+                        "                        {\n" +
+                        "                                \"address\" : \"6849f21d1e455e9f0712b1e99fa4fcd23758e8f1\",\n" +
+                        "                                \"data\" : \"0x0000000000000000000000000000000000000000000000000000000000000001\",\n" +
+                        "                                \"topics\" :\n" +
+                        "                                [\n" +
+                        "                                        \"0xc57b01fa77f41df77eaab79a0e2623fab2e7ae3e9530d9b1cab225ad65f2b7ce\"\n" +
+                        "                                ]\n" +
+                        "                        }\n" +
+                        "                ],\n" +
+                        "                \"message\" : \"\",\n" +
+                        "                \"output\" : \"0x0000000000000000000000000000000000000000000000000000000000000001\",\n" +
+                        "                \"status\" : 0,\n" +
+                        "                \"to\" : \"0x6849f21d1e455e9f0712b1e99fa4fcd23758e8f1\",\n" +
+                        "                \"transactionHash\" : \"0x0359a5588c5e9c9dcfd2f4ece850d6f4c41bc88e2c27cc051890f26ef0ef118f\",\n" +
+                        "                \"transactionProof\" : null,\n" +
+                        "                \"version\" : 0\n" +
+                        "        }\n" +
+                        "}";
         BcosTransactionReceipt transactionReceipt =
                 objectMapper.readValue(receiptStr, BcosTransactionReceipt.class);
         Assert.assertEquals(
-                "0x0000000000000000000000000000000000000000",
+                "",
                 transactionReceipt.getTransactionReceipt().getContractAddress());
         Assert.assertEquals(
-                "0xcdcce60801c0a2e6bb534322c32ae528b9dec8d2",
+                "0x3d20a4e26f41b57c2061e520c825fbfa5f321f22",
                 transactionReceipt.getTransactionReceipt().getFrom());
         Assert.assertEquals(
-                "0x1fb8d", transactionReceipt.getTransactionReceipt().getGasUsed());
+                "19413", transactionReceipt.getTransactionReceipt().getGasUsed());
         Assert.assertEquals(
-                "0xb602109a000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000203078313030303030303030303030303030303030303030303030303030303030000000000000000000000000000000000000000000000000000000000000000832303139303733300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002616100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000026262000000000000000000000000000000000000000000000000000000000000",
+                "0x2fe99bdc000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000000574657374310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005746573743200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000057465737433000000000000000000000000000000000000000000000000000000",
                 transactionReceipt.getTransactionReceipt().getInput());
-        Assert.assertEquals(0, transactionReceipt.getTransactionReceipt().getLogEntries().size());
+        Assert.assertEquals(1, transactionReceipt.getTransactionReceipt().getLogEntries().size());
         Assert.assertEquals(
-                "0x0000000000000000000000000000000000000000000000000000000000000000",
+                "0x0000000000000000000000000000000000000000000000000000000000000001",
                 transactionReceipt.getTransactionReceipt().getOutput());
-        Assert.assertEquals(12, transactionReceipt.getTransactionReceipt().getStatus());
+        Assert.assertEquals(0, transactionReceipt.getTransactionReceipt().getStatus());
         Assert.assertEquals(
-                "0x15538acd403ac1b2ff09083c70d04856b8c0bdfd",
+                "0x6849f21d1e455e9f0712b1e99fa4fcd23758e8f1",
                 transactionReceipt.getTransactionReceipt().getTo());
         Assert.assertEquals(
-                "0x708b5781b62166bd86e543217be6cd954fd815fd192b9a124ee9327580df8f3f",
+                "0x0359a5588c5e9c9dcfd2f4ece850d6f4c41bc88e2c27cc051890f26ef0ef118f",
                 transactionReceipt.getTransactionReceipt().getTransactionHash());
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+        String calculateReceiptHash = transactionReceipt.getTransactionReceipt().calculateReceiptHash(cryptoSuite);
+        Assert.assertEquals(calculateReceiptHash, transactionReceipt.getTransactionReceipt().getReceiptHash());
+
+        TransactionReceipt transactionReceipt1 = transactionReceipt.getTransactionReceipt();
+        String receiptJson = objectMapper.writeValueAsString(transactionReceipt1);
+        long receiptDataWithJson = ReceiptBuilderJniObj.createReceiptDataWithJson(receiptJson);
+        String encodeReceiptData = ReceiptBuilderJniObj.encodeReceiptData(receiptDataWithJson);
+        String receiptDataToJsonObj = ReceiptBuilderJniObj.decodeReceiptDataToJsonObj(encodeReceiptData);
+        TransactionReceipt receipt = objectMapper.readValue(receiptDataToJsonObj.getBytes(), TransactionReceipt.class);
+        String receiptHash = receipt.calculateReceiptHash(cryptoSuite);
+        Assert.assertEquals(receiptHash, transactionReceipt.getTransactionReceipt().getReceiptHash());
+
+        String hexString = transactionReceipt1.writeToHexString();
+        TransactionReceipt newReceipt = TransactionReceipt.readFromHexString(hexString);
+        Assert.assertEquals(newReceipt.calculateReceiptHash(cryptoSuite), transactionReceipt1.getReceiptHash());
+
+        ReceiptBuilderJniObj.destroyReceiptData(receiptDataWithJson);
     }
 
     @Test
@@ -810,7 +844,7 @@ public class ResponseTest {
                         + "      }\n"
                         + "    ],\n"
                         + "    \"blockHash\": \"0xcd31b05e466bce99460b1ed70d6069fdfbb15e6eef84e9b9e4534358edb3899a\",\n"
-                        + "    \"blockNumber\": \"0x5\",\n"
+                        + "    \"blockNumber\": \"5\",\n"
                         + "    \"contractAddress\": \"0000000000000000000000000000000000000000\",\n"
                         + "    \"from\": \"0x148947262ec5e21739fe3a931c29e8b84ee34a0f\",\n"
                         + "    \"gasUsed\": \"0x21dc1b\",\n"
@@ -885,8 +919,8 @@ public class ResponseTest {
                         .getRight()
                         .get(0));
         Assert.assertEquals(
-                "0x5",
-                receiptWithProof.getTransactionReceipt().getBlockNumber());
+                5,
+                receiptWithProof.getTransactionReceipt().getBlockNumber().intValue());
         Assert.assertEquals(
                 "0x0000000000000000000000000000000000000000",
                 receiptWithProof
@@ -967,30 +1001,46 @@ public class ResponseTest {
     }
 
     @Test
-    public void testECDSAGetTransactionAndCalculateHash() throws IOException {
+    public void testECDSAGetTransactionAndCalculateHash() throws IOException, JniException {
         String transactionStr = "{\n" +
-                "  \"id\": 12,\n" +
-                "  \"jsonrpc\": \"2.0\",\n" +
-                "  \"result\": {\n" +
-                "    \"blockLimit\": 543,\n" +
-                "    \"chainID\": \"chain\",\n" +
-                "    \"from\": \"0x9036450ed747ef3b0423734f36ed6472d35cac6f\",\n" +
-                "    \"groupID\": \"group0\",\n" +
-                "    \"hash\": \"0xbd5121a964a0f14414e4f7ef99e91943baa830bdbb2e345b7eae56c94b8e8386\",\n" +
-                "    \"importTime\": 1642493461036,\n" +
-                "    \"input\": \"0x4ed3885e000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000033132330000000000000000000000000000000000000000000000000000000000\",\n" +
-                "    \"nonce\": \"815106147678017284033451788138572352403714561031581276615138411883384218839\",\n" +
-                "    \"signature\": \"0x5fb225c4d87c5db55e2416412550b6fa6b874f421f7bd345566bba08bd443d3970dd0ce526d06ed6628990cdb607800776922e19fcdeee7365582919f21887e900\",\n" +
-                "    \"to\": \"dCDECd228F59A234287FECe68aD8fB94f016B124\",\n" +
-                "    \"version\": 0\n" +
-                "  }\n" +
+                "        \"id\" : 18,\n" +
+                "        \"jsonrpc\" : \"2.0\",\n" +
+                "        \"result\" :\n" +
+                "        {\n" +
+                "                \"abi\" : \"\",\n" +
+                "                \"blockLimit\" : 509,\n" +
+                "                \"chainID\" : \"chain0\",\n" +
+                "                \"from\" : \"0x320b129f4e8dbd956eeb4c3ff3b5627c2945ff1a\",\n" +
+                "                \"groupID\" : \"group0\",\n" +
+                "                \"hash\" : \"0xdb2ad0125c0a15b165016af8dfdb24d059075c2a82dc7bc3458e68d3f6bf1aee\",\n" +
+                "                \"importTime\" : 1670402051289,\n" +
+                "                \"input\" : \"0x4ed3885e000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000033132330000000000000000000000000000000000000000000000000000000000\",\n" +
+                "                \"nonce\" : \"77972073868959774439218594078575551136443541590072266626762998244779252502750\",\n" +
+                "                \"signature\" : \"0x56da11cc6880252e3ffe8e6571823c74b0042ad97a2542e0fd0dc49934c491ea0efcda2925e715e8be8947fa526caecaf5820ef3bce06bebe55ff9b78679aa2b01\",\n" +
+                "                \"to\" : \"0x0102e8b6fc8cdf9626fddc1c3ea8c1e79b3fce94\",\n" +
+                "                \"version\" : 0\n" +
+                "        }\n" +
                 "}";
         BcosTransaction bcosTransaction = objectMapper.readValue(transactionStr.getBytes(), BcosTransaction.class);
         CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
-        //TODO: fix
-        // Assert.assertEquals(
-        //         bcosTransaction.getTransaction().get().calculateHash(cryptoSuite),
-        //        bcosTransaction.getTransaction().get().getHash());
+        Assert.assertEquals(
+                bcosTransaction.getTransaction().get().calculateHash(cryptoSuite),
+                bcosTransaction.getTransaction().get().getHash());
+
+        JsonTransactionResponse jsonTransactionResponse = bcosTransaction.getTransaction().get();
+        String txDataJson = objectMapper.writeValueAsString(jsonTransactionResponse);
+        long transactionData = TransactionBuilderJniObj.createTransactionDataWithJson(txDataJson);
+        String encodeTransactionData = TransactionBuilderJniObj.encodeTransactionData(transactionData);
+        String jsonObj = TransactionBuilderJniObj.decodeTransactionDataToJsonObj(encodeTransactionData);
+        System.out.println(jsonObj);
+        JsonTransactionResponse bcosTransaction1 = objectMapper.readValue(jsonObj.getBytes(), JsonTransactionResponse.class);
+        Assert.assertEquals(bcosTransaction1.calculateHash(cryptoSuite), bcosTransaction.getTransaction().get().getHash());
+
+        String hexString = jsonTransactionResponse.writeToHexString();
+        JsonTransactionResponse jsonTransactionResponse1 = JsonTransactionResponse.readFromHexString(hexString);
+        Assert.assertEquals(jsonTransactionResponse1.calculateHash(cryptoSuite), jsonTransactionResponse.getHash());
+
+        TransactionBuilderJniObj.destroyTransactionData(transactionData);
     }
 
     @Test
