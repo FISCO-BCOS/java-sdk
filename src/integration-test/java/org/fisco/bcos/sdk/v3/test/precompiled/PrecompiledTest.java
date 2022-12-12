@@ -38,6 +38,7 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.consensus.ConsensusService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.KVTableService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.ConditionV320;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.UpdateFields;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
@@ -188,10 +189,10 @@ public class PrecompiledTest {
         for (int i = 0; i < 5; i++) {
             valueFields.add(i, "field" + i);
         }
-        RetCode code = tableCRUDService.createTable(tableName, key, valueFields);
+        RetCode code = tableCRUDService.createTable(tableName, 0, key, valueFields);
         Assert.assertEquals(0, code.getCode());
         // desc
-        Map<String, List<String>> desc = tableCRUDService.desc(tableName);
+        Map<String, List<String>> desc = tableCRUDService.descV320(tableName);
         Assert.assertEquals(desc.get(PrecompiledConstant.VALUE_FIELD_NAME), valueFields);
 
         // insert
@@ -205,8 +206,8 @@ public class PrecompiledTest {
         // select key
         Map<String, String> result = tableCRUDService.select(tableName, "key1");
 
-        Condition condition = new Condition();
-        condition.EQ("990");
+        ConditionV320 condition = new ConditionV320();
+        condition.EQ(0,"990");
         condition.setLimit(0, 10);
         List<Map<String, String>> select = tableCRUDService.select(tableName, condition);
         // field value result + key result
@@ -242,7 +243,7 @@ public class PrecompiledTest {
         String tableName = "test_sync" + new Random().nextInt(10000);
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
-        RetCode retCode = crudService.createTable(tableName, "key", valueFiled);
+        RetCode retCode = crudService.createTable(tableName, 0, "key", valueFiled);
         System.out.println("tableName" + tableName);
         System.out.println(
                 "createResult: " + retCode.getCode() + ", message: " + retCode.getMessage());
@@ -315,7 +316,7 @@ public class PrecompiledTest {
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         String key = "key";
-        crudService.createTable(tableName, key, valueFiled);
+        crudService.createTable(tableName, 0, key, valueFiled);
         // create a thread pool to parallel insert and select
         ExecutorService threadPool = Executors.newFixedThreadPool(50);
         BigInteger orgTxCount =
@@ -379,7 +380,7 @@ public class PrecompiledTest {
         RetCode code = kvTableService.createTable(tableName, key, "field");
         Assert.assertEquals(0, code.getCode());
         // desc
-        Map<String, String> desc = kvTableService.desc(tableName);
+        Map<String, String> desc = kvTableService.descV320(tableName);
         Assert.assertEquals(desc.get(PrecompiledConstant.VALUE_FIELD_NAME), "field");
 
         // set
