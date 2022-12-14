@@ -44,12 +44,14 @@ import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.NodeVersion;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.utils.MerkleProofUtility;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.List;
 
 public class ResponseTest {
     private static final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
@@ -843,6 +845,14 @@ public class ResponseTest {
                         + "        \"right\": []\n"
                         + "      }\n"
                         + "    ],\n"
+                        + "    \"txProof\": [\n"
+                        + "             \"6a6cefef8b48e455287a8c8694b06f4f7cb7950017ab048d6e6bdd8029f9f8c9\",\n"
+                        + "             \"0a27c5ee02e618d919d228e6a754dc201d299c91c9e4420a48783bb6fcd09be5\"\n"
+                        + "     ],\n"
+                        + "    \"txReceiptProof\": [\n"
+                        + "             \"6a6cefef8b48e455287a8c8694b06f4f7cb7950017ab048d6e6bdd8029f9f8c9\",\n"
+                        + "             \"0a27c5ee02e618d919d228e6a754dc201d299c91c9e4420a48783bb6fcd09be5\"\n"
+                        + "     ],\n"
                         + "    \"blockHash\": \"0xcd31b05e466bce99460b1ed70d6069fdfbb15e6eef84e9b9e4534358edb3899a\",\n"
                         + "    \"blockNumber\": \"5\",\n"
                         + "    \"contractAddress\": \"0000000000000000000000000000000000000000\",\n"
@@ -1003,21 +1013,50 @@ public class ResponseTest {
     @Test
     public void testECDSAGetTransactionAndCalculateHash() throws IOException, JniException {
         String transactionStr = "{\n" +
-                "        \"id\" : 18,\n" +
+                "        \"id\" : 14,\n" +
                 "        \"jsonrpc\" : \"2.0\",\n" +
                 "        \"result\" :\n" +
                 "        {\n" +
                 "                \"abi\" : \"\",\n" +
-                "                \"blockLimit\" : 509,\n" +
+                "                \"blockLimit\" : 521,\n" +
                 "                \"chainID\" : \"chain0\",\n" +
-                "                \"from\" : \"0x320b129f4e8dbd956eeb4c3ff3b5627c2945ff1a\",\n" +
+                "                \"from\" : \"0x45ed2b4ee8546a2808f6ea30a41b4e04074b3f17\",\n" +
                 "                \"groupID\" : \"group0\",\n" +
-                "                \"hash\" : \"0xdb2ad0125c0a15b165016af8dfdb24d059075c2a82dc7bc3458e68d3f6bf1aee\",\n" +
-                "                \"importTime\" : 1670402051289,\n" +
-                "                \"input\" : \"0x4ed3885e000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000033132330000000000000000000000000000000000000000000000000000000000\",\n" +
-                "                \"nonce\" : \"77972073868959774439218594078575551136443541590072266626762998244779252502750\",\n" +
-                "                \"signature\" : \"0x56da11cc6880252e3ffe8e6571823c74b0042ad97a2542e0fd0dc49934c491ea0efcda2925e715e8be8947fa526caecaf5820ef3bce06bebe55ff9b78679aa2b01\",\n" +
-                "                \"to\" : \"0x0102e8b6fc8cdf9626fddc1c3ea8c1e79b3fce94\",\n" +
+                "                \"hash\" : \"0x08bf58cb6974d6011b4c38dfba6042a5581d09bcdad608b35c01faab60e65f60\",\n" +
+                "                \"importTime\" : 1670993547912,\n" +
+                "                \"input\" : \"0xd91921ed000000000000000000000000000000000000000000000000000000000000016b\",\n" +
+                "                \"nonce\" : \"93211541293974952730087763682517272771230763513029093659263835585118451786019\",\n" +
+                "                \"signature\" : \"0xd718e60c0b5a4afd69de84ef1084e2753c729875b3c514189f986047d354b4050c20d151efeadd0cff4b4a90517bb3200247cbe2c7dd930cf02e90c9f5939bd500\",\n" +
+                "                \"to\" : \"0xc8ead4b26b2c6ac14c9fd90d9684c9bc2cc40085\",\n" +
+                "                \"txProof\" :\n" +
+                "                [\n" +
+                "                        \"0000000200000000000000000000000000000000000000000000000000000000\",\n" +
+                "                        \"08bf58cb6974d6011b4c38dfba6042a5581d09bcdad608b35c01faab60e65f60\",\n" +
+                "                        \"86778510cb760455127e398ed0b2eac8274b7e6525df7cb662157867c0e72750\",\n" +
+                "                        \"0000000200000000000000000000000000000000000000000000000000000000\",\n" +
+                "                        \"93a3e602ab5f7148e47e018d4cdc52c1fc2b4a03c7b8c38987220041283aa257\",\n" +
+                "                        \"a3c098545fde6a64058504abf7275813d82119ca354774d2503801b3e88511ca\",\n" +
+                "                        \"0000000200000000000000000000000000000000000000000000000000000000\",\n" +
+                "                        \"104c1d168e573f877ef07af01ce783ca372622ffdac29d7c2f41aa14913c3ca6\",\n" +
+                "                        \"bdb782bbae5f1cdbbd5fe59974a7ccfc07f40b3ded5d0d824913a19b70031872\",\n" +
+                "                        \"0000000100000000000000000000000000000000000000000000000000000000\",\n" +
+                "                        \"37690dafc3390d75fe6e129cdf82f5a54c0d996464ffab7cecef006a1fcaf301\",\n" +
+                "                        \"0000000200000000000000000000000000000000000000000000000000000000\",\n" +
+                "                        \"b7b5642f280766843b8a2d9bd1793c70490c84d9c6a6d2a1cd6df1d9777fbebb\",\n" +
+                "                        \"a973f00b74eb91954ed01a2928c06e9deb7373f5dd9b4da4f7776915374e9f05\",\n" +
+                "                        \"0000000200000000000000000000000000000000000000000000000000000000\",\n" +
+                "                        \"ffd9e7ee47da53f53b3181dea758f164726d2fc0c7bce0ceda199b76099bf32c\",\n" +
+                "                        \"a64c46ae5a8a882cc0a9e2ac5cdc8e6cace8ce3dade41130f92eb0d24c58af92\",\n" +
+                "                        \"0000000200000000000000000000000000000000000000000000000000000000\",\n" +
+                "                        \"d0153796c8cea76c08a8b1ab932e7bd8a1ae123d6a3b9bc442fe329fb1592aeb\",\n" +
+                "                        \"0880b67fdb80a69dfaed8f92719ccff3258508db68cfdbd851d6096bdab69e01\",\n" +
+                "                        \"0000000200000000000000000000000000000000000000000000000000000000\",\n" +
+                "                        \"b5b23a170215d9f74d107b1458a78ca97a1a0414e2f2ccf0d7ebac7d0e205ba9\",\n" +
+                "                        \"e0aa18057629fad83d26e0c16e9aaa771b2ac85cfbd3cdc21c95a293feec3acb\",\n" +
+                "                        \"0000000200000000000000000000000000000000000000000000000000000000\",\n" +
+                "                        \"4d8176441b4098451d72e0f8d7cb57fd547907fb6156b07960a777eeadcfb3d9\",\n" +
+                "                        \"987b1e86ba418316cf6b68395b4036fcd3802fbb492ce19985451b9b5b052759\"\n" +
+                "                ],\n" +
                 "                \"version\" : 0\n" +
                 "        }\n" +
                 "}";
@@ -1041,6 +1080,15 @@ public class ResponseTest {
         Assert.assertEquals(jsonTransactionResponse1.calculateHash(cryptoSuite), jsonTransactionResponse.getHash());
 
         TransactionBuilderJniObj.destroyTransactionData(transactionData);
+
+        List<String> txProof = bcosTransaction.getTransaction().get().getTxProof();
+        String hash = bcosTransaction.getTransaction().get().getHash();
+        String root = "ab67ef374352b65bd6f411b153c821a0c2607bf275ffe407e18bc1e6957f1bf2";
+        boolean verifyMerkle = MerkleProofUtility.verifyMerkle(root, txProof, hash, cryptoSuite);
+        Assert.assertTrue(verifyMerkle);
+
+        boolean verifyFalse = MerkleProofUtility.verifyMerkle(root, txProof, root, cryptoSuite);
+        Assert.assertFalse(verifyFalse);
     }
 
     @Test
