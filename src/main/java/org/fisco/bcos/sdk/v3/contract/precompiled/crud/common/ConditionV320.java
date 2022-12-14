@@ -16,137 +16,87 @@ package org.fisco.bcos.sdk.v3.contract.precompiled.crud.common;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
+import java.util.Map;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TablePrecompiled;
 
-public class ConditionV320 {
-    private final List<Tuple3<ConditionOperator, BigInteger, String>> conditions;
-    private TablePrecompiled.Limit limit;
+public class ConditionV320 extends Condition {
+    private final Map<Integer, Map<ConditionOperator, String>> conditions;
 
     public ConditionV320() {
-        conditions = new ArrayList<>();
-        limit = new TablePrecompiled.Limit();
+        super();
+        conditions = new HashMap<>();
     }
 
     public void EQ(int field, String value) {
-        conditions.add(new Tuple3<>(ConditionOperator.EQ, BigInteger.valueOf(field), value));
+        conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
+        conditions.get(field).put(ConditionOperator.EQ, value);
     }
 
     public void NE(int field, String value) {
-        conditions.add(new Tuple3<>(ConditionOperator.NE, BigInteger.valueOf(field), value));
+        conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
+        conditions.get(field).put(ConditionOperator.NE, value);
     }
 
     public void GT(int field, String value) {
-        conditions.add(new Tuple3<>(ConditionOperator.GT, BigInteger.valueOf(field), value));
+        conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
+        conditions.get(field).put(ConditionOperator.GT, value);
     }
 
     public void GE(int field, String value) {
-        conditions.add(new Tuple3<>(ConditionOperator.GE, BigInteger.valueOf(field), value));
+        conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
+        conditions.get(field).put(ConditionOperator.GE, value);
     }
 
     public void LT(int field, String value) {
-        conditions.add(new Tuple3<>(ConditionOperator.LT, BigInteger.valueOf(field), value));
+        conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
+        conditions.get(field).put(ConditionOperator.LT, value);
     }
 
     public void LE(int field, String value) {
-        conditions.add(new Tuple3<>(ConditionOperator.LE, BigInteger.valueOf(field), value));
+        conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
+        conditions.get(field).put(ConditionOperator.LE, value);
     }
 
     public void STARTS_WITH(int field, String value) {
-        conditions.add(
-                new Tuple3<>(ConditionOperator.STARTS_WITH, BigInteger.valueOf(field), value));
+        conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
+        conditions.get(field).put(ConditionOperator.STARTS_WITH, value);
     }
 
     public void ENDS_WITH(int field, String value) {
-        conditions.add(new Tuple3<>(ConditionOperator.ENDS_WITH, BigInteger.valueOf(field), value));
+        conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
+        conditions.get(field).put(ConditionOperator.ENDS_WITH, value);
     }
 
     public void CONTAINS(int field, String value) {
-        conditions.add(new Tuple3<>(ConditionOperator.CONTAINS, BigInteger.valueOf(field), value));
+        conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
+        conditions.get(field).put(ConditionOperator.CONTAINS, value);
     }
 
-    public void setLimit(int offset, int count) {
-        limit = new TablePrecompiled.Limit(offset, count);
-    }
-
-    public void setLimit(BigInteger offset, BigInteger count) {
-        limit = new TablePrecompiled.Limit(offset, count);
-    }
-
-    public List<Tuple3<ConditionOperator, BigInteger, String>> getConditions() {
+    @Override
+    public Map getConditions() {
         return conditions;
     }
 
-    public List<TablePrecompiled.ConditionV320> getTableConditions() {
+    @Override
+    public List getTableConditions() {
         List<TablePrecompiled.ConditionV320> tableConditions = new ArrayList<>();
         conditions.forEach(
-                tuple3 ->
-                        tableConditions.add(
-                                new TablePrecompiled.ConditionV320(
-                                        tuple3.getValue1().getBigIntValue(),
-                                        tuple3.getValue2(),
-                                        tuple3.getValue3())));
+                (field, map) ->
+                        map.forEach(
+                                (op, value) ->
+                                        tableConditions.add(
+                                                new TablePrecompiled.ConditionV320(
+                                                        BigInteger.valueOf(field),
+                                                        op.getBigIntValue(),
+                                                        value))));
         return tableConditions;
-    }
-
-    public TablePrecompiled.Limit getLimit() {
-        return limit;
     }
 
     @Override
     public String toString() {
-        return "ConditionV320{" + "conditions=" + conditions + ", limit=" + limit + '\'' + '}';
-    }
-
-    public enum ConditionOperator {
-        EQ(0),
-        NE(1),
-        GT(2),
-        GE(3),
-        LT(4),
-        LE(5),
-        STARTS_WITH(6),
-        ENDS_WITH(7),
-        CONTAINS(8);
-        private final int value;
-
-        private ConditionOperator(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public BigInteger getBigIntValue() {
-            return BigInteger.valueOf(value);
-        }
-
-        @Override
-        public String toString() {
-            switch (value) {
-                case 0:
-                    return "EQ";
-                case 1:
-                    return "NE";
-                case 2:
-                    return "GT";
-                case 3:
-                    return "GE";
-                case 4:
-                    return "LT";
-                case 5:
-                    return "LE";
-                case 6:
-                    return "STARTS_WITH";
-                case 7:
-                    return "ENDS_WITH";
-                case 8:
-                    return "CONTAINS";
-                default:
-                    return "";
-            }
-        }
+        return "ConditionV320{" + "conditions=" + conditions + ", limit=" + getLimit() + '\'' + '}';
     }
 }
