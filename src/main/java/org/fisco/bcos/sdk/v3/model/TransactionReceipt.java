@@ -46,8 +46,10 @@ public class TransactionReceipt {
     private String input;
     private String from;
     private String to;
-    private List<MerkleProofUnit> transactionProof;
-    private List<MerkleProofUnit> receiptProof;
+    @Deprecated private List<MerkleProofUnit> transactionProof;
+    @Deprecated private List<MerkleProofUnit> receiptProof;
+    private List<String> txProof;
+    private List<String> txReceiptProof;
     private String message;
 
     public boolean isStatusOK() {
@@ -153,10 +155,12 @@ public class TransactionReceipt {
         return encodeReceiptData;
     }
 
+    @Deprecated
     public List<MerkleProofUnit> getReceiptProof() {
         return this.receiptProof;
     }
 
+    @Deprecated
     public void setReceiptProof(List<MerkleProofUnit> receiptProof) {
         this.receiptProof = receiptProof;
     }
@@ -265,12 +269,30 @@ public class TransactionReceipt {
         this.output = output;
     }
 
+    @Deprecated
     public List<MerkleProofUnit> getTransactionProof() {
         return this.transactionProof;
     }
 
+    @Deprecated
     public void setTransactionProof(List<MerkleProofUnit> transactionProof) {
         this.transactionProof = transactionProof;
+    }
+
+    public List<String> getTxProof() {
+        return txProof;
+    }
+
+    public void setTxProof(List<String> txProof) {
+        this.txProof = txProof;
+    }
+
+    public List<String> getTxReceiptProof() {
+        return txReceiptProof;
+    }
+
+    public void setTxReceiptProof(List<String> txReceiptProof) {
+        this.txReceiptProof = txReceiptProof;
     }
 
     public String calculateReceiptHash(CryptoSuite cryptoSuite) throws ClientException {
@@ -373,10 +395,10 @@ public class TransactionReceipt {
                 + ", output='"
                 + this.output
                 + '\''
-                + ", transactionProof="
-                + this.transactionProof
-                + ", receiptProof="
-                + this.receiptProof
+                + ", txProof="
+                + this.txProof
+                + ", txReceiptProof="
+                + this.txReceiptProof
                 + '}';
     }
 

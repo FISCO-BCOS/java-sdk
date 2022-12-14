@@ -46,7 +46,8 @@ public class JsonTransactionResponse {
     private String groupID;
     private String signature;
     private long importTime;
-    private List<MerkleProofUnit> transactionProof;
+    @Deprecated private List<MerkleProofUnit> transactionProof;
+    private List<String> txProof;
 
     public JsonTransactionResponse() {}
 
@@ -75,12 +76,22 @@ public class JsonTransactionResponse {
         this.abi = abi;
     }
 
+    @Deprecated
     public List<MerkleProofUnit> getTransactionProof() {
         return this.transactionProof;
     }
 
+    @Deprecated
     public void setTransactionProof(List<MerkleProofUnit> transactionProof) {
         this.transactionProof = transactionProof;
+    }
+
+    public List<String> getTxProof() {
+        return txProof;
+    }
+
+    public void setTxProof(List<String> txProof) {
+        this.txProof = txProof;
     }
 
     public Integer getVersion() {
@@ -196,7 +207,7 @@ public class JsonTransactionResponse {
         return Objects.equals(this.version, that.version)
                 && Objects.equals(this.from, that.from)
                 && Objects.equals(this.hash, that.hash)
-                && Objects.equals(this.transactionProof, that.transactionProof)
+                && Objects.equals(this.txProof, that.txProof)
                 && Objects.equals(this.input, that.input)
                 && Objects.equals(this.nonce, that.nonce)
                 && Objects.equals(this.to, that.to)
@@ -256,8 +267,8 @@ public class JsonTransactionResponse {
                 + ", groupID='"
                 + this.groupID
                 + '\''
-                + ", transactionProof='"
-                + this.transactionProof
+                + ", txProof='"
+                + this.txProof
                 + '\''
                 + ", signature="
                 + this.signature

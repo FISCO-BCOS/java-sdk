@@ -1,39 +1,39 @@
 package org.fisco.bcos.sdk.v3.utils;
 
-import java.util.Arrays;
+import java.nio.ByteBuffer;
 import java.util.List;
-import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.v3.model.MerkleProofUnit;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 
 public class MerkleCalculator {
 
     private MerkleCalculator() {}
 
-    public static String calculateMerkleRoot(
-            List<MerkleProofUnit> merkleProofUnits, String hash, CryptoSuite cryptoSuite) {
-        if (merkleProofUnits == null) {
+    public static String calculateMerkleRoot(List<String> merkleProof, String hash, Hash hashImpl)
+            throws Exception {
+        if (merkleProof == null || merkleProof.size() == 1) {
             return hash;
         }
         String result = hash;
-        for (MerkleProofUnit merkleProofUnit : merkleProofUnits) {
-            String left = splicing(merkleProofUnit.getLeft());
-            String right = splicing(merkleProofUnit.getRight());
-            String input = splicing(left, result, right);
-            byte[] inputHash = cryptoSuite.hash(Numeric.hexStringToByteArray(input));
-            result = Numeric.toHexString(inputHash);
+        for (int beginFlag = 0; beginFlag < merkleProof.size(); ) {
+            String nextLevelCount = merkleProof.get(beginFlag);
+            int count = hashToNumber(nextLevelCount);
+            beginFlag++;
+            List<String> nextLevelProof = merkleProof.subList(beginFlag, beginFlag + count);
+            if (!nextLevelProof.contains(result)) {
+                throw new Exception("CalculateMerkleRoot failed, proof or hash mismatch.");
+            }
+            // hex combine
+            String collect = String.join("", nextLevelProof);
+            byte[] hashResult = hashImpl.hash(Hex.decode(collect));
+            result = Hex.toHexString(hashResult);
+            beginFlag += count;
         }
         return result;
     }
 
-    private static String splicing(List<String> stringList) {
-        StringBuilder result = new StringBuilder();
-        for (String eachString : stringList) {
-            result.append(eachString);
-        }
-        return result.toString();
-    }
-
-    private static String splicing(String... stringList) {
-        return splicing(Arrays.<String>asList(stringList));
+    private static int hashToNumber(String nextLevelCount) {
+        byte[] decode = Hex.decode(nextLevelCount);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(decode);
+        return byteBuffer.getInt();
     }
 }
