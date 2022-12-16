@@ -37,6 +37,7 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.v3.contract.precompiled.consensus.ConsensusService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.KVTableService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Common;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.ConditionV320;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Entry;
@@ -189,7 +190,7 @@ public class PrecompiledTest {
         for (int i = 0; i < 5; i++) {
             valueFields.add(i, "field" + i);
         }
-        RetCode code = tableCRUDService.createTable(tableName, 0, key, valueFields);
+        RetCode code = tableCRUDService.createTable(tableName, Common.TableKeyOrder.valueOf(0), key, valueFields);
         Assert.assertEquals(0, code.getCode());
         // desc
         Map<String, List<String>> desc = tableCRUDService.descV320(tableName);
@@ -243,7 +244,7 @@ public class PrecompiledTest {
         String tableName = "test_sync" + new Random().nextInt(10000);
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
-        RetCode retCode = crudService.createTable(tableName, 0, "key", valueFiled);
+        RetCode retCode = crudService.createTable(tableName, Common.TableKeyOrder.valueOf(0), "key", valueFiled);
         System.out.println("tableName" + tableName);
         System.out.println(
                 "createResult: " + retCode.getCode() + ", message: " + retCode.getMessage());
@@ -316,7 +317,7 @@ public class PrecompiledTest {
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         String key = "key";
-        crudService.createTable(tableName, 0, key, valueFiled);
+        crudService.createTable(tableName, Common.TableKeyOrder.valueOf(0), key, valueFiled);
         // create a thread pool to parallel insert and select
         ExecutorService threadPool = Executors.newFixedThreadPool(50);
         BigInteger orgTxCount =

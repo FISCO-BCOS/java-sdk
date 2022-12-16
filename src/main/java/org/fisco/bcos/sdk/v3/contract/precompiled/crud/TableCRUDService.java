@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.function.Function;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Common;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.ConditionV320;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Entry;
@@ -65,6 +66,10 @@ public class TableCRUDService {
                         .get(0)
                         .getProtocol()
                         .getCompatibilityVersion();
+    }
+
+    public long getCurrentVersion() {
+        return currentVersion;
     }
 
     /**
@@ -124,12 +129,15 @@ public class TableCRUDService {
      * @throws ContractException throw when contract exec exception
      */
     public RetCode createTable(
-            String tableName, int keyOrder, String keyFieldName, List<String> valueFields)
+            String tableName,
+            Common.TableKeyOrder keyOrder,
+            String keyFieldName,
+            List<String> valueFields)
             throws ContractException {
         PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
         TableManagerPrecompiled.TableInfoV320 tableInfo =
                 new TableManagerPrecompiled.TableInfoV320(
-                        BigInteger.valueOf(keyOrder), keyFieldName, valueFields);
+                        keyOrder.getBigValue(), keyFieldName, valueFields);
         TransactionReceipt receipt = tableManagerPrecompiled.createTableV320(tableName, tableInfo);
         return ReceiptParser.parseTransactionReceipt(
                 receipt, tr -> tableManagerPrecompiled.getCreateTableOutput(tr).getValue1());
@@ -146,7 +154,7 @@ public class TableCRUDService {
      */
     public void asyncCreateTable(
             String tableName,
-            int keyOrder,
+            Common.TableKeyOrder keyOrder,
             String keyFieldName,
             List<String> valueFields,
             PrecompiledCallback callback)
@@ -154,7 +162,7 @@ public class TableCRUDService {
         PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
         TableManagerPrecompiled.TableInfoV320 tableInfo =
                 new TableManagerPrecompiled.TableInfoV320(
-                        BigInteger.valueOf(keyOrder), keyFieldName, valueFields);
+                        keyOrder.getBigValue(), keyFieldName, valueFields);
         this.tableManagerPrecompiled.createTableV320(
                 tableName,
                 tableInfo,
@@ -282,7 +290,7 @@ public class TableCRUDService {
 
         TableManagerPrecompiled.TableInfoV320 tableInfo =
                 tableManagerPrecompiled.descV320(tableName);
-        List<TablePrecompiled.Entry> selectEntry = new ArrayList<>();
+        List<TablePrecompiled.Entry> selectEntry;
         List<Map<String, String>> result = new ArrayList<>();
         selectEntry =
                 tablePrecompiled.selectV320(condition.getTableConditions(), condition.getLimit());
@@ -813,6 +821,10 @@ public class TableCRUDService {
         descMap.put(
                 PrecompiledConstant.KEY_FIELD_NAME, Collections.singletonList(tableInfo.keyColumn));
         descMap.put(PrecompiledConstant.VALUE_FIELD_NAME, tableInfo.valueColumns);
+        descMap.put(
+                PrecompiledConstant.KEY_ORDER,
+                Collections.singletonList(
+                        Common.TableKeyOrder.valueOf(tableInfo.keyOrder.intValue()).toString()));
         return descMap;
     }
 
