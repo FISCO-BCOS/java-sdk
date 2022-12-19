@@ -193,7 +193,7 @@ public class PrecompiledTest {
         RetCode code = tableCRUDService.createTable(tableName, Common.TableKeyOrder.valueOf(0), key, valueFields);
         Assert.assertEquals(0, code.getCode());
         // desc
-        Map<String, List<String>> desc = tableCRUDService.descV320(tableName);
+        Map<String, List<String>> desc = tableCRUDService.descWithKeyOrder(tableName);
         Assert.assertEquals(desc.get(PrecompiledConstant.VALUE_FIELD_NAME), valueFields);
 
         // insert
@@ -208,7 +208,7 @@ public class PrecompiledTest {
         Map<String, String> result = tableCRUDService.select(tableName, "key1");
 
         ConditionV320 condition = new ConditionV320();
-        condition.EQ(0,"990");
+        condition.EQ(key,"990");
         condition.setLimit(0, 10);
         List<Map<String, String>> select = tableCRUDService.select(tableName, condition);
         // field value result + key result
@@ -381,7 +381,7 @@ public class PrecompiledTest {
         RetCode code = kvTableService.createTable(tableName, key, "field");
         Assert.assertEquals(0, code.getCode());
         // desc
-        Map<String, String> desc = kvTableService.descV320(tableName);
+        Map<String, String> desc = kvTableService.descWithKeyOrder(tableName);
         Assert.assertEquals(desc.get(PrecompiledConstant.VALUE_FIELD_NAME), "field");
 
         // set
