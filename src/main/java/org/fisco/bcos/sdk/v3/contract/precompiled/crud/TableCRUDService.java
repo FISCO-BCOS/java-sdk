@@ -223,8 +223,7 @@ public class TableCRUDService {
             throws ContractException {
         TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
 
-        TableManagerPrecompiled.TableInfoV320 tableInfo =
-                tableManagerPrecompiled.descV320(tableName);
+        TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
         List<TablePrecompiled.Entry> selectEntry = new ArrayList<>();
         List<Map<String, String>> result = new ArrayList<>();
         if (!StringUtils.isEmpty(condition.getEqValue())) {
@@ -289,7 +288,7 @@ public class TableCRUDService {
         TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
 
         TableManagerPrecompiled.TableInfoV320 tableInfo =
-                tableManagerPrecompiled.descV320(tableName);
+                tableManagerPrecompiled.descWithKeyOrder(tableName);
         List<TablePrecompiled.Entry> selectEntry;
         List<Map<String, String>> result = new ArrayList<>();
         selectEntry =
@@ -347,8 +346,7 @@ public class TableCRUDService {
     public Map<String, String> select(String tableName, String key) throws ContractException {
         TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
 
-        TableManagerPrecompiled.TableInfoV320 tableInfo =
-                tableManagerPrecompiled.descV320(tableName);
+        TableManagerPrecompiled.TableInfo tableInfo = tableManagerPrecompiled.desc(tableName);
 
         TablePrecompiled.Entry selectEntry = tablePrecompiled.select(key);
         Map<String, String> result = new HashMap<>();
@@ -810,10 +808,10 @@ public class TableCRUDService {
      * @return table key field and value fields info, [("key_field": [""]),("value_fields": [""])]
      * @throws ContractException throw when contract exec exception
      */
-    public Map<String, List<String>> descV320(String tableName) throws ContractException {
+    public Map<String, List<String>> descWithKeyOrder(String tableName) throws ContractException {
         PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
         TableManagerPrecompiled.TableInfoV320 tableInfo =
-                tableManagerPrecompiled.descV320(tableName);
+                tableManagerPrecompiled.descWithKeyOrder(tableName);
         if (tableInfo.keyColumn.isEmpty() || tableInfo.valueColumns.isEmpty()) {
             throw new ContractException("Table " + tableName + " does not exist.");
         }

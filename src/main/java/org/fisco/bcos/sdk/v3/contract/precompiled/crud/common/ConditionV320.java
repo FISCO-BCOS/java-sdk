@@ -14,7 +14,6 @@
  */
 package org.fisco.bcos.sdk.v3.contract.precompiled.crud.common;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -23,54 +22,54 @@ import java.util.Map;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.TablePrecompiled;
 
 public class ConditionV320 extends Condition {
-    private final Map<Integer, Map<ConditionOperator, String>> conditions;
+    private final Map<String, Map<ConditionOperator, String>> conditions;
 
     public ConditionV320() {
         super();
         conditions = new HashMap<>();
     }
 
-    public void EQ(int field, String value) {
+    public void EQ(String field, String value) {
         conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
         conditions.get(field).put(ConditionOperator.EQ, value);
     }
 
-    public void NE(int field, String value) {
+    public void NE(String field, String value) {
         conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
         conditions.get(field).put(ConditionOperator.NE, value);
     }
 
-    public void GT(int field, String value) {
+    public void GT(String field, String value) {
         conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
         conditions.get(field).put(ConditionOperator.GT, value);
     }
 
-    public void GE(int field, String value) {
+    public void GE(String field, String value) {
         conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
         conditions.get(field).put(ConditionOperator.GE, value);
     }
 
-    public void LT(int field, String value) {
+    public void LT(String field, String value) {
         conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
         conditions.get(field).put(ConditionOperator.LT, value);
     }
 
-    public void LE(int field, String value) {
+    public void LE(String field, String value) {
         conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
         conditions.get(field).put(ConditionOperator.LE, value);
     }
 
-    public void STARTS_WITH(int field, String value) {
+    public void STARTS_WITH(String field, String value) {
         conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
         conditions.get(field).put(ConditionOperator.STARTS_WITH, value);
     }
 
-    public void ENDS_WITH(int field, String value) {
+    public void ENDS_WITH(String field, String value) {
         conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
         conditions.get(field).put(ConditionOperator.ENDS_WITH, value);
     }
 
-    public void CONTAINS(int field, String value) {
+    public void CONTAINS(String field, String value) {
         conditions.putIfAbsent(field, new EnumMap<>(ConditionOperator.class));
         conditions.get(field).put(ConditionOperator.CONTAINS, value);
     }
@@ -89,9 +88,7 @@ public class ConditionV320 extends Condition {
                                 (op, value) ->
                                         tableConditions.add(
                                                 new TablePrecompiled.ConditionV320(
-                                                        BigInteger.valueOf(field),
-                                                        op.getBigIntValue(),
-                                                        value))));
+                                                        op.getBigIntValue(), field, value))));
         return tableConditions;
     }
 
