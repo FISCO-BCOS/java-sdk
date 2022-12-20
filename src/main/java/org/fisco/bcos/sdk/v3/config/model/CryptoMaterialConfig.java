@@ -16,17 +16,21 @@
 package org.fisco.bcos.sdk.v3.config.model;
 
 import java.util.Map;
+
 import org.fisco.bcos.sdk.v3.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Crypto material configuration, include certs and keys */
+/**
+ * Crypto material configuration, include certs and keys
+ */
 public class CryptoMaterialConfig {
     private static final Logger logger = LoggerFactory.getLogger(CryptoMaterialConfig.class);
 
     private Boolean useSmCrypto = false;
     private Boolean disableSsl = false;
+    private Boolean hsmEnable = false;
     private String certPath = "conf";
 
     private String caCertPath;
@@ -41,23 +45,36 @@ public class CryptoMaterialConfig {
     private String enSdkCert;
     private String enSdkPrivateKey;
 
-    public CryptoMaterialConfig() {}
+    private String hsmLibPath;
+    private String hsmKeyIndex;
+    private String hsmPassword;
+
+    public CryptoMaterialConfig() {
+    }
 
     public CryptoMaterialConfig(ConfigProperty configProperty) throws ConfigException {
 
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
         String useSMCrypto = (String) cryptoMaterialProperty.get("useSMCrypto");
         String disableSsl = (String) cryptoMaterialProperty.get("disableSsl");
+        String hsmEnable = (String) cryptoMaterialProperty.get("hsmEnable");
 
         this.useSmCrypto = Boolean.valueOf(useSMCrypto);
         this.disableSsl = Boolean.valueOf(disableSsl);
+        this.hsmEnable = Boolean.valueOf(hsmEnable);
 
         if (this.disableSsl) {
             logger.info("Load cryptoMaterial, disableSsl has been set");
             return;
         }
 
-        int cryptoType = this.useSmCrypto ? CryptoType.SM_TYPE : CryptoType.ECDSA_TYPE;
+        if (this.hsmEnable) {
+            this.hsmLibPath = (String) cryptoMaterialProperty.get("hsmLibPath");
+            this.hsmKeyIndex = (String) cryptoMaterialProperty.get("hsmKeyIndex");
+            this.hsmPassword = (String) cryptoMaterialProperty.get("hsmPassword");
+        }
+
+        int cryptoType = this.useSmCrypto ? (this.hsmEnable ? CryptoType.HSM_TYPE : CryptoType.SM_TYPE) : CryptoType.ECDSA_TYPE;
         this.certPath =
                 ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(cryptoMaterialProperty, "certPath", this.certPath));
@@ -134,7 +151,7 @@ public class CryptoMaterialConfig {
             cryptoMaterialConfig.setCaCertPath(certPath + "/" + "ca.crt");
             cryptoMaterialConfig.setSdkCertPath(certPath + "/" + "sdk.crt");
             cryptoMaterialConfig.setSdkPrivateKeyPath(certPath + "/" + "sdk.key");
-        } else if (cryptoType == CryptoType.SM_TYPE) {
+        } else if (cryptoType == CryptoType.SM_TYPE || cryptoType == CryptoType.HSM_TYPE) {
             cryptoMaterialConfig.setCaCertPath(certPath + "/" + "sm_ca.crt");
             cryptoMaterialConfig.setSdkCertPath(certPath + "/" + "sm_sdk.crt");
             cryptoMaterialConfig.setSdkPrivateKeyPath(certPath + "/" + "sm_sdk.key");
@@ -218,6 +235,38 @@ public class CryptoMaterialConfig {
 
     public boolean isUseSmCrypto() {
         return useSmCrypto;
+    }
+
+    public Boolean getHsmEnable() {
+        return hsmEnable;
+    }
+
+    public void setHsmEnable(Boolean hsmEnable) {
+        this.hsmEnable = hsmEnable;
+    }
+
+    public String getHsmLibPath() {
+        return hsmLibPath;
+    }
+
+    public void setHsmLibPath(String hsmLibPath) {
+        this.hsmLibPath = hsmLibPath;
+    }
+
+    public String getHsmKeyIndex() {
+        return hsmKeyIndex;
+    }
+
+    public void setHsmKeyIndex(String hsmKeyIndex) {
+        this.hsmKeyIndex = hsmKeyIndex;
+    }
+
+    public String getHsmPassword() {
+        return hsmPassword;
+    }
+
+    public void setHsmPassword(String hsmPassword) {
+        this.hsmPassword = hsmPassword;
     }
 
     public String getCaCertPath() {

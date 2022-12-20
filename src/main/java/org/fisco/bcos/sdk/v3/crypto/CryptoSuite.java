@@ -23,11 +23,13 @@ import org.fisco.bcos.sdk.v3.crypto.hash.Keccak256;
 import org.fisco.bcos.sdk.v3.crypto.hash.SM3Hash;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.crypto.keypair.ECDSAKeyPair;
+import org.fisco.bcos.sdk.v3.crypto.keypair.HsmSM2KeyPair;
 import org.fisco.bcos.sdk.v3.crypto.keypair.SM2KeyPair;
 import org.fisco.bcos.sdk.v3.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.v3.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.v3.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.v3.crypto.signature.ECDSASignature;
+import org.fisco.bcos.sdk.v3.crypto.signature.HsmSM2Signature;
 import org.fisco.bcos.sdk.v3.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.v3.crypto.signature.Signature;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
@@ -39,11 +41,10 @@ public class CryptoSuite {
 
     private static final Logger logger = LoggerFactory.getLogger(CryptoSuite.class);
 
-    public final int cryptoTypeConfig;
-
-    public final Signature signatureImpl;
-    public final Hash hashImpl;
-    private final CryptoKeyPair keyPairFactory;
+    public int cryptoTypeConfig;
+    public Signature signatureImpl;
+    public Hash hashImpl;
+    private CryptoKeyPair keyPairFactory;
     private CryptoKeyPair cryptoKeyPair;
     private ConfigOption config;
 
@@ -64,9 +65,9 @@ public class CryptoSuite {
      * @param configOption the configuration of account.
      */
     public CryptoSuite(int cryptoTypeConfig, ConfigOption configOption) {
-        this(cryptoTypeConfig);
         logger.info("init CryptoSuite, cryptoType: {}", cryptoTypeConfig);
         this.setConfig(configOption);
+        this.initCryptoSuite(cryptoTypeConfig);
         // doesn't set the account name, generate the keyPair randomly
         if (!configOption.getAccountConfig().isAccountConfigured()) {
             this.generateRandomKeyPair();
@@ -81,6 +82,10 @@ public class CryptoSuite {
      * @param cryptoTypeConfig the crypto type config number
      */
     public CryptoSuite(int cryptoTypeConfig) {
+        initCryptoSuite(cryptoTypeConfig);
+    }
+
+    public void initCryptoSuite(int cryptoTypeConfig) {
         this.cryptoTypeConfig = cryptoTypeConfig;
         if (this.cryptoTypeConfig == CryptoType.ECDSA_TYPE) {
             this.signatureImpl = new ECDSASignature();
@@ -92,12 +97,20 @@ public class CryptoSuite {
             this.hashImpl = new SM3Hash();
             this.keyPairFactory = new SM2KeyPair();
 
+        } else if(this.cryptoTypeConfig == CryptoType.HSM_TYPE) {
+            HsmSM2Signature hsmSM2Signature = new HsmSM2Signature();
+            hsmSM2Signature.setHsmLibPath(this.config.getCryptoMaterialConfig().getHsmLibPath());
+            this.signatureImpl = hsmSM2Signature;
+            this.hashImpl = new SM3Hash();
+            this.keyPairFactory = new HsmSM2KeyPair(this.config.getCryptoMaterialConfig().getHsmLibPath());
         } else {
             throw new UnsupportedCryptoTypeException(
                     "only support "
                             + CryptoType.ECDSA_TYPE
                             + "/"
                             + CryptoType.SM_TYPE
+                            + "/"
+                            + CryptoType.HSM_TYPE
                             + " crypto type");
         }
         // create keyPair randomly
@@ -159,7 +172,6 @@ public class CryptoSuite {
      */
     public void setConfig(ConfigOption config) {
         this.config = config;
-        this.keyPairFactory.setConfig(config);
     }
 
     public int getCryptoTypeConfig() {
