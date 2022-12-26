@@ -69,7 +69,7 @@ public abstract class CryptoKeyPair {
     protected String signatureAlgorithm;
 
     // for jni transaction sign
-    protected long jniKeyPair;
+    protected long jniKeyPair = 0;
 
     public CryptoKeyPair() {}
 
@@ -305,6 +305,29 @@ public abstract class CryptoKeyPair {
     }
 
     public void destroy() {
-        KeyPairJniObj.destroyJniKeyPair(this.jniKeyPair);
+        releaseJni();
+    }
+
+    public void releaseJni() {
+        if (this.jniKeyPair != 0) {
+            KeyPairJniObj.destroyJniKeyPair(this.jniKeyPair);
+            if (logger.isTraceEnabled()) {
+                logger.trace("finalize, jni key pair: {}", this.jniKeyPair);
+            }
+
+            this.jniKeyPair = 0;
+        }
+    }
+
+    @Override
+    protected void finalize() {
+        try {
+            super.finalize();
+            releaseJni();
+        } catch (Exception e) {
+
+        } catch (Throwable throwable) {
+            // throwable.printStackTrace();
+        }
     }
 }

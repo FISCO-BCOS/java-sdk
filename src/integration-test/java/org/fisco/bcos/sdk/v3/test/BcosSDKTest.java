@@ -282,6 +282,11 @@ public class BcosSDKTest {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
+        String extraData = "HelloWorld ExtraData";
+        client.setExtraData(extraData);
+
+        Assert.assertTrue(extraData.equals(client.getExtraData()));
+
         // CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
         // CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
         CryptoSuite cryptoSuite = client.getCryptoSuite();
@@ -316,6 +321,16 @@ public class BcosSDKTest {
         TransactionReceipt receipt = helloWorld.set("fisco hello");
         System.out.println("helloworld set : fisco hello, status=" + receipt.getStatus());
         System.out.println(receipt);
+        Assert.assertTrue(receipt.isStatusOK());
+
+        String txHash = receipt.getTransactionHash();
+        BcosTransaction transaction1 = client.getTransaction(txHash, false);
+        Assert.assertEquals(extraData, transaction1.getResult().getExtraData());
+        Assert.assertTrue(extraData.equals(transaction1.getResult().getExtraData()));
+
+        BcosTransactionReceipt transactionReceipt = client.getTransactionReceipt(txHash, false);
+        Assert.assertTrue(extraData.equals(transactionReceipt.getResult().getExtraData()));
+
         // get 2nd block
         block1 =
                 client.getBlockByNumber(
@@ -373,9 +388,10 @@ public class BcosSDKTest {
                         .sign(transactionDataHash, client.getCryptoSuite().getCryptoKeyPair());
 
         String transactionDataHashSignedData2 = Hex.toHexString(sign.encode());
+        String extraData = "extraData";
         String signedMessage =
                 TransactionBuilderJniObj.createSignedTransaction(
-                        transactionData, transactionDataHashSignedData2, transactionDataHash, 0);
+                        transactionData, transactionDataHashSignedData2, transactionDataHash, 0, extraData);
 
         TransactionPusherService txPusher = new TransactionPusherService(client);
         TransactionReceipt receipt2 = txPusher.push(signedMessage);

@@ -75,6 +75,7 @@ public class ClientImpl implements Client {
     private Boolean authCheck = false;
     private boolean serialExecute;
     private Boolean smCrypto;
+    private String extraData = "";
     // ------------basic group info --------------
 
     // ------------ runtime info -----------------
@@ -158,6 +159,16 @@ public class ClientImpl implements Client {
                 nativePointer,
                 smCrypto,
                 isWASM());
+    }
+
+    @Override
+    public String getExtraData() {
+        return extraData;
+    }
+
+    @Override
+    public void setExtraData(String extraData) {
+        this.extraData = extraData;
     }
 
     @Override

@@ -162,6 +162,28 @@ public interface TransactionProcessorInterface {
             throws JniException;
 
     /**
+     * create deploy signed transaction
+     *
+     * @param to target contract address
+     * @param data ABI encoded transaction data
+     * @param abi ABI
+     * @param cryptoKeyPair key pair
+     * @param txAttribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
+     * @param extraData
+     * @return hexed data of signed transaction
+     * @throws JniException throw when jni encode transaction error
+     */
+    TxPair createDeploySignedTransaction(
+            String to,
+            byte[] data,
+            String abi,
+            CryptoKeyPair cryptoKeyPair,
+            int txAttribute,
+            String extraData)
+            throws JniException;
+
+    /**
      * create signed transaction
      *
      * @param to target contract address
@@ -174,5 +196,21 @@ public interface TransactionProcessorInterface {
      */
     TxPair createSignedTransaction(
             String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute)
+            throws JniException;
+
+    /**
+     * create signed transaction
+     *
+     * @param to target contract address
+     * @param data ABI encoded transaction data
+     * @param cryptoKeyPair key pair
+     * @param txAttribute transaction attribute, see more in {@link
+     *     org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute}
+     * @param extraData
+     * @return hexed data of signed transaction
+     * @throws JniException throw when jni encode transaction error
+     */
+    TxPair createSignedTransaction(
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute, String extraData)
             throws JniException;
 }
