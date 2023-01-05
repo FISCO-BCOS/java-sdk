@@ -39,6 +39,7 @@ public class JsonTransactionResponse {
     private String input;
     private String chainID;
     private String groupID;
+    private String extraData;
     private String signature;
     private long importTime;
     private List<MerkleProofUnit> transactionProof;
@@ -184,6 +185,7 @@ public class JsonTransactionResponse {
                 && Objects.equals(this.blockLimit, that.blockLimit)
                 && Objects.equals(this.chainID, that.chainID)
                 && Objects.equals(this.groupID, that.groupID)
+                && Objects.equals(this.extraData, that.extraData)
                 && Objects.equals(this.signature, that.signature);
     }
 
@@ -200,6 +202,7 @@ public class JsonTransactionResponse {
                 this.blockLimit,
                 this.chainID,
                 this.groupID,
+                this.extraData,
                 this.signature);
     }
 
@@ -241,7 +244,17 @@ public class JsonTransactionResponse {
                 + '\''
                 + ", signature="
                 + this.signature
+                + ", extraData="
+                + this.extraData
                 + '}';
+    }
+
+    public String getExtraData() {
+        return extraData;
+    }
+
+    public void setExtraData(String extraData) {
+        this.extraData = extraData;
     }
 
     public long getImportTime() {

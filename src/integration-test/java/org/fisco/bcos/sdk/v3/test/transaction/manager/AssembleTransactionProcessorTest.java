@@ -48,6 +48,7 @@ import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.mockito.internal.matchers.Null;
 
 /**
  * TransactionProcessorTest @Description: TransactionProcessorTest
@@ -428,6 +429,16 @@ public class AssembleTransactionProcessorTest {
         CompletableFuture<TransactionReceipt> future =
                 transactionProcessor.sendTransactionAsync(txPair.getSignedTx());
         future.thenAccept(
+                r -> {
+                    Assert.assertEquals(0, response.getTransactionReceipt().getStatus());
+                });
+
+        TxPair txPair0 =
+                transactionProcessor.createSignedTransaction(
+                        contractAddress, data, this.cryptoKeyPair, 0, "a");
+        CompletableFuture<TransactionReceipt> future0 =
+                transactionProcessor.sendTransactionAsync(txPair0.getSignedTx());
+        future0.thenAccept(
                 r -> {
                     Assert.assertEquals(0, response.getTransactionReceipt().getStatus());
                 });

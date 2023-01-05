@@ -70,7 +70,8 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         data,
                         abi,
                         cryptoKeyPair == null ? this.cryptoKeyPair : cryptoKeyPair,
-                        txAttribute);
+                        txAttribute,
+                        client.getExtraData());
         TransactionReceipt transactionReceipt =
                 this.client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
         if (Objects.nonNull(transactionReceipt)
@@ -95,7 +96,8 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         to,
                         data,
                         cryptoKeyPair == null ? this.cryptoKeyPair : cryptoKeyPair,
-                        txAttribute);
+                        txAttribute,
+                        client.getExtraData());
         TransactionReceipt transactionReceipt =
                 this.client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
         if (Objects.nonNull(transactionReceipt)
@@ -106,8 +108,8 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     }
 
     @Override
-    public TransactionReceipt sendTransactionAndGetReceipt(String to, byte[] data, int txAttribute)
-            throws JniException {
+    public TransactionReceipt sendTransactionAndGetReceipt(
+            String to, byte[] data, int txAttribute) {
         return sendTransactionAndGetReceipt(to, data, this.cryptoKeyPair, txAttribute);
     }
 
@@ -118,7 +120,9 @@ public class TransactionProcessor implements TransactionProcessorInterface {
             CryptoKeyPair cryptoKeyPair,
             int txAttribute,
             TransactionCallback callback) {
-        TxPair txPair = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
+        TxPair txPair =
+                this.createSignedTransaction(
+                        to, data, cryptoKeyPair, txAttribute, client.getExtraData());
         this.client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
         return txPair.getTxHash();
     }
@@ -158,16 +162,33 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     @Override
     public TxPair createDeploySignedTransaction(
             String to, byte[] data, String abi, CryptoKeyPair cryptoKeyPair, int txAttribute) {
-        try {
+        return createDeploySignedTransaction(
+                to, data, abi, cryptoKeyPair, txAttribute, client.getExtraData());
+    }
 
+    @Override
+    public TxPair createSignedTransaction(
+            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
+        return createSignedTransaction(to, data, cryptoKeyPair, txAttribute, client.getExtraData());
+    }
+
+    @Override
+    public TxPair createDeploySignedTransaction(
+            String to,
+            byte[] data,
+            String abi,
+            CryptoKeyPair cryptoKeyPair,
+            int txAttribute,
+            String extraData) {
+        try {
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "createDeploySignedTransaction to: {}, abi: {}, attr: {}",
+                        "createDeploySignedTransaction to: {}, abi: {}, attr: {}, extraData: {}",
                         to,
                         abi,
-                        txAttribute);
+                        txAttribute,
+                        extraData);
             }
-
             return TransactionBuilderJniObj.createSignedTransaction(
                     cryptoKeyPair.getJniKeyPair(),
                     this.groupId,
@@ -176,7 +197,8 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                     Hex.toHexString(data),
                     Objects.nonNull(abi) ? abi : "",
                     client.getBlockLimit().longValue(),
-                    txAttribute);
+                    txAttribute,
+                    Objects.nonNull(extraData) ? extraData : "");
         } catch (JniException e) {
             log.error("jni e: ", e);
             return null;
@@ -185,11 +207,19 @@ public class TransactionProcessor implements TransactionProcessorInterface {
 
     @Override
     public TxPair createSignedTransaction(
-            String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
+            String to,
+            byte[] data,
+            CryptoKeyPair cryptoKeyPair,
+            int txAttribute,
+            String extraData) {
         try {
 
             if (log.isDebugEnabled()) {
-                log.debug("createSignedTransaction to: {}, attr: {}", to, txAttribute);
+                log.debug(
+                        "createSignedTransaction to: {}, attr: {}, extraData: {}",
+                        to,
+                        txAttribute,
+                        extraData);
             }
 
             return TransactionBuilderJniObj.createSignedTransaction(
@@ -200,7 +230,8 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                     Hex.toHexString(data),
                     "",
                     client.getBlockLimit().longValue(),
-                    txAttribute);
+                    txAttribute,
+                    Objects.nonNull(extraData) ? extraData : "");
         } catch (JniException e) {
             log.error("jni e: ", e);
             return null;
