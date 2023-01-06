@@ -29,6 +29,7 @@ import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
+import org.fisco.bcos.sdk.v3.transaction.codec.decode.RevertMessageParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class AuthManager {
@@ -214,6 +215,15 @@ public class AuthManager {
         }
         BigInteger proposalId =
                 committeeManager.getCreateSetConsensusWeightProposalOutput(tr).getValue1();
+        // if setWeight to observer, it will cause precompiled error instead of returning retCode
+        if (!tr.getLogEntries().isEmpty()
+                && RevertMessageParser.isOutputStartWithRevertMethod(
+                        tr.getLogEntries().get(0).getData())) {
+            throw new ContractException(
+                    "Exec proposal finished with error occurs, proposalId: "
+                            + proposalId
+                            + ", exec error msg: Cannot set weight to observer.");
+        }
         getExecEvent(tr, proposalId);
         return proposalId;
     }
@@ -743,7 +753,7 @@ public class AuthManager {
             public void onResponse(TransactionReceipt receipt) {
                 RetCode retCode;
                 try {
-                    retCode = getCurdRetCode(receipt, resultCaller);
+                    retCode = getRetCode(receipt, resultCaller);
                 } catch (ContractException e) {
                     retCode = new RetCode(e.getErrorCode(), e.getMessage());
                     retCode.setTransactionReceipt(receipt);
@@ -753,7 +763,7 @@ public class AuthManager {
         };
     }
 
-    private RetCode getCurdRetCode(
+    private RetCode getRetCode(
             TransactionReceipt transactionReceipt,
             Function<TransactionReceipt, BigInteger> resultCaller)
             throws ContractException {
