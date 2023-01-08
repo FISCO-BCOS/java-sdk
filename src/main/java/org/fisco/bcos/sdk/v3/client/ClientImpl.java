@@ -75,6 +75,7 @@ public class ClientImpl implements Client {
     private Boolean authCheck = false;
     private boolean serialExecute;
     private Boolean smCrypto;
+    private String extraData = "";
     // ------------basic group info --------------
 
     // ------------ runtime info -----------------
@@ -158,6 +159,16 @@ public class ClientImpl implements Client {
                 nativePointer,
                 smCrypto,
                 isWASM());
+    }
+
+    @Override
+    public String getExtraData() {
+        return extraData;
+    }
+
+    @Override
+    public void setExtraData(String extraData) {
+        this.extraData = extraData;
     }
 
     @Override
@@ -989,6 +1000,13 @@ public class ClientImpl implements Client {
                             JsonRpcMethods.GET_GROUP_INFO, Collections.singletonList(groupID)),
                     response,
                     BcosGroupInfo.class);
+        } catch (ClientException e) {
+            logger.error("e: ", e);
+            throw new ClientException(
+                    e.getErrorCode(),
+                    e.getErrorMessage(),
+                    "getGroupInfo failed for decode the message exception, error message:"
+                            + e.getMessage());
         } catch (InterruptedException | ExecutionException e) {
             logger.error("e: ", e);
             throw new ClientException(
@@ -1104,6 +1122,8 @@ public class ClientImpl implements Client {
                                     request, response, responseType);
                     callback.onResponse(jsonRpcResponse);
                 } catch (ClientException e) {
+                    response.setErrorCode(e.getErrorCode());
+                    response.setErrorMessage(e.getErrorMessage());
                     callback.onError(response);
                 }
             }
@@ -1137,6 +1157,12 @@ public class ClientImpl implements Client {
                     });
             Response response = future.get();
             return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
+        } catch (ClientException e) {
+            throw new ClientException(
+                    e.getErrorCode(),
+                    e.getErrorMessage(),
+                    "callRemoteMethod failed for decode the message exception, error message:"
+                            + e.getMessage());
         } catch (JsonProcessingException | InterruptedException | ExecutionException e) {
             logger.error("e: ", e);
             throw new ClientException(

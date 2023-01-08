@@ -50,6 +50,7 @@ public class TransactionReceipt {
     @Deprecated private List<MerkleProofUnit> receiptProof;
     private List<String> txProof;
     private List<String> txReceiptProof;
+    private String extraData;
     private String message;
 
     public boolean isStatusOK() {
@@ -318,6 +319,14 @@ public class TransactionReceipt {
         }
     }
 
+    public String getExtraData() {
+        return extraData;
+    }
+
+    public void setExtraData(String extraData) {
+        this.extraData = extraData;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -335,6 +344,7 @@ public class TransactionReceipt {
                 && Objects.equals(this.status, that.status)
                 && Objects.equals(this.input, that.input)
                 && Objects.equals(this.output, that.output)
+                && Objects.equals(this.extraData, that.extraData)
                 && Objects.equals(this.transactionProof, that.transactionProof)
                 && Objects.equals(this.receiptProof, that.receiptProof);
     }
@@ -354,6 +364,7 @@ public class TransactionReceipt {
                 this.status,
                 this.input,
                 this.output,
+                this.extraData,
                 this.transactionProof,
                 this.receiptProof);
     }
@@ -388,6 +399,9 @@ public class TransactionReceipt {
                 + this.logEntries
                 + ", status='"
                 + this.status
+                + '\''
+                + ", extraData='"
+                + this.extraData
                 + '\''
                 + ", input='"
                 + this.input

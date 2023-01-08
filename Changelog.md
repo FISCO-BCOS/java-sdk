@@ -1,3 +1,36 @@
+## v3.1.2
+(2023-01-04)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+- 发送交易支持设置`extraData`字段
+
+### 兼容性说明
+
+- 兼容java-sdk v3.0+的历史版本
+- 仅支持[FISCO BCOS 3.0.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0)及以上版本
+
+
+## v3.1.1
+(2022-12-8)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 修复
+
+- 修复Client发送异步请求节点出现执行外的错误时，没有正确解析错误码和错误信息的问题。
+
+### 兼容性说明
+
+- 兼容java-sdk v3.0+的历史版本
+- 仅支持[FISCO BCOS 3.0.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.0.0)及以上版本
+
 ## v3.1.0
 (2022-11-21)
 

@@ -99,6 +99,10 @@ public interface Client {
     /** @return native pointer */
     long getNativePointer();
 
+    String getExtraData();
+
+    void setExtraData(String extraData);
+
     /**
      * Get CryptoSuite
      *
