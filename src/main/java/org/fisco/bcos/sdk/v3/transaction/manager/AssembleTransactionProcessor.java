@@ -36,7 +36,6 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ContractABIDefinition;
-import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.Response;
@@ -451,74 +450,6 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         return methods.stream()
                 .filter(d -> d.getInputs().size() == paramsSize)
                 .collect(Collectors.toList());
-    }
-
-    public static void main(String[] args) {
-        String abi =
-                "[\n"
-                        + "\t{\n"
-                        + "\t\t\"inputs\": [\n"
-                        + "\t\t\t{\n"
-                        + "\t\t\t\t\"internalType\": \"string\",\n"
-                        + "\t\t\t\t\"name\": \"key\",\n"
-                        + "\t\t\t\t\"type\": \"string\"\n"
-                        + "\t\t\t}\n"
-                        + "\t\t],\n"
-                        + "\t\t\"name\": \"get\",\n"
-                        + "\t\t\"outputs\": [\n"
-                        + "\t\t\t{\n"
-                        + "\t\t\t\t\"internalType\": \"string\",\n"
-                        + "\t\t\t\t\"name\": \"\",\n"
-                        + "\t\t\t\t\"type\": \"string\"\n"
-                        + "\t\t\t}\n"
-                        + "\t\t],\n"
-                        + "\t\t\"stateMutability\": \"view\",\n"
-                        + "\t\t\"type\": \"function\"\n"
-                        + "\t},\n"
-                        + "\t{\n"
-                        + "\t\t\"inputs\": [\n"
-                        + "\t\t\t{\n"
-                        + "\t\t\t\t\"internalType\": \"bytes\",\n"
-                        + "\t\t\t\t\"name\": \"key\",\n"
-                        + "\t\t\t\t\"type\": \"bytes\"\n"
-                        + "\t\t\t}\n"
-                        + "\t\t],\n"
-                        + "\t\t\"name\": \"get\",\n"
-                        + "\t\t\"outputs\": [\n"
-                        + "\t\t\t{\n"
-                        + "\t\t\t\t\"internalType\": \"string\",\n"
-                        + "\t\t\t\t\"name\": \"\",\n"
-                        + "\t\t\t\t\"type\": \"string\"\n"
-                        + "\t\t\t}\n"
-                        + "\t\t],\n"
-                        + "\t\t\"stateMutability\": \"view\",\n"
-                        + "\t\t\"type\": \"function\"\n"
-                        + "\t},\n"
-                        + "\t{\n"
-                        + "\t\t\"inputs\": [\n"
-                        + "\t\t\t{\n"
-                        + "\t\t\t\t\"internalType\": \"string\",\n"
-                        + "\t\t\t\t\"name\": \"k\",\n"
-                        + "\t\t\t\t\"type\": \"string\"\n"
-                        + "\t\t\t},\n"
-                        + "\t\t\t{\n"
-                        + "\t\t\t\t\"internalType\": \"string\",\n"
-                        + "\t\t\t\t\"name\": \"v\",\n"
-                        + "\t\t\t\t\"type\": \"string\"\n"
-                        + "\t\t\t}\n"
-                        + "\t\t],\n"
-                        + "\t\t\"name\": \"set\",\n"
-                        + "\t\t\"outputs\": [],\n"
-                        + "\t\t\"stateMutability\": \"nonpayable\",\n"
-                        + "\t\t\"type\": \"function\"\n"
-                        + "\t}\n"
-                        + "]";
-        CryptoSuite cryptoSuite1 = new CryptoSuite(0);
-        ContractCodec contractCodec1 = new ContractCodec(cryptoSuite1, false);
-        ContractABIDefinition contractABIDefinition =
-                contractCodec1.getAbiDefinitionFactory().loadABI(abi);
-        List<ABIDefinition> methods = contractABIDefinition.getFunctions().get("get");
-        System.out.println(methods);
     }
 
     @Override
