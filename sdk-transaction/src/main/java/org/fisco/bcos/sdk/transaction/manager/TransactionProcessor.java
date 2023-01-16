@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class TransactionProcessor implements TransactionProcessorInterface {
     protected static Logger log = LoggerFactory.getLogger(TransactionProcessor.class);
     protected final CryptoSuite cryptoSuite;
-    protected final CryptoKeyPair cryptoKeyPair;
+    protected CryptoKeyPair cryptoKeyPair;
     protected final Client client;
     protected final Integer groupId;
     protected final String chainId;
@@ -55,27 +55,66 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         this.transactionEncoder = new TransactionEncoderService(client.getCryptoSuite());
     }
 
+    public CryptoKeyPair getCryptoKeyPair() {
+        return cryptoKeyPair;
+    }
+
+    public void setCryptoKeyPair(CryptoKeyPair cryptoKeyPair) {
+        this.cryptoKeyPair = cryptoKeyPair;
+    }
+
     @Override
     public TransactionReceipt sendTransactionAndGetReceipt(
             String to, String data, CryptoKeyPair cryptoKeyPair) {
-        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
-        return this.client.sendRawTransactionAndGetReceipt(signedData);
+        if (cryptoKeyPair == null) {
+            return this.client.sendRawTransactionAndGetReceipt(
+                    createSignedTransaction(to, data, this.cryptoKeyPair));
+        } else {
+            return this.client.sendRawTransactionAndGetReceipt(
+                    createSignedTransaction(to, data, cryptoKeyPair));
+        }
+    }
+
+    @Override
+    public TransactionReceipt sendTransactionAndGetReceipt(String to, String data) {
+        return sendTransactionAndGetReceipt(to, data, this.cryptoKeyPair);
     }
 
     @Override
     public void sendTransactionAsync(
             String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
-        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
-        client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
+        if (cryptoKeyPair == null) {
+            client.sendRawTransactionAndGetReceiptAsync(
+                    createSignedTransaction(to, data, this.cryptoKeyPair), callback);
+        } else {
+            client.sendRawTransactionAndGetReceiptAsync(
+                    createSignedTransaction(to, data, cryptoKeyPair), callback);
+        }
+    }
+
+    @Override
+    public void sendTransactionAsync(String to, String data, TransactionCallback callback) {
+        sendTransactionAsync(to, data, this.cryptoKeyPair, callback);
     }
 
     @Override
     public byte[] sendTransactionAsyncAndGetHash(
             String to, String data, CryptoKeyPair cryptoKeyPair, TransactionCallback callback) {
-        String signedData = createSignedTransaction(to, data, cryptoKeyPair);
+        String signedData;
+        if (cryptoKeyPair == null) {
+            signedData = createSignedTransaction(to, data, this.cryptoKeyPair);
+        } else {
+            signedData = createSignedTransaction(to, data, cryptoKeyPair);
+        }
         client.sendRawTransactionAndGetReceiptAsync(signedData, callback);
         byte[] transactionHash = cryptoSuite.hash(Hex.decode(Numeric.cleanHexPrefix(signedData)));
         return transactionHash;
+    }
+
+    @Override
+    public byte[] sendTransactionAsyncAndGetHash(
+            String to, String data, TransactionCallback callback) {
+        return sendTransactionAsyncAndGetHash(to, data, this.cryptoKeyPair, callback);
     }
 
     @Override
@@ -101,6 +140,14 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         new BigInteger(this.chainId),
                         BigInteger.valueOf(this.groupId),
                         "");
+        if (cryptoKeyPair == null) {
+            return transactionEncoder.encodeAndSign(rawTransaction, this.cryptoKeyPair);
+        }
         return transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
+    }
+
+    @Override
+    public String createSignedTransaction(String to, String data) {
+        return createSignedTransaction(to, data, this.cryptoKeyPair);
     }
 }
