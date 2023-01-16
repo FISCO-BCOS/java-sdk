@@ -433,8 +433,16 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             try {
                 abiDefinition = definition;
                 data = this.contractCodec.encodeMethodByAbiDefinition(definition, paramsList);
-            } catch (Exception ignored) {
+            } catch (ContractCodecException e) {
+                // single one method, throw e directly
+                if (abiDefinitions.size() == 1) {
+                    throw e;
+                }
             }
+        }
+        if (data == null) {
+            throw new ContractCodecException(
+                    "cannot encode in encodeMethodByAbiDefinition with appropriate interface ABI");
         }
         return this.callAndGetResponse(from, to, abiDefinition, data);
     }
@@ -486,8 +494,16 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             try {
                 abiDefinition = definition;
                 data = this.contractCodec.encodeMethodByAbiDefinition(abiDefinition, params);
-            } catch (Exception ignored) {
+            } catch (ContractCodecException e) {
+                // single one method, throw e directly
+                if (abiDefinitions.size() == 1) {
+                    throw e;
+                }
             }
+        }
+        if (data == null) {
+            throw new ContractCodecException(
+                    "cannot encode in encodeMethodByAbiDefinition with appropriate interface ABI");
         }
         callAndGetResponseAsync(from, to, abiDefinition, data, callback);
     }
@@ -530,6 +546,13 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String from, String to, String abi, String functionName, List<String> paramsList)
             throws TransactionBaseException, ContractCodecException {
         List<ABIDefinition> abiDefinitions = getAbiDefinition(abi, functionName, paramsList.size());
+        if (log.isTraceEnabled()) {
+            log.trace(
+                    "sendCallWithStringParams, to:{}, functionName:{}, params:{}",
+                    to,
+                    functionName,
+                    paramsList);
+        }
         if (abiDefinitions == null || abiDefinitions.isEmpty()) {
             throw new ContractCodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
         }
@@ -542,8 +565,16 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 data =
                         this.contractCodec.encodeMethodByIdFromString(
                                 abi, abiDefinition.getMethodId(cryptoSuite), paramsList);
-            } catch (Exception ignored) {
+            } catch (ContractCodecException e) {
+                // single one method, throw e directly
+                if (abiDefinitions.size() == 1) {
+                    throw e;
+                }
             }
+        }
+        if (data == null) {
+            throw new ContractCodecException(
+                    "cannot encode in encodeMethodByIdFromString with appropriate interface ABI");
         }
         return this.callAndGetResponse(from, to, abiDefinition, data);
     }
@@ -570,8 +601,16 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 data =
                         this.contractCodec.encodeMethodByIdFromString(
                                 abi, abiDefinition.getMethodId(cryptoSuite), params);
-            } catch (Exception ignored) {
+            } catch (ContractCodecException e) {
+                // single one method, throw e directly
+                if (abiDefinitions.size() == 1) {
+                    throw e;
+                }
             }
+        }
+        if (data == null) {
+            throw new ContractCodecException(
+                    "cannot encode in encodeMethodByIdFromString with appropriate interface ABI");
         }
         callAndGetResponseAsync(from, to, abiDefinition, data, callback);
     }

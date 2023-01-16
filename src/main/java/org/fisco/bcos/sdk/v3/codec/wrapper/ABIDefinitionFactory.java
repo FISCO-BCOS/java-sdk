@@ -37,14 +37,17 @@ public class ABIDefinitionFactory {
                 } else {
                     // skip and do nothing
                 }
-
-                logger.debug(" abiDefinition: {}", abiDefinition);
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" abiDefinition: {}", abiDefinition);
+                }
             }
             if (contractABIDefinition.getConstructor() == null) {
                 contractABIDefinition.setConstructor(
                         ABIDefinition.createDefaultConstructorABIDefinition());
             }
-            logger.debug(" contractABIDefinition {} ", contractABIDefinition);
+            if (logger.isTraceEnabled()) {
+                logger.trace(" contractABIDefinition {} ", contractABIDefinition);
+            }
 
             return contractABIDefinition;
 

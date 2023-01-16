@@ -82,12 +82,14 @@ public class ContractABIDefinition {
         byte[] methodId = abiDefinition.getMethodId(this.cryptoSuite);
         this.methodIDToFunctions.put(ByteBuffer.wrap(methodId), abiDefinition);
 
-        logger.debug(
-                " name: {}, methodId: {}, methodSignature: {}, abi: {}",
-                name,
-                methodId,
-                abiDefinition.getMethodSignatureAsString(),
-                abiDefinition);
+        if (logger.isTraceEnabled()) {
+            logger.trace(
+                    " name: {}, methodId: {}, methodSignature: {}, abi: {}",
+                    name,
+                    methodId,
+                    abiDefinition.getMethodSignatureAsString(),
+                    abiDefinition);
+        }
     }
 
     public void addEvent(String name, ABIDefinition abiDefinition) {
