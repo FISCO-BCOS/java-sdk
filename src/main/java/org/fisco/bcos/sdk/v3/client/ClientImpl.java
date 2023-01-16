@@ -280,6 +280,9 @@ public class ClientImpl implements Client {
     @Override
     public Call call(String node, Transaction transaction) {
         node = Objects.isNull(node) ? "" : node;
+        if (logger.isTraceEnabled()) {
+            logger.trace("client call, to:{}, data:{}", transaction.getTo(), transaction.getData());
+        }
         return this.callRemoteMethod(
                 this.groupID,
                 node,
