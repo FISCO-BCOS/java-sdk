@@ -17,6 +17,8 @@ package org.fisco.bcos.sdk.v3.eventsub;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigInteger;
+import java.util.List;
 import java.util.Set;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.jni.common.JniException;
@@ -71,6 +73,61 @@ public class EventSubscribeImp implements EventSubscribe {
 
     public void setConfigOption(ConfigOption configOption) {
         this.configOption = configOption;
+    }
+
+    @Override
+    public String subscribeEvent(
+            BigInteger fromBlk,
+            BigInteger toBlk,
+            EventLogAddrAndTopics eventLogAddrAndTopics,
+            EventSubCallback callback) {
+
+        EventSubParams params = new EventSubParams();
+        params.setFromBlock(fromBlk);
+        params.setToBlock(toBlk);
+        if (!params.addAddress(eventLogAddrAndTopics.getAddress())) {
+            callback.onReceiveLog("", EventSubStatus.INVALID_PARAMS.getStatus(), null);
+            return "";
+        }
+
+        for (int i = 0; i < eventLogAddrAndTopics.getTopics().size(); i++) {
+            if (!params.addTopic(i, eventLogAddrAndTopics.getTopics().get(i))) {
+                callback.onReceiveLog("", EventSubStatus.INVALID_PARAMS.getStatus(), null);
+                return "";
+            }
+        }
+
+        return subscribeEvent(params, callback);
+    }
+
+    @Override
+    public String subscribeEvent(
+            BigInteger fromBlk,
+            BigInteger toBlk,
+            List<EventLogAddrAndTopics> eventLogAddrAndTopics,
+            EventSubCallback callback) {
+        EventSubParams eventSubParams = new EventSubParams();
+        eventSubParams.setFromBlock(fromBlk);
+        eventSubParams.setToBlock(toBlk);
+
+        for (int i = 0; i < eventLogAddrAndTopics.size(); i++) {
+            boolean result = eventSubParams.addAddress(eventLogAddrAndTopics.get(i).getAddress());
+            if (!result) {
+                callback.onReceiveLog("", EventSubStatus.INVALID_PARAMS.getStatus(), null);
+                return "";
+            }
+
+            for (int j = 0; j < eventLogAddrAndTopics.get(i).getTopics().size(); j++) {
+                result =
+                        eventSubParams.addTopic(i, eventLogAddrAndTopics.get(i).getTopics().get(j));
+                if (!result) {
+                    callback.onReceiveLog("", EventSubStatus.INVALID_PARAMS.getStatus(), null);
+                    return "";
+                }
+            }
+        }
+
+        return subscribeEvent(eventSubParams, callback);
     }
 
     @Override

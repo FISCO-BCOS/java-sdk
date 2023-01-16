@@ -25,10 +25,13 @@ import java.util.Map;
 import java.util.function.Function;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Common;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Condition;
+import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.ConditionV320;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.Entry;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.UpdateFields;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
+import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
@@ -44,6 +47,7 @@ import org.slf4j.LoggerFactory;
 public class TableCRUDService {
     private final Client client;
     private final TableManagerPrecompiled tableManagerPrecompiled;
+    private final long currentVersion;
     private final Logger logger = LoggerFactory.getLogger(TableCRUDService.class);
 
     public TableCRUDService(Client client, CryptoKeyPair credential) {
@@ -55,6 +59,17 @@ public class TableCRUDService {
                                 : PrecompiledAddress.TABLE_MANAGER_PRECOMPILED_ADDRESS,
                         client,
                         credential);
+        this.currentVersion =
+                client.getGroupInfo()
+                        .getResult()
+                        .getNodeList()
+                        .get(0)
+                        .getProtocol()
+                        .getCompatibilityVersion();
+    }
+
+    public long getCurrentVersion() {
+        return currentVersion;
     }
 
     /**
@@ -93,6 +108,62 @@ public class TableCRUDService {
         TableManagerPrecompiled.TableInfo tableInfo =
                 new TableManagerPrecompiled.TableInfo(keyFieldName, valueFields);
         this.tableManagerPrecompiled.createTable(
+                tableName,
+                tableInfo,
+                createTransactionCallback(
+                        callback,
+                        transactionReceipt ->
+                                tableManagerPrecompiled
+                                        .getCreateTableOutput(transactionReceipt)
+                                        .getValue1()));
+    }
+
+    /**
+     * create a table with table name, key name, value field names
+     *
+     * @param tableName table name, will add prefix /tables/ in blockchain, tableName length not
+     *     longer than 50 with prefix
+     * @param keyFieldName key field name, which length should not be longer than 64
+     * @param valueFields value field names, which length in total should not be longer than 1024
+     * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
+     */
+    public RetCode createTable(
+            String tableName,
+            Common.TableKeyOrder keyOrder,
+            String keyFieldName,
+            List<String> valueFields)
+            throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TableManagerPrecompiled.TableInfoV320 tableInfo =
+                new TableManagerPrecompiled.TableInfoV320(
+                        keyOrder.getBigValue(), keyFieldName, valueFields);
+        TransactionReceipt receipt = tableManagerPrecompiled.createTableV320(tableName, tableInfo);
+        return ReceiptParser.parseTransactionReceipt(
+                receipt, tr -> tableManagerPrecompiled.getCreateTableOutput(tr).getValue1());
+    }
+
+    /**
+     * async create a table with table name, key name, value field names
+     *
+     * @param tableName table name, will add prefix /tables/ in blockchain, tableName length not
+     *     longer than 50 with prefix
+     * @param keyFieldName key field name, which length should not be longer than 64
+     * @param valueFields value field names, which length in total should not be longer than 1024
+     * @param callback callback when get receipt
+     */
+    public void asyncCreateTable(
+            String tableName,
+            Common.TableKeyOrder keyOrder,
+            String keyFieldName,
+            List<String> valueFields,
+            PrecompiledCallback callback)
+            throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TableManagerPrecompiled.TableInfoV320 tableInfo =
+                new TableManagerPrecompiled.TableInfoV320(
+                        keyOrder.getBigValue(), keyFieldName, valueFields);
+        this.tableManagerPrecompiled.createTableV320(
                 tableName,
                 tableInfo,
                 createTransactionCallback(
@@ -191,6 +262,67 @@ public class TableCRUDService {
 
         List<TablePrecompiled.Entry> selectEntry =
                 tablePrecompiled.select(condition.getTableConditions(), condition.getLimit());
+        List<Map<String, String>> result = new ArrayList<>();
+        for (TablePrecompiled.Entry entry : selectEntry) {
+            Map<String, String> kvs = new HashMap<>();
+            kvs.put(desc.get(PrecompiledConstant.KEY_FIELD_NAME).get(0), entry.key);
+            for (int i = 0; i < entry.fields.size(); i++) {
+                kvs.put(desc.get(PrecompiledConstant.VALUE_FIELD_NAME).get(i), entry.fields.get(i));
+            }
+            result.add(kvs);
+        }
+        return result;
+    }
+
+    /**
+     * select data in a specific table with table name, condition
+     *
+     * @param tableName specific table name, table should exist
+     * @param condition condition about key
+     * @return return a list of select result which match condition
+     * @throws ContractException throw when contract exec exception
+     */
+    public List<Map<String, String>> select(String tableName, ConditionV320 condition)
+            throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
+        TableManagerPrecompiled.TableInfoV320 tableInfo =
+                tableManagerPrecompiled.descWithKeyOrder(tableName);
+        List<TablePrecompiled.Entry> selectEntry;
+        List<Map<String, String>> result = new ArrayList<>();
+        selectEntry =
+                tablePrecompiled.selectV320(condition.getTableConditions(), condition.getLimit());
+
+        for (TablePrecompiled.Entry entry : selectEntry) {
+            Map<String, String> kvs = new HashMap<>();
+            kvs.put(tableInfo.keyColumn, entry.key);
+            for (int i = 0; i < entry.fields.size(); i++) {
+                kvs.put(tableInfo.valueColumns.get(i), entry.fields.get(i));
+            }
+            result.add(kvs);
+        }
+        return result;
+    }
+
+    /**
+     * select data in a specific table with table name, table desc info, condition. this method will
+     * reduce table.desc() overhead
+     *
+     * @param tableName specific table name, table should exist
+     * @param desc table key field and value fields info, [(key_field: [""]),(value_fields: [""])]
+     * @param condition condition about key
+     * @return return a list of select result which match condition
+     * @throws ContractException throw when contract exec exception
+     */
+    public List<Map<String, String>> select(
+            String tableName, Map<String, List<String>> desc, ConditionV320 condition)
+            throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
+        List<TablePrecompiled.Entry> selectEntry =
+                tablePrecompiled.selectV320(condition.getTableConditions(), condition.getLimit());
         List<Map<String, String>> result = new ArrayList<>();
         for (TablePrecompiled.Entry entry : selectEntry) {
             Map<String, String> kvs = new HashMap<>();
@@ -379,6 +511,46 @@ public class TableCRUDService {
     }
 
     /**
+     * update data to a specific table with table name, condition, updateFields
+     *
+     * @param tableName specific table name, table should exist
+     * @param condition key condition
+     * @param updateFields update specific fields' data
+     * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
+     */
+    public RetCode update(String tableName, ConditionV320 condition, UpdateFields updateFields)
+            throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
+        return update(tablePrecompiled, condition, updateFields);
+    }
+
+    /**
+     * update data to a specific table with tablePrecompiled, key condition, updateFields this
+     * method will reduce tableManager.openTable() overhead
+     *
+     * @param tablePrecompiled specific tablePrecompiled, already load a specific contract address
+     * @param condition key condition
+     * @param updateFields update specific fields' data
+     * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
+     */
+    public RetCode update(
+            TablePrecompiled tablePrecompiled, ConditionV320 condition, UpdateFields updateFields)
+            throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TransactionReceipt transactionReceipt =
+                tablePrecompiled.updateV320(
+                        condition.getTableConditions(),
+                        condition.getLimit(),
+                        updateFields.convertToUpdateFields());
+        return getCurdRetCode(
+                transactionReceipt, tr -> tablePrecompiled.getUpdateOutput(tr).getValue1());
+    }
+
+    /**
      * async update data to a specific table with table name, single key, updateFields
      *
      * @param tableName specific table name, table should exist
@@ -419,6 +591,34 @@ public class TableCRUDService {
         TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
 
         tablePrecompiled.update(
+                condition.getTableConditions(),
+                condition.getLimit(),
+                updateFields.convertToUpdateFields(),
+                createTransactionCallback(
+                        callback,
+                        transactionReceipt ->
+                                tablePrecompiled.getUpdateOutput(transactionReceipt).getValue1()));
+    }
+
+    /**
+     * async update data to a specific table with table name, condition, updateFields
+     *
+     * @param tableName specific table name, table should exist
+     * @param condition key condition
+     * @param updateFields update specific fields' data
+     * @param callback callback when get receipt
+     * @throws ContractException throw when contract exec exception
+     */
+    public void asyncUpdate(
+            String tableName,
+            ConditionV320 condition,
+            UpdateFields updateFields,
+            PrecompiledCallback callback)
+            throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
+        tablePrecompiled.updateV320(
                 condition.getTableConditions(),
                 condition.getLimit(),
                 updateFields.convertToUpdateFields(),
@@ -489,6 +689,39 @@ public class TableCRUDService {
     }
 
     /**
+     * remove data in a specific table with table name, key condition
+     *
+     * @param tableName specific table name, table should exist
+     * @param condition key condition
+     * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
+     */
+    public RetCode remove(String tableName, ConditionV320 condition) throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+
+        return remove(tablePrecompiled, condition);
+    }
+
+    /**
+     * remove data in a specific table with table name, key condition this method will reduce
+     * tableManager.openTable() overhead
+     *
+     * @param tablePrecompiled specific tablePrecompiled, already load a specific contract address
+     * @param condition key condition
+     * @return if success then return 0; otherwise is failed then see the retCode message
+     * @throws ContractException throw when contract exec exception
+     */
+    public RetCode remove(TablePrecompiled tablePrecompiled, ConditionV320 condition)
+            throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TransactionReceipt transactionReceipt =
+                tablePrecompiled.removeV320(condition.getTableConditions(), condition.getLimit());
+        return getCurdRetCode(
+                transactionReceipt, tr -> tablePrecompiled.getRemoveOutput(tr).getValue1());
+    }
+
+    /**
      * async remove data in a specific table with table name, single key
      *
      * @param tableName specific table name, table should exist
@@ -529,6 +762,27 @@ public class TableCRUDService {
     }
 
     /**
+     * async remove data in a specific table with table name, key condition
+     *
+     * @param tableName specific table name, table should exist
+     * @param condition key condition
+     * @param callback callback when get receipt
+     * @throws ContractException throw when contract exec exception
+     */
+    public void asyncRemove(String tableName, ConditionV320 condition, PrecompiledCallback callback)
+            throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TablePrecompiled tablePrecompiled = loadTablePrecompiled(tableName);
+        tablePrecompiled.removeV320(
+                condition.getTableConditions(),
+                condition.getLimit(),
+                createTransactionCallback(
+                        callback,
+                        transactionReceipt ->
+                                tablePrecompiled.getRemoveOutput(transactionReceipt).getValue1()));
+    }
+
+    /**
      * get a specific table key and value fields with table name
      *
      * @param tableName specific table name, it should exist
@@ -544,6 +798,31 @@ public class TableCRUDService {
         descMap.put(
                 PrecompiledConstant.KEY_FIELD_NAME, Collections.singletonList(tableInfo.keyColumn));
         descMap.put(PrecompiledConstant.VALUE_FIELD_NAME, tableInfo.valueColumns);
+        return descMap;
+    }
+
+    /**
+     * get a specific table key and value fields with table name
+     *
+     * @param tableName specific table name, it should exist
+     * @return table key field and value fields info, [("key_field": [""]),("value_fields": [""])]
+     * @throws ContractException throw when contract exec exception
+     */
+    public Map<String, List<String>> descWithKeyOrder(String tableName) throws ContractException {
+        PrecompiledVersionCheck.V320_CRUD_VERSION.checkVersion(currentVersion);
+        TableManagerPrecompiled.TableInfoV320 tableInfo =
+                tableManagerPrecompiled.descWithKeyOrder(tableName);
+        if (tableInfo.keyColumn.isEmpty() || tableInfo.valueColumns.isEmpty()) {
+            throw new ContractException("Table " + tableName + " does not exist.");
+        }
+        Map<String, List<String>> descMap = new HashMap<>();
+        descMap.put(
+                PrecompiledConstant.KEY_FIELD_NAME, Collections.singletonList(tableInfo.keyColumn));
+        descMap.put(PrecompiledConstant.VALUE_FIELD_NAME, tableInfo.valueColumns);
+        descMap.put(
+                PrecompiledConstant.KEY_ORDER,
+                Collections.singletonList(
+                        Common.TableKeyOrder.valueOf(tableInfo.keyOrder.intValue()).toString()));
         return descMap;
     }
 

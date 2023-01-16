@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
@@ -30,8 +31,11 @@ import org.fisco.bcos.sdk.v3.client.RespCallback;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
+import org.fisco.bcos.sdk.v3.codec.abi.Constant;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.Response;
@@ -418,8 +422,34 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public CallResponse sendCall(
             String from, String to, String abi, String functionName, List<Object> paramsList)
             throws TransactionBaseException, ContractCodecException {
-        byte[] data = this.contractCodec.encodeMethod(abi, functionName, paramsList);
-        return this.callAndGetResponse(from, to, abi, functionName, data);
+        List<ABIDefinition> abiDefinitions = getAbiDefinition(abi, functionName, paramsList.size());
+        if (abiDefinitions == null || abiDefinitions.isEmpty()) {
+            throw new ContractCodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
+        }
+        byte[] data = null;
+        ABIDefinition abiDefinition = null;
+        // maybe lot of same paramSize methods
+        for (ABIDefinition definition : abiDefinitions) {
+            try {
+                abiDefinition = definition;
+                data = this.contractCodec.encodeMethodByAbiDefinition(definition, paramsList);
+            } catch (Exception ignored) {
+            }
+        }
+        return this.callAndGetResponse(from, to, abiDefinition, data);
+    }
+
+    private List<ABIDefinition> getAbiDefinition(String abi, String functionName, int paramsSize)
+            throws ContractCodecException {
+        ContractABIDefinition contractABIDefinition =
+                contractCodec.getAbiDefinitionFactory().loadABI(abi);
+        List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(functionName);
+        if (methods == null || methods.isEmpty()) {
+            throw new ContractCodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
+        }
+        return methods.stream()
+                .filter(d -> d.getInputs().size() == paramsSize)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -445,8 +475,21 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             List<Object> params,
             RespCallback<CallResponse> callback)
             throws ContractCodecException {
-        byte[] data = this.contractCodec.encodeMethod(abi, functionName, params);
-        callAndGetResponseAsync(from, to, abi, functionName, data, callback);
+        List<ABIDefinition> abiDefinitions = getAbiDefinition(abi, functionName, params.size());
+        if (abiDefinitions == null || abiDefinitions.isEmpty()) {
+            throw new ContractCodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
+        }
+        byte[] data = null;
+        ABIDefinition abiDefinition = null;
+        // maybe lot of same paramSize methods
+        for (ABIDefinition definition : abiDefinitions) {
+            try {
+                abiDefinition = definition;
+                data = this.contractCodec.encodeMethodByAbiDefinition(abiDefinition, params);
+            } catch (Exception ignored) {
+            }
+        }
+        callAndGetResponseAsync(from, to, abiDefinition, data, callback);
     }
 
     @Override
@@ -486,8 +529,23 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public CallResponse sendCallWithStringParams(
             String from, String to, String abi, String functionName, List<String> paramsList)
             throws TransactionBaseException, ContractCodecException {
-        byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, paramsList);
-        return this.callAndGetResponse(from, to, abi, functionName, data);
+        List<ABIDefinition> abiDefinitions = getAbiDefinition(abi, functionName, paramsList.size());
+        if (abiDefinitions == null || abiDefinitions.isEmpty()) {
+            throw new ContractCodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
+        }
+        byte[] data = null;
+        ABIDefinition abiDefinition = null;
+        // maybe lot of same paramSize methods
+        for (ABIDefinition definition : abiDefinitions) {
+            try {
+                abiDefinition = definition;
+                data =
+                        this.contractCodec.encodeMethodByIdFromString(
+                                abi, abiDefinition.getMethodId(cryptoSuite), paramsList);
+            } catch (Exception ignored) {
+            }
+        }
+        return this.callAndGetResponse(from, to, abiDefinition, data);
     }
 
     @Override
@@ -499,15 +557,29 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             List<String> params,
             RespCallback<CallResponse> callback)
             throws TransactionBaseException, ContractCodecException {
-        byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, params);
-        callAndGetResponseAsync(from, to, abi, functionName, data, callback);
+        List<ABIDefinition> abiDefinitions = getAbiDefinition(abi, functionName, params.size());
+        if (abiDefinitions == null || abiDefinitions.isEmpty()) {
+            throw new ContractCodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
+        }
+        byte[] data = null;
+        ABIDefinition abiDefinition = null;
+        // maybe lot of same paramSize methods
+        for (ABIDefinition definition : abiDefinitions) {
+            try {
+                abiDefinition = definition;
+                data =
+                        this.contractCodec.encodeMethodByIdFromString(
+                                abi, abiDefinition.getMethodId(cryptoSuite), params);
+            } catch (Exception ignored) {
+            }
+        }
+        callAndGetResponseAsync(from, to, abiDefinition, data, callback);
     }
 
     private void callAndGetResponseAsync(
             String from,
             String to,
-            String abi,
-            String functionName,
+            ABIDefinition abiDefinition,
             byte[] data,
             RespCallback<CallResponse> callback) {
         this.asyncExecuteCall(
@@ -521,8 +593,8 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                             CallResponse callResponse =
                                     parseCallResponseStatus(call.getCallResult());
                             List<Type> decodedResult =
-                                    contractCodec.decodeMethodAndGetOutputObject(
-                                            abi, functionName, call.getCallResult().getOutput());
+                                    contractCodec.decodeMethodByABIDefinition(
+                                            abiDefinition, call.getCallResult().getOutput());
                             callResponse.setResults(decodedResult);
                             callback.onResponse(callResponse);
                         } catch (TransactionBaseException | ContractCodecException e) {
@@ -548,6 +620,18 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         List<Type> decodedResult =
                 this.contractCodec.decodeMethodAndGetOutputObject(
                         abi, functionName, call.getCallResult().getOutput());
+        callResponse.setResults(decodedResult);
+        return callResponse;
+    }
+
+    public CallResponse callAndGetResponse(
+            String from, String to, ABIDefinition abiDefinition, byte[] data)
+            throws ContractCodecException, TransactionBaseException {
+        Call call = this.executeCall(from, to, data);
+        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
+        List<Type> decodedResult =
+                this.contractCodec.decodeMethodByABIDefinition(
+                        abiDefinition, call.getCallResult().getOutput());
         callResponse.setResults(decodedResult);
         return callResponse;
     }

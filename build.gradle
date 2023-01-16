@@ -25,16 +25,17 @@ ext {
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
     guavaVersion = '30.1.1-jre'
-    bcosSdkJniVersion = "3.1.0"
-    slf4jApiVerison = '2.0.3'
+    bcosSdkJniVersion = "3.2.0-SNAPSHOT"
+    slf4jApiVerison = '1.7.36'
     mockitoVersion = '4.8.0'
+    gsonVersion = '2.10'
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.1.2'
+    version = '3.2.0-SNAPSHOT'
 
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
@@ -135,12 +136,15 @@ dependencies {
         exclude group : "com.fasterxml.jackson.core"
     }
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
+    api("com.google.code.gson:gson:${gsonVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     api("commons-io:commons-io:${commonsIOVersion}")
     // api("com.webank:key-mini-toolkit:${keyMiniToolkit}")
     api("com.webank:webank-blockchain-java-crypto:${webankJavaCryptoVersion}")
-    api("com.moandjiezana.toml:toml4j:${toml4jVersion}")
+    api("com.moandjiezana.toml:toml4j:${toml4jVersion}") {
+        exclude group: "com.google.code.gson"
+    }
 //    api("org.apache.commons:commons-configuration2:${config2Version}"){
 //        exclude group: "commons-logging"
 //    }

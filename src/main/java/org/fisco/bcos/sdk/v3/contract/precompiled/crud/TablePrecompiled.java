@@ -40,7 +40,7 @@ public class TablePrecompiled extends Contract {
             org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
-        "[{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"}],\"name\":\"count\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"selector\":[3625360167,2327356356],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry\",\"name\":\"entry\",\"type\":\"tuple\"}],\"name\":\"insert\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[1550717023,1284216112],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"offset\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"count\",\"type\":\"uint32\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"}],\"name\":\"remove\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[1751202047,277135530],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"remove\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[2153356875,2260153337],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"offset\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"count\",\"type\":\"uint32\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"}],\"name\":\"select\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"selector\":[1020609838,1062557692],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"select\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry\",\"name\":\"\",\"type\":\"tuple\"}],\"selector\":[4242006977,1530027384],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"columnName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct UpdateField[]\",\"name\":\"updateFields\",\"type\":\"tuple[]\"}],\"name\":\"update\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[1107285855,33194060],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"offset\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"count\",\"type\":\"uint32\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"columnName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct UpdateField[]\",\"name\":\"updateFields\",\"type\":\"tuple[]\"}],\"name\":\"update\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[2572410770,107820592],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+        "[{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"field\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"}],\"name\":\"count\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"selector\":[3662033759,1947221414],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry\",\"name\":\"entry\",\"type\":\"tuple\"}],\"name\":\"insert\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[1550717023,1284216112],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"remove\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[2153356875,2260153337],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"field\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"offset\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"count\",\"type\":\"uint32\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"}],\"name\":\"remove\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[2804287255,969499873],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"field\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"offset\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"count\",\"type\":\"uint32\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"}],\"name\":\"select\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"selector\":[714220609,142358227],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"}],\"name\":\"select\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"fields\",\"type\":\"string[]\"}],\"internalType\":\"struct Entry\",\"name\":\"\",\"type\":\"tuple\"}],\"selector\":[4242006977,1530027384],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"columnName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct UpdateField[]\",\"name\":\"updateFields\",\"type\":\"tuple[]\"}],\"name\":\"update\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[1107285855,33194060],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ConditionOP\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"field\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct Condition[]\",\"name\":\"conditions\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"offset\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"count\",\"type\":\"uint32\"}],\"internalType\":\"struct Limit\",\"name\":\"limit\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"columnName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"}],\"internalType\":\"struct UpdateField[]\",\"name\":\"updateFields\",\"type\":\"tuple[]\"}],\"name\":\"update\",\"outputs\":[{\"internalType\":\"int32\",\"name\":\"\",\"type\":\"int32\"}],\"selector\":[2569322878,54637187],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", ABI_ARRAY);
@@ -74,6 +74,17 @@ public class TablePrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<Condition>(
                                         Condition.class, conditions)),
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Uint32>() {}));
+        return executeCallWithSingleValueReturn(function, BigInteger.class);
+    }
+
+    public BigInteger countV320(List<ConditionV320> conditions) throws ContractException {
+        final Function function =
+                new Function(
+                        FUNC_COUNT,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<
+                                        ConditionV320>(ConditionV320.class, conditions)),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Uint32>() {}));
         return executeCallWithSingleValueReturn(function, BigInteger.class);
     }
@@ -158,6 +169,33 @@ public class TablePrecompiled extends Contract {
         return asyncExecuteTransaction(function, callback);
     }
 
+    public TransactionReceipt removeV320(List<ConditionV320> conditions, Limit limit) {
+        final Function function =
+                new Function(
+                        FUNC_REMOVE,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<
+                                        ConditionV320>(ConditionV320.class, conditions),
+                                limit),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return executeTransaction(function);
+    }
+
+    public String removeV320(
+            List<ConditionV320> conditions, Limit limit, TransactionCallback callback) {
+        final Function function =
+                new Function(
+                        FUNC_REMOVE,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<
+                                        ConditionV320>(ConditionV320.class, conditions),
+                                limit),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return asyncExecuteTransaction(function, callback);
+    }
+
     public String getSignedTransactionForRemove(List<Condition> conditions, Limit limit) {
         final Function function =
                 new Function(
@@ -165,6 +203,19 @@ public class TablePrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<Condition>(
                                         Condition.class, conditions),
+                                limit),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return createSignedTransaction(function);
+    }
+
+    public String getSignedTransactionForRemoveV320(List<ConditionV320> conditions, Limit limit) {
+        final Function function =
+                new Function(
+                        FUNC_REMOVE,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<
+                                        ConditionV320>(ConditionV320.class, conditions),
                                 limit),
                         Collections.<TypeReference<?>>emptyList(),
                         0);
@@ -185,6 +236,23 @@ public class TablePrecompiled extends Contract {
                 this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple2<DynamicArray<Condition>, Limit>(
                 (DynamicArray<Condition>) results.get(0).getValue(),
+                (Limit) results.get(1).getValue());
+    }
+
+    public Tuple2<DynamicArray<ConditionV320>, Limit> getRemoveTupletupleTupleInputV320(
+            TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getInput().substring(10);
+        final Function function =
+                new Function(
+                        FUNC_REMOVE,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(
+                                new TypeReference<DynamicArray<ConditionV320>>() {},
+                                new TypeReference<Limit>() {}));
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple2<DynamicArray<ConditionV320>, Limit>(
+                (DynamicArray<ConditionV320>) results.get(0).getValue(),
                 (Limit) results.get(1).getValue());
     }
 
@@ -251,6 +319,18 @@ public class TablePrecompiled extends Contract {
                         FUNC_SELECT,
                         Arrays.<Type>asList(
                                 new DynamicArray<Condition>(Condition.class, conditions), limit),
+                        Arrays.<TypeReference<?>>asList(
+                                new TypeReference<DynamicArray<Entry>>() {}));
+        return (List<Type>) executeCallWithSingleValueReturn(function, List.class);
+    }
+
+    public List selectV320(List<ConditionV320> conditions, Limit limit) throws ContractException {
+        final Function function =
+                new Function(
+                        FUNC_SELECT,
+                        Arrays.<Type>asList(
+                                new DynamicArray<ConditionV320>(ConditionV320.class, conditions),
+                                limit),
                         Arrays.<TypeReference<?>>asList(
                                 new TypeReference<DynamicArray<Entry>>() {}));
         return (List<Type>) executeCallWithSingleValueReturn(function, List.class);
@@ -350,6 +430,37 @@ public class TablePrecompiled extends Contract {
         return asyncExecuteTransaction(function, callback);
     }
 
+    public TransactionReceipt updateV320(
+            List<ConditionV320> conditions, Limit limit, List<UpdateField> updateFields) {
+        final Function function =
+                new Function(
+                        FUNC_UPDATE,
+                        Arrays.<Type>asList(
+                                new DynamicArray<ConditionV320>(ConditionV320.class, conditions),
+                                limit,
+                                new DynamicArray<UpdateField>(UpdateField.class, updateFields)),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return executeTransaction(function);
+    }
+
+    public String updateV320(
+            List<ConditionV320> conditions,
+            Limit limit,
+            List<UpdateField> updateFields,
+            TransactionCallback callback) {
+        final Function function =
+                new Function(
+                        FUNC_UPDATE,
+                        Arrays.<Type>asList(
+                                new DynamicArray<ConditionV320>(ConditionV320.class, conditions),
+                                limit,
+                                new DynamicArray<UpdateField>(UpdateField.class, updateFields)),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return asyncExecuteTransaction(function, callback);
+    }
+
     public String getSignedTransactionForUpdate(
             List<Condition> conditions, Limit limit, List<UpdateField> updateFields) {
         final Function function =
@@ -358,6 +469,22 @@ public class TablePrecompiled extends Contract {
                         Arrays.<Type>asList(
                                 new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<Condition>(
                                         Condition.class, conditions),
+                                limit,
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<UpdateField>(
+                                        UpdateField.class, updateFields)),
+                        Collections.<TypeReference<?>>emptyList(),
+                        0);
+        return createSignedTransaction(function);
+    }
+
+    public String getSignedTransactionForUpdateV320(
+            List<ConditionV320> conditions, Limit limit, List<UpdateField> updateFields) {
+        final Function function =
+                new Function(
+                        FUNC_UPDATE,
+                        Arrays.<Type>asList(
+                                new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<
+                                        ConditionV320>(ConditionV320.class, conditions),
                                 limit,
                                 new org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray<UpdateField>(
                                         UpdateField.class, updateFields)),
@@ -381,6 +508,25 @@ public class TablePrecompiled extends Contract {
                 this.functionReturnDecoder.decode(data, function.getOutputParameters());
         return new Tuple3<DynamicArray<Condition>, Limit, DynamicArray<UpdateField>>(
                 (DynamicArray<Condition>) results.get(0).getValue(),
+                (Limit) results.get(1).getValue(),
+                (DynamicArray<UpdateField>) results.get(2).getValue());
+    }
+
+    public Tuple3<DynamicArray<ConditionV320>, Limit, DynamicArray<UpdateField>>
+            getUpdateTupletupleTupleTupletupleInputV320(TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getInput().substring(10);
+        final Function function =
+                new Function(
+                        FUNC_UPDATE,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(
+                                new TypeReference<DynamicArray<ConditionV320>>() {},
+                                new TypeReference<Limit>() {},
+                                new TypeReference<DynamicArray<UpdateField>>() {}));
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple3<DynamicArray<ConditionV320>, Limit, DynamicArray<UpdateField>>(
+                (DynamicArray<ConditionV320>) results.get(0).getValue(),
                 (Limit) results.get(1).getValue(),
                 (DynamicArray<UpdateField>) results.get(2).getValue());
     }
@@ -455,6 +601,45 @@ public class TablePrecompiled extends Contract {
         @Override
         public String toString() {
             return "Condition{" + "op=" + op + ", condValue='" + condValue + '\'' + '}';
+        }
+    }
+
+    public static class ConditionV320 extends DynamicStruct {
+        private BigInteger op;
+
+        private String field;
+
+        private String condValue;
+
+        public ConditionV320() {
+            super(new Uint8(0), new Utf8String(""), new Utf8String(""));
+        }
+
+        public ConditionV320(Uint8 op, Utf8String field, Utf8String value) {
+            super(op, field, value);
+            this.op = op.getValue();
+            this.field = field.getValue();
+            this.condValue = value.getValue();
+        }
+
+        public ConditionV320(BigInteger op, String field, String value) {
+            super(new Uint8(op), new Utf8String(field), new Utf8String(value));
+            this.op = op;
+            this.field = field;
+            this.condValue = value;
+        }
+
+        @Override
+        public String toString() {
+            return "Condition{"
+                    + "op="
+                    + op
+                    + ", field='"
+                    + field
+                    + ", condValue='"
+                    + condValue
+                    + '\''
+                    + '}';
         }
     }
 

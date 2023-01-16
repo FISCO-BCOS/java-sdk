@@ -46,7 +46,7 @@ public class TransactionDecodeTest {
                         + "    \"jsonrpc\": \"2.0\",\n"
                         + "    \"result\": {\n"
                         + "        \"blockHash\": \"0x977efec48c248ea4be87016446b40d7785d7b71b7d4e3aa0b103b9cf0f5fe19e\",\n"
-                        + "        \"blockNumber\": \"0xa\",\n"
+                        + "        \"blockNumber\": \"11\",\n"
                         + "        \"contractAddress\": \"0000000000000000000000000000000000000000\",\n"
                         + "        \"from\": \"0xcdcce60801c0a2e6bb534322c32ae528b9dec8d2\",\n"
                         + "        \"gasUsed\": \"0x1fb8d\",\n"

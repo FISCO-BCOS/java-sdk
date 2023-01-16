@@ -11,6 +11,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.contract.auth.manager.AuthManager;
+import org.fisco.bcos.sdk.v3.contract.auth.po.AccessStatus;
 import org.fisco.bcos.sdk.v3.contract.precompiled.bfs.BFSService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.consensus.ConsensusService;
 import org.fisco.bcos.sdk.v3.contract.precompiled.crud.KVTableService;
@@ -162,7 +163,6 @@ public class PrecompiledTest {
         );
     }
 
-
     public void mockGetObserverRequest(String... nodeID) {
         when(mockClient.getObserverList()).then(
                 invocation -> {
@@ -252,6 +252,31 @@ public class PrecompiledTest {
 
         BigInteger errorKey = authManager.createSetSysConfigProposal("errorKey", String.valueOf(100000));
         Assert.assertEquals(BigInteger.ONE, errorKey);
+
+        RetCode retCode = authManager.setContractStatus("1234567890123456789012345678901234567890", true);
+        Assert.assertEquals(1, retCode.getCode());
+
+        Assert.assertThrows(ContractException.class, () -> authManager.setContractStatus("1234567890123456789012345678901234567890", AccessStatus.Abolish));
+        try {
+            authManager.setContractStatus("1234567890123456789012345678901234567890", AccessStatus.Abolish);
+        } catch (ContractException e) {
+            Assert.assertEquals(e.getErrorCode(), -1);
+        }
+
+        when(mockClient.getGroupInfo()).then((Answer<BcosGroupInfo>) invocation -> {
+            BcosGroupInfo bcosGroupInfo = new BcosGroupInfo();
+            BcosGroupInfo.GroupInfo groupInfo = new BcosGroupInfo.GroupInfo();
+            BcosGroupNodeInfo.GroupNodeInfo groupNodeInfo = new BcosGroupNodeInfo.GroupNodeInfo();
+            BcosGroupNodeInfo.Protocol protocol = new BcosGroupNodeInfo.Protocol();
+            protocol.setCompatibilityVersion(EnumNodeVersion.BCOS_3_2_0.getVersion());
+            groupNodeInfo.setProtocol(protocol);
+            groupInfo.setNodeList(Collections.singletonList(groupNodeInfo));
+            bcosGroupInfo.setResult(groupInfo);
+            return bcosGroupInfo;
+        });
+
+        RetCode retCode1 = authManager.setContractStatus("1234567890123456789012345678901234567890", AccessStatus.Abolish);
+        Assert.assertEquals(1, retCode1.getCode());
     }
 
     @Test

@@ -15,6 +15,8 @@
 
 package org.fisco.bcos.sdk.v3.eventsub;
 
+import java.math.BigInteger;
+import java.util.List;
 import java.util.Set;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.client.Client;
@@ -49,6 +51,34 @@ public interface EventSubscribe {
     static EventSubscribe build(Client client) throws JniException {
         return new EventSubscribeImp(client, client.getConfigOption());
     }
+
+    /**
+     * Subscribe event
+     *
+     * @param eventLogAddrAndTopics the OneContractEventSubParams instance
+     * @param callback the EventCallback instance
+     * @return registerId of event
+     */
+    String subscribeEvent(
+            BigInteger fromBlk,
+            BigInteger toBlk,
+            EventLogAddrAndTopics eventLogAddrAndTopics,
+            EventSubCallback callback);
+
+    /**
+     * Subscribe event
+     *
+     * @param fromBlk
+     * @param toBlk
+     * @param eventLogAddrAndTopics
+     * @param callback
+     * @return
+     */
+    String subscribeEvent(
+            BigInteger fromBlk,
+            BigInteger toBlk,
+            List<EventLogAddrAndTopics> eventLogAddrAndTopics,
+            EventSubCallback callback);
 
     /**
      * Subscribe event

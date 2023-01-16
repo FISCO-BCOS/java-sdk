@@ -24,6 +24,7 @@ public class PrecompiledConstant {
     public static final int USER_TABLE_FIELD_VALUE_MAX_LENGTH = 16 * 1024 * 1024 - 1;
     public static final int SYNC_KEEP_UP_THRESHOLD = 10;
 
+    public static final String KEY_ORDER = "key_order";
     public static final String KEY_FIELD_NAME = "key_field";
     public static final String VALUE_FIELD_NAME = "value_field";
 }

@@ -15,6 +15,7 @@
 
 package org.fisco.bcos.sdk.v3.client.protocol.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -28,9 +29,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
@@ -103,6 +106,26 @@ public class BcosBlock extends JsonRpcResponse<BcosBlock.Block> {
         @JsonSerialize(using = TransactionResultSerializer.class)
         public List<TransactionResult> getTransactions() {
             return transactions;
+        }
+
+        @JsonIgnore
+        public List<TransactionHash> getTransactionHashes() {
+            if (!transactions.isEmpty() && transactions.get(0) instanceof TransactionHash) {
+                return transactions.stream()
+                        .map(TransactionHash.class::cast)
+                        .collect(Collectors.toList());
+            }
+            return Collections.emptyList();
+        }
+
+        @JsonIgnore
+        public List<TransactionObject> getTransactionObject() {
+            if (!transactions.isEmpty() && transactions.get(0) instanceof TransactionObject) {
+                return transactions.stream()
+                        .map(TransactionObject.class::cast)
+                        .collect(Collectors.toList());
+            }
+            return Collections.emptyList();
         }
 
         @JsonDeserialize(using = TransactionResultDeserializer.class)

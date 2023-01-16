@@ -93,43 +93,4 @@ public class Condition {
                 + '\''
                 + '}';
     }
-
-    public enum ConditionOperator {
-        GT(0),
-        GE(1),
-        LT(2),
-        LE(3),
-        EQ(4);
-        private final int value;
-
-        private ConditionOperator(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public BigInteger getBigIntValue() {
-            return BigInteger.valueOf(value);
-        }
-
-        @Override
-        public String toString() {
-            switch (value) {
-                case 0:
-                    return "GT";
-                case 1:
-                    return "GE";
-                case 2:
-                    return "LT";
-                case 3:
-                    return "LE";
-                case 4:
-                    return "EQ";
-                default:
-                    return "";
-            }
-        }
-    }
 }

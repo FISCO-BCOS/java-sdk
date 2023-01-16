@@ -105,6 +105,15 @@ public class KVTableService {
         return tableDesc;
     }
 
+    public Map<String, String> descWithKeyOrder(String tableName) throws ContractException {
+        TableManagerPrecompiled.TableInfoV320 desc =
+                tableManagerPrecompiled.descWithKeyOrder(tableName);
+        Map<String, String> tableDesc = new HashMap<>();
+        tableDesc.put(PrecompiledConstant.KEY_FIELD_NAME, desc.keyColumn);
+        tableDesc.put(PrecompiledConstant.VALUE_FIELD_NAME, desc.valueColumns.get(0));
+        return tableDesc;
+    }
+
     public void asyncSet(String tableName, String key, String value, PrecompiledCallback callback)
             throws ContractException {
         KVTablePrecompiled kvTablePrecompiled = loadKVTablePrecompiled(tableName);
