@@ -1,3 +1,111 @@
+## v3.2.0
+(2023-01-17)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+- 新增交易数据解码，用户可以通过已编码的交易十六进制数据解码出交易数据结构，详情参考 `org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse`的 `readFromHexString`、 `writeToHexString` 接口。
+- 新增交易回执数据编解码的接口，用户可以对交易回执进行编解码，详情参考 `org.fisco.bcos.sdk.v3.model.TransactionReceipt` 的 `readFromHexString` 、 `writeToHexString` 接口。
+- 新增交易回执哈希计算的接口，用户可以对交易回执计算正确的回执哈希，详情参考 `org.fisco.bcos.sdk.v3.model.TransactionReceipt` 的 `calculateReceiptHash` 接口。
+- 新增CRUD全新接口，适配FISCO BCOS 3.2.0的CRUD接口，查询的Condition实现更多匹配规则，支持主键按照数字序排序。详情参考 `org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService`。
+- 新增订阅事件接口，详情参考 `org.fisco.bcos.sdk.v3.eventsub` 中的`subscribeEvent`接口。
+- 新增合约废止管理接口，详情参考 `org.fisco.bcos.sdk.v3.contract.auth.manager.AuthManager`。
+- 新增Merkle树验证工具，用户可以根据链上返回的Merkle证明与交易哈希进行验证，详情参考 `org.fisco.bcos.sdk.v3.utils.MerkleCalculator`。
+
+### 更新
+
+- 变更交易类与回执类中的Merkle proof数据结构与字段名，原有的字段名设置为deprecated，但仍支持解析。transactionProof => txProof，receiptProof => txReceiptProof。
+- 因安全与兼容原因，默认将 `com.google.code.gson` 版本指定为 `2.10`，`org.slf4j:slf4j-api` 版本降为 `1.7.36`。
+- 适配 `org.fisco-bcos:bcos-sdk-jni:3.2.0` 
+
+### 修复
+
+- 修复治理委员提案发起接口 `createSetConsensusWeightProposal` 在设置观察节点的权重时出现的错误解析问题。
+- 修复 `AssembleTransactionProcessor` 在发起call请求时，如果有多个函数重载返回值有概率使用错误的函数返回值类型解码的问题。
+
+### 兼容性说明
+
+- 不兼容 FISCO BCOS 2.0+ 版本
+- 兼容java-sdk v3.0+的历史版本
+- 支持[FISCO BCOS 3.2.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.2.0)版本
+- 账户权限管理接口、BFS新增的list分页接口与link接口只在 FISCO BCOS 3.1.0支持使用。
+- 新增的CRUD接口，如条件范围遍历查询、修改、删除等接口，只在FISCO BCOS 3.2.0支持使用。
+
+----
+
+## v3.2.0
+(2023-01-17)
+
+Please read the Java SDK v3.x+ documentation:
+
+- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### New
+
+- Added transaction data decoding. Users can decode the transaction data structure through the encoded transaction hexadecimal data. For details, refer to `readFromHexString` of `org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse` , `writeToHexString` interface.
+- Added an interface for encoding and decoding transaction receipt data. Users can encode and decode transaction receipts. For details, refer to `readFromHexString` and `writeToHexString` interfaces of `org.fisco.bcos.sdk.v3.model.TransactionReceipt`.
+- Added an interface for transaction receipt hash calculation. Users can calculate the correct receipt hash for transaction receipts. For details, refer to the `calculateReceiptHash` interface of `org.fisco.bcos.sdk.v3.model.TransactionReceipt`.
+- Added a new CRUD interface, adapted to the CRUD interface of FISCO BCOS 3.2.0, the Condition of the query implements more matching rules, and supports primary keys to be sorted in numerical order. For details, refer to `org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService`.
+- Added an interface for subscribing to events. For details, refer to the `subscribeEvent` interface in `org.fisco.bcos.sdk.v3.eventsub`.
+- Added contract revocation management interface, for details, refer to `org.fisco.bcos.sdk.v3.contract.auth.manager.AuthManager`.
+- A new Merkle tree verification tool is added. Users can verify according to the Merkle certificate and transaction hash returned on the chain. For details, refer to `org.fisco.bcos.sdk.v3.utils.MerkleCalculator`.
+
+### renew
+
+- Change the Merkle proof data structure and field name in the transaction class and receipt class. The original field name is set to deprecated, but still supports parsing. transactionProof => txProof, receiptProof => txReceiptProof.
+- For security and compatibility reasons, the `com.google.code.gson` version is specified as `2.10` by default, and the `org.slf4j:slf4j-api` version is downgraded to `1.7.36`.
+- Adapt to `org.fisco-bcos:bcos-sdk-jni:3.2.0`
+
+### fix
+
+- Fixed the incorrect parsing problem when setting the weight of the observation node in the governance committee proposal initiation interface `createSetConsensusWeightProposal`.
+- Fix `AssembleTransactionProcessor` when initiating a call request, if there are multiple function overloaded return values, there is a probability that the wrong function return value type will be decoded.
+
+### Compatibility Notes
+
+- Not compatible with FISCO BCOS version 2.0+
+- Compatible with historical versions of java-sdk v3.0+
+- Support [FISCO BCOS 3.2.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.2.0) version
+- The account authority management interface, the newly added list paging interface and link interface of BFS are only supported in FISCO BCOS 3.1.0.
+- Newly added CRUD interfaces, such as conditional scope traversal query, modification, deletion, etc., are only supported in FISCO BCOS 3.2.0.## v3.2.0
+  (2023-01-17)
+
+Please read the Java SDK v3.x+ documentation:
+
+- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### New
+
+- Added transaction data decoding. Users can decode the transaction data structure through the encoded transaction hexadecimal data. For details, refer to `readFromHexString` of `org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse` , `writeToHexString` interface.
+- Added an interface for encoding and decoding transaction receipt data. Users can encode and decode transaction receipts. For details, refer to `readFromHexString` and `writeToHexString` interfaces of `org.fisco.bcos.sdk.v3.model.TransactionReceipt`.
+- Added an interface for transaction receipt hash calculation. Users can calculate the correct receipt hash for transaction receipts. For details, refer to the `calculateReceiptHash` interface of `org.fisco.bcos.sdk.v3.model.TransactionReceipt`.
+- Added a new CRUD interface, adapted to the CRUD interface of FISCO BCOS 3.2.0, the Condition of the query implements more matching rules, and supports primary keys to be sorted in numerical order. For details, refer to `org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService`.
+- Added an interface for subscribing to events. For details, refer to the `subscribeEvent` interface in `org.fisco.bcos.sdk.v3.eventsub`.
+- Added contract revocation management interface, for details, refer to `org.fisco.bcos.sdk.v3.contract.auth.manager.AuthManager`.
+- A new Merkle tree verification tool is added. Users can verify according to the Merkle certificate and transaction hash returned on the chain. For details, refer to `org.fisco.bcos.sdk.v3.utils.MerkleCalculator`.
+
+### renew
+
+- Change the Merkle proof data structure and field name in the transaction class and receipt class. The original field name is set to deprecated, but still supports parsing. transactionProof => txProof, receiptProof => txReceiptProof.
+- For security and compatibility reasons, the `com.google.code.gson` version is specified as `2.10` by default, and the `org.slf4j:slf4j-api` version is downgraded to `1.7.36`.
+- Adapt to `org.fisco-bcos:bcos-sdk-jni:3.2.0`
+
+### fix
+
+- Fixed the incorrect parsing problem when setting the weight of the observation node in the governance committee proposal initiation interface `createSetConsensusWeightProposal`.
+- Fix `AssembleTransactionProcessor` when initiating a call request, if there are multiple function overloaded return values, there is a probability that the wrong function return value type will be decoded.
+
+### Compatibility Notes
+
+- Not compatible with FISCO BCOS version 2.0+
+- Compatible with historical versions of java-sdk v3.0+
+- Support [FISCO BCOS 3.2.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.2.0) version
+- The account authority management interface, the newly added list paging interface and link interface of BFS are only supported in FISCO BCOS 3.1.0.
+- Newly added CRUD interfaces, such as conditional scope traversal query, modification, deletion, etc., are only supported in FISCO BCOS 3.2.0.
+
 ## v3.1.2
 (2023-01-04)
 
