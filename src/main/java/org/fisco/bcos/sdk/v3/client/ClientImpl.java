@@ -55,6 +55,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.callback.ResponseCallback;
@@ -111,12 +112,20 @@ public class ClientImpl implements Client {
 
         BcosGroupNodeInfo.GroupNodeInfo groupNodeInfo = groupInfo.getNodeList().get(0);
         GroupNodeIniInfo nodeIniConfig = groupNodeInfo.getIniConfig();
+        long compatibilityVersion = groupNodeInfo.getProtocol().getCompatibilityVersion();
 
         this.groupNodeIniConfig = GroupNodeIniConfig.newIniConfig(nodeIniConfig);
         this.chainID = groupNodeIniConfig.getChain().getChainID();
         this.wasm = groupNodeIniConfig.getExecutor().isWasm();
         this.serialExecute = groupNodeIniConfig.getExecutor().isSerialExecute();
+
         this.authCheck = groupNodeIniConfig.getExecutor().isAuthCheck();
+        if (EnumNodeVersion.valueOf((int) compatibilityVersion)
+                        .toVersionObj()
+                        .compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj())
+                >= 0) {
+            this.authCheck = true;
+        }
         this.smCrypto = groupNodeIniConfig.getChain().isSmCrypto();
         this.blockNumber = this.getBlockNumber().getBlockNumber().longValue();
 
