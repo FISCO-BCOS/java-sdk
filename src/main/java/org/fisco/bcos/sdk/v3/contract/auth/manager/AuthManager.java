@@ -741,6 +741,31 @@ public class AuthManager {
         return committeeManager.getProposalManager()._proposalCount();
     }
 
+    /**
+     * init committee system for old version chain which not open auth check NOTE: this method only
+     * can be used when chain version >= 3.3.0
+     *
+     * @param admin committee first admin
+     * @return return code
+     * @throws ContractException throw when check failed or contract exec exception
+     */
+    public RetCode initAuth(String admin) throws ContractException {
+        long compatibilityVersion =
+                client.getGroupInfo()
+                        .getResult()
+                        .getNodeList()
+                        .get(0)
+                        .getProtocol()
+                        .getCompatibilityVersion();
+        PrecompiledVersionCheck.INIT_AUTH_VERSION.checkVersion(compatibilityVersion);
+        TransactionReceipt receipt = contractAuthPrecompiled.initAuth(admin);
+        if (receipt.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(receipt);
+        }
+        return ReceiptParser.parseTransactionReceipt(
+                receipt, tr -> contractAuthPrecompiled.getInitAuthOutput(tr).getValue1());
+    }
+
     private boolean existsInNodeList(String nodeId) {
         List<String> nodeIdList = client.getGroupPeers().getGroupPeers();
         return nodeIdList.contains(nodeId);
