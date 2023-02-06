@@ -15,7 +15,7 @@ ext {
         ossrhPassword="xxx"
     }
     // jackson version
-    jacksonVersion = "2.13.4.2"
+    jacksonVersion = "2.14.2"
     commonsIOVersion = "2.4"
     commonsLang3Version = "3.1"
     javapoetVersion = "1.7.0"
