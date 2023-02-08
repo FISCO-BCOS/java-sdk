@@ -23,6 +23,8 @@ public class PrecompiledAddress {
             "0000000000000000000000000000000000001003";
     public static final String CONTRACT_AUTH_ADDRESS = "0000000000000000000000000000000000001005";
     public static final String BFS_PRECOMPILED_ADDRESS = "000000000000000000000000000000000000100e";
+    public static final String SHARDING_PRECOMPILED_ADDRESS =
+            "0000000000000000000000000000000000001010";
     public static final String COMMITTEE_MANAGER_ADDRESS =
             "0000000000000000000000000000000000010001";
     public static final String ACCOUNT_MANAGER_ADDRESS = "0000000000000000000000000000000000010003";
@@ -30,6 +32,7 @@ public class PrecompiledAddress {
     public static final String SYS_CONFIG_PRECOMPILED_NAME = "/sys/status";
     public static final String CONSENSUS_PRECOMPILED_NAME = "/sys/consensus";
     public static final String BFS_PRECOMPILED_NAME = "/sys/bfs";
+    public static final String SHARDING_PRECOMPILED_NAME = "/sys/sharding";
     public static final String TABLE_MANAGER_PRECOMPILED_NAME = "/sys/table_manager";
     public static final String ACCOUNT_MANAGER_PRECOMPILED_NAME = "/sys/account";
 
