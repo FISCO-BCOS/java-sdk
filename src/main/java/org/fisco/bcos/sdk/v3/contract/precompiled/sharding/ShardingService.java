@@ -1,10 +1,8 @@
 package org.fisco.bcos.sdk.v3.contract.precompiled.sharding;
 
+import java.math.BigInteger;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
-import org.fisco.bcos.sdk.v3.contract.precompiled.bfs.BFSInfo;
-import org.fisco.bcos.sdk.v3.contract.precompiled.bfs.BFSPrecompiled;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
@@ -13,10 +11,6 @@ import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class ShardingService {
 
@@ -47,12 +41,10 @@ public class ShardingService {
     public String getContractShard(String contractAddress) throws ContractException {
         PrecompiledVersionCheck.SHARDING_MIN_SUPPORT_VERSION.checkVersion(currentVersion);
 
-        Tuple2<BigInteger, String> output =
-                shardingPrecompiled.getContractShard(contractAddress);
+        Tuple2<BigInteger, String> output = shardingPrecompiled.getContractShard(contractAddress);
         if (!output.getValue1().equals(BigInteger.ZERO)) {
             RetCode precompiledResponse =
-                    PrecompiledRetCode.getPrecompiledResponse(
-                            output.getValue1().intValue(), "");
+                    PrecompiledRetCode.getPrecompiledResponse(output.getValue1().intValue(), "");
             throw new ContractException(
                     "ShardingService: list return error code: "
                             + output.getValue1()

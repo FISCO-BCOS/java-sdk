@@ -9,5 +9,4 @@ public class PrecompiledVersionCheck {
 
     public static final Version INIT_AUTH_VERSION = new Version("initAuth", "3.3.0");
     public static final Version SHARDING_MIN_SUPPORT_VERSION = new Version("initAuth", "3.3.0");
-
 }
