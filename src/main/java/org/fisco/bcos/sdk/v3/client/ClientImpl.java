@@ -155,8 +155,13 @@ public class ClientImpl implements Client {
 
             // init crypto suite
             if (smCrypto) {
-                this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
-
+                // init HSM crypto suite
+                if (configOption.getCryptoMaterialConfig() != null
+                        && configOption.getCryptoMaterialConfig().getEnableHsm()) {
+                    this.cryptoSuite = new CryptoSuite(CryptoType.HSM_TYPE, configOption);
+                } else {
+                    this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
+                }
             } else {
                 this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
             }

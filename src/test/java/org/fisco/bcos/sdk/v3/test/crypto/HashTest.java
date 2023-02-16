@@ -70,7 +70,7 @@ public class HashTest {
 
     @Test(expected = UnsupportedCryptoTypeException.class)
     public void testUnsupportedCryptoType() {
-        new CryptoSuite(3);
+        new CryptoSuite(99);
     }
 
     @Test

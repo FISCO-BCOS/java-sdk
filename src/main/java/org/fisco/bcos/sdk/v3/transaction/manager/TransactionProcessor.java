@@ -213,7 +213,6 @@ public class TransactionProcessor implements TransactionProcessorInterface {
             int txAttribute,
             String extraData) {
         try {
-
             if (log.isDebugEnabled()) {
                 log.debug(
                         "createSignedTransaction to: {}, attr: {}, extraData: {}",

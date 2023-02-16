@@ -25,7 +25,7 @@ ext {
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
     guavaVersion = '30.1.1-jre'
-    bcosSdkJniVersion = "3.2.0"
+    bcosSdkJniVersion = "3.3.0-SNAPSHOT"
     slf4jApiVerison = '1.7.36'
     mockitoVersion = '4.8.0'
     gsonVersion = '2.10'
@@ -135,6 +135,7 @@ dependencies {
         exclude group : "org.slf4j"
         exclude group : "com.fasterxml.jackson.core"
     }
+
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
     api("com.google.code.gson:gson:${gsonVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
