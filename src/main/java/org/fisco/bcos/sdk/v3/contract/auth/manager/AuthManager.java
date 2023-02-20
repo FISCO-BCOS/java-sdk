@@ -79,6 +79,12 @@ public class AuthManager {
                 committeeManager.createUpdateGovernorProposal(
                         account, weight, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         return committeeManager.getCreateUpdateGovernorProposalOutput(tr).getValue1();
@@ -98,6 +104,12 @@ public class AuthManager {
                 committeeManager.createSetRateProposal(
                         participatesRate, winRate, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         return committeeManager.getCreateSetRateProposalOutput(tr).getValue1();
@@ -115,6 +127,12 @@ public class AuthManager {
                 committeeManager.createSetDeployAuthTypeProposal(
                         deployAuthType.getValue(), DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId =
@@ -146,6 +164,12 @@ public class AuthManager {
                 committeeManager.createModifyDeployAuthProposal(
                         account, openFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId =
@@ -167,6 +191,12 @@ public class AuthManager {
                 committeeManager.createResetAdminProposal(
                         newAdmin, contractAddr, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId = committeeManager.getCreateResetAdminProposalOutput(tr).getValue1();
@@ -185,6 +215,12 @@ public class AuthManager {
         TransactionReceipt tr =
                 committeeManager.createRmNodeProposal(node, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId = committeeManager.getCreateRmNodeProposalOutput(tr).getValue1();
@@ -211,6 +247,12 @@ public class AuthManager {
                 committeeManager.createSetConsensusWeightProposal(
                         node, weight, addFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId =
@@ -298,6 +340,12 @@ public class AuthManager {
                 committeeManager.createSetSysConfigProposal(
                         key, value, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId =
@@ -318,6 +366,12 @@ public class AuthManager {
                 committeeManager.createUpgradeVoteComputerProposal(
                         address, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         return committeeManager.getCreateUpgradeVoteComputerProposalOutput(tr).getValue1();
