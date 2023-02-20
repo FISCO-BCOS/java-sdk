@@ -756,7 +756,7 @@ public class ContractCodecTools {
 
     private static Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndGetOutputObject(
             ABIObject template) throws UnsupportedOperationException {
-        List<Object> result = new ArrayList<Object>();
+        List<Object> result = new ArrayList<>();
         List<ABIObject> argObjects;
         if (template.getType() == ABIObject.ObjectType.STRUCT) {
             argObjects = template.getStructFields();
@@ -764,8 +764,7 @@ public class ContractCodecTools {
             argObjects = template.getListValues();
         }
         List<ABIObject> resultABIObject = new ArrayList<>();
-        for (int i = 0; i < argObjects.size(); ++i) {
-            ABIObject argObject = argObjects.get(i);
+        for (ABIObject argObject : argObjects) {
             switch (argObject.getType()) {
                 case VALUE:
                     {
