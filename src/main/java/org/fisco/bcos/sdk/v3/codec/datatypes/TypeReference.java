@@ -19,7 +19,8 @@ import java.util.regex.Pattern;
 public abstract class TypeReference<T extends org.fisco.bcos.sdk.v3.codec.datatypes.Type>
         implements Comparable<TypeReference<T>> {
     protected static Pattern ARRAY_SUFFIX = Pattern.compile("\\[(\\d*)]");
-    private final Type type;
+    protected static Pattern TUPLE_PREFIX = Pattern.compile("^tuple");
+    private final java.lang.reflect.Type type;
     private final boolean indexed;
 
     protected TypeReference() {
@@ -27,7 +28,7 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.v3.codec.dataty
     }
 
     protected TypeReference(boolean indexed) {
-        Type superclass = getClass().getGenericSuperclass();
+        java.lang.reflect.Type superclass = getClass().getGenericSuperclass();
         if (superclass instanceof Class) {
             throw new RuntimeException("Missing type parameter.");
         }
@@ -35,8 +36,8 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.v3.codec.dataty
         this.indexed = indexed;
     }
 
-    protected TypeReference(Type type) {
-        Type superclass = getClass().getGenericSuperclass();
+    protected TypeReference(java.lang.reflect.Type type) {
+        java.lang.reflect.Type superclass = getClass().getGenericSuperclass();
         if (superclass instanceof Class) {
             throw new RuntimeException("Missing type parameter.");
         }
@@ -51,7 +52,7 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.v3.codec.dataty
         return 0;
     }
 
-    public Type getType() {
+    public java.lang.reflect.Type getType() {
         return type;
     }
 
@@ -68,12 +69,23 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.v3.codec.dataty
      */
     @SuppressWarnings("unchecked")
     public Class<T> getClassType() throws ClassNotFoundException {
-        Type clsType = getType();
+        java.lang.reflect.Type clsType = getType();
 
         if (clsType instanceof ParameterizedType) {
             return (Class<T>) ((ParameterizedType) clsType).getRawType();
         } else {
             return (Class<T>) Class.forName(clsType.getTypeName());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public T getRawType() throws ClassNotFoundException {
+        java.lang.reflect.Type clsType = getType();
+
+        if (clsType instanceof ParameterizedType) {
+            return (T) ((ParameterizedType) clsType).getRawType();
+        } else {
+            return (T) clsType;
         }
     }
 
@@ -86,7 +98,7 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.v3.codec.dataty
             Class<T> cls, boolean indexed) {
         return new TypeReference<T>(indexed) {
             @Override
-            public Type getType() {
+            public java.lang.reflect.Type getType() {
                 return cls;
             }
         };
@@ -141,6 +153,7 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.v3.codec.dataty
             throws ClassNotFoundException {
         Matcher nextSquareBrackets = ARRAY_SUFFIX.matcher(type);
         if (!nextSquareBrackets.find()) {
+            // not an array
             final Class<? extends org.fisco.bcos.sdk.v3.codec.datatypes.Type> typeClass =
                     getAtomicTypeClass(type);
             return create(typeClass, indexed);
@@ -222,7 +235,7 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.v3.codec.dataty
             }
             lastReadStringPosition = nextSquareBrackets.end();
             nextSquareBrackets = ARRAY_SUFFIX.matcher(type);
-            // cant find any more [] and string isn't fully parsed
+            // cant find anymore [] and string isn't fully parsed
             if (!nextSquareBrackets.find(lastReadStringPosition) && lastReadStringPosition != len) {
                 throw new ClassNotFoundException("Unable to make TypeReference from " + type);
             }

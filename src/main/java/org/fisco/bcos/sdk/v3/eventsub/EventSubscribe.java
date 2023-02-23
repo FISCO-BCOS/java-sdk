@@ -68,11 +68,11 @@ public interface EventSubscribe {
     /**
      * Subscribe event
      *
-     * @param fromBlk
-     * @param toBlk
-     * @param eventLogAddrAndTopics
-     * @param callback
-     * @return
+     * @param fromBlk block number from
+     * @param toBlk block number to
+     * @param eventLogAddrAndTopics event
+     * @param callback callback when get events
+     * @return event
      */
     String subscribeEvent(
             BigInteger fromBlk,

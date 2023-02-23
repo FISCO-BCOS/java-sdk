@@ -32,10 +32,10 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.abi.Constant;
-import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ContractCodecTools;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.Response;
@@ -631,10 +631,16 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                         try {
                             CallResponse callResponse =
                                     parseCallResponseStatus(call.getCallResult());
-                            List<Type> decodedResult =
-                                    contractCodec.decodeMethodByABIDefinition(
+                            ABIObject decodedResult =
+                                    contractCodec.decodeMethodAndGetOutAbiObjectByABIDefinition(
                                             abiDefinition, call.getCallResult().getOutput());
-                            callResponse.setResults(decodedResult);
+                            Pair<List<Object>, List<ABIObject>> outputObject =
+                                    ContractCodecTools.decodeJavaObjectAndGetOutputObject(
+                                            decodedResult);
+                            callResponse.setReturnObject(outputObject.getLeft());
+                            callResponse.setReturnABIObject(outputObject.getRight());
+                            callResponse.setResults(
+                                    ContractCodecTools.getABIObjectTypeListResult(decodedResult));
                             callback.onResponse(callResponse);
                         } catch (TransactionBaseException | ContractCodecException e) {
                             Response response = new Response();
@@ -656,10 +662,14 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
-        List<Type> decodedResult =
-                this.contractCodec.decodeMethodAndGetOutputObject(
+        ABIObject decodedResult =
+                this.contractCodec.decodeMethodAndGetOutputAbiObject(
                         abi, functionName, call.getCallResult().getOutput());
-        callResponse.setResults(decodedResult);
+        Pair<List<Object>, List<ABIObject>> outputObject =
+                ContractCodecTools.decodeJavaObjectAndGetOutputObject(decodedResult);
+        callResponse.setReturnObject(outputObject.getLeft());
+        callResponse.setReturnABIObject(outputObject.getRight());
+        callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(decodedResult));
         return callResponse;
     }
 
@@ -668,10 +678,14 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
-        List<Type> decodedResult =
-                this.contractCodec.decodeMethodByABIDefinition(
+        ABIObject abiObject =
+                contractCodec.decodeMethodAndGetOutAbiObjectByABIDefinition(
                         abiDefinition, call.getCallResult().getOutput());
-        callResponse.setResults(decodedResult);
+        Pair<List<Object>, List<ABIObject>> outputObject =
+                ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
+        callResponse.setReturnObject(outputObject.getLeft());
+        callResponse.setReturnABIObject(outputObject.getRight());
+        callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(abiObject));
         return callResponse;
     }
 

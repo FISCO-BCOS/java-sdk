@@ -9,15 +9,19 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Array;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Bool;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Bytes;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicBytes;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicStruct;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Int;
 import org.fisco.bcos.sdk.v3.codec.datatypes.StaticArray;
 import org.fisco.bcos.sdk.v3.codec.datatypes.StaticStruct;
+import org.fisco.bcos.sdk.v3.codec.datatypes.StructType;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Uint;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Bytes32;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int256;
@@ -58,6 +62,8 @@ public class ContractCodecTools {
             list = (List<Object>) value;
         } else if (value instanceof DynamicArray) {
             list = (List<Object>) ((DynamicArray<?>) value).getValue();
+        } else if (value instanceof StaticArray) {
+            list = (List<Object>) ((StaticArray<?>) value).getValue();
         } else {
             Object[] objs = (Object[]) value;
             Collections.addAll(list, objs);
@@ -139,7 +145,44 @@ public class ContractCodecTools {
                 }
                 abiObject.getStructFields().set(i, nodeObject);
             }
+        } else if (StructType.class.isAssignableFrom(value.getClass())) {
+            // raw struct
+            Array<?> array;
+            if (template.isDynamic()) {
+                array = (DynamicStruct) value;
+            } else {
+                array = (StaticStruct) value;
+            }
+            for (int i = 0; i < abiObject.getStructFields().size(); ++i) {
+                ABIObject nodeObject = abiObject.getStructFields().get(i);
+                switch (nodeObject.getType()) {
+                    case VALUE:
+                        {
+                            nodeObject = decodeABIObjectValue(nodeObject, array.getValue().get(i));
+                            break;
+                        }
+                    case STRUCT:
+                        {
+                            nodeObject =
+                                    decodeAbiObjectStructValue(nodeObject, array.getValue().get(i));
+                            break;
+                        }
+                    case LIST:
+                        {
+                            nodeObject =
+                                    decodeAbiObjectListValue(nodeObject, array.getValue().get(i));
+                            break;
+                        }
+                    default:
+                        {
+                            throw new UnsupportedOperationException(
+                                    " Unsupported objectType: " + nodeObject.getType());
+                        }
+                }
+                abiObject.getStructFields().set(i, nodeObject);
+            }
         } else {
+            // scan class define fields
             Field[] fields = value.getClass().getDeclaredFields();
             Map<String, Object> v = new HashMap<>();
             try {
@@ -198,6 +241,8 @@ public class ContractCodecTools {
                     {
                         if (value instanceof Boolean) {
                             abiObject.setBoolValue(new Bool((Boolean) value));
+                        } else if (value instanceof Bool) {
+                            abiObject.setBoolValue((Bool) value);
                         } else {
                             errorReport(
                                     " valueType mismatch",
@@ -210,6 +255,8 @@ public class ContractCodecTools {
                     {
                         if (value instanceof BigInteger) {
                             abiObject.setNumericValue(new Uint256((BigInteger) value));
+                        } else if (Uint.class.isAssignableFrom(value.getClass())) {
+                            abiObject.setNumericValue((Uint) value);
                         } else if (NumberUtils.isCreatable(value.toString())) {
                             abiObject.setNumericValue(
                                     new Uint256((new BigInteger(value.toString()))));
@@ -225,6 +272,8 @@ public class ContractCodecTools {
                     {
                         if (value instanceof BigInteger) {
                             abiObject.setNumericValue(new Int256((BigInteger) value));
+                        } else if (Int.class.isAssignableFrom(value.getClass())) {
+                            abiObject.setNumericValue((Int) value);
                         } else if (NumberUtils.isCreatable(value.toString())) {
                             abiObject.setNumericValue(
                                     new Uint256((new BigInteger(value.toString()))));
@@ -240,6 +289,8 @@ public class ContractCodecTools {
                     {
                         if (value instanceof String) {
                             abiObject.setAddressValue(new Address((String) value));
+                        } else if (value instanceof Address) {
+                            abiObject.setAddressValue((Address) value);
                         } else {
                             errorReport(
                                     " valueType mismatch",
@@ -268,6 +319,8 @@ public class ContractCodecTools {
                         if (value instanceof byte[]) {
                             byte[] bytesValue = (byte[]) value;
                             abiObject.setDynamicBytesValue(new DynamicBytes(bytesValue));
+                        } else if (value instanceof DynamicBytes) {
+                            abiObject.setDynamicBytesValue((DynamicBytes) value);
                         } else {
                             errorReport(
                                     " valueType mismatch",
@@ -281,6 +334,8 @@ public class ContractCodecTools {
                     {
                         if (value instanceof String) {
                             abiObject.setStringValue(new Utf8String((String) value));
+                        } else if (value instanceof Utf8String) {
+                            abiObject.setStringValue((Utf8String) value);
                         } else {
                             errorReport(
                                     " valueType mismatch",
@@ -368,7 +423,6 @@ public class ContractCodecTools {
                     for (ABIObject listValue : abiObject.getListValues()) {
                         typeList.add(getABIObjectTypeValue(listValue));
                     }
-                    // FIXME: this will cause exception when empty list
                     if (abiObject.isDynamic()) {
                         DynamicArray dynamicArray = null;
                         if (typeList.isEmpty()) {
@@ -391,6 +445,19 @@ public class ContractCodecTools {
                             " Unsupported type: " + abiObject.getType());
                 }
         }
+    }
+
+    public static List<Type> getABIObjectTypeListResult(ABIObject abiObject) {
+        Type structResult = getABIObjectTypeValue(abiObject);
+        if (structResult instanceof DynamicStruct) {
+            DynamicStruct result = (DynamicStruct) structResult;
+            return result.getComponentTypes();
+        }
+        if (structResult instanceof StaticStruct) {
+            StaticStruct result = (StaticStruct) structResult;
+            return result.getComponentTypes();
+        }
+        return new ArrayList<>();
     }
 
     /**
@@ -754,7 +821,7 @@ public class ContractCodecTools {
         }
     }
 
-    private static Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndGetOutputObject(
+    public static Pair<List<Object>, List<ABIObject>> decodeJavaObjectAndGetOutputObject(
             ABIObject template) throws UnsupportedOperationException {
         List<Object> result = new ArrayList<>();
         List<ABIObject> argObjects;

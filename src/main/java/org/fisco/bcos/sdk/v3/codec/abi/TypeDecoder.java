@@ -250,6 +250,7 @@ public class TypeDecoder {
                 String typeName = Utils.getSimpleTypeName(cls);
                 return consumer.apply(elements, typeName);
             } else if (Array.class.isAssignableFrom(cls)) {
+                // FIXME
                 throw new UnsupportedOperationException(
                         "Arrays of arrays are not currently supported for external functions");
             } else {

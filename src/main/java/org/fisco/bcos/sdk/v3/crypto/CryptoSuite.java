@@ -344,7 +344,6 @@ public class CryptoSuite {
     /**
      * Create key pair from a private key string
      *
-     * @param hexedPrivateKey a hex string of private key
      * @return CryptoKeyPair type key pair
      */
     public CryptoKeyPair loadHsmKeyPair() {
