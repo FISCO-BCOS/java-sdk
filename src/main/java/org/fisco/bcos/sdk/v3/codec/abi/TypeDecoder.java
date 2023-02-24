@@ -2,6 +2,7 @@ package org.fisco.bcos.sdk.v3.codec.abi;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -56,7 +57,15 @@ public class TypeDecoder {
         } else if (Utf8String.class.isAssignableFrom(cls)) {
             return (T) decodeUtf8String(input, offset);
         } else if (StaticArray.class.isAssignableFrom(cls)) {
-            int length = ((TypeReference.StaticArrayTypeReference<?>) type).getSize();
+            int length;
+            if (cls == StaticArray.class) {
+                length = ((TypeReference.StaticArrayTypeReference<?>) type).getSize();
+            } else {
+                length =
+                        Integer.parseInt(
+                                cls.getSimpleName()
+                                        .substring(StaticArray.class.getSimpleName().length()));
+            }
             return decodeStaticArray(input, offset, type, length);
         } else if (DynamicArray.class.isAssignableFrom(cls)) {
             return decodeDynamicArray(input, offset, type);
@@ -207,7 +216,12 @@ public class TypeDecoder {
         int length = decodeUintAsInt(input, offset);
 
         BiFunction<List<T>, String, T> function =
-                (elements, typeName) -> (T) new DynamicArray(AbiTypes.getType(typeName), elements);
+                (elements, typeName) -> {
+                    if (elements.isEmpty()) {
+                        return (T) new DynamicArray(AbiTypes.getType(typeName), elements);
+                    }
+                    return (T) new DynamicArray<>(elements);
+                };
 
         int valueOffset = offset + Type.MAX_BYTE_LENGTH;
 
@@ -220,60 +234,89 @@ public class TypeDecoder {
             TypeReference<T> typeReference,
             int length,
             BiFunction<List<T>, String, T> consumer) {
+        List<T> elements = new ArrayList<>(length);
         try {
-            Class<T> cls = Utils.getParameterizedTypeFromArray(typeReference);
-            if (StructType.class.isAssignableFrom(cls)) {
-                List<T> elements = new ArrayList<>(length);
+            java.lang.reflect.Type[] types =
+                    ((ParameterizedType) typeReference.getType()).getActualTypeArguments();
+            // cls without parameterized type
+            Class<T> classType = Utils.getClassType(types[0]);
+            if (StructType.class.isAssignableFrom(classType)) {
                 for (int i = 0, currOffset = offset;
                         i < length;
                         i++,
                                 currOffset +=
-                                        getSingleElementLength(input, currOffset, cls)
+                                        getSingleElementLength(input, currOffset, classType)
                                                 * Type.MAX_BYTE_LENGTH) {
                     T value;
-                    if (DynamicStruct.class.isAssignableFrom(cls)) {
+                    if (DynamicStruct.class.isAssignableFrom(classType)) {
                         value =
                                 TypeDecoder.decodeDynamicStruct(
                                         input,
                                         offset
                                                 + FunctionReturnDecoder.getDataOffset(
                                                         input, currOffset, typeReference),
-                                        TypeReference.create(cls));
+                                        TypeReference.create(types[0]));
                     } else {
                         value =
                                 TypeDecoder.decodeStaticStruct(
-                                        input, currOffset, TypeReference.create(cls));
+                                        input, currOffset, TypeReference.create(types[0]));
                     }
                     elements.add(value);
                 }
 
-                String typeName = Utils.getSimpleTypeName(cls);
+                String typeName = Utils.getSimpleTypeName(classType);
                 return consumer.apply(elements, typeName);
-            } else if (Array.class.isAssignableFrom(cls)) {
-                // FIXME
-                throw new UnsupportedOperationException(
-                        "Arrays of arrays are not currently supported for external functions");
             } else {
-                List<T> elements = new ArrayList<>(length);
                 int currOffset = offset;
                 for (int i = 0; i < length; i++) {
                     T value;
-                    if (isDynamic(cls)) {
-                        int getOffset =
-                                FunctionReturnDecoder.getDataOffset(
-                                        input, currOffset, typeReference);
-                        value = decode(input, offset + getOffset, TypeReference.create(cls));
-                        currOffset += Type.MAX_BYTE_LENGTH;
+                    if (Array.class.isAssignableFrom(classType)) {
+                        if (StaticArray.class.isAssignableFrom(classType)) {
+                            int size =
+                                    Integer.parseInt(
+                                            Utils.getSimpleTypeName(classType)
+                                                    .substring(
+                                                            StaticArray.class
+                                                                    .getSimpleName()
+                                                                    .length()));
+                            value =
+                                    decodeStaticArray(
+                                            input,
+                                            currOffset,
+                                            TypeReference.create(types[0]),
+                                            size);
+                        } else {
+                            int getOffset =
+                                    FunctionReturnDecoder.getDataOffset(
+                                            input, currOffset, TypeReference.create(types[0]));
+                            value =
+                                    decodeDynamicArray(
+                                            input,
+                                            offset + getOffset,
+                                            TypeReference.create(types[0]));
+                        }
                     } else {
-                        value = decode(input, currOffset, TypeReference.create(cls));
-                        currOffset +=
-                                getSingleElementLength(input, currOffset, cls)
-                                        * Type.MAX_BYTE_LENGTH;
+                        if (isDynamic(classType)) {
+                            int getOffset =
+                                    FunctionReturnDecoder.getDataOffset(
+                                            input, currOffset, typeReference);
+                            value =
+                                    decode(
+                                            input,
+                                            offset + getOffset,
+                                            TypeReference.create(types[0]));
+                            currOffset += Type.MAX_BYTE_LENGTH;
+                        } else {
+                            value = decode(input, currOffset, TypeReference.create(types[0]));
+                            currOffset +=
+                                    getSingleElementLength(input, currOffset, classType)
+                                            * Type.MAX_BYTE_LENGTH;
+                        }
                     }
                     elements.add(value);
                 }
 
-                String typeName = Utils.getSimpleTypeName(cls);
+                String typeName = Utils.getSimpleTypeName(classType);
                 return consumer.apply(elements, typeName);
             }
         } catch (ClassNotFoundException e) {

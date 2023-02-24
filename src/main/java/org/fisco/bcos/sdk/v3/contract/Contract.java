@@ -34,6 +34,7 @@ import org.fisco.bcos.sdk.v3.codec.EventValues;
 import org.fisco.bcos.sdk.v3.codec.FunctionEncoderInterface;
 import org.fisco.bcos.sdk.v3.codec.FunctionReturnDecoderInterface;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Array;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Event;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
@@ -441,7 +442,11 @@ public class Contract {
     public static <S extends Type, T> List<T> convertToNative(List<S> arr) {
         List<T> out = new ArrayList<T>();
         for (S s : arr) {
-            out.add((T) s.getValue());
+            if (Array.class.isAssignableFrom(s.getClass())) {
+                out.add((T) convertToNative((List<? extends Type>) ((Array) s).getValue()));
+            } else {
+                out.add((T) s.getValue());
+            }
         }
         return out;
     }

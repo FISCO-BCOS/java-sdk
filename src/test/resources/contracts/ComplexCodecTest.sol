@@ -61,6 +61,16 @@ contract ComplexCodecTest {
         return a_struct;
     }
 
+    function buildStructA(string memory value_str, bytes32[] memory _b, uint8 size) public returns (StructA[] memory)
+    {
+        string[] memory s = new string[](2);
+        s[0] = value_str;
+        a_struct = StructA(s, _b);
+        StructA[] memory ss = new StructA[](size);
+        ss[0] = a_struct;
+        return ss;
+    }
+
     function buildStructB(StructA memory a) public returns (StructB memory, StructA[] memory){
         StructB memory b_struct;
         a_struct = a;
