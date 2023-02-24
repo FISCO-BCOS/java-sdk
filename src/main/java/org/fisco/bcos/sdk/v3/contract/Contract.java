@@ -41,8 +41,11 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
+import org.fisco.bcos.sdk.v3.model.callback.CallCallback;
+import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
@@ -260,6 +263,54 @@ public class Contract {
                     e,
                     response.getCallResult());
         }
+    }
+
+    protected void asyncExecuteCall(Function function, CallCallback callback) {
+        byte[] encodedFunctionData = this.functionEncoder.encode(function);
+        CallRequest callRequest =
+                new CallRequest(
+                        this.credential.getAddress(), this.contractAddress, encodedFunctionData);
+        transactionProcessor.asyncExecuteCall(
+                callRequest,
+                new RespCallback<Call>() {
+                    @Override
+                    public void onResponse(Call response) {
+                        String callResult = response.getCallResult().getOutput();
+                        if (response.getCallResult().getStatus() != 0) {
+                            logger.warn(
+                                    "status of executeCall is non-success, status: {}, callResult: {}",
+                                    response.getCallResult().getStatus(),
+                                    response.getCallResult());
+                            callback.onError(
+                                    new Response(
+                                            response.getCallResult().getStatus(),
+                                            "execute "
+                                                    + function.getName()
+                                                    + " failed for non-zero status "
+                                                    + response.getCallResult().getStatus()));
+                            return;
+                        }
+                        List<Type> result;
+                        try {
+                            result =
+                                    functionReturnDecoder.decode(
+                                            callResult, function.getOutputParameters());
+                        } catch (Exception e) {
+                            callback.onError(
+                                    new Response(
+                                            -1,
+                                            "decode callResult failed, error info: "
+                                                    + e.getMessage()));
+                            return;
+                        }
+                        callback.onResponse(result);
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        callback.onError(errorResponse);
+                    }
+                });
     }
 
     protected <T extends Type, R> R executeCallWithSingleValueReturn(

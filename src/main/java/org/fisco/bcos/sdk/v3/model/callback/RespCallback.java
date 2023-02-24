@@ -13,7 +13,7 @@
  *
  */
 
-package org.fisco.bcos.sdk.v3.client;
+package org.fisco.bcos.sdk.v3.model.callback;
 
 import org.fisco.bcos.sdk.v3.model.Response;
 
