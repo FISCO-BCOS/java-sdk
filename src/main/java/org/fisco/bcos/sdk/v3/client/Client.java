@@ -42,6 +42,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
