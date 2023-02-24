@@ -39,7 +39,6 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint8;
-import org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder;
 import org.fisco.bcos.sdk.v3.codec.scale.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinitionFactory;
@@ -74,7 +73,8 @@ public class ContractCodec {
         this.cryptoSuite = cryptoSuite;
         this.isWasm = isWasm;
         if (isWasm) {
-            this.functionEncoder = new FunctionEncoder(cryptoSuite);
+            this.functionEncoder =
+                    new org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder(cryptoSuite);
             this.functionReturnDecoder = new FunctionReturnDecoder();
         } else {
             this.functionEncoder = new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite);
@@ -108,7 +108,6 @@ public class ContractCodec {
         if (paramType.isList()) {
             List elements = new ArrayList();
             JsonNode jsonNode = this.objectMapper.readTree(param);
-            assert jsonNode.isArray();
 
             ABIDefinition.NamedType subType = new ABIDefinition.NamedType();
             subType.setType(paramType.reduceDimensionAndGetType().getType());
@@ -138,7 +137,6 @@ public class ContractCodec {
         } else if (typeStr.equals("tuple")) {
             List<Type> components = new ArrayList<>();
             JsonNode jsonNode = this.objectMapper.readTree(param);
-            assert jsonNode.isObject();
             for (ABIDefinition.NamedType component : namedType.getComponents()) {
                 JsonNode subNode = jsonNode.get(component.getName());
                 String subNodeStr =
@@ -344,17 +342,9 @@ public class ContractCodec {
         }
 
         try {
-            List<Type> types = new ArrayList<>();
-            for (int i = 0; i < inputTypes.size(); ++i) {
-                types.add(buildType(inputTypes.get(i), params.get(i)));
-            }
-            byte[] paramBytes;
-            if (isWasm) {
-                paramBytes = FunctionEncoder.encodeConstructor(types);
-            } else {
-                paramBytes =
-                        org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder.encodeConstructor(types);
-            }
+            ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+            ABIObject abiObject = contractCodecJsonWrapper.encode(inputObject, params);
+            byte[] paramBytes = abiObject.encode(isWasm);
             return encodeConstructorFromBytes(bin, paramBytes);
         } catch (Exception e) {
             String errorMsg =
@@ -383,7 +373,9 @@ public class ContractCodec {
                 } else {
                     deployParams.add(new Uint8(0));
                 }
-                outputStream.write(FunctionEncoder.encodeParameters(deployParams, null));
+                outputStream.write(
+                        org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder.encodeParameters(
+                                deployParams, null));
             }
             return outputStream.toByteArray();
         } catch (Exception e) {
@@ -491,24 +483,14 @@ public class ContractCodec {
 
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
-                List<ABIDefinition.NamedType> inputs = abiDefinition.getInputs();
-                List<Type> inputTypes = new ArrayList<>();
+                ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 try {
-                    for (int i = 0; i < inputs.size(); ++i) {
-                        inputTypes.add(buildType(inputs.get(i), params.get(i)));
-                    }
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    String signature =
-                            FunctionEncoderInterface.buildMethodSignature(
-                                    abiDefinition.getName(), inputTypes);
-                    byte[] methodID = this.functionEncoder.buildMethodId(signature);
-                    if (this.isWasm) {
-                        outputStream.write(FunctionEncoder.encodeParameters(inputTypes, methodID));
-                    } else {
-                        outputStream.write(
-                                org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder.encodeParameters(
-                                        inputTypes, methodID));
-                    }
+                    byte[] methodId = abiDefinition.getMethodId(cryptoSuite);
+                    ABIObject abiObject = contractCodecJsonWrapper.encode(inputObject, params);
+                    byte[] encode = abiObject.encode(isWasm);
+                    outputStream.write(methodId);
+                    outputStream.write(encode);
                     return outputStream.toByteArray();
                 } catch (IOException e) {
                     logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
@@ -530,20 +512,16 @@ public class ContractCodec {
             logger.error(Constant.NO_APPROPRIATE_ABI_METHOD);
             throw new ContractCodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
         }
-        List<ABIDefinition.NamedType> inputs = abiDefinition.getInputs();
-        List<Type> inputTypes = new ArrayList<>();
         try {
-            for (int i = 0; i < inputs.size(); ++i) {
-                inputTypes.add(buildType(inputs.get(i), params.get(i)));
-            }
+            ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+            ABIObject abiObject = contractCodecJsonWrapper.encode(inputObject, params);
+            byte[] encode = abiObject.encode(isWasm);
+
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            if (this.isWasm) {
-                outputStream.write(FunctionEncoder.encodeParameters(inputTypes, methodId));
-            } else {
-                outputStream.write(
-                        org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder.encodeParameters(
-                                inputTypes, methodId));
+            if (methodId != null) {
+                outputStream.write(methodId);
             }
+            outputStream.write(encode);
             return outputStream.toByteArray();
         } catch (IOException e) {
             logger.error(" exception in encodeMethodByIdFromString : {}", e.getMessage());
@@ -587,11 +565,17 @@ public class ContractCodec {
 
     public Pair<List<Object>, List<ABIObject>> decodeMethodAndGetInputObject(
             ABIDefinition abiDefinition, String input) throws ContractCodecException {
+        ABIObject abiObject = decodeMethodAndGetInputObjectByABIDefinition(abiDefinition, input);
+        return ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
+    }
+
+    public ABIObject decodeMethodAndGetInputObjectByABIDefinition(
+            ABIDefinition abiDefinition, String input) throws ContractCodecException {
         ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
         try {
             boolean startWithHexPrefix = input.startsWith("0x") || input.startsWith("0X");
-            return ContractCodecTools.decodeJavaObjectAndOutputObject(
-                    inputObject, input.substring(startWithHexPrefix ? 10 : 8), isWasm);
+            return ContractCodecTools.decode(
+                    inputObject, Hex.decode(input.substring(startWithHexPrefix ? 10 : 8)), isWasm);
         } catch (Exception e) {
             logger.error(" exception in decodeMethodToObject : ", e);
         }
@@ -601,6 +585,7 @@ public class ContractCodec {
         throw new ContractCodecException(errorMsg);
     }
 
+    @Deprecated
     public List<Type> decodeMethodAndGetInputObject(String abi, String methodName, String input)
             throws ContractCodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
@@ -623,6 +608,31 @@ public class ContractCodec {
         String errorMsg =
                 String.format(
                         "cannot decode in decodeMethodAndGetInputObject with appropriate interface ABI: methodName = %s",
+                        methodName);
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public ABIObject decodeMethodAndGetInputABIObject(String abi, String methodName, String input)
+            throws ContractCodecException {
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
+        List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        for (ABIDefinition abiDefinition : methods) {
+            ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+            try {
+                boolean startWithHexPrefix = Hex.hasHexPrefix(input);
+                return ContractCodecTools.decode(
+                        inputObject,
+                        Hex.decode(input.substring(startWithHexPrefix ? 10 : 8)),
+                        isWasm);
+            } catch (Exception e) {
+                logger.error("exception in decodeMethodToObject: {}, e:", e.getMessage(), e);
+            }
+        }
+
+        String errorMsg =
+                String.format(
+                        "cannot decode in decodeMethodAndGetInputABIObject with appropriate interface ABI: methodName = %s",
                         methodName);
         logger.error(errorMsg);
         throw new ContractCodecException(errorMsg);
@@ -667,9 +677,10 @@ public class ContractCodec {
         return this.decodeMethodAndGetInputObject(abiDefinition, input).getLeft();
     }
 
-    public List<Type> decodeMethodInput(String ABI, String methodName, String input)
+    @Deprecated
+    public List<Type> decodeMethodInput(String abi, String methodName, String input)
             throws ContractCodecException {
-        return this.decodeMethodAndGetInputObject(ABI, methodName, input);
+        return this.decodeMethodAndGetInputObject(abi, methodName, input);
     }
 
     public List<Object> decodeMethodInputById(String abi, byte[] methodId, byte[] input)
@@ -764,18 +775,49 @@ public class ContractCodec {
 
     public Pair<List<Object>, List<ABIObject>> decodeMethodAndGetOutputObject(
             ABIDefinition abiDefinition, String output) throws ContractCodecException {
+        ABIObject abiObject = decodeMethodAndGetOutAbiObjectByABIDefinition(abiDefinition, output);
+        return ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
+    }
+
+    public ABIObject decodeMethodAndGetOutAbiObjectByABIDefinition(
+            ABIDefinition abiDefinition, String output) throws ContractCodecException {
         ABIObject outputABIObject = ABIObjectFactory.createOutputObject(abiDefinition);
         try {
-            return ContractCodecTools.decodeJavaObjectAndOutputObject(
-                    outputABIObject, output, isWasm);
+            return ContractCodecTools.decode(outputABIObject, Hex.decode(output), isWasm);
         } catch (Exception e) {
-            logger.error(" exception in decodeMethodToObject : ", e);
+            logger.error(" exception in decodeMethodAndGetAbiObjectByABIDefinition : ", e);
         }
-        String errorMsg = " cannot decode in decodeMethodToObject with appropriate interface ABI";
+        String errorMsg =
+                " cannot decode in decodeMethodAndGetAbiObjectByABIDefinition with appropriate interface ABI";
         logger.error(errorMsg);
         throw new ContractCodecException(errorMsg);
     }
 
+    public ABIObject decodeMethodAndGetOutputAbiObject(String abi, String methodName, String output)
+            throws ContractCodecException {
+        ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
+        List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        for (ABIDefinition abiDefinition : methods) {
+            ABIObject outputABIObject = ABIObjectFactory.createOutputObject(abiDefinition);
+            try {
+                return ContractCodecTools.decode(outputABIObject, Hex.decode(output), isWasm);
+            } catch (Exception e) {
+                logger.error(
+                        "exception in decodeMethodAndGetOutputAbiObject: {}, e:",
+                        e.getMessage(),
+                        e);
+            }
+        }
+
+        String errorMsg =
+                String.format(
+                        "cannot decode in decodeMethodAndGetOutputAbiObject with appropriate interface ABI: methodName = %s",
+                        methodName);
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    @Deprecated
     public List<Type> decodeMethodAndGetOutputObject(String abi, String methodName, String output)
             throws ContractCodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
@@ -801,6 +843,7 @@ public class ContractCodec {
         throw new ContractCodecException(errorMsg);
     }
 
+    @Deprecated
     public List<Type> decodeMethodByABIDefinition(ABIDefinition abiDefinition, String output)
             throws ContractCodecException {
         List<ABIDefinition.NamedType> outputs = abiDefinition.getOutputs();
@@ -826,9 +869,10 @@ public class ContractCodec {
         return this.decodeMethodAndGetOutputObject(abiDefinition, output).getLeft();
     }
 
-    public List<Type> decodeMethod(String ABI, String methodName, String output)
+    @Deprecated
+    public List<Type> decodeMethod(String abi, String methodName, String output)
             throws ContractCodecException {
-        return this.decodeMethodAndGetOutputObject(ABI, methodName, output);
+        return this.decodeMethodAndGetOutputObject(abi, methodName, output);
     }
 
     public List<Object> decodeMethodById(String abi, byte[] methodId, byte[] output)

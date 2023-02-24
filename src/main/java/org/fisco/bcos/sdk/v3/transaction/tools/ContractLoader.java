@@ -41,10 +41,10 @@ import org.slf4j.LoggerFactory;
  */
 public class ContractLoader {
     private static final Logger log = LoggerFactory.getLogger(ContractLoader.class);
-    private Map<String, List<ABIDefinition>> contractFuncAbis = new HashMap<>();
-    private Map<String, ABIDefinition> contractConstructorAbi = new HashMap<>();
-    private Map<String, String> contractBinMap = new HashMap<>();
-    private Map<String, String> contractAbiMap = new HashMap<>();
+    private final Map<String, List<ABIDefinition>> contractFuncAbis = new HashMap<>();
+    private final Map<String, ABIDefinition> contractConstructorAbi = new HashMap<>();
+    private final Map<String, String> contractBinMap = new HashMap<>();
+    private final Map<String, String> contractAbiMap = new HashMap<>();
 
     /**
      * create ContractLoader, which load abi and binary files from configured file path
@@ -160,7 +160,6 @@ public class ContractLoader {
             log.warn("No bin found, cannot deploy any contract");
             return new BinInfo(Collections.emptyMap());
         }
-        this.contractBinMap = new HashMap<>();
         for (File file : fileCollection) {
             String contract = parseContractName(file);
             String bin = FileUtils.readFileToString(file);
@@ -229,7 +228,7 @@ public class ContractLoader {
      * @throws NoSuchTransactionFileException throw when loader not contains contract name
      */
     public String getABIByContractName(String contractName) throws NoSuchTransactionFileException {
-        if (contractAbiMap.get(contractName) == null) {
+        if (!contractAbiMap.containsKey(contractName) || contractAbiMap.get(contractName) == null) {
             log.error("Contract {} not found.", contractName);
             throw new NoSuchTransactionFileException(TransactionRetCodeConstants.NO_SUCH_ABI_FILE);
         }
@@ -245,7 +244,7 @@ public class ContractLoader {
      */
     public String getBinaryByContractName(String contractName)
             throws NoSuchTransactionFileException {
-        if (contractBinMap.get(contractName) == null) {
+        if (!contractBinMap.containsKey(contractName) || contractBinMap.get(contractName) == null) {
             log.error("Contract {} not found.", contractName);
             throw new NoSuchTransactionFileException(
                     TransactionRetCodeConstants.NO_SUCH_BINARY_FILE);

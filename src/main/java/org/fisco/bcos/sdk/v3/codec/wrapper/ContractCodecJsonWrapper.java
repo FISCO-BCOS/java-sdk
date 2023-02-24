@@ -20,6 +20,7 @@ import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject.ListType;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
+import org.fisco.bcos.sdk.v3.utils.exceptions.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -290,13 +291,19 @@ public class ContractCodecJsonWrapper {
     public static byte[] tryDecodeInputData(String inputData) {
         if (inputData.startsWith(HexEncodedDataPrefix)) {
             String hexString = inputData.substring(HexEncodedDataPrefix.length());
-            if (hexString.startsWith("0x")) {
-                return Hex.decode(hexString.substring(2));
-            } else {
-                return Hex.decode(hexString);
+            return Hex.decode(hexString);
+        } else {
+            // try to decode hex input
+            try {
+                byte[] decode = Hex.decode(inputData);
+                if (decode.length == 0) {
+                    return null;
+                }
+                return decode;
+            } catch (DecoderException ignored) {
+                return null;
             }
         }
-        return null;
     }
 
     public ABIObject encode(ABIObject template, List<String> inputs) throws IOException {
