@@ -126,12 +126,13 @@ public class BFSService {
      */
     public BFSInfo isExist(String absolutePath) throws ContractException {
         PrecompiledVersionCheck.LS_PAGE_VERSION.checkVersion(currentVersion);
-        if (absolutePath.endsWith("/")) {
-            absolutePath = absolutePath.substring(0, absolutePath.length() - 1);
+        Tuple2<String, String> parentPathAndBaseName =
+                BFSUtils.getParentPathAndBaseName(absolutePath);
+        String parent = parentPathAndBaseName.getValue1();
+        String child = parentPathAndBaseName.getValue2();
+        if (BFSUtils.BFS_SYSTEM_PATH.contains(absolutePath)) {
+            return new BFSInfo(child, BFSUtils.BFS_TYPE_DIR);
         }
-        int index = absolutePath.lastIndexOf('/');
-        String parent = absolutePath.substring(0, index);
-        String child = absolutePath.substring(index + 1);
         int offset = 0;
         int limit = 500;
         while (true) {
