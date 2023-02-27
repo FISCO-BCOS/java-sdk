@@ -46,6 +46,15 @@ public class BFSService {
                 transactionReceipt, tr -> bfsPrecompiled.getMkdirOutput(tr).getValue1());
     }
 
+    // deprecated, use list(String absolutePath, BigInteger offset, BigInteger limit)
+
+    /**
+     * @param path absolute path
+     * @return If path is a directory, then return sub files; if path is a link, then return
+     *     fileName and link-address in ext.
+     * @deprecated use {@link #list(String, BigInteger, BigInteger)} instead.
+     */
+    @Deprecated
     public List<BFSPrecompiled.BfsInfo> list(String path) throws ContractException {
         Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
                 bfsPrecompiled.list(path);
@@ -63,6 +72,13 @@ public class BFSService {
         return listOutput.getValue2().getValue();
     }
 
+    /**
+     * @param path absolute path
+     * @return If path is a directory, then return sub files; if path is a link, then return
+     *     fileName and link-address in ext.
+     * @deprecated use {@link #list(String, BigInteger, BigInteger)} instead.
+     */
+    @Deprecated
     public List<BFSInfo> listBFSInfo(String path) throws ContractException {
         Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
                 bfsPrecompiled.list(path);
@@ -100,6 +116,40 @@ public class BFSService {
                 listOutput.getValue2().getValue().stream()
                         .map(BFSInfo::fromPrecompiledBfs)
                         .collect(Collectors.toList()));
+    }
+
+    /**
+     * check the path file is exist in BFS
+     *
+     * @param absolutePath absolute path in BFS
+     * @return if file exist, then return a BFSInfo; if not exist, then return null
+     */
+    public BFSInfo isExist(String absolutePath) throws ContractException {
+        PrecompiledVersionCheck.LS_PAGE_VERSION.checkVersion(currentVersion);
+        if (absolutePath.endsWith("/")) {
+            absolutePath = absolutePath.substring(0, absolutePath.length() - 1);
+        }
+        int index = absolutePath.lastIndexOf('/');
+        String parent = absolutePath.substring(0, index);
+        String child = absolutePath.substring(index + 1);
+        int offset = 0;
+        int limit = 500;
+        while (true) {
+            Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
+                    bfsPrecompiled.list(
+                            parent, BigInteger.valueOf(offset), BigInteger.valueOf(limit));
+            if (!listOutput.getValue1().equals(BigInteger.ZERO)) {
+                break;
+            }
+            for (BFSPrecompiled.BfsInfo bfsInfo : listOutput.getValue2().getValue()) {
+                if (bfsInfo.fileName.equals(child)) {
+                    return BFSInfo.fromPrecompiledBfs(bfsInfo);
+                }
+            }
+            offset += limit + 1;
+            limit = listOutput.getValue1().intValue();
+        }
+        return null;
     }
 
     public RetCode link(String name, String version, String contractAddress, String abi)
