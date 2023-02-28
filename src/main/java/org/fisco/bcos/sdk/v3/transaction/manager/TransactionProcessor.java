@@ -15,22 +15,27 @@
 package org.fisco.bcos.sdk.v3.transaction.manager;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.rpc.RpcServiceJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.ClientImpl;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
+import org.fisco.bcos.sdk.v3.model.callback.ResponseCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.encode.TransactionEncoderInterface;
 import org.fisco.bcos.sdk.v3.transaction.codec.encode.TransactionEncoderService;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.v3.utils.Hex;
-import org.fisco.bcos.sdk.v3.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,6 +96,30 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     @Override
     public TransactionReceipt sendTransactionAndGetReceipt(
             String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
+
+        CompletableFuture<TransactionReceipt> future = new CompletableFuture<>();
+        sendTransactionAsync(
+                to,
+                data,
+                cryptoKeyPair,
+                txAttribute,
+                new TransactionCallback() {
+                    @Override
+                    public void onResponse(TransactionReceipt receipt) {
+                        future.complete(receipt);
+                    }
+                });
+
+        TransactionReceipt transactionReceipt = null;
+        try {
+            transactionReceipt = future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return transactionReceipt;
+
+        /*
         TxPair txPair =
                 this.createSignedTransaction(
                         to,
@@ -104,7 +133,9 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                 && StringUtils.isEmpty(transactionReceipt.getTransactionHash())) {
             transactionReceipt.setTransactionHash(txPair.getTxHash());
         }
+
         return transactionReceipt;
+        */
     }
 
     @Override
@@ -120,11 +151,62 @@ public class TransactionProcessor implements TransactionProcessorInterface {
             CryptoKeyPair cryptoKeyPair,
             int txAttribute,
             TransactionCallback callback) {
+        /*
         TxPair txPair =
                 this.createSignedTransaction(
                         to, data, cryptoKeyPair, txAttribute, client.getExtraData());
         this.client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
-        return txPair.getTxHash();
+        */
+        String extraData = client.getExtraData();
+        String txHash =
+                RpcServiceJniObj.sendTransaction(
+                        this.client.getNativePointer(),
+                        cryptoKeyPair.getJniKeyPair(),
+                        this.groupId,
+                        "",
+                        Objects.nonNull(to) ? to : "",
+                        data,
+                        "",
+                        txAttribute,
+                        Objects.nonNull(extraData)? extraData : "",
+                        resp -> {
+                            org.fisco.bcos.sdk.v3.model.Response response =
+                                    new org.fisco.bcos.sdk.v3.model.Response();
+                            response.setErrorCode(resp.getErrorCode());
+                            response.setErrorMessage(resp.getErrorMessage());
+                            response.setContent(resp.getData());
+
+                            ResponseCallback responseCallback =
+                                    ClientImpl.createResponseCallback(
+                                            "sendTransaction",
+                                            BcosTransactionReceipt.class,
+                                            new RespCallback<BcosTransactionReceipt>() {
+                                                @Override
+                                                public void onResponse(
+                                                        BcosTransactionReceipt
+                                                                transactionReceiptWithProof) {
+                                                    callback.onResponse(
+                                                            transactionReceiptWithProof
+                                                                    .getTransactionReceipt());
+                                                }
+
+                                                @Override
+                                                public void onError(
+                                                        org.fisco.bcos.sdk.v3.model.Response
+                                                                errorResponse) {
+                                                    callback.onError(
+                                                            errorResponse.getErrorCode(),
+                                                            errorResponse.getErrorMessage());
+                                                }
+                                            });
+                            responseCallback.onResponse(response);
+                        });
+
+        if (log.isDebugEnabled()) {
+            log.debug("sendTransactionAsync , to: {}, tx hash: {}", to, txHash);
+        }
+
+        return txHash;
     }
 
     @Override
