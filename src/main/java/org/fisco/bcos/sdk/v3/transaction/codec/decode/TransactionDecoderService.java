@@ -100,7 +100,11 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                     ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
             response.setReturnObject(results.getLeft());
             response.setReturnABIObject(results.getRight());
-            response.setResults(ContractCodecTools.getABIObjectTypeListResult(abiObject));
+            try {
+                response.setResults(ContractCodecTools.getABIObjectTypeListResult(abiObject));
+            } catch (Exception ignored) {
+                logger.error("decode results failed, ignored. value: {}", abiObject);
+            }
         }
         return response;
     }
