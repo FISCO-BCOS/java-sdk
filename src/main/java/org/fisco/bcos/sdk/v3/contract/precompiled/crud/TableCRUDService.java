@@ -852,8 +852,11 @@ public class TableCRUDService {
             ReceiptParser.getErrorStatus(transactionReceipt);
         }
         BigInteger result = resultCaller.apply(transactionReceipt);
-        return PrecompiledRetCode.getPrecompiledResponse(
-                result.intValue(), transactionReceipt.getMessage());
+        RetCode retCode =
+                PrecompiledRetCode.getPrecompiledResponse(
+                        result.intValue(), transactionReceipt.getMessage());
+        retCode.setTransactionReceipt(transactionReceipt);
+        return retCode;
     }
 
     private String getTableName(String tableName) {

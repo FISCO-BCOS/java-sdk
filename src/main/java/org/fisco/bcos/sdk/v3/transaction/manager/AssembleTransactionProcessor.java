@@ -639,8 +639,14 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                                             decodedResult);
                             callResponse.setReturnObject(outputObject.getLeft());
                             callResponse.setReturnABIObject(outputObject.getRight());
-                            callResponse.setResults(
-                                    ContractCodecTools.getABIObjectTypeListResult(decodedResult));
+                            try {
+                                callResponse.setResults(
+                                        ContractCodecTools.getABIObjectTypeListResult(
+                                                decodedResult));
+                            } catch (Exception ignored) {
+                                log.error(
+                                        "decode results failed, ignored. value: {}", decodedResult);
+                            }
                             callback.onResponse(callResponse);
                         } catch (TransactionBaseException | ContractCodecException e) {
                             Response response = new Response();
@@ -669,7 +675,11 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 ContractCodecTools.decodeJavaObjectAndGetOutputObject(decodedResult);
         callResponse.setReturnObject(outputObject.getLeft());
         callResponse.setReturnABIObject(outputObject.getRight());
-        callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(decodedResult));
+        try {
+            callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(decodedResult));
+        } catch (Exception ignored) {
+            log.error("decode results failed, ignored. value: {}", decodedResult);
+        }
         return callResponse;
     }
 
@@ -685,7 +695,11 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
         callResponse.setReturnObject(outputObject.getLeft());
         callResponse.setReturnABIObject(outputObject.getRight());
-        callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(abiObject));
+        try {
+            callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(abiObject));
+        } catch (Exception ignored) {
+            log.error("decode results failed, ignored. value: {}", abiObject);
+        }
         return callResponse;
     }
 
