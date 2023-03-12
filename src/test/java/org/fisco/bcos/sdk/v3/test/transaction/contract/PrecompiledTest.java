@@ -24,6 +24,8 @@ import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.test.transaction.mock.MockTransactionProcessor;
+import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,6 +44,7 @@ import static org.mockito.Mockito.when;
 
 public class PrecompiledTest {
     private Client mockClient;
+    private TransactionProcessor mockTransactionProcessor;
     private final CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
     private AuthManager authManager;
     private BFSService bfsService;
@@ -68,8 +71,11 @@ public class PrecompiledTest {
             bcosGroupInfo.setResult(groupInfo);
             return bcosGroupInfo;
         });
+
         authManager = new AuthManager(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
         bfsService = new BFSService(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
+        bfsService.getBfsPrecompiled().setTransactionProcessor(mockTransactionProcessor);
+
         consensusService = new ConsensusService(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
         systemConfigService = new SystemConfigService(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
         tableCRUDService = new TableCRUDService(mockClient, mockClient.getCryptoSuite().getCryptoKeyPair());
@@ -176,6 +182,9 @@ public class PrecompiledTest {
 
     @Test
     public void bfsTest() throws ContractException {
+        mockTransactionProcessor = new MockTransactionProcessor(mockClient, cryptoSuite.getCryptoKeyPair(), "group0", "chain0", "", 0,"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff30f700000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000");
+        bfsService.getBfsPrecompiled().setTransactionProcessor(mockTransactionProcessor);
+
         mockCallRequest("0x000000000000000000000000be5422d15f39373eb0a97ff8c10fbd0e40e29338", 0);
         String readlink = bfsService.readlink("");
         Assert.assertEquals("0xbe5422d15f39373eb0a97ff8c10fbd0e40e29338", readlink);
@@ -188,7 +197,10 @@ public class PrecompiledTest {
             Assert.assertEquals(e.getErrorCode(), PrecompiledRetCode.CODE_FILE_NOT_EXIST.code);
         }
 
-        mockSendTxRequest("0x0000000000000000000000000000000000000000000000000000000000000000", PrecompiledAddress.BFS_PRECOMPILED_ADDRESS, 0);
+        // mockSendTxRequest("0x0000000000000000000000000000000000000000000000000000000000000000", PrecompiledAddress.BFS_PRECOMPILED_ADDRESS, 0);
+        mockTransactionProcessor = new MockTransactionProcessor(mockClient, cryptoSuite.getCryptoKeyPair(), "group0", "chain0", "", 0,"0x0000000000000000000000000000000000000000000000000000000000000000");
+        bfsService.getBfsPrecompiled().setTransactionProcessor(mockTransactionProcessor);
+
         RetCode link = bfsService.link("name", "ver", "add", "abi");
         Assert.assertEquals(link.getCode(), PrecompiledRetCode.CODE_SUCCESS.code);
     }
@@ -201,6 +213,10 @@ public class PrecompiledTest {
         mockSendTxRequest("0x0000000000000000000000000000000000000000000000000000000000000001", PrecompiledAddress.CONTRACT_AUTH_ADDRESS, 0);
         mockGetBlockNumberRequest("10");
         mockGetSyncStatusRequest(10, "node1", "node2", "node3");
+
+        mockTransactionProcessor = new MockTransactionProcessor(mockClient, cryptoSuite.getCryptoKeyPair(), "group0", "chain0", "", 0,"0x0000000000000000000000000000000000000000000000000000000000000001");
+        authManager.getCommitteeManager().setTransactionProcessor(mockTransactionProcessor);
+
         BigInteger rmNodeProposal = authManager.createRmNodeProposal("node1");
         Assert.assertEquals(BigInteger.ONE, rmNodeProposal);
 
@@ -252,6 +268,9 @@ public class PrecompiledTest {
 
         BigInteger errorKey = authManager.createSetSysConfigProposal("errorKey", String.valueOf(100000));
         Assert.assertEquals(BigInteger.ONE, errorKey);
+
+        mockTransactionProcessor = new MockTransactionProcessor(mockClient, cryptoSuite.getCryptoKeyPair(), "group0", "chain0", "", 0,"0x0000000000000000000000000000000000000000000000000000000000000001");
+        authManager.getContractAuthPrecompiled().setTransactionProcessor(mockTransactionProcessor);
 
         RetCode retCode = authManager.setContractStatus("1234567890123456789012345678901234567890", true);
         Assert.assertEquals(1, retCode.getCode());

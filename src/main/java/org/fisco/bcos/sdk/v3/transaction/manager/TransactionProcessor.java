@@ -168,7 +168,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         data,
                         "",
                         txAttribute,
-                        Objects.nonNull(extraData)? extraData : "",
+                        Objects.nonNull(extraData) ? extraData : "",
                         resp -> {
                             org.fisco.bcos.sdk.v3.model.Response response =
                                     new org.fisco.bcos.sdk.v3.model.Response();
