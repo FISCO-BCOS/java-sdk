@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple4;
 import org.fisco.bcos.sdk.v3.contract.Contract;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.model.callback.CallCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
@@ -222,6 +223,17 @@ public class BFSPrecompiled extends Contract {
         return new Tuple2<>(
                 (BigInteger) results.get(0).getValue(),
                 new DynamicArray<>(BfsInfo.class, (List<BfsInfo>) results.get(1).getValue()));
+    }
+
+    public void list(String absolutePath, CallCallback callback) {
+        final Function function =
+                new Function(
+                        FUNC_LIST,
+                        Arrays.<Type>asList(new Utf8String(absolutePath)),
+                        Arrays.<TypeReference<?>>asList(
+                                new TypeReference<Int32>() {},
+                                new TypeReference<DynamicArray<BfsInfo>>() {}));
+        asyncExecuteCall(function, callback);
     }
 
     public TransactionReceipt mkdir(String absolutePath) {
