@@ -3,6 +3,7 @@ package org.fisco.bcos.sdk.v3.contract.precompiled.bfs;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FilenameUtils;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
@@ -126,31 +127,27 @@ public class BFSService {
      */
     public BFSInfo isExist(String absolutePath) throws ContractException {
         PrecompiledVersionCheck.LS_PAGE_VERSION.checkVersion(currentVersion);
-        Tuple2<String, String> parentPathAndBaseName =
-                BFSUtils.getParentPathAndBaseName(absolutePath);
-        String parent = parentPathAndBaseName.getValue1();
-        String child = parentPathAndBaseName.getValue2();
+        String child = FilenameUtils.getBaseName(absolutePath);
         if (BFSUtils.BFS_SYSTEM_PATH.contains(absolutePath)) {
             return new BFSInfo(child, BFSUtils.BFS_TYPE_DIR);
         }
         int offset = 0;
         int limit = 500;
-        while (true) {
-            Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> listOutput =
-                    bfsPrecompiled.list(
-                            parent, BigInteger.valueOf(offset), BigInteger.valueOf(limit));
-            if (!listOutput.getValue1().equals(BigInteger.ZERO)) {
-                break;
+        Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> list =
+                bfsPrecompiled.list(
+                        absolutePath, BigInteger.valueOf(offset), BigInteger.valueOf(limit));
+        if (list.getValue1().equals(BigInteger.ZERO)) {
+            if (list.getValue2().getValue().isEmpty()) {
+                // directory
+                return new BFSInfo(child, BFSUtils.BFS_TYPE_DIR);
+            } else {
+                return BFSInfo.fromPrecompiledBfs(list.getValue2().getValue().get(0));
             }
-            for (BFSPrecompiled.BfsInfo bfsInfo : listOutput.getValue2().getValue()) {
-                if (bfsInfo.fileName.equals(child)) {
-                    return BFSInfo.fromPrecompiledBfs(bfsInfo);
-                }
-            }
-            offset += limit + 1;
-            limit = listOutput.getValue1().intValue();
+        } else if (list.getValue1().compareTo(BigInteger.ZERO) > 0) {
+            return new BFSInfo(child, BFSUtils.BFS_TYPE_DIR);
+        } else {
+            return null;
         }
-        return null;
     }
 
     public RetCode link(String name, String version, String contractAddress, String abi)
