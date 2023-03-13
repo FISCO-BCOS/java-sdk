@@ -137,11 +137,33 @@ public class BFSService {
                 bfsPrecompiled.list(
                         absolutePath, BigInteger.valueOf(offset), BigInteger.valueOf(limit));
         if (list.getValue1().equals(BigInteger.ZERO)) {
-            if (list.getValue2().getValue().isEmpty()) {
+            if (list.getValue2().getValue().size() != 1) {
                 // directory
                 return new BFSInfo(child, BFSUtils.BFS_TYPE_DIR);
             } else {
-                return BFSInfo.fromPrecompiledBfs(list.getValue2().getValue().get(0));
+                // if return size is 1
+                BFSPrecompiled.BfsInfo bfsInfo = list.getValue2().getValue().get(0);
+                if (child.equals(bfsInfo.fileName)) {
+                    // if name == child
+                    //      if type == dir, return dir
+                    //      if type != dir, try to ls absolute+child again
+                    //          if childLs is empty, it means child is regular
+                    //          else it means child is dir
+                    if (BFSUtils.BFS_TYPE_DIR.equals(bfsInfo.fileType)) {
+                        return new BFSInfo(child, BFSUtils.BFS_TYPE_DIR);
+                    } else {
+                        Tuple2<BigInteger, DynamicArray<BFSPrecompiled.BfsInfo>> childList =
+                                bfsPrecompiled.list(absolutePath + "/" + child);
+                        if (childList.getValue2().getValue().isEmpty()) {
+                            // not exist, it is regular file
+                            return BFSInfo.fromPrecompiledBfs(bfsInfo);
+                        } else {
+                            return new BFSInfo(child, BFSUtils.BFS_TYPE_DIR);
+                        }
+                    }
+                } else {
+                    return new BFSInfo(child, BFSUtils.BFS_TYPE_DIR);
+                }
             }
         } else if (list.getValue1().compareTo(BigInteger.ZERO) > 0) {
             return new BFSInfo(child, BFSUtils.BFS_TYPE_DIR);
