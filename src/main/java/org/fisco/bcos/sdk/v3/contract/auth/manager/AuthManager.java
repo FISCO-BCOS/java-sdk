@@ -42,6 +42,18 @@ public class AuthManager {
     // is about a week.
     private BigInteger DEFAULT_BLOCK_NUMBER_INTERVAL = BigInteger.valueOf(3600 * 24 * 7L);
 
+    public CommitteeManager getCommitteeManager() {
+        return committeeManager;
+    }
+
+    public ContractAuthPrecompiled getContractAuthPrecompiled() {
+        return contractAuthPrecompiled;
+    }
+
+    public AccountManager getAccountManager() {
+        return accountManager;
+    }
+
     public AuthManager(Client client, CryptoKeyPair credential) {
         this.client = client;
         this.committeeManager =

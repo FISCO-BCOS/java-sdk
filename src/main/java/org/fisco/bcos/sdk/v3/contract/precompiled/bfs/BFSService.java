@@ -41,6 +41,10 @@ public class BFSService {
         return currentVersion;
     }
 
+    public BFSPrecompiled getBfsPrecompiled() {
+        return bfsPrecompiled;
+    }
+
     public RetCode mkdir(String path) throws ContractException {
         TransactionReceipt transactionReceipt = bfsPrecompiled.mkdir(path);
         return ReceiptParser.parseTransactionReceipt(

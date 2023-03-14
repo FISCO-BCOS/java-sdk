@@ -66,7 +66,7 @@ public class Contract {
     protected String contractAddress;
     // transactionReceipt after deploying the contract
     protected TransactionReceipt deployReceipt;
-    protected final TransactionProcessor transactionProcessor;
+    protected TransactionProcessor transactionProcessor;
     protected final Client client;
     public static final String FUNC_DEPLOY = "deploy";
     protected final FunctionEncoderInterface functionEncoder;
@@ -147,6 +147,10 @@ public class Contract {
 
     public TransactionProcessor getTransactionProcessor() {
         return this.transactionProcessor;
+    }
+
+    public void setTransactionProcessor(TransactionProcessor transactionProcessor) {
+        this.transactionProcessor = transactionProcessor;
     }
 
     public String getCurrentExternalAccountAddress() {
