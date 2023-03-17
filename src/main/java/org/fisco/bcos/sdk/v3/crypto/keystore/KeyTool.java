@@ -200,7 +200,7 @@ public abstract class KeyTool {
      */
     public static KeyPair convertHexedStringToKeyPair(String hexedPrivateKey, String curveName)
             throws LoadKeyStoreException {
-        Numeric.cleanHexPrefix(hexedPrivateKey);
+        hexedPrivateKey = Numeric.cleanHexPrefix(hexedPrivateKey);
         BigInteger privateKeyValue = new BigInteger(hexedPrivateKey, 16);
         return convertPrivateKeyToKeyPair(privateKeyValue, curveName);
     }
