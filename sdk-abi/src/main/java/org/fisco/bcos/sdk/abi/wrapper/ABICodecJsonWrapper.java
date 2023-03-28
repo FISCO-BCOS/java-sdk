@@ -32,6 +32,22 @@ public class ABICodecJsonWrapper {
 
     private ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
+    public ABICodecJsonWrapper() {}
+
+    public ABICodecJsonWrapper(boolean decodeBytesDataAsHexFormat) {
+        this.decodeBytesDataAsHexFormat = decodeBytesDataAsHexFormat;
+    }
+
+    private boolean decodeBytesDataAsHexFormat = false;
+
+    public boolean isDecodeBytesDataAsHexFormat() {
+        return decodeBytesDataAsHexFormat;
+    }
+
+    public void setDecodeBytesDataAsHexFormat(boolean decodeBytesDataAsHexFormat) {
+        this.decodeBytesDataAsHexFormat = decodeBytesDataAsHexFormat;
+    }
+
     private void errorReport(String path, String expected, String actual)
             throws InvalidParameterException {
         String errorMessage =
@@ -294,6 +310,8 @@ public class ABICodecJsonWrapper {
             } else {
                 return Hex.decode(hexString);
             }
+        } else if (inputData.startsWith("0x")) {
+            return Hex.decode(inputData.substring(2));
         }
         return null;
     }
@@ -437,13 +455,23 @@ public class ABICodecJsonWrapper {
                             }
                         case BYTES:
                             {
-                                return jsonNodeFactory.binaryNode(
-                                        abiObject.getBytesValue().getValue());
+                                byte[] value = abiObject.getBytesValue().getValue();
+                                if (decodeBytesDataAsHexFormat) {
+                                    return jsonNodeFactory.textNode("0x" + Hex.toHexString(value));
+                                } else {
+                                    return jsonNodeFactory.binaryNode(
+                                            abiObject.getBytesValue().getValue());
+                                }
                             }
                         case DBYTES:
                             {
-                                return jsonNodeFactory.binaryNode(
-                                        abiObject.getDynamicBytesValue().getValue());
+                                byte[] value = abiObject.getDynamicBytesValue().getValue();
+                                if (decodeBytesDataAsHexFormat) {
+                                    return jsonNodeFactory.textNode("0x" + Hex.toHexString(value));
+                                } else {
+                                    return jsonNodeFactory.binaryNode(
+                                            abiObject.getDynamicBytesValue().getValue());
+                                }
                             }
                         case STRING:
                             {
@@ -518,19 +546,27 @@ public class ABICodecJsonWrapper {
                             case BYTES:
                                 {
                                     byte[] value = ABICodecObject.formatBytesN(argObject);
-                                    byte[] base64Bytes = Base64.getEncoder().encode(value);
-                                    result.add(Base64EncodedDataPrefix + new String(base64Bytes));
+                                    if (decodeBytesDataAsHexFormat) {
+                                        String hexString = Hex.toHexString(value);
+                                        result.add("0x" + hexString);
+                                    } else {
+                                        byte[] base64Bytes = Base64.getEncoder().encode(value);
+                                        result.add(
+                                                Base64EncodedDataPrefix + new String(base64Bytes));
+                                    }
                                     break;
                                 }
                             case DBYTES:
                                 {
-                                    byte[] base64Bytes =
-                                            Base64.getEncoder()
-                                                    .encode(
-                                                            argObject
-                                                                    .getDynamicBytesValue()
-                                                                    .getValue());
-                                    result.add(Base64EncodedDataPrefix + new String(base64Bytes));
+                                    byte[] value = argObject.getDynamicBytesValue().getValue();
+                                    if (decodeBytesDataAsHexFormat) {
+                                        String hexString = Hex.toHexString(value);
+                                        result.add("0x" + hexString);
+                                    } else {
+                                        byte[] base64Bytes = Base64.getEncoder().encode(value);
+                                        result.add(
+                                                Base64EncodedDataPrefix + new String(base64Bytes));
+                                    }
                                     break;
                                 }
                             case STRING:
