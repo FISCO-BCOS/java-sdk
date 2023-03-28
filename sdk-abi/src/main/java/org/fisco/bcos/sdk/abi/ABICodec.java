@@ -49,6 +49,20 @@ public class ABICodec {
         abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
     }
 
+    public ABICodec(CryptoSuite cryptoSuite, boolean decodeBytesDataAsHexFormat) {
+        super();
+        this.cryptoSuite = cryptoSuite;
+        abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
+        abiCodecJsonWrapper.setDecodeBytesDataAsHexFormat(decodeBytesDataAsHexFormat);
+        logger.info("decodeBytesDataAsHexFormat: {}", decodeBytesDataAsHexFormat);
+    }
+
+    private boolean decodeBytesDataAsHexFormat = false;
+
+    public boolean isDecodeBytesDataAsHexFormat() {
+        return decodeBytesDataAsHexFormat;
+    }
+
     public CryptoSuite getCryptoSuite() {
         return cryptoSuite;
     }
