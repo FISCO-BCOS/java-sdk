@@ -84,12 +84,12 @@ build_node()
   local node_type="${1}"
   local sed_cmd=$(get_sed_cmd)
   if [ "${node_type}" == "wasm" ];then
-      bash -x build_chain.sh -l 127.0.0.1:4 -w
+      bash build_chain.sh -l 127.0.0.1:4 -w
   else
-      bash -x build_chain.sh -l 127.0.0.1:4
+      bash build_chain.sh -l 127.0.0.1:4
   fi
   ./nodes/127.0.0.1/fisco-bcos -v
-  cat nodes/127.0.0.1/node0/config.ini
+  cat nodes/127.0.0.1/node0/config.genesis
   bash nodes/127.0.0.1/start_all.sh
 }
 
@@ -115,7 +115,7 @@ check_wasm_node()
   build_node "wasm"
   prepare_wasm_environment
   ## run integration test
-  bash gradlew clean integrationTest --info
+  bash gradlew clean integrationWasmTest --info
   ## clean
   clean_node
 }

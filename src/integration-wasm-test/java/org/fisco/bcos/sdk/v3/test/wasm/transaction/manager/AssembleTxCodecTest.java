@@ -3,6 +3,7 @@ package org.fisco.bcos.sdk.v3.test.wasm.transaction.manager;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Bytes;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicBytes;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicStruct;
@@ -13,7 +14,6 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Bytes32;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int128;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int32;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.StaticArray2;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint128;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
@@ -147,7 +147,7 @@ public class AssembleTxCodecTest {
             Assert.assertEquals(results.size(), 1);
             Assert.assertEquals(returnObject.size(), 1);
             Assert.assertEquals(returnABIObject.size(), 1);
-            Assert.assertEquals(Hex.toHexString(((Bytes32) ((DynamicArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff");
+            Assert.assertEquals(Hex.toHexString(((Bytes) ((DynamicArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff");
             System.out.println("set_bytes32_array_array, bytes32[][]");
             System.out.println(JsonUtils.toJson(returnObject));
         }
@@ -194,7 +194,7 @@ public class AssembleTxCodecTest {
             Assert.assertEquals(results.size(), 1);
             Assert.assertEquals(returnObject.size(), 1);
             Assert.assertEquals(returnABIObject.size(), 1);
-            Assert.assertEquals(Hex.toHexString(((Bytes32) ((StaticArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff");
+            Assert.assertEquals(Hex.toHexString(((Bytes) ((StaticArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff");
             System.out.println("set_bytes32_s_array_array, bytes32[2][]");
             System.out.println(JsonUtils.toJson(returnObject));
         }
@@ -341,7 +341,7 @@ public class AssembleTxCodecTest {
             Assert.assertEquals(results.size(), 1);
             Assert.assertEquals(returnObject.size(), 1);
             Assert.assertEquals(returnABIObject.size(), 1);
-            Assert.assertEquals(Hex.toHexString(((Bytes32) ((DynamicArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff");
+            Assert.assertEquals(Hex.toHexString(((Bytes) ((DynamicArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff");
             System.out.println("set_bytes32_array_array, bytes32[][]");
             System.out.println(JsonUtils.toJson(returnObject));
         }
@@ -379,7 +379,7 @@ public class AssembleTxCodecTest {
             Assert.assertEquals(results.size(), 1);
             Assert.assertEquals(returnObject.size(), 1);
             Assert.assertEquals(returnABIObject.size(), 1);
-            Assert.assertEquals(Hex.toHexString(((Bytes32) ((StaticArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "1234567890123456789012345678901234567890123456789012345678901234");
+            Assert.assertEquals(Hex.toHexString(((Bytes) ((StaticArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "1234567890123456789012345678901234567890123456789012345678901234");
             System.out.println("set_bytes32_s_array_array, bytes32[2][]");
             System.out.println(JsonUtils.toJson(returnObject));
         }
@@ -563,7 +563,7 @@ public class AssembleTxCodecTest {
             Assert.assertEquals(results.size(), 1);
             Assert.assertEquals(returnObject.size(), 1);
             Assert.assertEquals(returnABIObject.size(), 1);
-            Assert.assertEquals(Hex.toHexString(((Bytes32) ((DynamicArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff");
+            Assert.assertEquals(Hex.toHexString(((Bytes) ((DynamicArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff");
             System.out.println("set_bytes32_array_array, bytes32[][]");
             System.out.println(JsonUtils.toJson(returnObject));
         }
@@ -616,7 +616,7 @@ public class AssembleTxCodecTest {
             Assert.assertEquals(results.size(), 1);
             Assert.assertEquals(returnObject.size(), 1);
             Assert.assertEquals(returnABIObject.size(), 1);
-            Assert.assertEquals(Hex.toHexString(((Bytes32) ((StaticArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff");
+            Assert.assertEquals(Hex.toHexString(((Bytes) ((StaticArray<?>) ((DynamicArray<?>) results.get(0)).getValue().get(0)).getValue().get(0)).getValue()), "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff");
             System.out.println("set_bytes32_s_array_array, bytes32[2][]");
             System.out.println(JsonUtils.toJson(returnObject));
         }

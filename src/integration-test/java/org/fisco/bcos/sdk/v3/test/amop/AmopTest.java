@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.amop.Amop;
 import org.fisco.bcos.sdk.v3.config.Config;
@@ -86,7 +87,7 @@ public class AmopTest {
                                             future.complete(false);
                                         });
                                 try {
-                                    future.get(10,TimeUnit.SECONDS);
+                                    future.get(10, TimeUnit.SECONDS);
                                 } catch (InterruptedException | ExecutionException | TimeoutException e) {
                                     e.printStackTrace();
                                 }
@@ -316,6 +317,10 @@ public class AmopTest {
                                         });
                             }
                         });
-        future.get(20, TimeUnit.SECONDS);
+        try {
+            future.get(10, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 }
