@@ -241,7 +241,7 @@ public class PrecompiledTest {
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
-        String tableName = "test_sync" + new Random().nextInt(10000);
+        String tableName = "test_sync" + System.currentTimeMillis();
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         RetCode retCode = crudService.createTable(tableName, Common.TableKeyOrder.valueOf(0), "key", valueFiled);

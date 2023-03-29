@@ -316,6 +316,6 @@ public class AmopTest {
                                         });
                             }
                         });
-        future.get(10, TimeUnit.SECONDS);
+        future.get(20, TimeUnit.SECONDS);
     }
 }

@@ -278,6 +278,28 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 args);
     }
 
+    /**
+     * Deploy by bin and abi files. Should init with contractLoader.
+     *
+     * @param contractName the contract name
+     * @param args the params when deploy a contract
+     * @param path the path of the contract
+     * @return the transaction response
+     * @throws TransactionBaseException send transaction exception
+     * @throws ContractCodecException abi encode exception
+     * @throws NoSuchTransactionFileException Files related to abi codec were not found
+     */
+    @Override
+    public TransactionResponse deployByContractLoader(
+            String contractName, List<Object> args, String path)
+            throws ContractCodecException, TransactionBaseException {
+        return this.deployAndGetResponse(
+                this.contractLoader.getABIByContractName(contractName),
+                this.contractLoader.getBinaryByContractName(contractName),
+                args,
+                path);
+    }
+
     @Override
     public void deployByContractLoaderAsync(
             String contractName, List<Object> args, TransactionCallback callback)
@@ -286,6 +308,18 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 this.contractLoader.getABIByContractName(contractName),
                 this.contractLoader.getBinaryByContractName(contractName),
                 args,
+                callback);
+    }
+
+    @Override
+    public void deployByContractLoaderAsync(
+            String contractName, List<Object> args, String path, TransactionCallback callback)
+            throws ContractCodecException, NoSuchTransactionFileException {
+        this.deployAsync(
+                this.contractLoader.getABIByContractName(contractName),
+                this.contractLoader.getBinaryByContractName(contractName),
+                args,
+                path,
                 callback);
     }
 

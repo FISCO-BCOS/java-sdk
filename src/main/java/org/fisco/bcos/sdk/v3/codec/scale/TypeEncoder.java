@@ -34,8 +34,10 @@ public class TypeEncoder {
             encodeString((Utf8String) parameter, writer);
         } else if (parameter instanceof StructType) {
             encodeStruct((StructType) parameter, writer);
-        } else if (parameter instanceof StaticArray || parameter instanceof DynamicArray) {
-            encodeArray((Array) parameter, writer);
+        } else if (parameter instanceof StaticArray) {
+            encodeArray((Array) parameter, writer, false);
+        } else if (parameter instanceof DynamicArray) {
+            encodeArray((Array) parameter, writer, true);
         } else {
             throw new UnsupportedOperationException(
                     "Type cannot be encoded: " + parameter.getClass());
@@ -101,9 +103,12 @@ public class TypeEncoder {
         }
     }
 
-    public static void encodeArray(Array array, ScaleCodecWriter writer) throws IOException {
+    public static void encodeArray(Array array, ScaleCodecWriter writer, boolean isDynamic)
+            throws IOException {
         List<? extends Type> values = array.getValue();
-        writer.writeCompact(values.size());
+        if (isDynamic) {
+            writer.writeCompact(values.size());
+        }
         for (Type value : values) {
             encode(value, writer);
         }

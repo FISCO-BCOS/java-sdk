@@ -237,8 +237,12 @@ public class Utils {
 
         if (!input.isEmpty()) {
             try {
-                Constructor<R> constructor =
-                        destType.getDeclaredConstructor(input.get(0).getClass());
+                Constructor<R> constructor;
+                if (input.get(0) instanceof List) {
+                    constructor = destType.getDeclaredConstructor(List.class);
+                } else {
+                    constructor = destType.getDeclaredConstructor(input.get(0).getClass());
+                }
                 for (T value : input) {
                     result.add(constructor.newInstance(value));
                 }
