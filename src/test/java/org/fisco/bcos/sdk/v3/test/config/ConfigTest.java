@@ -30,13 +30,13 @@ public class ConfigTest {
         Assert.assertFalse(configOption.getCryptoMaterialConfig().getUseSmCrypto());
         Assert.assertNotNull(configOption.getAccountConfig());
         Assert.assertEquals("group0", configOption.getNetworkConfig().getDefaultGroup());
-        Assert.assertEquals(2, configOption.getNetworkConfig().getPeers().size());
+        Assert.assertEquals(1, configOption.getNetworkConfig().getPeers().size());
 
         configOption.reloadConfig();
         Assert.assertFalse(configOption.getCryptoMaterialConfig().getUseSmCrypto());
         Assert.assertNotNull(configOption.getAccountConfig());
         Assert.assertEquals("group0", configOption.getNetworkConfig().getDefaultGroup());
-        Assert.assertEquals(2, configOption.getNetworkConfig().getPeers().size());
+        Assert.assertEquals(1, configOption.getNetworkConfig().getPeers().size());
     }
 
     @Test

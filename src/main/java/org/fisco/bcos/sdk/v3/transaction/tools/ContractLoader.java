@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.v3.transaction.tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import org.fisco.bcos.sdk.v3.transaction.model.bo.AbiInfo;
 import org.fisco.bcos.sdk.v3.transaction.model.bo.BinInfo;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.NoSuchTransactionFileException;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionRetCodeConstants;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,7 +156,7 @@ public class ContractLoader {
             log.warn("Empty bin directory, cannot deploy any contract");
             return new BinInfo(Collections.emptyMap());
         }
-        String[] s = {"bin"};
+        String[] s = {"bin", "wasm"};
         Collection<File> fileCollection = FileUtils.listFiles(new File(binaryFilePath), s, false);
         if (fileCollection.isEmpty()) {
             log.warn("No bin found, cannot deploy any contract");
@@ -162,7 +164,12 @@ public class ContractLoader {
         }
         for (File file : fileCollection) {
             String contract = parseContractName(file);
-            String bin = FileUtils.readFileToString(file);
+            String bin;
+            if (file.getName().endsWith("wasm")) {
+                bin = Hex.toHexString(FileUtils.readFileToByteArray(file));
+            } else {
+                bin = FileUtils.readFileToString(file, Charset.defaultCharset());
+            }
             loadBinary(contract, bin);
         }
         return new BinInfo(contractBinMap);

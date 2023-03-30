@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -368,7 +369,7 @@ public class AssembleTransactionProcessorTest {
 
             Map<String, List<List<Object>>> eventsMap3 = transactionResponse3.getEventResultMap();
             Assert.assertEquals(1, eventsMap3.size());
-            Assert.assertEquals("123", eventsMap3.get("LogSetBytes").get(0).get(1));
+            Assert.assertEquals(Base64.getEncoder().encodeToString("123".getBytes()), eventsMap3.get("LogSetBytes").get(0).get(1));
 
             // getBytes
             CallResponse callResponse4 =
@@ -458,26 +459,6 @@ public class AssembleTransactionProcessorTest {
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
 
-        // setStaticByte4
-        {
-            List<String> paramsSetBytes = Lists.newArrayList(new String("1234".getBytes()));
-            TransactionResponse transactionResponse3 =
-                    transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
-                            contractAddress, ABI, "setStaticByte4", paramsSetBytes);
-            Assert.assertEquals(transactionResponse3.getResults().size(), 1);
-
-            // get _bytes4V
-            CallResponse callResponse4 =
-                    transactionProcessor.sendCall(
-                            this.cryptoKeyPair.getAddress(),
-                            contractAddress,
-                            ABI,
-                            "_bytes4V",
-                            Lists.newArrayList());
-            Assert.assertEquals(0, callResponse4.getReturnCode());
-            Assert.assertEquals(callResponse4.getResults().get(0), new Bytes4("1234".getBytes()));
-        }
-
         // setStaticByte4 in hex
         {
             List<String> paramsSetBytes = Lists.newArrayList("hex://0x12345678");
@@ -494,7 +475,6 @@ public class AssembleTransactionProcessorTest {
                             ABI,
                             "_bytes4V",
                             Lists.newArrayList());
-            String s = JsonUtils.toJson(callResponse4.getResults().get(0));
             Assert.assertEquals(0, callResponse4.getReturnCode());
             Assert.assertEquals(
                     Hex.toHexString((byte[]) callResponse4.getResults().get(0).getValue()),

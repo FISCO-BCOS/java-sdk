@@ -63,21 +63,33 @@ prepare_environment()
   fi
 }
 
+prepare_wasm_environment()
+{
+  ## prepare resources for integration test
+  mkdir -p src/integration-wasm-test/resources/
+  mkdir -p conf
+  cp -r nodes/127.0.0.1/sdk/* conf
+  cp src/test/resources/config-example.toml src/integration-wasm-test/resources/config.toml
+  cp src/test/resources/clog.ini conf/
+  cp src/test/resources/config-example.toml src/test/resources/config.toml
+  cp src/test/resources/log4j2.properties src/integration-wasm-test/resources/
+  cp -r src/test/resources/amop conf/amop
+  cp -r src/test/resources/amop src/integration-wasm-test/resources/amop
+  mkdir -p sdk-amop/src/test/resources
+  cp -r src/test/resources/ sdk-amop/src/test/resources
+}
+
 build_node()
 {
   local node_type="${1}"
   local sed_cmd=$(get_sed_cmd)
-  if [ "${node_type}" == "sm" ];then
-      bash build_chain.sh -l 127.0.0.1:4 -s
+  if [ "${node_type}" == "wasm" ];then
+      bash build_chain.sh -l 127.0.0.1:4 -w
   else
       bash build_chain.sh -l 127.0.0.1:4
   fi
   ./nodes/127.0.0.1/fisco-bcos -v
-  local group_name=`cat nodes/127.0.0.1/node0/config.ini | grep group_id | awk -F '=' '{print $2}'`
-  if [ ! ${group_name} = 'group0' ] ; then
-    ${sed_cmd} 's/group_id=group/group_id=group0/g' nodes/127.0.0.1/node*/config.ini
-  fi
-  cat nodes/127.0.0.1/node0/config.ini | grep group_id
+  cat nodes/127.0.0.1/node0/config.genesis
   bash nodes/127.0.0.1/start_all.sh
 }
 
@@ -98,12 +110,12 @@ check_standard_node()
   clean_node
 }
 
-check_sm_node()
+check_wasm_node()
 {
-  build_node "sm"
-  prepare_environment "sm"
+  build_node "wasm"
+  prepare_wasm_environment
   ## run integration test
-  bash gradlew clean integrationTest --info
+  bash gradlew clean integrationWasmTest --info
   ## clean
   clean_node
 }
@@ -112,14 +124,13 @@ pwd
 ls -la
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 LOG_INFO "------ download_build_chain---------"
-# set tag v3.0.0-rc1, update when new rc, remove when release final
-#download_build_chain "v3.0.0-rc1"
+download_build_chain "v3.2.0"
 LOG_INFO "------ check_standard_node---------"
-#check_standard_node
-LOG_INFO "------ check_sm_node---------"
-#check_sm_node
+check_standard_node
+LOG_INFO "------ check_wasm_node---------"
+check_wasm_node
 LOG_INFO "------ check_basic---------"
 check_basic
-#LOG_INFO "------ check_log---------"
-#cat log/* |grep -i error
-#cat log/* |grep -i warn
+LOG_INFO "------ check_log---------"
+cat log/* |grep -i error
+cat log/* |grep -i warn

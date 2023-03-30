@@ -17,7 +17,7 @@ sslKey = "config/sdk.key.test"                   # SSL key file path
 [network]
 messageTimeout = "10000"
 defaultGroup="group0"                            # Console default group to connect
-peers=["127.0.0.1:20200", "127.0.0.1:20201"]    # The peer list to connect
+peers=["127.0.0.1:20201"]    # The peer list to connect
 
 # Configure a private topic as a topic message sender.
 # [[amop]]

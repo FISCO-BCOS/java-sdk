@@ -24,8 +24,18 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Uint;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Bytes32;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int128;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int16;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int256;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int32;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int64;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int8;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint128;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint16;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint256;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint32;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint64;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint8;
 import org.fisco.bcos.sdk.v3.codec.scale.ScaleCodecReader;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject.ListType;
 import org.fisco.bcos.sdk.v3.utils.Hex;
@@ -253,35 +263,61 @@ public class ContractCodecTools {
                     }
                 case UINT:
                     {
+                        BigInteger num = null;
                         if (value instanceof BigInteger) {
-                            abiObject.setNumericValue(new Uint256((BigInteger) value));
+                            num = (BigInteger) value;
                         } else if (Uint.class.isAssignableFrom(value.getClass())) {
-                            abiObject.setNumericValue((Uint) value);
+                            num = ((Uint) value).getValue();
                         } else if (NumberUtils.isCreatable(value.toString())) {
-                            abiObject.setNumericValue(
-                                    new Uint256((new BigInteger(value.toString()))));
+                            num = new BigInteger(value.toString());
                         } else {
                             errorReport(
                                     " valueType mismatch",
                                     abiObject.getValueType().getClass().getName(),
                                     value.getClass().getName());
                         }
+                        if (abiObject.getBytesLength() == 8) {
+                            abiObject.setNumericValue(new Uint8(num));
+                        } else if (abiObject.getBytesLength() == 16) {
+                            abiObject.setNumericValue(new Uint16(num));
+                        } else if (abiObject.getBytesLength() == 32) {
+                            abiObject.setNumericValue(new Uint32(num));
+                        } else if (abiObject.getBytesLength() == 64) {
+                            abiObject.setNumericValue(new Uint64(num));
+                        } else if (abiObject.getBytesLength() == 128) {
+                            abiObject.setNumericValue(new Uint128(num));
+                        } else {
+                            abiObject.setNumericValue(new Uint256(num));
+                        }
                         break;
                     }
                 case INT:
                     {
+                        BigInteger num = null;
                         if (value instanceof BigInteger) {
-                            abiObject.setNumericValue(new Int256((BigInteger) value));
+                            num = (BigInteger) value;
                         } else if (Int.class.isAssignableFrom(value.getClass())) {
-                            abiObject.setNumericValue((Int) value);
+                            num = ((Int) value).getValue();
                         } else if (NumberUtils.isCreatable(value.toString())) {
-                            abiObject.setNumericValue(
-                                    new Uint256((new BigInteger(value.toString()))));
+                            num = new BigInteger(value.toString());
                         } else {
                             errorReport(
                                     " valueType mismatch",
                                     abiObject.getValueType().getClass().getName(),
                                     value.getClass().getName());
+                        }
+                        if (abiObject.getBytesLength() == 8) {
+                            abiObject.setNumericValue(new Int8(num));
+                        } else if (abiObject.getBytesLength() == 16) {
+                            abiObject.setNumericValue(new Int16(num));
+                        } else if (abiObject.getBytesLength() == 32) {
+                            abiObject.setNumericValue(new Int32(num));
+                        } else if (abiObject.getBytesLength() == 64) {
+                            abiObject.setNumericValue(new Int64(num));
+                        } else if (abiObject.getBytesLength() == 128) {
+                            abiObject.setNumericValue(new Int128(num));
+                        } else {
+                            abiObject.setNumericValue(new Int256(num));
                         }
                         break;
                     }
@@ -384,7 +420,8 @@ public class ContractCodecTools {
                             }
                         case BYTES:
                             {
-                                return abiObject.getBytesValue();
+                                byte[] bytes = formatBytesN(abiObject);
+                                return new Bytes(bytes.length, bytes);
                             }
                         case ADDRESS:
                             {
@@ -693,16 +730,44 @@ public class ContractCodecTools {
                             }
                         case UINT:
                             {
+                                Class<? extends Uint> uintClass;
+                                if (abiObject.getBytesLength() == 8) {
+                                    uintClass = Uint8.class;
+                                } else if (abiObject.getBytesLength() == 16) {
+                                    uintClass = Uint16.class;
+                                } else if (abiObject.getBytesLength() == 32) {
+                                    uintClass = Uint32.class;
+                                } else if (abiObject.getBytesLength() == 64) {
+                                    uintClass = Uint64.class;
+                                } else if (abiObject.getBytesLength() == 128) {
+                                    uintClass = Uint128.class;
+                                } else {
+                                    uintClass = Uint256.class;
+                                }
                                 abiObject.setNumericValue(
                                         org.fisco.bcos.sdk.v3.codec.scale.TypeDecoder.decode(
-                                                reader, TypeReference.create(Uint256.class)));
+                                                reader, TypeReference.create(uintClass)));
                                 break;
                             }
                         case INT:
                             {
+                                Class<? extends Int> intClass;
+                                if (abiObject.getBytesLength() == 8) {
+                                    intClass = Int8.class;
+                                } else if (abiObject.getBytesLength() == 16) {
+                                    intClass = Int16.class;
+                                } else if (abiObject.getBytesLength() == 32) {
+                                    intClass = Int32.class;
+                                } else if (abiObject.getBytesLength() == 64) {
+                                    intClass = Int64.class;
+                                } else if (abiObject.getBytesLength() == 128) {
+                                    intClass = Int128.class;
+                                } else {
+                                    intClass = Int256.class;
+                                }
                                 abiObject.setNumericValue(
                                         org.fisco.bcos.sdk.v3.codec.scale.TypeDecoder.decode(
-                                                reader, TypeReference.create(Int256.class)));
+                                                reader, TypeReference.create(intClass)));
                                 break;
                             }
                         case FIXED:
@@ -757,11 +822,7 @@ public class ContractCodecTools {
                     int listLength;
                     if (abiObject.getListType() == ListType.DYNAMIC) {
                         // dynamic list length
-                        listLength =
-                                org.fisco.bcos.sdk.v3.codec.scale.TypeDecoder.decode(
-                                                reader, TypeReference.create(Uint256.class))
-                                        .getValue()
-                                        .intValue();
+                        listLength = reader.readCompact();
                     } else {
                         // fixed list length
                         listLength = abiObject.getListLength();

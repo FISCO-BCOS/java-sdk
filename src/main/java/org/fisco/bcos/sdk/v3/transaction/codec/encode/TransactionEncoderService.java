@@ -67,8 +67,11 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
 
     @Override
     public byte[] encodeAndHashBytes(long transactionData) throws JniException {
-        byte[] encode = encode(transactionData);
-        return this.cryptoSuite.hash(encode);
+        return Hex.decode(
+                TransactionBuilderJniObj.calcTransactionDataHash(
+                        cryptoSuite.cryptoTypeConfig, transactionData));
+        //        byte[] encode = encode(transactionData);
+        //        return this.cryptoSuite.hash(encode);
     }
 
     @Override
@@ -96,7 +99,7 @@ public class TransactionEncoderService implements TransactionEncoderInterface {
     @Override
     public byte[] encodeToTransactionBytes(
             long transactionData, SignatureResult result, int attribute) throws JniException {
-        byte[] hash = this.cryptoSuite.hash(encode(transactionData));
+        byte[] hash = encodeAndHashBytes(transactionData);
         return encodeToTransactionBytes(transactionData, hash, result, attribute);
     }
 
