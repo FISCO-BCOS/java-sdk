@@ -68,7 +68,6 @@ public class SM2KeyPair extends CryptoKeyPair {
                     KeyPairJniObj.createJniKeyPair(
                             CryptoType.SM_TYPE, Hex.decode(this.hexPrivateKey));
         } catch (JniException e) {
-            // TODO: handle jni exception
             logger.error("jni e: ", e);
         }
     }

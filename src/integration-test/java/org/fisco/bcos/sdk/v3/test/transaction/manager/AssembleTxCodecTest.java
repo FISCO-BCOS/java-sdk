@@ -392,7 +392,7 @@ public class AssembleTxCodecTest {
         // test static struct set and get
         {
             List<String> params = new ArrayList<>();
-            params.add("[128,129,[32]]");
+            params.add("[-128,129,[32]]");
             // use static struct params, get single struct
 
             TransactionResponse transactionResponse = transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
@@ -409,7 +409,7 @@ public class AssembleTxCodecTest {
             // use number params, get static struct list
 
             List<String> params2 = new ArrayList<>();
-            params2.add("256");
+            params2.add("-256");
             params2.add("12321421");
             TransactionResponse transactionResponse2 = transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                     contractAddress, abi, "buildStaticStruct", params2);
