@@ -1096,6 +1096,42 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public EnumNodeVersion.Version getChainVersion() {
+        List<BcosGroupNodeInfo.GroupNodeInfo> nodeList = getGroupInfo().getResult().getNodeList();
+        if (nodeList == null || nodeList.isEmpty()) {
+            throw new IllegalStateException("Empty node list in group info.");
+        }
+        long compatibilityVersion = nodeList.get(0).getProtocol().getCompatibilityVersion();
+        return EnumNodeVersion.convertToVersion((int) compatibilityVersion);
+    }
+
+    @Override
+    public void getChainVersionAsync(RespCallback<EnumNodeVersion.Version> versionRespCallback) {
+        getGroupInfoAsync(
+                new RespCallback<BcosGroupInfo>() {
+                    @Override
+                    public void onResponse(BcosGroupInfo bcosGroupInfo) {
+                        List<BcosGroupNodeInfo.GroupNodeInfo> nodeList =
+                                bcosGroupInfo.getResult().getNodeList();
+                        if (nodeList == null || nodeList.isEmpty()) {
+                            versionRespCallback.onError(
+                                    new Response(-1, "Empty node list in group info."));
+                            return;
+                        }
+                        long compatibilityVersion =
+                                nodeList.get(0).getProtocol().getCompatibilityVersion();
+                        versionRespCallback.onResponse(
+                                EnumNodeVersion.convertToVersion((int) compatibilityVersion));
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        versionRespCallback.onError(errorResponse);
+                    }
+                });
+    }
+
+    @Override
     public void start() {
         if (rpcJniObj != null) {
             rpcJniObj.start();

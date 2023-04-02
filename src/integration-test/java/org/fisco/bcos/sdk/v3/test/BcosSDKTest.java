@@ -35,6 +35,7 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
@@ -334,10 +335,11 @@ public class BcosSDKTest {
 
         String txHash = receipt.getTransactionHash();
         BcosTransaction transaction1 = client.getTransaction(txHash, false);
-        Assert.assertEquals(extraData, transaction1.getResult().getExtraData());
-
         BcosTransactionReceipt transactionReceipt = client.getTransactionReceipt(txHash, false);
-        Assert.assertEquals(extraData, transactionReceipt.getResult().getExtraData());
+        if (client.getChainVersion().compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj()) >= 0) {
+            Assert.assertEquals(extraData, transaction1.getResult().getExtraData());
+            Assert.assertEquals(extraData, transactionReceipt.getResult().getExtraData());
+        }
 
         // get 2nd block
         block1 =
