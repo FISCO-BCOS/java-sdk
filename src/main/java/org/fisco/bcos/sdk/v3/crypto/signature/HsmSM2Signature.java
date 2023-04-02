@@ -69,7 +69,6 @@ public class HsmSM2Signature implements Signature {
                     hsmSM2KeyPair.getHsmLibPath());
 
         } catch (JniException e) {
-            // TODO: handle jni exception
             logger.error("Sign with hsm sm2 failed, jni e: ", e);
             return null;
         }
@@ -94,7 +93,6 @@ public class HsmSM2Signature implements Signature {
                     Numeric.cleanHexPrefix(signature),
                     this.getHsmLibPath());
         } catch (JniException e) {
-            // TODO: handle jni exception
             logger.error("Verify with hsm sm2 failed, jni e: ", e);
             return false;
         }

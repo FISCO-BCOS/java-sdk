@@ -545,7 +545,12 @@ public class ABIDefinition {
         }
 
         public int structIdentifier() {
-            return (((internalType == null || internalType.isEmpty()) ? type : internalType)
+            String typeIdentifier =
+                    (internalType == null || internalType.isEmpty()) ? type : internalType;
+            if (typeIdentifier.endsWith("[]")) {
+                typeIdentifier = typeIdentifier.substring(0, typeIdentifier.indexOf('['));
+            }
+            return (typeIdentifier
                             + components.stream()
                                     .map(namedType -> String.valueOf(namedType.structIdentifier()))
                                     .collect(Collectors.joining()))

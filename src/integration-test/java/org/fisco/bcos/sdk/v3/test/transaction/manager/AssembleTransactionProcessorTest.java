@@ -313,14 +313,14 @@ public class AssembleTransactionProcessorTest {
                         this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
         // deploy
         List<Object> params = Lists.newArrayList();
-        params.add(1);
+        params.add(-1);
         params.add("test2");
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         // set values
-        List<Object> paramsSetValues = Lists.newArrayList(20);
+        List<Object> paramsSetValues = Lists.newArrayList(-20);
         String[] o = {"0x1", "0x2", "0x3"};
         List<String> a = Arrays.asList(o);
         paramsSetValues.add(a);
@@ -342,7 +342,7 @@ public class AssembleTransactionProcessorTest {
                         Lists.newArrayList());
         Assert.assertEquals(0, callResponse4.getReturnCode());
         Assert.assertEquals(
-                callResponse4.getResults().get(0).getValue(), new Int256(20).getValue());
+                callResponse4.getResults().get(0).getValue(), new Int256(-20).getValue());
         Assert.assertEquals(callResponse4.getResults().get(2).getValue(), "set values 字符串");
     }
 

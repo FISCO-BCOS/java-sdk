@@ -58,7 +58,6 @@ public class HsmSM2KeyPair extends CryptoKeyPair {
             this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
             return this;
         } catch (JniException e) {
-            // TODO: handle jni exception
             logger.error("hsm generateKeyPair exception, jni e: ", e);
             return null;
         }
@@ -75,7 +74,6 @@ public class HsmSM2KeyPair extends CryptoKeyPair {
             this.keyPair = KeyTool.convertHexedStringToKeyPair(this.hexPrivateKey, curveName);
             return this;
         } catch (JniException e) {
-            // TODO: handle jni exception
             logger.error("hsm createKeyPair exception, jni e: ", e);
             return null;
         }
@@ -89,7 +87,6 @@ public class HsmSM2KeyPair extends CryptoKeyPair {
             this.hexPublicKey = KeyPairJniObj.getJniKeyPairPubKey(this.jniKeyPair);
             return this;
         } catch (JniException e) {
-            // TODO: handle jni exception
             logger.error("hsm useKeyPair exception, jni e: ", e);
             return null;
         }

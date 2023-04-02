@@ -68,7 +68,6 @@ public class ECDSAKeyPair extends CryptoKeyPair {
                     KeyPairJniObj.createJniKeyPair(
                             CryptoType.ECDSA_TYPE, Hex.decode(this.hexPrivateKey));
         } catch (JniException e) {
-            // TODO: handle jni exception
             logger.error("jni e: ", e);
         }
     }

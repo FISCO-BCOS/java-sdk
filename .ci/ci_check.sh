@@ -42,14 +42,10 @@ prepare_environment()
   cp src/test/resources/clog.ini conf/
   cp src/test/resources/config-example.toml src/test/resources/config.toml
   cp src/test/resources/log4j2.properties src/integration-test/resources/
-  cp -r src/test/resources/amop conf/amop
-  cp -r src/test/resources/amop src/integration-test/resources/amop
   rm -rf src/integration-test/resources/abi
   rm -rf src/integration-test/resources/bin
   cp -r src/test/resources/ecdsa/abi src/integration-test/resources/abi
   cp -r src/test/resources/ecdsa/bin src/integration-test/resources/bin
-  mkdir -p sdk-amop/src/test/resources
-  cp -r src/test/resources/ sdk-amop/src/test/resources
 
   sed_cmd=$(get_sed_cmd)
 
@@ -73,10 +69,6 @@ prepare_wasm_environment()
   cp src/test/resources/clog.ini conf/
   cp src/test/resources/config-example.toml src/test/resources/config.toml
   cp src/test/resources/log4j2.properties src/integration-wasm-test/resources/
-  cp -r src/test/resources/amop conf/amop
-  cp -r src/test/resources/amop src/integration-wasm-test/resources/amop
-  mkdir -p sdk-amop/src/test/resources
-  cp -r src/test/resources/ sdk-amop/src/test/resources
 }
 
 build_node()
@@ -132,5 +124,6 @@ check_wasm_node
 LOG_INFO "------ check_basic---------"
 check_basic
 LOG_INFO "------ check_log---------"
+rm -rf ./bin
 cat log/* |grep -i error
 cat log/* |grep -i warn
