@@ -152,9 +152,13 @@ public class PrecompiledTest {
     }
 
     @Test
-    public void test3SystemConfigService() throws ConfigException, ContractException, JniException {
+    public void test3SystemConfigService() throws ConfigException, ContractException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
+
+        if (client.isAuthCheck()) {
+            return;
+        }
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         SystemConfigService systemConfigService = new SystemConfigService(client, cryptoKeyPair);

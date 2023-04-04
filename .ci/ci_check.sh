@@ -101,7 +101,7 @@ build_node()
   if [ "${node_type}" == "wasm" ];then
       bash build_chain.sh -l 127.0.0.1:4 -e ./fisco-bcos -w "${2}"
   else
-      bash build_chain.sh -l 127.0.0.1:4 -e ./fisco-bcos "${2}"
+      bash build_chain.sh -l 127.0.0.1:4 -A -e ./fisco-bcos "${2}"
   fi
   ./nodes/127.0.0.1/fisco-bcos -v
   cat nodes/127.0.0.1/node0/config.genesis
