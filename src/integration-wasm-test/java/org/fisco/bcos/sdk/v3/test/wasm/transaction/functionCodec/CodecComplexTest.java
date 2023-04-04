@@ -22,7 +22,7 @@ import java.util.Random;
 
 public class CodecComplexTest {
     private static final String CONFIG_FILE =
-            "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
+            "src/integration-wasm-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
     private final Client client;
 
     public CodecComplexTest() {

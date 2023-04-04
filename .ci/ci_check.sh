@@ -71,15 +71,22 @@ prepare_environment()
   cp -r src/test/resources/ecdsa/abi src/integration-test/resources/abi
   cp -r src/test/resources/ecdsa/bin src/integration-test/resources/bin
 
-#  sed_cmd=$(get_sed_cmd)
-#  local node_type="${1}"
-#  if [ "${node_type}" == "sm" ];then
-#    rm -rf src/integration-test/resources/abi
-#    rm -rf src/integration-test/resources/bin
-#    cp -r src/test/resources/gm/abi src/integration-test/resources/abi
-#    cp -r src/test/resources/gm/bin src/integration-test/resources/bin
-#    ${sed_cmd} 's/useSMCrypto = "false"/useSMCrypto = "true"/g' src/integration-test/resources/config.toml
-#  fi
+  sed_cmd=$(get_sed_cmd)
+  local node_type="${1}"
+  local use_sm="false"
+  local not_use_sm="true"
+  if [ "${node_type}" == "sm" ];then
+    use_sm="true"
+    not_use_sm="false"
+    rm -rf src/integration-test/resources/abi
+    rm -rf src/integration-test/resources/bin
+    cp -r src/test/resources/gm/abi src/integration-test/resources/abi
+    cp -r src/test/resources/gm/bin src/integration-test/resources/bin
+  fi
+  use_sm_str="useSMCrypto = \"${use_sm}\""
+  ${sed_cmd} "s/useSMCrypto = \"${not_use_sm}\"/${use_sm_str}/g" ./src/integration-test/resources/config.toml
+  ${sed_cmd} "s/useSMCrypto = \"${not_use_sm}\"/${use_sm_str}/g" ./src/integration-test/resources/amop/config-subscriber-for-test.toml
+  ${sed_cmd} "s/useSMCrypto = \"${not_use_sm}\"/${use_sm_str}/g" ./src/integration-test/resources/amop/config-publisher-for-test.toml
 }
 
 prepare_wasm_environment()
@@ -120,8 +127,9 @@ clean_node()
  # check integration-test for non-gm node
 check_standard_node()
 {
-  build_node "normal" "${2}"
-  prepare_environment
+  rm -rf build dist
+  build_node "normal" "${3}"
+  prepare_environment "${2}"
   ## run integration test
   bash gradlew clean integrationTest --info
   ## clean
@@ -130,7 +138,8 @@ check_standard_node()
 
 check_wasm_node()
 {
-  build_node "wasm" "${2}"
+  rm -rf build dist
+  build_node "wasm" "${3}"
   prepare_wasm_environment
   ## run integration test
   bash gradlew clean integrationWasmTest --info
@@ -146,7 +155,7 @@ LOG_INFO "------ download_build_chain: v3.2.0---------"
 download_binary "v3.2.0"
 download_build_chain "v3.2.0"
 LOG_INFO "------ check_standard_node---------"
-check_standard_node "false"
+check_standard_node "false" "sm" "-s"
 LOG_INFO "------ check_wasm_node---------"
 check_wasm_node "true"
 LOG_INFO "------ check_basic---------"
