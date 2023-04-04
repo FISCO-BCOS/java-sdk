@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class CodecTest {
     private static final String configFile =
-            "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
+            "src/integration-wasm-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
 
     @Test
     public void testNumericType() throws Exception {

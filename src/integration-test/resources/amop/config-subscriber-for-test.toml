@@ -2,6 +2,7 @@
 
 [cryptoMaterial]
 certPath = "conf"
+useSMCrypto = "false"
 # CA cert file path
 # caCert = "conf/ca.crt"
 # SSL cert file path
