@@ -492,7 +492,7 @@ public class ContractCodec {
                     outputStream.write(methodId);
                     outputStream.write(encode);
                     return outputStream.toByteArray();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
                 }
             }
@@ -523,7 +523,7 @@ public class ContractCodec {
             }
             outputStream.write(encode);
             return outputStream.toByteArray();
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error(" exception in encodeMethodByIdFromString : {}", e.getMessage());
         }
 
@@ -546,7 +546,7 @@ public class ContractCodec {
                         ContractCodecTools.encode(
                                 contractCodecJsonWrapper.encode(inputABIObject, params), isWasm));
                 return outputStream.toByteArray();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.error(
                         " exception in encodeMethodByInterfaceFromString : {}", e.getMessage());
             }
