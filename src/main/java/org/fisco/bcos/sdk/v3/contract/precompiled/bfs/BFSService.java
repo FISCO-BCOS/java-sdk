@@ -9,6 +9,7 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
@@ -17,7 +18,8 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class BFSService {
     private final BFSPrecompiled bfsPrecompiled;
-    private final long currentVersion;
+    private long currentVersion;
+    private final Client client;
 
     public BFSService(Client client, CryptoKeyPair credential) {
         this.bfsPrecompiled =
@@ -34,6 +36,7 @@ public class BFSService {
                         .get(0)
                         .getProtocol()
                         .getCompatibilityVersion();
+        this.client = client;
     }
 
     public long getCurrentVersion() {
@@ -121,5 +124,28 @@ public class BFSService {
 
     public String readlink(String absolutePath) throws ContractException {
         return bfsPrecompiled.readlink(absolutePath);
+    }
+
+    public RetCode fixBfs(EnumNodeVersion version) throws ContractException {
+        PrecompiledVersionCheck.V320_FIX_BFS_VERSION.checkVersion(currentVersion);
+        TransactionReceipt transactionReceipt =
+                bfsPrecompiled.fixBfs(BigInteger.valueOf(version.getVersion()));
+        return ReceiptParser.parseTransactionReceipt(
+                transactionReceipt, tr -> bfsPrecompiled.getFixBfsOutput(tr).getValue1());
+    }
+
+    public RetCode fixBfs() throws ContractException {
+        try {
+            this.currentVersion =
+                    client.getGroupInfo()
+                            .getResult()
+                            .getNodeList()
+                            .get(0)
+                            .getProtocol()
+                            .getCompatibilityVersion();
+        } catch (Exception e) {
+            throw new ContractException("BfsService: fixBfs get currentVersion failed", e);
+        }
+        return fixBfs(EnumNodeVersion.valueOf((int) currentVersion));
     }
 }
