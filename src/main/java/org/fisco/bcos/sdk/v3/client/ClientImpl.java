@@ -1096,17 +1096,17 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public EnumNodeVersion.Version getChainVersion() {
+    public EnumNodeVersion getChainVersion() {
         List<BcosGroupNodeInfo.GroupNodeInfo> nodeList = getGroupInfo().getResult().getNodeList();
         if (nodeList == null || nodeList.isEmpty()) {
             throw new IllegalStateException("Empty node list in group info.");
         }
         long compatibilityVersion = nodeList.get(0).getProtocol().getCompatibilityVersion();
-        return EnumNodeVersion.convertToVersion((int) compatibilityVersion);
+        return EnumNodeVersion.valueOf((int) compatibilityVersion);
     }
 
     @Override
-    public void getChainVersionAsync(RespCallback<EnumNodeVersion.Version> versionRespCallback) {
+    public void getChainVersionAsync(RespCallback<EnumNodeVersion> versionRespCallback) {
         getGroupInfoAsync(
                 new RespCallback<BcosGroupInfo>() {
                     @Override
@@ -1121,7 +1121,7 @@ public class ClientImpl implements Client {
                         long compatibilityVersion =
                                 nodeList.get(0).getProtocol().getCompatibilityVersion();
                         versionRespCallback.onResponse(
-                                EnumNodeVersion.convertToVersion((int) compatibilityVersion));
+                                EnumNodeVersion.valueOf((int) compatibilityVersion));
                     }
 
                     @Override
