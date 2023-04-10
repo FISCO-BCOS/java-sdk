@@ -874,14 +874,14 @@ public interface Client {
      *
      * @return the chain compatibility version
      */
-    EnumNodeVersion.Version getChainVersion();
+    EnumNodeVersion getChainVersion();
 
     /**
      * async get the chain compatibility version
      *
      * @param versionRespCallback the callback instance
      */
-    void getChainVersionAsync(RespCallback<EnumNodeVersion.Version> versionRespCallback);
+    void getChainVersionAsync(RespCallback<EnumNodeVersion> versionRespCallback);
 
     void start();
 

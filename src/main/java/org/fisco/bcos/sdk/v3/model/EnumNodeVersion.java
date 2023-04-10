@@ -48,6 +48,15 @@ public enum EnumNodeVersion {
         }
     }
 
+    public int compareToVersion(EnumNodeVersion v2) {
+        if (this.version > v2.getVersion()) {
+            return 1;
+        } else if (this.version < v2.getVersion()) {
+            return -1;
+        }
+        return 0;
+    }
+
     public Version toVersionObj() {
         return getClassVersion(getVersionString());
     }
@@ -58,6 +67,10 @@ public enum EnumNodeVersion {
             return UNKNOWN;
         }
         return enumNodeVersion;
+    }
+
+    public static int compareTo(EnumNodeVersion v1, EnumNodeVersion v2) {
+        return v1.getVersion() - v2.getVersion();
     }
 
     public static EnumNodeVersion.Version convertToVersion(int version) {
@@ -126,8 +139,9 @@ public enum EnumNodeVersion {
 
         @Override
         public int compareTo(Version v) {
-            int thisCompactVersion = this.getMajor() * 100 + this.getMinor() * 10 + this.getPatch();
-            int vCompactVersion = v.getMajor() * 100 + v.getMinor() * 10 + v.getPatch();
+            int thisCompactVersion =
+                    this.getMajor() * 10000 + this.getMinor() * 100 + this.getPatch();
+            int vCompactVersion = v.getMajor() * 10000 + v.getMinor() * 100 + v.getPatch();
             if (thisCompactVersion > vCompactVersion) {
                 return 1;
             } else if (thisCompactVersion < vCompactVersion) {
