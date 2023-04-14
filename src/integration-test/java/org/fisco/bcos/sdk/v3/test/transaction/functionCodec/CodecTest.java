@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.test.transaction.decoder;
+package org.fisco.bcos.sdk.v3.test.transaction.functionCodec;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -55,7 +55,6 @@ public class CodecTest {
         BigInteger maxI128 = codecTest.getI128();
         Assert.assertEquals(0, Constant.MAX_INT128.compareTo(maxI128));
         // i256
-        // FIXME: use MIN_INT256 and MAX_INT256 will cause error
         codecTest.setI256(BigInteger.valueOf(-123456789));
         BigInteger i256 = codecTest.getI256();
         Assert.assertEquals(0, i256.compareTo(BigInteger.valueOf(-123456789)));

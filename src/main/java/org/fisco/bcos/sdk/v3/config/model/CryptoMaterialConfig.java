@@ -27,6 +27,7 @@ public class CryptoMaterialConfig {
 
     private Boolean useSmCrypto = false;
     private Boolean disableSsl = false;
+    private Boolean enableHsm = false;
     private String certPath = "conf";
 
     private String caCertPath;
@@ -41,6 +42,10 @@ public class CryptoMaterialConfig {
     private String enSdkCert;
     private String enSdkPrivateKey;
 
+    private String hsmLibPath;
+    private String hsmKeyIndex;
+    private String hsmPassword;
+
     public CryptoMaterialConfig() {}
 
     public CryptoMaterialConfig(ConfigProperty configProperty) throws ConfigException {
@@ -48,16 +53,32 @@ public class CryptoMaterialConfig {
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
         String useSMCrypto = (String) cryptoMaterialProperty.get("useSMCrypto");
         String disableSsl = (String) cryptoMaterialProperty.get("disableSsl");
+        String enableHsm = (String) cryptoMaterialProperty.get("enableHsm");
 
         this.useSmCrypto = Boolean.valueOf(useSMCrypto);
         this.disableSsl = Boolean.valueOf(disableSsl);
+        this.enableHsm = Boolean.valueOf(enableHsm);
+
+        if (this.enableHsm) {
+            this.hsmLibPath = (String) cryptoMaterialProperty.get("hsmLibPath");
+            this.hsmKeyIndex = (String) cryptoMaterialProperty.get("hsmKeyIndex");
+            this.hsmPassword = (String) cryptoMaterialProperty.get("hsmPassword");
+
+            if (this.hsmLibPath == null || this.hsmKeyIndex == null || this.hsmPassword == null) {
+                throw new ConfigException(
+                        "hsmLibPath hsmKeyIndex and hsmPassword, must be set in HSM model");
+            }
+        }
 
         if (this.disableSsl) {
             logger.info("Load cryptoMaterial, disableSsl has been set");
             return;
         }
 
-        int cryptoType = this.useSmCrypto ? CryptoType.SM_TYPE : CryptoType.ECDSA_TYPE;
+        int cryptoType =
+                this.useSmCrypto
+                        ? (this.enableHsm ? CryptoType.HSM_TYPE : CryptoType.SM_TYPE)
+                        : CryptoType.ECDSA_TYPE;
         this.certPath =
                 ConfigProperty.getConfigFilePath(
                         ConfigProperty.getValue(cryptoMaterialProperty, "certPath", this.certPath));
@@ -117,8 +138,10 @@ public class CryptoMaterialConfig {
         }
 
         logger.debug(
-                "Load cryptoMaterial, useSmCrypto: {}, caCertPath: {}, sdkCertPath: {}, sdkPrivateKeyPath:{}, enSSLCertPath: {}, enSSLPrivateKeyPath:{}",
+                "Load cryptoMaterial, useSmCrypto: {}, useHSMCrypto: {}, cryptoType: {}, caCertPath: {}, sdkCertPath: {}, sdkPrivateKeyPath:{}, enSSLCertPath: {}, enSSLPrivateKeyPath:{}",
                 this.useSmCrypto,
+                this.enableHsm,
+                cryptoType,
                 this.getCaCertPath(),
                 this.getSdkCertPath(),
                 this.getSdkPrivateKeyPath(),
@@ -134,7 +157,7 @@ public class CryptoMaterialConfig {
             cryptoMaterialConfig.setCaCertPath(certPath + "/" + "ca.crt");
             cryptoMaterialConfig.setSdkCertPath(certPath + "/" + "sdk.crt");
             cryptoMaterialConfig.setSdkPrivateKeyPath(certPath + "/" + "sdk.key");
-        } else if (cryptoType == CryptoType.SM_TYPE) {
+        } else if (cryptoType == CryptoType.SM_TYPE || cryptoType == CryptoType.HSM_TYPE) {
             cryptoMaterialConfig.setCaCertPath(certPath + "/" + "sm_ca.crt");
             cryptoMaterialConfig.setSdkCertPath(certPath + "/" + "sm_sdk.crt");
             cryptoMaterialConfig.setSdkPrivateKeyPath(certPath + "/" + "sm_sdk.key");
@@ -220,6 +243,38 @@ public class CryptoMaterialConfig {
         return useSmCrypto;
     }
 
+    public Boolean getEnableHsm() {
+        return enableHsm;
+    }
+
+    public void setEnableHsm(Boolean enableHsm) {
+        this.enableHsm = enableHsm;
+    }
+
+    public String getHsmLibPath() {
+        return hsmLibPath;
+    }
+
+    public void setHsmLibPath(String hsmLibPath) {
+        this.hsmLibPath = hsmLibPath;
+    }
+
+    public String getHsmKeyIndex() {
+        return hsmKeyIndex;
+    }
+
+    public void setHsmKeyIndex(String hsmKeyIndex) {
+        this.hsmKeyIndex = hsmKeyIndex;
+    }
+
+    public String getHsmPassword() {
+        return hsmPassword;
+    }
+
+    public void setHsmPassword(String hsmPassword) {
+        this.hsmPassword = hsmPassword;
+    }
+
     public String getCaCertPath() {
         return caCertPath;
     }
@@ -265,6 +320,8 @@ public class CryptoMaterialConfig {
         return "CryptoMaterialConfig{"
                 + "useSmCrypto="
                 + useSmCrypto
+                + "useHSMCrypto="
+                + enableHsm
                 + ", certPath='"
                 + certPath
                 + '\''

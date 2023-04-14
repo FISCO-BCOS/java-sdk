@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Function;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.RespCallback;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple3;
@@ -27,6 +26,7 @@ import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
+import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.RevertMessageParser;
@@ -41,6 +41,18 @@ public class AuthManager {
     // default block number interval. after current block number, it will be outdated. Default value
     // is about a week.
     private BigInteger DEFAULT_BLOCK_NUMBER_INTERVAL = BigInteger.valueOf(3600 * 24 * 7L);
+
+    public CommitteeManager getCommitteeManager() {
+        return committeeManager;
+    }
+
+    public ContractAuthPrecompiled getContractAuthPrecompiled() {
+        return contractAuthPrecompiled;
+    }
+
+    public AccountManager getAccountManager() {
+        return accountManager;
+    }
 
     public AuthManager(Client client, CryptoKeyPair credential) {
         this.client = client;
@@ -79,6 +91,12 @@ public class AuthManager {
                 committeeManager.createUpdateGovernorProposal(
                         account, weight, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         return committeeManager.getCreateUpdateGovernorProposalOutput(tr).getValue1();
@@ -98,6 +116,12 @@ public class AuthManager {
                 committeeManager.createSetRateProposal(
                         participatesRate, winRate, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         return committeeManager.getCreateSetRateProposalOutput(tr).getValue1();
@@ -115,6 +139,12 @@ public class AuthManager {
                 committeeManager.createSetDeployAuthTypeProposal(
                         deployAuthType.getValue(), DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId =
@@ -146,6 +176,12 @@ public class AuthManager {
                 committeeManager.createModifyDeployAuthProposal(
                         account, openFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId =
@@ -167,6 +203,12 @@ public class AuthManager {
                 committeeManager.createResetAdminProposal(
                         newAdmin, contractAddr, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId = committeeManager.getCreateResetAdminProposalOutput(tr).getValue1();
@@ -185,6 +227,12 @@ public class AuthManager {
         TransactionReceipt tr =
                 committeeManager.createRmNodeProposal(node, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId = committeeManager.getCreateRmNodeProposalOutput(tr).getValue1();
@@ -211,6 +259,12 @@ public class AuthManager {
                 committeeManager.createSetConsensusWeightProposal(
                         node, weight, addFlag, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId =
@@ -298,6 +352,12 @@ public class AuthManager {
                 committeeManager.createSetSysConfigProposal(
                         key, value, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         BigInteger proposalId =
@@ -318,6 +378,12 @@ public class AuthManager {
                 committeeManager.createUpgradeVoteComputerProposal(
                         address, DEFAULT_BLOCK_NUMBER_INTERVAL);
         if (tr.getStatus() != TransactionReceiptStatus.Success.code) {
+            if (tr.getStatus() == TransactionReceiptStatus.CallAddressError.code) {
+                throw new ContractException(
+                        "Call address error, maybe CommitteeManager is uninitialized or even not exist.",
+                        tr.getStatus(),
+                        tr);
+            }
             ReceiptParser.getErrorStatus(tr);
         }
         return committeeManager.getCreateUpgradeVoteComputerProposalOutput(tr).getValue1();
@@ -739,6 +805,31 @@ public class AuthManager {
      */
     public BigInteger proposalCount() throws ContractException {
         return committeeManager.getProposalManager()._proposalCount();
+    }
+
+    /**
+     * init committee system for old version chain which not open auth check NOTE: this method only
+     * can be used when chain version >= 3.3.0
+     *
+     * @param admin committee first admin
+     * @return return code
+     * @throws ContractException throw when check failed or contract exec exception
+     */
+    public RetCode initAuth(String admin) throws ContractException {
+        long compatibilityVersion =
+                client.getGroupInfo()
+                        .getResult()
+                        .getNodeList()
+                        .get(0)
+                        .getProtocol()
+                        .getCompatibilityVersion();
+        PrecompiledVersionCheck.INIT_AUTH_VERSION.checkVersion(compatibilityVersion);
+        TransactionReceipt receipt = contractAuthPrecompiled.initAuth(admin);
+        if (receipt.getStatus() != TransactionReceiptStatus.Success.code) {
+            ReceiptParser.getErrorStatus(receipt);
+        }
+        return ReceiptParser.parseTransactionReceipt(
+                receipt, tr -> contractAuthPrecompiled.getInitAuthOutput(tr).getValue1());
     }
 
     private boolean existsInNodeList(String nodeId) {

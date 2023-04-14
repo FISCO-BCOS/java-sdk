@@ -8,7 +8,8 @@ public enum EnumNodeVersion {
     BCOS_3_0_0_RC4(4),
     BCOS_3_0_0(0x03000000),
     BCOS_3_1_0(0x03010000),
-    BCOS_3_2_0(0x03020000);
+    BCOS_3_2_0(0x03020000),
+    BCOS_3_3_0(0x03030000);
 
     private final Integer version;
     private static final Map<Integer, EnumNodeVersion> versionLookupMap = new HashMap<>();
@@ -18,6 +19,7 @@ public enum EnumNodeVersion {
         versionLookupMap.put(0x03000000, BCOS_3_0_0);
         versionLookupMap.put(0x03010000, BCOS_3_1_0);
         versionLookupMap.put(0x03020000, BCOS_3_2_0);
+        versionLookupMap.put(0x03030000, BCOS_3_3_0);
     }
 
     EnumNodeVersion(Integer version) {
@@ -38,10 +40,21 @@ public enum EnumNodeVersion {
                 return "3.1.0";
             case BCOS_3_2_0:
                 return "3.2.0";
+            case BCOS_3_3_0:
+                return "3.3.0";
             case UNKNOWN:
             default:
                 return "0.0.0";
         }
+    }
+
+    public int compareToVersion(EnumNodeVersion v2) {
+        if (this.version > v2.getVersion()) {
+            return 1;
+        } else if (this.version < v2.getVersion()) {
+            return -1;
+        }
+        return 0;
     }
 
     public Version toVersionObj() {
@@ -54,6 +67,10 @@ public enum EnumNodeVersion {
             return UNKNOWN;
         }
         return enumNodeVersion;
+    }
+
+    public static int compareTo(EnumNodeVersion v1, EnumNodeVersion v2) {
+        return v1.getVersion() - v2.getVersion();
     }
 
     public static EnumNodeVersion.Version convertToVersion(int version) {
@@ -122,8 +139,9 @@ public enum EnumNodeVersion {
 
         @Override
         public int compareTo(Version v) {
-            int thisCompactVersion = this.getMajor() * 100 + this.getMinor() * 10 + this.getPatch();
-            int vCompactVersion = v.getMajor() * 100 + v.getMinor() * 10 + v.getPatch();
+            int thisCompactVersion =
+                    this.getMajor() * 10000 + this.getMinor() * 100 + this.getPatch();
+            int vCompactVersion = v.getMajor() * 10000 + v.getMinor() * 100 + v.getPatch();
             if (thisCompactVersion > vCompactVersion) {
                 return 1;
             } else if (thisCompactVersion < vCompactVersion) {

@@ -18,15 +18,25 @@
 package org.fisco.bcos.sdk.v3.test;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.BcosSDKException;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.RespCallback;
+import org.fisco.bcos.sdk.v3.codec.FunctionEncoderInterface;
+import org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
+import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
+import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
@@ -325,11 +335,11 @@ public class BcosSDKTest {
 
         String txHash = receipt.getTransactionHash();
         BcosTransaction transaction1 = client.getTransaction(txHash, false);
-        Assert.assertEquals(extraData, transaction1.getResult().getExtraData());
-        Assert.assertTrue(extraData.equals(transaction1.getResult().getExtraData()));
-
         BcosTransactionReceipt transactionReceipt = client.getTransactionReceipt(txHash, false);
-        Assert.assertTrue(extraData.equals(transactionReceipt.getResult().getExtraData()));
+        if (client.getChainVersion().compareTo(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+            Assert.assertEquals(extraData, transaction1.getResult().getExtraData());
+            Assert.assertEquals(extraData, transactionReceipt.getResult().getExtraData());
+        }
 
         // get 2nd block
         block1 =
@@ -368,7 +378,14 @@ public class BcosSDKTest {
                 HelloWorld.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
         TransactionReceipt receipt = helloWorld.set("fisco hello");
         Assert.assertEquals(receipt.getStatus(), 0);
-        String input = receipt.getInput();
+        final Function function =
+                new Function(
+                        "set",
+                        Arrays.<Type>asList(new Utf8String("fisco hello")),
+                        Collections.<TypeReference<?>>emptyList());
+        FunctionEncoderInterface functionEncoderInterface = new FunctionEncoder(client.getCryptoSuite());
+        byte[] encode = functionEncoderInterface.encode(function);
+        String input = Hex.toHexString(encode);
 
         long transactionData =
                 TransactionBuilderJniObj.createTransactionData(

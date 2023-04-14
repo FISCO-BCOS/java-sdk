@@ -42,6 +42,8 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
+import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -866,6 +868,20 @@ public interface Client {
     void getGroupNodeInfoAsync(String node, RespCallback<BcosGroupNodeInfo> callback);
 
     // ------------------------- rpc interface end ------------------------------------------
+
+    /**
+     * get the chain compatibility version
+     *
+     * @return the chain compatibility version
+     */
+    EnumNodeVersion getChainVersion();
+
+    /**
+     * async get the chain compatibility version
+     *
+     * @param versionRespCallback the callback instance
+     */
+    void getChainVersionAsync(RespCallback<EnumNodeVersion> versionRespCallback);
 
     void start();
 

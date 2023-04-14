@@ -144,7 +144,7 @@ public class Hex {
      * @return a byte array representing the decoded data.
      */
     public static byte[] decode(String data) {
-        if (data.startsWith("0x")) {
+        if (data.startsWith("0x") || data.startsWith("0X")) {
             return Hex.decodeInner(data.substring(2));
         } else {
             return Hex.decodeInner(data);

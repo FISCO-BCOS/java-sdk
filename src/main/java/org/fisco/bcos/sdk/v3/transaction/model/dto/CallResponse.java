@@ -27,7 +27,7 @@ public class CallResponse extends CommonResponse {
     private String values;
     private List<Object> returnObject;
     private List<ABIObject> returnABIObject;
-    private List<Type> results;
+    @Deprecated private List<Type> results;
 
     /** @return the values */
     public String getValues() {
@@ -55,10 +55,12 @@ public class CallResponse extends CommonResponse {
         this.returnABIObject = returnABIObject;
     }
 
+    @Deprecated
     public List<Type> getResults() {
         return results;
     }
 
+    @Deprecated
     public void setResults(List<Type> results) {
         this.results = results;
     }

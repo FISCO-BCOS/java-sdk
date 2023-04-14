@@ -1,5 +1,7 @@
 package org.fisco.bcos.sdk.v3.codec.datatypes;
 
+import static org.fisco.bcos.sdk.v3.codec.Utils.getTypeName;
+
 import java.util.List;
 
 /** Dynamic array type. */
@@ -11,7 +13,9 @@ public class DynamicArray<T extends Type> extends Array<T> {
         super(
                 StructType.class.isAssignableFrom(values[0].getClass())
                         ? (Class<T>) values[0].getClass()
-                        : (Class<T>) AbiTypes.getType(values[0].getTypeAsString()),
+                        : (Array.class.isAssignableFrom(values[0].getClass())
+                                ? (Class<T>) values[0].getClass()
+                                : (Class<T>) AbiTypes.getType(values[0].getTypeAsString())),
                 values);
     }
 
@@ -21,7 +25,9 @@ public class DynamicArray<T extends Type> extends Array<T> {
         super(
                 StructType.class.isAssignableFrom(values.get(0).getClass())
                         ? (Class<T>) values.get(0).getClass()
-                        : (Class<T>) AbiTypes.getType(values.get(0).getTypeAsString()),
+                        : (Array.class.isAssignableFrom(values.get(0).getClass())
+                                ? (Class<T>) values.get(0).getClass()
+                                : (Class<T>) AbiTypes.getType(values.get(0).getTypeAsString())),
                 values);
     }
 
@@ -62,6 +68,12 @@ public class DynamicArray<T extends Type> extends Array<T> {
             } catch (InstantiationException | IllegalAccessException e) {
                 // struct type is not defined default constructor
                 paramsType = AbiTypes.getTypeAString(getComponentType());
+            }
+        } else if (Array.class.isAssignableFrom(this.type)) {
+            if (!value.isEmpty()) {
+                paramsType = value.get(0).getTypeAsString();
+            } else {
+                paramsType = getTypeName((type));
             }
         } else {
             paramsType = AbiTypes.getTypeAString(getComponentType());

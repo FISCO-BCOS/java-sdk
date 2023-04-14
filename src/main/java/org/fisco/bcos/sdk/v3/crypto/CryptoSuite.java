@@ -23,11 +23,13 @@ import org.fisco.bcos.sdk.v3.crypto.hash.Keccak256;
 import org.fisco.bcos.sdk.v3.crypto.hash.SM3Hash;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.crypto.keypair.ECDSAKeyPair;
+import org.fisco.bcos.sdk.v3.crypto.keypair.HsmSM2KeyPair;
 import org.fisco.bcos.sdk.v3.crypto.keypair.SM2KeyPair;
 import org.fisco.bcos.sdk.v3.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.v3.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.v3.crypto.keystore.PEMKeyStore;
 import org.fisco.bcos.sdk.v3.crypto.signature.ECDSASignature;
+import org.fisco.bcos.sdk.v3.crypto.signature.HsmSM2Signature;
 import org.fisco.bcos.sdk.v3.crypto.signature.SM2Signature;
 import org.fisco.bcos.sdk.v3.crypto.signature.Signature;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
@@ -39,11 +41,10 @@ public class CryptoSuite {
 
     private static final Logger logger = LoggerFactory.getLogger(CryptoSuite.class);
 
-    public final int cryptoTypeConfig;
-
-    public final Signature signatureImpl;
-    public final Hash hashImpl;
-    private final CryptoKeyPair keyPairFactory;
+    public int cryptoTypeConfig;
+    public Signature signatureImpl;
+    public Hash hashImpl;
+    private CryptoKeyPair keyPair;
     private CryptoKeyPair cryptoKeyPair;
     private ConfigOption config;
 
@@ -54,7 +55,7 @@ public class CryptoSuite {
 
     public CryptoSuite(int cryptoTypeConfig, String hexedPrivateKey) {
         this(cryptoTypeConfig);
-        this.cryptoKeyPair = this.keyPairFactory.createKeyPair(hexedPrivateKey);
+        this.cryptoKeyPair = this.keyPair.createKeyPair(hexedPrivateKey);
     }
 
     /**
@@ -64,12 +65,17 @@ public class CryptoSuite {
      * @param configOption the configuration of account.
      */
     public CryptoSuite(int cryptoTypeConfig, ConfigOption configOption) {
-        this(cryptoTypeConfig);
         logger.info("init CryptoSuite, cryptoType: {}", cryptoTypeConfig);
         this.setConfig(configOption);
+        this.initCryptoSuite(cryptoTypeConfig);
         // doesn't set the account name, generate the keyPair randomly
         if (!configOption.getAccountConfig().isAccountConfigured()) {
-            this.generateRandomKeyPair();
+            if (configOption.getCryptoMaterialConfig().getEnableHsm()) {
+                HsmSM2KeyPair hsmKeyPair = (HsmSM2KeyPair) this.keyPair;
+                this.cryptoKeyPair = hsmKeyPair.useKeyPair();
+            } else {
+                this.generateRandomKeyPair();
+            }
             return;
         }
         this.loadAccount(configOption);
@@ -81,27 +87,44 @@ public class CryptoSuite {
      * @param cryptoTypeConfig the crypto type config number
      */
     public CryptoSuite(int cryptoTypeConfig) {
+        initCryptoSuite(cryptoTypeConfig);
+    }
+
+    public void initCryptoSuite(int cryptoTypeConfig) {
         this.cryptoTypeConfig = cryptoTypeConfig;
         if (this.cryptoTypeConfig == CryptoType.ECDSA_TYPE) {
             this.signatureImpl = new ECDSASignature();
             this.hashImpl = new Keccak256();
-            this.keyPairFactory = new ECDSAKeyPair();
-
+            this.keyPair = new ECDSAKeyPair();
+            this.generateRandomKeyPair();
         } else if (this.cryptoTypeConfig == CryptoType.SM_TYPE) {
             this.signatureImpl = new SM2Signature();
             this.hashImpl = new SM3Hash();
-            this.keyPairFactory = new SM2KeyPair();
+            this.keyPair = new SM2KeyPair();
+            this.generateRandomKeyPair();
+        } else if (this.cryptoTypeConfig == CryptoType.HSM_TYPE) {
+            String hsmLibPath = this.config.getCryptoMaterialConfig().getHsmLibPath();
+            int hsmKeyIndex =
+                    Integer.parseInt(this.config.getCryptoMaterialConfig().getHsmKeyIndex());
+            String hsmPassword = this.config.getCryptoMaterialConfig().getHsmPassword();
 
+            HsmSM2Signature hsmSM2Signature = new HsmSM2Signature();
+            hsmSM2Signature.setHsmLibPath(hsmLibPath);
+            this.signatureImpl = hsmSM2Signature;
+            this.hashImpl = new SM3Hash();
+            this.keyPair = new HsmSM2KeyPair(hsmLibPath, hsmKeyIndex, hsmPassword);
+            HsmSM2KeyPair hsmKeyPair = (HsmSM2KeyPair) this.keyPair;
+            this.cryptoKeyPair = hsmKeyPair.useKeyPair();
         } else {
             throw new UnsupportedCryptoTypeException(
                     "only support "
                             + CryptoType.ECDSA_TYPE
                             + "/"
                             + CryptoType.SM_TYPE
+                            + "/"
+                            + CryptoType.HSM_TYPE
                             + " crypto type");
         }
-        // create keyPair randomly
-        this.generateRandomKeyPair();
     }
 
     /**
@@ -115,8 +138,12 @@ public class CryptoSuite {
         KeyTool keyTool = null;
         if (accountFileFormat.compareToIgnoreCase("p12") == 0) {
             keyTool = new P12KeyStore(accountFilePath, password);
+            this.loadKeyPair(keyTool.getKeyPair());
         } else if (accountFileFormat.compareToIgnoreCase("pem") == 0) {
             keyTool = new PEMKeyStore(accountFilePath);
+            this.loadKeyPair(keyTool.getKeyPair());
+        } else if (accountFileFormat.compareToIgnoreCase("HSM") == 0) {
+            this.loadHsmKeyPair();
         } else {
             throw new LoadKeyStoreException(
                     "unsupported account file format : "
@@ -124,7 +151,6 @@ public class CryptoSuite {
                             + ", current supported are p12 and pem");
         }
         logger.debug("Load account from {}", accountFilePath);
-        this.loadKeyPair(keyTool.getKeyPair());
     }
 
     /**
@@ -138,12 +164,10 @@ public class CryptoSuite {
         if (accountFilePath == null || accountFilePath.equals("")) {
             if (accountConfig.getAccountFileFormat().compareToIgnoreCase("p12") == 0) {
                 accountFilePath =
-                        this.keyPairFactory.getP12KeyStoreFilePath(
-                                accountConfig.getAccountAddress());
+                        this.keyPair.getP12KeyStoreFilePath(accountConfig.getAccountAddress());
             } else if (accountConfig.getAccountFileFormat().compareToIgnoreCase("pem") == 0) {
                 accountFilePath =
-                        this.keyPairFactory.getPemKeyStoreFilePath(
-                                accountConfig.getAccountAddress());
+                        this.keyPair.getPemKeyStoreFilePath(accountConfig.getAccountAddress());
             }
         }
         this.loadAccount(
@@ -159,7 +183,6 @@ public class CryptoSuite {
      */
     public void setConfig(ConfigOption config) {
         this.config = config;
-        this.keyPairFactory.setConfig(config);
     }
 
     public int getCryptoTypeConfig() {
@@ -231,7 +254,7 @@ public class CryptoSuite {
      * @return the string type signature
      */
     public String sign(KeyTool keyTool, String message) {
-        CryptoKeyPair cryptoKeyPair = this.keyPairFactory.createKeyPair(keyTool.getKeyPair());
+        CryptoKeyPair cryptoKeyPair = this.keyPair.createKeyPair(keyTool.getKeyPair());
         return this.signatureImpl.signWithStringSignature(message, cryptoKeyPair);
     }
 
@@ -289,7 +312,7 @@ public class CryptoSuite {
      * @return a generated key pair
      */
     public CryptoKeyPair generateRandomKeyPair() {
-        this.cryptoKeyPair = this.keyPairFactory.generateKeyPair();
+        this.cryptoKeyPair = this.keyPair.generateKeyPair();
         this.cryptoKeyPair.setConfig(this.config);
         return this.cryptoKeyPair;
     }
@@ -301,7 +324,7 @@ public class CryptoSuite {
      * @return CryptoKeyPair type key pair
      */
     public CryptoKeyPair loadKeyPair(KeyPair keyPair) {
-        this.cryptoKeyPair = this.keyPairFactory.createKeyPair(keyPair);
+        this.cryptoKeyPair = this.keyPair.createKeyPair(keyPair);
         this.cryptoKeyPair.setConfig(this.config);
         return this.cryptoKeyPair;
     }
@@ -313,8 +336,19 @@ public class CryptoSuite {
      * @return CryptoKeyPair type key pair
      */
     public CryptoKeyPair loadKeyPair(String hexedPrivateKey) {
-        this.cryptoKeyPair = this.keyPairFactory.createKeyPair(hexedPrivateKey);
+        this.cryptoKeyPair = this.keyPair.createKeyPair(hexedPrivateKey);
         this.cryptoKeyPair.setConfig(this.config);
+        return this.cryptoKeyPair;
+    }
+
+    /**
+     * Create key pair from a private key string
+     *
+     * @return CryptoKeyPair type key pair
+     */
+    public CryptoKeyPair loadHsmKeyPair() {
+        HsmSM2KeyPair hsmSM2KeyPair = (HsmSM2KeyPair) this.keyPair;
+        this.cryptoKeyPair = hsmSM2KeyPair.useKeyPair();
         return this.cryptoKeyPair;
     }
 
@@ -352,7 +386,7 @@ public class CryptoSuite {
      * @return CryptoKeyPair
      */
     public CryptoKeyPair getKeyPairFactory() {
-        return this.keyPairFactory;
+        return this.keyPair;
     }
 
     public void destroy() {

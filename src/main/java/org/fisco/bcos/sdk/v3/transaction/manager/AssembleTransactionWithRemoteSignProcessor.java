@@ -4,10 +4,12 @@ import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.L
 import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.LIQUID_SCALE_CODEC;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.jni.common.JniException;
-import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
@@ -56,8 +58,34 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     public TransactionResponse deployAndGetResponse(
             String abi, String bin, List<Object> params, String path)
             throws ContractCodecException {
-        TxPair txPair = this.createSignedConstructor(abi, bin, params, path);
-        return this.deployAndGetResponse(abi, txPair.getSignedTx());
+        try {
+            long transactionData =
+                    TransactionBuilderJniObj.createTransactionData(
+                            this.groupId,
+                            this.chainId,
+                            Objects.nonNull(path) ? path : "",
+                            Hex.toHexString(this.contractCodec.encodeConstructor(abi, bin, params)),
+                            abi,
+                            client.getBlockLimit().longValue());
+            byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(transactionData);
+            SignatureResult signatureResult =
+                    transactionSignProvider.requestForSign(
+                            rawTxHash, this.cryptoSuite.getCryptoTypeConfig());
+            byte[] bytes =
+                    transactionEncoder.encodeToTransactionBytes(
+                            transactionData,
+                            signatureResult,
+                            client.isWASM()
+                                    ? LIQUID_CREATE | LIQUID_SCALE_CODEC
+                                    : TransactionAttribute.EVM_ABI_CODEC);
+            return this.deployAndGetResponse(abi, Hex.toHexString(bytes));
+        } catch (JniException e) {
+            log.error("Jni build transaction error, e:", e);
+            throw new ContractCodecException("Jni build transaction error, e:" + e.getMessage());
+        } catch (Exception e) {
+            log.error("deployAndGetResponse exception, e:", e);
+            throw new ContractCodecException("deployAndGetResponse exception, e:" + e.getMessage());
+        }
     }
 
     @Override
@@ -96,6 +124,16 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     }
 
     @Override
+    public TransactionResponse deployByContractLoader(String contractName, List<Object> args)
+            throws ContractCodecException, TransactionBaseException {
+        return this.deployAndGetResponse(
+                contractLoader.getABIByContractName(contractName),
+                contractLoader.getBinaryByContractName(contractName),
+                args,
+                "");
+    }
+
+    @Override
     public void deployByContractLoaderAsync(
             String contractName,
             List<Object> args,
@@ -125,6 +163,20 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
     }
 
     @Override
+    public TransactionResponse sendTransactionAndGetResponseByContractLoader(
+            String contractName,
+            String contractAddress,
+            String functionName,
+            List<Object> funcParams)
+            throws ContractCodecException, TransactionBaseException {
+        return this.sendTransactionAndGetResponse(
+                contractAddress,
+                contractLoader.getABIByContractName(contractName),
+                functionName,
+                funcParams);
+    }
+
+    @Override
     public void sendTransactionAsync(
             String to,
             String abi,
@@ -136,6 +188,38 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
         byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(transactionData);
         this.transactionSignProvider.requestForSignAsync(
                 rawTxHash, this.cryptoSuite.getCryptoTypeConfig(), remoteSignCallbackInterface);
+    }
+
+    @Override
+    public TransactionResponse sendTransactionAndGetResponse(
+            String to, String abi, String functionName, List<Object> params)
+            throws ContractCodecException {
+        try {
+
+            long rawTransaction = this.getRawTransaction(to, abi, functionName, params);
+            byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(rawTransaction);
+            int txAttribute = 0;
+            if (client.isWASM()) {
+                txAttribute = LIQUID_SCALE_CODEC;
+            }
+            SignatureResult signatureResult =
+                    this.transactionSignProvider.requestForSign(
+                            rawTxHash, cryptoSuite.getCryptoTypeConfig());
+            byte[] transactionBytes =
+                    this.transactionEncoder.encodeToTransactionBytes(
+                            rawTransaction, signatureResult, txAttribute);
+            TransactionReceipt transactionReceipt =
+                    this.transactionPusher.push(Hex.toHexString(transactionBytes));
+            return transactionDecoder.decodeReceiptWithValues(
+                    abi, functionName, transactionReceipt);
+        } catch (JniException e) {
+            log.error("Jni build transaction error, e:", e);
+            throw new ContractCodecException("Jni build transaction error, e:" + e.getMessage());
+        } catch (Exception e) {
+            log.error("deployAndGetResponse exception, e:", e);
+            throw new ContractCodecException(
+                    "sendTransactionAndGetResponse exception, e:" + e.getMessage());
+        }
     }
 
     @Override

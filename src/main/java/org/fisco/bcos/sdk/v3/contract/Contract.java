@@ -34,14 +34,18 @@ import org.fisco.bcos.sdk.v3.codec.EventValues;
 import org.fisco.bcos.sdk.v3.codec.FunctionEncoderInterface;
 import org.fisco.bcos.sdk.v3.codec.FunctionReturnDecoderInterface;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Array;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Event;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
+import org.fisco.bcos.sdk.v3.model.callback.CallCallback;
+import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
@@ -62,7 +66,7 @@ public class Contract {
     protected String contractAddress;
     // transactionReceipt after deploying the contract
     protected TransactionReceipt deployReceipt;
-    protected final TransactionProcessor transactionProcessor;
+    protected TransactionProcessor transactionProcessor;
     protected final Client client;
     public static final String FUNC_DEPLOY = "deploy";
     protected final FunctionEncoderInterface functionEncoder;
@@ -143,6 +147,10 @@ public class Contract {
 
     public TransactionProcessor getTransactionProcessor() {
         return this.transactionProcessor;
+    }
+
+    public void setTransactionProcessor(TransactionProcessor transactionProcessor) {
+        this.transactionProcessor = transactionProcessor;
     }
 
     public String getCurrentExternalAccountAddress() {
@@ -259,6 +267,54 @@ public class Contract {
                     e,
                     response.getCallResult());
         }
+    }
+
+    protected void asyncExecuteCall(Function function, CallCallback callback) {
+        byte[] encodedFunctionData = this.functionEncoder.encode(function);
+        CallRequest callRequest =
+                new CallRequest(
+                        this.credential.getAddress(), this.contractAddress, encodedFunctionData);
+        transactionProcessor.asyncExecuteCall(
+                callRequest,
+                new RespCallback<Call>() {
+                    @Override
+                    public void onResponse(Call response) {
+                        String callResult = response.getCallResult().getOutput();
+                        if (response.getCallResult().getStatus() != 0) {
+                            logger.warn(
+                                    "status of executeCall is non-success, status: {}, callResult: {}",
+                                    response.getCallResult().getStatus(),
+                                    response.getCallResult());
+                            callback.onError(
+                                    new Response(
+                                            response.getCallResult().getStatus(),
+                                            "execute "
+                                                    + function.getName()
+                                                    + " failed for non-zero status "
+                                                    + response.getCallResult().getStatus()));
+                            return;
+                        }
+                        List<Type> result;
+                        try {
+                            result =
+                                    functionReturnDecoder.decode(
+                                            callResult, function.getOutputParameters());
+                        } catch (Exception e) {
+                            callback.onError(
+                                    new Response(
+                                            -1,
+                                            "decode callResult failed, error info: "
+                                                    + e.getMessage()));
+                            return;
+                        }
+                        callback.onResponse(result);
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        callback.onError(errorResponse);
+                    }
+                });
     }
 
     protected <T extends Type, R> R executeCallWithSingleValueReturn(
@@ -441,7 +497,11 @@ public class Contract {
     public static <S extends Type, T> List<T> convertToNative(List<S> arr) {
         List<T> out = new ArrayList<T>();
         for (S s : arr) {
-            out.add((T) s.getValue());
+            if (Array.class.isAssignableFrom(s.getClass())) {
+                out.add((T) convertToNative((List<? extends Type>) ((Array) s).getValue()));
+            } else {
+                out.add((T) s.getValue());
+            }
         }
         return out;
     }

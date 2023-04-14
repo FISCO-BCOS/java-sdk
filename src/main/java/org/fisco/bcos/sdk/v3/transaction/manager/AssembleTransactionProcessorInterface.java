@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
-import org.fisco.bcos.sdk.v3.client.RespCallback;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallResponse;
@@ -225,6 +225,21 @@ public interface AssembleTransactionProcessorInterface {
             throws ContractCodecException, TransactionBaseException;
 
     /**
+     * deploy contract to fisco bcos node and get response by contract name. The contract loader
+     * will load the transaction abi and bin information.
+     *
+     * @param contractName contract name.
+     * @param params contract construct parameters
+     * @param path BFS path only for wasm
+     * @return transaction response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
+     */
+    TransactionResponse deployByContractLoader(
+            String contractName, List<Object> params, String path)
+            throws ContractCodecException, TransactionBaseException;
+
+    /**
      * deploy contract to fisco bcos node and get response by contract name asynchronously. The
      * contract loader will load the transaction abi and bin information.
      *
@@ -236,6 +251,21 @@ public interface AssembleTransactionProcessorInterface {
      */
     void deployByContractLoaderAsync(
             String contractName, List<Object> params, TransactionCallback callback)
+            throws ContractCodecException, NoSuchTransactionFileException;
+
+    /**
+     * deploy contract to fisco bcos node and get response by contract name asynchronously. The
+     * contract loader will load the transaction abi and bin information.
+     *
+     * @param contractName contract name.
+     * @param params contract construct parameters
+     * @param path BFS path only for wasm
+     * @param callback transaction with callback function
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws NoSuchTransactionFileException throw when loader get contract error
+     */
+    void deployByContractLoaderAsync(
+            String contractName, List<Object> params, String path, TransactionCallback callback)
             throws ContractCodecException, NoSuchTransactionFileException;
 
     /**

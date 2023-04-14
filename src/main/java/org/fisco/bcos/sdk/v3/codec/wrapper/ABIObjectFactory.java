@@ -69,9 +69,22 @@ public class ABIObjectFactory {
         ABIObject abiObject = null;
 
         if (rawType.startsWith("uint")) {
-            abiObject = new ABIObject(ABIObject.ValueType.UINT);
+            int bitSize = 0;
+            try {
+                bitSize = Integer.parseInt(rawType.substring("uint".length()));
+            } catch (Exception ignored) {
+                bitSize = 256;
+            }
+            abiObject = new ABIObject(ABIObject.ValueType.UINT, bitSize);
         } else if (rawType.startsWith("int")) {
-            abiObject = new ABIObject(ABIObject.ValueType.INT);
+
+            int bitSize = 0;
+            try {
+                bitSize = Integer.parseInt(rawType.substring("int".length()));
+            } catch (Exception ignored) {
+                bitSize = 256;
+            }
+            abiObject = new ABIObject(ABIObject.ValueType.INT, bitSize);
         } else if (rawType.startsWith("bool")) {
             abiObject = new ABIObject(ABIObject.ValueType.BOOL);
         } else if (rawType.startsWith("string")) {

@@ -19,9 +19,13 @@ conf/
 ## integration test files
 nodes/
 src/integration-test/resources/conf**
+src/integration-test/resources/log**
+src/integration-wasm-test/resources/conf**
+src/integration-wasm-test/resources/log**
 build_chain.sh
 account/
 conf/
+bin/
 gmcert.cnf
 gmsm2.param
 integrationTestEnv.sh

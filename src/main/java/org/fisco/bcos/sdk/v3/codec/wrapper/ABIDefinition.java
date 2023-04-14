@@ -151,6 +151,8 @@ public class ABIDefinition {
      * @return the method id
      */
     public byte[] getMethodId(CryptoSuite cryptoSuite) {
+        // Note: it's ok to use the abi encoder for all ABIDefinition, because only use
+        // buildMethodId
         org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder encoder =
                 new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite);
         return encoder.buildMethodId(this.getMethodSignatureAsString());
@@ -545,7 +547,12 @@ public class ABIDefinition {
         }
 
         public int structIdentifier() {
-            return (((internalType == null || internalType.isEmpty()) ? type : internalType)
+            String typeIdentifier =
+                    (internalType == null || internalType.isEmpty()) ? type : internalType;
+            if (typeIdentifier.endsWith("[]")) {
+                typeIdentifier = typeIdentifier.substring(0, typeIdentifier.indexOf('['));
+            }
+            return (typeIdentifier
                             + components.stream()
                                     .map(namedType -> String.valueOf(namedType.structIdentifier()))
                                     .collect(Collectors.joining()))

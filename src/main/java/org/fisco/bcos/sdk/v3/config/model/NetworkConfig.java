@@ -27,8 +27,9 @@ public class NetworkConfig {
     private static final Logger logger = LoggerFactory.getLogger(NetworkConfig.class);
 
     private List<String> peers;
-    private String defaultGroup;
     private int timeout = -1;
+    private String defaultGroup;
+    private boolean sendRpcRequestToHighestBlockNode = true;
 
     public NetworkConfig() {}
 
@@ -41,7 +42,16 @@ public class NetworkConfig {
             if (Objects.nonNull(value)) {
                 timeout = Integer.parseInt((String) value);
             }
-            logger.info("network config items, timeout: {}, peers: {}", timeout, peers);
+
+            value = networkProperty.get("sendRpcRequestToHighestBlockNode");
+            if (Objects.nonNull(value)) {
+                sendRpcRequestToHighestBlockNode = Boolean.parseBoolean((String) value);
+            }
+            logger.info(
+                    "network config items, sendRpcRequestToHighestBlockNode: {}, timeout: {}, peers: {}",
+                    sendRpcRequestToHighestBlockNode,
+                    timeout,
+                    peers);
         }
     }
 
@@ -69,16 +79,26 @@ public class NetworkConfig {
         this.timeout = timeout;
     }
 
+    public boolean isSendRpcRequestToHighestBlockNode() {
+        return sendRpcRequestToHighestBlockNode;
+    }
+
+    public void setSendRpcRequestToHighestBlockNode(boolean sendRpcRequestToHighestBlockNode) {
+        this.sendRpcRequestToHighestBlockNode = sendRpcRequestToHighestBlockNode;
+    }
+
     @Override
     public String toString() {
         return "NetworkConfig{"
                 + "peers="
                 + peers
+                + ", timeout="
+                + timeout
                 + ", defaultGroup='"
                 + defaultGroup
                 + '\''
-                + ", timeout="
-                + timeout
+                + ", sendRpcRequestToHighestBlockNode="
+                + sendRpcRequestToHighestBlockNode
                 + '}';
     }
 }

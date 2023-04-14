@@ -16,30 +16,31 @@ ext {
     if (!project.hasProperty("ossrhPassword")) {
         ossrhPassword = "xxx"
     }
-    jacksonVersion = '2.14.0'
-    commonsIOVersion = '2.4'
+    jacksonVersion = '2.14.2'
+    commonsIOVersion = '2.11.0'
     commonsLang3Version = '3.12.0'
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = '1.69'
     webankJavaCryptoVersion = "1.0.3"
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
-    guavaVersion = '30.1.1-jre'
-    bcosSdkJniVersion = "3.2.0"
+    guavaVersion = '31.1-jre'
+    bcosSdkJniVersion = "3.3.0-SNAPSHOT"
     slf4jApiVerison = '1.7.36'
     mockitoVersion = '4.8.0'
-    gsonVersion = '2.10'
+    gsonVersion = '2.10.1'
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.2.0'
+    version = '3.3.0-SNAPSHOT'
 
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
+    
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'jacoco'
@@ -135,6 +136,7 @@ dependencies {
         exclude group : "org.slf4j"
         exclude group : "com.fasterxml.jackson.core"
     }
+
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
     api("com.google.code.gson:gson:${gsonVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")

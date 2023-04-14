@@ -108,7 +108,6 @@ public class ContractABIDefinition {
     }
 
     public ABIDefinition getABIDefinitionByEventTopic(String topic) {
-        // FIXME: check topic string is hex
         return this.eventTopicToEvents.get(ByteBuffer.wrap(Hex.decode(topic)));
     }
 

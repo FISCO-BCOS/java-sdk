@@ -12,6 +12,8 @@ import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
 import org.fisco.bcos.sdk.v3.test.transaction.mock.MockContract;
+import org.fisco.bcos.sdk.v3.test.transaction.mock.MockTransactionProcessor;
+import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,6 +28,7 @@ public class ContractTest {
     private Client mockClient;
     private final CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
     private MockContract mockContract;
+    private TransactionProcessor mockTransactionProcessor;
 
     public ContractTest() {
         mockClient = mock(Client.class);
@@ -60,7 +63,10 @@ public class ContractTest {
                     return transactionReceipt;
                 }
         );
-        return mockContract.executeTransaction(function);
+
+        TransactionProcessor mockTransactionProcessor = new MockTransactionProcessor(mockClient, cryptoSuite.getCryptoKeyPair(), "group0", "chain0", "", status,"");
+        // sendTransactionAndGetReceipt(String to, byte[] data, CryptoKeyPair cryptoKeyPair, int txAttribute) {
+        return mockTransactionProcessor.sendTransactionAndGetReceipt("", new byte[]{0}, null, 1);
     }
 
     public MockContract mockDeploy(String output, int status, String address, boolean isWasm) throws ContractException {

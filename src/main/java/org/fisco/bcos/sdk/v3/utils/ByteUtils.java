@@ -137,7 +137,6 @@ public class ByteUtils {
      */
     public static byte[] longToBytesNoLeadZeroes(long val) {
 
-        // todo: improve performance by while strip numbers until (long >> 8 == 0)
         if (val == 0) {
             return EMPTY_BYTE_ARRAY;
         }

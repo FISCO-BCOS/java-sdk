@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class ScaleCodecTest {
     private static final String configFile =
-            "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
+            "src/integration-wasm-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
 
     @Test
     public void testNumericType() throws Exception {
@@ -36,16 +36,14 @@ public class ScaleCodecTest {
 
         // u128
         // 2^63-1 * 2^63-1
-        // FIXME: get MAX_U128 will overflow -1
-        BigInteger rowU128 = new BigInteger("123456");
-        codecTest.set_u128(rowU128);
+        codecTest.set_u128(Constant.MAX_INT128);
         BigInteger u128 = codecTest.get_u128();
         System.out.println(u128);
-        Assert.assertEquals(0, rowU128.compareTo(u128));
+        Assert.assertEquals(0, Constant.MAX_INT128.compareTo(u128));
         // u256
-        codecTest.set_u256(Constant.MAX_UINT256);
+        codecTest.set_u256(Constant.MAX_INT256);
         BigInteger u256 = codecTest.get_u256();
-        Assert.assertEquals(Constant.MAX_UINT256, u256);
+        Assert.assertEquals(Constant.MAX_INT256, u256);
         // i8
         codecTest.set_i8(BigInteger.valueOf(-1));
         BigInteger i8 = codecTest.get_i8();
