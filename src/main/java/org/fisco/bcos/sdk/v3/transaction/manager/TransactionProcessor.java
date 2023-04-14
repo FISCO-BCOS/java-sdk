@@ -203,7 +203,11 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         });
 
         if (log.isDebugEnabled()) {
-            log.debug("sendTransactionAsync , to: {}, tx hash: {}", to, txHash);
+            log.debug(
+                    "sendTransactionAsync, group: {}, to: {}, tx hash: {}",
+                    this.groupId,
+                    to,
+                    txHash);
         }
 
         return txHash;

@@ -151,6 +151,8 @@ public class ABIDefinition {
      * @return the method id
      */
     public byte[] getMethodId(CryptoSuite cryptoSuite) {
+        // Note: it's ok to use the abi encoder for all ABIDefinition, because only use
+        // buildMethodId
         org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder encoder =
                 new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite);
         return encoder.buildMethodId(this.getMethodSignatureAsString());
