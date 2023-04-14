@@ -2,7 +2,7 @@ name: Java-SDK GitHub Actions
 on:
   pull_request:
   release:
-    types: [published, created, edited]
+    types: [ published, created, edited ]
 env:
   CCACHE_DIR: ${{ github.workspace }}/ccache
 
@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, ubuntu-22.04, windows-2019, macos-12]
+        os: [ ubuntu-20.04, ubuntu-22.04, windows-2019, macos-12 ]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -55,7 +55,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ ubuntu-20.04 ]
     container: docker.io/centos:7
     steps:
       - uses: actions/checkout@v2
@@ -76,8 +76,17 @@ jobs:
             build-${{ matrix.os }}-${{ github.base_ref }}-
             build-${{ matrix.os }}-
       - name: install CentOS dependencies
-        run: yum install -y epel-release centos-release-scl wget which git openssl-devel openssl java java-devel
+        run: yum install -y epel-release centos-release-scl wget which git openssl-devel openssl java java-devel tree
+      - name: run build test
+        run: /bin/bash gradlew build --info && tree ./build/reports
+      - name: upload unittest coverage
+        run: curl -LO https://codecov.io/bash && /bin/bash ./bash
+      #        uses: codecov/codecov-action@v3
+      #        with:
+      #          token: ${{ secrets.CODECOV_TOKEN }}
+      #          files: ./build/reports/jacoco/test/jacocoTestReport.xml
+      #          flags: unittest
+      #          fail_ci_if_error: true
+      #          verbose: true
       - name: run integration testing
         run: /bin/bash .ci/ci_check.sh
-      - name: upload coverage
-        run: curl -LO https://codecov.io/bash && /bin/bash ./bash
