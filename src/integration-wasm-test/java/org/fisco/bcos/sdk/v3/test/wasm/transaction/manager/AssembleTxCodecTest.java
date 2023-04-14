@@ -40,22 +40,19 @@ public class AssembleTxCodecTest {
     private static final String ABI_FILE = "src/integration-wasm-test/resources/abi/";
     private static final String BIN_FILE = "src/integration-wasm-test/resources/bin/";
 
-    private final String complexCodecTest = "complex_codec_test";
-
-    // group
-    private final Client client;
-    private final CryptoKeyPair cryptoKeyPair;
+    private static final String COMPLEX_CODEC_TEST = "complex_codec_test";
 
     private final AssembleTransactionProcessor transactionProcessor;
 
     public AssembleTxCodecTest() throws IOException {
         // init the sdk, and set the config options.
         BcosSDK sdk = BcosSDK.build(CONFIG_FILE);
-        client = sdk.getClient("group0");
-        cryptoKeyPair = this.client.getCryptoSuite().getCryptoKeyPair();
+        // group
+        Client client = sdk.getClient("group0");
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
+                        client, cryptoKeyPair, ABI_FILE, BIN_FILE);
     }
 
     @Test
@@ -69,7 +66,7 @@ public class AssembleTxCodecTest {
             deployParams.add(structA);
         }
         TransactionResponse response =
-                transactionProcessor.deployByContractLoader(complexCodecTest, deployParams, "complex_codec_test" + System.currentTimeMillis());
+                transactionProcessor.deployByContractLoader(COMPLEX_CODEC_TEST, deployParams, "complex_codec_test" + System.currentTimeMillis());
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         Assert.assertTrue(StringUtils.isNotBlank(response.getContractAddress()));
@@ -79,7 +76,7 @@ public class AssembleTxCodecTest {
             // not params method
             CallResponse callResponse1 =
                     transactionProcessor.sendCallByContractLoader(
-                            complexCodecTest, contractAddress, "get_struct_a_without_args", new ArrayList<>());
+                            COMPLEX_CODEC_TEST, contractAddress, "get_struct_a_without_args", new ArrayList<>());
             List<Object> returnObject = callResponse1.getReturnObject();
             List<Type> results = callResponse1.getResults();
             Assert.assertEquals(results.size(), 1);
@@ -95,7 +92,7 @@ public class AssembleTxCodecTest {
             DynamicStruct structA = new DynamicStruct(array, bytes32DynamicArray);
             callParams.add(structA);
             CallResponse callResponse2 = transactionProcessor.sendCallByContractLoader(
-                    complexCodecTest, contractAddress, "get_struct_a", callParams);
+                    COMPLEX_CODEC_TEST, contractAddress, "get_struct_a", callParams);
 
             returnObject = callResponse2.getReturnObject();
             results = callResponse2.getResults();
@@ -117,7 +114,7 @@ public class AssembleTxCodecTest {
             params.add(bbs);
 
             TransactionResponse transactionResponse = transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                    complexCodecTest, contractAddress, "set_bytes_array_array", params);
+                    COMPLEX_CODEC_TEST, contractAddress, "set_bytes_array_array", params);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -139,7 +136,7 @@ public class AssembleTxCodecTest {
             params.add(bbs);
 
             TransactionResponse transactionResponse = transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                    complexCodecTest, contractAddress, "set_bytes32_array_array", params);
+                    COMPLEX_CODEC_TEST, contractAddress, "set_bytes32_array_array", params);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -186,7 +183,7 @@ public class AssembleTxCodecTest {
             params.add(bbs);
 
             TransactionResponse transactionResponse = transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                    complexCodecTest, contractAddress, "set_bytes32_s_array_array", params);
+                    COMPLEX_CODEC_TEST, contractAddress, "set_bytes32_s_array_array", params);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -208,7 +205,7 @@ public class AssembleTxCodecTest {
             params.add(structA);
 
             TransactionResponse transactionResponse = transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                    complexCodecTest, contractAddress, "build_struct_b", params);
+                    COMPLEX_CODEC_TEST, contractAddress, "build_struct_b", params);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -227,7 +224,7 @@ public class AssembleTxCodecTest {
             params2.add(new Int128(-256));
             params2.add(new Uint128(288));
             TransactionResponse transactionResponse2 = transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                    complexCodecTest, contractAddress, "build_static_struct", params2);
+                    COMPLEX_CODEC_TEST, contractAddress, "build_static_struct", params2);
             Assert.assertEquals(transactionResponse2.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse2.getResults();
             List<Object> returnObject = transactionResponse2.getReturnObject();
@@ -244,7 +241,7 @@ public class AssembleTxCodecTest {
             // not params method
             CallResponse callResponse1 =
                     transactionProcessor.sendCallByContractLoader(
-                            complexCodecTest, contractAddress, "get_static_struct_without_args", new ArrayList<>());
+                            COMPLEX_CODEC_TEST, contractAddress, "get_static_struct_without_args", new ArrayList<>());
             List<Object> returnObject = callResponse1.getReturnObject();
             List<Type> results = callResponse1.getResults();
             Assert.assertEquals(results.size(), 1);
@@ -257,7 +254,7 @@ public class AssembleTxCodecTest {
             StaticStruct staticStruct = new StaticStruct(new Int128(-128), new Uint128(128), new StaticArray<>(Int32.class, 1, new Int32(1)));
             callParams.add(staticStruct);
             CallResponse callResponse2 = transactionProcessor.sendCallByContractLoader(
-                    complexCodecTest, contractAddress, "get_static_struct", callParams);
+                    COMPLEX_CODEC_TEST, contractAddress, "get_static_struct", callParams);
 
             returnObject = callResponse2.getReturnObject();
             results = callResponse2.getResults();
@@ -277,8 +274,8 @@ public class AssembleTxCodecTest {
         List<String> deployParams = new ArrayList<>();
 
         deployParams.add("[[\"test\"],[\"ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\"]]");
-        String abi = transactionProcessor.getContractLoader().getABIByContractName(complexCodecTest);
-        String bin = transactionProcessor.getContractLoader().getBinaryByContractName(complexCodecTest);
+        String abi = transactionProcessor.getContractLoader().getABIByContractName(COMPLEX_CODEC_TEST);
+        String bin = transactionProcessor.getContractLoader().getBinaryByContractName(COMPLEX_CODEC_TEST);
         TransactionResponse response = transactionProcessor.deployAndGetResponseWithStringParams(abi, bin, deployParams, "codec_test" + System.currentTimeMillis());
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
@@ -470,7 +467,7 @@ public class AssembleTxCodecTest {
             deployParams.add(structA);
         }
         TransactionResponse response =
-                transactionProcessor.deployByContractLoader(complexCodecTest, deployParams, "complex_codec_test" + System.currentTimeMillis());
+                transactionProcessor.deployByContractLoader(COMPLEX_CODEC_TEST, deployParams, "complex_codec_test" + System.currentTimeMillis());
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         Assert.assertTrue(StringUtils.isNotBlank(response.getContractAddress()));
@@ -480,7 +477,7 @@ public class AssembleTxCodecTest {
             // not params method
             CallResponse callResponse1 =
                     transactionProcessor.sendCallByContractLoader(
-                            complexCodecTest, contractAddress, "get_struct_a_without_args", new ArrayList<>());
+                            COMPLEX_CODEC_TEST, contractAddress, "get_struct_a_without_args", new ArrayList<>());
             List<Object> returnObject = callResponse1.getReturnObject();
             List<Type> results = callResponse1.getResults();
             Assert.assertEquals(results.size(), 1);
@@ -507,7 +504,7 @@ public class AssembleTxCodecTest {
             structA.add(bytes);
             callParams.add(structA);
             CallResponse callResponse2 = transactionProcessor.sendCallByContractLoader(
-                    complexCodecTest, contractAddress, "get_struct_a", callParams);
+                    COMPLEX_CODEC_TEST, contractAddress, "get_struct_a", callParams);
 
             returnObject = callResponse2.getReturnObject();
             results = callResponse2.getResults();
@@ -531,7 +528,7 @@ public class AssembleTxCodecTest {
             params.add(bss);
 
             TransactionResponse transactionResponse = transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                    complexCodecTest, contractAddress, "set_bytes_array_array", params);
+                    COMPLEX_CODEC_TEST, contractAddress, "set_bytes_array_array", params);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -555,7 +552,7 @@ public class AssembleTxCodecTest {
             params.add(bss);
 
             TransactionResponse transactionResponse = transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                    complexCodecTest, contractAddress, "set_bytes32_array_array", params);
+                    COMPLEX_CODEC_TEST, contractAddress, "set_bytes32_array_array", params);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -608,7 +605,7 @@ public class AssembleTxCodecTest {
             params.add(bss);
 
             TransactionResponse transactionResponse = transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                    complexCodecTest, contractAddress, "set_bytes32_s_array_array", params);
+                    COMPLEX_CODEC_TEST, contractAddress, "set_bytes32_s_array_array", params);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -634,7 +631,7 @@ public class AssembleTxCodecTest {
             params.add(structA);
 
             TransactionResponse transactionResponse = transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                    complexCodecTest, contractAddress, "build_struct_b", params);
+                    COMPLEX_CODEC_TEST, contractAddress, "build_struct_b", params);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -653,7 +650,7 @@ public class AssembleTxCodecTest {
             params2.add(-256);
             params2.add(288);
             TransactionResponse transactionResponse2 = transactionProcessor.sendTransactionAndGetResponseByContractLoader(
-                    complexCodecTest, contractAddress, "build_static_struct", params2);
+                    COMPLEX_CODEC_TEST, contractAddress, "build_static_struct", params2);
             Assert.assertEquals(transactionResponse2.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse2.getResults();
             List<Object> returnObject = transactionResponse2.getReturnObject();
@@ -670,7 +667,7 @@ public class AssembleTxCodecTest {
             // not params method
             CallResponse callResponse1 =
                     transactionProcessor.sendCallByContractLoader(
-                            complexCodecTest, contractAddress, "get_static_struct_without_args", new ArrayList<>());
+                            COMPLEX_CODEC_TEST, contractAddress, "get_static_struct_without_args", new ArrayList<>());
             List<Object> returnObject = callResponse1.getReturnObject();
             List<Type> results = callResponse1.getResults();
             Assert.assertEquals(results.size(), 1);
@@ -683,7 +680,7 @@ public class AssembleTxCodecTest {
             StaticStruct staticStruct = new StaticStruct(new Int128(-128), new Uint128(128), new StaticArray<>(Int32.class, 1, new Int32(1)));
             callParams.add(staticStruct);
             CallResponse callResponse2 = transactionProcessor.sendCallByContractLoader(
-                    complexCodecTest, contractAddress, "get_static_struct", callParams);
+                    COMPLEX_CODEC_TEST, contractAddress, "get_static_struct", callParams);
 
             returnObject = callResponse2.getReturnObject();
             results = callResponse2.getResults();

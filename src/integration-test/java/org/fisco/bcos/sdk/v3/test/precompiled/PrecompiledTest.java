@@ -156,12 +156,14 @@ public class PrecompiledTest {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
+        SystemConfigService systemConfigService = new SystemConfigService(client, cryptoKeyPair);
         if (client.isAuthCheck()) {
+            RetCode retCode = systemConfigService.setValueByKey("tx_count_limit", "100");
+            Assert.assertEquals(retCode.code, PrecompiledRetCode.CODE_NO_AUTHORIZED.code);
             return;
         }
 
-        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
-        SystemConfigService systemConfigService = new SystemConfigService(client, cryptoKeyPair);
         this.testSystemConfigService(client, systemConfigService, "tx_count_limit");
         this.testSystemConfigService(client, systemConfigService, "tx_gas_limit");
     }

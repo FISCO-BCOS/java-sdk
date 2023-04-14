@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.test.transaction.functionCodec;
+package org.fisco.bcos.sdk.v3.test.transaction.codec;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.test.transaction.functionCodec;
+package org.fisco.bcos.sdk.v3.test.transaction.codec;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -130,7 +130,7 @@ public class CodecComplexTest {
             List<String> arrays = new ArrayList<>();
             arrays.add("test2132131");
 
-            TransactionReceipt receipt = complexCodecTest.buildStructA(new String("12312312312"), bytes32DynamicArrays);
+            TransactionReceipt receipt = complexCodecTest.buildStructA("12312312312", bytes32DynamicArrays);
             Tuple1<ComplexCodecTest.StructA> buildStructAOutput = complexCodecTest.getBuildStructAStringBytes32bytes32Output(receipt);
             Assert.assertEquals(buildStructAOutput.getValue1().value_str.get(0), "12312312312");
             Assert.assertEquals(buildStructAOutput.getValue1().bytes32_in_struct.size(), 1);

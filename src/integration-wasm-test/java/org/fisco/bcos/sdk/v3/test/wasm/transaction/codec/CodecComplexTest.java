@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.test.wasm.transaction.functionCodec;
+package org.fisco.bcos.sdk.v3.test.wasm.transaction.codec;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;

@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.test.wasm.transaction.functionCodec;
+package org.fisco.bcos.sdk.v3.test.wasm.transaction.codec;
 
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;

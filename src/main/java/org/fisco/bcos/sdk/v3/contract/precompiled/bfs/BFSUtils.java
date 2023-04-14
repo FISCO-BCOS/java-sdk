@@ -9,8 +9,6 @@ import java.util.Stack;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 
 public class BFSUtils {
-    private BFSUtils() {}
-
     public static final String BFS_TYPE_DIR = "directory";
     public static final String BFS_TYPE_CON = "contract";
     public static final String BFS_TYPE_LNK = "link";
@@ -23,6 +21,8 @@ public class BFSUtils {
 
     public static final Set<String> BFS_SYSTEM_PATH =
             new HashSet<>(Arrays.asList(BFS_ROOT, BFS_APPS, BFS_SYS, BFS_TABLES, BFS_USER));
+
+    private BFSUtils() {}
 
     public static Tuple2<String, String> getParentPathAndBaseName(String path) {
         if (path.equals("/")) return new Tuple2<>("/", "/");

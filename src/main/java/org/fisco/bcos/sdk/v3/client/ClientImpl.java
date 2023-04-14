@@ -1278,7 +1278,7 @@ public class ClientImpl implements Client {
                 return jsonRpcResponse;
             } else {
                 logger.error(
-                        "parseResponseIntoJsonRpcResponse failed, method: {}, group: {}, retErrorMessage: {}, retErrorCode: {}",
+                        "parseResponseIntoJsonRpcResponse failed, method: {}, retErrorMessage: {}, retErrorCode: {}",
                         method,
                         response.getErrorMessage(),
                         response.getErrorCode());

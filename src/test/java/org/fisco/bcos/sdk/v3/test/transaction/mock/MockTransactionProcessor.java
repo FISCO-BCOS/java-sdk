@@ -9,6 +9,10 @@ import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
 import java.util.ArrayList;
 
 public class MockTransactionProcessor extends TransactionProcessor {
+    private String txHash;
+    private String output;
+    private int status;
+
     public MockTransactionProcessor(Client client, CryptoKeyPair cryptoKeyPair, String groupId, String chainId, String txHash, int status, String output) {
         super(client, cryptoKeyPair, groupId, chainId);
         this.txHash = txHash;
@@ -66,8 +70,4 @@ public class MockTransactionProcessor extends TransactionProcessor {
     public void setStatus(int status) {
         this.status = status;
     }
-
-    private String txHash;
-    private String output;
-    private int status;
 }

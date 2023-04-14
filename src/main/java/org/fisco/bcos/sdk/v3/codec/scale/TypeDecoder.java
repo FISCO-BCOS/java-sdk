@@ -226,7 +226,7 @@ public class TypeDecoder {
                                 cls.getSimpleName()
                                         .substring(StaticArray.class.getSimpleName().length()));
             }
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | NumberFormatException e) {
             throw new UnsupportedOperationException(
                     "Unable to access parameterized type " + typeReference.getType().getTypeName(),
                     e);
