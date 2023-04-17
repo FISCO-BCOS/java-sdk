@@ -6,4 +6,8 @@ public class PrecompiledVersionCheck {
     public static final Version SET_CONTRACT_STATUS_VERSION =
             new Version("setContractStatus", "3.2.0");
     public static final Version V320_CRUD_VERSION = new Version("v320CrudVersion", "3.2.0");
+
+    public static final Version INIT_AUTH_VERSION = new Version("initAuth", "3.3.0");
+    public static final Version SHARDING_MIN_SUPPORT_VERSION = new Version("shard", "3.3.0");
+    public static final Version V330_FIX_BFS_VERSION = new Version("fixBfs", "3.3.0");
 }

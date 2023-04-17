@@ -35,9 +35,13 @@ public class Version {
     }
 
     public void checkVersion(long currentVersion) throws ContractException {
+        EnumNodeVersion supportedVersion = EnumNodeVersion.valueOf((int) currentVersion);
+        checkVersion(supportedVersion);
+    }
+
+    public void checkVersion(EnumNodeVersion currentVersion) throws ContractException {
         EnumNodeVersion.Version minSupportVersion = EnumNodeVersion.getClassVersion(minVersion);
-        EnumNodeVersion.Version supportedVersion =
-                EnumNodeVersion.valueOf((int) currentVersion).toVersionObj();
+        EnumNodeVersion.Version supportedVersion = currentVersion.toVersionObj();
         String errorMessage =
                 "The fisco bcos node with supported_version lower than "
                         + minSupportVersion.toVersionString()

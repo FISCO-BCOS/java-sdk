@@ -27,20 +27,20 @@ import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.RespCallback;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.abi.Constant;
-import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ContractCodecTools;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderInterface;
@@ -278,6 +278,28 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 args);
     }
 
+    /**
+     * Deploy by bin and abi files. Should init with contractLoader.
+     *
+     * @param contractName the contract name
+     * @param args the params when deploy a contract
+     * @param path the path of the contract
+     * @return the transaction response
+     * @throws TransactionBaseException send transaction exception
+     * @throws ContractCodecException abi encode exception
+     * @throws NoSuchTransactionFileException Files related to abi codec were not found
+     */
+    @Override
+    public TransactionResponse deployByContractLoader(
+            String contractName, List<Object> args, String path)
+            throws ContractCodecException, TransactionBaseException {
+        return this.deployAndGetResponse(
+                this.contractLoader.getABIByContractName(contractName),
+                this.contractLoader.getBinaryByContractName(contractName),
+                args,
+                path);
+    }
+
     @Override
     public void deployByContractLoaderAsync(
             String contractName, List<Object> args, TransactionCallback callback)
@@ -286,6 +308,18 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                 this.contractLoader.getABIByContractName(contractName),
                 this.contractLoader.getBinaryByContractName(contractName),
                 args,
+                callback);
+    }
+
+    @Override
+    public void deployByContractLoaderAsync(
+            String contractName, List<Object> args, String path, TransactionCallback callback)
+            throws ContractCodecException, NoSuchTransactionFileException {
+        this.deployAsync(
+                this.contractLoader.getABIByContractName(contractName),
+                this.contractLoader.getBinaryByContractName(contractName),
+                args,
+                path,
                 callback);
     }
 
@@ -631,10 +665,22 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                         try {
                             CallResponse callResponse =
                                     parseCallResponseStatus(call.getCallResult());
-                            List<Type> decodedResult =
-                                    contractCodec.decodeMethodByABIDefinition(
+                            ABIObject decodedResult =
+                                    contractCodec.decodeMethodAndGetOutAbiObjectByABIDefinition(
                                             abiDefinition, call.getCallResult().getOutput());
-                            callResponse.setResults(decodedResult);
+                            Pair<List<Object>, List<ABIObject>> outputObject =
+                                    ContractCodecTools.decodeJavaObjectAndGetOutputObject(
+                                            decodedResult);
+                            callResponse.setReturnObject(outputObject.getLeft());
+                            callResponse.setReturnABIObject(outputObject.getRight());
+                            try {
+                                callResponse.setResults(
+                                        ContractCodecTools.getABIObjectTypeListResult(
+                                                decodedResult));
+                            } catch (Exception ignored) {
+                                log.error(
+                                        "decode results failed, ignored. value: {}", decodedResult);
+                            }
                             callback.onResponse(callResponse);
                         } catch (TransactionBaseException | ContractCodecException e) {
                             Response response = new Response();
@@ -656,10 +702,18 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
-        List<Type> decodedResult =
-                this.contractCodec.decodeMethodAndGetOutputObject(
+        ABIObject decodedResult =
+                this.contractCodec.decodeMethodAndGetOutputAbiObject(
                         abi, functionName, call.getCallResult().getOutput());
-        callResponse.setResults(decodedResult);
+        Pair<List<Object>, List<ABIObject>> outputObject =
+                ContractCodecTools.decodeJavaObjectAndGetOutputObject(decodedResult);
+        callResponse.setReturnObject(outputObject.getLeft());
+        callResponse.setReturnABIObject(outputObject.getRight());
+        try {
+            callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(decodedResult));
+        } catch (Exception ignored) {
+            log.error("decode results failed, ignored. value: {}", decodedResult);
+        }
         return callResponse;
     }
 
@@ -668,10 +722,18 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
-        List<Type> decodedResult =
-                this.contractCodec.decodeMethodByABIDefinition(
+        ABIObject abiObject =
+                contractCodec.decodeMethodAndGetOutAbiObjectByABIDefinition(
                         abiDefinition, call.getCallResult().getOutput());
-        callResponse.setResults(decodedResult);
+        Pair<List<Object>, List<ABIObject>> outputObject =
+                ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
+        callResponse.setReturnObject(outputObject.getLeft());
+        callResponse.setReturnABIObject(outputObject.getRight());
+        try {
+            callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(abiObject));
+        } catch (Exception ignored) {
+            log.error("decode results failed, ignored. value: {}", abiObject);
+        }
         return callResponse;
     }
 

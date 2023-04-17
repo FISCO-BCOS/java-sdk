@@ -1,13 +1,14 @@
 codecov:
-  branch: *
+  branch: "*"
 coverage:
   ignore:
     - "src/integration-test/**/*"
+    - "src/integration-wasm-test/**/*"
   status:
     project:
       default:
-        target: 30%
-        threshold: null
+        target: "30%"
+        threshold: "1%"
         if_not_found: success
     patch:
       default:

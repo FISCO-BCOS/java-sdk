@@ -29,7 +29,7 @@ import org.fisco.bcos.sdk.v3.utils.StringUtils;
 @SuppressWarnings("unchecked")
 public class ContractAuthPrecompiled extends Contract {
     public static final String[] ABI_ARRAY = {
-        "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"func\",\"type\":\"bytes4\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"checkMethodAuth\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"selector\":[3630574244,3556246924],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"closeDeployAuth\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[1455255684,438325841],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"func\",\"type\":\"bytes4\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"closeMethodAuth\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[3413924881,2232681703],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"}],\"name\":\"contractAvailable\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"selector\":[747391567,2445967236],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"deployType\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"selector\":[390708905,1502262678],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"}],\"name\":\"getAdmin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"selector\":[1693430315,3050872],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"path\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"func\",\"type\":\"bytes4\"}],\"name\":\"getMethodAuth\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"},{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"}],\"selector\":[91771290,3467007364],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasDeployAuth\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"selector\":[1661302757,3314574843],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"openDeployAuth\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[1632927897,40510205],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"path\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"func\",\"type\":\"bytes4\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"openMethodAuth\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[209893181,4148123484],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"path\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"admin\",\"type\":\"address\"}],\"name\":\"resetAdmin\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[3308279732,45314107],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isFreeze\",\"type\":\"bool\"}],\"name\":\"setContractStatus\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[2177375452,2437471713],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"},{\"internalType\":\"enum Status\",\"name\":\"_status\",\"type\":\"uint8\"}],\"name\":\"setContractStatus\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[4135554508,610209536],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"_type\",\"type\":\"uint8\"}],\"name\":\"setDeployAuthType\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[3138036748,2966063259],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"path\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"func\",\"type\":\"bytes4\"},{\"internalType\":\"uint8\",\"name\":\"authType\",\"type\":\"uint8\"}],\"name\":\"setMethodAuthType\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"selector\":[2630076943,1025843675],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+        "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"func\",\"type\":\"bytes4\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"checkMethodAuth\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"closeDeployAuth\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"func\",\"type\":\"bytes4\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"closeMethodAuth\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"address\",\"type\":\"address\"}],\"name\":\"contractAvailable\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"deployType\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"}],\"name\":\"getAdmin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"func\",\"type\":\"bytes4\"}],\"name\":\"getMethodAuth\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"},{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasDeployAuth\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"account\",\"type\":\"string\"}],\"name\":\"initAuth\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"openDeployAuth\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"func\",\"type\":\"bytes4\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"openMethodAuth\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"admin\",\"type\":\"address\"}],\"name\":\"resetAdmin\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"address\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isFreeze\",\"type\":\"bool\"}],\"name\":\"setContractStatus\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"address\",\"type\":\"address\"},{\"internalType\":\"enum Status\",\"name\":\"_status\",\"type\":\"uint8\"}],\"name\":\"setContractStatus\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"_type\",\"type\":\"uint8\"}],\"name\":\"setDeployAuthType\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"contractAddr\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"func\",\"type\":\"bytes4\"},{\"internalType\":\"uint8\",\"name\":\"authType\",\"type\":\"uint8\"}],\"name\":\"setMethodAuthType\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = StringUtils.joinAll("", ABI_ARRAY);
@@ -49,6 +49,8 @@ public class ContractAuthPrecompiled extends Contract {
     public static final String FUNC_GETMETHODAUTH = "getMethodAuth";
 
     public static final String FUNC_HASDEPLOYAUTH = "hasDeployAuth";
+
+    public static final String FUNC_INITAUTH = "initAuth";
 
     public static final String FUNC_OPENDEPLOYAUTH = "openDeployAuth";
 
@@ -223,12 +225,12 @@ public class ContractAuthPrecompiled extends Contract {
         return executeCallWithSingleValueReturn(function, String.class);
     }
 
-    public Tuple3<BigInteger, List<String>, List<String>> getMethodAuth(String path, byte[] func)
-            throws ContractException {
+    public Tuple3<BigInteger, List<String>, List<String>> getMethodAuth(
+            String contractAddr, byte[] func) throws ContractException {
         final Function function =
                 new Function(
                         FUNC_GETMETHODAUTH,
-                        Arrays.<Type>asList(new Address(path), new Bytes4(func)),
+                        Arrays.<Type>asList(new Address(contractAddr), new Bytes4(func)),
                         Arrays.<TypeReference<?>>asList(
                                 new TypeReference<Uint8>() {},
                                 new TypeReference<DynamicArray<Utf8String>>() {},
@@ -247,6 +249,57 @@ public class ContractAuthPrecompiled extends Contract {
                         Arrays.<Type>asList(new Address(account)),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Bool>() {}));
         return executeCallWithSingleValueReturn(function, Boolean.class);
+    }
+
+    public TransactionReceipt initAuth(String account) {
+        final Function function =
+                new Function(
+                        FUNC_INITAUTH,
+                        Arrays.<Type>asList(new Utf8String(account)),
+                        Collections.<TypeReference<?>>emptyList());
+        return executeTransaction(function);
+    }
+
+    public String initAuth(String account, TransactionCallback callback) {
+        final Function function =
+                new Function(
+                        FUNC_INITAUTH,
+                        Arrays.<Type>asList(new Utf8String(account)),
+                        Collections.<TypeReference<?>>emptyList());
+        return asyncExecuteTransaction(function, callback);
+    }
+
+    public String getSignedTransactionForInitAuth(String account) {
+        final Function function =
+                new Function(
+                        FUNC_INITAUTH,
+                        Arrays.<Type>asList(new Utf8String(account)),
+                        Collections.<TypeReference<?>>emptyList());
+        return createSignedTransaction(function);
+    }
+
+    public Tuple1<String> getInitAuthInput(TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getInput().substring(10);
+        final Function function =
+                new Function(
+                        FUNC_INITAUTH,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple1<String>((String) results.get(0).getValue());
+    }
+
+    public Tuple1<BigInteger> getInitAuthOutput(TransactionReceipt transactionReceipt) {
+        String data = transactionReceipt.getOutput();
+        final Function function =
+                new Function(
+                        FUNC_INITAUTH,
+                        Arrays.<Type>asList(),
+                        Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+        List<Type> results =
+                this.functionReturnDecoder.decode(data, function.getOutputParameters());
+        return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
     public TransactionReceipt openDeployAuth(String account) {
@@ -472,34 +525,31 @@ public class ContractAuthPrecompiled extends Contract {
         return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
     }
 
-    public TransactionReceipt setContractStatus(String _address, BigInteger _status) {
+    public TransactionReceipt setContractStatus(String address, BigInteger _status) {
         final Function function =
                 new Function(
                         FUNC_SETCONTRACTSTATUS,
-                        Arrays.<Type>asList(new Address(_address), new Uint8(_status)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        0);
+                        Arrays.<Type>asList(new Address(address), new Uint8(_status)),
+                        Collections.<TypeReference<?>>emptyList());
         return executeTransaction(function);
     }
 
     public String setContractStatus(
-            String _address, BigInteger _status, TransactionCallback callback) {
+            String address, BigInteger _status, TransactionCallback callback) {
         final Function function =
                 new Function(
                         FUNC_SETCONTRACTSTATUS,
-                        Arrays.<Type>asList(new Address(_address), new Uint8(_status)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        0);
+                        Arrays.<Type>asList(new Address(address), new Uint8(_status)),
+                        Collections.<TypeReference<?>>emptyList());
         return asyncExecuteTransaction(function, callback);
     }
 
-    public String getSignedTransactionForSetContractStatus(String _address, BigInteger _status) {
+    public String getSignedTransactionForSetContractStatus(String address, BigInteger _status) {
         final Function function =
                 new Function(
                         FUNC_SETCONTRACTSTATUS,
-                        Arrays.<Type>asList(new Address(_address), new Uint8(_status)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        0);
+                        Arrays.<Type>asList(new Address(address), new Uint8(_status)),
+                        Collections.<TypeReference<?>>emptyList());
         return createSignedTransaction(function);
     }
 

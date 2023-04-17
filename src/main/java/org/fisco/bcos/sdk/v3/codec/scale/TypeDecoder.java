@@ -176,10 +176,12 @@ public class TypeDecoder {
         int len = length == null ? reader.readCompact() : length;
 
         try {
-            Class<T> cls = Utils.getParameterizedTypeFromArray(typeReference);
+            java.lang.reflect.Type[] types =
+                    ((ParameterizedType) typeReference.getType()).getActualTypeArguments();
+            Class<T> cls = Utils.getClassType(types[0]);
             List<T> elements = new ArrayList<>(len);
             for (int i = 0; i < len; i++) {
-                T value = decode(reader, TypeReference.create(cls));
+                T value = decode(reader, TypeReference.create(types[0]));
                 elements.add(value);
             }
 
@@ -213,13 +215,22 @@ public class TypeDecoder {
                         }
                     }
                 };
-        int length =
-                Integer.parseInt(
-                        ((ParameterizedType) typeReference.getType())
-                                .getRawType()
-                                .getClass()
-                                .getSimpleName()
-                                .substring(StaticArray.class.getSimpleName().length()));
+        int length;
+        try {
+            Class<T> cls = typeReference.getClassType();
+            if (cls == StaticArray.class) {
+                length = ((TypeReference.StaticArrayTypeReference<?>) typeReference).getSize();
+            } else {
+                length =
+                        Integer.parseInt(
+                                cls.getSimpleName()
+                                        .substring(StaticArray.class.getSimpleName().length()));
+            }
+        } catch (ClassNotFoundException | NumberFormatException e) {
+            throw new UnsupportedOperationException(
+                    "Unable to access parameterized type " + typeReference.getType().getTypeName(),
+                    e);
+        }
         return decodeArray(reader, typeReference, function, length);
     }
 
@@ -227,7 +238,12 @@ public class TypeDecoder {
     public static <T extends Type> T decodeDynamicArray(
             ScaleCodecReader reader, TypeReference<T> typeReference) {
         BiFunction<List<T>, String, T> function =
-                (elements, typName) -> (T) new DynamicArray(AbiTypes.getType(typName), elements);
+                (elements, typeName) -> {
+                    if (elements.isEmpty()) {
+                        return (T) new DynamicArray(AbiTypes.getType(typeName), elements);
+                    }
+                    return (T) new DynamicArray<>(elements);
+                };
         return decodeArray(reader, typeReference, function, null);
     }
 

@@ -31,12 +31,14 @@ public class SystemConfigService {
     public static final String TX_COUNT_LIMIT = "tx_count_limit";
     public static final String TX_GAS_LIMIT = "tx_gas_limit";
     public static final String CONSENSUS_PERIOD = "consensus_leader_period";
+    public static final String AUTH_STATUS = "auth_check_status";
     public static final int TX_GAS_LIMIT_MIN = 100000;
     private static final Map<String, Predicate<BigInteger>> predicateMap = new HashMap<>();
 
     static {
         predicateMap.put(TX_COUNT_LIMIT, value -> value.compareTo(BigInteger.ONE) >= 0);
         predicateMap.put(CONSENSUS_PERIOD, value -> value.compareTo(BigInteger.ONE) >= 0);
+        predicateMap.put(AUTH_STATUS, value -> value.compareTo(BigInteger.ZERO) >= 0);
         predicateMap.put(
                 TX_GAS_LIMIT, value -> value.compareTo(BigInteger.valueOf(TX_GAS_LIMIT_MIN)) >= 0);
     }

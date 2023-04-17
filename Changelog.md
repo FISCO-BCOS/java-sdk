@@ -1,3 +1,43 @@
+## v3.3.0
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+- 新增密码机支持。
+- 新增 `ShardingService` ，提供链上分区服务接口。
+- 新增适配链上动态权限配置项接口。
+- `AssembleTransactionProcessor` 新增异步Call接口，支持`Contract2java`脚本生成的Java文件有异步Call接口。
+- BFS新增 `isExist` 接口。
+
+### 更新
+
+- 依赖包 `jackson-databind` 更新到 `2.4.12` 版本
+
+### 修复
+
+- 修复 `ContractCodec` 在解码ABI struct、多维数组、嵌套struct数组时出现的解码错误。
+- 将基于类型反射的编解码方法设为 `deprecated`，这些方法会出现上面所述的解码错误，具体方法有如下：
+  - ContractCodec.decodeMethodAndGetInputObject
+  - ContractCodec.decodeMethodInput
+  - ContractCodec.decodeMethodAndGetOutputObject
+  - ContractCodec.decodeMethodByABIDefinition
+  - ContractCodec.decodeMethod
+- 将 `transaction.model.dto.TransactionResponse` 和 `transaction.model.dto.CallResponse` 类中使用反射解码的 `results` 字段设置为 **deprecated**。**目前为了兼容仍然会将解码结果设置在该字段，请使用 `returnObject` 和 `returnABIObject` 做类型判断。**
+- 修复 `TableCRUDService` RetCode没有包含交易回执的bug。
+
+### 兼容性说明
+
+- 不兼容 FISCO BCOS 2.0+ 版本
+- 兼容java-sdk v3.0+的历史版本
+- 支持[FISCO BCOS 3.2.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.2.0)版本
+- 账户权限管理接口、BFS新增的list分页接口与link接口只在 FISCO BCOS 3.1.0支持使用。
+- 新增的CRUD接口，如条件范围遍历查询、修改、删除等接口，只在FISCO BCOS 3.2.0支持使用。
+
+----
+
 ## v3.2.0
 (2023-01-17)
 

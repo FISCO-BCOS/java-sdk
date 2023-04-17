@@ -25,6 +25,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
@@ -45,6 +46,7 @@ import org.fisco.bcos.sdk.v3.contract.precompiled.crud.common.UpdateFields;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
@@ -150,12 +152,18 @@ public class PrecompiledTest {
     }
 
     @Test
-    public void test3SystemConfigService() throws ConfigException, ContractException, JniException {
+    public void test3SystemConfigService() throws ConfigException, ContractException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         SystemConfigService systemConfigService = new SystemConfigService(client, cryptoKeyPair);
+        if (client.isAuthCheck()) {
+            RetCode retCode = systemConfigService.setValueByKey("tx_count_limit", "100");
+            Assert.assertEquals(retCode.code, PrecompiledRetCode.CODE_NO_AUTHORIZED.code);
+            return;
+        }
+
         this.testSystemConfigService(client, systemConfigService, "tx_count_limit");
         this.testSystemConfigService(client, systemConfigService, "tx_gas_limit");
     }
@@ -172,28 +180,35 @@ public class PrecompiledTest {
         BigInteger queriedValue =
                 new BigInteger(client.getSystemConfigByKey(key).getSystemConfig().getValue());
         System.out.println("queriedValue: " + queriedValue);
-        Assert.assertTrue(queriedValue.equals(updatedValue));
-        Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(100))));
+        Assert.assertEquals(queriedValue, updatedValue);
+        Assert.assertEquals(queriedValue, value.add(BigInteger.valueOf(100)));
     }
 
     @Test
-    public void test5CRUDService() throws ConfigException, ContractException, JniException {
+    public void test5CRUDService() throws ConfigException, ContractException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         TableCRUDService tableCRUDService = new TableCRUDService(client, cryptoKeyPair);
         // create a user table
-        String tableName = "test" + new Random().nextInt(10000);
+        String tableName = "test" + System.currentTimeMillis();
         String key = "key";
         List<String> valueFields = new ArrayList<>(5);
         for (int i = 0; i < 5; i++) {
             valueFields.add(i, "field" + i);
         }
-        RetCode code = tableCRUDService.createTable(tableName, Common.TableKeyOrder.valueOf(0), key, valueFields);
+        RetCode code;
+        Map<String, List<String>> desc;
+        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+            code = tableCRUDService.createTable(tableName, Common.TableKeyOrder.valueOf(0), key, valueFields);
+            desc = tableCRUDService.descWithKeyOrder(tableName);
+        } else {
+            code = tableCRUDService.createTable(tableName, key, valueFields);
+            desc = tableCRUDService.desc(tableName);
+        }
         Assert.assertEquals(0, code.getCode());
         // desc
-        Map<String, List<String>> desc = tableCRUDService.descWithKeyOrder(tableName);
         Assert.assertEquals(desc.get(PrecompiledConstant.VALUE_FIELD_NAME), valueFields);
 
         // insert
@@ -207,10 +222,19 @@ public class PrecompiledTest {
         // select key
         Map<String, String> result = tableCRUDService.select(tableName, "key1");
 
-        ConditionV320 condition = new ConditionV320();
-        condition.EQ(key,"990");
-        condition.setLimit(0, 10);
-        List<Map<String, String>> select = tableCRUDService.select(tableName, condition);
+        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+            ConditionV320 condition = new ConditionV320();
+            condition.EQ(key, "key1");
+            condition.setLimit(0, 10);
+            List<Map<String, String>> select = tableCRUDService.select(tableName, condition);
+            Assert.assertEquals(select.size(), 1);
+        } else {
+            Condition condition = new Condition();
+            condition.EQ("key1");
+            condition.setLimit(0, 10);
+            List<Map<String, String>> select = tableCRUDService.select(tableName, condition);
+            Assert.assertEquals(select.size(), 1);
+        }
         // field value result + key result
         Assert.assertEquals(result.size(), valueFields.size() + 1);
         System.out.println("tableCRUDService select result: " + result);
@@ -241,10 +265,15 @@ public class PrecompiledTest {
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         TableCRUDService crudService = new TableCRUDService(client, cryptoKeyPair);
-        String tableName = "test_sync" + new Random().nextInt(10000);
+        String tableName = "test_sync" + System.currentTimeMillis();
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
-        RetCode retCode = crudService.createTable(tableName, Common.TableKeyOrder.valueOf(0), "key", valueFiled);
+        RetCode retCode;
+        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+            retCode = crudService.createTable(tableName, Common.TableKeyOrder.valueOf(0), "key", valueFiled);
+        } else {
+            retCode = crudService.createTable(tableName, "key", valueFiled);
+        }
         System.out.println("tableName" + tableName);
         System.out.println(
                 "createResult: " + retCode.getCode() + ", message: " + retCode.getMessage());
@@ -317,7 +346,11 @@ public class PrecompiledTest {
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         String key = "key";
-        crudService.createTable(tableName, Common.TableKeyOrder.valueOf(0), key, valueFiled);
+        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+            crudService.createTable(tableName, Common.TableKeyOrder.valueOf(0), key, valueFiled);
+        } else {
+            crudService.createTable(tableName, key, valueFiled);
+        }
         // create a thread pool to parallel insert and select
         ExecutorService threadPool = Executors.newFixedThreadPool(50);
         BigInteger orgTxCount =
@@ -369,19 +402,24 @@ public class PrecompiledTest {
     }
 
     @Test
-    public void test6KVService() throws ConfigException, ContractException, JniException {
+    public void test6KVService() throws ConfigException, ContractException {
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         KVTableService kvTableService = new KVTableService(client, cryptoKeyPair);
         // create a user table
-        String tableName = "test" + (int) (Math.random() * 1000);
+        String tableName = "test" + System.currentTimeMillis();
         String key = "key";
         RetCode code = kvTableService.createTable(tableName, key, "field");
         Assert.assertEquals(0, code.getCode());
         // desc
-        Map<String, String> desc = kvTableService.descWithKeyOrder(tableName);
+        Map<String, String> desc;
+        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+            desc = kvTableService.descWithKeyOrder(tableName);
+        } else {
+            desc = kvTableService.desc(tableName);
+        }
         Assert.assertEquals(desc.get(PrecompiledConstant.VALUE_FIELD_NAME), "field");
 
         // set
@@ -395,7 +433,7 @@ public class PrecompiledTest {
     }
 
     @Test
-    public void test7BFSPrecompiled() throws ConfigException, ContractException, JniException {
+    public void test7BFSPrecompiled() throws ConfigException, ContractException {
 
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);

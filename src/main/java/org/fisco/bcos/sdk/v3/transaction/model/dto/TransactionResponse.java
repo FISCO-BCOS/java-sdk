@@ -37,7 +37,7 @@ public class TransactionResponse extends CommonResponse {
     private String receiptMessages;
     private List<Object> returnObject;
     private List<ABIObject> returnABIObject;
-    private List<Type> results;
+    @Deprecated private List<Type> results;
 
     public TransactionResponse() {
         super();
@@ -137,10 +137,12 @@ public class TransactionResponse extends CommonResponse {
         this.returnABIObject = returnABIObject;
     }
 
+    @Deprecated
     public void setResults(List<Type> results) {
         this.results = results;
     }
 
+    @Deprecated
     public List<Type> getResults() {
         return results;
     }

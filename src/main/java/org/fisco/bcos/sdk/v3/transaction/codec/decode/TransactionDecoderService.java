@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.EventEncoder;
@@ -92,10 +93,18 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         TransactionResponse response = decodeReceiptWithoutValues(abi, transactionReceipt);
         // only successful tx has return values.
         if (transactionReceipt.getStatus() == 0) {
-            List<Type> results =
-                    contractCodec.decodeMethodAndGetOutputObject(
+            ABIObject abiObject =
+                    contractCodec.decodeMethodAndGetOutputAbiObject(
                             abi, functionName, transactionReceipt.getOutput());
-            response.setResults(results);
+            Pair<List<Object>, List<ABIObject>> results =
+                    ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
+            response.setReturnObject(results.getLeft());
+            response.setReturnABIObject(results.getRight());
+            try {
+                response.setResults(ContractCodecTools.getABIObjectTypeListResult(abiObject));
+            } catch (Exception ignored) {
+                logger.error("decode results failed, ignored. value: {}", abiObject);
+            }
         }
         return response;
     }

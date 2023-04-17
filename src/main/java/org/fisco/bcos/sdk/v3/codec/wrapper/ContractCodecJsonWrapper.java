@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,13 +14,25 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Bool;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Bytes;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicBytes;
+import org.fisco.bcos.sdk.v3.codec.datatypes.NumericType;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int128;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int16;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int256;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int32;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int64;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int8;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint128;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint16;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint256;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint32;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint64;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint8;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject.ListType;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
+import org.fisco.bcos.sdk.v3.utils.exceptions.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,12 +105,28 @@ public class ContractCodecJsonWrapper {
                                             template.getValueType().toString(),
                                             node.getNodeType().toString());
                                 }
-
+                                BigInteger value;
                                 if (node.isNumber()) {
-                                    abiObject.setNumericValue(new Int256(node.asLong()));
+                                    value = BigInteger.valueOf(node.asLong());
                                 } else {
-                                    abiObject.setNumericValue(new Int256(node.bigIntegerValue()));
+                                    value = node.bigIntegerValue();
                                 }
+
+                                NumericType numericType;
+                                if (abiObject.getBytesLength() == 8) {
+                                    numericType = new Int8(value);
+                                } else if (abiObject.getBytesLength() == 16) {
+                                    numericType = new Int16(value);
+                                } else if (abiObject.getBytesLength() == 32) {
+                                    numericType = new Int32(value);
+                                } else if (abiObject.getBytesLength() == 64) {
+                                    numericType = new Int64(value);
+                                } else if (abiObject.getBytesLength() == 128) {
+                                    numericType = new Int128(value);
+                                } else {
+                                    numericType = new Int256(value);
+                                }
+                                abiObject.setNumericValue(numericType);
 
                                 break;
                             }
@@ -109,12 +138,27 @@ public class ContractCodecJsonWrapper {
                                             template.getValueType().toString(),
                                             node.getNodeType().toString());
                                 }
-
+                                BigInteger value;
                                 if (node.isNumber()) {
-                                    abiObject.setNumericValue(new Uint256(node.asLong()));
+                                    value = BigInteger.valueOf(node.asLong());
                                 } else {
-                                    abiObject.setNumericValue(new Uint256(node.bigIntegerValue()));
+                                    value = node.bigIntegerValue();
                                 }
+                                NumericType numericType;
+                                if (abiObject.getBytesLength() == 8) {
+                                    numericType = new Uint8(value);
+                                } else if (abiObject.getBytesLength() == 16) {
+                                    numericType = new Uint16(value);
+                                } else if (abiObject.getBytesLength() == 32) {
+                                    numericType = new Uint32(value);
+                                } else if (abiObject.getBytesLength() == 64) {
+                                    numericType = new Uint64(value);
+                                } else if (abiObject.getBytesLength() == 128) {
+                                    numericType = new Uint128(value);
+                                } else {
+                                    numericType = new Uint256(value);
+                                }
+                                abiObject.setNumericValue(numericType);
 
                                 break;
                             }
@@ -290,13 +334,19 @@ public class ContractCodecJsonWrapper {
     public static byte[] tryDecodeInputData(String inputData) {
         if (inputData.startsWith(HexEncodedDataPrefix)) {
             String hexString = inputData.substring(HexEncodedDataPrefix.length());
-            if (hexString.startsWith("0x")) {
-                return Hex.decode(hexString.substring(2));
-            } else {
-                return Hex.decode(hexString);
+            return Hex.decode(hexString);
+        } else {
+            // try to decode hex input
+            try {
+                byte[] decode = Hex.decode(inputData);
+                if (decode.length == 0) {
+                    return null;
+                }
+                return decode;
+            } catch (DecoderException ignored) {
+                return null;
             }
         }
-        return null;
     }
 
     public ABIObject encode(ABIObject template, List<String> inputs) throws IOException {
@@ -328,14 +378,42 @@ public class ContractCodecJsonWrapper {
                                     }
                                 case UINT:
                                     {
-                                        argObject.setNumericValue(
-                                                new Uint256(Numeric.decodeQuantity(value)));
+                                        NumericType numericType;
+                                        if (argObject.getBytesLength() == 8) {
+                                            numericType = new Uint8(Numeric.decodeQuantity(value));
+                                        } else if (argObject.getBytesLength() == 16) {
+                                            numericType = new Uint16(Numeric.decodeQuantity(value));
+                                        } else if (argObject.getBytesLength() == 32) {
+                                            numericType = new Uint32(Numeric.decodeQuantity(value));
+                                        } else if (argObject.getBytesLength() == 64) {
+                                            numericType = new Uint64(Numeric.decodeQuantity(value));
+                                        } else if (argObject.getBytesLength() == 128) {
+                                            numericType =
+                                                    new Uint128(Numeric.decodeQuantity(value));
+                                        } else {
+                                            numericType =
+                                                    new Uint256(Numeric.decodeQuantity(value));
+                                        }
+                                        argObject.setNumericValue(numericType);
                                         break;
                                     }
                                 case INT:
                                     {
-                                        argObject.setNumericValue(
-                                                new Int256(Numeric.decodeQuantity(value)));
+                                        NumericType numericType;
+                                        if (argObject.getBytesLength() == 8) {
+                                            numericType = new Int8(Numeric.decodeQuantity(value));
+                                        } else if (argObject.getBytesLength() == 16) {
+                                            numericType = new Int16(Numeric.decodeQuantity(value));
+                                        } else if (argObject.getBytesLength() == 32) {
+                                            numericType = new Int32(Numeric.decodeQuantity(value));
+                                        } else if (argObject.getBytesLength() == 64) {
+                                            numericType = new Int64(Numeric.decodeQuantity(value));
+                                        } else if (argObject.getBytesLength() == 128) {
+                                            numericType = new Int128(Numeric.decodeQuantity(value));
+                                        } else {
+                                            numericType = new Int256(Numeric.decodeQuantity(value));
+                                        }
+                                        argObject.setNumericValue(numericType);
                                         break;
                                     }
                                 case ADDRESS:

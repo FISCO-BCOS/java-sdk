@@ -20,6 +20,13 @@ public class Response {
     private String errorMessage;
     private byte[] content;
 
+    public Response() {}
+
+    public Response(Integer errorCode, String errorMessage) {
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+    }
+
     public Integer getErrorCode() {
         return errorCode;
     }

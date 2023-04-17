@@ -55,8 +55,10 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.v3.model.Response;
+import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.ResponseCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.utils.Hex;
@@ -111,12 +113,20 @@ public class ClientImpl implements Client {
 
         BcosGroupNodeInfo.GroupNodeInfo groupNodeInfo = groupInfo.getNodeList().get(0);
         GroupNodeIniInfo nodeIniConfig = groupNodeInfo.getIniConfig();
+        long compatibilityVersion = groupNodeInfo.getProtocol().getCompatibilityVersion();
 
         this.groupNodeIniConfig = GroupNodeIniConfig.newIniConfig(nodeIniConfig);
         this.chainID = groupNodeIniConfig.getChain().getChainID();
         this.wasm = groupNodeIniConfig.getExecutor().isWasm();
         this.serialExecute = groupNodeIniConfig.getExecutor().isSerialExecute();
+
         this.authCheck = groupNodeIniConfig.getExecutor().isAuthCheck();
+        if (EnumNodeVersion.valueOf((int) compatibilityVersion)
+                        .toVersionObj()
+                        .compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj())
+                >= 0) {
+            this.authCheck = true;
+        }
         this.smCrypto = groupNodeIniConfig.getChain().isSmCrypto();
         this.blockNumber = this.getBlockNumber().getBlockNumber().longValue();
 
@@ -146,8 +156,13 @@ public class ClientImpl implements Client {
 
             // init crypto suite
             if (smCrypto) {
-                this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
-
+                // init HSM crypto suite
+                if (configOption.getCryptoMaterialConfig() != null
+                        && configOption.getCryptoMaterialConfig().getEnableHsm()) {
+                    this.cryptoSuite = new CryptoSuite(CryptoType.HSM_TYPE, configOption);
+                } else {
+                    this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE, configOption);
+                }
             } else {
                 this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
             }
@@ -998,11 +1013,8 @@ public class ClientImpl implements Client {
                         future.complete(response);
                     });
             Response response = future.get();
-            return this.parseResponseIntoJsonRpcResponse(
-                    new JsonRpcRequest<>(
-                            JsonRpcMethods.GET_GROUP_INFO, Collections.singletonList(groupID)),
-                    response,
-                    BcosGroupInfo.class);
+            return ClientImpl.parseResponseIntoJsonRpcResponse(
+                    JsonRpcMethods.GET_GROUP_INFO, response, BcosGroupInfo.class);
         } catch (ClientException e) {
             logger.error("e: ", e);
             throw new ClientException(
@@ -1031,11 +1043,7 @@ public class ClientImpl implements Client {
 
                     ResponseCallback responseCallback =
                             createResponseCallback(
-                                    new JsonRpcRequest<>(
-                                            JsonRpcMethods.GET_GROUP_INFO,
-                                            Collections.singletonList(groupID)),
-                                    BcosGroupInfo.class,
-                                    callback);
+                                    JsonRpcMethods.GET_GROUP_INFO, BcosGroupInfo.class, callback);
 
                     if (logger.isDebugEnabled()) {
                         logger.debug("getGroupInfo onResponse: {}", response);
@@ -1088,6 +1096,42 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public EnumNodeVersion getChainVersion() {
+        List<BcosGroupNodeInfo.GroupNodeInfo> nodeList = getGroupInfo().getResult().getNodeList();
+        if (nodeList == null || nodeList.isEmpty()) {
+            throw new IllegalStateException("Empty node list in group info.");
+        }
+        long compatibilityVersion = nodeList.get(0).getProtocol().getCompatibilityVersion();
+        return EnumNodeVersion.valueOf((int) compatibilityVersion);
+    }
+
+    @Override
+    public void getChainVersionAsync(RespCallback<EnumNodeVersion> versionRespCallback) {
+        getGroupInfoAsync(
+                new RespCallback<BcosGroupInfo>() {
+                    @Override
+                    public void onResponse(BcosGroupInfo bcosGroupInfo) {
+                        List<BcosGroupNodeInfo.GroupNodeInfo> nodeList =
+                                bcosGroupInfo.getResult().getNodeList();
+                        if (nodeList == null || nodeList.isEmpty()) {
+                            versionRespCallback.onError(
+                                    new Response(-1, "Empty node list in group info."));
+                            return;
+                        }
+                        long compatibilityVersion =
+                                nodeList.get(0).getProtocol().getCompatibilityVersion();
+                        versionRespCallback.onResponse(
+                                EnumNodeVersion.valueOf((int) compatibilityVersion));
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        versionRespCallback.onError(errorResponse);
+                    }
+                });
+    }
+
+    @Override
     public void start() {
         if (rpcJniObj != null) {
             rpcJniObj.start();
@@ -1113,16 +1157,16 @@ public class ClientImpl implements Client {
         }
     }
 
-    private <T extends JsonRpcResponse<?>> ResponseCallback createResponseCallback(
-            JsonRpcRequest<?> request, Class<T> responseType, RespCallback<T> callback) {
+    public static <T extends JsonRpcResponse<?>> ResponseCallback createResponseCallback(
+            String method, Class<T> responseType, RespCallback<T> callback) {
         return new ResponseCallback() {
             @Override
             public void onResponse(Response response) {
                 try {
                     // decode the transaction
                     T jsonRpcResponse =
-                            ClientImpl.this.parseResponseIntoJsonRpcResponse(
-                                    request, response, responseType);
+                            ClientImpl.parseResponseIntoJsonRpcResponse(
+                                    method, response, responseType);
                     callback.onResponse(jsonRpcResponse);
                 } catch (ClientException e) {
                     response.setErrorCode(e.getErrorCode());
@@ -1159,7 +1203,8 @@ public class ClientImpl implements Client {
                         future.complete(response);
                     });
             Response response = future.get();
-            return this.parseResponseIntoJsonRpcResponse(request, response, responseType);
+            return ClientImpl.parseResponseIntoJsonRpcResponse(
+                    request.getMethod(), response, responseType);
         } catch (ClientException e) {
             throw new ClientException(
                     e.getErrorCode(),
@@ -1203,7 +1248,7 @@ public class ClientImpl implements Client {
                         }
 
                         ResponseCallback responseCallback =
-                                createResponseCallback(request, responseType, callback);
+                                createResponseCallback(request.getMethod(), responseType, callback);
                         responseCallback.onResponse(response);
                     });
         } catch (JsonProcessingException e) {
@@ -1211,18 +1256,18 @@ public class ClientImpl implements Client {
         }
     }
 
-    protected <T extends JsonRpcResponse<?>> T parseResponseIntoJsonRpcResponse(
-            JsonRpcRequest<?> request, Response response, Class<T> responseType)
-            throws ClientException {
+    public static <T extends JsonRpcResponse<?>> T parseResponseIntoJsonRpcResponse(
+            String method, Response response, Class<T> responseType) throws ClientException {
         try {
             if (response.getErrorCode() == 0) {
                 // parse the response into JsonRPCResponse
-                T jsonRpcResponse = objectMapper.readValue(response.getContent(), responseType);
+                T jsonRpcResponse =
+                        ObjectMapperFactory.getObjectMapper()
+                                .readValue(response.getContent(), responseType);
                 if (jsonRpcResponse.getError() != null) {
                     logger.error(
-                            "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, group: {}, retErrorMessage: {}, retErrorCode: {}",
-                            request.getMethod(),
-                            this.groupID,
+                            "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, retErrorMessage: {}, retErrorCode: {}",
+                            method,
                             jsonRpcResponse.getError().getMessage(),
                             jsonRpcResponse.getError().getCode());
                     throw new ClientException(
@@ -1233,9 +1278,8 @@ public class ClientImpl implements Client {
                 return jsonRpcResponse;
             } else {
                 logger.error(
-                        "parseResponseIntoJsonRpcResponse failed, method: {}, group: {}, retErrorMessage: {}, retErrorCode: {}",
-                        request.getMethod(),
-                        this.groupID,
+                        "parseResponseIntoJsonRpcResponse failed, method: {}, retErrorMessage: {}, retErrorCode: {}",
+                        method,
                         response.getErrorMessage(),
                         response.getErrorCode());
                 throw new ClientException(
@@ -1248,15 +1292,13 @@ public class ClientImpl implements Client {
             }
         } catch (ClientException e) {
             logger.error(
-                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}, groupId: {}",
-                    e.getMessage(),
-                    this.groupID);
+                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}",
+                    e.getMessage());
             throw e;
         } catch (Exception e) {
             logger.error(
-                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}, groupId: {}",
-                    e.getMessage(),
-                    this.groupID);
+                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}",
+                    e.getMessage());
             throw new ClientException(e.getMessage(), e);
         }
     }

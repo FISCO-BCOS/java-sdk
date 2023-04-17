@@ -91,6 +91,8 @@ public class ConfigOption {
         jniConfig.setDisableSsl(disableSsl);
         jniConfig.setThreadPoolSize(threadPoolConfig.getThreadPoolSize());
         jniConfig.setMessageTimeoutMs(networkConfig.getTimeout());
+        jniConfig.setSendRpcRequestToHighestBlockNode(
+                networkConfig.isSendRpcRequestToHighestBlockNode());
 
         if (disableSsl) {
             logger.info(" ==>> java sdk work in disable ssl model !!!");
