@@ -4,10 +4,11 @@
 
 # Java SDK
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![Build Status](https://travis-ci.org/FISCO-BCOS/java-sdk.svg?branch=master)](https://travis-ci.org/FISCO-BCOS/java-sdk)
 [![CodeFactor](https://www.codefactor.io/repository/github/fisco-bcos/java-sdk/badge)](https://www.codefactor.io/repository/github/fisco-bcos/java-sdk)
-[![GitHub All Releases](https://img.shields.io/github/downloads/FISCO-BCOS/java-sdk/total.svg)](https://github.com/FISCO-BCOS/java-sdk)
+[![codecov](https://codecov.io/github/FISCO-BCOS/java-sdk/branch/master/graph/badge.svg?token=ISTN0AV71T)](https://codecov.io/github/FISCO-BCOS/java-sdk)
+[![contributors](https://img.shields.io/github/contributors/FISCO-BCOS/java-sdk)](https://github.com/FISCO-BCOS/java-sdk/graphs/contributors)
+[![GitHub activity](https://img.shields.io/github/commit-activity/m/FISCO-BCOS/java-sdk)](https://github.com/FISCO-BCOS/java-sdk/pulse)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 这是FISCO BCOS客户端的Java SDK，提供了访问FISCO BCOS节点的Java API，支持节点状态查询、部署和调用合约等功能，基于Java SDK可开发区块链应用。
 
@@ -27,7 +28,7 @@
 
 ### **v3.x**
 
-- [文档](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [文档](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html)
 
 - **代码**: [GitHub](https://github.com/FISCO-BCOS/java-sdk/tree/master), [Gitee](https://gitee.com/FISCO-BCOS/java-sdk/tree/master)
 
@@ -54,11 +55,11 @@ Java SDK包含如下几个新特性：
 * 使用JNI封装后的[FISCO BCOS C SDK](https://github.com/FISCO-BCOS/bcos-c-sdk)接口与区块链交互。
 
 ## 文档
-* [中文版用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/index.html)
+* [中文版用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html)
 * 英文版用户手册: 施工中...
 
 ## 快速开始
-* [中文版手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/quick_start.html)
+* [中文版手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/quick_start.html)
 
 ## 贡献代码
 欢迎参与FISCO BCOS的社区建设：
