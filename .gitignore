@@ -25,7 +25,6 @@ src/integration-wasm-test/resources/log**
 build_chain.sh
 account/
 conf/
-bin/
 gmcert.cnf
 gmsm2.param
 integrationTestEnv.sh

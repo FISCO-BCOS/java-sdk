@@ -15,6 +15,7 @@
 package org.fisco.bcos.sdk.v3.test.transaction.manager;
 
 import com.google.common.collect.Lists;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +23,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
@@ -93,8 +95,8 @@ public class AssembleTransactionProcessorTest {
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
-                                helloWorldAddress,
-                                "0x0000000000000000000000000000000000000000000000000000000000000000"));
+                        helloWorldAddress,
+                        "0x0000000000000000000000000000000000000000000000000000000000000000"));
         // test call, which would be queried off-chain.
         CallResponse callResponse1 =
                 transactionProcessor.sendCallByContractLoader(
@@ -196,8 +198,8 @@ public class AssembleTransactionProcessorTest {
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
-                                contractAddress,
-                                "0x0000000000000000000000000000000000000000000000000000000000000000"));
+                        contractAddress,
+                        "0x0000000000000000000000000000000000000000000000000000000000000000"));
         Map<String, List<List<Object>>> map = response.getEventResultMap();
         Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
     }
@@ -479,6 +481,55 @@ public class AssembleTransactionProcessorTest {
             Assert.assertEquals(
                     Hex.toHexString((byte[]) callResponse4.getResults().get(0).getValue()),
                     "12345678");
+        }
+    }
+
+    @Test
+    public void test10EventDemo() throws Exception {
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
+        String contractAddress = null;
+        // deploy
+        {
+            List<Object> params = Lists.newArrayList();
+            TransactionResponse response =
+                    transactionProcessor.deployByContractLoader("EventSubDemo", params);
+            Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
+            contractAddress = response.getContractAddress();
+            Assert.assertTrue(contractAddress != null && !contractAddress.isEmpty());
+        }
+
+        // transfer
+        {
+            List<Object> params = new ArrayList<>();
+            params.add("test1");
+            params.add("test2");
+            params.add(BigInteger.valueOf(10));
+            TransactionResponse transactionResponse3 =
+                    transactionProcessor.sendTransactionAndGetResponseByContractLoader(
+                            "EventSubDemo", contractAddress, "transfer", params);
+            Assert.assertEquals(transactionResponse3.getReturnCode(), 0);
+            Assert.assertEquals(transactionResponse3.getEventResultMap().size(), 4);
+            List<Object> transferData = transactionResponse3.getEventResultMap().get("TransferData").get(0);
+            List<List<Object>> result = (List<List<Object>>) transferData.get(0);
+            Assert.assertEquals(result.get(0).get(0), "test1");
+            Assert.assertEquals(result.get(0).get(1), "test2");
+            Assert.assertEquals(result.get(0).get(2), 10);
+        }
+
+        // echo
+        {
+            List<Object> params = new ArrayList<>();
+            params.add(BigInteger.valueOf(100));
+            params.add(BigInteger.valueOf(-100));
+            params.add("test");
+            TransactionResponse transactionResponse3 =
+                    transactionProcessor.sendTransactionAndGetResponseByContractLoader(
+                            "EventSubDemo", contractAddress, "echo", params);
+            Assert.assertEquals(transactionResponse3.getReturnCode(), 0);
+            Assert.assertEquals(transactionResponse3.getEventResultMap().size(), 1);
+            Assert.assertEquals(transactionResponse3.getEventResultMap().get("Echo").size(), 4);
         }
     }
 }
