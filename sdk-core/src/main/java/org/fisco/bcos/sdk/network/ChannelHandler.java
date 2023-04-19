@@ -31,113 +31,143 @@ import org.slf4j.LoggerFactory;
 /** Channel handler process inbound message. */
 @Sharable
 public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
-	private static Logger logger = LoggerFactory.getLogger(ChannelHandler.class);
-	private MsgHandler msgHandler;
-	private ConnectionManager connectionManager;
-	private ExecutorService msgHandleThreadPool;
+    private static Logger logger = LoggerFactory.getLogger(ChannelHandler.class);
+    private MsgHandler msgHandler;
+    private ConnectionManager connectionManager;
+    private ExecutorService msgHandleThreadPool;
 
-	public void setMsgHandleThreadPool(ExecutorService msgHandleThreadPool) {
-		this.msgHandleThreadPool = msgHandleThreadPool;
-	}
+    public void setMsgHandleThreadPool(ExecutorService msgHandleThreadPool) {
+        this.msgHandleThreadPool = msgHandleThreadPool;
+    }
 
-	public ChannelHandler(ConnectionManager connManager, MsgHandler msgHandler) {
-		this.msgHandler = msgHandler;
-		this.connectionManager = connManager;
-	}
+    public ChannelHandler(ConnectionManager connManager, MsgHandler msgHandler) {
+        this.msgHandler = msgHandler;
+        this.connectionManager = connManager;
+    }
 
-	@Override
-	public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-		String host = ((SocketChannel) ctx.channel()).remoteAddress().getAddress().getHostAddress();
-		Integer port = ((SocketChannel) ctx.channel()).remoteAddress().getPort();
-		if (evt instanceof IdleStateEvent) {
-			final IdleStateEvent e = (IdleStateEvent) evt;
-			switch (e.state()) {
-			case READER_IDLE:
-			case WRITER_IDLE:
-			case ALL_IDLE:
-				logger.error(" idle state event:{} connect{}:{} long time Inactive, disconnect", e.state(), host, port);
-				channelInactive(ctx);
-				ctx.disconnect();
-				ctx.close();
-				break;
-			default:
-				break;
-			}
-		} else if (evt instanceof SslHandshakeCompletionEvent) {
-			SslHandshakeCompletionEvent e = (SslHandshakeCompletionEvent) evt;
-			if (e.isSuccess()) {
-				logger.info(" handshake success, host: {}, port: {}, ctx: {}", host, port,
-						System.identityHashCode(ctx));
-				ChannelHandlerContext oldCtx = connectionManager.addConnectionContext(host, port, ctx);
-				msgHandler.onConnect(ctx);
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        String host = ((SocketChannel) ctx.channel()).remoteAddress().getAddress().getHostAddress();
+        Integer port = ((SocketChannel) ctx.channel()).remoteAddress().getPort();
+        if (evt instanceof IdleStateEvent) {
+            final IdleStateEvent e = (IdleStateEvent) evt;
+            switch (e.state()) {
+                case READER_IDLE:
+                case WRITER_IDLE:
+                case ALL_IDLE:
+                    logger.error(
+                            " idle state event:{} connect{}:{} long time Inactive, disconnect",
+                            e.state(),
+                            host,
+                            port);
+                    channelInactive(ctx);
+                    ctx.disconnect();
+                    ctx.close();
+                    break;
+                default:
+                    break;
+            }
+        } else if (evt instanceof SslHandshakeCompletionEvent) {
+            SslHandshakeCompletionEvent e = (SslHandshakeCompletionEvent) evt;
+            if (e.isSuccess()) {
+                logger.info(
+                        " handshake success, host: {}, port: {}, ctx: {}",
+                        host,
+                        port,
+                        System.identityHashCode(ctx));
+                ChannelHandlerContext oldCtx =
+                        connectionManager.addConnectionContext(host, port, ctx);
+                msgHandler.onConnect(ctx);
 
-				if (Objects.nonNull(oldCtx)) {
-					oldCtx.close();
-					oldCtx.disconnect();
+                if (Objects.nonNull(oldCtx)) {
+                    oldCtx.close();
+                    oldCtx.disconnect();
 
-					logger.warn(" disconnect old connection, host: {}, port: {}, ctx: {}", host, port,
-							System.identityHashCode(ctx));
-				}
-			} else {
-				logger.error(" handshake failed, host: {}, port: {}, reason: {}, error stack: {} ", host, port,
-						e.cause().getLocalizedMessage(), e.cause());
-				ctx.disconnect();
-				ctx.close();
-			}
+                    logger.warn(
+                            " disconnect old connection, host: {}, port: {}, ctx: {}",
+                            host,
+                            port,
+                            System.identityHashCode(ctx));
+                }
+            } else {
+                logger.error(
+                        " handshake failed, host: {}, port: {}, reason: {}, error stack: {} ",
+                        host,
+                        port,
+                        e.cause().getLocalizedMessage(),
+                        e.cause());
+                ctx.disconnect();
+                ctx.close();
+            }
 
-		} else if (evt instanceof SslCloseCompletionEvent) {
-			logger.info(" ssl close completion event, host: {}, port: {}, ctx: {} ", host, port,
-					System.identityHashCode(ctx));
-		} else {
-			logger.info(" userEventTriggered event, host: {}, port: {}, evt: {}, ctx: {} ", host, port, evt,
-					System.identityHashCode(ctx));
-		}
-	}
+        } else if (evt instanceof SslCloseCompletionEvent) {
+            logger.info(
+                    " ssl close completion event, host: {}, port: {}, ctx: {} ",
+                    host,
+                    port,
+                    System.identityHashCode(ctx));
+        } else {
+            logger.info(
+                    " userEventTriggered event, host: {}, port: {}, evt: {}, ctx: {} ",
+                    host,
+                    port,
+                    evt,
+                    System.identityHashCode(ctx));
+        }
+    }
 
-	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		try {
-			// lost the connection, get ip info
-			String host = ((SocketChannel) ctx.channel()).remoteAddress().getAddress().getHostAddress();
-			Integer port = ((SocketChannel) ctx.channel()).remoteAddress().getPort();
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        try {
+            // lost the connection, get ip info
+            String host =
+                    ((SocketChannel) ctx.channel()).remoteAddress().getAddress().getHostAddress();
+            Integer port = ((SocketChannel) ctx.channel()).remoteAddress().getPort();
 
-			logger.debug(" channelInactive, disconnect " + host + ":" + String.valueOf(port) + " ,"
-					+ String.valueOf(ctx.channel().isActive()));
+            logger.debug(
+                    " channelInactive, disconnect "
+                            + host
+                            + ":"
+                            + String.valueOf(port)
+                            + " ,"
+                            + String.valueOf(ctx.channel().isActive()));
 
-			connectionManager.removeConnectionContext(host, port, ctx);
-			msgHandler.onDisconnect(ctx);
+            connectionManager.removeConnectionContext(host, port, ctx);
+            msgHandler.onDisconnect(ctx);
 
-		} catch (Exception e) {
-			logger.error("error ", e);
-		}
-	}
+        } catch (Exception e) {
+            logger.error("error ", e);
+        }
+    }
 
-	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) {
-		final ChannelHandlerContext ctxF = ctx;
-		final Message in = (Message) msg;
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        final ChannelHandlerContext ctxF = ctx;
+        final Message in = (Message) msg;
 
-		if (msgHandleThreadPool == null) {
-			msgHandler.onMessage(ctxF, in);
-		} else {
-			msgHandleThreadPool.execute(new Runnable() {
-				@Override
-				public void run() {
-					msgHandler.onMessage(ctxF, in);
-				}
-			});
-		}
-	}
+        if (msgHandleThreadPool == null) {
+            msgHandler.onMessage(ctxF, in);
+        } else {
+            msgHandleThreadPool.execute(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            msgHandler.onMessage(ctxF, in);
+                        }
+                    });
+        }
+    }
 
-	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
-		final ChannelHandlerContext ctxF = ctx;
-		msgHandler.onMessage(ctxF, msg);
-	}
-
-	@Override
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
+        final ChannelHandlerContext ctxF = ctx;
+        msgHandler.onMessage(ctxF, msg);
+    }
+    
+    @Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		logger.debug("exceptionCaught: ", cause);
 		this.channelInactive(ctx);
 	}
+    
 }
