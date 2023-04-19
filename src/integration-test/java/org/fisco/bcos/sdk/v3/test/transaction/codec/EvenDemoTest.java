@@ -1,12 +1,9 @@
 package org.fisco.bcos.sdk.v3.test.transaction.codec;
 
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.C;
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
-import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.test.contract.solidity.EventSubDemo;
 import org.fisco.bcos.sdk.v3.utils.Hex;

@@ -105,6 +105,8 @@ build_node()
 {
   local node_type="${1}"
   local sed_cmd=$(get_sed_cmd)
+  curl -LO https://raw.githubusercontent.com/FISCO-BCOS/console/master/tools/get_account.sh
+  curl -LO https://raw.githubusercontent.com/FISCO-BCOS/console/master/tools/get_gm_account.sh
   if [ "${node_type}" == "wasm" ];then
       bash build_chain.sh -l 127.0.0.1:4 -e ./fisco-bcos -w "${2}"
   else

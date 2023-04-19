@@ -16,11 +16,15 @@ package org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupNodeInfo;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
@@ -28,10 +32,12 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class SystemConfigService {
     private final SystemConfigPrecompiled systemConfigPrecompiled;
+    private final Client client;
     public static final String TX_COUNT_LIMIT = "tx_count_limit";
     public static final String TX_GAS_LIMIT = "tx_gas_limit";
     public static final String CONSENSUS_PERIOD = "consensus_leader_period";
     public static final String AUTH_STATUS = "auth_check_status";
+    public static final String COMPATIBILITY_VERSION = "compatibility_version";
     public static final int TX_GAS_LIMIT_MIN = 100000;
     private static final Map<String, Predicate<BigInteger>> predicateMap = new HashMap<>();
 
@@ -44,6 +50,7 @@ public class SystemConfigService {
     }
 
     public SystemConfigService(Client client, CryptoKeyPair credential) {
+        this.client = client;
         this.systemConfigPrecompiled =
                 SystemConfigPrecompiled.load(
                         client.isWASM()
@@ -54,6 +61,18 @@ public class SystemConfigService {
     }
 
     public RetCode setValueByKey(String key, String value) throws ContractException {
+        if (COMPATIBILITY_VERSION.equals(key) && !checkCompatibilityVersion(client, value)) {
+            String nodeVersionString =
+                    client.getGroupInfo().getResult().getNodeList().stream()
+                            .map(node -> node.getIniConfig().getBinaryInfo().getVersion())
+                            .collect(Collectors.joining(","));
+            throw new ContractException(
+                    "The compatibility version "
+                            + value
+                            + " is not supported, please check the version of the chain. (The version of the chain is "
+                            + nodeVersionString
+                            + ")");
+        }
         TransactionReceipt receipt = systemConfigPrecompiled.setValueByKey(key, value);
         return ReceiptParser.parseTransactionReceipt(
                 receipt, tr -> systemConfigPrecompiled.getSetValueByKeyOutput(receipt).getValue1());
@@ -75,5 +94,24 @@ public class SystemConfigService {
 
     public static boolean isCheckableInValueValidation(String key) {
         return predicateMap.containsKey(key);
+    }
+
+    public static boolean checkCompatibilityVersion(Client client, String version) {
+        try {
+            EnumNodeVersion.Version setVersion = EnumNodeVersion.getClassVersion(version);
+            List<BcosGroupNodeInfo.GroupNodeInfo> nodeList =
+                    client.getGroupInfo().getResult().getNodeList();
+            return nodeList.stream()
+                    .allMatch(
+                            node ->
+                                    setVersion.compareTo(
+                                                    EnumNodeVersion.getClassVersion(
+                                                            node.getIniConfig()
+                                                                    .getBinaryInfo()
+                                                                    .getVersion()))
+                                            <= 0);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
