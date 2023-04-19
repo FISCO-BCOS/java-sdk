@@ -1,10 +1,13 @@
 package org.fisco.bcos.sdk.v3.contract.auth.manager;
 
+import static org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService.COMPATIBILITY_VERSION;
+import static org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService.checkCompatibilityVersion;
 import static org.fisco.bcos.sdk.v3.model.PrecompiledConstant.SYNC_KEEP_UP_THRESHOLD;
 
 import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
@@ -347,6 +350,18 @@ public class AuthManager {
         if (!SystemConfigService.checkSysNumberValueValidation(key, value)) {
             throw new ContractException(
                     "Invalid value \"" + value + "\" for " + key + ", please check valid range.");
+        }
+        if (COMPATIBILITY_VERSION.equals(key) && !checkCompatibilityVersion(client, value)) {
+            String nodeVersionString =
+                    client.getGroupInfo().getResult().getNodeList().stream()
+                            .map(node -> node.getIniConfig().getBinaryInfo().getVersion())
+                            .collect(Collectors.joining(","));
+            throw new ContractException(
+                    "The compatibility version "
+                            + value
+                            + " is not supported, please check the version of the chain. (The version of the chain is "
+                            + nodeVersionString
+                            + ")");
         }
         TransactionReceipt tr =
                 committeeManager.createSetSysConfigProposal(
