@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.collections4.ListUtils;
@@ -36,6 +37,7 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Bytes4;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
+import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
@@ -91,6 +93,26 @@ public class AssembleTransactionProcessorTest {
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         Assert.assertEquals(response.getReturnCode(), 0);
         Assert.assertEquals(0, response.getTransactionReceipt().getStatus());
+
+        TransactionReceipt transactionReceipt = response.getTransactionReceipt();
+        // test TransactionReceipt all fields
+        Assert.assertTrue(Objects.nonNull(transactionReceipt.getTransactionHash()) && StringUtils.isNotBlank(transactionReceipt.getTransactionHash()));
+        Assert.assertTrue(Objects.nonNull(transactionReceipt.getGasUsed()) && StringUtils.isNotBlank(transactionReceipt.getGasUsed()) && Integer.parseInt(transactionReceipt.getGasUsed()) > 0);
+        Assert.assertTrue(Objects.nonNull(transactionReceipt.getVersion()) && transactionReceipt.getVersion() >= 0);
+        Assert.assertTrue(Objects.nonNull(transactionReceipt.getBlockNumber()) && transactionReceipt.getBlockNumber().compareTo(BigInteger.ZERO) >= 0);
+        Assert.assertTrue(Objects.nonNull(transactionReceipt.getOutput()) && StringUtils.isNotBlank(transactionReceipt.getOutput()));
+        Assert.assertTrue(Objects.nonNull(transactionReceipt.getReceiptHash()) && StringUtils.isNotBlank(transactionReceipt.getReceiptHash()));
+        Assert.assertTrue(Objects.nonNull(transactionReceipt.getFrom()) && StringUtils.isNotBlank(transactionReceipt.getFrom()));
+        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_1_0) >= 0) {
+            Assert.assertTrue(Objects.nonNull(transactionReceipt.getChecksumContractAddress()) && StringUtils.isNotBlank(transactionReceipt.getChecksumContractAddress()));
+            Assert.assertTrue(transactionReceipt.getChecksumContractAddress().equalsIgnoreCase(transactionReceipt.getContractAddress()));
+        }
+        Assert.assertTrue(Objects.nonNull(transactionReceipt.getTo()));
+
+        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_3_0) >= 0) {
+            Assert.assertTrue(Objects.nonNull(transactionReceipt.getInput()) && StringUtils.isNotBlank(transactionReceipt.getInput()));
+        }
+
         String helloWorldAddress = response.getContractAddress();
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
