@@ -26,8 +26,26 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
 public class Utils {
     private Utils() {}
 
+    public static <T extends Type> String getMethodSign(TypeReference<T> typeReference) {
+        return getMethodSign(typeReference.getType());
+    }
+
     public static <T extends Type> String getTypeName(TypeReference<T> typeReference) {
         return getTypeName(typeReference.getType());
+    }
+
+    public static <T extends Type> String getMethodSign(java.lang.reflect.Type type) {
+        try {
+            Class<?> cls = Utils.getClassType(type);
+            if (type instanceof ParameterizedType) { // array
+                return getParameterizedMethodName(type);
+            } else { // simple type
+                return getSimpleMethodSign(cls);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new UnsupportedOperationException("Invalid class reference provided", e);
+        }
     }
 
     public static <T extends Type> String getTypeName(java.lang.reflect.Type type) {
@@ -40,6 +58,34 @@ public class Utils {
                 return getSimpleTypeName(cls);
             }
 
+        } catch (ClassNotFoundException e) {
+            throw new UnsupportedOperationException("Invalid class reference provided", e);
+        }
+    }
+
+    private static <T extends Type, U extends Type> String getParameterizedMethodName(
+            java.lang.reflect.Type type) {
+
+        try {
+            Class<?> cls = Utils.getClassType(type);
+
+            if (DynamicArray.class.isAssignableFrom(cls)) {
+                return getMethodSign(((ParameterizedType) type).getActualTypeArguments()[0]) + "[]";
+            } else if (StaticArray.class.isAssignableFrom(cls)) {
+
+                int length =
+                        Integer.parseInt(
+                                cls.getSimpleName()
+                                        .substring(StaticArray.class.getSimpleName().length()));
+
+                return getMethodSign(((ParameterizedType) type).getActualTypeArguments()[0])
+                        + "["
+                        + length
+                        + "]";
+
+            } else {
+                throw new UnsupportedOperationException("Invalid type provided " + cls.getName());
+            }
         } catch (ClassNotFoundException e) {
             throw new UnsupportedOperationException("Invalid class reference provided", e);
         }
@@ -70,6 +116,50 @@ public class Utils {
             }
         } catch (ClassNotFoundException e) {
             throw new UnsupportedOperationException("Invalid class reference provided", e);
+        }
+    }
+
+    public static String getSimpleMethodSign(Class<?> type) {
+        String simpleName = type.getSimpleName().toLowerCase();
+
+        if (type.equals(Uint.class)
+                || type.equals(Int.class)
+                || type.equals(Ufixed.class)
+                || type.equals(Fixed.class)) {
+            return simpleName + "256";
+        } else if (type.equals(Utf8String.class)) {
+            return "string";
+        } else if (type.equals(DynamicBytes.class)) {
+            return "bytes";
+        } else if (StructType.class.isAssignableFrom(type)) {
+            Constructor<?> constructor =
+                    Arrays.stream(type.getDeclaredConstructors())
+                            .filter(
+                                    declaredConstructor ->
+                                            Arrays.stream(declaredConstructor.getParameterTypes())
+                                                            .allMatch(Type.class::isAssignableFrom)
+                                                    && declaredConstructor.getParameterTypes()
+                                                                    .length
+                                                            > 0)
+                            .findAny()
+                            .orElseThrow(
+                                    () ->
+                                            new RuntimeException(
+                                                    "TypeReferenced struct must contain a constructor with types that extend Type"));
+            int length = constructor.getParameterCount();
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append('(');
+            for (int i = 0; i < length; i++) {
+                TypeReference<Type> typeReferenceElement =
+                        TypeReference.create(constructor.getGenericParameterTypes()[i]);
+                stringBuilder.append(getTypeName(typeReferenceElement));
+                stringBuilder.append(',');
+            }
+            stringBuilder.delete(stringBuilder.length() - 1, stringBuilder.length());
+            stringBuilder.append(')');
+            return stringBuilder.toString();
+        } else {
+            return simpleName;
         }
     }
 

@@ -100,6 +100,11 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                     ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
             response.setReturnObject(results.getLeft());
             response.setReturnABIObject(results.getRight());
+            if (!transactionReceipt.getLogEntries().isEmpty()) {
+                String events =
+                        JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogEntries()));
+                response.setEvents(events);
+            }
             try {
                 response.setResults(ContractCodecTools.getABIObjectTypeListResult(abiObject));
             } catch (Exception ignored) {
@@ -119,8 +124,10 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         if (transactionReceipt.getStatus() != 0) {
             return response;
         }
-        String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogEntries()));
-        response.setEvents(events);
+        if (!transactionReceipt.getLogEntries().isEmpty()) {
+            String events = JsonUtils.toJson(decodeEvents(abi, transactionReceipt.getLogEntries()));
+            response.setEvents(events);
+        }
         return response;
     }
 
@@ -154,10 +161,9 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
                     for (ABIDefinition abiDefinition : events) {
                         ABIObject outputObject =
                                 ABIObjectFactory.createEventInputObject(abiDefinition);
+                        String eventSignature =
+                                eventEncoder.buildEventSignature(decodeMethodSign(abiDefinition));
                         for (Logs log : logs) {
-                            String eventSignature =
-                                    eventEncoder.buildEventSignature(
-                                            decodeMethodSign(abiDefinition));
                             if (log.getTopics().isEmpty()
                                     || !log.getTopics().contains(eventSignature)) {
                                 continue;
@@ -190,7 +196,9 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         methodSign.append(abiDefinition.getName());
         methodSign.append("(");
         String params =
-                inputTypes.stream().map(NamedType::getType).collect(Collectors.joining(","));
+                inputTypes.stream()
+                        .map(NamedType::getTypeAsString)
+                        .collect(Collectors.joining(","));
         methodSign.append(params);
         methodSign.append(")");
         return methodSign.toString();

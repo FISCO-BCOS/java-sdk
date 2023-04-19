@@ -31,6 +31,8 @@
 - 修复 `ContractCodec` 在解码ABI struct、多维数组、嵌套struct数组时出现的解码错误，分别修复ABI编码、Scale编码的编解码问题。
 - 修复 `AssembleTransactionWithRemoteSignProcessor` 中的一些错误逻辑。
 - 修复 `TransactionEncoderService` 中存在交易哈希计算错误的问题，解决发送交易导致节点报错 `transaction hash mismatching`的问题。
+- 修复 `TransactionDecoderService` 中部分接口不返回事件、解析事件出错的问题。
+- 修复 `EventEncoder` 在解码struct与数组时出现的解码错误。
 - 修复 `TableCRUDService` RetCode没有包含交易回执的bug。
 - 修复 `ConsensusService` 向观察节点发送新增Sealer请求时的bug。
 
