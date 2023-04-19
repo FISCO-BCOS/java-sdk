@@ -518,6 +518,9 @@ public interface AssembleTransactionProcessorInterface {
             String abi, String bin, List<Object> params, String path, CryptoKeyPair keyPair)
             throws ContractCodecException;
 
+    TxPair createSignedConstructor(String abi, byte[] data, String path, CryptoKeyPair keyPair)
+            throws ContractCodecException;
+
     /**
      * encode function with abi and parameters.
      *
