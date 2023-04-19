@@ -146,6 +146,11 @@ public class AssembleTransactionProcessor extends TransactionProcessor
                         || "".equals(transactionReceipt.getTransactionHash()))) {
             transactionReceipt.setTransactionHash(txPair.getTxHash());
         }
+        if (Objects.nonNull(transactionReceipt)
+                && (Objects.isNull(transactionReceipt.getInput())
+                        || transactionReceipt.getInput().isEmpty())) {
+            transactionReceipt.setInput(Hex.toHexStringWithPrefix(data));
+        }
         return transactionReceipt;
     }
 
@@ -173,7 +178,18 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String abi, String bin, List<Object> params, String path, CryptoKeyPair cryptoKeyPair)
             throws ContractCodecException {
         TxPair txPair = this.createSignedConstructor(abi, bin, params, path, cryptoKeyPair);
-        return this.deployAndGetResponse(abi, txPair.getSignedTx());
+        TransactionResponse transactionResponse =
+                this.deployAndGetResponse(abi, txPair.getSignedTx());
+        if (Objects.nonNull(transactionResponse.getTransactionReceipt())
+                && (Objects.isNull(transactionResponse.getTransactionReceipt().getInput())
+                        || transactionResponse.getTransactionReceipt().getInput().isEmpty())) {
+            transactionResponse
+                    .getTransactionReceipt()
+                    .setInput(
+                            Hex.toHexStringWithPrefix(
+                                    this.contractCodec.encodeConstructor(abi, bin, params)));
+        }
+        return transactionResponse;
     }
 
     @Override
@@ -198,15 +214,19 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
 
-        TxPair txPair =
-                this.createDeploySignedTransaction(
-                        path,
-                        this.contractCodec.encodeConstructorFromString(abi, bin, params),
-                        abi,
-                        cryptoKeyPair,
-                        txAttribute);
+        byte[] input = this.contractCodec.encodeConstructorFromString(abi, bin, params);
 
-        return this.deployAndGetResponse(abi, txPair.getSignedTx());
+        TxPair txPair =
+                this.createDeploySignedTransaction(path, input, abi, cryptoKeyPair, txAttribute);
+
+        TransactionResponse transactionResponse =
+                this.deployAndGetResponse(abi, txPair.getSignedTx());
+        if (Objects.nonNull(transactionResponse.getTransactionReceipt())
+                && (Objects.isNull(transactionResponse.getTransactionReceipt().getInput())
+                        || transactionResponse.getTransactionReceipt().getInput().isEmpty())) {
+            transactionResponse.getTransactionReceipt().setInput(Hex.toHexStringWithPrefix(input));
+        }
+        return transactionResponse;
     }
 
     @Override
@@ -232,8 +252,21 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             CryptoKeyPair cryptoKeyPair,
             TransactionCallback callback)
             throws ContractCodecException {
-        TxPair txPair = this.createSignedConstructor(abi, bin, params, path, cryptoKeyPair);
-        this.transactionPusher.pushAsync(txPair.getSignedTx(), callback);
+        byte[] constructor = this.contractCodec.encodeConstructor(abi, bin, params);
+        TxPair txPair = this.createSignedConstructor(abi, constructor, path, cryptoKeyPair);
+        this.transactionPusher.pushAsync(
+                txPair.getSignedTx(),
+                new TransactionCallback() {
+                    @Override
+                    public void onResponse(TransactionReceipt receipt) {
+                        if (Objects.nonNull(receipt)
+                                && (Objects.isNull(receipt.getInput())
+                                        || receipt.getInput().isEmpty())) {
+                            receipt.setInput(Hex.toHexStringWithPrefix(constructor));
+                        }
+                        callback.onResponse(receipt);
+                    }
+                });
         return txPair.getTxHash();
     }
 
@@ -343,6 +376,10 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         }
         TxPair txPair = this.createSignedTransaction(to, data, cryptoKeyPair, txAttribute);
         TransactionReceipt receipt = this.transactionPusher.push(txPair.getSignedTx());
+        if (Objects.nonNull(receipt)
+                && (Objects.isNull(receipt.getInput()) || receipt.getInput().isEmpty())) {
+            receipt.setInput(Hex.toHexStringWithPrefix(data));
+        }
         try {
             return this.transactionDecoder.decodeReceiptWithValues(abi, functionName, receipt);
         } catch (ContractCodecException e) {
@@ -357,7 +394,14 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String to, String abi, String functionName, List<Object> params)
             throws ContractCodecException {
         byte[] data = this.encodeFunction(abi, functionName, params);
-        return this.sendTransactionAndGetResponse(to, abi, functionName, data);
+        TransactionResponse transactionResponse =
+                this.sendTransactionAndGetResponse(to, abi, functionName, data);
+        if (Objects.nonNull(transactionResponse.getTransactionReceipt())
+                && (Objects.isNull(transactionResponse.getTransactionReceipt().getInput())
+                        || transactionResponse.getTransactionReceipt().getInput().isEmpty())) {
+            transactionResponse.getTransactionReceipt().setInput(Hex.toHexStringWithPrefix(data));
+        }
+        return transactionResponse;
     }
 
     @Override
@@ -365,7 +409,14 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String to, String abi, String functionName, List<String> params)
             throws ContractCodecException {
         byte[] data = this.contractCodec.encodeMethodFromString(abi, functionName, params);
-        return this.sendTransactionAndGetResponse(to, abi, functionName, data);
+        TransactionResponse transactionResponse =
+                this.sendTransactionAndGetResponse(to, abi, functionName, data);
+        if (Objects.nonNull(transactionResponse.getTransactionReceipt())
+                && (Objects.isNull(transactionResponse.getTransactionReceipt().getInput())
+                        || transactionResponse.getTransactionReceipt().getInput().isEmpty())) {
+            transactionResponse.getTransactionReceipt().setInput(Hex.toHexStringWithPrefix(data));
+        }
+        return transactionResponse;
     }
 
     @Override
@@ -747,13 +798,21 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public TxPair createSignedConstructor(
             String abi, String bin, List<Object> params, String path, CryptoKeyPair cryptoKeyPair)
             throws ContractCodecException {
+        byte[] bytes = this.contractCodec.encodeConstructor(abi, bin, params);
+        return createSignedConstructor(abi, bytes, path, cryptoKeyPair);
+    }
+
+    @Override
+    public TxPair createSignedConstructor(
+            String abi, byte[] data, String path, CryptoKeyPair keyPair)
+            throws ContractCodecException {
         int txAttribute = 0;
         if (client.isWASM()) {
             txAttribute = LIQUID_CREATE | LIQUID_SCALE_CODEC;
         }
         return this.createDeploySignedTransaction(
                 Objects.nonNull(path) ? path : "",
-                this.contractCodec.encodeConstructor(abi, bin, params),
+                data,
                 abi,
                 cryptoKeyPair == null ? this.cryptoKeyPair : cryptoKeyPair,
                 txAttribute);

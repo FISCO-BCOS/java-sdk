@@ -59,12 +59,13 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
             String abi, String bin, List<Object> params, String path)
             throws ContractCodecException {
         try {
+            byte[] input = this.contractCodec.encodeConstructor(abi, bin, params);
             long transactionData =
                     TransactionBuilderJniObj.createTransactionData(
                             this.groupId,
                             this.chainId,
                             Objects.nonNull(path) ? path : "",
-                            Hex.toHexString(this.contractCodec.encodeConstructor(abi, bin, params)),
+                            Hex.toHexString(input),
                             abi,
                             client.getBlockLimit().longValue());
             byte[] rawTxHash = this.transactionEncoder.encodeAndHashBytes(transactionData);
@@ -78,7 +79,16 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
                             client.isWASM()
                                     ? LIQUID_CREATE | LIQUID_SCALE_CODEC
                                     : TransactionAttribute.EVM_ABI_CODEC);
-            return this.deployAndGetResponse(abi, Hex.toHexString(bytes));
+            TransactionResponse transactionResponse =
+                    this.deployAndGetResponse(abi, Hex.toHexString(bytes));
+            if (Objects.nonNull(transactionResponse.getTransactionReceipt())
+                    && (Objects.isNull(transactionResponse.getTransactionReceipt().getInput())
+                            || transactionResponse.getTransactionReceipt().getInput().isEmpty())) {
+                transactionResponse
+                        .getTransactionReceipt()
+                        .setInput(Hex.toHexStringWithPrefix(input));
+            }
+            return transactionResponse;
         } catch (JniException e) {
             log.error("Jni build transaction error, e:", e);
             throw new ContractCodecException("Jni build transaction error, e:" + e.getMessage());
@@ -210,6 +220,13 @@ public class AssembleTransactionWithRemoteSignProcessor extends AssembleTransact
                             rawTransaction, signatureResult, txAttribute);
             TransactionReceipt transactionReceipt =
                     this.transactionPusher.push(Hex.toHexString(transactionBytes));
+            if (Objects.nonNull(transactionReceipt)
+                    && (Objects.isNull(transactionReceipt.getInput())
+                            || transactionReceipt.getInput().isEmpty())) {
+                transactionReceipt.setInput(
+                        Hex.toHexStringWithPrefix(
+                                this.contractCodec.encodeMethod(abi, functionName, params)));
+            }
             return transactionDecoder.decodeReceiptWithValues(
                     abi, functionName, transactionReceipt);
         } catch (JniException e) {

@@ -84,6 +84,11 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         || "".equals(transactionReceipt.getTransactionHash()))) {
             transactionReceipt.setTransactionHash(txPair.getTxHash());
         }
+        if (Objects.nonNull(transactionReceipt)
+                && (Objects.isNull(transactionReceipt.getInput())
+                        || transactionReceipt.getInput().isEmpty())) {
+            transactionReceipt.setInput(Hex.toHexStringWithPrefix(data));
+        }
         return transactionReceipt;
     }
 
@@ -106,6 +111,11 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                 new TransactionCallback() {
                     @Override
                     public void onResponse(TransactionReceipt receipt) {
+                        if (Objects.nonNull(receipt)
+                                && (Objects.isNull(receipt.getInput())
+                                        || receipt.getInput().isEmpty())) {
+                            receipt.setInput(Hex.toHexStringWithPrefix(data));
+                        }
                         future.complete(receipt);
                     }
                 });
@@ -185,6 +195,23 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                                                 public void onResponse(
                                                         BcosTransactionReceipt
                                                                 transactionReceiptWithProof) {
+                                                    if (Objects.nonNull(
+                                                                    transactionReceiptWithProof
+                                                                            .getTransactionReceipt())
+                                                            && (Objects.isNull(
+                                                                            transactionReceiptWithProof
+                                                                                    .getTransactionReceipt()
+                                                                                    .getInput())
+                                                                    || transactionReceiptWithProof
+                                                                            .getTransactionReceipt()
+                                                                            .getInput()
+                                                                            .isEmpty())) {
+                                                        transactionReceiptWithProof
+                                                                .getTransactionReceipt()
+                                                                .setInput(
+                                                                        Hex.toHexStringWithPrefix(
+                                                                                data));
+                                                    }
                                                     callback.onResponse(
                                                             transactionReceiptWithProof
                                                                     .getTransactionReceipt());
