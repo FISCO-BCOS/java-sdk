@@ -27,6 +27,8 @@ public class CallRequest {
     private byte[] encodedFunction;
     private ABIDefinition abi;
 
+    private String sign;
+
     public CallRequest(String from, String to, byte[] encodedFunction) {
         this.from = from;
         this.to = to;
@@ -82,5 +84,13 @@ public class CallRequest {
     /** @param abi the abi to set */
     public void setAbi(ABIDefinition abi) {
         this.abi = abi;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
+    public String getSign() {
+        return sign;
     }
 }
