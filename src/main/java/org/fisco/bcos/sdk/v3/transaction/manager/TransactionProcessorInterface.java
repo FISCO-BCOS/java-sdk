@@ -140,9 +140,25 @@ public interface TransactionProcessorInterface {
      */
     Call executeCall(String from, String to, byte[] encodedFunction);
 
+    /**
+     * send encoded function call to fisco bcos node and receive call response, which contains sign
+     * of to and data
+     *
+     * @param from outer account address of sender
+     * @param to target contract address
+     * @param encodedFunction signed transaction string
+     * @return Call
+     */
+    Call executeCallWithSign(String from, String to, byte[] encodedFunction);
+
+    Call executeCallWithSign(String from, String to, byte[] encodedFunction, String sign);
+
     void asyncExecuteCall(CallRequest callRequest, RespCallback<Call> callback);
 
     void asyncExecuteCall(
+            String from, String to, byte[] encodedFunction, RespCallback<Call> callback);
+
+    void asyncExecuteCallWithSign(
             String from, String to, byte[] encodedFunction, RespCallback<Call> callback);
 
     /**

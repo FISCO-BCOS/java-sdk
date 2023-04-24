@@ -554,4 +554,41 @@ public class AssembleTransactionProcessorTest {
             Assert.assertEquals(transactionResponse3.getEventResultMap().get("Echo").size(), 4);
         }
     }
+
+    @Test
+    public void test11CallWithSign() throws Exception {
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
+
+        if(client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_4_0) < 0){
+            return;
+        }
+        String contractAddress = null;
+        // deploy
+        {
+            List<Object> params = Lists.newArrayList();
+            TransactionResponse response =
+                    transactionProcessor.deployByContractLoader("TestCallWithSign", params);
+            Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
+            contractAddress = response.getContractAddress();
+            Assert.assertTrue(contractAddress != null && !contractAddress.isEmpty());
+        }
+
+        String abi = transactionProcessor.getContractLoader().getABIByContractName("TestCallWithSign");
+        List<Object> params = new ArrayList<>();
+        // getOrigin
+        {
+            CallResponse getOrigin = transactionProcessor.sendCallWithSign("", contractAddress, abi, "getOrigin", params);
+            String origin = (String) getOrigin.getReturnObject().get(0);
+            Assert.assertEquals(origin, this.cryptoKeyPair.getAddress());
+        }
+
+        // getSender
+        {
+            CallResponse getSender = transactionProcessor.sendCallWithSign("", contractAddress, abi, "getSender", params);
+            String sender = (String) getSender.getReturnObject().get(0);
+            Assert.assertEquals(sender, this.cryptoKeyPair.getAddress());
+        }
+    }
 }

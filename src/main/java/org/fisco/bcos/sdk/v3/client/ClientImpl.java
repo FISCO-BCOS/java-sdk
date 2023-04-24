@@ -312,6 +312,31 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public Call call(Transaction transaction, String sign) {
+        return call("", transaction, sign);
+    }
+
+    @Override
+    public Call call(String node, Transaction transaction, String sign) {
+        node = Objects.isNull(node) ? "" : node;
+        if (logger.isTraceEnabled()) {
+            logger.trace("client call, to:{}, data:{}", transaction.getTo(), transaction.getData());
+        }
+        return this.callRemoteMethod(
+                this.groupID,
+                node,
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.CALL,
+                        Arrays.asList(
+                                this.groupID,
+                                node,
+                                Hex.trimPrefix(transaction.getTo()),
+                                Hex.toHexString(transaction.getData()),
+                                sign)),
+                Call.class);
+    }
+
+    @Override
     public void callAsync(Transaction transaction, RespCallback<Call> callback) {
         this.callAsync("", transaction, callback);
     }
@@ -329,6 +354,30 @@ public class ClientImpl implements Client {
                                 node,
                                 Hex.trimPrefix(transaction.getTo()),
                                 Hex.toHexString(transaction.getData()))),
+                Call.class,
+                callback);
+    }
+
+    @Override
+    public void callAsync(Transaction transaction, String sign, RespCallback<Call> callback) {
+        this.callAsync("", transaction, sign, callback);
+    }
+
+    @Override
+    public void callAsync(
+            String node, Transaction transaction, String sign, RespCallback<Call> callback) {
+        node = Objects.isNull(node) ? "" : node;
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                node,
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.CALL,
+                        Arrays.asList(
+                                this.groupID,
+                                node,
+                                Hex.trimPrefix(transaction.getTo()),
+                                Hex.toHexString(transaction.getData()),
+                                sign)),
                 Call.class,
                 callback);
     }
