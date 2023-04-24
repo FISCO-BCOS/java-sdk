@@ -215,6 +215,25 @@ public interface Client {
     Call call(String node, Transaction transaction);
 
     /**
+     * Ledger operation: call contract functions without sending transaction
+     *
+     * @param transaction transaction instance
+     * @param sign the sign of call data hash(to+data)
+     * @return Call
+     */
+    Call call(Transaction transaction, String sign);
+
+    /**
+     * Ledger operation: call contract functions without sending transaction
+     *
+     * @param node the node rpc request send to
+     * @param transaction transaction instance
+     * @param sign the sign of call data hash(to+data)
+     * @return Call
+     */
+    Call call(String node, Transaction transaction, String sign);
+
+    /**
      * Ledger operation: async call contract functions without sending transaction
      *
      * @param transaction transaction instance
@@ -230,6 +249,25 @@ public interface Client {
      * @param callback the callback that will be called when receive the response
      */
     void callAsync(String node, Transaction transaction, RespCallback<Call> callback);
+
+    /**
+     * Ledger operation: async call contract functions without sending transaction
+     *
+     * @param transaction transaction instance
+     * @param sign the sign of call data hash(to+data)
+     * @param callback the callback that will be called when receive the response
+     */
+    void callAsync(Transaction transaction, String sign, RespCallback<Call> callback);
+
+    /**
+     * Ledger operation: async call contract functions without sending transaction
+     *
+     * @param node the node rpc request send to
+     * @param transaction transaction instance
+     * @param sign the sign of call data hash(to+data)
+     * @param callback the callback that will be called when receive the response
+     */
+    void callAsync(String node, Transaction transaction, String sign, RespCallback<Call> callback);
 
     /**
      * Ledger operation: get block number

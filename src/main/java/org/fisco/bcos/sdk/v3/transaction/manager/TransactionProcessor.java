@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.v3.transaction.manager;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -28,6 +29,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.ResponseCallback;
@@ -258,6 +260,30 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     }
 
     @Override
+    public Call executeCallWithSign(String from, String to, byte[] encodedFunction) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            outputStream.write(Hex.decode(to));
+            outputStream.write(encodedFunction);
+            byte[] hash = this.cryptoSuite.hash(outputStream.toByteArray());
+            SignatureResult sign = this.cryptoSuite.sign(hash, this.cryptoSuite.getCryptoKeyPair());
+            return this.client.call(new Transaction(from, to, encodedFunction), sign.toString());
+        } catch (Exception e) {
+            log.error(
+                    "Sign call data failed: {}, to: {}, data:{}",
+                    e.getMessage(),
+                    to,
+                    Hex.toHexString(encodedFunction),
+                    e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Call executeCallWithSign(String from, String to, byte[] encodedFunction, String sign) {
+        return this.client.call(new Transaction(from, to, encodedFunction), sign);
+    }
+
+    @Override
     public void asyncExecuteCall(
             String from, String to, byte[] encodedFunction, RespCallback<Call> callback) {
         this.client.callAsync(new Transaction(from, to, encodedFunction), callback);
@@ -270,6 +296,27 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                 callRequest.getTo(),
                 callRequest.getEncodedFunction(),
                 callback);
+    }
+
+    @Override
+    public void asyncExecuteCallWithSign(
+            String from, String to, byte[] encodedFunction, RespCallback<Call> callback) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            outputStream.write(to.getBytes());
+            outputStream.write(encodedFunction);
+            byte[] hash = this.cryptoSuite.hash(outputStream.toByteArray());
+            SignatureResult sign = this.cryptoSuite.sign(hash, this.cryptoSuite.getCryptoKeyPair());
+            this.client.callAsync(
+                    new Transaction(from, to, encodedFunction), sign.toString(), callback);
+        } catch (Exception e) {
+            log.error(
+                    "Sign call data failed: {}, to: {}, data:{}",
+                    e.getMessage(),
+                    to,
+                    Hex.toHexString(encodedFunction),
+                    e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

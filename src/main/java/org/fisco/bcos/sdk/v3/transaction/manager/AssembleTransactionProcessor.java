@@ -532,23 +532,49 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         return this.callAndGetResponse(from, to, abiDefinition, data);
     }
 
-    private List<ABIDefinition> getAbiDefinition(String abi, String functionName, int paramsSize)
-            throws ContractCodecException {
-        ContractABIDefinition contractABIDefinition =
-                contractCodec.getAbiDefinitionFactory().loadABI(abi);
-        List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(functionName);
-        if (methods == null || methods.isEmpty()) {
+    @Override
+    public CallResponse sendCallWithSign(
+            String from, String to, String abi, String functionName, List<Object> params)
+            throws TransactionBaseException, ContractCodecException {
+        List<ABIDefinition> abiDefinitions = getAbiDefinition(abi, functionName, params.size());
+        if (abiDefinitions == null || abiDefinitions.isEmpty()) {
             throw new ContractCodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
         }
-        return methods.stream()
-                .filter(d -> d.getInputs().size() == paramsSize)
-                .collect(Collectors.toList());
+        byte[] data = null;
+        ABIDefinition abiDefinition = null;
+        // maybe lot of same paramSize methods
+        for (ABIDefinition definition : abiDefinitions) {
+            try {
+                abiDefinition = definition;
+                data = this.contractCodec.encodeMethodByAbiDefinition(definition, params);
+            } catch (ContractCodecException e) {
+                // single one method, throw e directly
+                if (abiDefinitions.size() == 1) {
+                    throw e;
+                }
+            }
+        }
+        if (data == null) {
+            throw new ContractCodecException(
+                    "cannot encode in encodeMethodByAbiDefinition with appropriate interface ABI");
+        }
+        return this.callWithSignAndGetResponse(from, to, abiDefinition, data);
     }
 
     @Override
     public CallResponse sendCall(CallRequest callRequest)
             throws TransactionBaseException, ContractCodecException {
-        Call call = this.executeCall(callRequest);
+        Call call;
+        if (callRequest.getSign().isEmpty()) {
+            call = this.executeCall(callRequest);
+        } else {
+            call =
+                    this.executeCallWithSign(
+                            callRequest.getFrom(),
+                            callRequest.getTo(),
+                            callRequest.getEncodedFunction(),
+                            callRequest.getSign());
+        }
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         String callOutput = call.getCallResult().getOutput();
         Pair<List<Object>, List<ABIObject>> results =
@@ -665,6 +691,44 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     }
 
     @Override
+    public CallResponse sendCallWithSignWithStringParams(
+            String from, String to, String abi, String functionName, List<String> params)
+            throws TransactionBaseException, ContractCodecException {
+        List<ABIDefinition> abiDefinitions = getAbiDefinition(abi, functionName, params.size());
+        if (log.isTraceEnabled()) {
+            log.trace(
+                    "sendCallWithSignWithStringParams, to:{}, functionName:{}, params:{}",
+                    to,
+                    functionName,
+                    params);
+        }
+        if (abiDefinitions == null || abiDefinitions.isEmpty()) {
+            throw new ContractCodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
+        }
+        byte[] data = null;
+        ABIDefinition abiDefinition = null;
+        // maybe lot of same paramSize methods
+        for (ABIDefinition definition : abiDefinitions) {
+            try {
+                abiDefinition = definition;
+                data =
+                        this.contractCodec.encodeMethodByIdFromString(
+                                abi, abiDefinition.getMethodId(cryptoSuite), params);
+            } catch (ContractCodecException e) {
+                // single one method, throw e directly
+                if (abiDefinitions.size() == 1) {
+                    throw e;
+                }
+            }
+        }
+        if (data == null) {
+            throw new ContractCodecException(
+                    "cannot encode in encodeMethodByIdFromString with appropriate interface ABI");
+        }
+        return this.callWithSignAndGetResponse(from, to, abiDefinition, data);
+    }
+
+    @Override
     public void sendCallWithStringParamsAsync(
             String from,
             String to,
@@ -700,7 +764,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
         callAndGetResponseAsync(from, to, abiDefinition, data, callback);
     }
 
-    private void callAndGetResponseAsync(
+    public void callAndGetResponseAsync(
             String from,
             String to,
             ABIDefinition abiDefinition,
@@ -752,10 +816,35 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String from, String to, String abi, String functionName, byte[] data)
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
-        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         ABIObject decodedResult =
                 this.contractCodec.decodeMethodAndGetOutputAbiObject(
                         abi, functionName, call.getCallResult().getOutput());
+        return getCallResponse(call, decodedResult);
+    }
+
+    public CallResponse callAndGetResponse(
+            String from, String to, ABIDefinition abiDefinition, byte[] data)
+            throws ContractCodecException, TransactionBaseException {
+        Call call = this.executeCall(from, to, data);
+        ABIObject abiObject =
+                contractCodec.decodeMethodAndGetOutAbiObjectByABIDefinition(
+                        abiDefinition, call.getCallResult().getOutput());
+        return getCallResponse(call, abiObject);
+    }
+
+    public CallResponse callWithSignAndGetResponse(
+            String from, String to, ABIDefinition abiDefinition, byte[] data)
+            throws ContractCodecException, TransactionBaseException {
+        Call call = this.executeCallWithSign(from, to, data);
+        ABIObject abiObject =
+                contractCodec.decodeMethodAndGetOutAbiObjectByABIDefinition(
+                        abiDefinition, call.getCallResult().getOutput());
+        return getCallResponse(call, abiObject);
+    }
+
+    public CallResponse getCallResponse(Call call, ABIObject decodedResult)
+            throws TransactionBaseException {
+        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         Pair<List<Object>, List<ABIObject>> outputObject =
                 ContractCodecTools.decodeJavaObjectAndGetOutputObject(decodedResult);
         callResponse.setReturnObject(outputObject.getLeft());
@@ -764,26 +853,6 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(decodedResult));
         } catch (Exception ignored) {
             log.error("decode results failed, ignored. value: {}", decodedResult);
-        }
-        return callResponse;
-    }
-
-    public CallResponse callAndGetResponse(
-            String from, String to, ABIDefinition abiDefinition, byte[] data)
-            throws ContractCodecException, TransactionBaseException {
-        Call call = this.executeCall(from, to, data);
-        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
-        ABIObject abiObject =
-                contractCodec.decodeMethodAndGetOutAbiObjectByABIDefinition(
-                        abiDefinition, call.getCallResult().getOutput());
-        Pair<List<Object>, List<ABIObject>> outputObject =
-                ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
-        callResponse.setReturnObject(outputObject.getLeft());
-        callResponse.setReturnABIObject(outputObject.getRight());
-        try {
-            callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(abiObject));
-        } catch (Exception ignored) {
-            log.error("decode results failed, ignored. value: {}", abiObject);
         }
         return callResponse;
     }
@@ -887,6 +956,19 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             throw new TransactionBaseException(retCode);
         }
         return callResponse;
+    }
+
+    private List<ABIDefinition> getAbiDefinition(String abi, String functionName, int paramsSize)
+            throws ContractCodecException {
+        ContractABIDefinition contractABIDefinition =
+                contractCodec.getAbiDefinitionFactory().loadABI(abi);
+        List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(functionName);
+        if (methods == null || methods.isEmpty()) {
+            throw new ContractCodecException(Constant.NO_APPROPRIATE_ABI_METHOD);
+        }
+        return methods.stream()
+                .filter(d -> d.getInputs().size() == paramsSize)
+                .collect(Collectors.toList());
     }
 
     public ContractLoader getContractLoader() {

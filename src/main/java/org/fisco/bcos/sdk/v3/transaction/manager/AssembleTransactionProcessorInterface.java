@@ -442,6 +442,22 @@ public interface AssembleTransactionProcessorInterface {
             throws TransactionBaseException, ContractCodecException;
 
     /**
+     * send call to fisco bcos node and get call response, which contains sign of call data
+     *
+     * @param from sender address
+     * @param to the target contract address.
+     * @param abi ABI json string
+     * @param functionName contract function name.
+     * @param params contract call parameters
+     * @return call response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
+     */
+    CallResponse sendCallWithSign(
+            String from, String to, String abi, String functionName, List<Object> params)
+            throws TransactionBaseException, ContractCodecException;
+
+    /**
      * send call to fisco bcos node and get call response
      *
      * @param callRequest call request information
@@ -476,6 +492,22 @@ public interface AssembleTransactionProcessorInterface {
      * @throws TransactionBaseException throw when loader get contract error
      */
     CallResponse sendCallWithStringParams(
+            String from, String to, String abi, String functionName, List<String> params)
+            throws TransactionBaseException, ContractCodecException;
+
+    /**
+     * send call to fisco bcos node and get call response
+     *
+     * @param from sender address
+     * @param to the target contract address.
+     * @param abi ABI json string
+     * @param functionName contract function name.
+     * @param params contract call parameters
+     * @return call response
+     * @throws ContractCodecException throw when encode deploy error
+     * @throws TransactionBaseException throw when loader get contract error
+     */
+    CallResponse sendCallWithSignWithStringParams(
             String from, String to, String abi, String functionName, List<String> params)
             throws TransactionBaseException, ContractCodecException;
 

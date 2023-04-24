@@ -105,12 +105,16 @@ build_node()
 {
   local node_type="${1}"
   local sed_cmd=$(get_sed_cmd)
-  curl -LO https://raw.githubusercontent.com/FISCO-BCOS/console/master/tools/get_account.sh
-  curl -LO https://raw.githubusercontent.com/FISCO-BCOS/console/master/tools/get_gm_account.sh
+  if [ ! -f "get_account.sh" ];then
+    curl -LO https://raw.githubusercontent.com/FISCO-BCOS/console/master/tools/get_account.sh
+  fi
+  if [ ! -f "get_gm_account.sh" ];then
+    curl -LO https://raw.githubusercontent.com/FISCO-BCOS/console/master/tools/get_gm_account.sh
+  fi
   if [ "${node_type}" == "wasm" ];then
-      bash build_chain.sh -l 127.0.0.1:4 -e ./fisco-bcos -w "${2}"
+      bash build_chain.sh -l 127.0.0.1:4 -e ./fisco-bcos -w ${2}
   else
-      bash build_chain.sh -l 127.0.0.1:4 -A -e ./fisco-bcos "${2}"
+      bash build_chain.sh -l 127.0.0.1:4 -e ./fisco-bcos ${2}
   fi
   ./nodes/127.0.0.1/fisco-bcos -v
   cat nodes/127.0.0.1/node0/config.genesis
@@ -153,15 +157,22 @@ pwd
 ls -la
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 download_tassl
-LOG_INFO "------ download_build_chain: v3.2.0---------"
-download_binary "v3.2.0"
-download_build_chain "v3.2.0"
+LOG_INFO "------ download_build_chain: v3.3.0---------"
+download_binary "v3.3.0"
+download_build_chain "v3.3.0"
 LOG_INFO "------ check_standard_node---------"
 check_standard_node "false" "sm" "-s"
 LOG_INFO "------ check_wasm_node---------"
 check_wasm_node "true"
 LOG_INFO "------ check_basic---------"
 check_basic
+rm -rf ./bin
+
+LOG_INFO "------ download_binary: v3.2.0---------"
+download_build_chain "v3.2.0"
+download_binary "v3.2.0"
+LOG_INFO "------ check_standard_node---------"
+check_standard_node "true" "sm" "-s -A"
 rm -rf ./bin
 
 LOG_INFO "------ download_binary: v3.1.0---------"
