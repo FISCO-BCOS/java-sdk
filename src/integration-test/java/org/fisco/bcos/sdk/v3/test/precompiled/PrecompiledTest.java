@@ -60,6 +60,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import static org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService.AUTH_STATUS;
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PrecompiledTest {
     private static final String configFile =
@@ -158,7 +160,14 @@ public class PrecompiledTest {
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         SystemConfigService systemConfigService = new SystemConfigService(client, cryptoKeyPair);
-        if (client.isAuthCheck()) {
+        boolean authCheck = client.isAuthCheck();
+        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_3_0) >= 0) {
+            String value = client.getSystemConfigByKey(AUTH_STATUS).getSystemConfig().getValue();
+            if (Objects.equals(value, "0")) {
+                authCheck = false;
+            }
+        }
+        if (authCheck) {
             RetCode retCode = systemConfigService.setValueByKey("tx_count_limit", "100");
             Assert.assertEquals(retCode.code, PrecompiledRetCode.CODE_NO_AUTHORIZED.code);
             return;
