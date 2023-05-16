@@ -266,7 +266,8 @@ public class TransactionProcessor implements TransactionProcessorInterface {
             outputStream.write(encodedFunction);
             byte[] hash = this.cryptoSuite.hash(outputStream.toByteArray());
             SignatureResult sign = this.cryptoSuite.sign(hash, this.cryptoSuite.getCryptoKeyPair());
-            return this.client.call(new Transaction(from, to, encodedFunction), sign.toString());
+            return this.client.call(
+                    new Transaction(from, to, encodedFunction), Hex.toHexString(sign.encode()));
         } catch (Exception e) {
             log.error(
                     "Sign call data failed: {}, to: {}, data:{}",
