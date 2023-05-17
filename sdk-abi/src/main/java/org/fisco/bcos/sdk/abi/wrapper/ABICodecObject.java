@@ -216,7 +216,7 @@ public class ABICodecObject {
                             abiObject.setNumericValue(new Int256((BigInteger) value));
                         } else if (NumberUtils.isNumber(value.toString())) {
                             abiObject.setNumericValue(
-                                    new Uint256((new BigInteger(value.toString()))));
+                                    new Int256((new BigInteger(value.toString()))));
                         } else {
                             errorReport(
                                     " valueType mismatch",
