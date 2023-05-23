@@ -262,11 +262,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     @Override
     public Call executeCallWithSign(String from, String to, byte[] encodedFunction) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            if (client.isWASM()) {
-                outputStream.write(Hex.decode(cryptoSuite.hash(to)));
-            } else {
-                outputStream.write(Hex.decode(to));
-            }
+            outputStream.write(to.getBytes());
             outputStream.write(encodedFunction);
             byte[] hash = this.cryptoSuite.hash(outputStream.toByteArray());
             SignatureResult sign = this.cryptoSuite.sign(hash, this.cryptoSuite.getCryptoKeyPair());
