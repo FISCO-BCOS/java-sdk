@@ -133,6 +133,13 @@ public interface Client {
      */
     Boolean isAuthCheck();
 
+    /**
+     * Whether is committee enable in chain
+     *
+     * @return true when chain can use committee
+     */
+    Boolean isEnableCommittee();
+
     Boolean isSerialExecute();
     /**
      * get groupId of the client
