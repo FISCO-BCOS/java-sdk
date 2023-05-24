@@ -337,7 +337,11 @@ public class ClientImpl implements Client {
     public Call call(String node, Transaction transaction, String sign) {
         node = Objects.isNull(node) ? "" : node;
         if (logger.isTraceEnabled()) {
-            logger.trace("client call, to:{}, data:{}", transaction.getTo(), transaction.getData());
+            logger.trace(
+                    "client call, to:{}, data:{}, sign:{}",
+                    transaction.getTo(),
+                    transaction.getData(),
+                    sign);
         }
         return this.callRemoteMethod(
                 this.groupID,
