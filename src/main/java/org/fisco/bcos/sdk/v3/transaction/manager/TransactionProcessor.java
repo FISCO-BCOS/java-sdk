@@ -262,10 +262,18 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     @Override
     public Call executeCallWithSign(String from, String to, byte[] encodedFunction) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            outputStream.write(to.getBytes());
+            outputStream.write(Hex.trimPrefix(to).getBytes());
             outputStream.write(encodedFunction);
             byte[] hash = this.cryptoSuite.hash(outputStream.toByteArray());
             SignatureResult sign = this.cryptoSuite.sign(hash, this.cryptoSuite.getCryptoKeyPair());
+            if (log.isTraceEnabled()) {
+                log.trace(
+                        "Sign call data, to: {}, data:{}, hash:{}, sign: {}",
+                        to,
+                        Hex.toHexString(encodedFunction),
+                        Hex.toHexString(hash),
+                        Hex.toHexString(sign.encode()));
+            }
             return this.client.call(
                     new Transaction(from, to, encodedFunction), Hex.toHexString(sign.encode()));
         } catch (Exception e) {
@@ -303,12 +311,14 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     public void asyncExecuteCallWithSign(
             String from, String to, byte[] encodedFunction, RespCallback<Call> callback) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            outputStream.write(to.getBytes());
+            outputStream.write(Hex.trimPrefix(to).getBytes());
             outputStream.write(encodedFunction);
             byte[] hash = this.cryptoSuite.hash(outputStream.toByteArray());
             SignatureResult sign = this.cryptoSuite.sign(hash, this.cryptoSuite.getCryptoKeyPair());
             this.client.callAsync(
-                    new Transaction(from, to, encodedFunction), sign.toString(), callback);
+                    new Transaction(from, to, encodedFunction),
+                    Hex.toHexString(sign.encode()),
+                    callback);
         } catch (Exception e) {
             log.error(
                     "Sign call data failed: {}, to: {}, data:{}",
