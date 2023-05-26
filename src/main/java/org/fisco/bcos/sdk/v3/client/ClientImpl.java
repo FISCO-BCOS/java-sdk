@@ -124,8 +124,7 @@ public class ClientImpl implements Client {
 
         this.authCheck = groupNodeIniConfig.getExecutor().isAuthCheck();
         this.enableCommittee = groupNodeIniConfig.getExecutor().isAuthCheck();
-        if (EnumNodeVersion.valueOf((int) compatibilityVersion)
-                        .toVersionObj()
+        if (EnumNodeVersion.valueFromCompatibilityVersion(compatibilityVersion)
                         .compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj())
                 >= 0) {
             this.enableCommittee = true;
@@ -1166,17 +1165,17 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public EnumNodeVersion getChainVersion() {
+    public EnumNodeVersion.Version getChainVersion() {
         List<BcosGroupNodeInfo.GroupNodeInfo> nodeList = getGroupInfo().getResult().getNodeList();
         if (nodeList == null || nodeList.isEmpty()) {
             throw new IllegalStateException("Empty node list in group info.");
         }
         long compatibilityVersion = nodeList.get(0).getProtocol().getCompatibilityVersion();
-        return EnumNodeVersion.valueOf((int) compatibilityVersion);
+        return EnumNodeVersion.valueFromCompatibilityVersion(compatibilityVersion);
     }
 
     @Override
-    public void getChainVersionAsync(RespCallback<EnumNodeVersion> versionRespCallback) {
+    public void getChainVersionAsync(RespCallback<EnumNodeVersion.Version> versionRespCallback) {
         getGroupInfoAsync(
                 new RespCallback<BcosGroupInfo>() {
                     @Override
@@ -1191,7 +1190,8 @@ public class ClientImpl implements Client {
                         long compatibilityVersion =
                                 nodeList.get(0).getProtocol().getCompatibilityVersion();
                         versionRespCallback.onResponse(
-                                EnumNodeVersion.valueOf((int) compatibilityVersion));
+                                EnumNodeVersion.valueFromCompatibilityVersion(
+                                        compatibilityVersion));
                     }
 
                     @Override
