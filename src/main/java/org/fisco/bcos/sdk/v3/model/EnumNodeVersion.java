@@ -62,7 +62,7 @@ public enum EnumNodeVersion {
     }
 
     public Version toVersionObj() {
-        return getClassVersion(getVersionString());
+        return valueFromCompatibilityVersion(this.getVersion());
     }
 
     public static EnumNodeVersion valueOf(int version) {
@@ -109,6 +109,10 @@ public enum EnumNodeVersion {
             return str;
         }
 
+        public int toCompatibilityVersion() {
+            return (this.getMajor() << 24) + (this.getMinor() << 16) + (this.getPatch() << 8);
+        }
+
         public int getMajor() {
             return major;
         }
@@ -143,9 +147,8 @@ public enum EnumNodeVersion {
 
         @Override
         public int compareTo(Version v) {
-            int thisCompactVersion =
-                    this.getMajor() * 10000 + this.getMinor() * 100 + this.getPatch();
-            int vCompactVersion = v.getMajor() * 10000 + v.getMinor() * 100 + v.getPatch();
+            int thisCompactVersion = this.toCompatibilityVersion();
+            int vCompactVersion = v.toCompatibilityVersion();
             if (thisCompactVersion > vCompactVersion) {
                 return 1;
             } else if (thisCompactVersion < vCompactVersion) {
@@ -186,5 +189,25 @@ public enum EnumNodeVersion {
             throw new IllegalStateException(" invalid node version format, version: " + version);
         }
         return v;
+    }
+
+    public static Version valueFromCompatibilityVersion(long compatibilityVersion) {
+        Version v = new Version();
+        if (compatibilityVersion == 4) {
+            v.setExt("rc4");
+            v.setMajor(3);
+            v.setMinor(0);
+            v.setPatch(0);
+            return v;
+        }
+        try {
+            v.setMajor((int) (compatibilityVersion >> 24));
+            v.setMinor((int) ((compatibilityVersion >> 16) & 0xFF));
+            v.setPatch((int) ((compatibilityVersion >> 8) & 0xFF));
+            return v;
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    " invalid node version format, version: " + compatibilityVersion);
+        }
     }
 }
