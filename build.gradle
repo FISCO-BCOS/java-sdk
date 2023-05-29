@@ -20,14 +20,14 @@ ext {
     commonsLang3Version = "3.1"
     javapoetVersion = "1.7.0"
     picocliVersion = "3.6.0"
-    nettySMSSLContextVersion = "1.5.1-SNAPSHOT"
+    nettySMSSLContextVersion = "1.5.1"
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
     webankJavaCryptoVersion = "1.0.2"
     webankHsmCryptoVersion = "1.0.0-GMT0018"
 
-    slf4jVersion = "1.7.32"
-    junitVersion = "4.12"
+    slf4jVersion = "1.7.36"
+    junitVersion = '4.13.1'
     commonsCollections4Version = "4.4"
     guavaVersion = "29.0-jre"
 }
@@ -36,7 +36,7 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '2.9.3-SNAPSHOT'
+    version = '2.9.3'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
