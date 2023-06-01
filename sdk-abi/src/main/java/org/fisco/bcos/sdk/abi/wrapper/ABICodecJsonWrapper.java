@@ -312,8 +312,13 @@ public class ABICodecJsonWrapper {
             }
         } else if (inputData.startsWith("0x")) {
             return Hex.decode(inputData.substring(2));
+        } else {
+            try {
+                return Hex.decode(inputData);
+            } catch (Exception ignored) {
+                return null;
+            }
         }
-        return null;
     }
 
     public ABIObject encode(ABIObject template, List<String> inputs) throws IOException {
