@@ -103,13 +103,13 @@ public class AssembleTransactionProcessorTest {
         Assert.assertTrue(Objects.nonNull(transactionReceipt.getOutput()) && StringUtils.isNotBlank(transactionReceipt.getOutput()));
         Assert.assertTrue(Objects.nonNull(transactionReceipt.getReceiptHash()) && StringUtils.isNotBlank(transactionReceipt.getReceiptHash()));
         Assert.assertTrue(Objects.nonNull(transactionReceipt.getFrom()) && StringUtils.isNotBlank(transactionReceipt.getFrom()));
-        if (client.getChainVersion().compareTo(EnumNodeVersion.BCOS_3_1_0.toVersionObj()) >= 0) {
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_1_0.toVersionObj()) >= 0) {
             Assert.assertTrue(Objects.nonNull(transactionReceipt.getChecksumContractAddress()) && StringUtils.isNotBlank(transactionReceipt.getChecksumContractAddress()));
             Assert.assertTrue(transactionReceipt.getChecksumContractAddress().equalsIgnoreCase(transactionReceipt.getContractAddress()));
         }
         Assert.assertTrue(Objects.nonNull(transactionReceipt.getTo()));
 
-        if (client.getChainVersion().compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj()) >= 0) {
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj()) >= 0) {
             Assert.assertTrue(Objects.nonNull(transactionReceipt.getInput()) && StringUtils.isNotBlank(transactionReceipt.getInput()));
         }
 
@@ -561,7 +561,7 @@ public class AssembleTransactionProcessorTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
 
-        if(client.getChainVersion().compareTo(EnumNodeVersion.BCOS_3_4_0.toVersionObj()) < 0){
+        if(client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_4_0.toVersionObj()) < 0){
             return;
         }
         String contractAddress = null;

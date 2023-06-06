@@ -30,7 +30,7 @@ public class BFSService {
                                 : PrecompiledAddress.BFS_PRECOMPILED_ADDRESS,
                         client,
                         credential);
-        this.currentVersion = client.getChainVersion();
+        this.currentVersion = client.getChainCompatibilityVersion();
         this.client = client;
     }
 
@@ -203,7 +203,7 @@ public class BFSService {
     }
 
     public RetCode fixBfs() throws ContractException {
-        this.currentVersion = client.getChainVersion();
+        this.currentVersion = client.getChainCompatibilityVersion();
         return fixBfs(currentVersion);
     }
 }
