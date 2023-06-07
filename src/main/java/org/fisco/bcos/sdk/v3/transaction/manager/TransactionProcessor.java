@@ -130,24 +130,6 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         }
 
         return transactionReceipt;
-
-        /*
-        TxPair txPair =
-                this.createSignedTransaction(
-                        to,
-                        data,
-                        cryptoKeyPair == null ? this.cryptoKeyPair : cryptoKeyPair,
-                        txAttribute,
-                        client.getExtraData());
-        TransactionReceipt transactionReceipt =
-                this.client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
-        if (Objects.nonNull(transactionReceipt)
-                && StringUtils.isEmpty(transactionReceipt.getTransactionHash())) {
-            transactionReceipt.setTransactionHash(txPair.getTxHash());
-        }
-
-        return transactionReceipt;
-        */
     }
 
     @Override
@@ -163,12 +145,6 @@ public class TransactionProcessor implements TransactionProcessorInterface {
             CryptoKeyPair cryptoKeyPair,
             int txAttribute,
             TransactionCallback callback) {
-        /*
-        TxPair txPair =
-                this.createSignedTransaction(
-                        to, data, cryptoKeyPair, txAttribute, client.getExtraData());
-        this.client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
-        */
         String extraData = client.getExtraData();
         String txHash =
                 RpcServiceJniObj.sendTransaction(
@@ -352,8 +328,8 @@ public class TransactionProcessor implements TransactionProcessorInterface {
             int txAttribute,
             String extraData) {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug(
+            if (log.isTraceEnabled()) {
+                log.trace(
                         "createDeploySignedTransaction to: {}, abi: {}, attr: {}, extraData: {}",
                         to,
                         abi,
