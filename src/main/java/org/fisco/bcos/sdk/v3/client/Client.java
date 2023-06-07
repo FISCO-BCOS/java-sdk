@@ -141,6 +141,7 @@ public interface Client {
     Boolean isEnableCommittee();
 
     Boolean isSerialExecute();
+
     /**
      * get groupId of the client
      *
@@ -918,8 +919,13 @@ public interface Client {
      * get the chain compatibility version
      *
      * @return the chain compatibility version
+     * @deprecated use getChainCompatibilityVersion instead, because older version sdk did not
+     *     recognize newer chain node
      */
-    EnumNodeVersion.Version getChainVersion();
+    @Deprecated
+    EnumNodeVersion getChainVersion();
+
+    EnumNodeVersion.Version getChainCompatibilityVersion();
 
     /**
      * async get the chain compatibility version
