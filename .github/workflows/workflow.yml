@@ -78,7 +78,9 @@ jobs:
       - name: install CentOS dependencies
         run: yum install -y epel-release centos-release-scl wget which git openssl-devel openssl java java-devel tree
       - name: run build test
-        run: /bin/bash gradlew build --info && tree ./build/reports
+        run: /bin/bash gradlew build --info
+      - name: run integration testing
+        run: /bin/bash .ci/ci_check.sh && tree ./build/reports
       - name: upload unittest coverage
         run: curl -LO https://codecov.io/bash && /bin/bash ./bash
       #        uses: codecov/codecov-action@v3
@@ -88,5 +90,3 @@ jobs:
       #          flags: unittest
       #          fail_ci_if_error: true
       #          verbose: true
-      - name: run integration testing
-        run: /bin/bash .ci/ci_check.sh
