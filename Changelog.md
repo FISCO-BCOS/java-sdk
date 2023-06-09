@@ -1,3 +1,48 @@
+## v3.4.0
+(2023-06-09)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+- 新增call with sign接口，支持在发起static call请求时使用私钥对请求体(to+data)进行签名，在节点侧将会对应会付出签名对应的用户地址，合约中可以取到call请求时的tx.origin和msg.sender，达到用户身份认证的目的。
+- `Client`类新增`isEnableCommittee()`方法，与`isAuthCheck()`进行区分，用于判断当前链是否启用了治理委员会。
+- `Client`类新增 `getChainCompatibilityVersion()`，用于获取当前链的数据兼容版本号。
+
+### 更新
+
+- 将`Client`类的`getChainVersion()`设置为@Deprecated，建议使用`getChainCompatibilityVersion()`。
+
+### 修复
+
+- 修复了开启治理委员会后，发起 `addSealerProposal` 提案时可能出现的观察节点未达到块高差值门限的问题。
+
+### 兼容性说明
+
+- 不兼容 FISCO BCOS 2.0+ 版本
+- 兼容java-sdk v3.0+的历史版本
+- 支持[FISCO BCOS 3.4.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.4.0)版本，以及3.0.0正式版以来的所有版本。
+- 账户权限管理接口、BFS新增的list分页接口与link接口只在 FISCO BCOS 3.1.0支持使用。
+- 新增的CRUD接口，如条件范围遍历查询、修改、删除等接口，只在FISCO BCOS 3.2.0支持使用。
+- 新增的ShardService, 只在FISCO BCOS 3.3.0支持使用。
+
+### 遗留问题说明
+
+在工作量与收益之间做平衡之后，目前还遗留以下几种场景的编解码仍然可能会有问题，欢迎社区用户贡献解决方案或实现代码 :-)
+- 三维及以上的数组作为输入输出参数时，使用`contract2java`编译成Java文件后，方法接口可能会出现调用错误。
+- 在使用类似 `bytes[2][]` 这样的动态数组套静态数组，且基础类型仍然是动态类型的类型时，使用`contract2java`编译成Java文件后，方法接口调用时编解码可能会出现问题。
+- 在使用liquid合约时，如果使用上一条所述的类型作为输入输出参数，在合约方法接口调用时编解码可能会出现问题。
+- 在使用liquid合约时，将u256与i256类型的输入输出参数，如果输入最大值，BigInteger生成的bytes会超过大小限制。
+- 在使用liquid合约时，因为liquid合约的事件编码与Solidity合约的事件编码不同，所以在使用liquid合约的事件时，会出现Java sdk解析失败的问题。
+
+---
+
+
+
+---
+
 ## v3.3.0
 (2023-04-17)
 
@@ -40,9 +85,10 @@
 
 - 不兼容 FISCO BCOS 2.0+ 版本
 - 兼容java-sdk v3.0+的历史版本
-- 支持[FISCO BCOS 3.2.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.2.0)版本
+- 支持[FISCO BCOS 3.3.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.3.0)版本
 - 账户权限管理接口、BFS新增的list分页接口与link接口只在 FISCO BCOS 3.1.0支持使用。
 - 新增的CRUD接口，如条件范围遍历查询、修改、删除等接口，只在FISCO BCOS 3.2.0支持使用。
+- 新增的ShardService, 只在FISCO BCOS 3.3.0支持使用。
 
 ### 遗留问题说明
 
