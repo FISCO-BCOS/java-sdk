@@ -133,7 +133,15 @@ public interface Client {
      */
     Boolean isAuthCheck();
 
+    /**
+     * Whether is committee enable in chain
+     *
+     * @return true when chain can use committee
+     */
+    Boolean isEnableCommittee();
+
     Boolean isSerialExecute();
+
     /**
      * get groupId of the client
      *
@@ -215,6 +223,25 @@ public interface Client {
     Call call(String node, Transaction transaction);
 
     /**
+     * Ledger operation: call contract functions without sending transaction
+     *
+     * @param transaction transaction instance
+     * @param sign the sign of call data hash(to+data)
+     * @return Call
+     */
+    Call call(Transaction transaction, String sign);
+
+    /**
+     * Ledger operation: call contract functions without sending transaction
+     *
+     * @param node the node rpc request send to
+     * @param transaction transaction instance
+     * @param sign the sign of call data hash(to+data)
+     * @return Call
+     */
+    Call call(String node, Transaction transaction, String sign);
+
+    /**
      * Ledger operation: async call contract functions without sending transaction
      *
      * @param transaction transaction instance
@@ -230,6 +257,25 @@ public interface Client {
      * @param callback the callback that will be called when receive the response
      */
     void callAsync(String node, Transaction transaction, RespCallback<Call> callback);
+
+    /**
+     * Ledger operation: async call contract functions without sending transaction
+     *
+     * @param transaction transaction instance
+     * @param sign the sign of call data hash(to+data)
+     * @param callback the callback that will be called when receive the response
+     */
+    void callAsync(Transaction transaction, String sign, RespCallback<Call> callback);
+
+    /**
+     * Ledger operation: async call contract functions without sending transaction
+     *
+     * @param node the node rpc request send to
+     * @param transaction transaction instance
+     * @param sign the sign of call data hash(to+data)
+     * @param callback the callback that will be called when receive the response
+     */
+    void callAsync(String node, Transaction transaction, String sign, RespCallback<Call> callback);
 
     /**
      * Ledger operation: get block number
@@ -873,15 +919,20 @@ public interface Client {
      * get the chain compatibility version
      *
      * @return the chain compatibility version
+     * @deprecated use getChainCompatibilityVersion instead, because older version sdk did not
+     *     recognize newer chain node
      */
+    @Deprecated
     EnumNodeVersion getChainVersion();
+
+    EnumNodeVersion.Version getChainCompatibilityVersion();
 
     /**
      * async get the chain compatibility version
      *
      * @param versionRespCallback the callback instance
      */
-    void getChainVersionAsync(RespCallback<EnumNodeVersion> versionRespCallback);
+    void getChainVersionAsync(RespCallback<EnumNodeVersion.Version> versionRespCallback);
 
     void start();
 

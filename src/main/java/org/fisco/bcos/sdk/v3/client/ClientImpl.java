@@ -53,6 +53,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
+import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
@@ -75,6 +76,7 @@ public class ClientImpl implements Client {
     private String chainID;
     private Boolean wasm;
     private Boolean authCheck = false;
+    private Boolean enableCommittee = false;
     private boolean serialExecute;
     private Boolean smCrypto;
     private String extraData = "";
@@ -121,11 +123,20 @@ public class ClientImpl implements Client {
         this.serialExecute = groupNodeIniConfig.getExecutor().isSerialExecute();
 
         this.authCheck = groupNodeIniConfig.getExecutor().isAuthCheck();
-        if (EnumNodeVersion.valueOf((int) compatibilityVersion)
-                        .toVersionObj()
+        this.enableCommittee = groupNodeIniConfig.getExecutor().isAuthCheck();
+        if (EnumNodeVersion.valueFromCompatibilityVersion(compatibilityVersion)
                         .compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj())
                 >= 0) {
-            this.authCheck = true;
+            this.enableCommittee = true;
+            try {
+                SystemConfig systemConfig = getSystemConfigByKey(SystemConfigService.AUTH_STATUS);
+                int value = Integer.parseInt(systemConfig.getSystemConfig().getValue());
+                if (value != 0) {
+                    this.authCheck = true;
+                }
+            } catch (Exception ignored) {
+                this.authCheck = false;
+            }
         }
         this.smCrypto = groupNodeIniConfig.getChain().isSmCrypto();
         this.blockNumber = this.getBlockNumber().getBlockNumber().longValue();
@@ -231,6 +242,11 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public Boolean isEnableCommittee() {
+        return this.enableCommittee;
+    }
+
+    @Override
     public Boolean isSerialExecute() {
         return this.serialExecute;
     }
@@ -312,6 +328,35 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public Call call(Transaction transaction, String sign) {
+        return call("", transaction, sign);
+    }
+
+    @Override
+    public Call call(String node, Transaction transaction, String sign) {
+        node = Objects.isNull(node) ? "" : node;
+        if (logger.isTraceEnabled()) {
+            logger.trace(
+                    "client call, to:{}, data:{}, sign:{}",
+                    transaction.getTo(),
+                    transaction.getData(),
+                    sign);
+        }
+        return this.callRemoteMethod(
+                this.groupID,
+                node,
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.CALL,
+                        Arrays.asList(
+                                this.groupID,
+                                node,
+                                Hex.trimPrefix(transaction.getTo()),
+                                Hex.toHexString(transaction.getData()),
+                                sign)),
+                Call.class);
+    }
+
+    @Override
     public void callAsync(Transaction transaction, RespCallback<Call> callback) {
         this.callAsync("", transaction, callback);
     }
@@ -329,6 +374,30 @@ public class ClientImpl implements Client {
                                 node,
                                 Hex.trimPrefix(transaction.getTo()),
                                 Hex.toHexString(transaction.getData()))),
+                Call.class,
+                callback);
+    }
+
+    @Override
+    public void callAsync(Transaction transaction, String sign, RespCallback<Call> callback) {
+        this.callAsync("", transaction, sign, callback);
+    }
+
+    @Override
+    public void callAsync(
+            String node, Transaction transaction, String sign, RespCallback<Call> callback) {
+        node = Objects.isNull(node) ? "" : node;
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                node,
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.CALL,
+                        Arrays.asList(
+                                this.groupID,
+                                node,
+                                Hex.trimPrefix(transaction.getTo()),
+                                Hex.toHexString(transaction.getData()),
+                                sign)),
                 Call.class,
                 callback);
     }
@@ -1106,7 +1175,17 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void getChainVersionAsync(RespCallback<EnumNodeVersion> versionRespCallback) {
+    public EnumNodeVersion.Version getChainCompatibilityVersion() {
+        List<BcosGroupNodeInfo.GroupNodeInfo> nodeList = getGroupInfo().getResult().getNodeList();
+        if (nodeList == null || nodeList.isEmpty()) {
+            throw new IllegalStateException("Empty node list in group info.");
+        }
+        long compatibilityVersion = nodeList.get(0).getProtocol().getCompatibilityVersion();
+        return EnumNodeVersion.valueFromCompatibilityVersion(compatibilityVersion);
+    }
+
+    @Override
+    public void getChainVersionAsync(RespCallback<EnumNodeVersion.Version> versionRespCallback) {
         getGroupInfoAsync(
                 new RespCallback<BcosGroupInfo>() {
                     @Override
@@ -1121,7 +1200,8 @@ public class ClientImpl implements Client {
                         long compatibilityVersion =
                                 nodeList.get(0).getProtocol().getCompatibilityVersion();
                         versionRespCallback.onResponse(
-                                EnumNodeVersion.valueOf((int) compatibilityVersion));
+                                EnumNodeVersion.valueFromCompatibilityVersion(
+                                        compatibilityVersion));
                     }
 
                     @Override

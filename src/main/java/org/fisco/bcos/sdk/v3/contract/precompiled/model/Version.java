@@ -35,22 +35,20 @@ public class Version {
     }
 
     public void checkVersion(long currentVersion) throws ContractException {
-        EnumNodeVersion supportedVersion = EnumNodeVersion.valueOf((int) currentVersion);
-        checkVersion(supportedVersion);
+        checkVersion(EnumNodeVersion.valueFromCompatibilityVersion(currentVersion));
     }
 
-    public void checkVersion(EnumNodeVersion currentVersion) throws ContractException {
+    public void checkVersion(EnumNodeVersion.Version currentVersion) throws ContractException {
         EnumNodeVersion.Version minSupportVersion = EnumNodeVersion.getClassVersion(minVersion);
-        EnumNodeVersion.Version supportedVersion = currentVersion.toVersionObj();
         String errorMessage =
                 "The fisco bcos node with supported_version lower than "
                         + minSupportVersion.toVersionString()
                         + " does not support the interface "
                         + interfaceName
                         + ", current fisco-bcos supported_version:"
-                        + supportedVersion.toVersionString();
+                        + currentVersion.toVersionString();
 
-        if (supportedVersion.compareTo(minSupportVersion) < 0) {
+        if (currentVersion.compareTo(minSupportVersion) < 0) {
             throw new ContractException(errorMessage);
         }
         if (maxVersion == null || maxVersion.equals("")) {
@@ -64,9 +62,9 @@ public class Version {
                         + " does not support the interface "
                         + interfaceName
                         + ", current fisco-bcos supported_version:"
-                        + supportedVersion.toVersionString();
+                        + currentVersion.toVersionString();
 
-        if (supportedVersion.compareTo(maxSupportedVersion) > 0) {
+        if (currentVersion.compareTo(maxSupportedVersion) > 0) {
             throw new ContractException(errorMessage);
         }
     }

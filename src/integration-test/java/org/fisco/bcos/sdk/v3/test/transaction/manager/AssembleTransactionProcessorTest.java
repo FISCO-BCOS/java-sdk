@@ -103,13 +103,13 @@ public class AssembleTransactionProcessorTest {
         Assert.assertTrue(Objects.nonNull(transactionReceipt.getOutput()) && StringUtils.isNotBlank(transactionReceipt.getOutput()));
         Assert.assertTrue(Objects.nonNull(transactionReceipt.getReceiptHash()) && StringUtils.isNotBlank(transactionReceipt.getReceiptHash()));
         Assert.assertTrue(Objects.nonNull(transactionReceipt.getFrom()) && StringUtils.isNotBlank(transactionReceipt.getFrom()));
-        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_1_0) >= 0) {
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_1_0.toVersionObj()) >= 0) {
             Assert.assertTrue(Objects.nonNull(transactionReceipt.getChecksumContractAddress()) && StringUtils.isNotBlank(transactionReceipt.getChecksumContractAddress()));
             Assert.assertTrue(transactionReceipt.getChecksumContractAddress().equalsIgnoreCase(transactionReceipt.getContractAddress()));
         }
         Assert.assertTrue(Objects.nonNull(transactionReceipt.getTo()));
 
-        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_3_0) >= 0) {
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj()) >= 0) {
             Assert.assertTrue(Objects.nonNull(transactionReceipt.getInput()) && StringUtils.isNotBlank(transactionReceipt.getInput()));
         }
 
@@ -552,6 +552,43 @@ public class AssembleTransactionProcessorTest {
             Assert.assertEquals(transactionResponse3.getReturnCode(), 0);
             Assert.assertEquals(transactionResponse3.getEventResultMap().size(), 1);
             Assert.assertEquals(transactionResponse3.getEventResultMap().get("Echo").size(), 4);
+        }
+    }
+
+    @Test
+    public void test11CallWithSign() throws Exception {
+        AssembleTransactionProcessor transactionProcessor =
+                TransactionProcessorFactory.createAssembleTransactionProcessor(
+                        this.client, this.cryptoKeyPair, ABI_FILE, BIN_FILE);
+
+        if(client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_4_0.toVersionObj()) < 0){
+            return;
+        }
+        String contractAddress = null;
+        // deploy
+        {
+            List<Object> params = Lists.newArrayList();
+            TransactionResponse response =
+                    transactionProcessor.deployByContractLoader("TestCallWithSign", params);
+            Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
+            contractAddress = response.getContractAddress();
+            Assert.assertTrue(contractAddress != null && !contractAddress.isEmpty());
+        }
+
+        String abi = transactionProcessor.getContractLoader().getABIByContractName("TestCallWithSign");
+        List<Object> params = new ArrayList<>();
+        // getOrigin
+        {
+            CallResponse getOrigin = transactionProcessor.sendCallWithSign("", contractAddress, abi, "getOrigin", params);
+            String origin = (String) getOrigin.getReturnObject().get(0);
+            Assert.assertEquals(origin, this.cryptoKeyPair.getAddress());
+        }
+
+        // getSender
+        {
+            CallResponse getSender = transactionProcessor.sendCallWithSign("", contractAddress, abi, "getSender", params);
+            String sender = (String) getSender.getReturnObject().get(0);
+            Assert.assertEquals(sender, this.cryptoKeyPair.getAddress());
         }
     }
 }

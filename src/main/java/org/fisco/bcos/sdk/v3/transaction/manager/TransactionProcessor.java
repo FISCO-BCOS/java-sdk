@@ -14,6 +14,7 @@
  */
 package org.fisco.bcos.sdk.v3.transaction.manager;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -28,6 +29,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.ResponseCallback;
@@ -128,24 +130,6 @@ public class TransactionProcessor implements TransactionProcessorInterface {
         }
 
         return transactionReceipt;
-
-        /*
-        TxPair txPair =
-                this.createSignedTransaction(
-                        to,
-                        data,
-                        cryptoKeyPair == null ? this.cryptoKeyPair : cryptoKeyPair,
-                        txAttribute,
-                        client.getExtraData());
-        TransactionReceipt transactionReceipt =
-                this.client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
-        if (Objects.nonNull(transactionReceipt)
-                && StringUtils.isEmpty(transactionReceipt.getTransactionHash())) {
-            transactionReceipt.setTransactionHash(txPair.getTxHash());
-        }
-
-        return transactionReceipt;
-        */
     }
 
     @Override
@@ -161,12 +145,6 @@ public class TransactionProcessor implements TransactionProcessorInterface {
             CryptoKeyPair cryptoKeyPair,
             int txAttribute,
             TransactionCallback callback) {
-        /*
-        TxPair txPair =
-                this.createSignedTransaction(
-                        to, data, cryptoKeyPair, txAttribute, client.getExtraData());
-        this.client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
-        */
         String extraData = client.getExtraData();
         String txHash =
                 RpcServiceJniObj.sendTransaction(
@@ -258,6 +236,39 @@ public class TransactionProcessor implements TransactionProcessorInterface {
     }
 
     @Override
+    public Call executeCallWithSign(String from, String to, byte[] encodedFunction) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            outputStream.write(Hex.trimPrefix(to).getBytes());
+            outputStream.write(encodedFunction);
+            byte[] hash = this.cryptoSuite.hash(outputStream.toByteArray());
+            SignatureResult sign = this.cryptoSuite.sign(hash, this.cryptoSuite.getCryptoKeyPair());
+            if (log.isTraceEnabled()) {
+                log.trace(
+                        "Sign call data, to: {}, data:{}, hash:{}, sign: {}",
+                        to,
+                        Hex.toHexString(encodedFunction),
+                        Hex.toHexString(hash),
+                        Hex.toHexString(sign.encode()));
+            }
+            return this.client.call(
+                    new Transaction(from, to, encodedFunction), Hex.toHexString(sign.encode()));
+        } catch (Exception e) {
+            log.error(
+                    "Sign call data failed: {}, to: {}, data:{}",
+                    e.getMessage(),
+                    to,
+                    Hex.toHexString(encodedFunction),
+                    e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Call executeCallWithSign(String from, String to, byte[] encodedFunction, String sign) {
+        return this.client.call(new Transaction(from, to, encodedFunction), sign);
+    }
+
+    @Override
     public void asyncExecuteCall(
             String from, String to, byte[] encodedFunction, RespCallback<Call> callback) {
         this.client.callAsync(new Transaction(from, to, encodedFunction), callback);
@@ -270,6 +281,29 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                 callRequest.getTo(),
                 callRequest.getEncodedFunction(),
                 callback);
+    }
+
+    @Override
+    public void asyncExecuteCallWithSign(
+            String from, String to, byte[] encodedFunction, RespCallback<Call> callback) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            outputStream.write(Hex.trimPrefix(to).getBytes());
+            outputStream.write(encodedFunction);
+            byte[] hash = this.cryptoSuite.hash(outputStream.toByteArray());
+            SignatureResult sign = this.cryptoSuite.sign(hash, this.cryptoSuite.getCryptoKeyPair());
+            this.client.callAsync(
+                    new Transaction(from, to, encodedFunction),
+                    Hex.toHexString(sign.encode()),
+                    callback);
+        } catch (Exception e) {
+            log.error(
+                    "Sign call data failed: {}, to: {}, data:{}",
+                    e.getMessage(),
+                    to,
+                    Hex.toHexString(encodedFunction),
+                    e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -294,8 +328,8 @@ public class TransactionProcessor implements TransactionProcessorInterface {
             int txAttribute,
             String extraData) {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug(
+            if (log.isTraceEnabled()) {
+                log.trace(
                         "createDeploySignedTransaction to: {}, abi: {}, attr: {}, extraData: {}",
                         to,
                         abi,
