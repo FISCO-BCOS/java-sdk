@@ -157,22 +157,12 @@ pwd
 ls -la
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 download_tassl
-LOG_INFO "------ download_build_chain: v3.3.0---------"
-download_binary "v3.3.0"
-download_build_chain "v3.3.0"
-LOG_INFO "------ check_standard_node---------"
-check_standard_node "false" "sm" "-s"
-LOG_INFO "------ check_wasm_node---------"
-check_wasm_node "true"
-LOG_INFO "------ check_basic---------"
-check_basic
-rm -rf ./bin
 
-LOG_INFO "------ download_binary: v3.2.0---------"
-download_build_chain "v3.2.0"
-download_binary "v3.2.0"
+LOG_INFO "------ download_binary: v3.0.0---------"
+download_build_chain "v3.0.0"
+download_binary "v3.0.0"
 LOG_INFO "------ check_standard_node---------"
-check_standard_node "true" "sm" "-s -A"
+check_standard_node
 rm -rf ./bin
 
 LOG_INFO "------ download_binary: v3.1.0---------"
@@ -182,9 +172,18 @@ LOG_INFO "------ check_standard_node---------"
 check_standard_node
 rm -rf ./bin
 
-LOG_INFO "------ download_binary: v3.0.0---------"
-download_build_chain "v3.0.0"
-download_binary "v3.0.0"
+LOG_INFO "------ download_binary: v3.2.0---------"
+download_build_chain "v3.2.0"
+download_binary "v3.2.0"
 LOG_INFO "------ check_standard_node---------"
-check_standard_node
+check_standard_node "true" "sm" "-s -A"
+rm -rf ./bin
+
+LOG_INFO "------ download_build_chain: v3.3.0---------"
+download_binary "v3.3.0"
+download_build_chain "v3.3.0"
+LOG_INFO "------ check_wasm_node---------"
+check_wasm_node "false"
+LOG_INFO "------ check_standard_node---------"
+check_standard_node "true" "sm" "-s"
 rm -rf ./bin

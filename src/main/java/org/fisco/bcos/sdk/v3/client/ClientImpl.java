@@ -1165,6 +1165,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    @Deprecated
     public EnumNodeVersion getChainVersion() {
         List<BcosGroupNodeInfo.GroupNodeInfo> nodeList = getGroupInfo().getResult().getNodeList();
         if (nodeList == null || nodeList.isEmpty()) {
