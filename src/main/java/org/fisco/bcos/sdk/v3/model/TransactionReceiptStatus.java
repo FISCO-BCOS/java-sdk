@@ -45,17 +45,19 @@ public class TransactionReceiptStatus {
     public static final RetCode WASMUnreachableInstruction =
             new RetCode(34, "WASMUnreachableInstruction");
     public static final RetCode WASMTrap = new RetCode(35, "WASMTrap");
-    public static final RetCode NonceCheckFail = new RetCode(1000, "NonceCheckFail");
-    public static final RetCode BlockLimitCheckFail = new RetCode(1001, "BlockLimitCheckFail");
-    public static final RetCode TxPoolIsFull = new RetCode(1002, "TxPoolIsFull");
-    public static final RetCode Malform = new RetCode(1003, "Malform tx");
-    public static final RetCode AlreadyInTxPool = new RetCode(1004, "AlreadyInTxPool");
-    public static final RetCode TxAlreadyInChain = new RetCode(1005, "TxAlreadyInChain");
-    public static final RetCode InvalidChainId = new RetCode(1006, "InvalidChainId");
-    public static final RetCode InvalidGroupId = new RetCode(1007, "InvalidGroupId");
-    public static final RetCode InvalidSignature = new RetCode(1008, "InvalidSignature");
+    public static final RetCode NonceCheckFail = new RetCode(10000, "NonceCheckFail");
+    public static final RetCode BlockLimitCheckFail = new RetCode(10001, "BlockLimitCheckFail");
+    public static final RetCode TxPoolIsFull = new RetCode(10002, "TxPoolIsFull");
+    public static final RetCode Malform = new RetCode(10003, "Malform tx");
+    public static final RetCode AlreadyInTxPool = new RetCode(10004, "AlreadyInTxPool");
+    public static final RetCode TxAlreadyInChain = new RetCode(10005, "TxAlreadyInChain");
+    public static final RetCode InvalidChainId = new RetCode(10006, "InvalidChainId");
+    public static final RetCode InvalidGroupId = new RetCode(10007, "InvalidGroupId");
+    public static final RetCode InvalidSignature = new RetCode(10008, "InvalidSignature");
     public static final RetCode RequestNotBelongToTheGroup =
-            new RetCode(1009, "RequestNotBelongToTheGroup");
+            new RetCode(10009, "RequestNotBelongToTheGroup");
+    public static final RetCode TransactionPoolTimeout =
+            new RetCode(10009, "TransactionPoolTimeout");
     public static final RetCode TimeOut = new RetCode(50001, "Transaction receipt timeout");
 
     protected static Map<Integer, RetCode> codeToRetCode = new HashMap<>();
