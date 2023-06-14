@@ -9,6 +9,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,22 +32,20 @@ public class ContractConstructorTest {
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
         List<Object> params = Lists.newArrayList();
-        params.add("1");
+        params.add(1);
         params.add("2");
-        params.add("3");
-        params.add("4");
 
-        String abi = FileUtils.readFileToString(new File(abiFile + "CheckInfoManager.abi"));
-        String bin = FileUtils.readFileToString(new File(binFile + "CheckInfoManager.bin"));
+        String abi = FileUtils.readFileToString(new File(abiFile + "ComplexSol.abi"));
+        String bin = FileUtils.readFileToString(new File(binFile + "ComplexSol.bin"));
 
         TransactionResponse txResponse =
                 transactionProcessor.deployAndGetResponse(abi, bin, params);
-        // System.out.println(JsonUtils.toJson(txResponse));
+        System.out.println(JsonUtils.toJson(txResponse));
         Assert.assertEquals("0x0", txResponse.getTransactionReceipt().getStatus());
 
         TransactionResponse response =
-                transactionProcessor.deployByContractLoader("CheckInfoManager", params);
-        // System.out.println(JsonUtils.toJson(response));
+                transactionProcessor.deployByContractLoader("ComplexSol", params);
+        System.out.println(JsonUtils.toJson(response));
         Assert.assertEquals("0x0", response.getTransactionReceipt().getStatus());
     }
 }

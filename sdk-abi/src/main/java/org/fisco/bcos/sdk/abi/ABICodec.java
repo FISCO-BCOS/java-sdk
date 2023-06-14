@@ -216,7 +216,6 @@ public class ABICodec {
         for (ABIDefinition abiDefinition : methods) {
             if (abiDefinition.getInputs().size() == params.size()) {
                 ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-                ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
                 try {
                     String methodId = abiDefinition.getMethodId(cryptoSuite);
                     return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
@@ -242,7 +241,6 @@ public class ABICodec {
             throw new ABICodecException(errorMsg);
         }
         ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         try {
             return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
         } catch (IOException e) {
@@ -261,7 +259,6 @@ public class ABICodec {
         if (abiDefinition.getInputs().size() == params.size()) {
             @SuppressWarnings("static-access")
             ABIObject inputABIObject = abiObjectFactory.createInputObject(abiDefinition);
-            ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
             try {
                 String methodId = abiDefinition.getMethodId(cryptoSuite);
                 return methodId + abiCodecJsonWrapper.encode(inputABIObject, params).encode();
@@ -440,7 +437,6 @@ public class ABICodec {
         }
         for (ABIDefinition abiDefinition : methods) {
             ABIObject outputABIObject = abiObjectFactory.createOutputObject(abiDefinition);
-            ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
             try {
                 return abiCodecJsonWrapper.decode(outputABIObject, output);
             } catch (Exception e) {
@@ -473,7 +469,6 @@ public class ABICodec {
         } else {
             outputABIObject = abiObjectFactory.createInputObject(abiDefinition);
         }
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         try {
             return abiCodecJsonWrapper.decode(outputABIObject, data);
         } catch (UnsupportedOperationException e) {
@@ -568,7 +563,6 @@ public class ABICodec {
         }
         for (ABIDefinition abiDefinition : events) {
             ABIObject inputObject = abiObjectFactory.createEventInputObject(abiDefinition);
-            ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
             try {
                 List<String> params = new ArrayList<>();
                 if (!log.getData().equals("0x")) {
@@ -592,7 +586,6 @@ public class ABICodec {
         ABIDefinition abiDefinition =
                 contractABIDefinition.getABIDefinitionByEventTopic(eventTopic);
         ABIObject inputObject = abiObjectFactory.createEventInputObject(abiDefinition);
-        ABICodecJsonWrapper abiCodecJsonWrapper = new ABICodecJsonWrapper();
         try {
             List<String> params = new ArrayList<>();
             if (!log.getData().equals("0x")) {
