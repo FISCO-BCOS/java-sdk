@@ -7,7 +7,7 @@
 
 ### 新增
 
-- 新增call with sign接口，支持在发起static call请求时使用私钥对请求体(to+data)进行签名，在节点侧将会对应会付出签名对应的用户地址，合约中可以取到call请求时的tx.origin和msg.sender，达到用户身份认证的目的。
+- 新增call with sign接口，支持在发起static call请求时使用私钥对请求体(to+data)进行签名，在节点侧将会对应恢复出签名对应的用户地址，合约中可以取到call请求时的tx.origin和msg.sender，达到用户身份认证的目的。
 - `Client`类新增`isEnableCommittee()`方法，与`isAuthCheck()`进行区分，用于判断当前链是否启用了治理委员会。
 - `Client`类新增 `getChainCompatibilityVersion()`，用于获取当前链的数据兼容版本号。
 
@@ -48,7 +48,7 @@ Please refer to the Java SDK v3.x+ documentation:
 
 ### Added
 
-- Added the "call with sign" interface, which supports signing the request body (to+data) with a private key when initiating a static call request. The corresponding user address will be associated with the signature on the node side, and the tx.origin and msg.sender at the time of the call request can be obtained in the contract, achieving user identity authentication.
+- Added the "call with sign" interface, which supports signing the request body (to+data) with a private key when initiating a static call request. The corresponding user address will be recovered with the signature on the node side, and the tx.origin and msg.sender at the time of the call request can be obtained in the contract, achieving user identity authentication.
 - Added the `isEnableCommittee()` method to the `Client` class, which is used to determine whether the current chain has enabled the governance committee, differentiating it from `isAuthCheck()`.
 - Added the `getChainCompatibilityVersion()` method to the `Client` class, which is used to obtain the data compatibility version of the current chain.
 
