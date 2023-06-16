@@ -336,7 +336,7 @@ public class BcosSDKTest {
         String txHash = receipt.getTransactionHash();
         BcosTransaction transaction1 = client.getTransaction(txHash, false);
         BcosTransactionReceipt transactionReceipt = client.getTransactionReceipt(txHash, false);
-        if (client.getChainVersion().compareTo(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj()) >= 0) {
             Assert.assertEquals(extraData, transaction1.getResult().getExtraData());
             Assert.assertEquals(extraData, transactionReceipt.getResult().getExtraData());
         }

@@ -25,7 +25,7 @@ ext {
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
     guavaVersion = '31.1-jre'
-    bcosSdkJniVersion = "3.3.0"
+    bcosSdkJniVersion = "3.4.0"
     slf4jApiVerison = '1.7.36'
     mockitoVersion = '4.8.0'
     gsonVersion = '2.10.1'
@@ -35,7 +35,7 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.4.0-SNAPSHOT'
+    version = '3.4.0'
 
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
@@ -52,12 +52,6 @@ allprojects {
 
     jacoco {
         toolVersion = "0.8.6"
-    }
-    jacocoTestReport {
-        reports {
-            xml.enabled true
-            html.enabled false
-        }
     }
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -169,11 +163,13 @@ configurations {
 }
 
 task integrationTest(type: Test) {
+    dependsOn test
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
 
 task integrationWasmTest(type: Test) {
+    dependsOn test
     testClassesDirs = sourceSets.integrationWasmTest.output.classesDirs
     classpath = sourceSets.integrationWasmTest.runtimeClasspath
 }
@@ -192,6 +188,22 @@ task sourcesJar(type: Jar) {
 task javadocJar(type: Jar) {
     from javadoc
     archiveClassifier = 'javadoc'
+}
+
+jacocoTestReport {
+    // The JaCoCo plugin adds a JacocoTaskExtension extension to all tasks of type Test.
+    // Use task state to include or not task execution data
+    // https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/TaskState.html
+    // This declaration will be used as a closure, notice there no wrapping parenthesis
+    executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+tasks.withType(Test) {
+    finalizedBy jacocoTestReport
 }
 
 publishing {
