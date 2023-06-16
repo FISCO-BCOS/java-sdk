@@ -19,7 +19,7 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class BFSService {
     private final BFSPrecompiled bfsPrecompiled;
-    private EnumNodeVersion currentVersion;
+    private EnumNodeVersion.Version currentVersion;
     private final Client client;
 
     public BFSService(Client client, CryptoKeyPair credential) {
@@ -30,11 +30,11 @@ public class BFSService {
                                 : PrecompiledAddress.BFS_PRECOMPILED_ADDRESS,
                         client,
                         credential);
-        this.currentVersion = client.getChainVersion();
+        this.currentVersion = client.getChainCompatibilityVersion();
         this.client = client;
     }
 
-    public EnumNodeVersion getCurrentVersion() {
+    public EnumNodeVersion.Version getCurrentVersion() {
         return currentVersion;
     }
 
@@ -194,16 +194,16 @@ public class BFSService {
         return bfsPrecompiled.readlink(absolutePath);
     }
 
-    public RetCode fixBfs(EnumNodeVersion version) throws ContractException {
+    public RetCode fixBfs(EnumNodeVersion.Version version) throws ContractException {
         PrecompiledVersionCheck.V330_FIX_BFS_VERSION.checkVersion(currentVersion);
         TransactionReceipt transactionReceipt =
-                bfsPrecompiled.fixBfs(BigInteger.valueOf(version.getVersion()));
+                bfsPrecompiled.fixBfs(BigInteger.valueOf(version.toCompatibilityVersion()));
         return ReceiptParser.parseTransactionReceipt(
                 transactionReceipt, tr -> bfsPrecompiled.getFixBfsOutput(tr).getValue1());
     }
 
     public RetCode fixBfs() throws ContractException {
-        this.currentVersion = client.getChainVersion();
+        this.currentVersion = client.getChainCompatibilityVersion();
         return fixBfs(currentVersion);
     }
 }

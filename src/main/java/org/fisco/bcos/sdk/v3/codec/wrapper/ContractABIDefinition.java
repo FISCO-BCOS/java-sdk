@@ -96,7 +96,9 @@ public class ContractABIDefinition {
         this.events.putIfAbsent(name, new ArrayList<>());
         List<ABIDefinition> abiDefinitions = this.events.get(name);
         abiDefinitions.add(abiDefinition);
-        logger.debug(" name: {}, abi: {}", name, abiDefinition);
+        if (logger.isTraceEnabled()) {
+            logger.trace(" name: {}, abi: {}", name, abiDefinition);
+        }
 
         // calculate method id and add abiDefinition to eventTopicToEvents
         byte[] methodId = abiDefinition.getMethodId(this.cryptoSuite);

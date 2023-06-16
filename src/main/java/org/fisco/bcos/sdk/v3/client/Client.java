@@ -133,7 +133,15 @@ public interface Client {
      */
     Boolean isAuthCheck();
 
+    /**
+     * Whether is committee enable in chain
+     *
+     * @return true when chain can use committee
+     */
+    Boolean isEnableCommittee();
+
     Boolean isSerialExecute();
+
     /**
      * get groupId of the client
      *
@@ -911,15 +919,20 @@ public interface Client {
      * get the chain compatibility version
      *
      * @return the chain compatibility version
+     * @deprecated use getChainCompatibilityVersion instead, because older version sdk did not
+     *     recognize newer chain node
      */
+    @Deprecated
     EnumNodeVersion getChainVersion();
+
+    EnumNodeVersion.Version getChainCompatibilityVersion();
 
     /**
      * async get the chain compatibility version
      *
      * @param versionRespCallback the callback instance
      */
-    void getChainVersionAsync(RespCallback<EnumNodeVersion> versionRespCallback);
+    void getChainVersionAsync(RespCallback<EnumNodeVersion.Version> versionRespCallback);
 
     void start();
 

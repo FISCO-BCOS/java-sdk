@@ -60,6 +60,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import static org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService.AUTH_STATUS;
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PrecompiledTest {
     private static final String configFile =
@@ -158,7 +160,14 @@ public class PrecompiledTest {
 
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         SystemConfigService systemConfigService = new SystemConfigService(client, cryptoKeyPair);
-        if (client.isAuthCheck()) {
+        boolean authCheck = client.isAuthCheck();
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj()) >= 0) {
+            String value = client.getSystemConfigByKey(AUTH_STATUS).getSystemConfig().getValue();
+            if (Objects.equals(value, "0")) {
+                authCheck = false;
+            }
+        }
+        if (authCheck) {
             RetCode retCode = systemConfigService.setValueByKey("tx_count_limit", "100");
             Assert.assertEquals(retCode.code, PrecompiledRetCode.CODE_NO_AUTHORIZED.code);
             return;
@@ -200,7 +209,7 @@ public class PrecompiledTest {
         }
         RetCode code;
         Map<String, List<String>> desc;
-        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj()) >= 0) {
             code = tableCRUDService.createTable(tableName, Common.TableKeyOrder.valueOf(0), key, valueFields);
             desc = tableCRUDService.descWithKeyOrder(tableName);
         } else {
@@ -222,7 +231,7 @@ public class PrecompiledTest {
         // select key
         Map<String, String> result = tableCRUDService.select(tableName, "key1");
 
-        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj()) >= 0) {
             ConditionV320 condition = new ConditionV320();
             condition.EQ(key, "key1");
             condition.setLimit(0, 10);
@@ -269,7 +278,7 @@ public class PrecompiledTest {
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         RetCode retCode;
-        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj()) >= 0) {
             retCode = crudService.createTable(tableName, Common.TableKeyOrder.valueOf(0), "key", valueFiled);
         } else {
             retCode = crudService.createTable(tableName, "key", valueFiled);
@@ -346,7 +355,7 @@ public class PrecompiledTest {
         List<String> valueFiled = new ArrayList<>();
         valueFiled.add("field");
         String key = "key";
-        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj()) >= 0) {
             crudService.createTable(tableName, Common.TableKeyOrder.valueOf(0), key, valueFiled);
         } else {
             crudService.createTable(tableName, key, valueFiled);
@@ -415,7 +424,7 @@ public class PrecompiledTest {
         Assert.assertEquals(0, code.getCode());
         // desc
         Map<String, String> desc;
-        if (client.getChainVersion().compareToVersion(EnumNodeVersion.BCOS_3_2_0) >= 0) {
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj()) >= 0) {
             desc = kvTableService.descWithKeyOrder(tableName);
         } else {
             desc = kvTableService.desc(tableName);

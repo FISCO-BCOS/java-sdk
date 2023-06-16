@@ -163,6 +163,8 @@ public class PrecompiledTest {
                         peersInfos.add(peersInfo);
                     }
                     syncStatusInfo.setPeers(peersInfos);
+                    syncStatusInfo.setNodeId(nodeIds[0]);
+                    syncStatusInfo.setKnownHighestNumber((int) number);
                     syncStatus.setResult(syncStatusInfo);
                     return syncStatus;
                 }
