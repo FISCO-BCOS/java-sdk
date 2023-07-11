@@ -15,28 +15,28 @@ ext {
         ossrhPassword="xxx"
     }
     // jackson version
-    jacksonVersion = "2.13.4.2"
+    jacksonVersion = "2.15.2"
     commonsIOVersion = "2.4"
     commonsLang3Version = "3.1"
     javapoetVersion = "1.7.0"
     picocliVersion = "3.6.0"
-    nettySMSSLContextVersion = "1.5.0"
+    nettySMSSLContextVersion = "1.5.2"
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = "1.60"
     webankJavaCryptoVersion = "1.0.2"
     webankHsmCryptoVersion = "1.0.0-GMT0018"
 
-    slf4jVersion = "1.7.32"
-    junitVersion = "4.12"
+    slf4jVersion = "1.7.36"
+    junitVersion = '4.13.1'
     commonsCollections4Version = "4.4"
-    guavaVersion = "29.0-jre"
+    guavaVersion = "32.1.1-jre"
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '2.9.2'
+    version = '2.9.3'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'

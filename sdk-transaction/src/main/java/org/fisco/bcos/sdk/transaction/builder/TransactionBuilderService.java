@@ -62,6 +62,35 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
             String functionName,
             List<Object> params)
             throws ABICodecException {
+        return createSignedTransaction(
+                cryptoSuite, groupId, chainId, blockLimit, abi, to, "", functionName, params);
+    }
+
+    /**
+     * Create fisco bcos transaction
+     *
+     * @param cryptoSuite @See CryptoSuite
+     * @param groupId the group that need create transaction
+     * @param chainId default 1
+     * @param blockLimit, cached limited block number
+     * @param abi, compiled contract abi
+     * @param to target address
+     * @param extraData
+     * @param functionName function name
+     * @param params object list of function paramater
+     * @return RawTransaction the signed transaction hexed string
+     */
+    public static String createSignedTransaction(
+            CryptoSuite cryptoSuite,
+            int groupId,
+            int chainId,
+            BigInteger blockLimit,
+            String abi,
+            String to,
+            String extraData,
+            String functionName,
+            List<Object> params)
+            throws ABICodecException {
         ABICodec abiCodec = new ABICodec(cryptoSuite);
         String data = abiCodec.encodeMethod(abi, functionName, params);
         Random r = ThreadLocalRandom.current();
@@ -77,7 +106,7 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
                         data,
                         BigInteger.valueOf(chainId),
                         BigInteger.valueOf(groupId),
-                        "");
+                        extraData);
         TransactionEncoderService transactionEncoder = new TransactionEncoderService(cryptoSuite);
         return transactionEncoder.encodeAndSign(rawTransaction, cryptoSuite.getCryptoKeyPair());
     }
@@ -147,7 +176,7 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
                 BigInteger.ZERO,
                 chainId,
                 groupId,
-                null);
+                client.getExtraData());
     }
 
     @Override
@@ -162,7 +191,7 @@ public class TransactionBuilderService implements TransactionBuilderInterface {
                 BigInteger.ZERO,
                 chainId,
                 groupId,
-                null);
+                client.getExtraData());
     }
 
     /** @return the client */
