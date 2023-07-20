@@ -153,6 +153,7 @@ check_wasm_node()
   clean_node "${1}"
 }
 
+java -version
 pwd
 ls -la
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
