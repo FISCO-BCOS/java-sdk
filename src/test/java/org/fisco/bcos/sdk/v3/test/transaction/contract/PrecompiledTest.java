@@ -150,6 +150,8 @@ public class PrecompiledTest {
                     SyncStatus syncStatus = new SyncStatus();
                     SyncStatus.SyncStatusInfo syncStatusInfo = new SyncStatus.SyncStatusInfo();
                     List<SyncStatus.PeersInfo> peersInfos = new ArrayList<>();
+                    syncStatusInfo.setNodeId(nodeIds[0]);
+                    syncStatusInfo.setKnownHighestNumber((int) number);
                     for (String nodeId : nodeIds) {
                         SyncStatus.PeersInfo peersInfo = new SyncStatus.PeersInfo();
                         peersInfo.setBlockNumber(number);
