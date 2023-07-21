@@ -75,15 +75,25 @@ public class ConsensusService {
                     PrecompiledRetCode.CODE_ADD_SEALER_SHOULD_IN_OBSERVER.getCode());
         }
         SyncStatus syncStatus = client.getSyncStatus();
-        BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
-        boolean anyMatch =
-                syncStatus.getSyncStatus().getPeers().stream()
-                        .anyMatch(
-                                peersInfo ->
-                                        peersInfo.getNodeId().equals(nodeId)
-                                                && peersInfo.getBlockNumber()
-                                                        >= (blockNumber.longValue()
-                                                                - SYNC_KEEP_UP_THRESHOLD));
+        // sdk block number
+        BigInteger highestNumber =
+                BigInteger.valueOf(syncStatus.getSyncStatus().getKnownHighestNumber());
+        boolean anyMatch;
+        if (syncStatus.getSyncStatus().getNodeId().equals(nodeId)) {
+            // sdk connect observer to be added to sealerList
+            anyMatch =
+                    syncStatus.getSyncStatus().getBlockNumber()
+                            >= highestNumber.longValue() - SYNC_KEEP_UP_THRESHOLD;
+        } else {
+            anyMatch =
+                    syncStatus.getSyncStatus().getPeers().stream()
+                            .anyMatch(
+                                    peersInfo ->
+                                            peersInfo.getNodeId().equals(nodeId)
+                                                    && peersInfo.getBlockNumber()
+                                                            >= (highestNumber.longValue()
+                                                                    - SYNC_KEEP_UP_THRESHOLD));
+        }
         if (!anyMatch) {
             throw new ContractException(
                     "Observer should keep up the block number sync threshold: "
