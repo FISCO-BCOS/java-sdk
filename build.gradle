@@ -126,6 +126,7 @@ googleJavaFormat {
 }
 
 dependencies {
+	implementation files('lib/bcos_sdk_java_jni.jar')
     api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")  {
         exclude group : "org.slf4j"
         exclude group : "com.fasterxml.jackson.core"
