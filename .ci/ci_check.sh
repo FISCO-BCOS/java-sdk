@@ -152,6 +152,8 @@ check_wasm_node()
   ## clean
   clean_node "${1}"
 }
+LOG_INFO "------ check java version ---------"
+java -version
 
 pwd
 ls -la
