@@ -127,7 +127,7 @@ googleJavaFormat {
 }
 
 dependencies {
-	api("org.fisco-bcos.sdk-tars:fisco-bcos-tars-sdk:${tarsSDKVersion}")
+	api("org.fisco-bcos:fisco-bcos-tars-sdk:${tarsSDKVersion}")
     api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")  {
         exclude group : "org.slf4j"
         exclude group : "com.fasterxml.jackson.core"

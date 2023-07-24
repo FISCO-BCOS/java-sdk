@@ -9,7 +9,6 @@ import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 
-import org.fisco.bcos.sdk.tars.FutureReceipt;
 import org.fisco.bcos.sdk.tars.LogEntry;
 import org.fisco.bcos.sdk.tars.TransactionReceipt;
 import org.fisco.bcos.sdk.tars.bcos;
@@ -50,15 +49,17 @@ public class TarsClient extends ClientImpl implements Client {
 	@Override
 	public void sendTransactionAsync(String node, String signedTransactionData, boolean withProof,
 			TransactionCallback callback) {
-		if (withProof) {
-			super.sendTransactionAsync(node, signedTransactionData, withProof, callback);
-			return;
-		}
+		throw new RuntimeException("Unimplemented method!");
 
-		node = Objects.isNull(node) ? "" : node;
-		Transaction transaction = transactionFactory
-				.createTransaction(bcos.toBytesConstRef(Hex.decode(signedTransactionData)));
-		FutureReceipt future = tarsRPCClient.sendTransaction(transaction);
+//		if (withProof) {
+//			super.sendTransactionAsync(node, signedTransactionData, withProof, callback);
+//			return;
+//		}
+//
+//		node = Objects.isNull(node) ? "" : node;
+//		Transaction transaction = transactionFactory
+//				.createTransaction(bcos.toBytesConstRef(Hex.decode(signedTransactionData)));
+//		FutureReceipt future = tarsRPCClient.sendTransaction(transaction);
 	}
 
 	private org.fisco.bcos.sdk.v3.model.TransactionReceipt convert(TransactionReceipt receipt,
