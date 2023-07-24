@@ -94,7 +94,7 @@ public class TarsClient extends ClientImpl implements Client {
     jsonReceipt.setStatus(receipt.status());
     jsonReceipt.setInput("0x" + bcos.toHex(transaction.input()));
     jsonReceipt.setOutput("0x" + bcos.toHex(receipt.output()));
-    jsonReceipt.setExtraData("0x" + bcos.toHex(transaction.extraData()));
+    jsonReceipt.setExtraData(bcos.toString(transaction.extraData()));
 
     return jsonReceipt;
   }
