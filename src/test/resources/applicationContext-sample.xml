@@ -4,23 +4,22 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
-	<bean id="defaultConfigProperty"
-		class="org.fisco.bcos.sdk.v3.config.model.ConfigProperty">
+	<bean id="defaultConfigProperty" class="org.fisco.bcos.sdk.v3.config.model.ConfigProperty">
 		<property name="cryptoMaterial">
 			<map>
-				<entry key="certPath" value="conf" />
-				<entry key="useSMCrypto" value="false" />
-				<entry key="disableSsl" value="false" />
-				<!-- SSL certificate configuration -->
-				<!-- entry key="caCert" value="conf/ca.crt" / -->
-				<!-- entry key="sslCert" value="conf/sdk.crt" / -->
-				<!-- entry key="sslKey" value="conf/sdk.key" / -->
-				<!-- GM SSL certificate configuration -->
-				<!-- entry key="caCert" value="conf/sm_ca.crt" / -->
-				<!-- entry key="sslCert" value="conf/sm_sdk.crt" / -->
-				<!-- entry key="sslKey" value="conf/sm_sdk.key" / -->
-				<!--entry key="enSslCert" value="conf/sm_ensdk.crt" / -->
-				<!--entry key="enSslKey" value="conf/sm_ensdk.key" / -->
+			<entry key="certPath" value="conf" />
+			<entry key="useSMCrypto" value="false" />
+			<entry key="disableSsl" value="false" />
+			<!-- SSL certificate configuration -->
+			<!-- entry key="caCert" value="conf/ca.crt" /-->
+			<!-- entry key="sslCert" value="conf/sdk.crt" /-->
+			<!-- entry key="sslKey" value="conf/sdk.key" /-->
+			<!-- GM SSL certificate configuration -->
+			<!-- entry key="caCert" value="conf/sm_ca.crt" /-->
+			<!-- entry key="sslCert" value="conf/sm_sdk.crt" /-->
+			<!-- entry key="sslKey" value="conf/sm_sdk.key" /-->
+			<!--entry key="enSslCert" value="conf/sm_ensdk.crt" /-->
+			<!--entry key="enSslKey" value="conf/sm_ensdk.key" /-->
 			</map>
 		</property>
 		<property name="network">
@@ -35,11 +34,22 @@
 				<entry key="messageTimeout" value="10000" />
 			</map>
 		</property>
-		<!-- <property name="amop"> <list> <bean id="amopTopic1" class="AmopTopic"> 
-			<property name="topicName" value="PrivateTopic1" /> <property name="password" 
-			value="" /> <property name="privateKey" value="" /> <property name="publicKeys"> 
-			<list> <value>conf/amop/consumer_public_key_1.pem</value> </list> </property> 
-			</bean> </list> </property> -->
+		<!--
+		<property name="amop">
+			<list>
+				<bean id="amopTopic1" class="AmopTopic">
+					<property name="topicName" value="PrivateTopic1" />
+					<property name="password" value="" />
+					<property name="privateKey" value="" />
+					<property name="publicKeys">
+						<list>
+							<value>conf/amop/consumer_public_key_1.pem</value>
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+		-->
 		<property name="account">
 			<map>
 				<entry key="keyStoreDir" value="account" />
@@ -51,21 +61,20 @@
 		</property>
 		<property name="threadPool">
 			<map>
-				<entry key="threadPoolSize" value="16" />
+			<entry key="threadPoolSize" value="16" />
 			</map>
 		</property>
 	</bean>
 
-	<bean id="defaultConfigOption"
-		class="org.fisco.bcos.sdk.v3.config.ConfigOption">
+	<bean id="defaultConfigOption" class="org.fisco.bcos.sdk.v3.config.ConfigOption">
 		<constructor-arg name="configProperty">
-			<ref bean="defaultConfigProperty" />
+				<ref bean="defaultConfigProperty"/>
 		</constructor-arg>
 	</bean>
 
 	<bean id="bcosSDK" class="org.fisco.bcos.sdk.v3.BcosSDK">
 		<constructor-arg name="configOption">
-			<ref bean="defaultConfigOption" />
+			<ref bean="defaultConfigOption"/>
 		</constructor-arg>
 	</bean>
 </beans>
