@@ -14,8 +14,10 @@ import org.fisco.bcos.sdk.tars.TransactionReceipt;
 import org.fisco.bcos.sdk.tars.bcos;
 import org.fisco.bcos.sdk.tars.RPCClient;
 import org.fisco.bcos.sdk.tars.SWIGTYPE_p_bcos__h256;
+import org.fisco.bcos.sdk.tars.SendTransaction;
 import org.fisco.bcos.sdk.tars.Transaction;
 import org.fisco.bcos.sdk.tars.TransactionFactoryImpl;
+import org.fisco.bcos.sdk.tars.Callback;
 import org.fisco.bcos.sdk.tars.CryptoSuite;
 
 public class TarsClient extends ClientImpl implements Client {
@@ -42,7 +44,7 @@ public class TarsClient extends ClientImpl implements Client {
 
     Transaction transaction = transactionFactory
         .createTransaction(bcos.toBytesConstRef(Hex.decode(signedTransactionData)));
-    TransactionReceipt receipt = tarsRPCClient.sendTransaction(transaction).get();
+    TransactionReceipt receipt = new SendTransaction(tarsRPCClient).send(transaction).get();
     BcosTransactionReceipt bcosReceipt = new BcosTransactionReceipt();
     bcosReceipt.setResult(convert(receipt, transaction));
 
@@ -52,17 +54,22 @@ public class TarsClient extends ClientImpl implements Client {
   @Override
   public void sendTransactionAsync(String node, String signedTransactionData, boolean withProof,
       TransactionCallback callback) {
-    throw new RuntimeException("Unimplemented method!");
+    if (withProof) {
+      super.sendTransactionAsync(node, signedTransactionData, withProof, callback);
+      return;
+    }
+    node = Objects.isNull(node) ? "" : node;
+    Transaction transaction = transactionFactory
+        .createTransaction(bcos.toBytesConstRef(Hex.decode(signedTransactionData)));
+    SendTransaction sendTransaction = new SendTransaction(tarsRPCClient);
 
-    // if (withProof) {
-    // super.sendTransactionAsync(node, signedTransactionData, withProof, callback);
-    // return;
-    // }
-    //
-    // node = Objects.isNull(node) ? "" : node;
-    // Transaction transaction = transactionFactory
-    // .createTransaction(bcos.toBytesConstRef(Hex.decode(signedTransactionData)));
-    // FutureReceipt future = tarsRPCClient.sendTransaction(transaction);
+    sendTransaction.setCallback(new Callback() {
+      public void onMessage() {
+        TransactionReceipt receipt = sendTransaction.get();
+        callback.onResponse(convert(receipt, transaction));
+      }
+    });
+    sendTransaction.send(transaction);
   }
 
   private org.fisco.bcos.sdk.v3.model.TransactionReceipt convert(TransactionReceipt receipt,
