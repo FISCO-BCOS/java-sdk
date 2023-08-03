@@ -179,6 +179,15 @@ googleJavaFormat {
 }
 
 configurations {
+    resolutionStrategy 
+    {
+        eachDependency { DependencyResolveDetails details ->
+            if (details.requested.name == 'guava') {
+                details.useVersion '32.1.2-jre'
+                details.useTarget 'jreApiElements'
+            }
+        }
+    }
     integrationTestCompile.extendsFrom testCompile
     integrationTestRuntime.extendsFrom testRuntime
 }
