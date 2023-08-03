@@ -14,7 +14,6 @@
  */
 package org.fisco.bcos.sdk.transaction.decoder;
 
-import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +56,7 @@ public class TransactionDecoderServiceTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, client.getCryptoSuite().createKeyPair(), abiFile, binFile);
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("test2");
         TransactionResponse response = manager.deployByContractLoader(contractName, params);
@@ -69,12 +68,14 @@ public class TransactionDecoderServiceTest {
         // System.out.println(JsonUtils.toJson(response));
 
         // increment
+        List<Object> param = new ArrayList<>();
+        param.add(BigInteger.valueOf(1));
         TransactionReceipt transactionReceipt =
                 manager.sendTransactionAndGetReceiptByContractLoader(
                         contractName,
                         contractAddress,
                         "incrementUint256",
-                        Lists.newArrayList(BigInteger.valueOf(1)));
+                        param);
         TransactionResponse transactionResponseWithoutValues =
                 decoder.decodeReceiptWithoutValues(abi, transactionReceipt);
         // System.out.println(JsonUtils.toJson(transactionResponseWithoutValues));
@@ -87,7 +88,8 @@ public class TransactionDecoderServiceTest {
         // System.out.println(JsonUtils.toJson(events));
         Assert.assertEquals(1, events.size());
         // setBytes
-        List<Object> s = Lists.newArrayList("2".getBytes());
+        List<Object> s = new ArrayList<>();
+        s.add("2".getBytes());
         List<Object> paramsSetBytes = new ArrayList<Object>();
         paramsSetBytes.add(s);
         TransactionReceipt transactionReceipt2 =

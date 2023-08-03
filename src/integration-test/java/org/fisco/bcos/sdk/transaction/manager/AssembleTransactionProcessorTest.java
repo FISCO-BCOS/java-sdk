@@ -14,7 +14,6 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
-import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -140,7 +139,8 @@ public class AssembleTransactionProcessorTest {
         // send tx with callback
         String to = callbackMock.getResult().getContractAddress();
         System.out.println("contract address is " + to);
-        List<Object> params = Lists.newArrayList("test");
+        List<Object> params = new ArrayList<>();
+        params.add("test");
         transactionProcessor.sendTransactionAsync(to, abi, "set", params, callbackMock);
         // Assert.assertEquals("0x0", callbackMock.getResult().getStatus());
 
@@ -171,7 +171,7 @@ public class AssembleTransactionProcessorTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("test2");
         TransactionResponse response =
@@ -201,7 +201,7 @@ public class AssembleTransactionProcessorTest {
                     TransactionProcessorFactory.createAssembleTransactionProcessor(
                             client, cryptoKeyPair, abiFile, binFile);
             // deploy
-            List<Object> params = Lists.newArrayList();
+            List<Object> params = new ArrayList<>();
             params.add(1);
             params.add("test2");
             TransactionResponse response =
@@ -244,7 +244,7 @@ public class AssembleTransactionProcessorTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("test2");
         TransactionResponse response =
@@ -266,7 +266,7 @@ public class AssembleTransactionProcessorTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("test2");
         TransactionResponse response =
@@ -275,12 +275,14 @@ public class AssembleTransactionProcessorTest {
             return;
         }
         String contractAddress = response.getContractAddress();
+        List<Object> sendTransactionParams = new ArrayList<>();
+        sendTransactionParams.add(BigInteger.valueOf(10));
         // increment v
         transactionProcessor.sendTransactionAsync(
                 contractAddress,
                 abi,
                 "incrementUint256",
-                Lists.newArrayList(BigInteger.valueOf(10)),
+                sendTransactionParams,
                 new TransactionCallback() {
                     @Override
                     public void onResponse(TransactionReceipt receipt) {
@@ -288,13 +290,14 @@ public class AssembleTransactionProcessorTest {
                         // getV
                         CallResponse callResponse3;
                         try {
+                            List<Object> list = new ArrayList<>();
                             callResponse3 =
                                     transactionProcessor.sendCall(
                                             cryptoKeyPair.getAddress(),
                                             contractAddress,
                                             abi,
                                             "getUint256",
-                                            Lists.newArrayList());
+                                            list);
                             Assert.assertEquals("Success", callResponse3.getReturnMessage());
                         } catch (TransactionBaseException | ABICodecException e) {
                             System.out.println(e.getMessage());
@@ -309,7 +312,7 @@ public class AssembleTransactionProcessorTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("test2");
         TransactionResponse response =
@@ -320,7 +323,7 @@ public class AssembleTransactionProcessorTest {
         }
         String contractAddress = response.getContractAddress();
         // set values
-        List<Object> paramsSetValues = Lists.newArrayList(20);
+        List<Object> paramsSetValues = new ArrayList<>(20);
         String[] o = {"0x1", "0x2", "0x3"};
         List<String> a = Arrays.asList(o);
         paramsSetValues.add(a);
@@ -340,7 +343,7 @@ public class AssembleTransactionProcessorTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("test2");
         TransactionResponse response =
@@ -350,7 +353,8 @@ public class AssembleTransactionProcessorTest {
         }
         String contractAddress = response.getContractAddress();
         // setBytes
-        List<String> paramsSetBytes = Lists.newArrayList(new String("set bytes test".getBytes()));
+        List<String> paramsSetBytes = new ArrayList<>();
+        paramsSetBytes.add(new String("set bytes test".getBytes()));
         TransactionResponse transactionResponse3 =
                 transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                         contractAddress, abi, "setBytes", paramsSetBytes);
@@ -364,13 +368,14 @@ public class AssembleTransactionProcessorTest {
         Assert.assertEquals("set bytes test", eventsMap3.get("LogSetBytes").get(0).get(1));
 
         // getBytes
+        List<Object> callList = new ArrayList<>();
         CallResponse callResponse4 =
                 transactionProcessor.sendCall(
                         cryptoKeyPair.getAddress(),
                         contractAddress,
                         abi,
                         "_bytesV",
-                        Lists.newArrayList());
+                        callList);
         Assert.assertEquals(0, callResponse4.getReturnCode());
         List<Object> resultEntityList4 =
                 JsonUtils.fromJsonList(callResponse4.getValues(), Object.class);
@@ -383,7 +388,7 @@ public class AssembleTransactionProcessorTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("test2");
         TransactionResponse response =
@@ -392,7 +397,8 @@ public class AssembleTransactionProcessorTest {
             return;
         }
         String contractAddress = response.getContractAddress();
-        List<Object> paramsSetBytes = Lists.newArrayList("2".getBytes());
+        List<Object> paramsSetBytes = new ArrayList<>();
+        paramsSetBytes.add("2".getBytes());
         String data = transactionProcessor.encodeFunction(abi, "setBytes", paramsSetBytes);
         String signedData =
                 transactionProcessor.createSignedTransaction(contractAddress, data, cryptoKeyPair);
@@ -410,7 +416,7 @@ public class AssembleTransactionProcessorTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("test2");
         TransactionResponse response =
@@ -422,12 +428,14 @@ public class AssembleTransactionProcessorTest {
         Assert.assertEquals("test2", response.getInputObject().get(1));
         String contractAddress = response.getContractAddress();
         // increment v
+        List<Object> transactionResponseList = new ArrayList<>();
+        transactionResponseList.add(BigInteger.valueOf(10));
         TransactionResponse transactionResponse =
                 transactionProcessor.sendTransactionAndGetResponse(
                         contractAddress,
                         abi,
                         "incrementUint256",
-                        Lists.newArrayList(BigInteger.valueOf(10)));
+                        transactionResponseList);
         Assert.assertEquals(BigInteger.valueOf(10), transactionResponse.getInputObject().get(0));
     }
 }
