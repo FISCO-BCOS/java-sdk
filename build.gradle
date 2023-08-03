@@ -179,15 +179,6 @@ googleJavaFormat {
 }
 
 configurations {
-    resolutionStrategy 
-    {
-        eachDependency { DependencyResolveDetails details ->
-            if (details.requested.name == 'guava') {
-                details.useVersion '32.1.2-jre'
-                details.useTarget 'jreApiElements'
-            }
-        }
-    }
     integrationTestCompile.extendsFrom testCompile
     integrationTestRuntime.extendsFrom testRuntime
 }
@@ -209,7 +200,7 @@ dependencies {
     compile ("com.moandjiezana.toml:toml4j:${toml4jVersion}")
     compile ("com.webank:webank-blockchain-hsm-crypto:${webankHsmCryptoVersion}")
     testCompile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
-    testCompile ("com.google.guava:guava:${guavaVersion}")
+    testCompile ("com.google.guava:guava:${guavaVersion}:jreApiElements")
 }
 
 javadoc {
