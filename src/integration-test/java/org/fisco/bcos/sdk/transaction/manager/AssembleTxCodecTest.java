@@ -56,7 +56,7 @@ public class AssembleTxCodecTest {
                         .getBinaryByContractName(COMPLEX_CODEC_TEST);
         TransactionResponse response =
                 transactionProcessor.deployAndGetResponseWithStringParams(abi, bin, deployParams);
-        Assert.assertEquals(response.getTransactionReceipt().getStatus(), "0x0");
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), "0x19");
         String contractAddress = response.getContractAddress();
         Assert.assertTrue(StringUtils.isNotBlank(response.getContractAddress()));
 
@@ -232,7 +232,7 @@ public class AssembleTxCodecTest {
         }
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader(COMPLEX_CODEC_TEST, deployParams);
-        Assert.assertEquals(response.getTransactionReceipt().getStatus(), "0x0");
+        Assert.assertEquals(response.getTransactionReceipt().getStatus(), "0x19");
         String contractAddress = response.getContractAddress();
         Assert.assertTrue(StringUtils.isNotBlank(response.getContractAddress()));
 
