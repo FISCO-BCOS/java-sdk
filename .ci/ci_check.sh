@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-tag="v2.9.1"
+tag="v2.10.0"
 LOG_INFO() {
     local content=${1}
     echo -e "\033[32m ${content}\033[0m"
@@ -112,6 +112,8 @@ check_sm_node()
   ## clean
   clean_node
 }
+LOG_FILE "------ java version-------"
+java -version
 LOG_INFO "------ download_tassl---------"
 download_tassl
 LOG_INFO "------ download_build_chain---------"
