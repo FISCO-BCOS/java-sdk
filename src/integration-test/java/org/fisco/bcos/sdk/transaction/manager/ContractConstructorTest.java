@@ -10,7 +10,6 @@ import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.model.ConstantConfig;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.tools.JsonUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class ContractConstructorTest {
@@ -41,11 +40,11 @@ public class ContractConstructorTest {
         TransactionResponse txResponse =
                 transactionProcessor.deployAndGetResponse(abi, bin, params);
         System.out.println(JsonUtils.toJson(txResponse));
-//        Assert.assertEquals("0x19", txResponse.getTransactionReceipt().getStatus());
+        //        Assert.assertEquals("0x19", txResponse.getTransactionReceipt().getStatus());
 
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);
         System.out.println(JsonUtils.toJson(response));
-//        Assert.assertEquals("0x19", response.getTransactionReceipt().getStatus());
+        //        Assert.assertEquals("0x19", response.getTransactionReceipt().getStatus());
     }
 }

@@ -16,7 +16,6 @@ package org.fisco.bcos.sdk.transaction.manager;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -323,18 +322,19 @@ public class AssembleTransactionProcessorTest {
         }
         String contractAddress = response.getContractAddress();
         // set values
-//        List<Object> paramsSetValues = new ArrayList<>(20);
-//        String[] o = {"0x1", "0x2", "0x3"};
-//        List<String> a = Arrays.asList(o);
-//        paramsSetValues.add(a);
-//        paramsSetValues.add("set values 字符");
-//        TransactionResponse transactionResponse =
-//                transactionProcessor.sendTransactionAndGetResponse(
-//                        contractAddress, abi, "setValues", paramsSetValues);
-//        // System.out.println(JsonUtils.toJson(transactionResponse));
-//        Map<String, List<List<Object>>> eventsMap = transactionResponse.getEventResultMap();
-//        Assert.assertEquals(1, eventsMap.size());
-//        Assert.assertEquals("set values 字符", eventsMap.get("LogSetValues").get(0).get(2));
+        //        List<Object> paramsSetValues = new ArrayList<>(20);
+        //        String[] o = {"0x1", "0x2", "0x3"};
+        //        List<String> a = Arrays.asList(o);
+        //        paramsSetValues.add(a);
+        //        paramsSetValues.add("set values 字符");
+        //        TransactionResponse transactionResponse =
+        //                transactionProcessor.sendTransactionAndGetResponse(
+        //                        contractAddress, abi, "setValues", paramsSetValues);
+        //        // System.out.println(JsonUtils.toJson(transactionResponse));
+        //        Map<String, List<List<Object>>> eventsMap =
+        // transactionResponse.getEventResultMap();
+        //        Assert.assertEquals(1, eventsMap.size());
+        //        Assert.assertEquals("set values 字符", eventsMap.get("LogSetValues").get(0).get(2));
     }
 
     @Test
@@ -371,11 +371,7 @@ public class AssembleTransactionProcessorTest {
         List<Object> callList = new ArrayList<>();
         CallResponse callResponse4 =
                 transactionProcessor.sendCall(
-                        cryptoKeyPair.getAddress(),
-                        contractAddress,
-                        abi,
-                        "_bytesV",
-                        callList);
+                        cryptoKeyPair.getAddress(), contractAddress, abi, "_bytesV", callList);
         Assert.assertEquals(0, callResponse4.getReturnCode());
         List<Object> resultEntityList4 =
                 JsonUtils.fromJsonList(callResponse4.getValues(), Object.class);
@@ -432,10 +428,7 @@ public class AssembleTransactionProcessorTest {
         transactionResponseList.add(BigInteger.valueOf(10));
         TransactionResponse transactionResponse =
                 transactionProcessor.sendTransactionAndGetResponse(
-                        contractAddress,
-                        abi,
-                        "incrementUint256",
-                        transactionResponseList);
+                        contractAddress, abi, "incrementUint256", transactionResponseList);
         Assert.assertEquals(BigInteger.valueOf(10), transactionResponse.getInputObject().get(0));
     }
 }

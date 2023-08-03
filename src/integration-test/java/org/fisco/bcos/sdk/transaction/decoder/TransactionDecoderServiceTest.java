@@ -72,10 +72,7 @@ public class TransactionDecoderServiceTest {
         param.add(BigInteger.valueOf(1));
         TransactionReceipt transactionReceipt =
                 manager.sendTransactionAndGetReceiptByContractLoader(
-                        contractName,
-                        contractAddress,
-                        "incrementUint256",
-                        param);
+                        contractName, contractAddress, "incrementUint256", param);
         TransactionResponse transactionResponseWithoutValues =
                 decoder.decodeReceiptWithoutValues(abi, transactionReceipt);
         // System.out.println(JsonUtils.toJson(transactionResponseWithoutValues));
