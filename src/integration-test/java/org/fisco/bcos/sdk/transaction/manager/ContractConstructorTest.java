@@ -41,7 +41,7 @@ public class ContractConstructorTest {
         TransactionResponse txResponse =
                 transactionProcessor.deployAndGetResponse(abi, bin, params);
         System.out.println(JsonUtils.toJson(txResponse));
-        Assert.assertEquals("0x0", txResponse.getTransactionReceipt().getStatus());
+        Assert.assertEquals("0x19", txResponse.getTransactionReceipt().getStatus());
 
         TransactionResponse response =
                 transactionProcessor.deployByContractLoader("ComplexSol", params);

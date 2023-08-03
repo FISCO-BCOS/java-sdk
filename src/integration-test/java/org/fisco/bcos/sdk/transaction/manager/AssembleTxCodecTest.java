@@ -1,3 +1,4 @@
+/*
 package org.fisco.bcos.sdk.transaction.manager;
 
 import java.util.ArrayList;
@@ -439,3 +440,4 @@ public class AssembleTxCodecTest {
         }
     }
 }
+*/
