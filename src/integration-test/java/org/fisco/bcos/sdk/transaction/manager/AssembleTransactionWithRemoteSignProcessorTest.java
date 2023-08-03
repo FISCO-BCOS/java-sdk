@@ -61,6 +61,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     @Test
     public void test1HelloWorldSync() throws Exception {
         // build processor
+        params.add("test");
         AssembleTransactionWithRemoteSignProcessor assembleTransactionWithRemoteSignProcessor =
                 TransactionProcessorFactory.createAssembleTransactionWithRemoteSignProcessor(
                         client, cryptoKeyPair, abiFile, binFile, remoteSignProviderMock);
@@ -100,6 +101,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     @Test
     public void test2HelloWorldAsync() throws Exception {
         // build processor
+        params.add("test");
         AssembleTransactionWithRemoteSignProcessor assembleTransactionWithRemoteSignProcessor =
                 TransactionProcessorFactory.createAssembleTransactionWithRemoteSignProcessor(
                         client, cryptoKeyPair, abiFile, binFile, remoteSignProviderMock);
