@@ -185,6 +185,7 @@ javadoc {
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
     archiveClassifier = 'sources'
+    duplicatesStrategy = 'warn'
 }
 
 task javadocJar(type: Jar) {
@@ -211,7 +212,6 @@ tasks.withType(Test) {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-
             artifactId "fisco-bcos-" + project.name
             groupId project.group
             version project.version

@@ -2,36 +2,62 @@ package org.fisco.bcos.sdk.v3.client;
 
 import java.math.BigInteger;
 import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.utils.Hex;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.fisco.bcos.sdk.tars.LogEntry;
 import org.fisco.bcos.sdk.tars.TransactionReceipt;
 import org.fisco.bcos.sdk.tars.bcos;
 import org.fisco.bcos.sdk.tars.RPCClient;
+import org.fisco.bcos.sdk.tars.SWIGTYPE_p_bcos__bytesConstRef;
 import org.fisco.bcos.sdk.tars.SWIGTYPE_p_bcos__h256;
+import org.fisco.bcos.sdk.tars.SWIGTYPE_p_std__vectorT_unsigned_char_t;
 import org.fisco.bcos.sdk.tars.SendTransaction;
+import org.fisco.bcos.sdk.tars.StringVector;
 import org.fisco.bcos.sdk.tars.Transaction;
 import org.fisco.bcos.sdk.tars.TransactionFactoryImpl;
 import org.fisco.bcos.sdk.tars.Callback;
 import org.fisco.bcos.sdk.tars.CryptoSuite;
 
 public class TarsClient extends ClientImpl implements Client {
+  private static Logger logger = LoggerFactory.getLogger(TarsClient.class);
   private RPCClient tarsRPCClient;
-  private TransactionFactoryImpl transactionFactory;;
+  private TransactionFactoryImpl transactionFactory;
+  private ThreadPoolExecutor asyncThreadPool;
 
-  protected TarsClient(String groupID, ConfigOption configOption, long nativePointer,
-      String connectionString) {
+  protected TarsClient(String groupID, ConfigOption configOption, long nativePointer) {
     super(groupID, configOption, nativePointer);
+    String connectionString = RPCClient
+        .toConnectionString(new StringVector(configOption.getNetworkConfig().getTarsPeers()));
+
+    logger.info("Tars connection: {}", connectionString);
     tarsRPCClient = new RPCClient(connectionString);
 
     CryptoSuite cryptoSuite =
         bcos.newCryptoSuite(configOption.getCryptoMaterialConfig().getUseSmCrypto());
     transactionFactory = new TransactionFactoryImpl(cryptoSuite);
+    asyncThreadPool =
+        new ThreadPoolExecutor(1, configOption.getThreadPoolConfig().getThreadPoolSize(), 0,
+            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100 * 10000));
+  }
+
+  public static void loadLibrary() {
+    System.loadLibrary("bcos_swig_java");
+  }
+
+  public static TarsClient build(String groupId, ConfigOption configOption, long nativePointer) {
+    logger.info("build, groupID: {}, configOption: {}, nativePointer: {}", groupId, configOption,
+        nativePointer);
+    return new TarsClient(groupId, configOption, nativePointer);
   }
 
   @Override
@@ -42,11 +68,10 @@ public class TarsClient extends ClientImpl implements Client {
     }
     node = Objects.isNull(node) ? "" : node;
 
-    Transaction transaction = transactionFactory
-        .createTransaction(bcos.toBytesConstRef(Hex.decode(signedTransactionData)));
+    Transaction transaction = toTransaction(signedTransactionData);
     TransactionReceipt receipt = new SendTransaction(tarsRPCClient).send(transaction).get();
     BcosTransactionReceipt bcosReceipt = new BcosTransactionReceipt();
-    bcosReceipt.setResult(convert(receipt, transaction));
+    bcosReceipt.setResult(toJSONTransactionReceipt(receipt, transaction));
 
     return bcosReceipt;
   }
@@ -59,21 +84,33 @@ public class TarsClient extends ClientImpl implements Client {
       return;
     }
     node = Objects.isNull(node) ? "" : node;
-    Transaction transaction = transactionFactory
-        .createTransaction(bcos.toBytesConstRef(Hex.decode(signedTransactionData)));
+    Transaction transaction = toTransaction(signedTransactionData);
     SendTransaction sendTransaction = new SendTransaction(tarsRPCClient);
 
     sendTransaction.setCallback(new Callback() {
       public void onMessage() {
-        TransactionReceipt receipt = sendTransaction.get();
-        callback.onResponse(convert(receipt, transaction));
+        asyncThreadPool.submit(() -> {
+          TransactionReceipt receipt = sendTransaction.get();
+          callback.onResponse(toJSONTransactionReceipt(receipt, transaction));
+        });
       }
     });
     sendTransaction.send(transaction);
   }
 
-  private org.fisco.bcos.sdk.v3.model.TransactionReceipt convert(TransactionReceipt receipt,
-      Transaction transaction) {
+  private Transaction toTransaction(String signedTransactionData) {
+    byte[] transactionBytes = Hex.decode(signedTransactionData);
+
+    // Move data from java to jni
+    SWIGTYPE_p_std__vectorT_unsigned_char_t vectorTransactionBytes = bcos.toBytes(transactionBytes);
+
+    SWIGTYPE_p_bcos__bytesConstRef ref = bcos.toBytesConstRef(vectorTransactionBytes);
+    Transaction transaction = transactionFactory.createTransaction(ref, false, false);
+    return transaction;
+  }
+
+  private org.fisco.bcos.sdk.v3.model.TransactionReceipt toJSONTransactionReceipt(
+      TransactionReceipt receipt, Transaction transaction) {
     org.fisco.bcos.sdk.v3.model.TransactionReceipt jsonReceipt =
         new org.fisco.bcos.sdk.v3.model.TransactionReceipt();
     jsonReceipt.setTransactionHash("0x" + bcos.toHex(transaction.hash()));
