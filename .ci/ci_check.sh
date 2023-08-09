@@ -112,6 +112,8 @@ check_sm_node()
   ## clean
   clean_node
 }
+LOG_INFO "------ java version-------"
+java -version
 LOG_INFO "------ download_tassl---------"
 download_tassl
 LOG_INFO "------ download_build_chain---------"
