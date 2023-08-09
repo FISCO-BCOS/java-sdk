@@ -15,9 +15,9 @@
 
 package org.fisco.bcos.sdk.eventsub;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import org.fisco.bcos.sdk.BcosSDK;
@@ -63,7 +63,7 @@ public class SubscribeTest {
                     TransactionProcessorFactory.createAssembleTransactionProcessor(
                             client, client.getCryptoSuite().createKeyPair(), abiFile, binFile);
             // deploy
-            List<Object> params = Lists.newArrayList();
+            List<Object> params = new ArrayList<>();
             params.add(1);
             params.add("test");
             TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);
@@ -73,7 +73,7 @@ public class SubscribeTest {
             contractAddress = response.getContractAddress();
 
             // call function with event
-            List<Object> paramsSetValues = Lists.newArrayList(20);
+            List<Object> paramsSetValues = new ArrayList<>(Collections.singletonList(20));
             String[] o = {"0x1", "0x2", "0x3"};
             List<String> a = Arrays.asList(o);
             paramsSetValues.add(a);
