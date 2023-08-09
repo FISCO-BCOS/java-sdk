@@ -317,7 +317,7 @@ public class AssembleTransactionProcessorTest {
         }
         String contractAddress = response.getContractAddress();
         // set values
-        List<Object> paramsSetValues = new ArrayList<>();
+        List<Object> paramsSetValues = new ArrayList<>(Collections.singletonList(20));
         String[] o = {"0x1", "0x2", "0x3"};
         List<String> a = Arrays.asList(o);
         paramsSetValues.add(a);
@@ -424,7 +424,7 @@ public class AssembleTransactionProcessorTest {
                         contractAddress,
                         abi,
                         "incrementUint256",
-                        Collections.singletonList(BigInteger.valueOf(20)));
+                        Collections.singletonList(BigInteger.valueOf(10)));
         Assert.assertEquals(BigInteger.valueOf(10), transactionResponse.getInputObject().get(0));
     }
 }
