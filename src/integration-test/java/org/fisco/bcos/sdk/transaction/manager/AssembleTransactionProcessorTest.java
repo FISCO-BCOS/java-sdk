@@ -14,7 +14,6 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
-
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -347,7 +346,8 @@ public class AssembleTransactionProcessorTest {
         }
         String contractAddress = response.getContractAddress();
         // setBytes
-        List<String> paramsSetBytes = Collections.singletonList(new String("set bytes test".getBytes()));
+        List<String> paramsSetBytes =
+                Collections.singletonList(new String("set bytes test".getBytes()));
         TransactionResponse transactionResponse3 =
                 transactionProcessor.sendTransactionWithStringParamsAndGetResponse(
                         contractAddress, abi, "setBytes", paramsSetBytes);
