@@ -14,11 +14,9 @@
  */
 package org.fisco.bcos.sdk.v3.test.transaction.decoder;
 
-import com.google.common.collect.Lists;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
@@ -57,7 +55,7 @@ public class TransactionDecoderServiceTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, client.getCryptoSuite().getCryptoKeyPair(), abiFile, binFile);
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("test2");
         TransactionResponse response = manager.deployByContractLoader(contractName, params);
@@ -71,9 +69,10 @@ public class TransactionDecoderServiceTest {
                             contractName,
                             contractAddress,
                             "incrementUint256",
-                            Lists.newArrayList(BigInteger.valueOf(1)));
+                            Collections.singletonList(BigInteger.ONE));
             TransactionResponse transactionResponseWithoutValues =
                     decoder.decodeReceiptWithoutValues(abi, transactionReceipt);
+            Assert.assertEquals(0, transactionResponseWithoutValues.getReturnCode());
             TransactionResponse transactionResponseWithValues =
                     decoder.decodeReceiptWithValues(abi, "incrementUint256", transactionReceipt);
             Assert.assertEquals("Success", transactionResponseWithValues.getReceiptMessages());
@@ -83,8 +82,8 @@ public class TransactionDecoderServiceTest {
         }
         // setBytesMapping
         {
-            List<Object> s = Lists.newArrayList("2".getBytes());
-            List<Object> paramsSetBytes = new ArrayList<Object>();
+            List<Object> s = Collections.singletonList("2".getBytes());
+            List<Object> paramsSetBytes = new ArrayList<>();
             paramsSetBytes.add(s);
             TransactionReceipt transactionReceipt2 =
                     manager.sendTransactionAndGetReceiptByContractLoader(
@@ -96,7 +95,7 @@ public class TransactionDecoderServiceTest {
             Assert.assertEquals(
                     transactionResponse2.getReceiptMessages(), "Bytes array is less than 2");
 
-            List<Object> s2 = Lists.newArrayList("2".getBytes(), "3".getBytes());
+            List<Object> s2 = Arrays.asList("2".getBytes(), "3".getBytes());
             List<Object> paramsSetBytes2 = new ArrayList<>();
             paramsSetBytes2.add(s2);
             TransactionReceipt transactionReceipt =
