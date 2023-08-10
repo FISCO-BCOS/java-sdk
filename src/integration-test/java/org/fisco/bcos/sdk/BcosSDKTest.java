@@ -60,8 +60,11 @@ import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.utils.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.junit.Assert;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class BcosSDKTest {
     private static final String configFile =
             BcosSDKTest.class
@@ -70,12 +73,16 @@ public class BcosSDKTest {
                     .getPath();
 
     @Test
-    public void test1Client() throws ConfigException {
+    public void test1Client()
+            throws ConfigException, ContractException, ChannelPrococolExceiption,
+                    InterruptedException {
         BcosSDK sdk = BcosSDK.build(configFile);
         // check groupList
         Assert.assertTrue(sdk.getChannel().getAvailablePeer().size() >= 1);
         // get the client
         Client client = sdk.getClient(Integer.valueOf(1));
+
+        HelloWorld.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
 
         // test getBlockNumber
         BlockNumber blockNumber = client.getBlockNumber();
@@ -149,6 +156,7 @@ public class BcosSDKTest {
         client.getPbftView();
 
         // getSyncStatus
+        blockNumber = client.getBlockNumber();
         BlockHash latestHash = client.getBlockHashByNumber(blockNumber.getBlockNumber());
         SyncStatus syncStatus = client.getSyncStatus();
         Assert.assertEquals(
@@ -196,45 +204,39 @@ public class BcosSDKTest {
                 latestHash.getBlockHashByNumber(),
                 consensusStatus.getConsensusStatus().getBaseConsensusInfo().getHighestblockHash());
 
-        try {
-            // test calculateHash interface for the transaction response
-            BcosTransaction transaction =
-                    client.getTransactionByBlockNumberAndIndex(
-                            blockNumber.getBlockNumber(), BigInteger.ZERO);
-            if (transaction.getTransaction().get() != null) {
-                System.out.println(
-                        "### transactionHash:" + transaction.getTransaction().get().getHash());
-                System.out.println(
-                        "### calculated transactionHash:"
-                                + transaction
-                                        .getTransaction()
-                                        .get()
-                                        .calculateHash(client.getCryptoSuite()));
-                System.out.println(
-                        "### transaction" + transaction.getTransaction().get().toString());
-                Assert.assertEquals(
-                        transaction.getTransaction().get().calculateHash(client.getCryptoSuite()),
-                        transaction.getTransaction().get().getHash());
-            }
-
-            // test calculateHash interface for the getBlockHeader response
-            BcosBlockHeader blockHeader =
-                    client.getBlockHeaderByNumber(blockNumber.getBlockNumber(), true);
-            String calculatedHash =
-                    blockHeader.getBlockHeader().calculateHash(client.getCryptoSuite());
-            System.out.println("### blockHeader calculatedHash : " + calculatedHash);
+        // test calculateHash interface for the transaction response
+        BcosTransaction transaction =
+                client.getTransactionByBlockNumberAndIndex(
+                        blockNumber.getBlockNumber(), BigInteger.ZERO);
+        if (transaction.getTransaction().get() != null) {
             System.out.println(
-                    "### blockHeader expectedHash: " + blockHeader.getBlockHeader().getHash());
-            Assert.assertEquals(blockHeader.getBlockHeader().getHash(), calculatedHash);
-
-            // test calculateHash interface for the block response
-            block = client.getBlockByNumber(blockNumber.getBlockNumber(), false);
-            calculatedHash = block.getBlock().calculateHash(client.getCryptoSuite());
-            Assert.assertEquals(block.getBlock().getHash(), calculatedHash);
-            test2SendTransactions();
-        } catch (ClientException | ContractException e) {
-            System.out.println("testClient exception, error info: " + e.getMessage());
+                    "### transactionHash:" + transaction.getTransaction().get().getHash());
+            System.out.println(
+                    "### calculated transactionHash:"
+                            + transaction
+                                    .getTransaction()
+                                    .get()
+                                    .calculateHash(client.getCryptoSuite()));
+            System.out.println("### transaction" + transaction.getTransaction().get().toString());
+            Assert.assertEquals(
+                    transaction.getTransaction().get().calculateHash(client.getCryptoSuite()),
+                    transaction.getTransaction().get().getHash());
         }
+
+        // test calculateHash interface for the getBlockHeader response
+        BcosBlockHeader blockHeader =
+                client.getBlockHeaderByNumber(blockNumber.getBlockNumber(), true);
+        String calculatedHash = blockHeader.getBlockHeader().calculateHash(client.getCryptoSuite());
+        System.out.println("### blockHeader calculatedHash : " + calculatedHash);
+        System.out.println(
+                "### blockHeader expectedHash: " + blockHeader.getBlockHeader().getHash());
+        Assert.assertEquals(blockHeader.getBlockHeader().getHash(), calculatedHash);
+
+        // test calculateHash interface for the block response
+        block = client.getBlockByNumber(blockNumber.getBlockNumber(), false);
+        calculatedHash = block.getBlock().calculateHash(client.getCryptoSuite());
+        Assert.assertEquals(block.getBlock().getHash(), calculatedHash);
+        test2SendTransactions();
     }
 
     private void checkReceipt(
@@ -290,84 +292,86 @@ public class BcosSDKTest {
         }
     }
 
-    public void test2SendTransactions() throws ConfigException, ContractException {
+    public void test2SendTransactions()
+            throws ConfigException, ContractException, ChannelPrococolExceiption,
+                    InterruptedException {
+        System.out.println("#### testSendTransactions");
+        BcosSDK sdk = BcosSDK.build(configFile);
+        Integer groupId = Integer.valueOf(1);
+        Client client = sdk.getClient(groupId);
+        BigInteger blockLimit = sdk.getGroupManagerService().getBlockLimitByGroup(groupId);
+        BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
+        // deploy the HelloWorld contract
+        HelloWorld helloWorld =
+                HelloWorld.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
+        checkReceipt(
+                helloWorld,
+                client,
+                blockNumber.add(BigInteger.ONE),
+                helloWorld.getDeployReceipt(),
+                false);
+
+        // check the blockLimit has been modified
+        // wait the block number notification
+        Thread.sleep(1000);
+        Assert.assertTrue(
+                sdk.getGroupManagerService()
+                                .getBlockLimitByGroup(groupId)
+                                .compareTo(blockLimit.add(BigInteger.ONE))
+                        >= 0);
+        Assert.assertTrue(helloWorld != null);
+        Assert.assertTrue(helloWorld.getContractAddress() != null);
+
+        // send transaction
+        String settedString = "Hello, FISCO";
+        TransactionReceipt receipt = helloWorld.set(settedString);
+        Assert.assertTrue(receipt != null);
+        TransactionCallbackTest callback = new TransactionCallbackTest();
+        byte[] transactionHash = helloWorld.set(settedString, callback);
+        // wait here
         try {
-            System.out.println("#### testSendTransactions");
-            BcosSDK sdk = BcosSDK.build(configFile);
-            Integer groupId = Integer.valueOf(1);
-            Client client = sdk.getClient(groupId);
-            BigInteger blockLimit = sdk.getGroupManagerService().getBlockLimitByGroup(groupId);
-            BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
-            // deploy the HelloWorld contract
-            HelloWorld helloWorld =
-                    HelloWorld.deploy(client, client.getCryptoSuite().getCryptoKeyPair());
-            checkReceipt(
-                    helloWorld,
-                    client,
-                    blockNumber.add(BigInteger.ONE),
-                    helloWorld.getDeployReceipt(),
-                    false);
+            callback.semaphore.acquire(1);
+            callback.semaphore.release();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        // check the hash
+        Assert.assertEquals(
+                "0x" + Hex.toHexString(transactionHash), callback.receipt.getTransactionHash());
 
-            // check the blockLimit has been modified
-            // wait the block number notification
-            Thread.sleep(1000);
-            Assert.assertTrue(
-                    sdk.getGroupManagerService()
-                                    .getBlockLimitByGroup(groupId)
-                                    .compareTo(blockLimit.add(BigInteger.ONE))
-                            >= 0);
-            Assert.assertTrue(helloWorld != null);
-            Assert.assertTrue(helloWorld.getContractAddress() != null);
+        checkReceipt(helloWorld, client, blockNumber.add(BigInteger.valueOf(2)), receipt, true);
+        // wait the blocknumber notification
+        Thread.sleep(1000);
+        System.out.println(
+                sdk.getGroupManagerService().getBlockLimitByGroup(groupId)
+                        + "  "
+                        + blockLimit.add(BigInteger.valueOf(2)));
+        Assert.assertTrue(
+                sdk.getGroupManagerService()
+                                .getBlockLimitByGroup(groupId)
+                                .compareTo(blockLimit.add(BigInteger.valueOf(2)))
+                        >= 0);
+        // get the modified value
+        String getValue = helloWorld.get();
+        Assert.assertTrue(getValue.equals(settedString));
 
-            // send transaction
-            String settedString = "Hello, FISCO";
-            TransactionReceipt receipt = helloWorld.set(settedString);
-            Assert.assertTrue(receipt != null);
-            TransactionCallbackTest callback = new TransactionCallbackTest();
-            byte[] transactionHash = helloWorld.set(settedString, callback);
-            // wait here
-            try {
-                callback.semaphore.acquire(1);
-                callback.semaphore.release();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            // check the hash
-            Assert.assertEquals(
-                    "0x" + Hex.toHexString(transactionHash), callback.receipt.getTransactionHash());
+        // load contract from the contract address
+        HelloWorld helloWorld2 =
+                HelloWorld.load(
+                        helloWorld.getContractAddress(),
+                        client,
+                        client.getCryptoSuite().getCryptoKeyPair());
+        Assert.assertTrue(helloWorld2.getContractAddress().equals(helloWorld.getContractAddress()));
+        settedString = "Hello, Fisco2";
+        TransactionReceipt receipt2 = helloWorld2.set(settedString);
+        checkReceipt(helloWorld2, client, blockNumber.add(BigInteger.valueOf(3)), receipt2, true);
+        Assert.assertTrue(helloWorld.get().equals(settedString));
+        Assert.assertTrue(helloWorld2.get().equals(settedString));
 
-            checkReceipt(helloWorld, client, blockNumber.add(BigInteger.valueOf(2)), receipt, true);
-            // wait the blocknumber notification
-            Thread.sleep(1000);
-            System.out.println(
-                    sdk.getGroupManagerService().getBlockLimitByGroup(groupId)
-                            + "  "
-                            + blockLimit.add(BigInteger.valueOf(2)));
-            Assert.assertTrue(
-                    sdk.getGroupManagerService()
-                                    .getBlockLimitByGroup(groupId)
-                                    .compareTo(blockLimit.add(BigInteger.valueOf(2)))
-                            >= 0);
-            // get the modified value
-            String getValue = helloWorld.get();
-            Assert.assertTrue(getValue.equals(settedString));
-
-            // load contract from the contract address
-            HelloWorld helloWorld2 =
-                    HelloWorld.load(
-                            helloWorld.getContractAddress(),
-                            client,
-                            client.getCryptoSuite().getCryptoKeyPair());
-            Assert.assertTrue(
-                    helloWorld2.getContractAddress().equals(helloWorld.getContractAddress()));
-            settedString = "Hello, Fisco2";
-            TransactionReceipt receipt2 = helloWorld2.set(settedString);
-            checkReceipt(
-                    helloWorld2, client, blockNumber.add(BigInteger.valueOf(3)), receipt2, true);
-            Assert.assertTrue(helloWorld.get().equals(settedString));
-            Assert.assertTrue(helloWorld2.get().equals(settedString));
-
-            // test getBatchReceiptsByBlockHashAndRange(added after v2.7.0)
+        // test getBatchReceiptsByBlockHashAndRange(added after v2.7.0)
+        String osName = System.getProperty("os.name");
+        // node rpc error: zip compress not support on mac os
+        if (!osName.startsWith("Mac OS")) {
             BcosTransactionReceiptsDecoder bcosTransactionReceiptsDecoder =
                     client.getBatchReceiptsByBlockHashAndRange(
                             client.getBlockHashByNumber(client.getBlockNumber().getBlockNumber())
@@ -388,15 +392,11 @@ public class BcosSDKTest {
                             + bcosTransactionReceiptsDecoder
                                     .decodeTransactionReceiptsInfo()
                                     .toString());
-            testECRecover();
-            testSM2Recover();
-            testCurve25519VRFVerify();
-        } catch (ContractException
-                | ClientException
-                | InterruptedException
-                | ChannelPrococolExceiption e) {
-            System.out.println("testSendTransactions exceptioned, error info:" + e.getMessage());
         }
+
+        testECRecover();
+        testSM2Recover();
+        testCurve25519VRFVerify();
     }
 
     public void testECRecover() throws ContractException {

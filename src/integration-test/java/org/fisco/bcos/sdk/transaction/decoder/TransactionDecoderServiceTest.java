@@ -16,7 +16,6 @@ package org.fisco.bcos.sdk.transaction.decoder;
 
 import java.math.BigInteger;
 import java.util.*;
-
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.model.ConstantConfig;
