@@ -16,16 +16,16 @@ ext {
     }
     // jackson version
     jacksonVersion = "2.15.2"
-    commonsIOVersion = "2.4"
+    commonsIOVersion = '2.7'
     commonsLang3Version = "3.1"
     javapoetVersion = "1.7.0"
     picocliVersion = "3.6.0"
     nettySMSSLContextVersion = "1.5.2"
     toml4jVersion = "0.7.2"
-    bcprovJDK15onVersion = "1.60"
+    bcprovJDK18onVersion = "1.76"
     webankJavaCryptoVersion = "1.0.2"
     webankHsmCryptoVersion = "1.0.0-GMT0018"
-
+    gsonVersion = '2.10.1'
     slf4jVersion = "1.7.36"
     junitVersion = '4.13.1'
     commonsCollections4Version = "4.4"
@@ -35,7 +35,7 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '2.9.3'
+    version = '2.10.0-SNAPSHOT'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
@@ -188,15 +188,20 @@ task integrationTest(type: Test) {
 }
 
 dependencies {
-	compile ("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
+	compile ("org.bouncycastle:bcprov-jdk18on:${bcprovJDK18onVersion}")
     compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
-    compile ("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}")
+    compile ("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}"){
+        exclude group: "org.bouncycastle"
+    }
     compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     compile ("commons-io:commons-io:${commonsIOVersion}")
     compile ("com.squareup:javapoet:${javapoetVersion}")
     compile ("info.picocli:picocli:${picocliVersion}")
     compile ("com.webank:webank-blockchain-java-crypto:${webankJavaCryptoVersion}")
-    compile ("com.moandjiezana.toml:toml4j:${toml4jVersion}")
+    compile ("com.google.code.gson:gson:${gsonVersion}")
+    compile ("com.moandjiezana.toml:toml4j:${toml4jVersion}"){
+        exclude group: "com.google.code.gson"
+    }
     compile ("com.webank:webank-blockchain-hsm-crypto:${webankHsmCryptoVersion}")
     testCompile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
 }
