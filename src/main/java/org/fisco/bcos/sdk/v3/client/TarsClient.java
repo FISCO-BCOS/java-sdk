@@ -1,6 +1,11 @@
 package org.fisco.bcos.sdk.v3.client;
 
+import java.io.File;
 import java.math.BigInteger;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -17,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.fisco.bcos.sdk.tars.LogEntry;
 import org.fisco.bcos.sdk.tars.TransactionReceipt;
 import org.fisco.bcos.sdk.tars.bcos;
+import org.fisco.bcos.sdk.tars.Config;
 import org.fisco.bcos.sdk.tars.RPCClient;
 import org.fisco.bcos.sdk.tars.SWIGTYPE_p_bcos__bytesConstRef;
 import org.fisco.bcos.sdk.tars.SWIGTYPE_p_bcos__h256;
@@ -25,6 +31,7 @@ import org.fisco.bcos.sdk.tars.SendTransaction;
 import org.fisco.bcos.sdk.tars.StringVector;
 import org.fisco.bcos.sdk.tars.Transaction;
 import org.fisco.bcos.sdk.tars.TransactionFactoryImpl;
+import org.apache.commons.lang3.ClassPathUtils;
 import org.fisco.bcos.sdk.tars.Callback;
 import org.fisco.bcos.sdk.tars.CryptoSuite;
 
@@ -33,6 +40,8 @@ public class TarsClient extends ClientImpl implements Client {
   private RPCClient tarsRPCClient;
   private TransactionFactoryImpl transactionFactory;
   private ThreadPoolExecutor asyncThreadPool;
+  static final int queueSize = 10 * 10000;
+  static final String libName = System.mapLibraryName("bcos_swig_java");
 
   protected TarsClient(String groupID, ConfigOption configOption, long nativePointer) {
     super(groupID, configOption, nativePointer);
@@ -40,18 +49,22 @@ public class TarsClient extends ClientImpl implements Client {
         .toConnectionString(new StringVector(configOption.getNetworkConfig().getTarsPeers()));
 
     logger.info("Tars connection: {}", connectionString);
-    tarsRPCClient = new RPCClient(connectionString);
+    Config config = new Config();
+    config.setConnectionString(connectionString);
+    config.setSendQueueSize(queueSize);
+    config.setTimeoutMs(configOption.getNetworkConfig().getTimeout() * 1000);
+    tarsRPCClient = new RPCClient(config);
 
     CryptoSuite cryptoSuite =
         bcos.newCryptoSuite(configOption.getCryptoMaterialConfig().getUseSmCrypto());
     transactionFactory = new TransactionFactoryImpl(cryptoSuite);
     asyncThreadPool =
         new ThreadPoolExecutor(1, configOption.getThreadPoolConfig().getThreadPoolSize(), 0,
-            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100 * 10000));
+            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(queueSize));
   }
 
   public static void loadLibrary() {
-    System.loadLibrary("bcos_swig_java");
+    System.load(new File("lib/" + libName).getAbsolutePath());
   }
 
   public static TarsClient build(String groupId, ConfigOption configOption, long nativePointer) {
@@ -101,9 +114,7 @@ public class TarsClient extends ClientImpl implements Client {
   private Transaction toTransaction(String signedTransactionData) {
     byte[] transactionBytes = Hex.decode(signedTransactionData);
 
-    // Move data from java to jni
     SWIGTYPE_p_std__vectorT_unsigned_char_t vectorTransactionBytes = bcos.toBytes(transactionBytes);
-
     SWIGTYPE_p_bcos__bytesConstRef ref = bcos.toBytesConstRef(vectorTransactionBytes);
     Transaction transaction = transactionFactory.createTransaction(ref, false, false);
     return transaction;
