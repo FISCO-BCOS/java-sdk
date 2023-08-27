@@ -24,7 +24,6 @@ ext {
     webankJavaCryptoVersion = "1.0.3"
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
-    guavaVersion = '31.1-jre'
     bcosSdkJniVersion = "3.4.0"
     slf4jApiVerison = '1.7.36'
     mockitoVersion = '4.8.0'
@@ -69,7 +68,6 @@ allprojects {
         api("org.slf4j:slf4j-api:${slf4jApiVerison}")
         testImplementation("junit:junit:${junitVersion}")
         testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
-        testImplementation("com.google.guava:guava:${guavaVersion}")
         testImplementation("org.mockito:mockito-core:${mockitoVersion}")
     }
 
