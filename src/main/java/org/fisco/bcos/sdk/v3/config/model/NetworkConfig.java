@@ -64,13 +64,13 @@ public class NetworkConfig {
     public void setPeers(List<String> peers) {
         this.peers = peers;
     }
-    
+
     public List<String> getTarsPeers() {
-      return tarsPeers;
+        return tarsPeers;
     }
 
     public void setTarsPeers(List<String> tarsPeers) {
-      this.tarsPeers = tarsPeers;
+        this.tarsPeers = tarsPeers;
     }
 
     public String getDefaultGroup() {
