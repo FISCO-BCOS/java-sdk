@@ -17,6 +17,7 @@ import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.jni.BlockNotifier;
 import org.fisco.bcos.sdk.v3.amop.Amop;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.TarsClient;
 import org.fisco.bcos.sdk.v3.config.Config;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.config.exceptions.ConfigException;
@@ -83,6 +84,15 @@ public class BcosSDK {
     public Client getClient(String groupId) throws BcosSDKException {
         try {
             return Client.build(groupId, config, bcosSDKJniObj.getNativePointer());
+        } catch (Exception e) {
+            logger.warn("create client for failed, error: ", e);
+            throw new BcosSDKException("get Client failed, e: " + e.getMessage(), e);
+        }
+    }
+
+    public TarsClient getTarsClient(String groupID) {
+        try {
+            return TarsClient.build(groupID, config, bcosSDKJniObj.getNativePointer());
         } catch (Exception e) {
             logger.warn("create client for failed, error: ", e);
             throw new BcosSDKException("get Client failed, e: " + e.getMessage(), e);
