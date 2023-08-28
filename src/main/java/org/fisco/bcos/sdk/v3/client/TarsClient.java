@@ -1,7 +1,7 @@
 package org.fisco.bcos.sdk.v3.client;
 
-import java.io.File;
 import java.math.BigInteger;
+import java.net.URL;
 import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -34,7 +34,7 @@ public class TarsClient extends ClientImpl implements Client {
     private TransactionFactoryImpl transactionFactory;
     private ThreadPoolExecutor asyncThreadPool;
     static final int queueSize = 10 * 10000;
-    static final String libName = System.mapLibraryName("bcos_swig_java");
+    static final String libFileName = System.mapLibraryName("bcos_swig_java");
 
     protected TarsClient(String groupID, ConfigOption configOption, long nativePointer) {
         super(groupID, configOption, nativePointer);
@@ -62,7 +62,12 @@ public class TarsClient extends ClientImpl implements Client {
     }
 
     public static void loadLibrary() {
-        System.load(new File("lib/" + libName).getAbsolutePath());
+        URL configUrl = TarsClient.class.getClassLoader().getResource(libFileName);
+        System.load(configUrl.getPath());
+    }
+
+    public static void loadLibrary(String libPath) {
+        System.load(libPath);
     }
 
     public static TarsClient build(String groupId, ConfigOption configOption, long nativePointer) {
