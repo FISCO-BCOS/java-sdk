@@ -28,6 +28,7 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.utils.StringUtils;
 
+// Compiled from https://github.com/FISCO-BCOS/bcos-auth/blob/main/CommitteeManager.sol
 @SuppressWarnings("unchecked")
 public class CommitteeManager extends Contract {
     public static final String[] ABI_ARRAY = {
