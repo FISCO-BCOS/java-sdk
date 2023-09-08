@@ -163,4 +163,10 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Message> {
         final ChannelHandlerContext ctxF = ctx;
         msgHandler.onMessage(ctxF, msg);
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.debug("exceptionCaught: ", cause);
+        this.channelInactive(ctx);
+    }
 }
