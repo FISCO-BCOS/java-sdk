@@ -883,35 +883,43 @@ public class AssembleTransactionProcessor extends TransactionProcessor
             String from, String to, String abi, String functionName, byte[] data)
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
+        CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
         ABIObject decodedResult =
                 this.contractCodec.decodeMethodAndGetOutputAbiObject(
                         abi, functionName, call.getCallResult().getOutput());
-        return getCallResponse(call, decodedResult);
+        Pair<List<Object>, List<ABIObject>> outputObject =
+                ContractCodecTools.decodeJavaObjectAndGetOutputObject(decodedResult);
+        callResponse.setReturnObject(outputObject.getLeft());
+        callResponse.setReturnABIObject(outputObject.getRight());
+        try {
+            callResponse.setResults(ContractCodecTools.getABIObjectTypeListResult(decodedResult));
+        } catch (Exception ignored) {
+            log.error("decode results failed, ignored. value: {}", decodedResult);
+        }
+        return callResponse;
     }
 
     public CallResponse callAndGetResponse(
             String from, String to, ABIDefinition abiDefinition, byte[] data)
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCall(from, to, data);
-        ABIObject abiObject =
-                contractCodec.decodeMethodAndGetOutAbiObjectByABIDefinition(
-                        abiDefinition, call.getCallResult().getOutput());
-        return getCallResponse(call, abiObject);
+        return getCallResponse(call, abiDefinition);
     }
 
     public CallResponse callWithSignAndGetResponse(
             String from, String to, ABIDefinition abiDefinition, byte[] data)
             throws ContractCodecException, TransactionBaseException {
         Call call = this.executeCallWithSign(from, to, data);
-        ABIObject abiObject =
-                contractCodec.decodeMethodAndGetOutAbiObjectByABIDefinition(
-                        abiDefinition, call.getCallResult().getOutput());
-        return getCallResponse(call, abiObject);
+
+        return getCallResponse(call, abiDefinition);
     }
 
-    public CallResponse getCallResponse(Call call, ABIObject decodedResult)
-            throws TransactionBaseException {
+    public CallResponse getCallResponse(Call call, ABIDefinition abiDefinition)
+            throws TransactionBaseException, ContractCodecException {
         CallResponse callResponse = this.parseCallResponseStatus(call.getCallResult());
+        ABIObject decodedResult =
+                contractCodec.decodeMethodAndGetOutAbiObjectByABIDefinition(
+                        abiDefinition, call.getCallResult().getOutput());
         Pair<List<Object>, List<ABIObject>> outputObject =
                 ContractCodecTools.decodeJavaObjectAndGetOutputObject(decodedResult);
         callResponse.setReturnObject(outputObject.getLeft());
