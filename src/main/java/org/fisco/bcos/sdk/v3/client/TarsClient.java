@@ -4,10 +4,13 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import org.fisco.bcos.sdk.tars.Callback;
+import org.fisco.bcos.sdk.tars.ConcurrentQueue;
+import org.fisco.bcos.sdk.tars.ConcurrentQueueCallback;
 import org.fisco.bcos.sdk.tars.Config;
 import org.fisco.bcos.sdk.tars.CryptoSuite;
 import org.fisco.bcos.sdk.tars.LogEntry;
@@ -32,9 +35,38 @@ public class TarsClient extends ClientImpl implements Client {
     private static Logger logger = LoggerFactory.getLogger(TarsClient.class);
     private RPCClient tarsRPCClient;
     private TransactionFactoryImpl transactionFactory;
+    private Thread queueThread;
     private ThreadPoolExecutor asyncThreadPool;
+
     static final int queueSize = 10 * 10000;
     static final String libFileName = System.mapLibraryName("bcos_swig_java");
+
+    private class CallbackContent {
+        public SendTransaction sendTransaction;
+        TransactionCallback callback;
+        Transaction transaction;
+    };
+
+    ConcurrentQueue concurrentQueue = new ConcurrentQueue();
+    ConcurrentHashMap<Integer, CallbackContent> callbackMap =
+            new ConcurrentHashMap<Integer, CallbackContent>();
+    AtomicInteger callbackSeq = new AtomicInteger(0);
+
+    public RPCClient getTarsRPCClient() {
+        return tarsRPCClient;
+    }
+
+    public void setTarsRPCClient(RPCClient tarsRPCClient) {
+        this.tarsRPCClient = tarsRPCClient;
+    }
+
+    public TransactionFactoryImpl getTransactionFactory() {
+        return transactionFactory;
+    }
+
+    public void setTransactionFactory(TransactionFactoryImpl transactionFactory) {
+        this.transactionFactory = transactionFactory;
+    }
 
     protected TarsClient(String groupID, ConfigOption configOption, long nativePointer) {
         super(groupID, configOption, nativePointer);
@@ -52,6 +84,25 @@ public class TarsClient extends ClientImpl implements Client {
         CryptoSuite cryptoSuite =
                 bcos.newCryptoSuite(configOption.getCryptoMaterialConfig().getUseSmCrypto());
         transactionFactory = new TransactionFactoryImpl(cryptoSuite);
+        queueThread =
+                new Thread(
+                        () -> {
+                            while (true) {
+                                int seq = concurrentQueue.pop();
+                                logger.debug("Receive queue message...", seq);
+                                asyncThreadPool.submit(
+                                        () -> {
+                                            CallbackContent content = callbackMap.remove(seq);
+                                            if (content != null) {
+                                                TransactionReceipt receipt =
+                                                        content.sendTransaction.get();
+                                                content.callback.onResponse(
+                                                        toJSONTransactionReceipt(
+                                                                receipt, content.transaction));
+                                            }
+                                        });
+                            }
+                        });
         asyncThreadPool =
                 new ThreadPoolExecutor(
                         1,
@@ -72,7 +123,7 @@ public class TarsClient extends ClientImpl implements Client {
 
     public static TarsClient build(String groupId, ConfigOption configOption, long nativePointer) {
         logger.info(
-                "build, groupID: {}, configOption: {}, nativePointer: {}",
+                "TarsClient build, groupID: {}, configOption: {}, nativePointer: {}",
                 groupId,
                 configOption,
                 nativePointer);
@@ -101,25 +152,27 @@ public class TarsClient extends ClientImpl implements Client {
             String signedTransactionData,
             boolean withProof,
             TransactionCallback callback) {
+        logger.debug("sendTransactionAsync...", node, withProof);
         if (withProof) {
             super.sendTransactionAsync(node, signedTransactionData, withProof, callback);
             return;
         }
         node = Objects.isNull(node) ? "" : node;
         Transaction transaction = toTransaction(signedTransactionData);
+        sendTransactionAsync(transaction, callback);
+    }
+
+    public void sendTransactionAsync(Transaction transaction, TransactionCallback callback) {
         SendTransaction sendTransaction = new SendTransaction(tarsRPCClient);
 
-        sendTransaction.setCallback(
-                new Callback() {
-                    public void onMessage() {
-                        asyncThreadPool.submit(
-                                () -> {
-                                    TransactionReceipt receipt = sendTransaction.get();
-                                    callback.onResponse(
-                                            toJSONTransactionReceipt(receipt, transaction));
-                                });
-                    }
-                });
+        int seq = callbackSeq.addAndGet(1);
+        CallbackContent callbackContent = new CallbackContent();
+        callbackContent.sendTransaction = sendTransaction;
+        callbackContent.callback = callback;
+        callbackContent.transaction = transaction;
+        callbackMap.put(seq, callbackContent);
+        sendTransaction.setCallback(new ConcurrentQueueCallback(concurrentQueue, seq));
+
         sendTransaction.send(transaction);
     }
 
