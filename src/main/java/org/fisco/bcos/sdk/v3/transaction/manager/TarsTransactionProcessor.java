@@ -34,8 +34,7 @@ public class TarsTransactionProcessor extends TransactionProcessor {
         String extraData = client.getExtraData();
 
         String hexPrivateKey = cryptoKeyPair.getHexPrivateKey();
-        SWIGTYPE_p_bcos__bytesConstRef hexPrivateKeyRef = bcos.toBytesConstRef(hexPrivateKey);
-        SWIGTYPE_p_std__vectorT_unsigned_char_t privateKey = bcos.fromHex(hexPrivateKeyRef);
+        SWIGTYPE_p_std__vectorT_unsigned_char_t privateKey = bcos.fromHex(hexPrivateKey);
         SWIGTYPE_p_bcos__bytesConstRef privateKeyRef = bcos.toBytesConstRef(privateKey);
         SWIGTYPE_p_std__shared_ptrT_KeyInterface_t key =
                 tarsClient
@@ -46,7 +45,6 @@ public class TarsTransactionProcessor extends TransactionProcessor {
         SWIGTYPE_p_std__unique_ptrT_bcos__crypto__KeyPairInterface_t sharedKeyPair =
                 tarsClient.getTransactionFactory().cryptoSuite().signatureImpl().createKeyPair(key);
         KeyPairInterface keyPair = bcos.pointerToReference(sharedKeyPair);
-
         SWIGTYPE_p_std__vectorT_unsigned_char_t input = bcos.toBytes(data);
 
         Transaction transaction =
@@ -57,7 +55,7 @@ public class TarsTransactionProcessor extends TransactionProcessor {
                                 to,
                                 input,
                                 tarsClient.getTarsRPCClient().generateNonce(),
-                                500,
+                                client.getBlockLimit().longValue(),
                                 client.getChainId(),
                                 client.getGroup(),
                                 0,
@@ -65,7 +63,6 @@ public class TarsTransactionProcessor extends TransactionProcessor {
                                 "");
         transaction.setExtraData(extraData);
         transaction.setAttribute(txAttribute);
-
         tarsClient.sendTransactionAsync(transaction, callback);
 
         return bcos.toHex(transaction.hash());
