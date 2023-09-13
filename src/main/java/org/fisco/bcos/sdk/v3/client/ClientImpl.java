@@ -910,6 +910,42 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public SealerList getNodeListByType(String type) {
+        return getNodeListByType("", type);
+    }
+
+    @Override
+    public SealerList getNodeListByType(String node, String type) {
+        node = Objects.isNull(node) ? "" : node;
+        return this.callRemoteMethod(
+                this.groupID,
+                node,
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_NODE_LIST_BY_TYPE,
+                        Arrays.asList(this.groupID, node, type)),
+                SealerList.class);
+    }
+
+    @Override
+    public void getNodeListByTypeAsync(String type, RespCallback<SealerList> callback) {
+        this.getNodeListByTypeAsync("", type, callback);
+    }
+
+    @Override
+    public void getNodeListByTypeAsync(
+            String node, String type, RespCallback<SealerList> callback) {
+        node = Objects.isNull(node) ? "" : node;
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                node,
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_NODE_LIST_BY_TYPE,
+                        Arrays.asList(this.groupID, node, type)),
+                SealerList.class,
+                callback);
+    }
+
+    @Override
     public PbftView getPbftView() {
         return this.getPbftView("");
     }

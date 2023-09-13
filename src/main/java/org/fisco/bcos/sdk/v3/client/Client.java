@@ -753,6 +753,44 @@ public interface Client {
     void getSealerListAsync(String node, RespCallback<SealerList> callback);
 
     /**
+     * get node list by type
+     *
+     * @param type type of node, now support consensus_sealer, consensus_observer and
+     *     consensus_candidate_sealer
+     * @return node list
+     */
+    SealerList getNodeListByType(String type);
+
+    /**
+     * get node list by type
+     *
+     * @param node the node rpc request send to
+     * @param type type of node, now support consensus_sealer, consensus_observer and
+     *     consensus_candidate_sealer
+     * @return node list
+     */
+    SealerList getNodeListByType(String node, String type);
+
+    /**
+     * async get node list by type
+     *
+     * @param type type of node, now support consensus_sealer, consensus_observer and
+     *     consensus_candidate_sealer
+     * @param callback the callback
+     */
+    void getNodeListByTypeAsync(String type, RespCallback<SealerList> callback);
+
+    /**
+     * async get node list by type
+     *
+     * @param node the node rpc request send to
+     * @param type type of node, now support consensus_sealer, consensus_observer and
+     *     consensus_candidate_sealer
+     * @param callback the callback
+     */
+    void getNodeListByTypeAsync(String node, String type, RespCallback<SealerList> callback);
+
+    /**
      * Peer operation: get pbft view
      *
      * @return pbft view
