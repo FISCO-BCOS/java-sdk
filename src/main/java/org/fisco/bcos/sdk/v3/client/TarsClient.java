@@ -1,12 +1,16 @@
 package org.fisco.bcos.sdk.v3.client;
 
+import java.io.File;
+import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URL;
+import java.nio.file.Files;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.tars.Callback;
@@ -92,6 +96,8 @@ public class TarsClient extends ClientImpl implements Client {
 
     protected TarsClient(String groupID, ConfigOption configOption, long nativePointer) {
         super(groupID, configOption, nativePointer);
+
+        loadLibrary();
         String connectionString =
                 RPCClient.toConnectionString(
                         new StringVector(configOption.getNetworkConfig().getTarsPeers()));
@@ -133,13 +139,25 @@ public class TarsClient extends ClientImpl implements Client {
                 };
     }
 
-    public static void loadLibrary() {
-        URL configUrl = TarsClient.class.getClassLoader().getResource(libFileName);
-        System.load(configUrl.getPath());
-    }
+    private static AtomicBoolean loaded = new AtomicBoolean(false);
 
-    public static void loadLibrary(String libPath) {
-        System.load(libPath);
+    private static void loadLibrary() {
+        boolean inited = loaded.getAndSet(true);
+        if (inited) {
+            return;
+        }
+        try {
+            File jniFile = File.createTempFile(libFileName, UUID.randomUUID().toString());
+            InputStream jniStream = TarsClient.class.getResourceAsStream("/" + libFileName);
+            Files.copy(
+                    jniStream,
+                    jniFile.getAbsoluteFile().toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            System.load(jniFile.getAbsolutePath());
+            jniFile.deleteOnExit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static TarsClient build(String groupId, ConfigOption configOption, long nativePointer) {
