@@ -963,14 +963,35 @@ public interface Client {
     @Deprecated
     EnumNodeVersion getChainVersion();
 
+    /**
+     * get the chain compatibility version
+     *
+     * @return the chain compatibility version
+     */
     EnumNodeVersion.Version getChainCompatibilityVersion();
 
     /**
      * async get the chain compatibility version
      *
-     * @param versionRespCallback the callback instance
+     * @param versionRespCallback the callback that will be called when receive the response
      */
-    void getChainVersionAsync(RespCallback<EnumNodeVersion.Version> versionRespCallback);
+    void getChainCompatibilityVersionAsync(
+            RespCallback<EnumNodeVersion.Version> versionRespCallback);
+
+    /**
+     * Set node name to send rpc request directly, if not set, will use random node in the
+     * groupInfoList. Node name should choose from groupInfo.
+     *
+     * @param nodeToSendRequest the node name
+     */
+    void setNodeToSendRequest(String nodeToSendRequest);
+
+    /**
+     * get node name to send rpc request directly
+     *
+     * @return the node name
+     */
+    String getNodeToSendRequest();
 
     void start();
 
