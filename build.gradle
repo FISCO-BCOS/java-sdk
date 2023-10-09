@@ -125,7 +125,7 @@ googleJavaFormat {
 }
 
 dependencies {
-	api("org.fisco-bcos:fisco-bcos-tars-sdk:${tarsSDKVersion}")
+	api("org.fisco-bcos:fisco-bcos-tars-sdk" + ":${tarsSDKVersion}")
     api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")  {
         exclude group : "org.slf4j"
         exclude group : "com.fasterxml.jackson.core"
@@ -136,14 +136,10 @@ dependencies {
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     api("commons-io:commons-io:${commonsIOVersion}")
-    // api("com.webank:key-mini-toolkit:${keyMiniToolkit}")
     api("com.webank:webank-blockchain-java-crypto:${webankJavaCryptoVersion}")
     api("com.moandjiezana.toml:toml4j:${toml4jVersion}") {
         exclude group: "com.google.code.gson"
     }
-//    api("org.apache.commons:commons-configuration2:${config2Version}"){
-//        exclude group: "commons-logging"
-//    }
 
     integrationTestImplementation project
     integrationWasmTestImplementation project
@@ -262,7 +258,7 @@ publishing {
 
 jar {
     // destinationDir file('dist/apps')
-    archiveName "fisco-bcos-" + project.name + '-' + project.version + '.jar'
+    archiveFileName="fisco-bcos-" + project.name + '-' + project.version + '.jar'
     exclude '**/*.xml'
     exclude '**/*.properties'
 
