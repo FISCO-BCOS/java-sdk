@@ -78,19 +78,6 @@ allprojects {
     }
 }
 
-def getTargetPlatform() {
-	def platform = System.properties['os.name'].toLowerCase() + '_' + System.properties['os.arch'].toLowerCase();
-	def targetPlatform = System.getProperty('targetPlatform')
-	if(targetPlatform != null) {
-		platform = targetPlatform
-	}
-	else {
-		logger.info("No target platform specified, use local platform: " + platform)
-	}
-	
-	return platform
-}
-
 sourceSets {
     main {
         java {
@@ -138,7 +125,7 @@ googleJavaFormat {
 }
 
 dependencies {
-	api("org.fisco-bcos:fisco-bcos-tars-sdk-" + getTargetPlatform() + ":${tarsSDKVersion}")
+	api("org.fisco-bcos:fisco-bcos-tars-sdk" + ":${tarsSDKVersion}")
     api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")  {
         exclude group : "org.slf4j"
         exclude group : "com.fasterxml.jackson.core"

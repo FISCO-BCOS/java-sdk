@@ -94,7 +94,8 @@ public class TarsClient extends ClientImpl implements Client {
         this.transactionFactory = transactionFactory;
     }
 
-    protected TarsClient(String groupID, ConfigOption configOption, long nativePointer) {
+    protected TarsClient(String groupID, ConfigOption configOption, long nativePointer)
+            throws Exception {
         super(groupID, configOption, nativePointer);
 
         loadLibrary();
@@ -141,14 +142,24 @@ public class TarsClient extends ClientImpl implements Client {
 
     private static AtomicBoolean loaded = new AtomicBoolean(false);
 
-    private static void loadLibrary() {
+    private static void loadLibrary() throws Exception {
         boolean inited = loaded.getAndSet(true);
         if (inited) {
             return;
         }
         try {
             File jniFile = File.createTempFile(libFileName, UUID.randomUUID().toString());
-            InputStream jniStream = TarsClient.class.getResourceAsStream("/" + libFileName);
+            String osName = System.getProperty("os.name");
+            if (osName.contains("Linux")) osName = "linux";
+            else if (osName.contains("Mac OS X")) osName = "darwin";
+            else if (osName.contains("Windows")) osName = "windows";
+
+            String osArch = System.getProperty("os.arch");
+            if (osArch.contains("amd64")) osArch = "x86_64";
+
+            InputStream jniStream =
+                    TarsClient.class.getResourceAsStream(
+                            "/" + osName + "-" + osArch + "/" + libFileName);
             Files.copy(
                     jniStream,
                     jniFile.getAbsoluteFile().toPath(),
@@ -157,10 +168,12 @@ public class TarsClient extends ClientImpl implements Client {
             jniFile.deleteOnExit();
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
-    public static TarsClient build(String groupId, ConfigOption configOption, long nativePointer) {
+    public static TarsClient build(String groupId, ConfigOption configOption, long nativePointer)
+            throws Exception {
         logger.info(
                 "TarsClient build, groupID: {}, configOption: {}, nativePointer: {}",
                 groupId,
