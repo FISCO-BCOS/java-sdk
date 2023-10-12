@@ -159,7 +159,6 @@ pwd
 ls -la
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 download_tassl
-
 LOG_INFO "------ download_binary: v3.0.0---------"
 download_build_chain "v3.0.0"
 download_binary "v3.0.0"
@@ -184,6 +183,13 @@ rm -rf ./bin
 LOG_INFO "------ download_build_chain: v3.3.0---------"
 download_binary "v3.3.0"
 download_build_chain "v3.3.0"
+LOG_INFO "------ check_standard_node---------"
+check_standard_node "true" "sm" "-s"
+rm -rf ./bin
+
+LOG_INFO "------ download_build_chain: v3.4.0---------"
+download_binary "v3.4.0"
+download_build_chain "v3.4.0"
 LOG_INFO "------ check_wasm_node---------"
 check_wasm_node "false"
 LOG_INFO "------ check_standard_node---------"
