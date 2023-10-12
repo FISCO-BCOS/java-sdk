@@ -27,6 +27,7 @@ public class NetworkConfig {
     private static final Logger logger = LoggerFactory.getLogger(NetworkConfig.class);
 
     private List<String> peers;
+    private List<String> tarsPeers;
     private int timeout = -1;
     private String defaultGroup;
     private boolean sendRpcRequestToHighestBlockNode = true;
@@ -37,6 +38,7 @@ public class NetworkConfig {
         Map<String, Object> networkProperty = configProperty.getNetwork();
         if (networkProperty != null) {
             peers = (List<String>) networkProperty.get("peers");
+            tarsPeers = (List<String>) networkProperty.get("tarsPeers");
             defaultGroup = (String) networkProperty.get("defaultGroup");
             Object value = networkProperty.get("messageTimeout");
             if (Objects.nonNull(value)) {
@@ -61,6 +63,14 @@ public class NetworkConfig {
 
     public void setPeers(List<String> peers) {
         this.peers = peers;
+    }
+
+    public List<String> getTarsPeers() {
+        return tarsPeers;
+    }
+
+    public void setTarsPeers(List<String> tarsPeers) {
+        this.tarsPeers = tarsPeers;
     }
 
     public String getDefaultGroup() {
@@ -92,6 +102,8 @@ public class NetworkConfig {
         return "NetworkConfig{"
                 + "peers="
                 + peers
+                + ", tarsPeers="
+                + tarsPeers
                 + ", timeout="
                 + timeout
                 + ", defaultGroup='"

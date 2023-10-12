@@ -753,6 +753,44 @@ public interface Client {
     void getSealerListAsync(String node, RespCallback<SealerList> callback);
 
     /**
+     * get node list by type
+     *
+     * @param type type of node, now support consensus_sealer, consensus_observer and
+     *     consensus_candidate_sealer
+     * @return node list
+     */
+    SealerList getNodeListByType(String type);
+
+    /**
+     * get node list by type
+     *
+     * @param node the node rpc request send to
+     * @param type type of node, now support consensus_sealer, consensus_observer and
+     *     consensus_candidate_sealer
+     * @return node list
+     */
+    SealerList getNodeListByType(String node, String type);
+
+    /**
+     * async get node list by type
+     *
+     * @param type type of node, now support consensus_sealer, consensus_observer and
+     *     consensus_candidate_sealer
+     * @param callback the callback
+     */
+    void getNodeListByTypeAsync(String type, RespCallback<SealerList> callback);
+
+    /**
+     * async get node list by type
+     *
+     * @param node the node rpc request send to
+     * @param type type of node, now support consensus_sealer, consensus_observer and
+     *     consensus_candidate_sealer
+     * @param callback the callback
+     */
+    void getNodeListByTypeAsync(String node, String type, RespCallback<SealerList> callback);
+
+    /**
      * Peer operation: get pbft view
      *
      * @return pbft view
@@ -925,14 +963,35 @@ public interface Client {
     @Deprecated
     EnumNodeVersion getChainVersion();
 
+    /**
+     * get the chain compatibility version
+     *
+     * @return the chain compatibility version
+     */
     EnumNodeVersion.Version getChainCompatibilityVersion();
 
     /**
      * async get the chain compatibility version
      *
-     * @param versionRespCallback the callback instance
+     * @param versionRespCallback the callback that will be called when receive the response
      */
-    void getChainVersionAsync(RespCallback<EnumNodeVersion.Version> versionRespCallback);
+    void getChainCompatibilityVersionAsync(
+            RespCallback<EnumNodeVersion.Version> versionRespCallback);
+
+    /**
+     * Set node name to send rpc request directly, if not set, will use random node in the
+     * groupInfoList. Node name should choose from groupInfo.
+     *
+     * @param nodeToSendRequest the node name
+     */
+    void setNodeToSendRequest(String nodeToSendRequest);
+
+    /**
+     * get node name to send rpc request directly
+     *
+     * @return the node name
+     */
+    String getNodeToSendRequest();
 
     void start();
 
