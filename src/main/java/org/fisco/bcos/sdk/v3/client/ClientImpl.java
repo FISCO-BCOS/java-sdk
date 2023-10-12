@@ -86,6 +86,7 @@ public class ClientImpl implements Client {
 
     private long blockNumber = 0;
 
+    private String nodeToSendRequest = "";
     private final ConfigOption configOption;
     private BcosGroupInfo.GroupInfo groupInfo;
     private GroupNodeIniConfig groupNodeIniConfig;
@@ -253,7 +254,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BcosTransactionReceipt sendTransaction(String signedTransactionData, boolean withProof) {
-        return this.sendTransaction("", signedTransactionData, withProof);
+        return this.sendTransaction(nodeToSendRequest, signedTransactionData, withProof);
     }
 
     @Override
@@ -272,7 +273,7 @@ public class ClientImpl implements Client {
     @Override
     public void sendTransactionAsync(
             String signedTransactionData, boolean withProof, TransactionCallback callback) {
-        this.sendTransactionAsync("", signedTransactionData, withProof, callback);
+        this.sendTransactionAsync(nodeToSendRequest, signedTransactionData, withProof, callback);
     }
 
     @Override
@@ -305,7 +306,7 @@ public class ClientImpl implements Client {
 
     @Override
     public Call call(Transaction transaction) {
-        return this.call("", transaction);
+        return this.call(nodeToSendRequest, transaction);
     }
 
     @Override
@@ -329,7 +330,7 @@ public class ClientImpl implements Client {
 
     @Override
     public Call call(Transaction transaction, String sign) {
-        return call("", transaction, sign);
+        return call(nodeToSendRequest, transaction, sign);
     }
 
     @Override
@@ -358,7 +359,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void callAsync(Transaction transaction, RespCallback<Call> callback) {
-        this.callAsync("", transaction, callback);
+        this.callAsync(nodeToSendRequest, transaction, callback);
     }
 
     @Override
@@ -380,7 +381,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void callAsync(Transaction transaction, String sign, RespCallback<Call> callback) {
-        this.callAsync("", transaction, sign, callback);
+        this.callAsync(nodeToSendRequest, transaction, sign, callback);
     }
 
     @Override
@@ -404,7 +405,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BlockNumber getBlockNumber() {
-        return this.getBlockNumber("");
+        return this.getBlockNumber(nodeToSendRequest);
     }
 
     @Override
@@ -421,7 +422,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getBlockNumberAsync(RespCallback<BlockNumber> callback) {
-        this.getBlockNumberAsync("", callback);
+        this.getBlockNumberAsync(nodeToSendRequest, callback);
     }
 
     @Override
@@ -438,7 +439,7 @@ public class ClientImpl implements Client {
 
     @Override
     public Code getCode(String address) {
-        return this.getCode("", address);
+        return this.getCode(nodeToSendRequest, address);
     }
 
     @Override
@@ -456,7 +457,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getCodeAsync(String address, RespCallback<Code> callback) {
-        this.getCodeAsync("", address, callback);
+        this.getCodeAsync(nodeToSendRequest, address, callback);
     }
 
     @Override
@@ -474,7 +475,7 @@ public class ClientImpl implements Client {
 
     @Override
     public Abi getABI(String address) {
-        return this.getABI("", address);
+        return this.getABI(nodeToSendRequest, address);
     }
 
     @Override
@@ -492,7 +493,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getABIAsync(String address, RespCallback<Abi> callback) {
-        this.getABIAsync("", address, callback);
+        this.getABIAsync(nodeToSendRequest, address, callback);
     }
 
     @Override
@@ -510,7 +511,7 @@ public class ClientImpl implements Client {
 
     @Override
     public TotalTransactionCount getTotalTransactionCount() {
-        return this.getTotalTransactionCount("");
+        return this.getTotalTransactionCount(nodeToSendRequest);
     }
 
     @Override
@@ -528,7 +529,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getTotalTransactionCountAsync(RespCallback<TotalTransactionCount> callback) {
-        this.getTotalTransactionCountAsync("", callback);
+        this.getTotalTransactionCountAsync(nodeToSendRequest, callback);
     }
 
     @Override
@@ -547,7 +548,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BcosBlock getBlockByHash(String blockHash, boolean onlyHeader, boolean onlyTxHash) {
-        return this.getBlockByHash("", blockHash, onlyHeader, onlyTxHash);
+        return this.getBlockByHash(nodeToSendRequest, blockHash, onlyHeader, onlyTxHash);
     }
 
     @Override
@@ -569,7 +570,7 @@ public class ClientImpl implements Client {
             boolean onlyHeader,
             boolean onlyTxHash,
             RespCallback<BcosBlock> callback) {
-        this.getBlockByHashAsync("", blockHash, onlyHeader, onlyTxHash, callback);
+        this.getBlockByHashAsync(nodeToSendRequest, blockHash, onlyHeader, onlyTxHash, callback);
     }
 
     @Override
@@ -593,7 +594,7 @@ public class ClientImpl implements Client {
     @Override
     public BcosBlock getBlockByNumber(
             BigInteger blockNumber, boolean onlyHeader, boolean onlyTxHash) {
-        return this.getBlockByNumber("", blockNumber, onlyHeader, onlyTxHash);
+        return this.getBlockByNumber(nodeToSendRequest, blockNumber, onlyHeader, onlyTxHash);
     }
 
     @Override
@@ -615,7 +616,8 @@ public class ClientImpl implements Client {
             boolean onlyHeader,
             boolean onlyTxHash,
             RespCallback<BcosBlock> callback) {
-        this.getBlockByNumberAsync("", blockNumber, onlyHeader, onlyTxHash, callback);
+        this.getBlockByNumberAsync(
+                nodeToSendRequest, blockNumber, onlyHeader, onlyTxHash, callback);
     }
 
     @Override
@@ -638,7 +640,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BlockHash getBlockHashByNumber(BigInteger blockNumber) {
-        return this.getBlockHashByNumber("", blockNumber);
+        return this.getBlockHashByNumber(nodeToSendRequest, blockNumber);
     }
 
     @Override
@@ -656,7 +658,7 @@ public class ClientImpl implements Client {
     @Override
     public void getBlockHashByNumberAsync(
             BigInteger blockNumber, RespCallback<BlockHash> callback) {
-        this.getBlockHashByNumberAsync("", blockNumber, callback);
+        this.getBlockHashByNumberAsync(nodeToSendRequest, blockNumber, callback);
     }
 
     @Override
@@ -675,7 +677,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BcosTransaction getTransaction(String transactionHash, Boolean withProof) {
-        return this.getTransaction("", transactionHash, withProof);
+        return this.getTransaction(nodeToSendRequest, transactionHash, withProof);
     }
 
     @Override
@@ -693,7 +695,7 @@ public class ClientImpl implements Client {
     @Override
     public void getTransactionAsync(
             String transactionHash, Boolean withProof, RespCallback<BcosTransaction> callback) {
-        this.getTransactionAsync("", transactionHash, withProof, callback);
+        this.getTransactionAsync(nodeToSendRequest, transactionHash, withProof, callback);
     }
 
     @Override
@@ -715,7 +717,7 @@ public class ClientImpl implements Client {
 
     @Override
     public BcosTransactionReceipt getTransactionReceipt(String transactionHash, Boolean withProof) {
-        return this.getTransactionReceipt("", transactionHash, withProof);
+        return this.getTransactionReceipt(nodeToSendRequest, transactionHash, withProof);
     }
 
     @Override
@@ -736,7 +738,7 @@ public class ClientImpl implements Client {
             String transactionHash,
             Boolean withProof,
             RespCallback<BcosTransactionReceipt> callback) {
-        this.getTransactionReceiptAsync("", transactionHash, withProof, callback);
+        this.getTransactionReceiptAsync(nodeToSendRequest, transactionHash, withProof, callback);
     }
 
     @Override
@@ -758,7 +760,7 @@ public class ClientImpl implements Client {
 
     @Override
     public PendingTxSize getPendingTxSize() {
-        return this.getPendingTxSize("");
+        return this.getPendingTxSize(nodeToSendRequest);
     }
 
     @Override
@@ -774,7 +776,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getPendingTxSizeAsync(RespCallback<PendingTxSize> callback) {
-        this.getPendingTxSizeAsync("", callback);
+        this.getPendingTxSizeAsync(nodeToSendRequest, callback);
     }
 
     @Override
@@ -807,7 +809,7 @@ public class ClientImpl implements Client {
     public GroupPeers getGroupPeers() {
         return this.callRemoteMethod(
                 this.groupID,
-                "",
+                nodeToSendRequest,
                 new JsonRpcRequest<>(
                         JsonRpcMethods.GET_GROUP_PEERS, Arrays.asList(this.groupID, "")),
                 GroupPeers.class);
@@ -817,7 +819,7 @@ public class ClientImpl implements Client {
     public void getGroupPeersAsync(RespCallback<GroupPeers> callback) {
         this.asyncCallRemoteMethod(
                 this.groupID,
-                "",
+                nodeToSendRequest,
                 new JsonRpcRequest<>(
                         JsonRpcMethods.GET_GROUP_PEERS, Arrays.asList(this.groupID, "")),
                 GroupPeers.class,
@@ -828,7 +830,7 @@ public class ClientImpl implements Client {
     public Peers getPeers() {
         return this.callRemoteMethod(
                 "",
-                "",
+                nodeToSendRequest,
                 new JsonRpcRequest<>(JsonRpcMethods.GET_PEERS, Collections.emptyList()),
                 Peers.class);
     }
@@ -837,7 +839,7 @@ public class ClientImpl implements Client {
     public void getPeersAsync(RespCallback<Peers> callback) {
         this.asyncCallRemoteMethod(
                 "",
-                "",
+                nodeToSendRequest,
                 new JsonRpcRequest<>(JsonRpcMethods.GET_PEERS, Collections.emptyList()),
                 Peers.class,
                 callback);
@@ -845,7 +847,7 @@ public class ClientImpl implements Client {
 
     @Override
     public ObserverList getObserverList() {
-        return this.getObserverList("");
+        return this.getObserverList(nodeToSendRequest);
     }
 
     @Override
@@ -861,7 +863,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getObserverList(RespCallback<ObserverList> callback) {
-        this.getObserverList("", callback);
+        this.getObserverList(nodeToSendRequest, callback);
     }
 
     @Override
@@ -878,7 +880,7 @@ public class ClientImpl implements Client {
 
     @Override
     public SealerList getSealerList() {
-        return this.getSealerList("");
+        return this.getSealerList(nodeToSendRequest);
     }
 
     @Override
@@ -894,7 +896,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getSealerListAsync(RespCallback<SealerList> callback) {
-        this.getSealerListAsync("", callback);
+        this.getSealerListAsync(nodeToSendRequest, callback);
     }
 
     @Override
@@ -910,13 +912,49 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public SealerList getNodeListByType(String type) {
+        return getNodeListByType(nodeToSendRequest, type);
+    }
+
+    @Override
+    public SealerList getNodeListByType(String node, String type) {
+        node = Objects.isNull(node) ? "" : node;
+        return this.callRemoteMethod(
+                this.groupID,
+                node,
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_NODE_LIST_BY_TYPE,
+                        Arrays.asList(this.groupID, node, type)),
+                SealerList.class);
+    }
+
+    @Override
+    public void getNodeListByTypeAsync(String type, RespCallback<SealerList> callback) {
+        this.getNodeListByTypeAsync(nodeToSendRequest, type, callback);
+    }
+
+    @Override
+    public void getNodeListByTypeAsync(
+            String node, String type, RespCallback<SealerList> callback) {
+        node = Objects.isNull(node) ? "" : node;
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                node,
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_NODE_LIST_BY_TYPE,
+                        Arrays.asList(this.groupID, node, type)),
+                SealerList.class,
+                callback);
+    }
+
+    @Override
     public PbftView getPbftView() {
         return this.getPbftView("");
     }
 
     @Override
     public void getPbftViewAsync(RespCallback<PbftView> callback) {
-        this.getPbftViewAsync("", callback);
+        this.getPbftViewAsync(nodeToSendRequest, callback);
     }
 
     @Override
@@ -944,7 +982,7 @@ public class ClientImpl implements Client {
 
     @Override
     public SystemConfig getSystemConfigByKey(String key) {
-        return this.getSystemConfigByKey("", key);
+        return this.getSystemConfigByKey(nodeToSendRequest, key);
     }
 
     @Override
@@ -961,7 +999,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getSystemConfigByKeyAsync(String key, RespCallback<SystemConfig> callback) {
-        this.getSystemConfigByKeyAsync("", key, callback);
+        this.getSystemConfigByKeyAsync(nodeToSendRequest, key, callback);
     }
 
     @Override
@@ -990,12 +1028,12 @@ public class ClientImpl implements Client {
 
     @Override
     public SyncStatus getSyncStatus() {
-        return getSyncStatus("");
+        return getSyncStatus(nodeToSendRequest);
     }
 
     @Override
     public void getSyncStatusAsync(RespCallback<SyncStatus> callback) {
-        this.getSyncStatusAsync("", callback);
+        this.getSyncStatusAsync(nodeToSendRequest, callback);
     }
 
     @Override
@@ -1024,7 +1062,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void getConsensusStatusAsync(RespCallback<ConsensusStatus> callback) {
-        this.getConsensusStatusAsync("", callback);
+        this.getConsensusStatusAsync(nodeToSendRequest, callback);
     }
 
     @Override
@@ -1040,14 +1078,14 @@ public class ClientImpl implements Client {
 
     @Override
     public ConsensusStatus getConsensusStatus() {
-        return getConsensusStatus("");
+        return getConsensusStatus(nodeToSendRequest);
     }
 
     @Override
     public BcosGroupList getGroupList() {
         return this.callRemoteMethod(
                 "",
-                "",
+                nodeToSendRequest,
                 new JsonRpcRequest<>(JsonRpcMethods.GET_GROUP_LIST, Collections.emptyList()),
                 BcosGroupList.class);
     }
@@ -1056,7 +1094,7 @@ public class ClientImpl implements Client {
     public void getGroupListAsync(RespCallback<BcosGroupList> callback) {
         this.asyncCallRemoteMethod(
                 "",
-                "",
+                nodeToSendRequest,
                 new JsonRpcRequest<>(JsonRpcMethods.GET_GROUP_LIST, Collections.emptyList()),
                 BcosGroupList.class,
                 callback);
@@ -1126,7 +1164,7 @@ public class ClientImpl implements Client {
     public BcosGroupInfoList getGroupInfoList() {
         return this.callRemoteMethod(
                 "",
-                "",
+                nodeToSendRequest,
                 new JsonRpcRequest<>(JsonRpcMethods.GET_GROUP_INFO_LIST, Collections.emptyList()),
                 BcosGroupInfoList.class);
     }
@@ -1135,7 +1173,7 @@ public class ClientImpl implements Client {
     public void getGroupInfoListAsync(RespCallback<BcosGroupInfoList> callback) {
         this.asyncCallRemoteMethod(
                 "",
-                "",
+                nodeToSendRequest,
                 new JsonRpcRequest<>(JsonRpcMethods.GET_GROUP_INFO_LIST, Collections.emptyList()),
                 BcosGroupInfoList.class,
                 callback);
@@ -1186,7 +1224,8 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void getChainVersionAsync(RespCallback<EnumNodeVersion.Version> versionRespCallback) {
+    public void getChainCompatibilityVersionAsync(
+            RespCallback<EnumNodeVersion.Version> versionRespCallback) {
         getGroupInfoAsync(
                 new RespCallback<BcosGroupInfo>() {
                     @Override
@@ -1210,6 +1249,23 @@ public class ClientImpl implements Client {
                         versionRespCallback.onError(errorResponse);
                     }
                 });
+    }
+
+    @Override
+    public void setNodeToSendRequest(String nodeToSendRequest) {
+        if (null == nodeToSendRequest || nodeToSendRequest.isEmpty()) {
+            this.nodeToSendRequest = "";
+            return;
+        }
+        List<BcosGroupNodeInfo.GroupNodeInfo> nodeList = getGroupInfo().getResult().getNodeList();
+        if (nodeList.stream().anyMatch(node -> node.getName().equals(nodeToSendRequest))) {
+            this.nodeToSendRequest = nodeToSendRequest;
+        }
+    }
+
+    @Override
+    public String getNodeToSendRequest() {
+        return this.nodeToSendRequest;
     }
 
     @Override
