@@ -1,3 +1,100 @@
+## v3.5.0
+(2023-10-16)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+- 新增Tars Client类 `org.fisco.bcos.sdk.v3.client.TarsClient` ，支持使用Tars RPC协议发交易上链，_目前只支持在x86 Linux平台上使用_。
+- 新增系统Feature类 `org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigFeature` ，支持查询链上Feature开关状态。
+- 新增Client接口 `getNodeListByType` ，支持查询链上各种类型的节点列表。
+- 在Client类中新增 `nodeToSendRequest` 成员，并提供Getter/Setter接口，用于用户自定义节点发送请求。
+
+### 更新
+
+- 更新依赖 `bcos-sdk-jni` 版本到3.5.0，解决SDK侧性能差的问题。
+- 删除不必要的依赖： `com.google.guava` 。
+- 更新依赖 `jackson-databind` 版本到2.14.3。
+
+### 修复
+
+- 修复ABI编码 `encodeMethodFromString` 在输入错误位数的数字类型时仍然能够编码成功的问题。
+- 修复在调用call with sign接口时没有正确处理回滚信息的问题。
+- 修复在用户指定节点发送请求时，有些RPC请求没有正确发到指定节点的问题。
+
+### 兼容性说明
+
+- FISCO BCOS 2.0+ 版本请使用 `org.fisco.bcos.sdk:bcos-java-sdk:2.9.3` 版本，代码分支为 `master-2.0` 。 
+- 兼容java-sdk v3.0+的历史版本
+- 支持[FISCO BCOS 3.5.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.5.0)版本，以及3.0.0正式版以来的所有版本。
+- 账户权限管理接口、BFS新增的list分页接口与link接口只在 FISCO BCOS 3.1.0及以上支持使用。
+- 新增的CRUD接口，如条件范围遍历查询、修改、删除等接口，只在FISCO BCOS 3.2.0及以上支持使用。
+- 新增的ShardService, 只在FISCO BCOS 3.3.0及以上支持使用。
+- Call With Sign接口只在FISCO BCOS 3.4.0及以上有效果，低于3.4.0版本的节点可正常调用但不会处理签名。
+- 新增的Tars Client，只在FISCO BCOS 3.5.0及以上支持使用。
+
+### 遗留问题说明
+
+在工作量与收益之间做平衡之后，目前还遗留以下几种场景的编解码仍然可能会有问题，欢迎社区用户贡献解决方案或实现代码 :-)
+- 三维及以上的数组作为输入输出参数时，使用`contract2java`编译成Java文件后，方法接口可能会出现调用错误。
+- 在使用类似 `bytes[2][]` 这样的动态数组套静态数组，且基础类型仍然是动态类型的类型时，使用`contract2java`编译成Java文件后，方法接口调用时编解码可能会出现问题。
+- 在使用liquid合约时，如果使用上一条所述的类型作为输入输出参数，在合约方法接口调用时编解码可能会出现问题。
+- 在使用liquid合约时，将u256与i256类型的输入输出参数，如果输入最大值，BigInteger生成的bytes会超过大小限制。
+- 在使用liquid合约时，因为liquid合约的事件编码与Solidity合约的事件编码不同，所以在使用liquid合约的事件时，会出现Java sdk解析失败的问题。
+
+---
+
+## v3.5.0
+(2023-10-16)
+
+Please refer to the Java SDK v3.x+ documentation:
+
+- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### Added
+
+- Added Tars Client class `org.fisco.bcos.sdk.v3.client.TarsClient`, which supports sending transactions to the chain using the Tars RPC protocol. _Currently, it is only supported on x86 Linux platforms_.
+- Added System Feature class `org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigFeature`, which allows querying the on-chain Feature toggle status.
+- Added Client interface `getNodeListByType`, which supports querying lists of various types of nodes on the chain.
+- Added a new member `nodeToSendRequest` to the Client class, along with Getter/Setter interfaces, for customizing node requests.
+
+### Updates
+
+- Updated the dependency to `bcos-sdk-jni` version 3.5.0 to resolve performance issues on the SDK side.
+- Removed unnecessary dependency on `com.google.guava`.
+- Updated the dependency to `jackson-databind` version 2.14.3.
+
+### Fixed
+
+- Fixed the ABI encoding issue in `encodeMethodFromString`, where it could successfully encode incorrect-length numerical types.
+- Fixed the issue where the rollback information was not correctly handled when calling the `call with sign` interface.
+- Fixed the issue where some RPC requests were not correctly sent to the specified nodes when sending requests to user-specified nodes.
+
+### Compatibility Notes
+
+- For FISCO BCOS 2.0+ versions, please use version `org.fisco.bcos.sdk:bcos-java-sdk:2.9.3`, with the `master-2.0` code branch.
+- Compatible with historical versions of java-sdk v3.0+.
+- Supports [FISCO BCOS 3.5.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.5.0) and all versions since the official release of 3.0.0.
+- Account permission management interface, BFS new list pagination interface, and link interface are only supported in FISCO BCOS 3.1.0 and above.
+- New CRUD interfaces, such as conditional range traversal queries, modifications, deletions, and others, are only supported in FISCO BCOS 3.2.0 and above.
+- The new ShardService is only supported in FISCO BCOS 3.3.0 and above.
+- The Call With Sign interface is effective only in FISCO BCOS 3.4.0 and above. Nodes with versions lower than 3.4.0 can call it normally but won't handle signatures.
+- The new Tars Client is only supported in FISCO BCOS 3.5.0 and above.
+
+### Known Issues
+
+After balancing the workload and benefits, there are still potential issues in the following scenarios for encoding and decoding. Community users are welcome to contribute solutions or implementation code :-)
+
+- When using three-dimensional arrays or higher as input/output parameters, after compiling into Java files using `contract2java`, method interfaces may result in incorrect calls.
+- When using dynamic arrays nested within static arrays, such as `bytes[2][]`, and the underlying type remains dynamic, using `contract2java` to compile into Java files may lead to encoding and decoding issues when calling method interfaces.
+- When using the liquid contract and using the types described above as input/output parameters, encoding and decoding may result in problems when calling method interfaces.
+- When using the liquid contract and using u256 and i256 types as input/output parameters, if the input maximum value is reached, the bytes generated by BigInteger may exceed the size limit.
+- When using the liquid contract, due to differences in event encoding between the liquid contract and Solidity contracts, there may be issues with Java SDK parsing when using liquid contract events.
+
+---
+
 ## v3.4.0
 (2023-06-09)
 
