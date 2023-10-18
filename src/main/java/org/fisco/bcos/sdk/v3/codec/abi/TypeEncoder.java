@@ -202,7 +202,9 @@ public class TypeEncoder {
                                 arrayOfBytes
                                         ? ((byte[]) value.getValue().get(i - 1).getValue()).length
                                         : ((String) value.getValue().get(i - 1).getValue())
-                                                .length();
+                                                .getBytes()
+                                                .length;
+
                         int numberOfWords = (bytesLength + MAX_BYTE_LENGTH - 1) / MAX_BYTE_LENGTH;
                         int totalBytesLength = numberOfWords * MAX_BYTE_LENGTH;
                         offset += totalBytesLength + MAX_BYTE_LENGTH;
