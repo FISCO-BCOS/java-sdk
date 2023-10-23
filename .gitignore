@@ -12,14 +12,16 @@ java-sdk.iml
 .project
 */.settings/**
 out/
-bin/
 */dist/**
 */build/**
 conf/
 
 ## integration test files
 nodes/
-src/integration-test/resources/
+src/integration-test/resources/conf**
+src/integration-test/resources/log**
+src/integration-wasm-test/resources/conf**
+src/integration-wasm-test/resources/log**
 build_chain.sh
 account/
 conf/

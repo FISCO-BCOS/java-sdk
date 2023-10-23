@@ -1,9 +1,1 @@
-rootProject.name = "java-sdk"	
-
-// submodules
-include "sdk-amop"
-include "sdk-core"	
-include "sdk-crypto"	
-include "sdk-codec"
-include "sdk-service"
-include "sdk-transaction"	
+rootProject.name = "java-sdk"

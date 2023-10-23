@@ -13,6 +13,19 @@ check_basic()
 bash gradlew build --info
 }
 
+download_tassl()
+{
+local OPENSSL_CMD=${HOME}/.fisco/tassl-1.1.1b
+if [ -f "${OPENSSL_CMD}" ];then
+    return
+fi
+local package_name="tassl-1.1.1b-linux-x86_64"
+if [ "$(uname)" == "Darwin" ];then
+    package_name="tassl-1.1.1b-macOS-x86_64"
+fi
+curl -LO "https://github.com/FISCO-BCOS/LargeFiles/raw/master/tools/${package_name}.tar.gz" && tar -zxvf "${package_name}.tar.gz" && mv "${package_name}" tassl-1.1.1b && mkdir -p ~/.fisco && mv tassl-1.1.1b ~/.fisco/
+}
+
 download_build_chain()
 {
   local tag="${1}"
@@ -21,6 +34,17 @@ download_build_chain()
   fi
   LOG_INFO "--- current tag: $tag"
   curl -LO "https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/${tag}/build_chain.sh" && chmod u+x build_chain.sh
+}
+
+download_binary()
+{
+  local tag="${1}"
+  LOG_INFO "--- current tag: $tag"
+  local package_name="fisco-bcos-linux-x86_64.tar.gz"
+  if [ "$(uname)" == "Darwin" ];then
+      package_name="fisco-bcos-macOS-x86_64.tar.gz"
+  fi
+  curl -LO "https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/${tag}/${package_name}" && tar -zxvf "${package_name}"
 }
 
 get_sed_cmd()
@@ -42,42 +66,58 @@ prepare_environment()
   cp src/test/resources/clog.ini conf/
   cp src/test/resources/config-example.toml src/test/resources/config.toml
   cp src/test/resources/log4j2.properties src/integration-test/resources/
-  cp -r src/test/resources/amop conf/amop
-  cp -r src/test/resources/amop src/integration-test/resources/amop
   rm -rf src/integration-test/resources/abi
   rm -rf src/integration-test/resources/bin
   cp -r src/test/resources/ecdsa/abi src/integration-test/resources/abi
   cp -r src/test/resources/ecdsa/bin src/integration-test/resources/bin
-  mkdir -p sdk-amop/src/test/resources
-  cp -r src/test/resources/ sdk-amop/src/test/resources
 
   sed_cmd=$(get_sed_cmd)
-
   local node_type="${1}"
+  local use_sm="false"
+  local not_use_sm="true"
   if [ "${node_type}" == "sm" ];then
+    use_sm="true"
+    not_use_sm="false"
     rm -rf src/integration-test/resources/abi
     rm -rf src/integration-test/resources/bin
     cp -r src/test/resources/gm/abi src/integration-test/resources/abi
     cp -r src/test/resources/gm/bin src/integration-test/resources/bin
-    ${sed_cmd} 's/useSMCrypto = "false"/useSMCrypto = "true"/g' src/integration-test/resources/config.toml
   fi
+  use_sm_str="useSMCrypto = \"${use_sm}\""
+  ${sed_cmd} "s/useSMCrypto = \"${not_use_sm}\"/${use_sm_str}/g" ./src/integration-test/resources/config.toml
+  ${sed_cmd} "s/useSMCrypto = \"${not_use_sm}\"/${use_sm_str}/g" ./src/integration-test/resources/amop/config-subscriber-for-test.toml
+  ${sed_cmd} "s/useSMCrypto = \"${not_use_sm}\"/${use_sm_str}/g" ./src/integration-test/resources/amop/config-publisher-for-test.toml
+}
+
+prepare_wasm_environment()
+{
+  ## prepare resources for integration test
+  mkdir -p src/integration-wasm-test/resources/
+  mkdir -p conf
+  cp -r nodes/127.0.0.1/sdk/* conf
+  cp src/test/resources/config-example.toml src/integration-wasm-test/resources/config.toml
+  cp src/test/resources/clog.ini conf/
+  cp src/test/resources/config-example.toml src/test/resources/config.toml
+  cp src/test/resources/log4j2.properties src/integration-wasm-test/resources/
 }
 
 build_node()
 {
   local node_type="${1}"
   local sed_cmd=$(get_sed_cmd)
-  if [ "${node_type}" == "sm" ];then
-      bash build_chain.sh -l 127.0.0.1:4 -s
+  if [ ! -f "get_account.sh" ];then
+    curl -LO https://raw.githubusercontent.com/FISCO-BCOS/console/master/tools/get_account.sh
+  fi
+  if [ ! -f "get_gm_account.sh" ];then
+    curl -LO https://raw.githubusercontent.com/FISCO-BCOS/console/master/tools/get_gm_account.sh
+  fi
+  if [ "${node_type}" == "wasm" ];then
+      bash build_chain.sh -l 127.0.0.1:4 -e ./fisco-bcos -w ${2}
   else
-      bash build_chain.sh -l 127.0.0.1:4
+      bash build_chain.sh -l 127.0.0.1:4 -e ./fisco-bcos ${2}
   fi
   ./nodes/127.0.0.1/fisco-bcos -v
-  local group_name=`cat nodes/127.0.0.1/node0/config.ini | grep group_id | awk -F '=' '{print $2}'`
-  if [ ! ${group_name} = 'group0' ] ; then
-    ${sed_cmd} 's/group_id=group/group_id=group0/g' nodes/127.0.0.1/node*/config.ini
-  fi
-  cat nodes/127.0.0.1/node0/config.ini | grep group_id
+  cat nodes/127.0.0.1/node0/config.genesis
   bash nodes/127.0.0.1/start_all.sh
 }
 
@@ -85,41 +125,73 @@ clean_node()
 {
   bash nodes/127.0.0.1/stop_all.sh
   rm -rf nodes
+  if [ "${1}" == "true" ]; then
+    rm -rf ./fisco-bcos*
+  fi
 }
 
  # check integration-test for non-gm node
 check_standard_node()
 {
-  build_node
-  prepare_environment
+  rm -rf build dist
+  build_node "normal" "${3}"
+  prepare_environment "${2}"
   ## run integration test
   bash gradlew clean integrationTest --info
   ## clean
-  clean_node
+  clean_node "${1}"
 }
 
-check_sm_node()
+check_wasm_node()
 {
-  build_node "sm"
-  prepare_environment "sm"
+  rm -rf build dist
+  build_node "wasm" "${3}"
+  prepare_wasm_environment
   ## run integration test
-  bash gradlew clean integrationTest --info
+  bash gradlew clean integrationWasmTest --info
   ## clean
-  clean_node
+  clean_node "${1}"
 }
+LOG_INFO "------ check java version ---------"
+java -version
 
 pwd
 ls -la
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
-LOG_INFO "------ download_build_chain---------"
-# set tag v3.0.0-rc1, update when new rc, remove when release final
-#download_build_chain "v3.0.0-rc1"
+download_tassl
+LOG_INFO "------ download_binary: v3.0.0---------"
+download_build_chain "v3.0.0"
+download_binary "v3.0.0"
 LOG_INFO "------ check_standard_node---------"
-#check_standard_node
-LOG_INFO "------ check_sm_node---------"
-#check_sm_node
-LOG_INFO "------ check_basic---------"
-check_basic
-#LOG_INFO "------ check_log---------"
-#cat log/* |grep -i error
-#cat log/* |grep -i warn
+check_standard_node
+rm -rf ./bin
+
+LOG_INFO "------ download_binary: v3.1.0---------"
+download_build_chain "v3.1.0"
+download_binary "v3.1.0"
+LOG_INFO "------ check_standard_node---------"
+check_standard_node
+rm -rf ./bin
+
+LOG_INFO "------ download_binary: v3.2.0---------"
+download_build_chain "v3.2.0"
+download_binary "v3.2.0"
+LOG_INFO "------ check_standard_node---------"
+check_standard_node "true" "sm" "-s -A"
+rm -rf ./bin
+
+LOG_INFO "------ download_build_chain: v3.3.0---------"
+download_binary "v3.3.0"
+download_build_chain "v3.3.0"
+LOG_INFO "------ check_standard_node---------"
+check_standard_node "true" "sm" "-s"
+rm -rf ./bin
+
+LOG_INFO "------ download_build_chain: v3.4.0---------"
+download_binary "v3.4.0"
+download_build_chain "v3.4.0"
+LOG_INFO "------ check_wasm_node---------"
+check_wasm_node "false"
+LOG_INFO "------ check_standard_node---------"
+check_standard_node "true" "sm" "-s"
+rm -rf ./bin

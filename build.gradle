@@ -16,28 +16,31 @@ ext {
     if (!project.hasProperty("ossrhPassword")) {
         ossrhPassword = "xxx"
     }
-    jacksonVersion = '2.13.2.2'
-    commonsIOVersion = '2.4'
+    jacksonVersion = '2.14.3'
+    commonsIOVersion = '2.11.0'
     commonsLang3Version = '3.12.0'
     toml4jVersion = "0.7.2"
     bcprovJDK15onVersion = '1.69'
     webankJavaCryptoVersion = "1.0.3"
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
-    guavaVersion = '30.1.1-jre'
-    bcosSdkJniVersion = "3.0.0"
-    slf4jApiVerison = "1.7.36"
-    mockitoVersion = '4.7.0'
+    bcosSdkJniVersion = "3.5.0"
+    slf4jApiVerison = '1.7.36'
+    mockitoVersion = '4.8.0'
+    gsonVersion = '2.10.1'
+    tarsSDKVersion = '3.5.0'
 }
 
 // check.dependsOn integrationTest
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.0.1-SNAPSHOT'
+    version = '3.5.0'
+
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
+    
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'jacoco'
@@ -50,12 +53,6 @@ allprojects {
     jacoco {
         toolVersion = "0.8.6"
     }
-    jacocoTestReport {
-        reports {
-            xml.enabled true
-            html.enabled false
-        }
-    }
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -63,15 +60,14 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url "https://maven.aliyun.com/nexus/content/groups/public/" }
-        maven { url "https://oss.sonatype.org/service/local/staging/deploy/maven2" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        maven { url "https://oss.sonatype.org/service/local/staging/deploy/maven2" }
     }
 
     dependencies {
         api("org.slf4j:slf4j-api:${slf4jApiVerison}")
         testImplementation("junit:junit:${junitVersion}")
         testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
-//        testImplementation("com.google.guava:guava:${guavaVersion}")
         testImplementation("org.mockito:mockito-core:${mockitoVersion}")
     }
 
@@ -82,90 +78,39 @@ allprojects {
     }
 }
 
-subprojects {
-    sourceSets {
-        main {
-            java {
-                srcDir 'src/main/java'
-            }
-
-            resources {
-                srcDir 'src/main/resources'
-            }
-        }
-    }
-    jar {
-        destinationDir file("dist/apps")
-        archiveName "fisco-bcos-" + project.name + "-" + project.version + ".jar"
-
-        exclude "**/*.xml"
-        exclude "**/*.properties"
-        manifest {
-            try {
-                def repo = grgit.open(currentDir: project.rootDir)
-                if (repo != null) {
-                    def date = new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-                    def branch = repo.branch.getCurrent().getName()
-                    def commit = repo.head().getAbbreviatedId(40)
-
-                    attributes(["Implementation-Timestamp": date,
-                                "Git-Branch"              : branch,
-                                "Git-Commit"              : commit
-                    ])
-
-                    logger.info("  Commit : ")
-                    logger.info("  => date: {}", date)
-                    logger.info("  => branch: {}", branch)
-                    logger.info("  => commit: {}", commit)
-                }
-            } catch (Exception e) {
-                logger.warn(' .git not exist, cannot found commit info, e: {}', e)
-            }
-        } from sourceSets.main.output
-
-        doLast {
-            copy {
-                from file("src/test/resources/")
-                into "dist/conf"
-            }
-            copy {
-                from configurations.runtimeClasspath
-                into "dist/lib"
-            }
-            copy {
-                from file("build/libs/")
-                into "dist/apps"
-            }
-        }
-    }
-}
-
 sourceSets {
     main {
         java {
-            srcDir "sdk-amop/src/main/java"
-            srcDir "sdk-core/src/main/java"
-            srcDir "sdk-crypto/src/main/java"
-            srcDir "sdk-codec/src/main/java"
-            srcDir "sdk-service/src/main/java"
-            srcDir "sdk-transaction/src/main/java"
+            srcDir "src/main/java"
         }
         buildscript
         resources {
             srcDir 'src/main/resources'
         }
     }
-    integrationTest {
-        copy {
-            from file('src/test/resources/amop/')
-            into 'conf/amop'
+    test {
+        java {
+            srcDir "src/test/java"
         }
+        resources {
+            srcDir "src/test/resources"
+        }
+    }
+    integrationTest {
         java {
             compileClasspath += main.output + test.output
             runtimeClasspath += main.output + test.output
             srcDir file('src/integration-test/java')
         }
         resources.srcDir file('src/integration-test/resources')
+    }
+    integrationWasmTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-wasm-test/java')
+        }
+        resources.srcDir file('src/integration-wasm-test/resources')
     }
 }
 
@@ -174,25 +119,30 @@ googleJavaFormat {
     options style: 'AOSP'
     source = sourceSets*.allJava
     include '**/*.java'
+    exclude '**/*Test.java'
+    exclude '**/Test*.java'
+    exclude '**/Mock*.java'
 }
 
 dependencies {
+	api("org.fisco-bcos:fisco-bcos-tars-sdk" + ":${tarsSDKVersion}")
     api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")  {
         exclude group : "org.slf4j"
         exclude group : "com.fasterxml.jackson.core"
     }
+
     api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
+    api("com.google.code.gson:gson:${gsonVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     api("commons-io:commons-io:${commonsIOVersion}")
-    // api("com.webank:key-mini-toolkit:${keyMiniToolkit}")
     api("com.webank:webank-blockchain-java-crypto:${webankJavaCryptoVersion}")
-    api("com.moandjiezana.toml:toml4j:${toml4jVersion}")
-//    api("org.apache.commons:commons-configuration2:${config2Version}"){
-//        exclude group: "commons-logging"
-//    }
+    api("com.moandjiezana.toml:toml4j:${toml4jVersion}") {
+        exclude group: "com.google.code.gson"
+    }
 
     integrationTestImplementation project
+    integrationWasmTestImplementation project
 }
 
 configurations.all {
@@ -204,11 +154,20 @@ configurations.all {
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    integrationWasmTestImplementation.extendsFrom testImplementation
+    integrationWasmTestImplementation.extendsFrom testRuntimeOnly
 }
 
 task integrationTest(type: Test) {
+    dependsOn test
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+task integrationWasmTest(type: Test) {
+    dependsOn test
+    testClassesDirs = sourceSets.integrationWasmTest.output.classesDirs
+    classpath = sourceSets.integrationWasmTest.runtimeClasspath
 }
 
 javadoc {
@@ -220,6 +179,7 @@ javadoc {
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
     archiveClassifier = 'sources'
+    duplicatesStrategy = 'warn'
 }
 
 task javadocJar(type: Jar) {
@@ -227,10 +187,25 @@ task javadocJar(type: Jar) {
     archiveClassifier = 'javadoc'
 }
 
+jacocoTestReport {
+    // The JaCoCo plugin adds a JacocoTaskExtension extension to all tasks of type Test.
+    // Use task state to include or not task execution data
+    // https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/TaskState.html
+    // This declaration will be used as a closure, notice there no wrapping parenthesis
+    executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+tasks.withType(Test) {
+    finalizedBy jacocoTestReport
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
-
             artifactId "fisco-bcos-" + project.name
             groupId project.group
             version project.version
@@ -283,7 +258,7 @@ publishing {
 
 jar {
     // destinationDir file('dist/apps')
-    archiveName "fisco-bcos-" + project.name + '-' + project.version + '.jar'
+    archiveFileName="fisco-bcos-" + project.name + '-' + project.version + '.jar'
     exclude '**/*.xml'
     exclude '**/*.properties'
 
