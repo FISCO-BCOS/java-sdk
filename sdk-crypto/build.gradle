@@ -4,7 +4,7 @@ plugins {
 }
 dependencies {
     compile project(':sdk-core')
-    compile ("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
+    compile ("org.bouncycastle:bcprov-jdk18on:${bcprovJDK18onVersion}")
     compile ("com.webank:webank-blockchain-java-crypto:${webankJavaCryptoVersion}")
     compile ("com.webank:webank-blockchain-hsm-crypto:${webankHsmCryptoVersion}")
 }

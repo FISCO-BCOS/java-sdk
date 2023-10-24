@@ -30,8 +30,8 @@ download_tassl()
 download_build_chain()
 {
   LOG_INFO "--- current tag: $tag"
-#  curl -LO "https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/${tag}/build_chain.sh" && chmod u+x build_chain.sh
-  curl -LO "https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master-2.0/tools/build_chain.sh" && chmod u+x build_chain.sh
+  curl -LO "https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/${tag}/build_chain.sh" && chmod u+x build_chain.sh
+#  curl -LO "https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master-2.0/tools/build_chain.sh" && chmod u+x build_chain.sh
 }
 
 get_sed_cmd()
