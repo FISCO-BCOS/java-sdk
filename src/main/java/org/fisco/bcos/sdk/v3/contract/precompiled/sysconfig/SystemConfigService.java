@@ -15,6 +15,7 @@
 package org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +74,10 @@ public class SystemConfigService {
                             + nodeVersionString
                             + ")");
         }
+        if (!checkAvailableFeatureKeys(client, key)) {
+            throw new ContractException("Unsupported feature key: [" + key + "]");
+        }
+
         TransactionReceipt receipt = systemConfigPrecompiled.setValueByKey(key, value);
         return ReceiptParser.parseTransactionReceipt(
                 receipt, tr -> systemConfigPrecompiled.getSetValueByKeyOutput(receipt).getValue1());
@@ -90,6 +95,44 @@ public class SystemConfigService {
             return false;
         }
         return valuePredicate.test(sysValue);
+    }
+
+    static long toVersionNumber(String versionString) {
+        String[] versions = versionString.split("\\.");
+        if (versions.length != 3) {
+            throw new RuntimeException("Illgeal version string: " + versionString);
+        }
+        return (Long.valueOf(versions[0]) << 24)
+                + (Long.valueOf(versions[1]) << 16)
+                + (Long.valueOf(versions[2]) << 8);
+    }
+
+    static final long VERSION_V323 = toVersionNumber("3.2.3");
+
+    static boolean checkAvailableFeatureKeys(Client client, String key) {
+
+        if (!(key.startsWith("bugfix") || key.startsWith("feature"))) {
+            return true;
+        }
+
+        List<BcosGroupNodeInfo.GroupNodeInfo> nodeList =
+                client.getGroupInfo().getResult().getNodeList();
+        for (BcosGroupNodeInfo.GroupNodeInfo groupNodeInfo : nodeList) {
+            List<String> featureKeys = groupNodeInfo.getFeatureKeys();
+
+            if (featureKeys == null) {
+                if (groupNodeInfo.getProtocol().getCompatibilityVersion() == VERSION_V323) {
+                    featureKeys = Arrays.asList("bugfix_revert");
+                } else {
+                    return false;
+                }
+            }
+
+            if (!featureKeys.contains(key)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean isCheckableInValueValidation(String key) {

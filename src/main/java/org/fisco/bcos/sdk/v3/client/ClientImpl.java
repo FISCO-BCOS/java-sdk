@@ -1102,40 +1102,11 @@ public class ClientImpl implements Client {
 
     @Override
     public BcosGroupInfo getGroupInfo() {
-        try {
-            CompletableFuture<Response> future = new CompletableFuture<>();
-
-            this.rpcJniObj.getGroupInfo(
-                    groupID,
-                    resp -> {
-                        Response response = new Response();
-                        response.setErrorCode(resp.getErrorCode());
-                        response.setErrorMessage(resp.getErrorMessage());
-                        response.setContent(resp.getData());
-
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("getGroupInfo onResponse: {}", response);
-                        }
-
-                        future.complete(response);
-                    });
-            Response response = future.get();
-            return ClientImpl.parseResponseIntoJsonRpcResponse(
-                    JsonRpcMethods.GET_GROUP_INFO, response, BcosGroupInfo.class);
-        } catch (ClientException e) {
-            logger.error("e: ", e);
-            throw new ClientException(
-                    e.getErrorCode(),
-                    e.getErrorMessage(),
-                    "getGroupInfo failed for decode the message exception, error message:"
-                            + e.getMessage());
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("e: ", e);
-            throw new ClientException(
-                    "getGroupInfo failed for decode the message exception, error message:"
-                            + e.getMessage(),
-                    e);
-        }
+        return this.callRemoteMethod(
+                "",
+                nodeToSendRequest,
+                new JsonRpcRequest<>(JsonRpcMethods.GET_GROUP_INFO, Arrays.asList(groupID)),
+                BcosGroupInfo.class);
     }
 
     @Override
