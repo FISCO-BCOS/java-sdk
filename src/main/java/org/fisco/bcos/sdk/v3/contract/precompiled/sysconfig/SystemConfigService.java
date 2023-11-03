@@ -15,12 +15,15 @@
 package org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo.GroupInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupNodeInfo;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
@@ -29,6 +32,8 @@ import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SystemConfigService {
     private final SystemConfigPrecompiled systemConfigPrecompiled;
@@ -40,6 +45,7 @@ public class SystemConfigService {
     public static final String COMPATIBILITY_VERSION = "compatibility_version";
     public static final int TX_GAS_LIMIT_MIN = 100000;
     private static final Map<String, Predicate<BigInteger>> predicateMap = new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(SystemConfigService.class);
 
     static {
         predicateMap.put(TX_COUNT_LIMIT, value -> value.compareTo(BigInteger.ONE) >= 0);
@@ -73,6 +79,10 @@ public class SystemConfigService {
                             + nodeVersionString
                             + ")");
         }
+        if (!checkAvailableFeatureKeys(client, key)) {
+            throw new ContractException("Unsupported feature key: [" + key + "]");
+        }
+
         TransactionReceipt receipt = systemConfigPrecompiled.setValueByKey(key, value);
         return ReceiptParser.parseTransactionReceipt(
                 receipt, tr -> systemConfigPrecompiled.getSetValueByKeyOutput(receipt).getValue1());
@@ -90,6 +100,45 @@ public class SystemConfigService {
             return false;
         }
         return valuePredicate.test(sysValue);
+    }
+
+    static boolean checkAvailableFeatureKeys(Client client, String key) {
+        if (!(key.startsWith("bugfix") || key.startsWith("feature"))) {
+            return true;
+        }
+
+        Optional<GroupInfo> group =
+                client.getGroupInfoList().getResult().stream()
+                        .filter(
+                                groupInfo -> {
+                                    return groupInfo.getGroupID().equals(client.getGroup());
+                                })
+                        .findFirst();
+        if (!group.isPresent()) {
+            logger.warn(
+                    "Not found group! {} {}",
+                    client.getGroup(),
+                    client.getGroupInfoList().getResult());
+            return true;
+        }
+
+        for (BcosGroupNodeInfo.GroupNodeInfo groupNodeInfo : group.get().getNodeList()) {
+            List<String> featureKeys = groupNodeInfo.getFeatureKeys();
+
+            if (featureKeys == null) {
+                if (groupNodeInfo.getProtocol().getCompatibilityVersion()
+                        == EnumNodeVersion.BCOS_3_2_3.toVersionObj().toCompatibilityVersion()) {
+                    featureKeys = Arrays.asList("bugfix_revert");
+                } else {
+                    return false;
+                }
+            }
+
+            if (!featureKeys.contains(key)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean isCheckableInValueValidation(String key) {
