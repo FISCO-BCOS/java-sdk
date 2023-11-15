@@ -48,6 +48,10 @@ import org.fisco.bcos.sdk.v3.codec.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ContractCodecJsonWrapper;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ContractCodecTools;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
+import org.fisco.bcos.sdk.v3.crypto.hash.Keccak256;
+import org.fisco.bcos.sdk.v3.crypto.hash.SM3Hash;
+import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.EventLog;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
@@ -61,6 +65,7 @@ public class ContractCodec {
     private static final Logger logger = LoggerFactory.getLogger(ContractCodec.class);
 
     private final CryptoSuite cryptoSuite;
+    private final Hash hashImpl;
     private final boolean isWasm;
     private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private FunctionEncoderInterface functionEncoder = null;
@@ -69,25 +74,53 @@ public class ContractCodec {
     private final ContractCodecJsonWrapper contractCodecJsonWrapper =
             new ContractCodecJsonWrapper();
 
+    @Deprecated
     public ContractCodec(CryptoSuite cryptoSuite, boolean isWasm) {
         this.cryptoSuite = cryptoSuite;
+        this.hashImpl = cryptoSuite.getHashImpl();
         this.isWasm = isWasm;
         if (isWasm) {
             this.functionEncoder =
-                    new org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder(cryptoSuite);
+                    new org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder(this.hashImpl);
             this.functionReturnDecoder = new FunctionReturnDecoder();
         } else {
-            this.functionEncoder = new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite);
+            this.functionEncoder =
+                    new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(this.hashImpl);
             this.functionReturnDecoder =
                     new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
         }
-        this.abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
+        this.abiDefinitionFactory = new ABIDefinitionFactory(hashImpl);
+    }
+
+    public ContractCodec(Hash hashImpl, boolean isWasm) {
+        this.hashImpl = hashImpl;
+        this.isWasm = isWasm;
+        if (isWasm) {
+            this.functionEncoder =
+                    new org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder(this.hashImpl);
+            this.functionReturnDecoder = new FunctionReturnDecoder();
+        } else {
+            this.functionEncoder =
+                    new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(this.hashImpl);
+            this.functionReturnDecoder =
+                    new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
+        }
+        this.abiDefinitionFactory = new ABIDefinitionFactory(this.hashImpl);
+        // for compatibility
+        if (this.hashImpl instanceof SM3Hash) {
+            this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
+        } else if (this.hashImpl instanceof Keccak256) {
+            this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+        } else {
+            this.cryptoSuite = null;
+        }
     }
 
     public boolean isWasm() {
         return isWasm;
     }
 
+    @Deprecated
     public CryptoSuite getCryptoSuite() {
         return this.cryptoSuite;
     }

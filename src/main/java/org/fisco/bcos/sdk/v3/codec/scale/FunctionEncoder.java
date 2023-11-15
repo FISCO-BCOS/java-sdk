@@ -7,10 +7,16 @@ import org.fisco.bcos.sdk.v3.codec.FunctionEncoderInterface;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 
 public class FunctionEncoder extends FunctionEncoderInterface {
+    @Deprecated
     public FunctionEncoder(CryptoSuite cryptoSuite) {
         super(cryptoSuite);
+    }
+
+    public FunctionEncoder(Hash hash) {
+        super(hash);
     }
 
     @Override

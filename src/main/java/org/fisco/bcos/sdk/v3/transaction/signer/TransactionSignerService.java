@@ -44,6 +44,30 @@ public class TransactionSignerService implements TransactionSignerInterface {
         return signature.sign(hash, cryptoKeyPair);
     }
 
+    /**
+     * sign raw transaction hash string and get raw signature result
+     *
+     * @param hash raw transaction hash byte array to be signed
+     * @param cryptoKeyPair keypair
+     * @return signature result, hex string
+     */
+    @Override
+    public String signWithRawResult(String hash, CryptoKeyPair cryptoKeyPair) {
+        return signature.sign(hash, cryptoKeyPair).convertToString();
+    }
+
+    /**
+     * sign raw transaction hash byte array and get raw signature result
+     *
+     * @param hash raw transaction hash byte array to be signed
+     * @param cryptoKeyPair keypair
+     * @return signature result, hex string
+     */
+    @Override
+    public String signWithRawResult(byte[] hash, CryptoKeyPair cryptoKeyPair) {
+        return sign(hash, cryptoKeyPair).convertToString();
+    }
+
     /** @return the signature */
     public Signature getSignature() {
         return signature;

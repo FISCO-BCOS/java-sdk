@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
+import org.fisco.bcos.sdk.v3.crypto.hash.Keccak256;
+import org.fisco.bcos.sdk.v3.crypto.hash.SM3Hash;
+import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +25,25 @@ public class ContractABIDefinition {
     private Map<ByteBuffer, ABIDefinition> methodIDToFunctions = new HashMap<>();
     // event topic => topic
     private Map<ByteBuffer, ABIDefinition> eventTopicToEvents = new HashMap<>();
-    private final CryptoSuite cryptoSuite;
+    private CryptoSuite cryptoSuite;
 
+    private final Hash hashIpml;
+
+    @Deprecated
     public ContractABIDefinition(CryptoSuite cryptoSuite) {
         this.cryptoSuite = cryptoSuite;
+        this.hashIpml = this.cryptoSuite.getHashImpl();
+    }
+
+    public ContractABIDefinition(Hash hashImpl) {
+        // for compatibility
+        if (hashImpl instanceof SM3Hash) {
+            this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
+        }
+        if (hashImpl instanceof Keccak256) {
+            this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+        }
+        this.hashIpml = hashImpl;
     }
 
     public ABIDefinition getConstructor() {
@@ -79,7 +98,7 @@ public class ContractABIDefinition {
         abiDefinitions.add(abiDefinition);
 
         // calculate method id and add abiDefinition to methodIdToFunctions
-        byte[] methodId = abiDefinition.getMethodId(this.cryptoSuite);
+        byte[] methodId = abiDefinition.getMethodId(this.hashIpml);
         this.methodIDToFunctions.put(ByteBuffer.wrap(methodId), abiDefinition);
 
         if (logger.isTraceEnabled()) {
@@ -101,7 +120,7 @@ public class ContractABIDefinition {
         }
 
         // calculate method id and add abiDefinition to eventTopicToEvents
-        byte[] methodId = abiDefinition.getMethodId(this.cryptoSuite);
+        byte[] methodId = abiDefinition.getMethodId(this.hashIpml);
         this.eventTopicToEvents.put(ByteBuffer.wrap(methodId), abiDefinition);
     }
 

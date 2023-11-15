@@ -6,6 +6,7 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Event;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
 
 /**
@@ -13,10 +14,17 @@ import org.fisco.bcos.sdk.v3.utils.Numeric;
  * href="https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI#events">here</a>.
  */
 public class EventEncoder {
-    private final CryptoSuite cryptoSuite;
+    @Deprecated private CryptoSuite cryptoSuite;
+    private final Hash hashImpl;
 
+    @Deprecated
     public EventEncoder(CryptoSuite cryptoSuite) {
         this.cryptoSuite = cryptoSuite;
+        this.hashImpl = cryptoSuite.getHashImpl();
+    }
+
+    public EventEncoder(Hash hashImpl) {
+        this.hashImpl = hashImpl;
     }
 
     public String encode(Event event) {
@@ -39,7 +47,7 @@ public class EventEncoder {
 
     public String buildEventSignature(String methodSignature) {
         byte[] input = methodSignature.getBytes();
-        byte[] hash = this.cryptoSuite.hash(input);
+        byte[] hash = this.hashImpl.hash(input);
         return Numeric.toHexString(hash);
     }
 }

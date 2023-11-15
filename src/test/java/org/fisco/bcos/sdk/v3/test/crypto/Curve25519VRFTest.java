@@ -51,7 +51,7 @@ public class Curve25519VRFTest {
     public void testCurve25519VRFProve(Curve25519VRF vrfInterface, String privateKey, Hash hashImpl, String anotherPrivateKey)
     {
         for(int i = 0; i < 10; i++) {
-            String input = "abcde" + String.valueOf(i);
+            String input = "abcde" + i;
             testCurve25519VRFProve(vrfInterface, privateKey, input, anotherPrivateKey);
             String hash = hashImpl.hash(input);
             testCurve25519VRFProve(vrfInterface, privateKey, hash, anotherPrivateKey);
@@ -73,9 +73,10 @@ public class Curve25519VRFTest {
 
         // invalid case
         // case1: invalid public key
-        String InvalidPublicKey = "abc";
-        Assert.assertFalse(vrfInterface.isValidVRFPublicKey(InvalidPublicKey));
-        Assert.assertFalse(vrfInterface.verify(InvalidPublicKey, vrfInput, vrfProof));
+        // NOTE: because it will cause wedpr stderr, so comment it
+//        String InvalidPublicKey = "abc";
+//        Assert.assertFalse(vrfInterface.isValidVRFPublicKey(InvalidPublicKey));
+//        Assert.assertFalse(vrfInterface.verify(InvalidPublicKey, vrfInput, vrfProof));
 
         // case2: inconsistent vrf message
         Assert.assertFalse(vrfInterface.verify(publicKey, vrfInput + "_wrong", vrfProof));

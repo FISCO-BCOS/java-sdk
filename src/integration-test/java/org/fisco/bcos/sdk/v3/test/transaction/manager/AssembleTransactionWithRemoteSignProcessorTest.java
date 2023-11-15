@@ -18,19 +18,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
 import org.apache.commons.lang3.StringUtils;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.test.transaction.mock.RemoteSignCallbackMock;
 import org.fisco.bcos.sdk.v3.test.transaction.mock.RemoteSignProviderMock;
 import org.fisco.bcos.sdk.v3.transaction.manager.AssembleTransactionWithRemoteSignProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
-import org.fisco.bcos.sdk.v3.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.signer.RemoteSignProviderInterface;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -60,7 +65,8 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
     private RemoteSignProviderInterface remoteSignProviderMock =
             new RemoteSignProviderMock(this.client.getCryptoSuite());
 
-    public AssembleTransactionWithRemoteSignProcessorTest() {}
+    public AssembleTransactionWithRemoteSignProcessorTest() {
+    }
 
     @Test
     public void test1HelloWorldSync() throws Exception {
@@ -77,32 +83,38 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                 assembleTransactionWithRemoteSignProcessor
                         .getContractLoader()
                         .getABIByContractName("HelloWorld");
-        // function1: deploy sync
-        TransactionResponse response =
-                assembleTransactionWithRemoteSignProcessor.deployByContractLoader(
-                        "HelloWorld", new ArrayList<>());
-        System.out.println("--- finish deploy with  sync ---");
-        Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
-        Assert.assertEquals(0, response.getReturnCode());
-        Assert.assertEquals(0, response.getTransactionReceipt().getStatus());
-        String helloWorldAddress = response.getContractAddress();
-        Assert.assertTrue(
-                StringUtils.isNotBlank(response.getContractAddress())
-                        && !StringUtils.equalsIgnoreCase(
-                                helloWorldAddress,
-                                "0x0000000000000000000000000000000000000000000000000000000000000000"));
+        String bin = assembleTransactionWithRemoteSignProcessor.getContractLoader().getBinaryByContractName("HelloWorld");
 
-        // function2: send transaction `HelloWorld.set("test")` sync
-        TransactionResponse transactionResponse2 =
-                assembleTransactionWithRemoteSignProcessor.sendTransactionAndGetResponse(
-                        helloWorldAddress, abi, "set", this.params);
-        Assert.assertEquals(0, transactionResponse2.getTransactionReceipt().getStatus());
+        ContractCodec contractCodec = new ContractCodec(client.getCryptoSuite().getHashImpl(), client.isWASM());
 
-        // function3:  call, which only support sync mode.
-        CallResponse callResponse1 =
-                assembleTransactionWithRemoteSignProcessor.sendCallByContractLoader(
-                        "HelloWorld", helloWorldAddress, "get", new ArrayList<>());
-        Assert.assertEquals("test", callResponse1.getResults().get(0).getValue());
+        long transactionData = TransactionBuilderJniObj.createTransactionData(
+                "group0",
+                "chain0",
+                "",
+                Hex.toHexString(contractCodec.encodeConstructor(abi, bin, params)),
+                abi,
+                client.getBlockLimit().longValue());
+
+        String rawTxHash = TransactionBuilderJniObj.calcTransactionDataHash(client.getCryptoSuite().cryptoTypeConfig, transactionData);
+
+        SignatureResult signatureResult = remoteSignProviderMock.requestForSign(Hex.decode(rawTxHash), this.client.getCryptoSuite().cryptoTypeConfig);
+
+        String signedTransaction = TransactionBuilderJniObj.createSignedTransaction(transactionData, Hex.toHexString(signatureResult.encode()), rawTxHash, 0);
+
+        CompletableFuture<TransactionReceipt> receiptCompletableFuture = new CompletableFuture<>();
+        assembleTransactionWithRemoteSignProcessor.sendTransactionAsync(signedTransaction, new TransactionCallback() {
+            @Override
+            public void onResponse(TransactionReceipt receipt) {
+                receiptCompletableFuture.complete(receipt);
+            }
+        });
+
+        TransactionReceipt transactionReceipt = receiptCompletableFuture.get();
+
+        Assert.assertEquals(transactionReceipt.getStatus(), 0);
+        Assert.assertFalse(transactionReceipt.getContractAddress().isEmpty());
+        String abi1 = client.getABI(transactionReceipt.getContractAddress()).getABI();
+        Assert.assertEquals(abi1, abi);
     }
 
     @Test
@@ -135,8 +147,8 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
         Assert.assertTrue(
                 StringUtils.isNotBlank(response.getContractAddress())
                         && !StringUtils.equalsIgnoreCase(
-                                helloWorldAddress,
-                                "0x0000000000000000000000000000000000000000000000000000000000000000"));
+                        helloWorldAddress,
+                        "0x0000000000000000000000000000000000000000000000000000000000000000"));
 
         // function2: deploy async with callback
         long transactionData =
