@@ -45,9 +45,6 @@ public class ABIDefinitionFactory {
                 } else {
                     // skip and do nothing
                 }
-                if (logger.isTraceEnabled()) {
-                    logger.trace(" abiDefinition: {}", abiDefinition);
-                }
             }
             if (contractABIDefinition.getConstructor() == null) {
                 contractABIDefinition.setConstructor(
