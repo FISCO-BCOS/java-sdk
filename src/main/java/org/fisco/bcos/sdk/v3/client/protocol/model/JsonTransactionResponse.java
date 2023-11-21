@@ -239,45 +239,52 @@ public class JsonTransactionResponse {
 
     @Override
     public String toString() {
-        return "{"
-                + "version='"
-                + this.version
-                + '\''
-                + ", from='"
-                + this.from
-                + '\''
-                + ", hash='"
-                + this.hash
-                + '\''
-                + ", input='"
-                + this.input
-                + '\''
-                + ", nonce='"
-                + this.nonce
-                + '\''
-                + ", to='"
-                + this.getTo()
-                + '\''
-                + ", abi='"
-                + this.abi
-                + '\''
-                + ", blockLimit='"
-                + this.blockLimit
-                + '\''
-                + ", chainId='"
-                + this.chainID
-                + '\''
-                + ", groupID='"
-                + this.groupID
-                + '\''
-                + ", txProof='"
-                + this.txProof
-                + '\''
-                + ", signature="
-                + this.signature
-                + ", extraData="
-                + this.extraData
-                + '}';
+        try {
+            return ObjectMapperFactory.getObjectMapper().writeValueAsString(this);
+        } catch (Exception ignored) {
+            return "JsonTransactionResponse{"
+                    + "version="
+                    + version
+                    + ", hash='"
+                    + hash
+                    + '\''
+                    + ", nonce='"
+                    + nonce
+                    + '\''
+                    + ", blockLimit="
+                    + blockLimit
+                    + ", to='"
+                    + to
+                    + '\''
+                    + ", from='"
+                    + from
+                    + '\''
+                    + ", abi='"
+                    + abi
+                    + '\''
+                    + ", input='"
+                    + input
+                    + '\''
+                    + ", chainID='"
+                    + chainID
+                    + '\''
+                    + ", groupID='"
+                    + groupID
+                    + '\''
+                    + ", extraData='"
+                    + extraData
+                    + '\''
+                    + ", signature='"
+                    + signature
+                    + '\''
+                    + ", importTime="
+                    + importTime
+                    + ", transactionProof="
+                    + transactionProof
+                    + ", txProof="
+                    + txProof
+                    + '}';
+        }
     }
 
     public String getExtraData() {

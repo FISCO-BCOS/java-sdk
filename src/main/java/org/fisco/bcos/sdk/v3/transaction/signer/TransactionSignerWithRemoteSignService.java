@@ -16,6 +16,7 @@ package org.fisco.bcos.sdk.v3.transaction.signer;
 
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 
 public class TransactionSignerWithRemoteSignService
         implements TransactionSignerInterface, AsyncTransactionSignercInterface {
@@ -30,12 +31,36 @@ public class TransactionSignerWithRemoteSignService
 
     @Override
     public SignatureResult sign(String rawTxHash, CryptoKeyPair cryptoKeyPair) {
-        return sign(rawTxHash.getBytes(), cryptoKeyPair);
+        return sign(Hex.decode(rawTxHash), cryptoKeyPair);
     }
 
     @Override
     public SignatureResult sign(byte[] rawTxHash, CryptoKeyPair cryptoKeyPair) {
         return transactionSignProvider.requestForSign(rawTxHash, encryptType);
+    }
+
+    /**
+     * sign raw transaction hash string and get raw signature result
+     *
+     * @param hash raw transaction hash byte array to be signed
+     * @param cryptoKeyPair keypair
+     * @return signature result, hex string
+     */
+    @Override
+    public String signWithRawResult(String hash, CryptoKeyPair cryptoKeyPair) {
+        return sign(Hex.decode(hash), cryptoKeyPair).convertToString();
+    }
+
+    /**
+     * sign raw transaction hash byte array and get raw signature result
+     *
+     * @param hash raw transaction hash byte array to be signed
+     * @param cryptoKeyPair keypair
+     * @return signature result, hex string
+     */
+    @Override
+    public String signWithRawResult(byte[] hash, CryptoKeyPair cryptoKeyPair) {
+        return sign(hash, cryptoKeyPair).convertToString();
     }
 
     @Override
