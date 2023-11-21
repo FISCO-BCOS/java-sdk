@@ -51,7 +51,7 @@ jobs:
         run: ./gradlew.bat build
       - name: run integration testing
         # FIXME: macOS WASM integration testing failed
-        if: runner.os != 'Windows' && runner.os != 'macOS'
+        if: runner.os != 'Windows'
         run: /bin/bash .ci/ci_check.sh
 
   build-centos:

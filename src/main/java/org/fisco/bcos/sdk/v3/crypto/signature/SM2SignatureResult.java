@@ -42,7 +42,10 @@ public class SM2SignatureResult extends SignatureResult {
      * covert signatureResult into String
      *
      * @return the signature string with [r, s]
+     * @deprecated because of the signature string format is not standard, in FISCO BCOS 3.0 GM,
+     *     signature should be in [r, s, pub] format, use Hex.toHexString(encode()) instead
      */
+    @Deprecated
     @Override
     public String convertToString() {
         byte[] SignatureBytes = new byte[64];
@@ -55,7 +58,10 @@ public class SM2SignatureResult extends SignatureResult {
      * covert signatureResult into String
      *
      * @return the signature string with [r, s]
+     * @deprecated because of the signature string format is not standard, in FISCO BCOS 3.0 GM,
+     *     signature should be in [r, s, pub] format, use Hex.toHexString(encode()) instead
      */
+    @Deprecated
     @Override
     public String toString() {
         return convertToString();

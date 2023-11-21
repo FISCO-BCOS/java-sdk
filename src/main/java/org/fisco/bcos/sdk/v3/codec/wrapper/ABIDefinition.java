@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 
 /**
  * ABIDefinition wrapper
@@ -150,11 +151,20 @@ public class ABIDefinition {
      * @param cryptoSuite the crypto suite used for hash calculation
      * @return the method id
      */
+    @Deprecated
     public byte[] getMethodId(CryptoSuite cryptoSuite) {
         // Note: it's ok to use the abi encoder for all ABIDefinition, because only use
         // buildMethodId
         org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder encoder =
-                new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite);
+                new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite.getHashImpl());
+        return encoder.buildMethodId(this.getMethodSignatureAsString());
+    }
+
+    public byte[] getMethodId(Hash hash) {
+        // Note: it's ok to use the abi encoder for all ABIDefinition, because only use
+        // buildMethodId
+        org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder encoder =
+                new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(hash);
         return encoder.buildMethodId(this.getMethodSignatureAsString());
     }
 

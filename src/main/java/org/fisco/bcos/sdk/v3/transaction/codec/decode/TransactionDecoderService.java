@@ -37,6 +37,8 @@ import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ContractABIDefinition;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ContractCodecTools;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
+import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt.Logs;
@@ -51,6 +53,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     protected static Logger logger = LoggerFactory.getLogger(TransactionDecoderService.class);
 
     private CryptoSuite cryptoSuite;
+    private final Hash hashImpl;
     private final ContractCodec contractCodec;
     private final EventEncoder eventEncoder;
 
@@ -60,11 +63,27 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
      * @param cryptoSuite the cryptoSuite used to calculate hash and signatures
      * @param isWasm whether the invoked contract is a Wasm contract
      */
+    @Deprecated
     public TransactionDecoderService(CryptoSuite cryptoSuite, boolean isWasm) {
         super();
         this.cryptoSuite = cryptoSuite;
-        this.contractCodec = new ContractCodec(cryptoSuite, isWasm);
-        this.eventEncoder = new EventEncoder(cryptoSuite);
+        this.hashImpl = cryptoSuite.getHashImpl();
+        this.contractCodec = new ContractCodec(hashImpl, isWasm);
+        this.eventEncoder = new EventEncoder(hashImpl);
+    }
+
+    public TransactionDecoderService(Hash hashImpl, boolean isWasm) {
+        super();
+        this.hashImpl = hashImpl;
+        this.contractCodec = new ContractCodec(hashImpl, isWasm);
+        this.eventEncoder = new EventEncoder(hashImpl);
+        // for compatibility
+        if (hashImpl instanceof org.fisco.bcos.sdk.v3.crypto.hash.SM3Hash) {
+            this.cryptoSuite = new CryptoSuite(CryptoType.SM_TYPE);
+        }
+        if (hashImpl instanceof org.fisco.bcos.sdk.v3.crypto.hash.Keccak256) {
+            this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+        }
     }
 
     @Override
@@ -149,7 +168,7 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
 
     @Override
     public Map<String, List<List<Object>>> decodeEvents(String abi, List<Logs> logs) {
-        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
+        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(hashImpl);
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(abi);
         Map<String, List<ABIDefinition>> eventsMap = contractABIDefinition.getEvents();
         Map<String, List<List<Object>>> result = new HashMap<>();
@@ -205,11 +224,13 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
     }
 
     /** @return the cryptoSuite */
+    @Deprecated
     public CryptoSuite getCryptoSuite() {
         return cryptoSuite;
     }
 
     /** @param cryptoSuite the cryptoSuite to set */
+    @Deprecated
     public void setCryptoSuite(CryptoSuite cryptoSuite) {
         this.cryptoSuite = cryptoSuite;
     }

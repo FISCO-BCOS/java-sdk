@@ -24,6 +24,7 @@ import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 import org.fisco.bcos.sdk.v3.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.v3.crypto.keystore.P12KeyStore;
 import org.fisco.bcos.sdk.v3.crypto.keystore.PEMKeyStore;
+import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.fisco.bcos.sdk.v3.utils.exceptions.DecoderException;
@@ -84,6 +85,7 @@ public abstract class CryptoKeyPair {
         this.hexPrivateKey = KeyTool.getHexedPrivateKey(keyPair.getPrivate());
         this.hexPublicKey = KeyTool.getHexedPublicKey(keyPair.getPublic());
     }
+
     /**
      * Get CryptoKeyPair information from CryptoResult
      *
@@ -145,6 +147,16 @@ public abstract class CryptoKeyPair {
         return this.curveName;
     }
 
+    public int getKeyType() {
+        switch (this.curveName) {
+            case SM2_CURVE_NAME:
+                return CryptoType.SM_TYPE;
+            case ECDSA_CURVE_NAME:
+            default:
+                return CryptoType.ECDSA_TYPE;
+        }
+    }
+
     /**
      * Abstract function of create keyPair randomly
      *
@@ -179,6 +191,7 @@ public abstract class CryptoKeyPair {
         return Numeric.getKeyNoPrefix(
                 UNCOMPRESSED_PUBLICKEY_FLAG_STR, publicKeyStr, PUBLIC_KEY_LENGTH_IN_HEX);
     }
+
     /**
      * get the address according to the public key
      *

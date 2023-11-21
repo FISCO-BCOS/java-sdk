@@ -93,28 +93,26 @@ public class BcosSDKTest {
 
         // test getBlockNumber
         BlockNumber blockNumber = client.getBlockNumber();
-        System.out.println("blockNumber=" + blockNumber.getBlockNumber());
+        Assert.assertTrue(blockNumber.getBlockNumber().compareTo(BigInteger.ZERO) >= 0);
 
         BlockHash blockHashByNumber = client.getBlockHashByNumber(blockNumber.getBlockNumber());
-        System.out.println("blockHash=" + blockHashByNumber.getBlockHashByNumber());
+        Assert.assertNotNull(blockHashByNumber.getBlockHashByNumber());
 
         // test getBlockByNumber only header
-        BcosBlock onlyHeader = client.getBlockByNumber(blockNumber.getBlockNumber(), false, false);
-        System.out.println("block header=" + onlyHeader.getBlock());
+        BcosBlock onlyHeader = client.getBlockByNumber(blockNumber.getBlockNumber(), true, false);
         Assert.assertEquals(onlyHeader.getBlock().getHash(), blockHashByNumber.getBlockHashByNumber());
 
         // test getBlockByNumber
         BcosBlock block = client.getBlockByNumber(blockNumber.getBlockNumber(), false, false);
-        System.out.println("block block=" + block.getBlock());
+        Assert.assertEquals(block.getBlock().getHash(), blockHashByNumber.getBlockHashByNumber());
         // getBlockByHash
 
         BcosBlock block0 = client.getBlockByHash(block.getBlock().getHash(), false, false);
-        System.out.println("block block=" + block0.getBlock());
         Assert.assertEquals(block.getBlock(), block0.getBlock());
 
         // get SealerList
         SealerList sealerList = client.getSealerList();
-        System.out.println(sealerList.getSealerList());
+        Assert.assertFalse(sealerList.getSealerList().isEmpty());
 
         // get observerList
         ObserverList observerList = client.getObserverList();
@@ -134,7 +132,7 @@ public class BcosSDKTest {
 
         // get getTotalTransactionCount
         TotalTransactionCount totalTransactionCount = client.getTotalTransactionCount();
-        System.out.println(totalTransactionCount.getTotalTransactionCount());
+        Assert.assertTrue(Integer.parseInt(totalTransactionCount.getTotalTransactionCount().getTransactionCount()) >= 0);
 
         // get getPeers
         Peers peers = client.getPeers();
@@ -248,7 +246,7 @@ public class BcosSDKTest {
 
         // get getTotalTransactionCount
         TotalTransactionCount totalTransactionCount = client.getTotalTransactionCount();
-        System.out.println(totalTransactionCount.getTotalTransactionCount());
+        Assert.assertTrue(Integer.parseInt(totalTransactionCount.getTotalTransactionCount().getTransactionCount()) >= 0);
 
         // get getPeers
         Peers peers = client.getPeers();
@@ -261,7 +259,7 @@ public class BcosSDKTest {
         client.getTotalTransactionCountAsync(new RespCallback<TotalTransactionCount>() {
             @Override
             public void onResponse(TotalTransactionCount totalTransactionCount) {
-                System.out.println("totalTransactionCount=" + totalTransactionCount.getTotalTransactionCount());
+                Assert.assertTrue(Integer.parseInt(totalTransactionCount.getTotalTransactionCount().getTransactionCount()) >= 0);
             }
 
             @Override
