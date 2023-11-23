@@ -20,7 +20,7 @@ ext {
     commonsIOVersion = '2.11.0'
     commonsLang3Version = '3.12.0'
     toml4jVersion = "0.7.2"
-    bcprovJDK15onVersion = '1.69'
+    bcprovJDK18onVersion = '1.75'
     webankJavaCryptoVersion = "1.0.3"
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
@@ -40,7 +40,7 @@ allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
-    
+
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'jacoco'
@@ -125,13 +125,13 @@ googleJavaFormat {
 }
 
 dependencies {
-	api("org.fisco-bcos:fisco-bcos-tars-sdk" + ":${tarsSDKVersion}")
-    api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")  {
-        exclude group : "org.slf4j"
-        exclude group : "com.fasterxml.jackson.core"
+    api("org.fisco-bcos:fisco-bcos-tars-sdk" + ":${tarsSDKVersion}")
+    api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}") {
+        exclude group: "org.slf4j"
+        exclude group: "com.fasterxml.jackson.core"
     }
 
-    api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
+    api("org.bouncycastle:bcprov-jdk18on:${bcprovJDK18onVersion}")
     api("com.google.code.gson:gson:${gsonVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
@@ -177,10 +177,12 @@ javadoc {
 }
 
 task copyHooks(type: Copy) {
-    from("hooks") {
-        include "**"
+    if (!file(".git/hooks/pre-commit").exists()) {
+        from("hooks") {
+            include "**"
+        }
+        into ".git/hooks"
     }
-    into ".git/hooks"
 }
 
 task sourcesJar(type: Jar) {
@@ -265,7 +267,7 @@ publishing {
 
 jar {
     // destinationDir file('dist/apps')
-    archiveFileName="fisco-bcos-" + project.name + '-' + project.version + '.jar'
+    archiveFileName = "fisco-bcos-" + project.name + '-' + project.version + '.jar'
     exclude '**/*.xml'
     exclude '**/*.properties'
 

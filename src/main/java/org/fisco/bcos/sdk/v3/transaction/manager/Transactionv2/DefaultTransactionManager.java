@@ -13,6 +13,7 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
  * <p>use default jni sign method use default client key pair to sign tx
  */
 public class DefaultTransactionManager extends TransactionManager {
+    // TODO: gas provider
 
     protected DefaultTransactionManager(Client client) {
         super(client);
