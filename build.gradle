@@ -176,6 +176,13 @@ javadoc {
     options.addStringOption('charSet', 'UTF-8')
 }
 
+task copyHooks(type: Copy) {
+    from("hooks") {
+        include "**"
+    }
+    into ".git/hooks"
+}
+
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
     archiveClassifier = 'sources'
@@ -304,3 +311,4 @@ jar {
     }
 }
 check.dependsOn jacocoTestReport
+verifyGoogleJavaFormat.dependsOn(copyHooks)
