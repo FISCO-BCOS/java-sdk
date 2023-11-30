@@ -24,7 +24,7 @@ ext {
     webankJavaCryptoVersion = "1.0.3"
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
-    bcosSdkJniVersion = "3.5.0"
+    bcosSdkJniVersion = "3.6.0-SNAPSHOT"
     slf4jApiVerison = '1.7.36'
     mockitoVersion = '4.8.0'
     gsonVersion = '2.10.1'

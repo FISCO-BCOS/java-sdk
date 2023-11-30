@@ -5,6 +5,7 @@ import java.util.List;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.ContractCodec;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 
 /**
@@ -96,7 +97,7 @@ public class AssembleTransactionService {
             List<Object> params,
             String to,
             BigInteger value,
-            TransactionManager.EIP1559Struct eip1559Struct) {
+            EIP1559Struct eip1559Struct) {
         return null;
     }
 
@@ -106,7 +107,7 @@ public class AssembleTransactionService {
             List<String> params,
             String to,
             BigInteger value,
-            TransactionManager.EIP1559Struct eip1559Struct) {
+            EIP1559Struct eip1559Struct) {
         return null;
     }
 
@@ -116,7 +117,7 @@ public class AssembleTransactionService {
             List<Object> params,
             String to,
             BigInteger value,
-            TransactionManager.EIP1559Struct eip1559Struct) {
+            EIP1559Struct eip1559Struct) {
         return null;
     }
 
@@ -126,7 +127,7 @@ public class AssembleTransactionService {
             List<String> params,
             String to,
             BigInteger value,
-            TransactionManager.EIP1559Struct eip1559Struct) {
+            EIP1559Struct eip1559Struct) {
         return null;
     }
 
@@ -220,7 +221,7 @@ public class AssembleTransactionService {
             List<Object> params,
             String to,
             BigInteger value,
-            TransactionManager.EIP1559Struct eip1559Struct,
+            EIP1559Struct eip1559Struct,
             TransactionCallback callback) {
         return null;
     }
@@ -231,7 +232,7 @@ public class AssembleTransactionService {
             List<String> params,
             String to,
             BigInteger value,
-            TransactionManager.EIP1559Struct eip1559Struct,
+            EIP1559Struct eip1559Struct,
             TransactionCallback callback) {
         return null;
     }
@@ -242,7 +243,7 @@ public class AssembleTransactionService {
             List<Object> params,
             String to,
             BigInteger value,
-            TransactionManager.EIP1559Struct eip1559Struct,
+            EIP1559Struct eip1559Struct,
             TransactionCallback callback) {
         return null;
     }
@@ -253,7 +254,7 @@ public class AssembleTransactionService {
             List<String> params,
             String to,
             BigInteger value,
-            TransactionManager.EIP1559Struct eip1559Struct,
+            EIP1559Struct eip1559Struct,
             TransactionCallback callback) {
         return null;
     }
