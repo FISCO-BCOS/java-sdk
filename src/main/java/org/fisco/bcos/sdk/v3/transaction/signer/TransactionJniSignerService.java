@@ -9,7 +9,13 @@ import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 
-public class TransactionJniSignerService implements TransactionSignerInterface {
+public class TransactionJniSignerService
+        implements TransactionSignerInterface, AsyncTransactionSignercInterface {
+    private CryptoKeyPair cryptoKeyPair;
+
+    public TransactionJniSignerService(CryptoKeyPair cryptoKeyPair) {
+        this.cryptoKeyPair = cryptoKeyPair;
+    }
 
     /**
      * sign raw transaction hash string and get raw signature result
@@ -75,5 +81,17 @@ public class TransactionJniSignerService implements TransactionSignerInterface {
     @Override
     public SignatureResult sign(byte[] hash, CryptoKeyPair cryptoKeyPair) {
         return sign(Hex.toHexString(hash), cryptoKeyPair);
+    }
+
+    /**
+     * sign raw transaction hash string and get signature result
+     *
+     * @param hash raw transaction hash string to be signed
+     * @param transactionSignCallback after signed, callback hook
+     */
+    @Override
+    public void signAsync(byte[] hash, RemoteSignCallbackInterface transactionSignCallback) {
+        SignatureResult sign = sign(hash, cryptoKeyPair);
+        transactionSignCallback.handleSignedTransaction(sign);
     }
 }
