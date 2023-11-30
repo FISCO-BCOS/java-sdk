@@ -83,7 +83,8 @@ public class ProxySignTransactionManager extends TransactionManager {
     protected TransactionReceipt sendTransaction(
             String to, String data, BigInteger value, String abi, boolean constructor)
             throws JniException {
-        String methodId = Hex.trimPrefix(data).substring(0, 8);
+        String strippedData = Hex.trimPrefix(data);
+        String methodId = strippedData.length() < 8 ? "" : strippedData.substring(0, 8);
         return sendTransaction(
                 to,
                 data,
@@ -221,7 +222,8 @@ public class ProxySignTransactionManager extends TransactionManager {
     protected String asyncSendTransaction(
             String to, String data, BigInteger value, TransactionCallback callback)
             throws JniException {
-        String methodId = Hex.trimPrefix(data).substring(0, 8);
+        String strippedData = Hex.trimPrefix(data);
+        String methodId = strippedData.length() < 8 ? "" : strippedData.substring(0, 8);
         return asyncSendTransaction(
                 to,
                 data,
@@ -255,7 +257,8 @@ public class ProxySignTransactionManager extends TransactionManager {
             boolean constructor,
             TransactionCallback callback)
             throws JniException {
-        String methodId = Hex.trimPrefix(data).substring(0, 8);
+        String strippedData = Hex.trimPrefix(data);
+        String methodId = strippedData.length() < 8 ? "" : strippedData.substring(0, 8);
         return asyncSendTransaction(
                 to,
                 data,

@@ -60,7 +60,8 @@ public class DefaultTransactionManager extends TransactionManager {
     protected TransactionReceipt sendTransaction(
             String to, String data, BigInteger value, String abi, boolean constructor)
             throws JniException {
-        String methodSignature = Hex.trimPrefix(data).substring(0, 8);
+        String strippedData = Hex.trimPrefix(data);
+        String methodSignature = strippedData.length() < 8 ? "" : strippedData.substring(0, 8);
         return sendTransaction(
                 to,
                 data,
@@ -174,7 +175,8 @@ public class DefaultTransactionManager extends TransactionManager {
             boolean constructor,
             TransactionCallback callback)
             throws JniException {
-        String methodSignature = Hex.trimPrefix(data).substring(0, 8);
+        String strippedData = Hex.trimPrefix(data);
+        String methodSignature = strippedData.length() < 8 ? "" : strippedData.substring(0, 8);
         return asyncSendTransaction(
                 to,
                 data,
