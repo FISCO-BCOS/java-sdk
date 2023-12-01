@@ -1343,11 +1343,13 @@ public class ClientImpl implements Client {
             return ClientImpl.parseResponseIntoJsonRpcResponse(
                     request.getMethod(), response, responseType);
         } catch (ClientException e) {
+            logger.error("e: ", e);
             throw new ClientException(
                     e.getErrorCode(),
                     e.getErrorMessage(),
                     "callRemoteMethod failed for decode the message exception, error message:"
-                            + e.getMessage());
+                            + e.getMessage(),
+                    e);
         } catch (JsonProcessingException | InterruptedException | ExecutionException e) {
             logger.error("e: ", e);
             throw new ClientException(
@@ -1429,13 +1431,17 @@ public class ClientImpl implements Client {
             }
         } catch (ClientException e) {
             logger.error(
-                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}",
-                    e.getMessage());
+                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, response: {}, errorMessage: {}",
+                    response,
+                    e.getMessage(),
+                    e);
             throw e;
         } catch (Exception e) {
             logger.error(
-                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}",
-                    e.getMessage());
+                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, response: {}, errorMessage: {}",
+                    response,
+                    e.getMessage(),
+                    e);
             throw new ClientException(e.getMessage(), e);
         }
     }
