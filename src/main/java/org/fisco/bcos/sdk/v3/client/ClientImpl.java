@@ -87,6 +87,7 @@ public class ClientImpl implements Client {
     private long blockNumber = 0;
 
     private String nodeToSendRequest = "";
+    private int negotiatedProtocol = 0;
     private final ConfigOption configOption;
     private BcosGroupInfo.GroupInfo groupInfo;
     private GroupNodeIniConfig groupNodeIniConfig;
@@ -186,6 +187,12 @@ public class ClientImpl implements Client {
                 nativePointer,
                 smCrypto,
                 isWASM());
+    }
+
+    protected ClientImpl(
+            String groupID, ConfigOption configOption, long nativePointer, int negotiatedProtocol) {
+        this(groupID, configOption, nativePointer);
+        this.negotiatedProtocol = negotiatedProtocol;
     }
 
     @Override
@@ -1266,6 +1273,11 @@ public class ClientImpl implements Client {
     @Override
     public String getNodeToSendRequest() {
         return this.nodeToSendRequest;
+    }
+
+    @Override
+    public int getNegotiatedProtocol() {
+        return negotiatedProtocol;
     }
 
     @Override
