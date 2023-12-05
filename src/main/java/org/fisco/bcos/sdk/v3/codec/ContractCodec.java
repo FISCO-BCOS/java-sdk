@@ -812,6 +812,12 @@ public class ContractCodec {
         return ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
     }
 
+    public Pair<List<Object>, List<ABIObject>> decodeMethodOutputAndGetObject(
+            String abi, String methodName, String output) throws ContractCodecException {
+        ABIObject abiObject = decodeMethodAndGetOutputAbiObject(abi, methodName, output);
+        return ContractCodecTools.decodeJavaObjectAndGetOutputObject(abiObject);
+    }
+
     public ABIObject decodeMethodAndGetOutAbiObjectByABIDefinition(
             ABIDefinition abiDefinition, String output) throws ContractCodecException {
         ABIObject outputABIObject = ABIObjectFactory.createOutputObject(abiDefinition);

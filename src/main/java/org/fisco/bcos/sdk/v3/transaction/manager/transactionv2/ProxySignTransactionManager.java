@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.transaction.manager.Transactionv2;
+package org.fisco.bcos.sdk.v3.transaction.manager.transactionv2;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
@@ -153,9 +153,9 @@ public class ProxySignTransactionManager extends TransactionManager {
                 TransactionBuilderV2JniObj.createTransactionData(
                         client.getGroup(),
                         client.getChainId(),
-                        to,
+                        to == null ? "" : to,
                         data,
-                        abi,
+                        (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(gasPrice),
@@ -340,9 +340,9 @@ public class ProxySignTransactionManager extends TransactionManager {
                 TransactionBuilderV2JniObj.createTransactionData(
                         client.getGroup(),
                         client.getChainId(),
-                        to,
+                        to == null ? "" : to,
                         data,
-                        abi,
+                        (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(gasPrice),
@@ -451,9 +451,9 @@ public class ProxySignTransactionManager extends TransactionManager {
                 TransactionBuilderV2JniObj.createEIP1559TransactionData(
                         client.getGroup(),
                         client.getChainId(),
-                        to,
+                        to == null ? "" : to,
                         data,
-                        abi,
+                        (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         eip1559Struct.getGasLimit().longValue(),
@@ -564,9 +564,9 @@ public class ProxySignTransactionManager extends TransactionManager {
                 TransactionBuilderV2JniObj.createEIP1559TransactionData(
                         client.getGroup(),
                         client.getChainId(),
-                        to,
+                        to == null ? "" : to,
                         data,
-                        abi,
+                        (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         eip1559Struct.getGasLimit().longValue(),
