@@ -629,7 +629,7 @@ public class AssembleTransactionProcessor extends TransactionProcessor
     public CallResponse sendCall(CallRequest callRequest)
             throws TransactionBaseException, ContractCodecException {
         Call call;
-        if (callRequest.getSign().isEmpty()) {
+        if (callRequest.getSign() == null || callRequest.getSign().isEmpty()) {
             call = this.executeCall(callRequest);
         } else {
             call =

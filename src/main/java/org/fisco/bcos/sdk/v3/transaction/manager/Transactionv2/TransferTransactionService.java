@@ -7,6 +7,7 @@ import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.tools.Convert;
 
 public class TransferTransactionService {
@@ -46,5 +47,33 @@ public class TransferTransactionService {
                             transactionSignCallback.handleSignedTransaction(sign);
                         });
         return proxySignTransactionManager.sendTransaction(to, "", weiValue.toBigIntegerExact());
+    }
+
+    public String asyncSendFunds(
+            String to, BigDecimal value, Convert.Unit unit, TransactionCallback callback)
+            throws JniException {
+        BigDecimal weiValue = Convert.toWei(value, unit);
+        return transactionManager.asyncSendTransaction(
+                to, "", weiValue.toBigIntegerExact(), callback);
+    }
+
+    public String asyncSendFunds(
+            CryptoSuite cryptoSuite,
+            String to,
+            BigDecimal value,
+            Convert.Unit unit,
+            TransactionCallback callback)
+            throws JniException {
+        BigDecimal weiValue = Convert.toWei(value, unit);
+        ProxySignTransactionManager proxySignTransactionManager =
+                new ProxySignTransactionManager(
+                        client,
+                        (hash, transactionSignCallback) -> {
+                            SignatureResult sign =
+                                    cryptoSuite.sign(hash, cryptoSuite.getCryptoKeyPair());
+                            transactionSignCallback.handleSignedTransaction(sign);
+                        });
+        return proxySignTransactionManager.asyncSendTransaction(
+                to, "", weiValue.toBigIntegerExact(), callback);
     }
 }

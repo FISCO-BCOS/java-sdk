@@ -18,6 +18,7 @@ import org.fisco.bcos.sdk.v3.transaction.gasProvider.ContractGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.DefaultGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 import org.fisco.bcos.sdk.v3.utils.Hex;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,8 +144,8 @@ public class DefaultTransactionManager extends TransactionManager {
                         data,
                         abi,
                         blockLimit.longValue(),
-                        value.toString(16),
-                        gasPrice.toString(16),
+                        Numeric.toHexString(value),
+                        Numeric.toHexString(gasPrice),
                         gasLimit.longValue(),
                         transactionAttribute,
                         client.getExtraData());
@@ -271,8 +272,8 @@ public class DefaultTransactionManager extends TransactionManager {
                         data,
                         abi,
                         blockLimit.longValue(),
-                        value.toString(16),
-                        gasPrice.toString(16),
+                        Numeric.toHexString(value),
+                        Numeric.toHexString(gasPrice),
                         gasLimit.longValue(),
                         transactionAttribute,
                         client.getExtraData());
@@ -345,9 +346,9 @@ public class DefaultTransactionManager extends TransactionManager {
                         data,
                         abi,
                         blockLimit.longValue(),
-                        value.toString(16),
-                        eip1559Struct.getMaxFeePerGas().toString(16),
-                        eip1559Struct.getMaxPriorityFeePerGas().toString(16),
+                        Numeric.toHexString(value),
+                        Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
+                        Numeric.toHexString(eip1559Struct.getMaxPriorityFeePerGas()),
                         eip1559Struct.getGasLimit().longValue(),
                         transactionAttribute,
                         client.getExtraData());
@@ -423,9 +424,9 @@ public class DefaultTransactionManager extends TransactionManager {
                         data,
                         abi,
                         blockLimit.longValue(),
-                        value.toString(16),
-                        eip1559Struct.getMaxFeePerGas().toString(16),
-                        eip1559Struct.getMaxPriorityFeePerGas().toString(16),
+                        Numeric.toHexString(value),
+                        Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
+                        Numeric.toHexString(eip1559Struct.getMaxPriorityFeePerGas()),
                         eip1559Struct.getGasLimit().longValue(),
                         transactionAttribute,
                         client.getExtraData());

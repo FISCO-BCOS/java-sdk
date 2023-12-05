@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 import org.fisco.bcos.sdk.v3.transaction.signer.AsyncTransactionSignercInterface;
 import org.fisco.bcos.sdk.v3.transaction.signer.TransactionJniSignerService;
 import org.fisco.bcos.sdk.v3.utils.Hex;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,8 +157,8 @@ public class ProxySignTransactionManager extends TransactionManager {
                         data,
                         abi,
                         blockLimit.longValue(),
-                        value.toString(16),
-                        gasPrice.toString(16),
+                        Numeric.toHexString(value),
+                        Numeric.toHexString(gasPrice),
                         gasLimit.longValue());
         String dataHash =
                 TransactionBuilderV2JniObj.calcTransactionDataHash(cryptoType, transactionData);
@@ -343,8 +344,8 @@ public class ProxySignTransactionManager extends TransactionManager {
                         data,
                         abi,
                         blockLimit.longValue(),
-                        value.toString(16),
-                        gasPrice.toString(16),
+                        Numeric.toHexString(value),
+                        Numeric.toHexString(gasPrice),
                         gasLimit.longValue());
         String dataHash =
                 TransactionBuilderV2JniObj.calcTransactionDataHash(cryptoType, transactionData);
@@ -454,10 +455,10 @@ public class ProxySignTransactionManager extends TransactionManager {
                         data,
                         abi,
                         blockLimit.longValue(),
-                        value.toString(16),
+                        Numeric.toHexString(value),
                         eip1559Struct.getGasLimit().longValue(),
-                        eip1559Struct.getMaxFeePerGas().toString(16),
-                        eip1559Struct.getMaxPriorityFeePerGas().toString(16));
+                        Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
+                        Numeric.toHexString(eip1559Struct.getMaxPriorityFeePerGas()));
         String dataHash =
                 TransactionBuilderV2JniObj.calcTransactionDataHash(cryptoType, transactionData);
         CompletableFuture<TransactionReceipt> future = new CompletableFuture<>();
@@ -567,10 +568,10 @@ public class ProxySignTransactionManager extends TransactionManager {
                         data,
                         abi,
                         blockLimit.longValue(),
-                        value.toString(16),
+                        Numeric.toHexString(value),
                         eip1559Struct.getGasLimit().longValue(),
-                        eip1559Struct.getMaxFeePerGas().toString(16),
-                        eip1559Struct.getMaxPriorityFeePerGas().toString(16));
+                        Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
+                        Numeric.toHexString(eip1559Struct.getMaxPriorityFeePerGas()));
         String dataHash =
                 TransactionBuilderV2JniObj.calcTransactionDataHash(cryptoType, transactionData);
         asyncTxSigner.signAsync(
