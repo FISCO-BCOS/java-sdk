@@ -83,7 +83,7 @@ public class BcosSDKTest {
 
         BcosSDK sdk = BcosSDK.build(configFile);
 
-        Client client = sdk.getClient();
+        Client client = sdk.getClient(GROUP);
         Assert.assertThrows(BcosSDKException.class,
                 () -> sdk.getClient("errorClient"));
 

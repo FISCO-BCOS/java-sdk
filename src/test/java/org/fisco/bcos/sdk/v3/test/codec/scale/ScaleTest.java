@@ -28,7 +28,6 @@ public class ScaleTest
                 writer.writeBigInt256(signed, value);
             }
         String encodeHexData = Hex.toHexString(outputStream.toByteArray());
-        System.out.println("* encodeHexData: " + encodeHexData + ", expected data:" + encodeData);
         Assert.assertEquals(encodeHexData, encodeData);
 
         // test decode
@@ -40,7 +39,6 @@ public class ScaleTest
             {
                 decodedValue = reader.decodeInt256();
             }
-        System.out.println("* decodedValue: " + decodedValue + ", expected value:" + value);
         Assert.assertEquals(decodedValue, value);
     }
     @Test

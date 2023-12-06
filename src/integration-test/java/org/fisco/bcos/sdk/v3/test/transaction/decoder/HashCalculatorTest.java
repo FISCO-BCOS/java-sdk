@@ -47,7 +47,6 @@ public class HashCalculatorTest {
         if (transactionResponse == null && block.getNumber() == 0) {
             return;
         }
-        System.out.println(transactionResponse);
         String chainId = transactionResponse.getChainID();
         String groupId = transactionResponse.getGroupID();
         long blockLimit = transactionResponse.getBlockLimit();

@@ -83,7 +83,7 @@ public class BcosSDK {
      */
     public Client getClient(String groupId) throws BcosSDKException {
         try {
-            return Client.build(groupId, config);
+            return Client.build(groupId, config, bcosSDKJniObj.getNativePointer());
         } catch (Exception e) {
             logger.warn("create client for failed, error: ", e);
             throw new BcosSDKException("get Client failed, e: " + e.getMessage(), e);
