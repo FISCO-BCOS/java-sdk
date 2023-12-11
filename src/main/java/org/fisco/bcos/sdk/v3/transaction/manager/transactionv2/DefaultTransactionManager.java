@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.transaction.manager.Transactionv2;
+package org.fisco.bcos.sdk.v3.transaction.manager.transactionv2;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
@@ -140,13 +140,13 @@ public class DefaultTransactionManager extends TransactionManager {
                         client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
                         client.getGroup(),
                         client.getChainId(),
-                        to,
+                        to == null ? "" : to,
                         data,
-                        abi,
+                        (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(gasPrice),
-                        gasLimit.longValue(),
+                        gasLimit == null ? 0 : gasLimit.longValue(),
                         transactionAttribute,
                         client.getExtraData());
 
@@ -268,13 +268,13 @@ public class DefaultTransactionManager extends TransactionManager {
                         client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
                         client.getGroup(),
                         client.getChainId(),
-                        to,
+                        to == null ? "" : to,
                         data,
-                        abi,
+                        (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(gasPrice),
-                        gasLimit.longValue(),
+                        gasLimit == null ? 0 : gasLimit.longValue(),
                         transactionAttribute,
                         client.getExtraData());
         client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
@@ -342,9 +342,9 @@ public class DefaultTransactionManager extends TransactionManager {
                         client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
                         client.getGroup(),
                         client.getChainId(),
-                        to,
+                        to == null ? "" : to,
                         data,
-                        abi,
+                        (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
@@ -420,9 +420,9 @@ public class DefaultTransactionManager extends TransactionManager {
                         client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
                         client.getGroup(),
                         client.getChainId(),
-                        to,
+                        to == null ? "" : to,
                         data,
-                        abi,
+                        (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),

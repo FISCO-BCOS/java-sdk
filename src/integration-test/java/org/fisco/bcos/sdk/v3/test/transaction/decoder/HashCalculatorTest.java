@@ -149,6 +149,9 @@ public class HashCalculatorTest {
         if (transactionResponse == null && block.getNumber() == 0) {
             return;
         }
+        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj()) < 0) {
+            return;
+        }
         if (client.getCryptoSuite().cryptoTypeConfig == CryptoType.ECDSA_TYPE) {
             boolean verifyMerkle = MerkleProofUtility.verifyMerkle(block.getTransactionsRoot(), transactionResponse.getTxProof(), transactionResponse.getHash(), new Keccak256());
             Assert.assertTrue(verifyMerkle);

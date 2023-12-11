@@ -112,6 +112,9 @@ public final class Numeric {
     }
 
     public static String toHexString(BigInteger value) {
+        if (value == null) {
+            return "0x0";
+        }
         return Hex.addPrefix(value.toString(16));
     }
 
