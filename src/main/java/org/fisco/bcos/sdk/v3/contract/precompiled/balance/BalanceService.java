@@ -3,7 +3,6 @@ package org.fisco.bcos.sdk.v3.contract.precompiled.balance;
 import java.awt.*;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple1;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledVersionCheck;
@@ -42,11 +41,10 @@ public class BalanceService {
 
     public Tuple2<BigInteger, String> getBalance(String address) throws ContractException {
         PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
-        TransactionReceipt transactionReceipt = balancePrecompiled.getBalance(address);
-        if (transactionReceipt.isStatusOK()) {
+        BigInteger balance = balancePrecompiled.getBalance(address);
+        if (balance != null) {
             String result = "success";
-            Tuple1<BigInteger> output = balancePrecompiled.getGetBalanceOutput(transactionReceipt);
-            return new Tuple2<>(output.getValue1(), result);
+            return new Tuple2<>(balance, result);
         } else {
             String result = "Please check the address whether exist or has balance.";
             return new Tuple2<>(BigInteger.ZERO, result);

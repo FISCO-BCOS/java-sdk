@@ -23,22 +23,18 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 @SuppressWarnings("unchecked")
 public class BalancePrecompiled extends Contract {
-    public static final String[] BINARY_ARRAY = {
-        "608060405234801561001057600080fd5b506102a1806100206000396000f3fe608060405234801561001057600080fd5b50600436106100625760003560e01c806321e5383a146100675780633b9a32de146100b5578063afb4bfbd146100f9578063beabacc81461013d578063cf8eeb7e146101ab578063f8b2cb4f146101f9575b600080fd5b6100b36004803603604081101561007d57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610251565b005b6100f7600480360360208110156100cb57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610255565b005b61013b6004803603602081101561010f57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610258565b005b6101a96004803603606081101561015357600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061025b565b005b6101f7600480360360408110156101c157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610260565b005b61023b6004803603602081101561020f57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610264565b6040518082815260200191505060405180910390f35b5050565b50565b50565b505050565b5050565b600091905056fea2646970667358221220da8396121dde206095627ca823eab9af2c8d6040ca3970663298d03a114c6f5a64736f6c634300060a0033"
-    };
+    public static final String[] BINARY_ARRAY = {};
 
     public static final String BINARY =
             org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", BINARY_ARRAY);
 
-    public static final String[] SM_BINARY_ARRAY = {
-        "608060405234801561001057600080fd5b506102a1806100206000396000f3fe608060405234801561001057600080fd5b50600436106100625760003560e01c80633f1baf841461006757806379bf5daf146100bf5780637b11403e1461010d578063a5d20ed61461015b578063b628e9351461019f578063e308a886146101e3575b600080fd5b6100a96004803603602081101561007d57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610251565b6040518082815260200191505060405180910390f35b61010b600480360360408110156100d557600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610258565b005b6101596004803603604081101561012357600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061025c565b005b61019d6004803603602081101561017157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610260565b005b6101e1600480360360208110156101b557600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610263565b005b61024f600480360360608110156101f957600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610266565b005b6000919050565b5050565b5050565b50565b50565b50505056fea2646970667358221220caa58314d27a2c44947a474a344ad87fc034bdda8106ec558bcdf97af5782fc264736f6c634300060a0033"
-    };
+    public static final String[] SM_BINARY_ARRAY = {};
 
     public static final String SM_BINARY =
             org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", SM_BINARY_ARRAY);
 
     public static final String[] ABI_ARRAY = {
-        "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"addBalance\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"registerCaller\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"subBalance\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"unregisterCaller\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+        "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"addBalance\",\"outputs\":[],\"selector\":[568670266,2064728126],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"selector\":[4172467023,1058779012],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"registerCaller\",\"outputs\":[],\"selector\":[999961310,2782006998],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"subBalance\",\"outputs\":[],\"selector\":[3482250110,2042584495],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[],\"selector\":[3198921928,3808995462],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"unregisterCaller\",\"outputs\":[],\"selector\":[2947858365,3056134453],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
     };
 
     public static final String ABI = org.fisco.bcos.sdk.v3.utils.StringUtils.joinAll("", ABI_ARRAY);
@@ -111,58 +107,13 @@ public class BalancePrecompiled extends Contract {
                 (String) results.get(0).getValue(), (BigInteger) results.get(1).getValue());
     }
 
-    public TransactionReceipt getBalance(String account) {
+    public BigInteger getBalance(String account) throws ContractException {
         final Function function =
                 new Function(
                         FUNC_GETBALANCE,
                         Arrays.<Type>asList(new Address(account)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        0);
-        return executeTransaction(function);
-    }
-
-    public String getSignedTransactionForGetBalance(String account) {
-        final Function function =
-                new Function(
-                        FUNC_GETBALANCE,
-                        Arrays.<Type>asList(new Address(account)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        0);
-        return createSignedTransaction(function);
-    }
-
-    public String getBalance(String account, TransactionCallback callback) {
-        final Function function =
-                new Function(
-                        FUNC_GETBALANCE,
-                        Arrays.<Type>asList(new Address(account)),
-                        Collections.<TypeReference<?>>emptyList(),
-                        0);
-        return asyncExecuteTransaction(function, callback);
-    }
-
-    public Tuple1<String> getGetBalanceInput(TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getInput().substring(10);
-        final Function function =
-                new Function(
-                        FUNC_GETBALANCE,
-                        Arrays.<Type>asList(),
-                        Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
-        List<Type> results =
-                this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple1<String>((String) results.get(0).getValue());
-    }
-
-    public Tuple1<BigInteger> getGetBalanceOutput(TransactionReceipt transactionReceipt) {
-        String data = transactionReceipt.getOutput();
-        final Function function =
-                new Function(
-                        FUNC_GETBALANCE,
-                        Arrays.<Type>asList(),
                         Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}));
-        List<Type> results =
-                this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple1<BigInteger>((BigInteger) results.get(0).getValue());
+        return executeCallWithSingleValueReturn(function, BigInteger.class);
     }
 
     public TransactionReceipt registerCaller(String account) {
@@ -195,8 +146,7 @@ public class BalancePrecompiled extends Contract {
         return asyncExecuteTransaction(function, callback);
     }
 
-    public Tuple2<String, BigInteger> getRegisterCallerInput(
-            TransactionReceipt transactionReceipt) {
+    public Tuple1<String> getRegisterCallerInput(TransactionReceipt transactionReceipt) {
         String data = transactionReceipt.getInput().substring(10);
         final Function function =
                 new Function(
@@ -205,8 +155,7 @@ public class BalancePrecompiled extends Contract {
                         Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
         List<Type> results =
                 this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple2<String, BigInteger>(
-                (String) results.get(0).getValue(), (BigInteger) results.get(1).getValue());
+        return new Tuple1<String>((String) results.get(0).getValue());
     }
 
     public TransactionReceipt subBalance(String account, BigInteger amount) {
@@ -336,8 +285,7 @@ public class BalancePrecompiled extends Contract {
         return asyncExecuteTransaction(function, callback);
     }
 
-    public Tuple2<String, BigInteger> getUnregisterCallerInput(
-            TransactionReceipt transactionReceipt) {
+    public Tuple1<String> getUnregisterCallerInput(TransactionReceipt transactionReceipt) {
         String data = transactionReceipt.getInput().substring(10);
         final Function function =
                 new Function(
@@ -346,8 +294,7 @@ public class BalancePrecompiled extends Contract {
                         Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}));
         List<Type> results =
                 this.functionReturnDecoder.decode(data, function.getOutputParameters());
-        return new Tuple2<String, BigInteger>(
-                (String) results.get(0).getValue(), (BigInteger) results.get(1).getValue());
+        return new Tuple1<String>((String) results.get(0).getValue());
     }
 
     public static BalancePrecompiled load(
