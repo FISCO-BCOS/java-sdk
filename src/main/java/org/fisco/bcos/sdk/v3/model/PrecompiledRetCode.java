@@ -191,6 +191,12 @@ public class PrecompiledRetCode {
             new RetCode(-50007, "The table contains duplicated field");
     public static final RetCode CODE_TABLE_INVALIDATE_FIELD =
             new RetCode(-50008, "Invalid table name or field name");
+    public static final RetCode CODE_REGISTER_CALLER_FAILED =
+            new RetCode(-50009, "Register caller failed");
+    public static final RetCode CODE_CALLER_ALREADY_REGISTERED =
+            new RetCode(-50010, "Caller already registered");
+    public static final RetCode CODE_UNREGISTER_CALLER_FAILED =
+            new RetCode(-50011, "Unregister caller failed");
 
     // internal error(for example: params check failed, etc.): -29999~-20000
     public static final String MUST_EXIST_IN_NODE_LIST =
