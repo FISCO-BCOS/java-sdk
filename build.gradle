@@ -193,6 +193,7 @@ dependencies {
     compile ("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}"){
         exclude group: "org.bouncycastle"
     }
+    implementation ('io.netty:netty-all:4.1.100.Final')
     compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     compile ("commons-io:commons-io:${commonsIOVersion}")
     compile ("com.squareup:javapoet:${javapoetVersion}")
@@ -204,6 +205,8 @@ dependencies {
     }
     compile ("com.webank:webank-blockchain-hsm-crypto:${webankHsmCryptoVersion}")
     testCompile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
+    testImplementation('io.netty:netty-all:4.1.100.Final')
+    integrationTestImplementation('io.netty:netty-all:4.1.100.Final')
 }
 
 javadoc {
