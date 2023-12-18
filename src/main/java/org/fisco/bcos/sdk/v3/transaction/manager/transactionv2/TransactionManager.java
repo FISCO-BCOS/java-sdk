@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.transaction.manager.Transactionv2;
+package org.fisco.bcos.sdk.v3.transaction.manager.transactionv2;
 
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.jni.common.JniException;
@@ -19,6 +19,14 @@ public abstract class TransactionManager {
     }
 
     protected TransactionManager(Client client) {
+        // FIXME: negotiate protocol not set
+        //        int negotiatedProtocol = client.getNegotiatedProtocol();
+        //        int maxProtocol = negotiatedProtocol >> 16;
+        //        if (maxProtocol < 1) {
+        //            throw new UnsupportedOperationException(
+        //                    "The current version of the node does not support the transaction
+        // manager");
+        //        }
         this.client = client;
     }
 
