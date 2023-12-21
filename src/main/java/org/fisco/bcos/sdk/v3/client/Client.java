@@ -98,19 +98,6 @@ public interface Client {
         return new ClientImpl(groupId, configOption, nativePointer);
     }
 
-    static Client build(String groupId, ConfigOption configOption, BcosSDKJniObj bcosSDKJniObj) {
-        logger.info(
-                "build, groupID: {}, configOption: {}, negotiatedProtocolInfo: {}",
-                groupId,
-                configOption,
-                bcosSDKJniObj.negotiatedProtocolInfo());
-        return new ClientImpl(
-                groupId,
-                configOption,
-                bcosSDKJniObj.getNativePointer(),
-                bcosSDKJniObj.negotiatedProtocolInfo());
-    }
-
     /** @return native pointer */
     long getNativePointer();
 

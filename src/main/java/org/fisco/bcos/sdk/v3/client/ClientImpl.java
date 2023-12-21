@@ -158,6 +158,7 @@ public class ClientImpl implements Client {
         this.groupID = groupID;
         this.configOption = configOption;
         this.rpcJniObj = RpcJniObj.build(nativePointer);
+        this.negotiatedProtocol = BcosSDKJniObj.negotiatedProtocolInfo(nativePointer);
 
         // start rpc
         start();
@@ -187,12 +188,6 @@ public class ClientImpl implements Client {
                 nativePointer,
                 smCrypto,
                 isWASM());
-    }
-
-    protected ClientImpl(
-            String groupID, ConfigOption configOption, long nativePointer, int negotiatedProtocol) {
-        this(groupID, configOption, nativePointer);
-        this.negotiatedProtocol = negotiatedProtocol;
     }
 
     @Override

@@ -19,10 +19,13 @@ import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.L
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
@@ -41,6 +44,9 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.eventsub.EventSubCallback;
+import org.fisco.bcos.sdk.v3.eventsub.EventSubParams;
+import org.fisco.bcos.sdk.v3.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
@@ -74,6 +80,7 @@ public class Contract {
     protected final CryptoKeyPair credential;
     protected final CryptoSuite cryptoSuite;
     protected final EventEncoder eventEncoder;
+    private final EventSubscribe eventSubscribe;
     private boolean enableDAG = false;
 
     /**
@@ -99,13 +106,20 @@ public class Contract {
         this.cryptoSuite = client.getCryptoSuite();
         this.functionEncoder =
                 client.isWASM()
-                        ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder(cryptoSuite)
-                        : new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite);
+                        ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder(
+                                cryptoSuite.getHashImpl())
+                        : new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(
+                                cryptoSuite.getHashImpl());
         this.functionReturnDecoder =
                 client.isWASM()
                         ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionReturnDecoder()
                         : new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
-        this.eventEncoder = new EventEncoder(cryptoSuite);
+        this.eventEncoder = new EventEncoder(cryptoSuite.getHashImpl());
+        try {
+            this.eventSubscribe = EventSubscribe.build(client);
+        } catch (JniException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -432,6 +446,55 @@ public class Contract {
                         txAttribute);
 
         return txPair.getSignedTx();
+    }
+
+    public void subscribeEvent(EventSubParams params, EventSubCallback callback) {
+        this.eventSubscribe.subscribeEvent(params, callback);
+    }
+
+    public void subscribeEvent(String topic0, EventSubCallback callback) {
+        subscribeEvent(topic0, BigInteger.valueOf(-1), BigInteger.valueOf(-1), callback);
+    }
+
+    public void subscribeEvent(
+            String topic0, BigInteger fromBlock, BigInteger toBlock, EventSubCallback callback) {
+        subscribeEvent(
+                fromBlock,
+                toBlock,
+                Collections.singletonList(Collections.singletonList(topic0)),
+                callback);
+    }
+
+    public void subscribeEvent(
+            String topic0,
+            List<String> otherTopics,
+            BigInteger fromBlock,
+            BigInteger toBlock,
+            EventSubCallback callback) {
+        List<List<String>> topics = new ArrayList<>();
+        topics.add(Collections.singletonList(topic0));
+        for (String otherTopic : otherTopics) {
+            topics.add(Collections.singletonList(otherTopic));
+        }
+        subscribeEvent(fromBlock, toBlock, topics, callback);
+    }
+
+    public void subscribeEvent(
+            BigInteger fromBlock,
+            BigInteger toBlock,
+            List<List<String>> topics,
+            EventSubCallback callback) {
+        EventSubParams eventSubParams = new EventSubParams();
+        // self address
+        eventSubParams.addAddress(getContractAddress());
+        eventSubParams.setFromBlock(fromBlock);
+        eventSubParams.setToBlock(toBlock);
+        for (int i = 0; i < topics.size(); i++) {
+            for (String topic : topics.get(i)) {
+                eventSubParams.addTopic(i, topic);
+            }
+        }
+        subscribeEvent(eventSubParams, callback);
     }
 
     public static EventValues staticExtractEventParameters(
