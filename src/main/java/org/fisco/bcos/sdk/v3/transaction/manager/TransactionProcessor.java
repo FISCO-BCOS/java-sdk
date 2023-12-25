@@ -151,7 +151,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         this.client.getNativePointer(),
                         cryptoKeyPair.getJniKeyPair(),
                         this.groupId,
-                        "",
+                        client.getNodeToSendRequest(),
                         Objects.nonNull(to) ? to : "",
                         data,
                         "",

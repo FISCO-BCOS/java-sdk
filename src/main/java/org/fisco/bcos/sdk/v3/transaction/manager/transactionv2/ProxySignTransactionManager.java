@@ -50,12 +50,12 @@ public class ProxySignTransactionManager extends TransactionManager {
     }
 
     @Override
-    protected ContractGasProvider getGasProvider() {
+    public ContractGasProvider getGasProvider() {
         return contractGasProvider;
     }
 
     @Override
-    protected void steGasProvider(ContractGasProvider gasProvider) {
+    public void steGasProvider(ContractGasProvider gasProvider) {
         contractGasProvider = gasProvider;
     }
 
@@ -81,7 +81,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return receipt
      */
     @Override
-    protected TransactionReceipt sendTransaction(
+    public TransactionReceipt sendTransaction(
             String to, String data, BigInteger value, String abi, boolean constructor)
             throws JniException {
         String strippedData = Hex.trimPrefix(data);
@@ -111,7 +111,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return receipt
      */
     @Override
-    protected TransactionReceipt sendTransaction(
+    public TransactionReceipt sendTransaction(
             String to,
             String data,
             BigInteger value,
@@ -139,7 +139,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return receipt
      */
     @Override
-    protected TransactionReceipt sendTransaction(
+    public TransactionReceipt sendTransaction(
             String to,
             String data,
             BigInteger value,
@@ -211,6 +211,72 @@ public class ProxySignTransactionManager extends TransactionManager {
     }
 
     /**
+     * This method is used to create a signed transaction.
+     *
+     * @param to The destination address for the transaction.
+     * @param data The data to be sent with the transaction.
+     * @param value The value to be transferred with the transaction.
+     * @param gasPrice The price of gas for the transaction.
+     * @param gasLimit The maximum amount of gas that can be used for the transaction.
+     * @return A Hex string representation of the signed transaction.
+     */
+    @Override
+    public String createSignedTransaction(
+            String to, String data, BigInteger value, BigInteger gasPrice, BigInteger gasLimit)
+            throws JniException {
+        long transactionData =
+                TransactionBuilderV2JniObj.createTransactionData(
+                        client.getGroup(),
+                        client.getChainId(),
+                        to == null ? "" : to,
+                        data,
+                        "",
+                        client.getBlockLimit().longValue(),
+                        Numeric.toHexString(value),
+                        Numeric.toHexString(gasPrice),
+                        gasLimit.longValue());
+        String dataHash =
+                TransactionBuilderV2JniObj.calcTransactionDataHash(cryptoType, transactionData);
+        CompletableFuture<String> future = new CompletableFuture<>();
+        asyncTxSigner.signAsync(
+                Hex.decode(dataHash),
+                signature -> {
+                    try {
+                        int transactionAttribute;
+                        if (client.isWASM()) {
+                            transactionAttribute = TransactionAttribute.LIQUID_SCALE_CODEC;
+                        } else {
+                            transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
+                        }
+                        String signedTransaction =
+                                TransactionBuilderV2JniObj.createSignedTransaction(
+                                        transactionData,
+                                        Hex.toHexString(signature.encode()),
+                                        dataHash,
+                                        transactionAttribute,
+                                        client.getExtraData());
+                        future.complete(signedTransaction);
+                        return 0;
+                    } catch (JniException e) {
+                        logger.error(
+                                "Create sign transaction failed, error message: {}",
+                                e.getMessage(),
+                                e);
+                    }
+                    return -1;
+                });
+        String signedTransaction = null;
+        try {
+            signedTransaction = future.get();
+        } catch (Exception e) {
+            logger.error("Get transaction receipt failed, error message: {}", e.getMessage(), e);
+        } finally {
+            TransactionBuilderV2JniObj.destroyTransactionData(transactionData);
+        }
+        return signedTransaction;
+    }
+
+    /**
      * Send tx with abi field asynchronously
      *
      * @param to to address
@@ -220,7 +286,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return receipt
      */
     @Override
-    protected String asyncSendTransaction(
+    public String asyncSendTransaction(
             String to, String data, BigInteger value, TransactionCallback callback)
             throws JniException {
         String strippedData = Hex.trimPrefix(data);
@@ -246,11 +312,11 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @param abi ABI JSON string, generated by compile contract, should fill in when you deploy
      *     contract
      * @param constructor if you deploy contract, should set to be true
-     * @param callback
+     * @param callback callback function
      * @return receipt
      */
     @Override
-    protected String asyncSendTransaction(
+    public String asyncSendTransaction(
             String to,
             String data,
             BigInteger value,
@@ -287,7 +353,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return receipt
      */
     @Override
-    protected String asyncSendTransaction(
+    public String asyncSendTransaction(
             String to,
             String data,
             BigInteger value,
@@ -325,7 +391,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return receipt
      */
     @Override
-    protected String asyncSendTransaction(
+    public String asyncSendTransaction(
             String to,
             String data,
             BigInteger value,
@@ -412,7 +478,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return receipt
      */
     @Override
-    protected TransactionReceipt sendTransactionEIP1559(
+    public TransactionReceipt sendTransactionEIP1559(
             String to,
             String data,
             BigInteger value,
@@ -437,7 +503,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return receipt
      */
     @Override
-    protected TransactionReceipt sendTransactionEIP1559(
+    public TransactionReceipt sendTransactionEIP1559(
             String to,
             String data,
             BigInteger value,
@@ -523,7 +589,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return receipt
      */
     @Override
-    protected String asyncSendTransactionEIP1559(
+    public String asyncSendTransactionEIP1559(
             String to,
             String data,
             BigInteger value,
@@ -550,7 +616,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return receipt
      */
     @Override
-    protected String asyncSendTransactionEIP1559(
+    public String asyncSendTransactionEIP1559(
             String to,
             String data,
             BigInteger value,
@@ -631,7 +697,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @return call result
      */
     @Override
-    protected Call sendCall(String to, String data) {
+    public Call sendCall(String to, String data) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             outputStream.write(Hex.trimPrefix(to).getBytes());
             outputStream.write(Hex.decode(data));
@@ -662,7 +728,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @param signature signature of call data
      */
     @Override
-    protected Call sendCall(String to, String data, String signature) {
+    public Call sendCall(String to, String data, String signature) {
         return client.call(new Transaction("", to, Hex.decode(data)), signature);
     }
 
@@ -674,7 +740,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @param callback callback function
      */
     @Override
-    protected void asyncSendCall(String to, String data, RespCallback<Call> callback) {
+    public void asyncSendCall(String to, String data, RespCallback<Call> callback) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             outputStream.write(Hex.trimPrefix(to).getBytes());
             outputStream.write(Hex.decode(data));
@@ -703,7 +769,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      * @param callback callback function
      */
     @Override
-    protected void asyncSendCall(
+    public void asyncSendCall(
             String to, String data, String signature, RespCallback<Call> callback) {
         client.callAsync(new Transaction("", to, Hex.decode(data)), signature, callback);
     }
