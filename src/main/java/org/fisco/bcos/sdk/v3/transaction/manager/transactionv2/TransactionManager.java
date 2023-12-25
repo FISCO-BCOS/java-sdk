@@ -30,9 +30,9 @@ public abstract class TransactionManager {
         this.client = client;
     }
 
-    protected abstract ContractGasProvider getGasProvider();
+    public abstract ContractGasProvider getGasProvider();
 
-    protected abstract void steGasProvider(ContractGasProvider gasProvider);
+    public abstract void steGasProvider(ContractGasProvider gasProvider);
 
     /**
      * Simple send tx
@@ -42,7 +42,7 @@ public abstract class TransactionManager {
      * @param value transfer value
      * @return receipt
      */
-    protected TransactionReceipt sendTransaction(String to, String data, BigInteger value)
+    public TransactionReceipt sendTransaction(String to, String data, BigInteger value)
             throws JniException {
         return sendTransaction(to, data, value, "", false);
     }
@@ -58,7 +58,7 @@ public abstract class TransactionManager {
      * @param constructor if you deploy contract, should set to be true
      * @return receipt
      */
-    protected abstract TransactionReceipt sendTransaction(
+    public abstract TransactionReceipt sendTransaction(
             String to, String data, BigInteger value, String abi, boolean constructor)
             throws JniException;
 
@@ -75,7 +75,7 @@ public abstract class TransactionManager {
      * @param constructor if you deploy contract, should set to be true
      * @return receipt
      */
-    protected abstract TransactionReceipt sendTransaction(
+    public abstract TransactionReceipt sendTransaction(
             String to,
             String data,
             BigInteger value,
@@ -99,7 +99,7 @@ public abstract class TransactionManager {
      * @param constructor if you deploy contract, should set to be true
      * @return receipt
      */
-    protected abstract TransactionReceipt sendTransaction(
+    public abstract TransactionReceipt sendTransaction(
             String to,
             String data,
             BigInteger value,
@@ -111,6 +111,20 @@ public abstract class TransactionManager {
             throws JniException;
 
     /**
+     * This method is used to create a signed transaction.
+     *
+     * @param to The destination address for the transaction.
+     * @param data The data to be sent with the transaction.
+     * @param value The value to be transferred with the transaction.
+     * @param gasPrice The price of gas for the transaction.
+     * @param gasLimit The maximum amount of gas that can be used for the transaction.
+     * @return A Hex string representation of the signed transaction.
+     */
+    public abstract String createSignedTransaction(
+            String to, String data, BigInteger value, BigInteger gasPrice, BigInteger gasLimit)
+            throws JniException;
+
+    /**
      * Simple send tx asynchronously
      *
      * @param to to address
@@ -118,7 +132,7 @@ public abstract class TransactionManager {
      * @param value transfer value
      * @return receipt
      */
-    protected String asyncSendTransaction(
+    public String asyncSendTransaction(
             String to, String data, BigInteger value, TransactionCallback callback)
             throws JniException {
         return asyncSendTransaction(to, data, value, "", false, callback);
@@ -135,7 +149,7 @@ public abstract class TransactionManager {
      * @param constructor if you deploy contract, should set to be true
      * @return receipt
      */
-    protected abstract String asyncSendTransaction(
+    public abstract String asyncSendTransaction(
             String to,
             String data,
             BigInteger value,
@@ -157,7 +171,7 @@ public abstract class TransactionManager {
      * @param constructor if you deploy contract, should set to be true
      * @return receipt
      */
-    protected abstract String asyncSendTransaction(
+    public abstract String asyncSendTransaction(
             String to,
             String data,
             BigInteger value,
@@ -183,7 +197,7 @@ public abstract class TransactionManager {
      * @param callback callback function
      * @return receipt
      */
-    protected abstract String asyncSendTransaction(
+    public abstract String asyncSendTransaction(
             String to,
             String data,
             BigInteger value,
@@ -204,7 +218,7 @@ public abstract class TransactionManager {
      * @param eip1559Struct EIP1559 transaction payload
      * @return receipt
      */
-    protected TransactionReceipt sendTransactionEIP1559(
+    public TransactionReceipt sendTransactionEIP1559(
             String to, String data, BigInteger value, EIP1559Struct eip1559Struct)
             throws JniException {
         return sendTransactionEIP1559(to, data, value, eip1559Struct, "", false);
@@ -222,7 +236,7 @@ public abstract class TransactionManager {
      * @param constructor if you deploy contract, should set to be true
      * @return receipt
      */
-    protected abstract TransactionReceipt sendTransactionEIP1559(
+    public abstract TransactionReceipt sendTransactionEIP1559(
             String to,
             String data,
             BigInteger value,
@@ -243,7 +257,7 @@ public abstract class TransactionManager {
      * @param constructor if you deploy contract, should set to be true
      * @return receipt
      */
-    protected abstract TransactionReceipt sendTransactionEIP1559(
+    public abstract TransactionReceipt sendTransactionEIP1559(
             String to,
             String data,
             BigInteger value,
@@ -263,7 +277,7 @@ public abstract class TransactionManager {
      * @param callback callback function
      * @return receipt
      */
-    protected String asyncSendTransactionEIP1559(
+    public String asyncSendTransactionEIP1559(
             String to,
             String data,
             BigInteger value,
@@ -286,7 +300,7 @@ public abstract class TransactionManager {
      * @param callback callback function
      * @return receipt
      */
-    protected abstract String asyncSendTransactionEIP1559(
+    public abstract String asyncSendTransactionEIP1559(
             String to,
             String data,
             BigInteger value,
@@ -309,7 +323,7 @@ public abstract class TransactionManager {
      * @param callback callback function
      * @return receipt
      */
-    protected abstract String asyncSendTransactionEIP1559(
+    public abstract String asyncSendTransactionEIP1559(
             String to,
             String data,
             BigInteger value,
@@ -327,7 +341,7 @@ public abstract class TransactionManager {
      * @param data input data
      * @return call result
      */
-    protected abstract Call sendCall(String to, String data);
+    public abstract Call sendCall(String to, String data);
 
     /**
      * Send call with signature of call data
@@ -336,7 +350,7 @@ public abstract class TransactionManager {
      * @param data input data
      * @param signature signature of call data
      */
-    protected abstract Call sendCall(String to, String data, String signature);
+    public abstract Call sendCall(String to, String data, String signature);
 
     /**
      * Send call asynchronously
@@ -345,7 +359,7 @@ public abstract class TransactionManager {
      * @param data input data
      * @param callback callback function
      */
-    protected abstract void asyncSendCall(String to, String data, RespCallback<Call> callback);
+    public abstract void asyncSendCall(String to, String data, RespCallback<Call> callback);
 
     /**
      * Send call asynchronously with signature of call data
@@ -355,6 +369,6 @@ public abstract class TransactionManager {
      * @param signature signature of call data
      * @param callback callback function
      */
-    protected abstract void asyncSendCall(
+    public abstract void asyncSendCall(
             String to, String data, String signature, RespCallback<Call> callback);
 }
