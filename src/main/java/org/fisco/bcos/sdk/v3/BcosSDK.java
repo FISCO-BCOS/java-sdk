@@ -111,7 +111,10 @@ public class BcosSDK {
                 throw new BcosSDKException(
                         "The default group is not set, please set it in config.toml: defaultGroup field");
             }
-            return Client.build(config.getNetworkConfig().getDefaultGroup(), config, bcosSDKJniObj);
+            return Client.build(
+                    config.getNetworkConfig().getDefaultGroup(),
+                    config,
+                    bcosSDKJniObj.getNativePointer());
         } catch (Exception e) {
             logger.warn("create client for failed, error: ", e);
             throw new BcosSDKException("get Client failed, e: " + e.getMessage(), e);
