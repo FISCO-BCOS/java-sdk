@@ -64,7 +64,7 @@ public class BalanceService {
         }
     }
 
-    public RetCode transferV2(String from, String to, BigInteger amount) throws ContractException {
+    public RetCode transfer(String from, String to, BigInteger amount) throws ContractException {
         PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         TransactionReceipt transactionReceipt = balancePrecompiled.transfer(from, to, amount);
         if (transactionReceipt.isStatusOK()) {
