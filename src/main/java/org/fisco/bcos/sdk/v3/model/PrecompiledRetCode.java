@@ -197,6 +197,7 @@ public class PrecompiledRetCode {
             new RetCode(-50010, "Unregister caller failed");
     public static final RetCode CODE_ADD_BALANCE_FAILED = new RetCode(-50011, "Add balance failed");
     public static final RetCode CODE_SUB_BALANCE_FAILED = new RetCode(-50012, "Sub balance failed");
+    public static final RetCode CODE_TRANSFER_FAILED = new RetCode(-50013, "Transfer failed");
 
     // internal error(for example: params check failed, etc.): -29999~-20000
     public static final String MUST_EXIST_IN_NODE_LIST =
