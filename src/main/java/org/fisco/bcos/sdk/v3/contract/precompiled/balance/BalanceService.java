@@ -2,6 +2,7 @@ package org.fisco.bcos.sdk.v3.contract.precompiled.balance;
 
 import java.awt.*;
 import java.math.BigInteger;
+import java.util.List;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledVersionCheck;
@@ -63,6 +64,18 @@ public class BalanceService {
         }
     }
 
+    public RetCode transfer(String from, String to, BigInteger amount) throws ContractException {
+        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+        TransactionReceipt transactionReceipt = balancePrecompiled.transfer(from, to, amount);
+        if (transactionReceipt.isStatusOK()) {
+            RetCode retCode = PrecompiledRetCode.CODE_SUCCESS;
+            return retCode;
+        } else {
+            RetCode retCode = PrecompiledRetCode.CODE_TRANSFER_FAILED;
+            return retCode;
+        }
+    }
+
     public RetCode registerCaller(String address) throws ContractException {
         PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
         TransactionReceipt receipt = balancePrecompiled.registerCaller(address);
@@ -85,5 +98,11 @@ public class BalanceService {
             RetCode retCode = PrecompiledRetCode.CODE_UNREGISTER_CALLER_FAILED;
             return retCode;
         }
+    }
+
+    public List<String> listCaller() throws ContractException {
+        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+        List<String> result = balancePrecompiled.listCaller();
+        return result;
     }
 }
