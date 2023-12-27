@@ -14,9 +14,12 @@
  */
 package org.fisco.bcos.sdk.v3.model;
 
+import static org.fisco.bcos.sdk.v3.utils.Numeric.toBytesPadded;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
@@ -24,9 +27,12 @@ import java.util.Objects;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
 import org.fisco.bcos.sdk.jni.utilities.receipt.ReceiptBuilderJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 import org.fisco.bcos.sdk.v3.utils.AddressUtils;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 
 public class TransactionReceipt {
@@ -52,6 +58,9 @@ public class TransactionReceipt {
     private List<String> txReceiptProof;
     private String extraData;
     private String message;
+
+    // Fields of v1 transaction
+    private String effectiveGasPrice = "";
 
     public boolean isStatusOK() {
         return this.status == 0;
@@ -296,6 +305,15 @@ public class TransactionReceipt {
         this.txReceiptProof = txReceiptProof;
     }
 
+    public String getEffectiveGasPrice() {
+        return effectiveGasPrice;
+    }
+
+    public void setEffectiveGasPrice(String effectiveGasPrice) {
+        this.effectiveGasPrice = effectiveGasPrice;
+    }
+
+    @Deprecated
     public String calculateReceiptHash(CryptoSuite cryptoSuite) throws ClientException {
         try {
             ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
@@ -317,6 +335,52 @@ public class TransactionReceipt {
                             + e.getMessage(),
                     e);
         }
+    }
+
+    /**
+     * Calculate receipt hash in native code with specified hash implementation (keccak256 or sm3)
+     *
+     * @param hashImpl hash implementation
+     * @return receipt hash hex string
+     * @throws IOException throw exception when encodeTransactionReceipt() throws IOException
+     */
+    public String calculateReceiptHashInNative(Hash hashImpl) throws IOException {
+        byte[] hashBytes = hashImpl.hash(encodeTransactionReceipt());
+        return Hex.toHexStringWithPrefix(hashBytes);
+    }
+
+    /**
+     * This method is used to encode the transaction receipt into a byte array. It first creates a
+     * ByteArrayOutputStream, then writes the version, gas used, contract address, status, and
+     * output of the transaction receipt into the stream. If the version of the transaction receipt
+     * is V1, it also writes the effective gas price into the stream. Then, it iterates over the log
+     * entries of the transaction receipt. For each log entry, it writes the address, topics, and
+     * data into the stream. Finally, it writes the block number of the transaction receipt into the
+     * stream and returns the byte array.
+     *
+     * @return byte array representing the encoded transaction receipt
+     * @throws IOException if an I/O error occurs
+     */
+    public byte[] encodeTransactionReceipt() throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getVersion()), 4));
+        byteArrayOutputStream.write(getGasUsed().getBytes());
+        byteArrayOutputStream.write(getContractAddress().getBytes());
+        byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getStatus()), 4));
+        byteArrayOutputStream.write(getOutput().getBytes());
+        if (getVersion() == TransactionVersion.V1.getValue()) {
+            byteArrayOutputStream.write(getEffectiveGasPrice().getBytes());
+        }
+
+        for (Logs logEntry : getLogEntries()) {
+            byteArrayOutputStream.write(logEntry.getAddress().getBytes());
+            for (String topic : logEntry.getTopics()) {
+                byteArrayOutputStream.write(topic.getBytes());
+            }
+            byteArrayOutputStream.write(logEntry.getData().getBytes());
+        }
+        byteArrayOutputStream.write(toBytesPadded(getBlockNumber(), 8));
+        return byteArrayOutputStream.toByteArray();
     }
 
     public String getExtraData() {

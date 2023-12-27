@@ -159,13 +159,11 @@ configurations {
 }
 
 task integrationTest(type: Test) {
-    dependsOn test
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
 
 task integrationWasmTest(type: Test) {
-    dependsOn test
     testClassesDirs = sourceSets.integrationWasmTest.output.classesDirs
     classpath = sourceSets.integrationWasmTest.runtimeClasspath
 }

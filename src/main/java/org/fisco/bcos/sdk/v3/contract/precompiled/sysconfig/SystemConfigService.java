@@ -15,7 +15,7 @@
 package org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig;
 
 import java.math.BigInteger;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +79,8 @@ public class SystemConfigService {
                             + nodeVersionString
                             + ")");
         }
-        if (!checkAvailableFeatureKeys(client, key)) {
+        if (!checkAvailableFeatureKeys(client, key)
+                && SystemConfigFeature.fromString(key) == null) {
             throw new ContractException("Unsupported feature key: [" + key + "]");
         }
 
@@ -109,10 +110,7 @@ public class SystemConfigService {
 
         Optional<GroupInfo> group =
                 client.getGroupInfoList().getResult().stream()
-                        .filter(
-                                groupInfo -> {
-                                    return groupInfo.getGroupID().equals(client.getGroup());
-                                })
+                        .filter(groupInfo -> groupInfo.getGroupID().equals(client.getGroup()))
                         .findFirst();
         if (!group.isPresent()) {
             logger.warn(
@@ -128,7 +126,7 @@ public class SystemConfigService {
             if (featureKeys == null) {
                 if (groupNodeInfo.getProtocol().getCompatibilityVersion()
                         == EnumNodeVersion.BCOS_3_2_3.toVersionObj().toCompatibilityVersion()) {
-                    featureKeys = Arrays.asList("bugfix_revert");
+                    featureKeys = Collections.singletonList("bugfix_revert");
                 } else {
                     return false;
                 }

@@ -14,18 +14,25 @@
  */
 package org.fisco.bcos.sdk.v3.client.protocol.model;
 
+import static org.fisco.bcos.sdk.v3.utils.Numeric.toBytesPadded;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 import org.fisco.bcos.sdk.v3.model.MerkleProofUnit;
 import org.fisco.bcos.sdk.v3.utils.AddressUtils;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,8 +57,16 @@ public class JsonTransactionResponse {
     @Deprecated private List<MerkleProofUnit> transactionProof;
     private List<String> txProof;
 
+    // Fields of v1 transaction
+    private String value = "";
+    private String gasPrice = "";
+    private long gasLimit = 0;
+    private String maxFeePerGas = "";
+    private String maxPriorityFeePerGas = "";
+
     public JsonTransactionResponse() {}
 
+    @Deprecated
     public static JsonTransactionResponse readFromHexString(String hexString)
             throws JniException, IOException {
         String jsonObj = TransactionBuilderJniObj.decodeTransactionDataToJsonObj(hexString);
@@ -59,6 +74,7 @@ public class JsonTransactionResponse {
         return objectMapper.readValue(jsonObj.getBytes(), JsonTransactionResponse.class);
     }
 
+    @Deprecated
     public String writeToHexString() throws JsonProcessingException, JniException {
         ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
         String json = objectMapper.writeValueAsString(this);
@@ -175,6 +191,62 @@ public class JsonTransactionResponse {
         this.signature = signature;
     }
 
+    public String getExtraData() {
+        return extraData;
+    }
+
+    public void setExtraData(String extraData) {
+        this.extraData = extraData;
+    }
+
+    public long getImportTime() {
+        return this.importTime;
+    }
+
+    public void setImportTime(long importTime) {
+        this.importTime = importTime;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getGasPrice() {
+        return gasPrice;
+    }
+
+    public void setGasPrice(String gasPrice) {
+        this.gasPrice = gasPrice;
+    }
+
+    public long getGasLimit() {
+        return gasLimit;
+    }
+
+    public void setGasLimit(long gasLimit) {
+        this.gasLimit = gasLimit;
+    }
+
+    public String getMaxFeePerGas() {
+        return maxFeePerGas;
+    }
+
+    public void setMaxFeePerGas(String maxFeePerGas) {
+        this.maxFeePerGas = maxFeePerGas;
+    }
+
+    public String getMaxPriorityFeePerGas() {
+        return maxPriorityFeePerGas;
+    }
+
+    public void setMaxPriorityFeePerGas(String maxPriorityFeePerGas) {
+        this.maxPriorityFeePerGas = maxPriorityFeePerGas;
+    }
+
     // calculate the hash for the transaction
     public String calculateHash(CryptoSuite cryptoSuite) throws ClientException {
         try {
@@ -198,6 +270,56 @@ public class JsonTransactionResponse {
                     "calculate hash for transaction " + this.hash + " failed for " + e.getMessage(),
                     e);
         }
+    }
+
+    /**
+     * Calculate the hash for the transaction in java native, only correct when blockchain node
+     * version >= 3.3.0, because the nonce output is changed in 3.3.0, you can calculateHex the
+     * nonce to string
+     *
+     * @param hashImpl the hash implementation
+     * @return tx hash hex string
+     * @throws IOException exception when encodeTransactionData() throws IOException
+     */
+    public String calculateTxHashInNative(Hash hashImpl) throws IOException {
+        byte[] hashBytes = hashImpl.hash(encodeTransactionData());
+        return Hex.toHexStringWithPrefix(hashBytes);
+    }
+
+    /**
+     * Encode the transaction data to byte array, witch is used to calculate the hash of the
+     * transaction
+     *
+     * @return the byte array of the transaction data
+     * @throws IOException exception when ByteArrayOutputStream throws IOException
+     */
+    public byte[] encodeTransactionData() throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        // version
+        byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getVersion()), 4));
+        // chainId
+        byteArrayOutputStream.write(getChainID().getBytes());
+        // groupId
+        byteArrayOutputStream.write(getGroupID().getBytes());
+        // blockLimit
+        byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getBlockLimit()), 8));
+        // nonce
+        byteArrayOutputStream.write(Hex.decode(getNonce()));
+        // to
+        byteArrayOutputStream.write(getTo().getBytes());
+        // input
+        byteArrayOutputStream.write(Hex.decode(getInput()));
+        // abi
+        byteArrayOutputStream.write(getAbi().getBytes());
+
+        if (getVersion() == TransactionVersion.V1.getValue()) {
+            byteArrayOutputStream.write(getValue().getBytes());
+            byteArrayOutputStream.write(getGasPrice().getBytes());
+            byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getGasLimit()), 8));
+            byteArrayOutputStream.write(getMaxFeePerGas().getBytes());
+            byteArrayOutputStream.write(getMaxPriorityFeePerGas().getBytes());
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 
     @Override
@@ -239,67 +361,61 @@ public class JsonTransactionResponse {
 
     @Override
     public String toString() {
-        try {
-            return ObjectMapperFactory.getObjectMapper().writeValueAsString(this);
-        } catch (Exception ignored) {
-            return "JsonTransactionResponse{"
-                    + "version="
-                    + version
-                    + ", hash='"
-                    + hash
-                    + '\''
-                    + ", nonce='"
-                    + nonce
-                    + '\''
-                    + ", blockLimit="
-                    + blockLimit
-                    + ", to='"
-                    + to
-                    + '\''
-                    + ", from='"
-                    + from
-                    + '\''
-                    + ", abi='"
-                    + abi
-                    + '\''
-                    + ", input='"
-                    + input
-                    + '\''
-                    + ", chainID='"
-                    + chainID
-                    + '\''
-                    + ", groupID='"
-                    + groupID
-                    + '\''
-                    + ", extraData='"
-                    + extraData
-                    + '\''
-                    + ", signature='"
-                    + signature
-                    + '\''
-                    + ", importTime="
-                    + importTime
-                    + ", transactionProof="
-                    + transactionProof
-                    + ", txProof="
-                    + txProof
-                    + '}';
-        }
-    }
-
-    public String getExtraData() {
-        return extraData;
-    }
-
-    public void setExtraData(String extraData) {
-        this.extraData = extraData;
-    }
-
-    public long getImportTime() {
-        return this.importTime;
-    }
-
-    public void setImportTime(long importTime) {
-        this.importTime = importTime;
+        return "JsonTransactionResponse{"
+                + "version="
+                + version
+                + ", hash='"
+                + hash
+                + '\''
+                + ", nonce='"
+                + nonce
+                + '\''
+                + ", blockLimit="
+                + blockLimit
+                + ", to='"
+                + to
+                + '\''
+                + ", from='"
+                + from
+                + '\''
+                + ", abi='"
+                + abi
+                + '\''
+                + ", input='"
+                + input
+                + '\''
+                + ", chainID='"
+                + chainID
+                + '\''
+                + ", groupID='"
+                + groupID
+                + '\''
+                + ", extraData='"
+                + extraData
+                + '\''
+                + ", signature='"
+                + signature
+                + '\''
+                + ", importTime="
+                + importTime
+                + ", transactionProof="
+                + transactionProof
+                + ", txProof="
+                + txProof
+                + ", value='"
+                + value
+                + '\''
+                + ", gasPrice='"
+                + gasPrice
+                + '\''
+                + ", gasLimit="
+                + gasLimit
+                + ", maxFeePerGas='"
+                + maxFeePerGas
+                + '\''
+                + ", maxPriorityFeePerGas='"
+                + maxPriorityFeePerGas
+                + '\''
+                + '}';
     }
 }
