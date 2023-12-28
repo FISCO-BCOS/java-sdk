@@ -6,6 +6,8 @@ import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.BasicDeployRequest;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.BasicRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.DeployTransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.DeployTransactionRequestWithStringParams;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.TransactionRequest;
@@ -13,23 +15,34 @@ import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.TransactionRe
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 
-/**
- * AssembleTransactionService
- *
- * <p>codec(abi, method, params) -> inputData sendTx(to, inputData) -> receipt decode(abi, method,
- * receipt.output, ) -> result
- */
 public class AssembleEIP1559TransactionService extends AssembleTransactionService {
 
     AssembleEIP1559TransactionService(Client client) {
         super(client);
     }
 
-    public TransactionResponse sendEIP1559Transaction(TransactionRequest request)
+    public TransactionResponse sendEIP1559Transaction(BasicRequest request)
             throws ContractCodecException, JniException {
-        byte[] encodeMethod =
-                contractCodec.encodeMethod(
-                        request.getAbi(), request.getMethod(), request.getParams());
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new ContractCodecException("Request is not satisfy, please check.");
+        }
+        byte[] encodeMethod = null;
+        if (request instanceof TransactionRequest) {
+            encodeMethod =
+                    contractCodec.encodeMethod(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequest) request).getParams());
+        } else if (request instanceof TransactionRequestWithStringParams) {
+            encodeMethod =
+                    contractCodec.encodeMethodFromString(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequestWithStringParams) request).getStringParams());
+        } else {
+            throw new ContractCodecException("Request type error, please check.");
+        }
+
         TransactionReceipt receipt =
                 transactionManager.sendTransactionEIP1559(
                         request.getTo(),
@@ -46,33 +59,29 @@ public class AssembleEIP1559TransactionService extends AssembleTransactionServic
                 request.getAbi(), request.getMethod(), receipt);
     }
 
-    public TransactionResponse sendEIP1559TransactionWithStringParams(
-            TransactionRequestWithStringParams request)
+    public TransactionResponse deployContractEIP1559(BasicDeployRequest request)
             throws ContractCodecException, JniException {
-        byte[] encodeMethod =
-                contractCodec.encodeMethodFromString(
-                        request.getAbi(), request.getMethod(), request.getStringParams());
-        TransactionReceipt receipt =
-                transactionManager.sendTransactionEIP1559(
-                        request.getTo(),
-                        Hex.toHexString(encodeMethod),
-                        request.getValue(),
-                        request.getEip1559Struct(),
-                        request.getAbi(),
-                        false);
-        if (Objects.nonNull(receipt)
-                && (Objects.isNull(receipt.getInput()) || receipt.getInput().isEmpty())) {
-            receipt.setInput(Hex.toHexStringWithPrefix(encodeMethod));
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new ContractCodecException("DeployRequest is not satisfy, please check.");
         }
-        return this.transactionDecoder.decodeReceiptWithValues(
-                request.getAbi(), request.getMethod(), receipt);
-    }
 
-    public TransactionResponse deployContractEIP1559(DeployTransactionRequest request)
-            throws ContractCodecException, JniException {
-        byte[] encodeConstructor =
-                contractCodec.encodeConstructor(
-                        request.getAbi(), request.getBin(), request.getParams());
+        byte[] encodeConstructor = null;
+        if (request instanceof DeployTransactionRequest) {
+            encodeConstructor =
+                    contractCodec.encodeConstructor(
+                            request.getAbi(),
+                            request.getBin(),
+                            ((DeployTransactionRequest) request).getParams());
+        } else if (request instanceof DeployTransactionRequestWithStringParams) {
+            encodeConstructor =
+                    contractCodec.encodeConstructorFromString(
+                            request.getAbi(),
+                            request.getBin(),
+                            ((DeployTransactionRequestWithStringParams) request).getStringParams());
+        } else {
+            throw new ContractCodecException("DeployRequest type error, please check.");
+        }
+
         TransactionReceipt receipt =
                 transactionManager.sendTransactionEIP1559(
                         request.getTo(),
@@ -88,49 +97,28 @@ public class AssembleEIP1559TransactionService extends AssembleTransactionServic
         return this.transactionDecoder.decodeReceiptWithValues(request.getAbi(), "", receipt);
     }
 
-    public TransactionResponse deployContractEIP1559WithStringParams(
-            DeployTransactionRequestWithStringParams request)
+    public String asyncSendEIP1559Transaction(BasicRequest request, TransactionCallback callback)
             throws ContractCodecException, JniException {
-        byte[] encodeConstructor =
-                contractCodec.encodeConstructorFromString(
-                        request.getAbi(), request.getBin(), request.getStringParams());
-        TransactionReceipt receipt =
-                transactionManager.sendTransactionEIP1559(
-                        request.getTo(),
-                        Hex.toHexString(encodeConstructor),
-                        request.getValue(),
-                        request.getEip1559Struct(),
-                        request.getAbi(),
-                        true);
-        if (Objects.nonNull(receipt)
-                && (Objects.isNull(receipt.getInput()) || receipt.getInput().isEmpty())) {
-            receipt.setInput(Hex.toHexStringWithPrefix(encodeConstructor));
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new ContractCodecException("Request is not satisfy, please check.");
         }
-        return this.transactionDecoder.decodeReceiptWithValues(request.getAbi(), "", receipt);
-    }
+        byte[] encodeMethod = null;
+        if (request instanceof TransactionRequest) {
+            encodeMethod =
+                    contractCodec.encodeMethod(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequest) request).getParams());
+        } else if (request instanceof TransactionRequestWithStringParams) {
+            encodeMethod =
+                    contractCodec.encodeMethodFromString(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequestWithStringParams) request).getStringParams());
+        } else {
+            throw new ContractCodecException("Request type error, please check.");
+        }
 
-    public String asyncSendEIP1559Transaction(
-            TransactionRequest request, TransactionCallback callback)
-            throws ContractCodecException, JniException {
-        byte[] encodeMethod =
-                contractCodec.encodeMethod(
-                        request.getAbi(), request.getMethod(), request.getParams());
-        return transactionManager.asyncSendTransactionEIP1559(
-                request.getTo(),
-                Hex.toHexString(encodeMethod),
-                request.getValue(),
-                request.getEip1559Struct(),
-                request.getAbi(),
-                false,
-                callback);
-    }
-
-    public String asyncSendEIP1559TransactionWithStringParams(
-            TransactionRequestWithStringParams request, TransactionCallback callback)
-            throws ContractCodecException, JniException {
-        byte[] encodeMethod =
-                contractCodec.encodeMethodFromString(
-                        request.getAbi(), request.getMethod(), request.getStringParams());
         return transactionManager.asyncSendTransactionEIP1559(
                 request.getTo(),
                 Hex.toHexString(encodeMethod),
@@ -142,27 +130,29 @@ public class AssembleEIP1559TransactionService extends AssembleTransactionServic
     }
 
     public String asyncDeployContractEIP1559(
-            DeployTransactionRequest request, TransactionCallback callback)
+            BasicDeployRequest request, TransactionCallback callback)
             throws ContractCodecException, JniException {
-        byte[] encodeConstructor =
-                contractCodec.encodeConstructor(
-                        request.getAbi(), request.getBin(), request.getParams());
-        return transactionManager.asyncSendTransactionEIP1559(
-                request.getTo(),
-                Hex.toHexString(encodeConstructor),
-                request.getValue(),
-                request.getEip1559Struct(),
-                request.getAbi(),
-                true,
-                callback);
-    }
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new ContractCodecException("DeployRequest is not satisfy, please check.");
+        }
 
-    public String asyncDeployContractEIP1559WithStringParams(
-            DeployTransactionRequestWithStringParams request, TransactionCallback callback)
-            throws ContractCodecException, JniException {
-        byte[] encodeConstructor =
-                contractCodec.encodeConstructorFromString(
-                        request.getAbi(), request.getBin(), request.getStringParams());
+        byte[] encodeConstructor = null;
+        if (request instanceof DeployTransactionRequest) {
+            encodeConstructor =
+                    contractCodec.encodeConstructor(
+                            request.getAbi(),
+                            request.getBin(),
+                            ((DeployTransactionRequest) request).getParams());
+        } else if (request instanceof DeployTransactionRequestWithStringParams) {
+            encodeConstructor =
+                    contractCodec.encodeConstructorFromString(
+                            request.getAbi(),
+                            request.getBin(),
+                            ((DeployTransactionRequestWithStringParams) request).getStringParams());
+        } else {
+            throw new ContractCodecException("DeployRequest type error, please check.");
+        }
+
         return transactionManager.asyncSendTransactionEIP1559(
                 request.getTo(),
                 Hex.toHexString(encodeConstructor),
