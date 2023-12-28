@@ -1,5 +1,6 @@
 package org.fisco.bcos.sdk.v3.test.transaction.decoder;
 
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
@@ -11,6 +12,7 @@ import org.fisco.bcos.sdk.v3.crypto.hash.SM3Hash;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
+import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.MerkleProofUtility;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
@@ -30,15 +32,24 @@ public class HashCalculatorTest {
     private final BcosBlock.Block block;
     private JsonTransactionResponse transactionResponse = null;
 
+    private TransactionReceipt transactionReceipt = null;
+
     public HashCalculatorTest() {
         BcosSDK sdk = BcosSDK.build(CONFIG_FILE);
         client = sdk.getClient("group0");
         BlockNumber blockNumber = client.getBlockNumber();
         block = client.getBlockByNumber(blockNumber.getBlockNumber(), false, false).getBlock();
         if (!block.getTransactions().isEmpty()) {
-            BcosBlock.TransactionObject transactionObject = (BcosBlock.TransactionObject) block.getTransactions().get(0);
+            BcosBlock.TransactionObject transactionObject =
+                    (BcosBlock.TransactionObject) block.getTransactions().get(0);
             JsonTransactionResponse transactionResponse1 = transactionObject.get();
-            transactionResponse = client.getTransaction(transactionResponse1.getHash(), true).getTransaction().get();
+            transactionResponse =
+                    client.getTransaction(transactionResponse1.getHash(), true)
+                            .getTransaction()
+                            .get();
+            transactionReceipt =
+                    client.getTransactionReceipt(transactionResponse1.getHash(), true)
+                            .getTransactionReceipt();
         }
     }
 
@@ -57,7 +68,8 @@ public class HashCalculatorTest {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         // version
-        byteArrayOutputStream.write(toBytesPadded(BigInteger.ZERO, 4));
+        byteArrayOutputStream.write(
+                toBytesPadded(BigInteger.valueOf(transactionResponse.getVersion()), 4));
         // chainId
         byteArrayOutputStream.write(chainId.getBytes());
         // groupId
@@ -65,11 +77,23 @@ public class HashCalculatorTest {
         // blockLimit
         byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(blockLimit), 8));
         // nonce
-        String version = client.getGroupInfo().getResult().getNodeList().get(0).getIniConfig().getBinaryInfo().getVersion();
+        String version =
+                client.getGroupInfo()
+                        .getResult()
+                        .getNodeList()
+                        .get(0)
+                        .getIniConfig()
+                        .getBinaryInfo()
+                        .getVersion();
         System.out.println("node bin version: " + version);
-        if (EnumNodeVersion.getClassVersion(version).compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj()) >= 0) {
+        if (EnumNodeVersion.getClassVersion(version)
+                        .compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj())
+                >= 0) {
             System.out.println("use hex decode nonce");
             byteArrayOutputStream.write(Hex.decode(nonce));
+            String calculateTxHashInNative =
+                    transactionResponse.calculateTxHashInNative(client.getCryptoSuite().hashImpl);
+            Assert.assertEquals(calculateTxHashInNative, transactionResponse.getHash());
         } else {
             System.out.println("use string nonce");
             byteArrayOutputStream.write(nonce.getBytes());
@@ -81,6 +105,15 @@ public class HashCalculatorTest {
         // abi
         byteArrayOutputStream.write(abi.getBytes());
 
+        if (transactionResponse.getVersion() == TransactionVersion.V1.getValue()) {
+            byteArrayOutputStream.write(transactionResponse.getValue().getBytes());
+            byteArrayOutputStream.write(transactionResponse.getGasPrice().getBytes());
+            byteArrayOutputStream.write(
+                    toBytesPadded(BigInteger.valueOf(transactionResponse.getGasLimit()), 8));
+            byteArrayOutputStream.write(transactionResponse.getMaxFeePerGas().getBytes());
+            byteArrayOutputStream.write(transactionResponse.getMaxPriorityFeePerGas().getBytes());
+        }
+
         String hash = "";
         if (client.getCryptoSuite().cryptoTypeConfig == CryptoType.ECDSA_TYPE) {
             hash = Keccak256.calculateHash(byteArrayOutputStream.toByteArray());
@@ -90,7 +123,9 @@ public class HashCalculatorTest {
         }
         hash = Hex.addPrefix(hash);
         Assert.assertEquals(hash, transactionResponse.getHash());
-        if (EnumNodeVersion.getClassVersion(version).compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj()) < 0) {
+        if (EnumNodeVersion.getClassVersion(version)
+                        .compareTo(EnumNodeVersion.BCOS_3_3_0.toVersionObj())
+                < 0) {
             String jniHash = transactionResponse.calculateHash(client.getCryptoSuite());
             Assert.assertEquals(jniHash, transactionResponse.getHash());
         }
@@ -105,7 +140,8 @@ public class HashCalculatorTest {
         byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(block.getVersion()), 4));
         // parentInfo
         for (BcosBlockHeader.ParentInfo parentInfo : block.getParentInfo()) {
-            byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(parentInfo.getBlockNumber()), 8));
+            byteArrayOutputStream.write(
+                    toBytesPadded(BigInteger.valueOf(parentInfo.getBlockNumber()), 8));
             byteArrayOutputStream.write(Hex.decode(parentInfo.getBlockHash()));
         }
         // tx root
@@ -142,6 +178,9 @@ public class HashCalculatorTest {
             calculateHash = SM3Hash.calculateHash(byteArrayOutputStream.toByteArray());
         }
         Assert.assertEquals(Hex.addPrefix(calculateHash), hash);
+
+        Assert.assertEquals(
+                block.getHash(), block.calculateBlockHeaderHash(client.getCryptoSuite().hashImpl));
     }
 
     @Test
@@ -149,15 +188,62 @@ public class HashCalculatorTest {
         if (transactionResponse == null && block.getNumber() == 0) {
             return;
         }
-        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj()) < 0) {
+        if (client.getChainCompatibilityVersion()
+                        .compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj())
+                < 0) {
             return;
         }
         if (client.getCryptoSuite().cryptoTypeConfig == CryptoType.ECDSA_TYPE) {
-            boolean verifyMerkle = MerkleProofUtility.verifyMerkle(block.getTransactionsRoot(), transactionResponse.getTxProof(), transactionResponse.getHash(), new Keccak256());
+            boolean verifyMerkle =
+                    MerkleProofUtility.verifyMerkle(
+                            block.getTransactionsRoot(),
+                            transactionResponse.getTxProof(),
+                            transactionResponse.getHash(),
+                            new Keccak256());
             Assert.assertTrue(verifyMerkle);
         }
         if (client.getCryptoSuite().cryptoTypeConfig == CryptoType.SM_TYPE) {
-            boolean verifyMerkle = MerkleProofUtility.verifyMerkle(block.getTransactionsRoot(), transactionResponse.getTxProof(), transactionResponse.getHash(), new SM3Hash());
+            boolean verifyMerkle =
+                    MerkleProofUtility.verifyMerkle(
+                            block.getTransactionsRoot(),
+                            transactionResponse.getTxProof(),
+                            transactionResponse.getHash(),
+                            new SM3Hash());
+            Assert.assertTrue(verifyMerkle);
+        }
+    }
+
+    // @Test
+    // FIXME: need to fix in new tx
+    public void testTransactionReceipt() throws IOException {
+        if (transactionReceipt == null && block.getNumber() == 0) {
+            return;
+        }
+        String hash =
+                transactionReceipt.calculateReceiptHashInNative(client.getCryptoSuite().hashImpl);
+        Assert.assertEquals(hash, transactionReceipt.getReceiptHash());
+
+        if (client.getChainCompatibilityVersion()
+                        .compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj())
+                < 0) {
+            return;
+        }
+        if (client.getCryptoSuite().cryptoTypeConfig == CryptoType.ECDSA_TYPE) {
+            boolean verifyMerkle =
+                    MerkleProofUtility.verifyMerkle(
+                            block.getReceiptsRoot(),
+                            transactionReceipt.getTxReceiptProof(),
+                            transactionReceipt.getReceiptHash(),
+                            new Keccak256());
+            Assert.assertTrue(verifyMerkle);
+        }
+        if (client.getCryptoSuite().cryptoTypeConfig == CryptoType.SM_TYPE) {
+            boolean verifyMerkle =
+                    MerkleProofUtility.verifyMerkle(
+                            block.getReceiptsRoot(),
+                            transactionReceipt.getTxReceiptProof(),
+                            transactionReceipt.getReceiptHash(),
+                            new SM3Hash());
             Assert.assertTrue(verifyMerkle);
         }
     }
