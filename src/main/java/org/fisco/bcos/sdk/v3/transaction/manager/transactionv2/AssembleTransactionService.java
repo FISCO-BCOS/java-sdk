@@ -17,6 +17,8 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.BasicDeployRequest;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.BasicRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.DeployTransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.DeployTransactionRequestWithStringParams;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.TransactionRequest;
@@ -47,15 +49,57 @@ public class AssembleTransactionService {
                         client.getCryptoSuite().getHashImpl(), client.isWASM());
     }
 
+    /**
+     * Sets the TransactionManager for this service. DefaultTransactionManager is used by default.
+     *
+     * <p>ProxySignTransactionManager can be used to sign transactions with a proxy account, you can
+     * change account easily.
+     *
+     * @param transactionManager the TransactionManager to be set
+     */
     public void setTransactionManager(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
     }
 
-    public TransactionResponse sendTransaction(TransactionRequest request)
+    /**
+     * This method is used to send a transaction.
+     *
+     * <p>If the request is an instance of TransactionRequest, it encodes the method with the
+     * parameters from the request.
+     *
+     * <p>If the request is an instance of TransactionRequestWithStringParams, it encodes the method
+     * with the string parameters from the request.
+     *
+     * <p>If the request is not an instance of either, it throws a ContractCodecException.
+     *
+     * @param request the request containing the necessary information to send the transaction
+     * @return TransactionResponse the response of the transaction
+     * @throws ContractCodecException if there is an error with the contract codec or the request is
+     *     not an instance of TransactionRequest or TransactionRequestWithStringParams
+     * @throws JniException if there is an error with the JNI
+     */
+    public TransactionResponse sendTransaction(BasicRequest request)
             throws ContractCodecException, JniException {
-        byte[] encodeMethod =
-                contractCodec.encodeMethod(
-                        request.getAbi(), request.getMethod(), request.getParams());
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new ContractCodecException("Request is not satisfy, please check.");
+        }
+        byte[] encodeMethod = null;
+        if (request instanceof TransactionRequest) {
+            encodeMethod =
+                    contractCodec.encodeMethod(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequest) request).getParams());
+        } else if (request instanceof TransactionRequestWithStringParams) {
+            encodeMethod =
+                    contractCodec.encodeMethodFromString(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequestWithStringParams) request).getStringParams());
+        } else {
+            throw new ContractCodecException("Request type error, please check.");
+        }
+
         TransactionReceipt receipt =
                 transactionManager.sendTransaction(
                         request.getTo(),
@@ -73,34 +117,44 @@ public class AssembleTransactionService {
                 request.getAbi(), request.getMethod(), receipt);
     }
 
-    public TransactionResponse sendTransactionWithStringParams(
-            TransactionRequestWithStringParams request)
+    /**
+     * This method is used to deploy a contract.
+     *
+     * <p>If the request is an instance of DeployTransactionRequest, it encodes the constructor with
+     * the parameters from the request.
+     *
+     * <p>If the request is an instance of DeployTransactionRequestWithStringParams, it encodes the
+     * constructor with the string parameters from the request.
+     *
+     * <p>If the request is not an instance of either, it throws a ContractCodecException.
+     *
+     * @param request the request containing the necessary information to deploy the contract
+     * @return TransactionResponse the response of the transaction
+     * @throws ContractCodecException if there is an error with the contract codec or the request is
+     *     not an instance of DeployTransactionRequest or DeployTransactionRequestWithStringParams
+     * @throws JniException if there is an error with the JNI
+     */
+    public TransactionResponse deployContract(BasicDeployRequest request)
             throws ContractCodecException, JniException {
-        byte[] transactionData =
-                contractCodec.encodeMethodFromString(
-                        request.getAbi(), request.getMethod(), request.getStringParams());
-        TransactionReceipt receipt =
-                transactionManager.sendTransaction(
-                        request.getTo(),
-                        Hex.toHexString(transactionData),
-                        request.getValue(),
-                        request.getGasPrice(),
-                        request.getGasLimit(),
-                        request.getAbi(),
-                        false);
-        if (Objects.nonNull(receipt)
-                && (Objects.isNull(receipt.getInput()) || receipt.getInput().isEmpty())) {
-            receipt.setInput(Hex.toHexStringWithPrefix(transactionData));
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new ContractCodecException("DeployRequest is not satisfy, please check.");
         }
-        return this.transactionDecoder.decodeReceiptWithValues(
-                request.getAbi(), request.getMethod(), receipt);
-    }
-
-    public TransactionResponse deployContract(DeployTransactionRequest request)
-            throws ContractCodecException, JniException {
-        byte[] encodeConstructor =
-                contractCodec.encodeConstructor(
-                        request.getAbi(), request.getBin(), request.getParams());
+        byte[] encodeConstructor = null;
+        if (request instanceof DeployTransactionRequest) {
+            encodeConstructor =
+                    contractCodec.encodeConstructor(
+                            request.getAbi(),
+                            request.getBin(),
+                            ((DeployTransactionRequest) request).getParams());
+        } else if (request instanceof DeployTransactionRequestWithStringParams) {
+            encodeConstructor =
+                    contractCodec.encodeConstructorFromString(
+                            request.getAbi(),
+                            request.getBin(),
+                            ((DeployTransactionRequestWithStringParams) request).getStringParams());
+        } else {
+            throw new ContractCodecException("DeployRequest type error, please check.");
+        }
         TransactionReceipt receipt =
                 transactionManager.sendTransaction(
                         request.getTo(),
@@ -117,33 +171,45 @@ public class AssembleTransactionService {
         return this.transactionDecoder.decodeReceiptWithoutValues(request.getAbi(), receipt);
     }
 
-    public TransactionResponse deployContractWithStringParams(
-            DeployTransactionRequestWithStringParams request)
+    /**
+     * This method is used to send a transaction asynchronously.
+     *
+     * <p>If the request is an instance of TransactionRequest, it encodes the method with the
+     * parameters from the request.
+     *
+     * <p>If the request is an instance of TransactionRequestWithStringParams, it encodes the method
+     * with the string parameters from the request.
+     *
+     * <p>If the request is not an instance of either, it throws a ContractCodecException.
+     *
+     * @param request the request containing the necessary information to send the transaction
+     * @param callback the callback to be called when the transaction is sent
+     * @return String the transaction hash
+     * @throws ContractCodecException if there is an error with the contract codec or the request is
+     *     not an instance of TransactionRequest or TransactionRequestWithStringParams
+     * @throws JniException if there is an error with the JNI
+     */
+    public String asyncSendTransaction(BasicRequest request, TransactionCallback callback)
             throws ContractCodecException, JniException {
-        byte[] encodedConstructor =
-                contractCodec.encodeConstructorFromString(
-                        request.getAbi(), request.getBin(), request.getStringParams());
-        TransactionReceipt receipt =
-                transactionManager.sendTransaction(
-                        request.getTo(),
-                        Hex.toHexString(encodedConstructor),
-                        request.getValue(),
-                        request.getGasPrice(),
-                        request.getGasLimit(),
-                        request.getAbi(),
-                        true);
-        if (Objects.nonNull(receipt)
-                && (Objects.isNull(receipt.getInput()) || receipt.getInput().isEmpty())) {
-            receipt.setInput(Hex.toHexStringWithPrefix(encodedConstructor));
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new ContractCodecException("Request is not satisfy, please check.");
         }
-        return this.transactionDecoder.decodeReceiptWithoutValues(request.getAbi(), receipt);
-    }
-
-    public String asyncSendTransaction(TransactionRequest request, TransactionCallback callback)
-            throws ContractCodecException, JniException {
-        byte[] encodeMethod =
-                contractCodec.encodeMethod(
-                        request.getAbi(), request.getMethod(), request.getParams());
+        byte[] encodeMethod = null;
+        if (request instanceof TransactionRequest) {
+            encodeMethod =
+                    contractCodec.encodeMethod(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequest) request).getParams());
+        } else if (request instanceof TransactionRequestWithStringParams) {
+            encodeMethod =
+                    contractCodec.encodeMethodFromString(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequestWithStringParams) request).getStringParams());
+        } else {
+            throw new ContractCodecException("Request type error, please check.");
+        }
         return transactionManager.asyncSendTransaction(
                 request.getTo(),
                 Hex.toHexString(encodeMethod),
@@ -155,29 +221,45 @@ public class AssembleTransactionService {
                 callback);
     }
 
-    public String asyncSendTransactionWithStringParams(
-            TransactionRequestWithStringParams request, TransactionCallback callback)
+    /**
+     * This method is used to deploy a contract asynchronously.
+     *
+     * <p>If the request is an instance of DeployTransactionRequest, it encodes the constructor with
+     * the parameters from the request.
+     *
+     * <p>If the request is an instance of DeployTransactionRequestWithStringParams, it encodes the
+     * constructor with the string parameters from the request.
+     *
+     * <p>If the request is not an instance of either, it throws a ContractCodecException.
+     *
+     * @param request the request containing the necessary information to deploy the contract
+     * @param callback the callback to be called when the transaction is sent
+     * @return String the transaction hash
+     * @throws ContractCodecException if there is an error with the contract codec or the request is
+     *     not an instance of DeployTransactionRequest or DeployTransactionRequestWithStringParams
+     * @throws JniException if there is an error with the JNI
+     */
+    public String asyncDeployContract(BasicDeployRequest request, TransactionCallback callback)
             throws ContractCodecException, JniException {
-        byte[] encodeMethodFromString =
-                contractCodec.encodeMethodFromString(
-                        request.getAbi(), request.getMethod(), request.getStringParams());
-        return transactionManager.asyncSendTransaction(
-                request.getTo(),
-                Hex.toHexString(encodeMethodFromString),
-                request.getValue(),
-                request.getGasPrice(),
-                request.getGasLimit(),
-                request.getAbi(),
-                false,
-                callback);
-    }
-
-    public String asyncDeployContract(
-            DeployTransactionRequest request, TransactionCallback callback)
-            throws ContractCodecException, JniException {
-        byte[] encodeConstructor =
-                contractCodec.encodeConstructor(
-                        request.getAbi(), request.getBin(), request.getParams());
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new ContractCodecException("DeployRequest is not satisfy, please check.");
+        }
+        byte[] encodeConstructor = null;
+        if (request instanceof DeployTransactionRequest) {
+            encodeConstructor =
+                    contractCodec.encodeConstructor(
+                            request.getAbi(),
+                            request.getBin(),
+                            ((DeployTransactionRequest) request).getParams());
+        } else if (request instanceof DeployTransactionRequestWithStringParams) {
+            encodeConstructor =
+                    contractCodec.encodeConstructorFromString(
+                            request.getAbi(),
+                            request.getBin(),
+                            ((DeployTransactionRequestWithStringParams) request).getStringParams());
+        } else {
+            throw new ContractCodecException("DeployRequest type error, please check.");
+        }
         return transactionManager.asyncSendTransaction(
                 request.getTo(),
                 Hex.toHexString(encodeConstructor),
@@ -189,48 +271,86 @@ public class AssembleTransactionService {
                 callback);
     }
 
-    public String asyncDeployContractWithStringParams(
-            DeployTransactionRequestWithStringParams request, TransactionCallback callback)
-            throws JniException, ContractCodecException {
-        byte[] encodeConstructorFromString =
-                contractCodec.encodeConstructorFromString(
-                        request.getAbi(), request.getBin(), request.getStringParams());
-        return transactionManager.asyncSendTransaction(
-                request.getTo(),
-                Hex.toHexString(encodeConstructorFromString),
-                request.getValue(),
-                request.getGasPrice(),
-                request.getGasLimit(),
-                request.getAbi(),
-                true,
-                callback);
-    }
-
-    public CallResponse sendCall(TransactionRequest request)
-            throws ContractCodecException, JniException {
-        byte[] encodeMethod =
-                contractCodec.encodeMethod(
-                        request.getAbi(), request.getMethod(), request.getParams());
+    /**
+     * This method is used to send a call.
+     *
+     * <p>If the request is an instance of TransactionRequest, it encodes the method with the
+     * parameters from the request.
+     *
+     * <p>If the request is an instance of TransactionRequestWithStringParams, it encodes the method
+     * with the string parameters from the request.
+     *
+     * <p>If the request is not an instance of either, it throws a ContractCodecException.
+     *
+     * @param request the request containing the necessary information to send the call
+     * @return CallResponse the response of the call
+     * @throws ContractCodecException if there is an error with the contract codec or the request is
+     *     not an instance of TransactionRequest or TransactionRequestWithStringParams
+     * @throws JniException if there is an error with the JNI
+     */
+    public CallResponse sendCall(BasicRequest request) throws ContractCodecException, JniException {
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new ContractCodecException("Request is not satisfy, please check.");
+        }
+        byte[] encodeMethod = null;
+        if (request instanceof TransactionRequest) {
+            encodeMethod =
+                    contractCodec.encodeMethod(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequest) request).getParams());
+        } else if (request instanceof TransactionRequestWithStringParams) {
+            encodeMethod =
+                    contractCodec.encodeMethodFromString(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequestWithStringParams) request).getStringParams());
+        } else {
+            throw new ContractCodecException("Request type error, please check.");
+        }
         Call call = transactionManager.sendCall(request.getTo(), Hex.toHexString(encodeMethod));
         return parseCallResponse(request, call);
     }
 
-    public CallResponse sendCallWithStringParams(TransactionRequestWithStringParams request)
+    /**
+     * This method is used to send a call asynchronously.
+     *
+     * <p>If the request is an instance of TransactionRequest, it encodes the method with the
+     * parameters from the request.
+     *
+     * <p>If the request is an instance of TransactionRequestWithStringParams, it encodes the method
+     * with the string parameters from the request.
+     *
+     * <p>If the request is not an instance of either, it throws a ContractCodecException.
+     *
+     * @param request the request containing the necessary information to send the call
+     * @param callback the callback to be called when the call is sent
+     * @throws ContractCodecException if there is an error with the contract codec or the request is
+     *     not an instance of TransactionRequest or TransactionRequestWithStringParams
+     * @throws JniException if there is an error with the JNI
+     */
+    public void asyncSendCall(BasicRequest request, RespCallback<CallResponse> callback)
             throws ContractCodecException, JniException {
-        byte[] encodeMethodFromString =
-                contractCodec.encodeMethodFromString(
-                        request.getAbi(), request.getMethod(), request.getStringParams());
-        Call call =
-                transactionManager.sendCall(
-                        request.getTo(), Hex.toHexString(encodeMethodFromString));
-        return parseCallResponse(request, call);
-    }
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new ContractCodecException("Request is not satisfy, please check.");
+        }
+        byte[] encodeMethod = null;
+        if (request instanceof TransactionRequest) {
+            encodeMethod =
+                    contractCodec.encodeMethod(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequest) request).getParams());
+        } else if (request instanceof TransactionRequestWithStringParams) {
+            encodeMethod =
+                    contractCodec.encodeMethodFromString(
+                            request.getAbi(),
+                            request.getMethod(),
+                            ((TransactionRequestWithStringParams) request).getStringParams());
+        } else {
+            throw new ContractCodecException("Request type error, please check.");
+        }
 
-    public void asyncSendCall(TransactionRequest request, RespCallback<CallResponse> callback)
-            throws ContractCodecException, JniException {
-        byte[] encodeMethod =
-                contractCodec.encodeMethod(
-                        request.getAbi(), request.getMethod(), request.getParams());
         transactionManager.asyncSendCall(
                 request.getTo(),
                 Hex.toHexString(encodeMethod),
@@ -254,36 +374,7 @@ public class AssembleTransactionService {
                 });
     }
 
-    public void asyncSendCallWithStringParams(
-            TransactionRequestWithStringParams request, RespCallback<CallResponse> callback)
-            throws ContractCodecException, JniException {
-        byte[] encodeMethodFromString =
-                contractCodec.encodeMethodFromString(
-                        request.getAbi(), request.getMethod(), request.getStringParams());
-        transactionManager.asyncSendCall(
-                request.getTo(),
-                Hex.toHexString(encodeMethodFromString),
-                new RespCallback<Call>() {
-                    @Override
-                    public void onResponse(Call call) {
-                        try {
-                            callback.onResponse(parseCallResponse(request, call));
-                        } catch (ContractCodecException e) {
-                            Response response = new Response();
-                            response.setErrorCode(-1);
-                            response.setErrorMessage(e.getMessage());
-                            callback.onError(response);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Response errorResponse) {
-                        callback.onError(errorResponse);
-                    }
-                });
-    }
-
-    private CallResponse parseCallResponse(TransactionRequest request, Call call)
+    private CallResponse parseCallResponse(BasicRequest request, Call call)
             throws ContractCodecException {
         CallResponse callResponse = new CallResponse();
         RetCode retCode = ReceiptParser.parseCallOutput(call.getCallResult(), "");

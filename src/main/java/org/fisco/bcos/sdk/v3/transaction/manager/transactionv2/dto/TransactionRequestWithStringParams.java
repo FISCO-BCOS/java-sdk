@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 
-public class TransactionRequestWithStringParams extends TransactionRequest {
+public class TransactionRequestWithStringParams extends BasicRequest {
 
     private List<String> stringParams;
 

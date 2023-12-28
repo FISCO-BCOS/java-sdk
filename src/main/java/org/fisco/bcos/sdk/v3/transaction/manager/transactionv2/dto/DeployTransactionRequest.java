@@ -1,11 +1,12 @@
 package org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto;
 
 import java.math.BigInteger;
+import java.util.List;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 
-public class DeployTransactionRequest extends TransactionRequest {
+public class DeployTransactionRequest extends BasicDeployRequest {
 
-    private String bin;
+    private List<Object> params;
 
     public DeployTransactionRequest(
             String abi,
@@ -14,35 +15,19 @@ public class DeployTransactionRequest extends TransactionRequest {
             BigInteger gasPrice,
             BigInteger gasLimit,
             EIP1559Struct eip1559Struct) {
-        super(abi, null, null, value, gasPrice, gasLimit, eip1559Struct);
-        this.bin = bin;
+        super(abi, bin, value, gasPrice, gasLimit, eip1559Struct);
     }
 
-    public String getBin() {
-        return bin;
+    public void setParams(List<Object> params) {
+        this.params = params;
     }
 
-    public void setBin(String bin) {
-        this.bin = bin;
-    }
-
-    public void setTo(String to) {
-        this.to = to;
+    public List<Object> getParams() {
+        return params;
     }
 
     @Override
     public boolean isTransactionEssentialSatisfy() {
-        return super.isTransactionEssentialSatisfy() && bin != null;
-    }
-
-    @Override
-    public String toString() {
-        return "DeployTransactionRequest{"
-                + "base="
-                + super.toString()
-                + ", bin='"
-                + bin
-                + '\''
-                + "} ";
+        return super.isTransactionEssentialSatisfy() && params != null;
     }
 }

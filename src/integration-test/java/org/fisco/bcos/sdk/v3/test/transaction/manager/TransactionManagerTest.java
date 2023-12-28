@@ -310,7 +310,7 @@ public class TransactionManagerTest {
         String abi = abiAndBinaryByContractName.getKey();
         TransactionRequestBuilder requestBuilder = new TransactionRequestBuilder(abi, abiAndBinaryByContractName.getValue());
         DeployTransactionRequestWithStringParams deployTransactionRequestWithStringParams = requestBuilder.buildDeployStringParamsRequest(deployParams);
-        TransactionResponse response = transactionService.deployContractWithStringParams(deployTransactionRequestWithStringParams);
+        TransactionResponse response = transactionService.deployContract(deployTransactionRequestWithStringParams);
         Assert.assertEquals(response.getTransactionReceipt().getStatus(), 0);
         String contractAddress = response.getContractAddress();
         Assert.assertTrue(StringUtils.isNotBlank(response.getContractAddress()));
@@ -320,7 +320,7 @@ public class TransactionManagerTest {
             List<String> callParams = new ArrayList<>();
             // use no params method
             TransactionRequestWithStringParams request = requestBuilder.setMethod("getStructA").setTo(contractAddress).buildStringParamsRequest(callParams);
-            CallResponse callResponse = transactionService.sendCallWithStringParams(request);
+            CallResponse callResponse = transactionService.sendCall(request);
             List<Object> returnObject = callResponse.getReturnObject();
             Assert.assertEquals(returnObject.size(), 1);
             Assert.assertEquals(callResponse.getReturnABIObject().size(), 1);
@@ -329,7 +329,7 @@ public class TransactionManagerTest {
             // use one params method
             callParams.add("[[\"test2312312312312\"],[\"ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\"]]");
             TransactionRequestWithStringParams request2 = requestBuilder.setMethod("getStructA").setTo(contractAddress).buildStringParamsRequest(callParams);
-            CallResponse callResponse2 = transactionService.sendCallWithStringParams(request2);
+            CallResponse callResponse2 = transactionService.sendCall(request2);
             returnObject = callResponse2.getReturnObject();
             Assert.assertEquals(returnObject.size(), 1);
             Assert.assertEquals(callResponse2.getReturnABIObject().size(), 1);
@@ -341,7 +341,7 @@ public class TransactionManagerTest {
             List<String> params = new ArrayList<>();
             params.add("[[\"0xabcd\"],[\"0x1234\"]]");
             TransactionRequestWithStringParams transactionRequestWithStringParams = requestBuilder.setMethod("setBytesArrayArray").setTo(contractAddress).buildStringParamsRequest(params);
-            TransactionResponse transactionResponse = transactionService.sendTransactionWithStringParams(transactionRequestWithStringParams);
+            TransactionResponse transactionResponse = transactionService.sendTransaction(transactionRequestWithStringParams);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -357,7 +357,7 @@ public class TransactionManagerTest {
             List<String> params = new ArrayList<>();
             params.add("[[\"0xffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\",\"0xffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\"],[\"0xffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\"]]");
             TransactionRequestWithStringParams transactionRequestWithStringParams = requestBuilder.setMethod("setBytes32ArrayArray").buildStringParamsRequest(params);
-            TransactionResponse transactionResponse = transactionService.sendTransactionWithStringParams(transactionRequestWithStringParams);
+            TransactionResponse transactionResponse = transactionService.sendTransaction(transactionRequestWithStringParams);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -375,7 +375,7 @@ public class TransactionManagerTest {
             List<String> params = new ArrayList<>();
             params.add("[[\"0xabcdef\",\"0xffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\"],[\"0xffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\",\"0x1234\"]]");
             TransactionRequestWithStringParams transactionRequestWithStringParams = requestBuilder.setMethod("setBytesStaticArrayArray").buildStringParamsRequest(params);
-            TransactionResponse transactionResponse = transactionService.sendTransactionWithStringParams(transactionRequestWithStringParams);
+            TransactionResponse transactionResponse = transactionService.sendTransaction(transactionRequestWithStringParams);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -393,7 +393,7 @@ public class TransactionManagerTest {
             List<String> params = new ArrayList<>();
             params.add("[[\"0x1234567890123456789012345678901234567890123456789012345678901234\",\"0xffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\"],[\"0x1234567890123456789012345678901234567890123456789012345678901234\",\"0xffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\"],[\"0xffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\",\"0x1234567890123456789012345678901234567890123456789012345678901234\"]]");
             TransactionRequestWithStringParams transactionRequestWithStringParams = requestBuilder.setMethod("setBytes32StaticArrayArray").buildStringParamsRequest(params);
-            TransactionResponse transactionResponse = transactionService.sendTransactionWithStringParams(transactionRequestWithStringParams);
+            TransactionResponse transactionResponse = transactionService.sendTransaction(transactionRequestWithStringParams);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
             List<Object> returnObject = transactionResponse.getReturnObject();
@@ -411,7 +411,7 @@ public class TransactionManagerTest {
             List<String> params = new ArrayList<>();
             params.add("[[\"12312314565456345test\"],[\"ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff\"]]");
             TransactionRequestWithStringParams transactionRequestWithStringParams = requestBuilder.setMethod("buildStructB").buildStringParamsRequest(params);
-            TransactionResponse transactionResponse = transactionService.sendTransactionWithStringParams(transactionRequestWithStringParams);
+            TransactionResponse transactionResponse = transactionService.sendTransaction(transactionRequestWithStringParams);
 
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
@@ -430,7 +430,7 @@ public class TransactionManagerTest {
             params.add("[-128,129,[32]]");
             // use static struct params, get single struct
             TransactionRequestWithStringParams transactionRequestWithStringParams = requestBuilder.setMethod("buildStaticStruct").buildStringParamsRequest(params);
-            TransactionResponse transactionResponse = transactionService.sendTransactionWithStringParams(transactionRequestWithStringParams);
+            TransactionResponse transactionResponse = transactionService.sendTransaction(transactionRequestWithStringParams);
 
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             List<Type> results = transactionResponse.getResults();
@@ -447,7 +447,7 @@ public class TransactionManagerTest {
             params2.add("-256");
             params2.add("12321421");
             TransactionRequestWithStringParams transactionRequestWithStringParams2 = requestBuilder.setMethod("buildStaticStruct").buildStringParamsRequest(params2);
-            TransactionResponse transactionResponse2 = transactionService.sendTransactionWithStringParams(transactionRequestWithStringParams2);
+            TransactionResponse transactionResponse2 = transactionService.sendTransaction(transactionRequestWithStringParams2);
             Assert.assertEquals(transactionResponse.getTransactionReceipt().getStatus(), 0);
             results = transactionResponse2.getResults();
             returnObject = transactionResponse2.getReturnObject();

@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 
-public class DeployTransactionRequestWithStringParams extends DeployTransactionRequest {
+public class DeployTransactionRequestWithStringParams extends BasicDeployRequest {
 
     private List<String> stringParams;
 
@@ -34,10 +34,10 @@ public class DeployTransactionRequestWithStringParams extends DeployTransactionR
     @Override
     public String toString() {
         return "DeployTransactionRequestWithStringParams{"
-                + "to='"
-                + to
-                + '\''
-                + "} "
-                + super.toString();
+                + "base="
+                + super.toString()
+                + ", params="
+                + stringParams
+                + "} ";
     }
 }
