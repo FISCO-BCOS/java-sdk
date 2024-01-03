@@ -27,7 +27,6 @@ public class SystemConfigFeature {
                 "feature_balance_precompiled", EnumNodeVersion.BCOS_3_6_0.getVersion()),
         FEATURE_BALANCE_POLICY1("feature_balance_policy1", EnumNodeVersion.BCOS_3_6_0.getVersion());
 
-
         private final String featureName;
         private final int enableVersion;
 
