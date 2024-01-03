@@ -10,6 +10,11 @@ public class SystemConfigFeature {
         BUGFIX_EVM_CREATE2_DELEGATECALL_STATICCALL_CODECOPY(
                 "bugfix_evm_create2_delegatecall_staticcall_codecopy",
                 EnumNodeVersion.BCOS_3_2_4.getVersion()),
+        BUGFIX_EVENT_LOG_ORDER("bugfix_event_log_order", EnumNodeVersion.BCOS_3_2_6.getVersion()),
+        BUGFIX_CALL_NOADDR_RETURN(
+                "bugfix_call_noaddr_return", EnumNodeVersion.BCOS_3_2_6.getVersion()),
+        BUGFIX_PRECOMPILED_CODEHASH(
+                "bugfix_precompiled_codehash", EnumNodeVersion.BCOS_3_2_6.getVersion()),
         FEATURE_SHARDING("feature_sharding", EnumNodeVersion.BCOS_3_5_0.getVersion()),
         FEATURE_RPBFT("feature_rpbft", EnumNodeVersion.BCOS_3_5_0.getVersion()),
         FEATURE_RPBFT_EPOCH_BLOCK_NUM(
@@ -21,6 +26,7 @@ public class SystemConfigFeature {
         FEATURE_BALANCE_PRECOMPILED(
                 "feature_balance_precompiled", EnumNodeVersion.BCOS_3_6_0.getVersion()),
         FEATURE_BALANCE_POLICY1("feature_balance_policy1", EnumNodeVersion.BCOS_3_6_0.getVersion());
+
 
         private final String featureName;
         private final int enableVersion;
@@ -48,6 +54,12 @@ public class SystemConfigFeature {
                 return Features.BUGFIX_STATESTORAGE_HASH;
             case "bugfix_evm_create2_delegatecall_staticcall_codecopy":
                 return Features.BUGFIX_EVM_CREATE2_DELEGATECALL_STATICCALL_CODECOPY;
+            case "bugfix_event_log_order":
+                return Features.BUGFIX_EVENT_LOG_ORDER;
+            case "bugfix_call_noaddr_return":
+                return Features.BUGFIX_CALL_NOADDR_RETURN;
+            case "bugfix_precompiled_codehash":
+                return Features.BUGFIX_PRECOMPILED_CODEHASH;
             case "feature_sharding":
                 return Features.FEATURE_SHARDING;
             case "feature_rpbft":
