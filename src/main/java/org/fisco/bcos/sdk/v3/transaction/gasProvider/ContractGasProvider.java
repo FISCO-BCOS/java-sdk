@@ -5,7 +5,11 @@ import java.math.BigInteger;
 public interface ContractGasProvider {
     BigInteger getGasPrice(String methodId);
 
+    BigInteger getGasPrice(byte[] methodId);
+
     BigInteger getGasLimit(String methodId);
+
+    BigInteger getGasLimit(byte[] methodId);
 
     boolean isEIP1559Enabled();
 

@@ -31,7 +31,7 @@ public class TransferTransactionService {
     public TransactionReceipt sendFunds(String to, BigDecimal value, Convert.Unit unit)
             throws JniException {
         BigDecimal weiValue = Convert.toWei(value, unit);
-        return transactionManager.sendTransaction(to, "", weiValue.toBigIntegerExact());
+        return transactionManager.sendTransaction(to, new byte[0], weiValue.toBigIntegerExact());
     }
 
     public TransactionReceipt sendFunds(
@@ -46,7 +46,8 @@ public class TransferTransactionService {
                                     cryptoSuite.sign(hash, cryptoSuite.getCryptoKeyPair());
                             transactionSignCallback.handleSignedTransaction(sign);
                         });
-        return proxySignTransactionManager.sendTransaction(to, "", weiValue.toBigIntegerExact());
+        return proxySignTransactionManager.sendTransaction(
+                to, new byte[0], weiValue.toBigIntegerExact());
     }
 
     public String asyncSendFunds(
@@ -54,7 +55,7 @@ public class TransferTransactionService {
             throws JniException {
         BigDecimal weiValue = Convert.toWei(value, unit);
         return transactionManager.asyncSendTransaction(
-                to, "", weiValue.toBigIntegerExact(), callback);
+                to, new byte[0], weiValue.toBigIntegerExact(), callback);
     }
 
     public String asyncSendFunds(
@@ -74,6 +75,6 @@ public class TransferTransactionService {
                             transactionSignCallback.handleSignedTransaction(sign);
                         });
         return proxySignTransactionManager.asyncSendTransaction(
-                to, "", weiValue.toBigIntegerExact(), callback);
+                to, new byte[0], weiValue.toBigIntegerExact(), callback);
     }
 }

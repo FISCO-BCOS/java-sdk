@@ -46,7 +46,7 @@ public class AssembleEIP1559TransactionService extends AssembleTransactionServic
         TransactionReceipt receipt =
                 transactionManager.sendTransactionEIP1559(
                         request.getTo(),
-                        Hex.toHexString(encodeMethod),
+                        encodeMethod,
                         request.getValue(),
                         request.getEip1559Struct(),
                         request.getAbi(),
@@ -85,7 +85,7 @@ public class AssembleEIP1559TransactionService extends AssembleTransactionServic
         TransactionReceipt receipt =
                 transactionManager.sendTransactionEIP1559(
                         request.getTo(),
-                        Hex.toHexString(encodeConstructor),
+                        encodeConstructor,
                         request.getValue(),
                         request.getEip1559Struct(),
                         request.getAbi(),
@@ -121,7 +121,7 @@ public class AssembleEIP1559TransactionService extends AssembleTransactionServic
 
         return transactionManager.asyncSendTransactionEIP1559(
                 request.getTo(),
-                Hex.toHexString(encodeMethod),
+                encodeMethod,
                 request.getValue(),
                 request.getEip1559Struct(),
                 request.getAbi(),
@@ -155,7 +155,7 @@ public class AssembleEIP1559TransactionService extends AssembleTransactionServic
 
         return transactionManager.asyncSendTransactionEIP1559(
                 request.getTo(),
-                Hex.toHexString(encodeConstructor),
+                encodeConstructor,
                 request.getValue(),
                 request.getEip1559Struct(),
                 request.getAbi(),

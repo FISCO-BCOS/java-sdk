@@ -59,16 +59,18 @@ public class DefaultTransactionManager extends TransactionManager {
      */
     @Override
     public TransactionReceipt sendTransaction(
-            String to, String data, BigInteger value, String abi, boolean constructor)
+            String to, byte[] data, BigInteger value, String abi, boolean constructor)
             throws JniException {
-        String strippedData = Hex.trimPrefix(data);
-        String methodSignature = strippedData.length() < 8 ? "" : strippedData.substring(0, 8);
+        byte[] methodId = new byte[4];
+        if (data.length >= 4) {
+            System.arraycopy(data, 0, methodId, 0, 4);
+        }
         return sendTransaction(
                 to,
                 data,
                 value,
-                getGasProvider().getGasPrice(methodSignature),
-                getGasProvider().getGasPrice(methodSignature),
+                getGasProvider().getGasPrice(methodId),
+                getGasProvider().getGasPrice(methodId),
                 client.getBlockLimit(),
                 abi,
                 constructor);
@@ -90,7 +92,7 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public TransactionReceipt sendTransaction(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             BigInteger gasPrice,
             BigInteger gasLimit,
@@ -118,7 +120,7 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public TransactionReceipt sendTransaction(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             BigInteger gasPrice,
             BigInteger gasLimit,
@@ -167,7 +169,7 @@ public class DefaultTransactionManager extends TransactionManager {
      */
     @Override
     public String createSignedTransaction(
-            String to, String data, BigInteger value, BigInteger gasPrice, BigInteger gasLimit)
+            String to, byte[] data, BigInteger value, BigInteger gasPrice, BigInteger gasLimit)
             throws JniException {
         int transactionAttribute;
         if (client.isWASM()) {
@@ -207,20 +209,22 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public String asyncSendTransaction(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             String abi,
             boolean constructor,
             TransactionCallback callback)
             throws JniException {
-        String strippedData = Hex.trimPrefix(data);
-        String methodSignature = strippedData.length() < 8 ? "" : strippedData.substring(0, 8);
+        byte[] methodId = new byte[4];
+        if (data.length >= 4) {
+            System.arraycopy(data, 0, methodId, 0, 4);
+        }
         return asyncSendTransaction(
                 to,
                 data,
                 value,
-                getGasProvider().getGasPrice(methodSignature),
-                getGasProvider().getGasPrice(methodSignature),
+                getGasProvider().getGasPrice(methodId),
+                getGasProvider().getGasPrice(methodId),
                 client.getBlockLimit(),
                 abi,
                 constructor,
@@ -244,7 +248,7 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public String asyncSendTransaction(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             BigInteger gasPrice,
             BigInteger gasLimit,
@@ -282,7 +286,7 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public String asyncSendTransaction(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             BigInteger gasPrice,
             BigInteger gasLimit,
@@ -333,7 +337,7 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public TransactionReceipt sendTransactionEIP1559(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             EIP1559Struct eip1559Struct,
             String abi,
@@ -358,7 +362,7 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public TransactionReceipt sendTransactionEIP1559(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             EIP1559Struct eip1559Struct,
             BigInteger blockLimit,
@@ -408,7 +412,7 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public String asyncSendTransactionEIP1559(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             EIP1559Struct eip1559Struct,
             String abi,
@@ -435,7 +439,7 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public String asyncSendTransactionEIP1559(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             EIP1559Struct eip1559Struct,
             BigInteger blockLimit,
@@ -479,7 +483,7 @@ public class DefaultTransactionManager extends TransactionManager {
      * @return call result
      */
     @Override
-    public Call sendCall(String to, String data) {
+    public Call sendCall(String to, byte[] data) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             outputStream.write(Hex.trimPrefix(to).getBytes());
             outputStream.write(Hex.decode(data));
@@ -502,7 +506,7 @@ public class DefaultTransactionManager extends TransactionManager {
      * @param signature signature of call data
      */
     @Override
-    public Call sendCall(String to, String data, String signature) {
+    public Call sendCall(String to, byte[] data, String signature) {
         return client.call(new Transaction("", to, Hex.decode(data)), signature);
     }
 
@@ -514,7 +518,7 @@ public class DefaultTransactionManager extends TransactionManager {
      * @param callback callback function
      */
     @Override
-    public void asyncSendCall(String to, String data, RespCallback<Call> callback) {
+    public void asyncSendCall(String to, byte[] data, RespCallback<Call> callback) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             outputStream.write(Hex.trimPrefix(to).getBytes());
             outputStream.write(Hex.decode(data));
@@ -541,7 +545,7 @@ public class DefaultTransactionManager extends TransactionManager {
      */
     @Override
     public void asyncSendCall(
-            String to, String data, String signature, RespCallback<Call> callback) {
+            String to, byte[] data, String signature, RespCallback<Call> callback) {
         client.callAsync(new Transaction("", to, Hex.decode(data)), signature, callback);
     }
 }

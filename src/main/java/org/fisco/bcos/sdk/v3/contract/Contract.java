@@ -59,7 +59,6 @@ import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.TransactionManager;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
-import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -292,9 +291,7 @@ public class Contract {
         byte[] encodedFunctionData = this.functionEncoder.encode(function);
         Call response;
         if (transactionManager != null) {
-            response =
-                    transactionManager.sendCall(
-                            this.contractAddress, Hex.toHexString(encodedFunctionData));
+            response = transactionManager.sendCall(this.contractAddress, encodedFunctionData);
         } else {
             CallRequest callRequest =
                     new CallRequest(
@@ -384,7 +381,7 @@ public class Contract {
     protected void asyncExecuteCallByTransactionManager(Function function, CallCallback callback) {
         transactionManager.asyncSendCall(
                 this.contractAddress,
-                Hex.toHexString(this.functionEncoder.encode(function)),
+                this.functionEncoder.encode(function),
                 new RespCallback<Call>() {
                     @Override
                     public void onResponse(Call call) {
@@ -477,7 +474,7 @@ public class Contract {
         if (transactionManager != null) {
             try {
                 return transactionManager.asyncSendTransaction(
-                        this.contractAddress, Hex.toHexString(data), BigInteger.ZERO, callback);
+                        this.contractAddress, data, BigInteger.ZERO, callback);
             } catch (JniException e) {
                 logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
                 return null;
@@ -504,7 +501,7 @@ public class Contract {
                 transactionReceipt =
                         transactionManager.sendTransaction(
                                 this.contractAddress,
-                                Hex.toHexString(this.functionEncoder.encode(function)),
+                                this.functionEncoder.encode(function),
                                 BigInteger.ZERO);
             } catch (JniException e) {
                 logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
@@ -529,11 +526,7 @@ public class Contract {
             try {
                 transactionReceipt =
                         this.transactionManager.sendTransaction(
-                                this.contractAddress,
-                                Hex.toHexString(data),
-                                BigInteger.ZERO,
-                                abi,
-                                true);
+                                this.contractAddress, data, BigInteger.ZERO, abi, true);
             } catch (JniException e) {
                 logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
             }
@@ -572,7 +565,7 @@ public class Contract {
             try {
                 return transactionManager.createSignedTransaction(
                         this.contractAddress,
-                        Hex.toHexString(this.functionEncoder.encode(function)),
+                        this.functionEncoder.encode(function),
                         BigInteger.ZERO,
                         BigInteger.ZERO,
                         BigInteger.ZERO);
