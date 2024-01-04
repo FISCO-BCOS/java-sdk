@@ -42,7 +42,7 @@ public abstract class TransactionManager {
      * @param value transfer value
      * @return receipt
      */
-    public TransactionReceipt sendTransaction(String to, String data, BigInteger value)
+    public TransactionReceipt sendTransaction(String to, byte[] data, BigInteger value)
             throws JniException {
         return sendTransaction(to, data, value, "", false);
     }
@@ -59,7 +59,7 @@ public abstract class TransactionManager {
      * @return receipt
      */
     public abstract TransactionReceipt sendTransaction(
-            String to, String data, BigInteger value, String abi, boolean constructor)
+            String to, byte[] data, BigInteger value, String abi, boolean constructor)
             throws JniException;
 
     /**
@@ -77,7 +77,7 @@ public abstract class TransactionManager {
      */
     public abstract TransactionReceipt sendTransaction(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             BigInteger gasPrice,
             BigInteger gasLimit,
@@ -101,7 +101,7 @@ public abstract class TransactionManager {
      */
     public abstract TransactionReceipt sendTransaction(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             BigInteger gasPrice,
             BigInteger gasLimit,
@@ -121,7 +121,7 @@ public abstract class TransactionManager {
      * @return A Hex string representation of the signed transaction.
      */
     public abstract String createSignedTransaction(
-            String to, String data, BigInteger value, BigInteger gasPrice, BigInteger gasLimit)
+            String to, byte[] data, BigInteger value, BigInteger gasPrice, BigInteger gasLimit)
             throws JniException;
 
     /**
@@ -133,7 +133,7 @@ public abstract class TransactionManager {
      * @return receipt
      */
     public String asyncSendTransaction(
-            String to, String data, BigInteger value, TransactionCallback callback)
+            String to, byte[] data, BigInteger value, TransactionCallback callback)
             throws JniException {
         return asyncSendTransaction(to, data, value, "", false, callback);
     }
@@ -151,7 +151,7 @@ public abstract class TransactionManager {
      */
     public abstract String asyncSendTransaction(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             String abi,
             boolean constructor,
@@ -173,7 +173,7 @@ public abstract class TransactionManager {
      */
     public abstract String asyncSendTransaction(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             BigInteger gasPrice,
             BigInteger gasLimit,
@@ -199,7 +199,7 @@ public abstract class TransactionManager {
      */
     public abstract String asyncSendTransaction(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             BigInteger gasPrice,
             BigInteger gasLimit,
@@ -219,7 +219,7 @@ public abstract class TransactionManager {
      * @return receipt
      */
     public TransactionReceipt sendTransactionEIP1559(
-            String to, String data, BigInteger value, EIP1559Struct eip1559Struct)
+            String to, byte[] data, BigInteger value, EIP1559Struct eip1559Struct)
             throws JniException {
         return sendTransactionEIP1559(to, data, value, eip1559Struct, "", false);
     }
@@ -238,7 +238,7 @@ public abstract class TransactionManager {
      */
     public abstract TransactionReceipt sendTransactionEIP1559(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             EIP1559Struct eip1559Struct,
             String abi,
@@ -259,7 +259,7 @@ public abstract class TransactionManager {
      */
     public abstract TransactionReceipt sendTransactionEIP1559(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             EIP1559Struct eip1559Struct,
             BigInteger blockLimit,
@@ -279,7 +279,7 @@ public abstract class TransactionManager {
      */
     public String asyncSendTransactionEIP1559(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             EIP1559Struct eip1559Struct,
             TransactionCallback callback)
@@ -302,7 +302,7 @@ public abstract class TransactionManager {
      */
     public abstract String asyncSendTransactionEIP1559(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             EIP1559Struct eip1559Struct,
             String abi,
@@ -325,7 +325,7 @@ public abstract class TransactionManager {
      */
     public abstract String asyncSendTransactionEIP1559(
             String to,
-            String data,
+            byte[] data,
             BigInteger value,
             EIP1559Struct eip1559Struct,
             BigInteger blockLimit,
@@ -341,7 +341,7 @@ public abstract class TransactionManager {
      * @param data input data
      * @return call result
      */
-    public abstract Call sendCall(String to, String data);
+    public abstract Call sendCall(String to, byte[] data);
 
     /**
      * Send call with signature of call data
@@ -350,7 +350,7 @@ public abstract class TransactionManager {
      * @param data input data
      * @param signature signature of call data
      */
-    public abstract Call sendCall(String to, String data, String signature);
+    public abstract Call sendCall(String to, byte[] data, String signature);
 
     /**
      * Send call asynchronously
@@ -359,7 +359,7 @@ public abstract class TransactionManager {
      * @param data input data
      * @param callback callback function
      */
-    public abstract void asyncSendCall(String to, String data, RespCallback<Call> callback);
+    public abstract void asyncSendCall(String to, byte[] data, RespCallback<Call> callback);
 
     /**
      * Send call asynchronously with signature of call data
@@ -370,5 +370,5 @@ public abstract class TransactionManager {
      * @param callback callback function
      */
     public abstract void asyncSendCall(
-            String to, String data, String signature, RespCallback<Call> callback);
+            String to, byte[] data, String signature, RespCallback<Call> callback);
 }

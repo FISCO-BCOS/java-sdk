@@ -25,7 +25,17 @@ public class StaticEIP1559GasProvider implements ContractGasProvider {
     }
 
     @Override
+    public BigInteger getGasPrice(byte[] methodId) {
+        return maxFeePerGas;
+    }
+
+    @Override
     public BigInteger getGasLimit(String contractFunc) {
+        return gasLimit;
+    }
+
+    @Override
+    public BigInteger getGasLimit(byte[] methodId) {
         return gasLimit;
     }
 

@@ -103,7 +103,7 @@ public class AssembleTransactionService {
         TransactionReceipt receipt =
                 transactionManager.sendTransaction(
                         request.getTo(),
-                        Hex.toHexString(encodeMethod),
+                        encodeMethod,
                         request.getValue(),
                         request.getGasPrice(),
                         request.getGasLimit(),
@@ -158,7 +158,7 @@ public class AssembleTransactionService {
         TransactionReceipt receipt =
                 transactionManager.sendTransaction(
                         request.getTo(),
-                        Hex.toHexString(encodeConstructor),
+                        encodeConstructor,
                         request.getValue(),
                         request.getGasPrice(),
                         request.getGasLimit(),
@@ -212,7 +212,7 @@ public class AssembleTransactionService {
         }
         return transactionManager.asyncSendTransaction(
                 request.getTo(),
-                Hex.toHexString(encodeMethod),
+                encodeMethod,
                 request.getValue(),
                 request.getGasPrice(),
                 request.getGasLimit(),
@@ -262,7 +262,7 @@ public class AssembleTransactionService {
         }
         return transactionManager.asyncSendTransaction(
                 request.getTo(),
-                Hex.toHexString(encodeConstructor),
+                encodeConstructor,
                 request.getValue(),
                 request.getGasPrice(),
                 request.getGasLimit(),
@@ -308,7 +308,7 @@ public class AssembleTransactionService {
         } else {
             throw new ContractCodecException("Request type error, please check.");
         }
-        Call call = transactionManager.sendCall(request.getTo(), Hex.toHexString(encodeMethod));
+        Call call = transactionManager.sendCall(request.getTo(), encodeMethod);
         return parseCallResponse(request, call);
     }
 
@@ -353,7 +353,7 @@ public class AssembleTransactionService {
 
         transactionManager.asyncSendCall(
                 request.getTo(),
-                Hex.toHexString(encodeMethod),
+                encodeMethod,
                 new RespCallback<Call>() {
                     @Override
                     public void onResponse(Call call) {
