@@ -17,6 +17,8 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.ContractGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.DefaultGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
+import org.fisco.bcos.sdk.v3.transaction.nonce.DefaultNonceProvider;
+import org.fisco.bcos.sdk.v3.transaction.nonce.NonceProvider;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.slf4j.Logger;
@@ -30,7 +32,9 @@ import org.slf4j.LoggerFactory;
 public class DefaultTransactionManager extends TransactionManager {
 
     private ContractGasProvider defaultGasProvider = new DefaultGasProvider();
-    private static Logger logger = LoggerFactory.getLogger(DefaultTransactionManager.class);
+
+    private NonceProvider nonceProvider = new DefaultNonceProvider();
+    private static final Logger logger = LoggerFactory.getLogger(DefaultTransactionManager.class);
 
     protected DefaultTransactionManager(Client client) {
         super(client);
@@ -42,8 +46,18 @@ public class DefaultTransactionManager extends TransactionManager {
     }
 
     @Override
-    public void steGasProvider(ContractGasProvider gasProvider) {
+    public void setGasProvider(ContractGasProvider gasProvider) {
         defaultGasProvider = gasProvider;
+    }
+
+    @Override
+    public NonceProvider getNonceProvider() {
+        return nonceProvider;
+    }
+
+    @Override
+    public void setNonceProvider(NonceProvider nonceProvider) {
+        this.nonceProvider = nonceProvider;
     }
 
     /**
@@ -486,12 +500,11 @@ public class DefaultTransactionManager extends TransactionManager {
     public Call sendCall(String to, byte[] data) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             outputStream.write(Hex.trimPrefix(to).getBytes());
-            outputStream.write(Hex.decode(data));
+            outputStream.write(data);
             byte[] hash = client.getCryptoSuite().hash(outputStream.toByteArray());
             SignatureResult signature =
                     client.getCryptoSuite().sign(hash, client.getCryptoSuite().getCryptoKeyPair());
-            return client.call(
-                    new Transaction("", to, Hex.decode(data)), Hex.toHexString(signature.encode()));
+            return client.call(new Transaction("", to, data), Hex.toHexString(signature.encode()));
         } catch (Exception e) {
             logger.error("Send call failed, error message: {}", e.getMessage(), e);
             throw new RuntimeException(e);
@@ -507,7 +520,7 @@ public class DefaultTransactionManager extends TransactionManager {
      */
     @Override
     public Call sendCall(String to, byte[] data, String signature) {
-        return client.call(new Transaction("", to, Hex.decode(data)), signature);
+        return client.call(new Transaction("", to, data), signature);
     }
 
     /**
@@ -521,14 +534,12 @@ public class DefaultTransactionManager extends TransactionManager {
     public void asyncSendCall(String to, byte[] data, RespCallback<Call> callback) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             outputStream.write(Hex.trimPrefix(to).getBytes());
-            outputStream.write(Hex.decode(data));
+            outputStream.write(data);
             byte[] hash = client.getCryptoSuite().hash(outputStream.toByteArray());
             SignatureResult signature =
                     client.getCryptoSuite().sign(hash, client.getCryptoSuite().getCryptoKeyPair());
             client.callAsync(
-                    new Transaction("", to, Hex.decode(data)),
-                    Hex.toHexString(signature.encode()),
-                    callback);
+                    new Transaction("", to, data), Hex.toHexString(signature.encode()), callback);
         } catch (Exception e) {
             logger.error("Send call failed, error message: {}", e.getMessage(), e);
             throw new RuntimeException(e);
@@ -546,6 +557,6 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public void asyncSendCall(
             String to, byte[] data, String signature, RespCallback<Call> callback) {
-        client.callAsync(new Transaction("", to, Hex.decode(data)), signature, callback);
+        client.callAsync(new Transaction("", to, data), signature, callback);
     }
 }

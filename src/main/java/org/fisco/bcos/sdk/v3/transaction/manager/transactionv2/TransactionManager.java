@@ -9,6 +9,7 @@ import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.ContractGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
+import org.fisco.bcos.sdk.v3.transaction.nonce.NonceProvider;
 
 public abstract class TransactionManager {
 
@@ -32,7 +33,11 @@ public abstract class TransactionManager {
 
     public abstract ContractGasProvider getGasProvider();
 
-    public abstract void steGasProvider(ContractGasProvider gasProvider);
+    public abstract void setGasProvider(ContractGasProvider gasProvider);
+
+    public abstract NonceProvider getNonceProvider();
+
+    public abstract void setNonceProvider(NonceProvider nonceProvider);
 
     /**
      * Simple send tx
