@@ -327,10 +327,9 @@ public class AssembleTransactionService {
      * @param callback the callback to be called when the call is sent
      * @throws ContractCodecException if there is an error with the contract codec or the request is
      *     not an instance of TransactionRequest or TransactionRequestWithStringParams
-     * @throws JniException if there is an error with the JNI
      */
     public void asyncSendCall(BasicRequest request, RespCallback<CallResponse> callback)
-            throws ContractCodecException, JniException {
+            throws ContractCodecException {
         if (!request.isTransactionEssentialSatisfy()) {
             throw new ContractCodecException("Request is not satisfy, please check.");
         }

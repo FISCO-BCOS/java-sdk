@@ -61,12 +61,11 @@ public class Curve25519VRFTest {
     public void testCurve25519VRFProve(Curve25519VRF vrfInterface, String privateKey, String vrfInput, String fakePrivateKey)
     {
         // valid case
-        System.out.println(privateKey);
         String publicKey = vrfInterface.getPublicKeyFromPrivateKey(privateKey);
         Assert.assertTrue(vrfInterface.isValidVRFPublicKey(publicKey));
 
         String vrfProof = vrfInterface.generateVRFProof(privateKey, vrfInput);
-        System.out.println("#### vrfPublicKey: " + publicKey + ", vrfProof: " + vrfProof + ", vrfInput: " + vrfInput);
+//        System.out.println("#### vrfPublicKey: " + publicKey + ", vrfProof: " + vrfProof + ", vrfInput: " + vrfInput);
         Assert.assertTrue(vrfInterface.verify(publicKey, vrfInput, vrfProof));
 
         Numeric.toHexStringWithPrefixZeroPadded(vrfInterface.vrfProofToRandomValue(vrfProof), 128);

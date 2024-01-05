@@ -28,7 +28,6 @@ import org.junit.Test;
 public class KeyToolTest {
     @Test
     public void testECDSALoadPEMFile() {
-        System.out.println("12");
         String keyStoreFile = "keystore/ecdsa/0x0fc3c4bb89bd90299db4c62be0174c4966286c00.pem";
         CryptoKeyPair cryptoKeyPair =
                 testLoadPEMFile(

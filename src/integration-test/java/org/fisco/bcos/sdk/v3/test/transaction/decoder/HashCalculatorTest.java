@@ -128,6 +128,10 @@ public class HashCalculatorTest {
                 < 0) {
             String jniHash = transactionResponse.calculateHash(client.getCryptoSuite());
             Assert.assertEquals(jniHash, transactionResponse.getHash());
+        } else {
+            String hash1 =
+                    transactionResponse.calculateHash(client.getCryptoSuite().cryptoTypeConfig);
+            Assert.assertEquals(hash1, transactionResponse.getHash());
         }
     }
 

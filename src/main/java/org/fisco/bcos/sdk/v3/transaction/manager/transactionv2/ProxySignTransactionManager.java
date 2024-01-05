@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV2JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
@@ -19,6 +20,8 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.ContractGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.DefaultGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
+import org.fisco.bcos.sdk.v3.transaction.nonce.DefaultNonceProvider;
+import org.fisco.bcos.sdk.v3.transaction.nonce.NonceProvider;
 import org.fisco.bcos.sdk.v3.transaction.signer.AsyncTransactionSignercInterface;
 import org.fisco.bcos.sdk.v3.transaction.signer.TransactionJniSignerService;
 import org.fisco.bcos.sdk.v3.utils.Hex;
@@ -33,7 +36,7 @@ import org.slf4j.LoggerFactory;
 public class ProxySignTransactionManager extends TransactionManager {
 
     private ContractGasProvider contractGasProvider = new DefaultGasProvider();
-
+    private NonceProvider nonceProvider = new DefaultNonceProvider();
     private AsyncTransactionSignercInterface asyncTxSigner = null;
 
     private static Logger logger = LoggerFactory.getLogger(ProxySignTransactionManager.class);
@@ -55,8 +58,18 @@ public class ProxySignTransactionManager extends TransactionManager {
     }
 
     @Override
-    public void steGasProvider(ContractGasProvider gasProvider) {
+    public void setGasProvider(ContractGasProvider gasProvider) {
         contractGasProvider = gasProvider;
+    }
+
+    @Override
+    public NonceProvider getNonceProvider() {
+        return nonceProvider;
+    }
+
+    @Override
+    public void setNonceProvider(NonceProvider nonceProvider) {
+        this.nonceProvider = nonceProvider;
     }
 
     public ProxySignTransactionManager(
@@ -151,19 +164,23 @@ public class ProxySignTransactionManager extends TransactionManager {
             String abi,
             boolean constructor)
             throws JniException {
-        long transactionData =
-                TransactionBuilderV2JniObj.createTransactionData(
+        String nonce = nonceProvider.getNonce();
+        String dataHash =
+                TransactionBuilderV2JniObj.calcTransactionDataHashWithFullFields(
+                        cryptoType,
+                        TransactionVersion.V1,
                         client.getGroup(),
                         client.getChainId(),
                         to == null ? "" : to,
+                        nonce,
                         data,
                         (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(gasPrice),
-                        gasLimit.longValue());
-        String dataHash =
-                TransactionBuilderV2JniObj.calcTransactionDataHash(cryptoType, transactionData);
+                        gasLimit.longValue(),
+                        "",
+                        "");
         CompletableFuture<TransactionReceipt> future = new CompletableFuture<>();
         asyncTxSigner.signAsync(
                 Hex.decode(dataHash),
@@ -179,10 +196,22 @@ public class ProxySignTransactionManager extends TransactionManager {
                             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
                         }
                         String signedTransaction =
-                                TransactionBuilderV2JniObj.createSignedTransaction(
-                                        transactionData,
-                                        Hex.toHexString(signature.encode()),
+                                TransactionBuilderV2JniObj.createSignedTransactionWithSignature(
+                                        signature.encode(),
                                         dataHash,
+                                        TransactionVersion.V1,
+                                        client.getGroup(),
+                                        client.getChainId(),
+                                        to == null ? "" : to,
+                                        nonce,
+                                        data,
+                                        (abi == null || !constructor) ? "" : abi,
+                                        blockLimit.longValue(),
+                                        Numeric.toHexString(value),
+                                        Numeric.toHexString(gasPrice),
+                                        gasLimit.longValue(),
+                                        "",
+                                        "",
                                         transactionAttribute,
                                         client.getExtraData());
                         client.sendTransactionAsync(
@@ -226,19 +255,24 @@ public class ProxySignTransactionManager extends TransactionManager {
     public String createSignedTransaction(
             String to, byte[] data, BigInteger value, BigInteger gasPrice, BigInteger gasLimit)
             throws JniException {
-        long transactionData =
-                TransactionBuilderV2JniObj.createTransactionData(
+        BigInteger blockLimit = client.getBlockLimit();
+        String nonce = nonceProvider.getNonce();
+        String dataHash =
+                TransactionBuilderV2JniObj.calcTransactionDataHashWithFullFields(
+                        cryptoType,
+                        TransactionVersion.V1,
                         client.getGroup(),
                         client.getChainId(),
                         to == null ? "" : to,
+                        nonce,
                         data,
                         "",
-                        client.getBlockLimit().longValue(),
+                        blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(gasPrice),
-                        gasLimit.longValue());
-        String dataHash =
-                TransactionBuilderV2JniObj.calcTransactionDataHash(cryptoType, transactionData);
+                        gasLimit.longValue(),
+                        "",
+                        "");
         CompletableFuture<String> future = new CompletableFuture<>();
         asyncTxSigner.signAsync(
                 Hex.decode(dataHash),
@@ -251,10 +285,22 @@ public class ProxySignTransactionManager extends TransactionManager {
                             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
                         }
                         String signedTransaction =
-                                TransactionBuilderV2JniObj.createSignedTransaction(
-                                        transactionData,
-                                        Hex.toHexString(signature.encode()),
+                                TransactionBuilderV2JniObj.createSignedTransactionWithSignature(
+                                        signature.encode(),
                                         dataHash,
+                                        TransactionVersion.V1,
+                                        client.getGroup(),
+                                        client.getChainId(),
+                                        to == null ? "" : to,
+                                        nonce,
+                                        data,
+                                        "",
+                                        blockLimit.longValue(),
+                                        Numeric.toHexString(value),
+                                        Numeric.toHexString(gasPrice),
+                                        gasLimit.longValue(),
+                                        "",
+                                        "",
                                         transactionAttribute,
                                         client.getExtraData());
                         future.complete(signedTransaction);
@@ -272,8 +318,6 @@ public class ProxySignTransactionManager extends TransactionManager {
             signedTransaction = future.get();
         } catch (Exception e) {
             logger.error("Get transaction receipt failed, error message: {}", e.getMessage(), e);
-        } finally {
-            TransactionBuilderV2JniObj.destroyTransactionData(transactionData);
         }
         return signedTransaction;
     }
@@ -408,19 +452,23 @@ public class ProxySignTransactionManager extends TransactionManager {
             boolean constructor,
             TransactionCallback callback)
             throws JniException {
-        long transactionData =
-                TransactionBuilderV2JniObj.createTransactionData(
+        String nonce = nonceProvider.getNonce();
+        String dataHash =
+                TransactionBuilderV2JniObj.calcTransactionDataHashWithFullFields(
+                        cryptoType,
+                        TransactionVersion.V1,
                         client.getGroup(),
                         client.getChainId(),
                         to == null ? "" : to,
+                        nonce,
                         data,
                         (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(gasPrice),
-                        gasLimit.longValue());
-        String dataHash =
-                TransactionBuilderV2JniObj.calcTransactionDataHash(cryptoType, transactionData);
+                        gasLimit.longValue(),
+                        "",
+                        "");
 
         asyncTxSigner.signAsync(
                 Hex.decode(dataHash),
@@ -436,10 +484,22 @@ public class ProxySignTransactionManager extends TransactionManager {
                             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
                         }
                         String signedTransaction =
-                                TransactionBuilderV2JniObj.createSignedTransaction(
-                                        transactionData,
-                                        Hex.toHexString(signature.encode()),
+                                TransactionBuilderV2JniObj.createSignedTransactionWithSignature(
+                                        signature.encode(),
                                         dataHash,
+                                        TransactionVersion.V1,
+                                        client.getGroup(),
+                                        client.getChainId(),
+                                        to == null ? "" : to,
+                                        nonce,
+                                        data,
+                                        (abi == null || !constructor) ? "" : abi,
+                                        blockLimit.longValue(),
+                                        Numeric.toHexString(value),
+                                        Numeric.toHexString(gasPrice),
+                                        gasLimit.longValue(),
+                                        "",
+                                        "",
                                         transactionAttribute,
                                         client.getExtraData());
                         client.sendTransactionAsync(
@@ -518,21 +578,23 @@ public class ProxySignTransactionManager extends TransactionManager {
             String abi,
             boolean constructor)
             throws JniException {
-
-        long transactionData =
-                TransactionBuilderV2JniObj.createEIP1559TransactionData(
+        String nonce = nonceProvider.getNonce();
+        String dataHash =
+                TransactionBuilderV2JniObj.calcTransactionDataHashWithFullFields(
+                        cryptoType,
+                        TransactionVersion.V1,
                         client.getGroup(),
                         client.getChainId(),
                         to == null ? "" : to,
+                        nonce,
                         data,
                         (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
+                        "",
                         eip1559Struct.getGasLimit().longValue(),
                         Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
                         Numeric.toHexString(eip1559Struct.getMaxPriorityFeePerGas()));
-        String dataHash =
-                TransactionBuilderV2JniObj.calcTransactionDataHash(cryptoType, transactionData);
         CompletableFuture<TransactionReceipt> future = new CompletableFuture<>();
         asyncTxSigner.signAsync(
                 Hex.decode(dataHash),
@@ -548,10 +610,23 @@ public class ProxySignTransactionManager extends TransactionManager {
                             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
                         }
                         String signedTransaction =
-                                TransactionBuilderV2JniObj.createSignedTransaction(
-                                        transactionData,
-                                        Hex.toHexString(signature.encode()),
+                                TransactionBuilderV2JniObj.createSignedTransactionWithSignature(
+                                        signature.encode(),
                                         dataHash,
+                                        TransactionVersion.V1,
+                                        client.getGroup(),
+                                        client.getChainId(),
+                                        to == null ? "" : to,
+                                        nonce,
+                                        data,
+                                        (abi == null || !constructor) ? "" : abi,
+                                        blockLimit.longValue(),
+                                        Numeric.toHexString(value),
+                                        "",
+                                        eip1559Struct.getGasLimit().longValue(),
+                                        Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
+                                        Numeric.toHexString(
+                                                eip1559Struct.getMaxPriorityFeePerGas()),
                                         transactionAttribute,
                                         client.getExtraData());
                         client.sendTransactionAsync(
@@ -632,20 +707,23 @@ public class ProxySignTransactionManager extends TransactionManager {
             boolean constructor,
             TransactionCallback callback)
             throws JniException {
-        long transactionData =
-                TransactionBuilderV2JniObj.createEIP1559TransactionData(
+        String nonce = nonceProvider.getNonce();
+        String dataHash =
+                TransactionBuilderV2JniObj.calcTransactionDataHashWithFullFields(
+                        cryptoType,
+                        TransactionVersion.V1,
                         client.getGroup(),
                         client.getChainId(),
                         to == null ? "" : to,
+                        nonce,
                         data,
                         (abi == null || !constructor) ? "" : abi,
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
+                        "",
                         eip1559Struct.getGasLimit().longValue(),
                         Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
                         Numeric.toHexString(eip1559Struct.getMaxPriorityFeePerGas()));
-        String dataHash =
-                TransactionBuilderV2JniObj.calcTransactionDataHash(cryptoType, transactionData);
         asyncTxSigner.signAsync(
                 Hex.decode(dataHash),
                 signature -> {
@@ -660,10 +738,23 @@ public class ProxySignTransactionManager extends TransactionManager {
                             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
                         }
                         String signedTransaction =
-                                TransactionBuilderV2JniObj.createSignedTransaction(
-                                        transactionData,
-                                        Hex.toHexString(signature.encode()),
+                                TransactionBuilderV2JniObj.createSignedTransactionWithSignature(
+                                        signature.encode(),
                                         dataHash,
+                                        TransactionVersion.V1,
+                                        client.getGroup(),
+                                        client.getChainId(),
+                                        to == null ? "" : to,
+                                        nonce,
+                                        data,
+                                        (abi == null || !constructor) ? "" : abi,
+                                        blockLimit.longValue(),
+                                        Numeric.toHexString(value),
+                                        "",
+                                        eip1559Struct.getGasLimit().longValue(),
+                                        Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
+                                        Numeric.toHexString(
+                                                eip1559Struct.getMaxPriorityFeePerGas()),
                                         transactionAttribute,
                                         client.getExtraData());
                         client.sendTransactionAsync(
@@ -706,7 +797,7 @@ public class ProxySignTransactionManager extends TransactionManager {
     public Call sendCall(String to, byte[] data) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             outputStream.write(Hex.trimPrefix(to).getBytes());
-            outputStream.write(Hex.decode(data));
+            outputStream.write(data);
             byte[] hash = hashImpl.hash(outputStream.toByteArray());
             CompletableFuture<Call> future = new CompletableFuture<>();
             asyncTxSigner.signAsync(
@@ -714,7 +805,7 @@ public class ProxySignTransactionManager extends TransactionManager {
                     signature -> {
                         Call call =
                                 client.call(
-                                        new Transaction("", to, Hex.decode(data)),
+                                        new Transaction("", to, data),
                                         Hex.toHexString(signature.encode()));
                         future.complete(call);
                         return 0;
@@ -735,7 +826,7 @@ public class ProxySignTransactionManager extends TransactionManager {
      */
     @Override
     public Call sendCall(String to, byte[] data, String signature) {
-        return client.call(new Transaction("", to, Hex.decode(data)), signature);
+        return client.call(new Transaction("", to, data), signature);
     }
 
     /**
@@ -749,13 +840,13 @@ public class ProxySignTransactionManager extends TransactionManager {
     public void asyncSendCall(String to, byte[] data, RespCallback<Call> callback) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             outputStream.write(Hex.trimPrefix(to).getBytes());
-            outputStream.write(Hex.decode(data));
+            outputStream.write(data);
             byte[] hash = hashImpl.hash(outputStream.toByteArray());
             asyncTxSigner.signAsync(
                     hash,
                     signature -> {
                         client.callAsync(
-                                new Transaction("", to, Hex.decode(data)),
+                                new Transaction("", to, data),
                                 Hex.toHexString(signature.encode()),
                                 callback);
                         return 0;
@@ -777,6 +868,6 @@ public class ProxySignTransactionManager extends TransactionManager {
     @Override
     public void asyncSendCall(
             String to, byte[] data, String signature, RespCallback<Call> callback) {
-        client.callAsync(new Transaction("", to, Hex.decode(data)), signature, callback);
+        client.callAsync(new Transaction("", to, data), signature, callback);
     }
 }

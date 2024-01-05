@@ -24,8 +24,8 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import org.fisco.bcos.sdk.jni.common.JniException;
-import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV2JniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
@@ -65,25 +65,6 @@ public class JsonTransactionResponse {
     private String maxPriorityFeePerGas = "";
 
     public JsonTransactionResponse() {}
-
-    @Deprecated
-    public static JsonTransactionResponse readFromHexString(String hexString)
-            throws JniException, IOException {
-        String jsonObj = TransactionBuilderJniObj.decodeTransactionDataToJsonObj(hexString);
-        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-        return objectMapper.readValue(jsonObj.getBytes(), JsonTransactionResponse.class);
-    }
-
-    @Deprecated
-    public String writeToHexString() throws JsonProcessingException, JniException {
-        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-        String json = objectMapper.writeValueAsString(this);
-        long transactionDataWithJson = TransactionBuilderJniObj.createTransactionDataWithJson(json);
-        String encodeTransactionData =
-                TransactionBuilderJniObj.encodeTransactionData(transactionDataWithJson);
-        TransactionBuilderJniObj.destroyTransactionData(transactionDataWithJson);
-        return encodeTransactionData;
-    }
 
     public String getAbi() {
         return abi;
@@ -247,19 +228,74 @@ public class JsonTransactionResponse {
         this.maxPriorityFeePerGas = maxPriorityFeePerGas;
     }
 
-    // calculate the hash for the transaction
+    @Deprecated
+    public static JsonTransactionResponse readFromHexString(String hexString)
+            throws JniException, IOException {
+        String jsonObj = TransactionBuilderJniObj.decodeTransactionDataToJsonObj(hexString);
+        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+        return objectMapper.readValue(jsonObj.getBytes(), JsonTransactionResponse.class);
+    }
+
+    @Deprecated
+    public String writeToHexString() throws JsonProcessingException, JniException {
+        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+        String json = objectMapper.writeValueAsString(this);
+        long transactionDataWithJson = TransactionBuilderJniObj.createTransactionDataWithJson(json);
+        String encodeTransactionData =
+                TransactionBuilderJniObj.encodeTransactionData(transactionDataWithJson);
+        TransactionBuilderJniObj.destroyTransactionData(transactionDataWithJson);
+        return encodeTransactionData;
+    }
+    /**
+     * Calculate the hash for the transaction, only correct when blockchain node version < 3.3.0,
+     *
+     * @param cryptoSuite the crypto suite
+     * @return tx hash hex string
+     * @throws ClientException exception when calculateHash() throws ClientException
+     */
     public String calculateHash(CryptoSuite cryptoSuite) throws ClientException {
         try {
             ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
             String json = objectMapper.writeValueAsString(this);
-            long transactionData = TransactionBuilderJniObj.createTransactionDataWithJson(json);
-            long jniKeyPair = cryptoSuite.getCryptoKeyPair().getJniKeyPair();
-            int jniKeyPairCryptoType = KeyPairJniObj.getJniKeyPairCryptoType(jniKeyPair);
-            String transactionDataHash =
-                    TransactionBuilderJniObj.calcTransactionDataHash(
-                            jniKeyPairCryptoType, transactionData);
-            TransactionBuilderJniObj.destroyTransactionData(transactionData);
-            return transactionDataHash;
+            return TransactionBuilderV2JniObj.calcTransactionDataHashWithJson(
+                    cryptoSuite.cryptoTypeConfig, json);
+        } catch (Exception e) {
+            logger.warn(
+                    "calculate hash for the transaction failed, version: {}, transactionHash: {}, error info: {}",
+                    this.version,
+                    this.hash,
+                    e);
+            throw new ClientException(
+                    "calculate hash for transaction " + this.hash + " failed for " + e.getMessage(),
+                    e);
+        }
+    }
+
+    /**
+     * Calculate the hash for the transaction, only correct when blockchain node version >= 3.3.0,
+     *
+     * @param cryptoSuiteType the crypto suite type, use for distinguish hash impl, 0 for Keccak256,
+     *     1
+     * @return tx hash hex string
+     * @throws ClientException exception when calculateHash() throws ClientException
+     */
+    public String calculateHash(int cryptoSuiteType) throws ClientException {
+        try {
+            return TransactionBuilderV2JniObj.calcTransactionDataHashWithFullFields(
+                    cryptoSuiteType,
+                    (getVersion() == 0 ? TransactionVersion.V0 : TransactionVersion.V1),
+                    getGroupID(),
+                    getChainID(),
+                    getTo(),
+                    new String(Hex.decode(getNonce())),
+                    Hex.decode(getInput()),
+                    getAbi(),
+                    getBlockLimit(),
+                    getValue(),
+                    getGasPrice(),
+                    getGasLimit(),
+                    getMaxFeePerGas(),
+                    getMaxPriorityFeePerGas());
         } catch (Exception e) {
             logger.warn(
                     "calculate hash for the transaction failed, version: {}, transactionHash: {}, error info: {}",
