@@ -61,5 +61,8 @@ public class ScaleCodecTest {
         codecTest.set_i256(BigInteger.valueOf(-123456789));
         BigInteger i256 = codecTest.get_i256();
         Assert.assertEquals(0, i256.compareTo(BigInteger.valueOf(-123456789)));
+
+        client.stop();
+        client.destroy();
     }
 }

@@ -67,7 +67,16 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
 
     public AssembleTransactionWithRemoteSignProcessorTest() {
     }
-
+    @Override
+    protected void finalize() {
+        try {
+            super.finalize();
+            client.stop();
+            client.destroy();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
     @Test
     public void test1HelloWorldSync() throws Exception {
         // build processor

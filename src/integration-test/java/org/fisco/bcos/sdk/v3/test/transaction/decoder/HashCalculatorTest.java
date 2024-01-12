@@ -53,6 +53,17 @@ public class HashCalculatorTest {
         }
     }
 
+    @Override
+    protected void finalize() {
+        try {
+            super.finalize();
+            client.stop();
+            client.destroy();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     public void testTxHashCalculate() throws IOException {
         if (transactionResponse == null && block.getNumber() == 0) {

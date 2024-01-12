@@ -19,6 +19,24 @@ public class CodecTest {
     private static final String configFile =
             "src/integration-wasm-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
 
+    private Client client;
+
+    public CodecTest() {
+        BcosSDK sdk = BcosSDK.build(configFile);
+        client = sdk.getClient("group0");
+    }
+
+    @Override
+    protected void finalize() {
+        try {
+            super.finalize();
+            client.stop();
+            client.destroy();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     public void testNumericType() throws Exception {
         org.fisco.bcos.sdk.v3.test.wasm.liquid.CodecTest codecTest = getCodecTest();
@@ -200,11 +218,12 @@ public class CodecTest {
         }
     }
 
-    private static org.fisco.bcos.sdk.v3.test.wasm.liquid.CodecTest getCodecTest() throws ContractException {
-        BcosSDK sdk = BcosSDK.build(configFile);
-        Client client = sdk.getClient("group0");
+    private org.fisco.bcos.sdk.v3.test.wasm.liquid.CodecTest getCodecTest()
+            throws ContractException {
         return org.fisco.bcos.sdk.v3.test.wasm.liquid.CodecTest.deploy(
-                        client, client.getCryptoSuite().getCryptoKeyPair(), "codecTest" + new Random().nextInt(10000000));
+                client,
+                client.getCryptoSuite().getCryptoKeyPair(),
+                "codecTest" + new Random().nextInt(10000000));
     }
 
     @Test
@@ -238,14 +257,16 @@ public class CodecTest {
         List bytes16Arr2 = codecTest.get_bytes16_sarr();
         for (int i = 0; i < bytes16Arr2.size(); i++) {
             Assert.assertEquals(
-                    Hex.toHexString(bytes16Arr.get(i)), Hex.toHexString((byte[]) bytes16Arr2.get(i)));
+                    Hex.toHexString(bytes16Arr.get(i)),
+                    Hex.toHexString((byte[]) bytes16Arr2.get(i)));
         }
         // bytes32[2]
         codecTest.set_bytes32_sarr(bytes32Arr);
         List bytes32Arr2 = codecTest.get_bytes32_sarr();
         for (int i = 0; i < bytes32Arr2.size(); i++) {
             Assert.assertEquals(
-                    Hex.toHexString(bytes32Arr.get(i)), Hex.toHexString((byte[]) bytes32Arr2.get(i)));
+                    Hex.toHexString(bytes32Arr.get(i)),
+                    Hex.toHexString((byte[]) bytes32Arr2.get(i)));
         }
         // bytes[2]
         codecTest.set_bytes_sarr(bytes32Arr);
@@ -271,7 +292,8 @@ public class CodecTest {
         List bytes16ArrD = codecTest.get_bytes16_arr();
         for (int i = 0; i < bytes16ArrD.size(); i++) {
             Assert.assertEquals(
-                    Hex.toHexString(bytes16Arr.get(i)), Hex.toHexString((byte[]) bytes16ArrD.get(i)));
+                    Hex.toHexString(bytes16Arr.get(i)),
+                    Hex.toHexString((byte[]) bytes16ArrD.get(i)));
         }
         // bytes32[]
         bytes32Arr.add(
@@ -280,7 +302,8 @@ public class CodecTest {
         List bytes32ArrD = codecTest.get_bytes32_arr();
         for (int i = 0; i < bytes32ArrD.size(); i++) {
             Assert.assertEquals(
-                    Hex.toHexString(bytes32Arr.get(i)), Hex.toHexString((byte[]) bytes32ArrD.get(i)));
+                    Hex.toHexString(bytes32Arr.get(i)),
+                    Hex.toHexString((byte[]) bytes32ArrD.get(i)));
         }
 
         // bytes[]

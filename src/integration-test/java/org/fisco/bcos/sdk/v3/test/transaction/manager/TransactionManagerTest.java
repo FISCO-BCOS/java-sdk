@@ -89,6 +89,17 @@ public class TransactionManagerTest {
         contractLoader = new ContractLoader(ABI_FILE, BIN_FILE);
     }
 
+    @Override
+    protected void finalize() {
+        try {
+            super.finalize();
+            client.stop();
+            client.destroy();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     public void test1ComplexCodecWithType() throws Exception {
         if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_6_0.toVersionObj()) < 0) {

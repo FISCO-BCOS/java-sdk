@@ -151,6 +151,9 @@ public class PrecompiledTest {
         List<String> observerList4 = client.getObserverList().getResult();
         System.out.println("observerList4: " + observerList4);
         Assert.assertFalse(observerList4.contains(selectedNode.getNodeID()));
+
+        client.stop();
+        client.destroy();
     }
 
     @Test
@@ -175,6 +178,8 @@ public class PrecompiledTest {
 
         this.testSystemConfigService(client, systemConfigService, "tx_count_limit");
         this.testSystemConfigService(client, systemConfigService, "tx_gas_limit");
+        client.stop();
+        client.destroy();
     }
 
     private void testSystemConfigService(
@@ -264,10 +269,12 @@ public class PrecompiledTest {
         result = tableCRUDService.select(tableName, "key1");
         Assert.assertTrue(result.isEmpty());
         System.out.println("testCRUDPrecompiled tableCRUDService.remove size : " + result.size());
+        client.stop();
+        client.destroy();
     }
 
     @Test
-    public void test51SyncCRUDService() throws ConfigException, ContractException, JniException {
+    public void test51SyncCRUDService() throws ConfigException, ContractException {
 
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -328,6 +335,8 @@ public class PrecompiledTest {
                                 .getTransactionCount());
         System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
         Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(300))) >= 0);
+        client.stop();
+        client.destroy();
     }
 
     class FakeTransactionCallback implements PrecompiledCallback {
@@ -408,6 +417,8 @@ public class PrecompiledTest {
                                 .getTransactionCount());
         System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
         Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(300))) >= 0);
+        client.stop();
+        client.destroy();
     }
 
     @Test
@@ -439,6 +450,8 @@ public class PrecompiledTest {
         // field value result + key result
         Assert.assertEquals(key1, "value1");
         System.out.println("kvTableService select result: " + key1);
+        client.stop();
+        client.destroy();
     }
 
     @Test
@@ -483,5 +496,7 @@ public class PrecompiledTest {
             }
         }
         Assert.assertTrue(flag);
+        client.stop();
+        client.destroy();
     }
 }

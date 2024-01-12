@@ -120,6 +120,9 @@ public class BcosSDKTest {
         // get getSyncStatus
         SyncStatus syncStatus = client.getSyncStatus();
         System.out.println(syncStatus.getSyncStatus().toString());
+
+        client.stop();
+        client.destroy();
     }
 
     @Test
@@ -187,6 +190,9 @@ public class BcosSDKTest {
         System.out.println("helloworld2 get :" + s2);
         s2 = helloWorld.get();
         System.out.println("helloworld get :" + s2);
+
+        client.stop();
+        client.destroy();
     }
 
     @Test
@@ -220,5 +226,8 @@ public class BcosSDKTest {
         Tuple2<Boolean, BigInteger> selectOutput = asset.select("assetAccount0");
         Assert.assertEquals(selectOutput.getValue1(), true);
         Assert.assertEquals(selectOutput.getValue2(), BigInteger.valueOf(10000));
+
+        client.stop();
+        client.destroy();
     }
 }
