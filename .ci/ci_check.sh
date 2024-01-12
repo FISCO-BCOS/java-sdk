@@ -138,6 +138,10 @@ check_standard_node()
   prepare_environment "${2}"
   ## run integration test
   bash gradlew clean integrationTest --info
+  # if $? is not 0, then exit
+  if [ ${?} -ne 0 ]; then
+    cat log/*.log
+  fi
   ## clean
   clean_node "${1}"
 }

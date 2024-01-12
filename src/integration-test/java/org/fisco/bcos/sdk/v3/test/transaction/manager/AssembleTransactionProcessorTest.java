@@ -74,6 +74,8 @@ public class AssembleTransactionProcessorTest {
         cryptoKeyPair = this.client.getCryptoSuite().getCryptoKeyPair();
     }
 
+
+
     @Test
     public void test1HelloWorld() throws Exception {
         // create an instance of processor.

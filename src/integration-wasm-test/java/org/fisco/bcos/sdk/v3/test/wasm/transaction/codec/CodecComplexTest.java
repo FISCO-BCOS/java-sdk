@@ -31,6 +31,17 @@ public class CodecComplexTest {
         client = sdk.getClient("group0");
     }
 
+    @Override
+    protected void finalize() {
+        try {
+            super.finalize();
+            client.stop();
+            client.destroy();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     public void test1ComplexCodecWithStruct() throws Exception {
         String bytes32Str = "ffffffff1234567890123456ffffffffffffffff1234567890123456ffffffff";

@@ -44,15 +44,28 @@ public class AssembleTxCodecTest {
 
     private final AssembleTransactionProcessor transactionProcessor;
 
+    private Client client;
+
     public AssembleTxCodecTest() throws IOException {
         // init the sdk, and set the config options.
         BcosSDK sdk = BcosSDK.build(CONFIG_FILE);
         // group
-        Client client = sdk.getClient("group0");
+        client = sdk.getClient("group0");
         CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         transactionProcessor =
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, ABI_FILE, BIN_FILE);
+    }
+
+    @Override
+    protected void finalize() {
+        try {
+            super.finalize();
+            client.stop();
+            client.destroy();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
