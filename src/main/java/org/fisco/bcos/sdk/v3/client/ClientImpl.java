@@ -158,8 +158,6 @@ public class ClientImpl implements Client {
         this.groupID = groupID;
         this.configOption = configOption;
         this.rpcJniObj = RpcJniObj.build(nativePointer);
-        this.negotiatedProtocol = BcosSDKJniObj.negotiatedProtocolInfo(nativePointer);
-
         // start rpc
         start();
 
@@ -181,7 +179,8 @@ public class ClientImpl implements Client {
                 this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
             }
         }
-
+        // should be assigned after session connect
+        this.negotiatedProtocol = BcosSDKJniObj.negotiatedProtocolInfo(nativePointer);
         logger.info(
                 "ClientImpl constructor, groupID: {}, nativePointer: {}, smCrypto: {}, wasm: {}",
                 groupID,

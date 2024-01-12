@@ -568,7 +568,10 @@ public class Contract {
                         this.functionEncoder.encode(function),
                         BigInteger.ZERO,
                         BigInteger.ZERO,
-                        BigInteger.ZERO);
+                        BigInteger.ZERO,
+                        client.getBlockLimit(),
+                        "",
+                        false);
             } catch (JniException e) {
                 logger.error("createSignedTransaction failed, error info: {}", e.getMessage(), e);
                 return null;

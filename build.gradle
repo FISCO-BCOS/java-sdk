@@ -24,7 +24,7 @@ ext {
     webankJavaCryptoVersion = "1.0.3"
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
-    bcosSdkJniVersion = "3.6.0-SNAPSHOT"
+    bcosSdkJniVersion = "3.6.0-DEV-SNAPSHOT"
     slf4jApiVerison = '1.7.36'
     mockitoVersion = '4.8.0'
     gsonVersion = '2.10.1'
@@ -159,13 +159,13 @@ configurations {
 }
 
 task integrationTest(type: Test) {
-    dependsOn test
+//    dependsOn test
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
 
 task integrationWasmTest(type: Test) {
-    dependsOn test
+//    dependsOn test
     testClassesDirs = sourceSets.integrationWasmTest.output.classesDirs
     classpath = sourceSets.integrationWasmTest.runtimeClasspath
 }
@@ -208,9 +208,9 @@ jacocoTestReport {
     }
 }
 
-tasks.withType(Test) {
-    finalizedBy jacocoTestReport
-}
+//tasks.withType(Test) {
+//    finalizedBy jacocoTestReport
+//}
 
 publishing {
     publications {
