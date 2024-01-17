@@ -14,15 +14,16 @@ public class TransferTransactionService {
     // This is the cost to send Ether between parties
     public static final BigInteger GAS_LIMIT = BigInteger.valueOf(21000);
 
-    private ProxySignTransactionManager transactionManager;
+    private final ProxySignTransactionManager transactionManager;
 
-    private Client client;
+    private final Client client;
 
     public TransferTransactionService(ProxySignTransactionManager transactionManager) {
+        this.client = transactionManager.getClient();
         this.transactionManager = transactionManager;
     }
 
-    TransferTransactionService(Client client) {
+    public TransferTransactionService(Client client) {
 
         this.client = client;
         this.transactionManager = new ProxySignTransactionManager(client);

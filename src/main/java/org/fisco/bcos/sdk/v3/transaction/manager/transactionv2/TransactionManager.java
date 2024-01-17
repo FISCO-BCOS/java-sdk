@@ -13,7 +13,7 @@ import org.fisco.bcos.sdk.v3.transaction.nonce.NonceProvider;
 
 public abstract class TransactionManager {
 
-    protected Client client;
+    protected final Client client;
 
     public Client getClient() {
         return client;
