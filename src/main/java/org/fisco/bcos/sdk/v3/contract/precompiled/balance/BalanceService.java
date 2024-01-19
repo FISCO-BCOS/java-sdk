@@ -1,6 +1,5 @@
 package org.fisco.bcos.sdk.v3.contract.precompiled.balance;
 
-import java.awt.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
