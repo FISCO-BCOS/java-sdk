@@ -23,8 +23,8 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.ContractGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.DefaultGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
-import org.fisco.bcos.sdk.v3.transaction.nonce.DefaultNonceProvider;
-import org.fisco.bcos.sdk.v3.transaction.nonce.NonceProvider;
+import org.fisco.bcos.sdk.v3.transaction.nonce.DefaultNonceAndBlockLimitProvider;
+import org.fisco.bcos.sdk.v3.transaction.nonce.NonceAndBlockLimitProvider;
 import org.fisco.bcos.sdk.v3.transaction.signer.AsyncTransactionSignercInterface;
 import org.fisco.bcos.sdk.v3.transaction.signer.TransactionJniSignerService;
 import org.fisco.bcos.sdk.v3.utils.Hex;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public class ProxySignTransactionManager extends TransactionManager {
 
     private ContractGasProvider contractGasProvider = new DefaultGasProvider();
-    private NonceProvider nonceProvider = new DefaultNonceProvider();
+    private NonceAndBlockLimitProvider nonceProvider = new DefaultNonceAndBlockLimitProvider();
     private AsyncTransactionSignercInterface asyncTxSigner = null;
 
     private static Logger logger = LoggerFactory.getLogger(ProxySignTransactionManager.class);
@@ -66,12 +66,12 @@ public class ProxySignTransactionManager extends TransactionManager {
     }
 
     @Override
-    public NonceProvider getNonceProvider() {
+    public NonceAndBlockLimitProvider getNonceProvider() {
         return nonceProvider;
     }
 
     @Override
-    public void setNonceProvider(NonceProvider nonceProvider) {
+    public void setNonceProvider(NonceAndBlockLimitProvider nonceProvider) {
         this.nonceProvider = nonceProvider;
     }
 
@@ -216,7 +216,7 @@ public class ProxySignTransactionManager extends TransactionManager {
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(gasPrice),
-                        gasLimit.longValue(),
+                        gasLimit == null ? 0 : gasLimit.longValue(),
                         "",
                         "");
         CompletableFuture<SignatureResult> signFuture = new CompletableFuture<>();
@@ -258,7 +258,7 @@ public class ProxySignTransactionManager extends TransactionManager {
                 blockLimit.longValue(),
                 Numeric.toHexString(value),
                 Numeric.toHexString(gasPrice),
-                gasLimit.longValue(),
+                gasLimit == null ? 0 : gasLimit.longValue(),
                 "",
                 "",
                 transactionAttribute,
@@ -409,7 +409,7 @@ public class ProxySignTransactionManager extends TransactionManager {
                         blockLimit.longValue(),
                         Numeric.toHexString(value),
                         Numeric.toHexString(gasPrice),
-                        gasLimit.longValue(),
+                        gasLimit == null ? 0 : gasLimit.longValue(),
                         "",
                         "");
 

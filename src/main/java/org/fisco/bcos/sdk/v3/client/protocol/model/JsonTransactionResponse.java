@@ -26,6 +26,8 @@ import java.util.Objects;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV2JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderV2JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionV2;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
@@ -228,6 +230,16 @@ public class JsonTransactionResponse {
         this.maxPriorityFeePerGas = maxPriorityFeePerGas;
     }
 
+    /**
+     * This method is not correct, only can decode from method {@link #writeToHexString()}, which
+     * not enable to send transaction to blockchain.
+     *
+     * @deprecated this method is deprecated, use {@link #decodeTransaction(String)} instead
+     * @param hexString the hex string
+     * @return the transaction response
+     * @throws JniException the jni exception
+     * @throws IOException the io exception
+     */
     @Deprecated
     public static JsonTransactionResponse readFromHexString(String hexString)
             throws JniException, IOException {
@@ -236,6 +248,14 @@ public class JsonTransactionResponse {
         return objectMapper.readValue(jsonObj.getBytes(), JsonTransactionResponse.class);
     }
 
+    /**
+     * This method only encode to transaction data hex string, use to sign transaction data.
+     *
+     * @deprecated this method is deprecated, use {@link #encodeTransactionData()} instead
+     * @return the hex string
+     * @throws JsonProcessingException the json processing exception
+     * @throws JniException the jni exception
+     */
     @Deprecated
     public String writeToHexString() throws JsonProcessingException, JniException {
         ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
@@ -246,6 +266,7 @@ public class JsonTransactionResponse {
         TransactionBuilderJniObj.destroyTransactionData(transactionDataWithJson);
         return encodeTransactionData;
     }
+
     /**
      * Calculate the hash for the transaction, only correct when blockchain node version < 3.3.0,
      *
@@ -356,6 +377,36 @@ public class JsonTransactionResponse {
             byteArrayOutputStream.write(getMaxPriorityFeePerGas().getBytes());
         }
         return byteArrayOutputStream.toByteArray();
+    }
+
+    public static JsonTransactionResponse decodeTransaction(String hexString) throws JniException {
+        TransactionV2 transactionV2 =
+                TransactionStructBuilderV2JniObj.decodeTransactionStructV2(hexString);
+        JsonTransactionResponse jsonTransactionResponse = new JsonTransactionResponse();
+        jsonTransactionResponse.setVersion(transactionV2.getTransactionData().getVersion());
+        jsonTransactionResponse.setHash(Hex.toHexString(transactionV2.getDataHash().getBuffer()));
+        jsonTransactionResponse.setNonce(transactionV2.getTransactionData().getNonce());
+        jsonTransactionResponse.setBlockLimit(transactionV2.getTransactionData().getBlockLimit());
+        jsonTransactionResponse.setTo(transactionV2.getTransactionData().getTo());
+        // jsonTransactionResponse.setFrom(Hex.toHexString(transactionV2.getSender().getBuffer()));
+        jsonTransactionResponse.setAbi(transactionV2.getTransactionData().getAbi());
+        jsonTransactionResponse.setInput(
+                Hex.toHexString(transactionV2.getTransactionData().getInput().getBuffer()));
+        jsonTransactionResponse.setChainID(transactionV2.getTransactionData().getChainId());
+        jsonTransactionResponse.setGroupID(transactionV2.getTransactionData().getGroupId());
+        jsonTransactionResponse.setExtraData(transactionV2.getExtraData());
+        jsonTransactionResponse.setSignature(
+                Hex.toHexString(transactionV2.getSignature().getBuffer()));
+        jsonTransactionResponse.setImportTime(transactionV2.getImportTime());
+
+        jsonTransactionResponse.setValue(transactionV2.getTransactionData().getValue());
+        jsonTransactionResponse.setGasPrice(transactionV2.getTransactionData().getGasPrice());
+        jsonTransactionResponse.setGasLimit(transactionV2.getTransactionData().getGasLimit());
+        jsonTransactionResponse.setMaxFeePerGas(
+                transactionV2.getTransactionData().getMaxFeePerGas());
+        jsonTransactionResponse.setMaxPriorityFeePerGas(
+                transactionV2.getTransactionData().getMaxPriorityFeePerGas());
+        return jsonTransactionResponse;
     }
 
     @Override

@@ -40,6 +40,7 @@ import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -102,7 +103,7 @@ public class TransactionManagerTest {
 
     @Test
     public void test1ComplexCodecWithType() throws Exception {
-        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_6_0.toVersionObj()) < 0) {
+        if ((client.getNegotiatedProtocol() >> 16) < 2) {
             return;
         }
         // test deploy with struct
@@ -310,7 +311,7 @@ public class TransactionManagerTest {
 
     @Test
     public void test2ComplexCodecWithStringParams() throws Exception {
-        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_6_0.toVersionObj()) < 0) {
+        if ((client.getNegotiatedProtocol() >> 16) < 2) {
             return;
         }
         // test deploy with struct
@@ -474,7 +475,7 @@ public class TransactionManagerTest {
 
     @Test
     public void test1ComplexCodecWithJavaObject() throws Exception {
-        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_6_0.toVersionObj()) < 0) {
+        if ((client.getNegotiatedProtocol() >> 16) < 2) {
             return;
         }
         // test deploy with struct

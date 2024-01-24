@@ -18,8 +18,8 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.ContractGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.DefaultGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
-import org.fisco.bcos.sdk.v3.transaction.nonce.DefaultNonceProvider;
-import org.fisco.bcos.sdk.v3.transaction.nonce.NonceProvider;
+import org.fisco.bcos.sdk.v3.transaction.nonce.DefaultNonceAndBlockLimitProvider;
+import org.fisco.bcos.sdk.v3.transaction.nonce.NonceAndBlockLimitProvider;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class DefaultTransactionManager extends TransactionManager {
 
     private ContractGasProvider defaultGasProvider = new DefaultGasProvider();
 
-    private NonceProvider nonceProvider = new DefaultNonceProvider();
+    private NonceAndBlockLimitProvider nonceProvider = new DefaultNonceAndBlockLimitProvider();
     private static final Logger logger = LoggerFactory.getLogger(DefaultTransactionManager.class);
 
     public DefaultTransactionManager(Client client) {
@@ -52,12 +52,12 @@ public class DefaultTransactionManager extends TransactionManager {
     }
 
     @Override
-    public NonceProvider getNonceProvider() {
+    public NonceAndBlockLimitProvider getNonceProvider() {
         return nonceProvider;
     }
 
     @Override
-    public void setNonceProvider(NonceProvider nonceProvider) {
+    public void setNonceProvider(NonceAndBlockLimitProvider nonceProvider) {
         this.nonceProvider = nonceProvider;
     }
 

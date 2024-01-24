@@ -9,11 +9,15 @@ import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.ContractGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
-import org.fisco.bcos.sdk.v3.transaction.nonce.NonceProvider;
+import org.fisco.bcos.sdk.v3.transaction.nonce.NonceAndBlockLimitProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class TransactionManager {
 
     protected final Client client;
+
+    protected final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
 
     public Client getClient() {
         return client;
@@ -22,9 +26,10 @@ public abstract class TransactionManager {
     protected TransactionManager(Client client) {
         int negotiatedProtocol = client.getNegotiatedProtocol();
         int maxProtocol = negotiatedProtocol >> 16;
-        if (maxProtocol < 1) {
-            throw new UnsupportedOperationException(
-                    "The current version of the node does not support the transaction manager");
+        if (maxProtocol < 2) {
+            logger.error(
+                    "The current version of the node does not support the transaction manager, please upgrade the node to the latest version. Max protocol version is {}",
+                    maxProtocol);
         }
         this.client = client;
     }
@@ -33,9 +38,9 @@ public abstract class TransactionManager {
 
     public abstract void setGasProvider(ContractGasProvider gasProvider);
 
-    public abstract NonceProvider getNonceProvider();
+    public abstract NonceAndBlockLimitProvider getNonceProvider();
 
-    public abstract void setNonceProvider(NonceProvider nonceProvider);
+    public abstract void setNonceProvider(NonceAndBlockLimitProvider nonceProvider);
 
     /**
      * Simple send tx
