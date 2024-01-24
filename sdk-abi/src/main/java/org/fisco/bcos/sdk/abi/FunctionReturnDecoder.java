@@ -7,6 +7,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Array;
 import org.fisco.bcos.sdk.abi.datatypes.Bytes;
 import org.fisco.bcos.sdk.abi.datatypes.BytesType;
 import org.fisco.bcos.sdk.abi.datatypes.DynamicArray;
+import org.fisco.bcos.sdk.abi.datatypes.DynamicBytes;
 import org.fisco.bcos.sdk.abi.datatypes.DynamicStruct;
 import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
 import org.fisco.bcos.sdk.abi.datatypes.StaticStruct;
@@ -76,7 +77,7 @@ public class FunctionReturnDecoder {
                     || Utf8String.class.isAssignableFrom(type)) {
                 return TypeDecoder.decodeBytes(input, Bytes32.class);
             } else {
-                return TypeDecoder.decode(input, 0, type);
+                return TypeDecoder.decode(input, 0, typeReference);
             }
         } catch (ClassNotFoundException e) {
             throw new UnsupportedOperationException("Invalid class reference provided", e);
@@ -139,7 +140,7 @@ public class FunctionReturnDecoder {
                         offset += TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING * length;
                     }
                 } else {
-                    result = TypeDecoder.decode(input, hexStringDataOffset, cls);
+                    result = TypeDecoder.decode(input, hexStringDataOffset, typeReference);
                     offset +=
                             Utils.getOffset(typeReference.getType())
                                     * TypeDecoder.MAX_BYTE_LENGTH_FOR_HEX_STRING;
@@ -156,10 +157,42 @@ public class FunctionReturnDecoder {
 
     public static <T extends Type> int getDataOffset(
             String input, int offset, java.lang.reflect.Type type) throws ClassNotFoundException {
-        if (Utils.dynamicType(type)) {
+        Class<Type> classType = Utils.getClassType(type);
+
+        if (DynamicBytes.class.isAssignableFrom(classType)
+                || Utf8String.class.isAssignableFrom(classType)
+                || DynamicArray.class.isAssignableFrom(classType)
+                || hasDynamicOffsetInStaticArray(type)) {
             return TypeDecoder.decodeUintAsInt(input, offset) << 1;
         } else {
             return offset;
+        }
+    }
+
+    public static <T extends Type> int getDataOffset(
+            String input, int offset, TypeReference<?> typeReference)
+            throws ClassNotFoundException {
+        @SuppressWarnings("unchecked")
+        Class<Type> type = (Class<Type>) typeReference.getClassType();
+        if (DynamicBytes.class.isAssignableFrom(type)
+                || Utf8String.class.isAssignableFrom(type)
+                || DynamicArray.class.isAssignableFrom(type)
+                || hasDynamicOffsetInStaticArray(typeReference.getType())) {
+            return TypeDecoder.decodeUintAsInt(input, offset);
+        } else {
+            return offset;
+        }
+    }
+
+    private static boolean hasDynamicOffsetInStaticArray(java.lang.reflect.Type type)
+            throws ClassNotFoundException {
+        try {
+            return StaticArray.class.isAssignableFrom(Utils.getClassType(type))
+                    && (DynamicStruct.class.isAssignableFrom(
+                                    Utils.getParameterizedTypeFromArray(type))
+                            || TypeDecoder.isDynamic(Utils.getParameterizedTypeFromArray(type)));
+        } catch (ClassCastException e) {
+            return false;
         }
     }
 }

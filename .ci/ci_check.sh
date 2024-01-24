@@ -30,8 +30,8 @@ download_tassl()
 download_build_chain()
 {
   LOG_INFO "--- current tag: $tag"
-#  curl -LO "https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/${tag}/build_chain.sh" && chmod u+x build_chain.sh
-  curl -LO "https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master-2.0/tools/build_chain.sh" && chmod u+x build_chain.sh
+  curl -LO "https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/${tag}/build_chain.sh" && chmod u+x build_chain.sh
+#  curl -LO "https://raw.githubusercontent.com/FISCO-BCOS/FISCO-BCOS/master-2.0/tools/build_chain.sh" && chmod u+x build_chain.sh
 }
 
 get_sed_cmd()
@@ -112,6 +112,8 @@ check_sm_node()
   ## clean
   clean_node
 }
+LOG_INFO "------ java version-------"
+java -version
 LOG_INFO "------ download_tassl---------"
 download_tassl
 LOG_INFO "------ download_build_chain---------"

@@ -34,6 +34,15 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.abi.datatypes.T
         this.indexed = indexed;
     }
 
+    protected TypeReference(java.lang.reflect.Type type) {
+        java.lang.reflect.Type superclass = getClass().getGenericSuperclass();
+        if (superclass instanceof Class) {
+            throw new RuntimeException("Missing type parameter.");
+        }
+        this.type = type;
+        this.indexed = false;
+    }
+
     public int compareTo(TypeReference<T> o) {
         // taken from the blog post comments - this results in an errror if the
         // type parameter is left out.
@@ -73,5 +82,30 @@ public abstract class TypeReference<T extends org.fisco.bcos.sdk.abi.datatypes.T
                 return cls;
             }
         };
+    }
+
+    public static <T extends org.fisco.bcos.sdk.abi.datatypes.Type> TypeReference<T> create(
+            Type type) {
+        return new TypeReference<T>(type) {
+            @Override
+            public Type getType() {
+                return super.getType();
+            }
+        };
+    }
+
+    public abstract static class StaticArrayTypeReference<
+                    T extends org.fisco.bcos.sdk.abi.datatypes.Type>
+            extends TypeReference<T> {
+
+        private final int size;
+
+        protected StaticArrayTypeReference(int size) {
+            this.size = size;
+        }
+
+        public int getSize() {
+            return size;
+        }
     }
 }

@@ -33,7 +33,7 @@ public class EventEncoder {
         result.append(methodName);
         result.append("(");
         String params =
-                parameters.stream().map(p -> Utils.getTypeName(p)).collect(Collectors.joining(","));
+                parameters.stream().map(Utils::getMethodSign).collect(Collectors.joining(","));
         result.append(params);
         result.append(")");
         return result.toString();
