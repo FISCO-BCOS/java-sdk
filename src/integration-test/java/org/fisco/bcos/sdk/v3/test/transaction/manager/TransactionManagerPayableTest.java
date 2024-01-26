@@ -1,37 +1,21 @@
 package org.fisco.bcos.sdk.v3.test.transaction.manager;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
-import org.fisco.bcos.sdk.v3.codec.datatypes.Bytes;
-import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
-import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicBytes;
-import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicStruct;
-import org.fisco.bcos.sdk.v3.codec.datatypes.StaticArray;
-import org.fisco.bcos.sdk.v3.codec.datatypes.StaticStruct;
-import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
-import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Bytes32;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int128;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int32;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint128;
-import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject;
+import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.contract.precompiled.balance.BalanceService;
+import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigFeature;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
-import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.test.contract.solidity.HelloWorldPayable;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.AssembleTransactionService;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.ProxySignTransactionManager;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.DeployTransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.TransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.utils.TransactionRequestBuilder;
-import org.fisco.bcos.sdk.v3.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.tools.JsonUtils;
-import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -88,6 +72,13 @@ public class TransactionManagerPayableTest {
         BalanceService balanceService =
                 new BalanceService(client, client.getCryptoSuite().getCryptoKeyPair());
 
+        SystemConfig balanceFeature =
+                client.getSystemConfigByKey(
+                        SystemConfigFeature.Features.FEATURE_BALANCE.toString());
+        if (!"1".equals(balanceFeature.getSystemConfig().getValue())) {
+            return;
+        }
+
         BigInteger balance =
                 balanceService.getBalance(client.getCryptoSuite().getCryptoKeyPair().getAddress());
         if (balance.compareTo(BigInteger.valueOf(200000)) < 0) {
@@ -98,7 +89,8 @@ public class TransactionManagerPayableTest {
         List<Object> deployParams = new ArrayList<>();
 
         TransactionRequestBuilder builder = new TransactionRequestBuilder(abi, binary);
-        DeployTransactionRequest request = builder.setValue(BigInteger.valueOf(100000)).buildDeployRequest(deployParams);
+        DeployTransactionRequest request =
+                builder.setValue(BigInteger.valueOf(100000)).buildDeployRequest(deployParams);
 
         TransactionResponse response = transactionService.deployContract(request);
 
