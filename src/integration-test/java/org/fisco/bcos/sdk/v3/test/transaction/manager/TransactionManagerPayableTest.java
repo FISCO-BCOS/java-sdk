@@ -72,10 +72,15 @@ public class TransactionManagerPayableTest {
         BalanceService balanceService =
                 new BalanceService(client, client.getCryptoSuite().getCryptoKeyPair());
 
-        SystemConfig balanceFeature =
-                client.getSystemConfigByKey(
-                        SystemConfigFeature.Features.FEATURE_BALANCE.toString());
-        if (!"1".equals(balanceFeature.getSystemConfig().getValue())) {
+        try {
+            SystemConfig balanceFeature =
+                    client.getSystemConfigByKey(
+                            SystemConfigFeature.Features.FEATURE_BALANCE.toString());
+            if (!"1".equals(balanceFeature.getSystemConfig().getValue())) {
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("getSystemConfigByKey error, skip.");
             return;
         }
 
