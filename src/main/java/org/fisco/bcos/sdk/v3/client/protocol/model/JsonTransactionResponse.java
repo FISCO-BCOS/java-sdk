@@ -27,9 +27,9 @@ import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.Transaction;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV2JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionData;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV2;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderJniObj;
-import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderV2JniObj;
-import org.fisco.bcos.sdk.jni.utilities.tx.TransactionV2;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
@@ -383,32 +383,38 @@ public class JsonTransactionResponse {
 
     public static JsonTransactionResponse decodeTransactionV1(String hexString)
             throws JniException {
-        TransactionV2 transactionV2 =
-                TransactionStructBuilderV2JniObj.decodeTransactionStructV2(hexString);
+        Transaction transactionV2 =
+                TransactionStructBuilderJniObj.decodeTransactionStructV2(hexString);
+        TransactionData transactionData = transactionV2.getTransactionData();
         JsonTransactionResponse jsonTransactionResponse = new JsonTransactionResponse();
-        jsonTransactionResponse.setVersion(transactionV2.getTransactionData().getVersion());
-        jsonTransactionResponse.setHash(Hex.toHexString(transactionV2.getDataHash().getBuffer()));
-        jsonTransactionResponse.setNonce(transactionV2.getTransactionData().getNonce());
-        jsonTransactionResponse.setBlockLimit(transactionV2.getTransactionData().getBlockLimit());
-        jsonTransactionResponse.setTo(transactionV2.getTransactionData().getTo());
-        // jsonTransactionResponse.setFrom(Hex.toHexString(transactionV2.getSender().getBuffer()));
-        jsonTransactionResponse.setAbi(transactionV2.getTransactionData().getAbi());
+        jsonTransactionResponse.setVersion(transactionData.getVersion());
+        jsonTransactionResponse.setHash(
+                Hex.toHexStringMaybeNullData(transactionV2.getDataHash(), ""));
+        jsonTransactionResponse.setNonce(transactionData.getNonce());
+        jsonTransactionResponse.setBlockLimit(transactionData.getBlockLimit());
+        jsonTransactionResponse.setTo(transactionData.getTo());
+        jsonTransactionResponse.setFrom(
+                Hex.toHexStringMaybeNullData(transactionV2.getSender(), ""));
+        jsonTransactionResponse.setAbi(transactionData.getAbi());
         jsonTransactionResponse.setInput(
-                Hex.toHexString(transactionV2.getTransactionData().getInput().getBuffer()));
-        jsonTransactionResponse.setChainID(transactionV2.getTransactionData().getChainId());
-        jsonTransactionResponse.setGroupID(transactionV2.getTransactionData().getGroupId());
+                Hex.toHexStringMaybeNullData(transactionData.getInput(), ""));
+        jsonTransactionResponse.setChainID(transactionData.getChainId());
+        jsonTransactionResponse.setGroupID(transactionData.getGroupId());
         jsonTransactionResponse.setExtraData(transactionV2.getExtraData());
         jsonTransactionResponse.setSignature(
-                Hex.toHexString(transactionV2.getSignature().getBuffer()));
+                Hex.toHexStringMaybeNullData(transactionV2.getSignature(), ""));
         jsonTransactionResponse.setImportTime(transactionV2.getImportTime());
 
-        jsonTransactionResponse.setValue(transactionV2.getTransactionData().getValue());
-        jsonTransactionResponse.setGasPrice(transactionV2.getTransactionData().getGasPrice());
-        jsonTransactionResponse.setGasLimit(transactionV2.getTransactionData().getGasLimit());
-        jsonTransactionResponse.setMaxFeePerGas(
-                transactionV2.getTransactionData().getMaxFeePerGas());
-        jsonTransactionResponse.setMaxPriorityFeePerGas(
-                transactionV2.getTransactionData().getMaxPriorityFeePerGas());
+        if (transactionData instanceof TransactionDataV2
+                && transactionData.getVersion() == TransactionVersion.V1.getValue()) {
+            TransactionDataV2 transactionDataV2 = (TransactionDataV2) transactionData;
+            jsonTransactionResponse.setValue(transactionDataV2.getValue());
+            jsonTransactionResponse.setGasPrice(transactionDataV2.getGasPrice());
+            jsonTransactionResponse.setGasLimit(transactionDataV2.getGasLimit());
+            jsonTransactionResponse.setMaxFeePerGas(transactionDataV2.getMaxFeePerGas());
+            jsonTransactionResponse.setMaxPriorityFeePerGas(
+                    transactionDataV2.getMaxPriorityFeePerGas());
+        }
         return jsonTransactionResponse;
     }
 
@@ -416,19 +422,20 @@ public class JsonTransactionResponse {
         Transaction transaction = TransactionStructBuilderJniObj.decodeTransactionStruct(hexString);
         JsonTransactionResponse jsonTransactionResponse = new JsonTransactionResponse();
         jsonTransactionResponse.setVersion(transaction.getTransactionData().getVersion());
-        jsonTransactionResponse.setHash(Hex.toHexString(transaction.getDataHash().getBuffer()));
+        jsonTransactionResponse.setHash(
+                Hex.toHexStringMaybeNullData(transaction.getDataHash(), ""));
         jsonTransactionResponse.setNonce(transaction.getTransactionData().getNonce());
         jsonTransactionResponse.setBlockLimit(transaction.getTransactionData().getBlockLimit());
         jsonTransactionResponse.setTo(transaction.getTransactionData().getTo());
-        // jsonTransactionResponse.setFrom(Hex.toHexString(transactionV2.getSender().getBuffer()));
+        jsonTransactionResponse.setFrom(Hex.toHexStringMaybeNullData(transaction.getSender(), ""));
         jsonTransactionResponse.setAbi(transaction.getTransactionData().getAbi());
         jsonTransactionResponse.setInput(
-                Hex.toHexString(transaction.getTransactionData().getInput().getBuffer()));
+                Hex.toHexStringMaybeNullData(transaction.getTransactionData().getInput(), ""));
         jsonTransactionResponse.setChainID(transaction.getTransactionData().getChainId());
         jsonTransactionResponse.setGroupID(transaction.getTransactionData().getGroupId());
         jsonTransactionResponse.setExtraData(transaction.getExtraData());
         jsonTransactionResponse.setSignature(
-                Hex.toHexString(transaction.getSignature().getBuffer()));
+                Hex.toHexStringMaybeNullData(transaction.getSignature(), ""));
         jsonTransactionResponse.setImportTime(transaction.getImportTime());
 
         return jsonTransactionResponse;

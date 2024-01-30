@@ -53,6 +53,13 @@ public class Hex {
         return addPrefix(toHexString(data, 0, data.length));
     }
 
+    public static String toHexStringMaybeNullData(byte[] data, String defaultValue) {
+        if (Objects.isNull(data)) {
+            return defaultValue;
+        }
+        return toHexString(data, 0, data.length);
+    }
+
     public static String toHexString(byte[] data) {
         return toHexString(data, 0, data.length);
     }

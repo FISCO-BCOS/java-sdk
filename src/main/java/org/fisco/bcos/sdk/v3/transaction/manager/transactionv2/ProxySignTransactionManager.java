@@ -55,6 +55,12 @@ public class ProxySignTransactionManager extends TransactionManager {
         asyncTxSigner = new TransactionJniSignerService(client.getCryptoSuite().getCryptoKeyPair());
     }
 
+    public ProxySignTransactionManager(
+            Client client, AsyncTransactionSignercInterface asyncTxSigner) {
+        this(client);
+        this.asyncTxSigner = asyncTxSigner;
+    }
+
     @Override
     public ContractGasProvider getGasProvider() {
         return contractGasProvider;
@@ -73,12 +79,6 @@ public class ProxySignTransactionManager extends TransactionManager {
     @Override
     public void setNonceProvider(NonceAndBlockLimitProvider nonceProvider) {
         this.nonceProvider = nonceProvider;
-    }
-
-    public ProxySignTransactionManager(
-            Client client, AsyncTransactionSignercInterface asyncTxSigner) {
-        super(client);
-        this.asyncTxSigner = asyncTxSigner;
     }
 
     public void setAsyncTransactionSigner(AsyncTransactionSignercInterface asyncTxSigner) {
