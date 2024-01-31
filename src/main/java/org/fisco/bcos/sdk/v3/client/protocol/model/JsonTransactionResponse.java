@@ -389,20 +389,20 @@ public class JsonTransactionResponse {
         JsonTransactionResponse jsonTransactionResponse = new JsonTransactionResponse();
         jsonTransactionResponse.setVersion(transactionData.getVersion());
         jsonTransactionResponse.setHash(
-                Hex.toHexStringMaybeNullData(transactionV2.getDataHash(), ""));
+                Hex.toHexStringWithPrefixNullable(transactionV2.getDataHash(), ""));
         jsonTransactionResponse.setNonce(transactionData.getNonce());
         jsonTransactionResponse.setBlockLimit(transactionData.getBlockLimit());
         jsonTransactionResponse.setTo(transactionData.getTo());
         jsonTransactionResponse.setFrom(
-                Hex.toHexStringMaybeNullData(transactionV2.getSender(), ""));
+                Hex.toHexStringWithPrefixNullable(transactionV2.getSender(), ""));
         jsonTransactionResponse.setAbi(transactionData.getAbi());
         jsonTransactionResponse.setInput(
-                Hex.toHexStringMaybeNullData(transactionData.getInput(), ""));
+                Hex.toHexStringWithPrefixNullable(transactionData.getInput(), ""));
         jsonTransactionResponse.setChainID(transactionData.getChainId());
         jsonTransactionResponse.setGroupID(transactionData.getGroupId());
         jsonTransactionResponse.setExtraData(transactionV2.getExtraData());
         jsonTransactionResponse.setSignature(
-                Hex.toHexStringMaybeNullData(transactionV2.getSignature(), ""));
+                Hex.toHexStringWithPrefixNullable(transactionV2.getSignature(), ""));
         jsonTransactionResponse.setImportTime(transactionV2.getImportTime());
 
         if (transactionData instanceof TransactionDataV2
@@ -423,19 +423,20 @@ public class JsonTransactionResponse {
         JsonTransactionResponse jsonTransactionResponse = new JsonTransactionResponse();
         jsonTransactionResponse.setVersion(transaction.getTransactionData().getVersion());
         jsonTransactionResponse.setHash(
-                Hex.toHexStringMaybeNullData(transaction.getDataHash(), ""));
+                Hex.toHexStringWithPrefixNullable(transaction.getDataHash(), ""));
         jsonTransactionResponse.setNonce(transaction.getTransactionData().getNonce());
         jsonTransactionResponse.setBlockLimit(transaction.getTransactionData().getBlockLimit());
         jsonTransactionResponse.setTo(transaction.getTransactionData().getTo());
-        jsonTransactionResponse.setFrom(Hex.toHexStringMaybeNullData(transaction.getSender(), ""));
+        jsonTransactionResponse.setFrom(
+                Hex.toHexStringWithPrefixNullable(transaction.getSender(), ""));
         jsonTransactionResponse.setAbi(transaction.getTransactionData().getAbi());
         jsonTransactionResponse.setInput(
-                Hex.toHexStringMaybeNullData(transaction.getTransactionData().getInput(), ""));
+                Hex.toHexStringWithPrefixNullable(transaction.getTransactionData().getInput(), ""));
         jsonTransactionResponse.setChainID(transaction.getTransactionData().getChainId());
         jsonTransactionResponse.setGroupID(transaction.getTransactionData().getGroupId());
         jsonTransactionResponse.setExtraData(transaction.getExtraData());
         jsonTransactionResponse.setSignature(
-                Hex.toHexStringMaybeNullData(transaction.getSignature(), ""));
+                Hex.toHexStringWithPrefixNullable(transaction.getSignature(), ""));
         jsonTransactionResponse.setImportTime(transaction.getImportTime());
 
         return jsonTransactionResponse;
