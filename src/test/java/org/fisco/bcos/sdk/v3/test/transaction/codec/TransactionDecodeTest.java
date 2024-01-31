@@ -2,6 +2,11 @@ package org.fisco.bcos.sdk.v3.test.transaction.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.tx.Transaction;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV2;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderJniObj;
+import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.v3.codec.FunctionReturnDecoderInterface;
 import org.fisco.bcos.sdk.v3.codec.Utils;
@@ -134,5 +139,27 @@ public class TransactionDecodeTest {
             return (BigInteger)result.get(0).getValue();
         });
         Assert.assertEquals(-255, retCode2.getCode());
+    }
+
+    @Test
+    public void testDeocde () throws JniException {
+        String txV0 = "0x1a1c2606636861696e30360667726f7570304101fd562831343230303535313832363235373935303133363132373836353832393033393938343232343237662a3078303130326538623666633863646639363236666464633163336561386331653739623366636539347d0000644ed3885e0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000474657374000000000000000000000000000000000000000000000000000000000b2d00002082b0283ac2793fb68be2f2f79056251664093500a57313e3adad74d852cb32e53d000041cb1d9cc1e3b87ec4afa9ccf680ce11cad980056b63a58641dff78c84a6e7c6a41f3480b0cfa1a9a5107f4a0bf2ccffabeb1a550d66a1a754e9aba6b266cde7da00";
+        String txV1 = "0x1a10012606636861696e30360667726f7570304101fb56203731646430333435623135373437353738643531376661366164623330393461662a3078333165643532333362383163373964356164646465656639393166353331613962626332616430317d0000644ed3885e000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000047465730a000000000000000000000000000000000000000000000000000000009603307830a6033078300b2d0000205bb1fa7f6b420cbc5d99f075edf4e2f340d003f76c35cc95d83ce3d6f790a4823d0000418f72ab9782925d323e759aa6d1bfc492160d84176030712395530dc42bdf973b0c4dcb64e20fcbd922e417f04010ed4cbd3e86c073da00292e49b301a4e2554c015001";
+
+        {
+            JsonTransactionResponse transactionV0 = JsonTransactionResponse.decodeTransaction(txV0);
+            JsonTransactionResponse transactionV1 =
+                    JsonTransactionResponse.decodeTransactionV1(txV1);
+
+            System.out.println(transactionV0);
+            System.out.println(transactionV1);
+        }
+
+        {
+//            TransactionDataV2 transactionDataV2 = new TransactionDataV2();
+//            transactionDataV2.setInput(new byte[1]);
+//            String s = TransactionStructBuilderJniObj.encodeTransactionDataStruct(transactionDataV2);
+//            System.out.println(s);
+        }
     }
 }
