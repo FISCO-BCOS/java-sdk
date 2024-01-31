@@ -29,8 +29,8 @@ import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 public class ABIDefinition {
     private String name;
     private String type;
-    private boolean constant;
-    private boolean payable;
+    private boolean constant = false;
+    private boolean payable = false;
     private boolean anonymous;
     private String stateMutability;
     private List<ConflictField> conflictFields = new ArrayList<>();
@@ -38,7 +38,7 @@ public class ABIDefinition {
     private List<NamedType> inputs = new ArrayList<>();
     private List<NamedType> outputs = new ArrayList<>();
     private List<Long> selector = new ArrayList<>();
-    public static List<String> CONSTANT_KEY = Arrays.asList("view");
+    public static List<String> CONSTANT_KEY = Arrays.asList("view", "pure");
 
     public ABIDefinition() {}
 
@@ -213,7 +213,7 @@ public class ABIDefinition {
     }
 
     public boolean isPayable() {
-        return this.payable;
+        return this.payable || "payable".equals(getStateMutability());
     }
 
     public void setPayable(boolean payable) {
