@@ -272,6 +272,52 @@ public class Contract {
         }
     }
 
+    protected static <T extends Contract> T deploy(
+            Class<T> type,
+            Client client,
+            CryptoKeyPair credential,
+            String binary,
+            String abi,
+            byte[] encodedConstructor,
+            String path,
+            BigInteger value)
+            throws ContractException {
+        try {
+            Constructor<T> constructor =
+                    type.getDeclaredConstructor(String.class, Client.class, CryptoKeyPair.class);
+            constructor.setAccessible(true);
+            T contract = constructor.newInstance(null, client, credential);
+
+            ContractCodec codec = new ContractCodec(contract.cryptoSuite, client.isWASM());
+            if (client.isWASM()) {
+                // NOTE: it should set address first, contract.executeDeployTransaction will use it
+                // as 'to'
+                contract.setContractAddress(path);
+            }
+            TransactionReceipt transactionReceipt =
+                    contract.executeDeployTransaction(
+                            codec.encodeConstructorFromBytes(binary, encodedConstructor),
+                            abi,
+                            value);
+            String contractAddress = transactionReceipt.getContractAddress();
+            if (contractAddress == null
+                    || transactionReceipt.getStatus()
+                            != TransactionReceiptStatus.Success.getCode()) {
+                // parse the receipt
+                ReceiptParser.getErrorStatus(transactionReceipt);
+            }
+            contract.setContractAddress(client.isWASM() ? path : contractAddress);
+            contract.setDeployReceipt(transactionReceipt);
+            return contract;
+        } catch (InstantiationException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | IllegalAccessException
+                | ContractCodecException e) {
+            throw new ContractException("deploy contract failed, error info: " + e.getMessage(), e);
+        }
+    }
+
     private int generateTransactionAttribute(String funcName) {
         int attribute = 0;
         if (client.isWASM()) {
@@ -485,12 +531,33 @@ public class Contract {
                 this.contractAddress, data, this.credential, txAttribute, callback);
     }
 
+    protected String asyncExecuteTransaction(
+            byte[] data,
+            String funName,
+            TransactionCallback callback,
+            int dagAttribute,
+            BigInteger value) {
+        if (transactionManager != null) {
+            try {
+                return transactionManager.asyncSendTransaction(
+                        this.contractAddress, data, value, callback);
+            } catch (JniException e) {
+                logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
+                return null;
+            }
+        }
+        int txAttribute = generateTxAttributeWithDagFlag(funName, dagAttribute);
+        return this.transactionProcessor.sendTransactionAsync(
+                this.contractAddress, data, this.credential, txAttribute, callback);
+    }
+
     protected String asyncExecuteTransaction(Function function, TransactionCallback callback) {
         return this.asyncExecuteTransaction(
                 this.functionEncoder.encode(function),
                 function.getName(),
                 callback,
-                function.getTransactionAttribute());
+                function.getTransactionAttribute(),
+                function.getValue());
     }
 
     protected TransactionReceipt executeTransaction(Function function) {
@@ -502,7 +569,7 @@ public class Contract {
                         transactionManager.sendTransaction(
                                 this.contractAddress,
                                 this.functionEncoder.encode(function),
-                                BigInteger.ZERO);
+                                function.getValue());
             } catch (JniException e) {
                 logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
             }
@@ -527,6 +594,25 @@ public class Contract {
                 transactionReceipt =
                         this.transactionManager.sendTransaction(
                                 this.contractAddress, data, BigInteger.ZERO, abi, true);
+            } catch (JniException e) {
+                logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
+            }
+            return transactionReceipt;
+        }
+        int txAttribute = generateTxAttributeWithDagFlag(Contract.FUNC_DEPLOY, 0);
+        return this.transactionProcessor.deployAndGetReceipt(
+                this.contractAddress, data, abi, this.credential, txAttribute);
+    }
+
+    protected TransactionReceipt executeDeployTransaction(
+            byte[] data, String abi, BigInteger value) {
+        if (transactionManager != null) {
+
+            TransactionReceipt transactionReceipt = null;
+            try {
+                transactionReceipt =
+                        this.transactionManager.sendTransaction(
+                                this.contractAddress, data, value, abi, true);
             } catch (JniException e) {
                 logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
             }
@@ -563,12 +649,16 @@ public class Contract {
     protected String createSignedTransaction(Function function) {
         if (transactionManager != null) {
             try {
+                byte[] methodId =
+                        functionEncoder.buildMethodId(
+                                FunctionEncoderInterface.buildMethodSignature(
+                                        function.getName(), function.getInputParameters()));
                 return transactionManager.createSignedTransaction(
                         this.contractAddress,
                         this.functionEncoder.encode(function),
-                        BigInteger.ZERO,
-                        BigInteger.ZERO,
-                        BigInteger.ZERO,
+                        function.getValue(),
+                        transactionManager.getGasProvider().getGasPrice(methodId),
+                        transactionManager.getGasProvider().getGasLimit(methodId),
                         client.getBlockLimit(),
                         "",
                         false);
