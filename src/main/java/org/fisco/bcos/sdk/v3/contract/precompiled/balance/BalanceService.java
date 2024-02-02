@@ -6,7 +6,6 @@ import java.util.List;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.contract.precompiled.callback.PrecompiledCallback;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
-import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
@@ -43,7 +42,7 @@ public class BalanceService {
     }
 
     public BigInteger getBalance(String address) throws ContractException {
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         BigInteger balance = balancePrecompiled.getBalance(address);
         return balance;
     }
@@ -51,7 +50,7 @@ public class BalanceService {
     public RetCode addBalance(String address, String amount, Convert.Unit unit)
             throws ContractException {
         BigDecimal weiValue = Convert.toWei(amount, unit);
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         TransactionReceipt transactionReceipt =
                 balancePrecompiled.addBalance(address, weiValue.toBigIntegerExact());
         if (transactionReceipt.isStatusOK()) {
@@ -67,7 +66,7 @@ public class BalanceService {
             String address, String amount, Convert.Unit unit, PrecompiledCallback callback)
             throws ContractException {
         BigDecimal weiValue = Convert.toWei(amount, unit);
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         this.balancePrecompiled.addBalance(
                 address, weiValue.toBigIntegerExact(), createTransactionCallback(callback));
     }
@@ -75,7 +74,7 @@ public class BalanceService {
     public RetCode subBalance(String address, String amount, Convert.Unit unit)
             throws ContractException {
         BigDecimal weiValue = Convert.toWei(amount, unit);
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         TransactionReceipt transactionReceipt =
                 balancePrecompiled.subBalance(address, weiValue.toBigIntegerExact());
         if (transactionReceipt.isStatusOK()) {
@@ -91,7 +90,7 @@ public class BalanceService {
             String address, String amount, Convert.Unit unit, PrecompiledCallback callback)
             throws ContractException {
         BigDecimal weiValue = Convert.toWei(amount, unit);
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         this.balancePrecompiled.subBalance(
                 address, weiValue.toBigIntegerExact(), createTransactionCallback(callback));
     }
@@ -99,7 +98,7 @@ public class BalanceService {
     public RetCode transfer(String from, String to, String amount, Convert.Unit unit)
             throws ContractException {
         BigDecimal weiValue = Convert.toWei(amount, unit);
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         TransactionReceipt transactionReceipt =
                 balancePrecompiled.transfer(from, to, weiValue.toBigIntegerExact());
         if (transactionReceipt.isStatusOK()) {
@@ -115,13 +114,13 @@ public class BalanceService {
             String from, String to, String amount, Convert.Unit unit, PrecompiledCallback callback)
             throws ContractException {
         BigDecimal weiValue = Convert.toWei(amount, unit);
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         this.balancePrecompiled.transfer(
                 from, to, weiValue.toBigIntegerExact(), createTransactionCallback(callback));
     }
 
     public RetCode registerCaller(String address) throws ContractException {
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         TransactionReceipt receipt = balancePrecompiled.registerCaller(address);
         if (receipt.isStatusOK()) {
             RetCode codeSuccess = PrecompiledRetCode.CODE_SUCCESS;
@@ -134,12 +133,12 @@ public class BalanceService {
 
     public void registerCallerAsync(String address, PrecompiledCallback callback)
             throws ContractException {
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         this.balancePrecompiled.registerCaller(address, createTransactionCallback(callback));
     }
 
     public RetCode unregisterCaller(String address) throws ContractException {
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         TransactionReceipt receipt = balancePrecompiled.unregisterCaller(address);
         if (receipt.isStatusOK()) {
             RetCode codeSuccess = PrecompiledRetCode.CODE_SUCCESS;
@@ -152,12 +151,12 @@ public class BalanceService {
 
     public void unregisterCallerAsync(String address, PrecompiledCallback callback)
             throws ContractException {
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         this.balancePrecompiled.unregisterCaller(address, createTransactionCallback(callback));
     }
 
     public List<String> listCaller() throws ContractException {
-        PrecompiledVersionCheck.BALANCE_PRECOMPILED_VERSION.checkVersion(currentVersion);
+
         List<String> result = balancePrecompiled.listCaller();
         return result;
     }
