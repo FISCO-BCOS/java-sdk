@@ -32,6 +32,7 @@ import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ public class SystemConfigService {
     private final Client client;
     public static final String TX_COUNT_LIMIT = "tx_count_limit";
     public static final String TX_GAS_LIMIT = "tx_gas_limit";
+    public static final String TX_GAS_PRICE = "tx_gas_price";
     public static final String CONSENSUS_PERIOD = "consensus_leader_period";
     public static final String AUTH_STATUS = "auth_check_status";
     public static final String COMPATIBILITY_VERSION = "compatibility_version";
@@ -53,6 +55,7 @@ public class SystemConfigService {
         predicateMap.put(AUTH_STATUS, value -> value.compareTo(BigInteger.ZERO) >= 0);
         predicateMap.put(
                 TX_GAS_LIMIT, value -> value.compareTo(BigInteger.valueOf(TX_GAS_LIMIT_MIN)) >= 0);
+        predicateMap.put(TX_GAS_PRICE, value -> value.compareTo(BigInteger.ZERO) >= 0);
     }
 
     public SystemConfigService(Client client, CryptoKeyPair credential) {
@@ -82,6 +85,10 @@ public class SystemConfigService {
         if (!checkAvailableFeatureKeys(client, key)
                 && SystemConfigFeature.fromString(key) == null) {
             throw new ContractException("Unsupported feature key: [" + key + "]");
+        }
+        if (key.equals(TX_GAS_PRICE)) {
+            BigInteger gasPrice = new BigInteger(value);
+            value = Numeric.toHexString(gasPrice);
         }
 
         TransactionReceipt receipt = systemConfigPrecompiled.setValueByKey(key, value);

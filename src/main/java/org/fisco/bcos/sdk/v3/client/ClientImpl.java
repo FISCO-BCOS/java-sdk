@@ -983,6 +983,15 @@ public class ClientImpl implements Client {
 
     @Override
     public SystemConfig getSystemConfigByKey(String key) {
+        if (key.equals(SystemConfigService.TX_GAS_PRICE)) {
+            String gasPrice =
+                    this.getSystemConfigByKey(nodeToSendRequest, key).getSystemConfig().getValue();
+            BigInteger gasPriceValue =
+                    BigInteger.valueOf(Integer.parseInt(Hex.trimPrefix(gasPrice), 16));
+            this.getSystemConfigByKey(nodeToSendRequest, key)
+                    .getSystemConfig()
+                    .setValue(gasPriceValue.toString());
+        }
         return this.getSystemConfigByKey(nodeToSendRequest, key);
     }
 
