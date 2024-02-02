@@ -10,11 +10,12 @@ public class SystemConfigFeature {
         BUGFIX_EVM_CREATE2_DELEGATECALL_STATICCALL_CODECOPY(
                 "bugfix_evm_create2_delegatecall_staticcall_codecopy",
                 EnumNodeVersion.BCOS_3_2_4.getVersion()),
-        BUGFIX_EVENT_LOG_ORDER("bugfix_event_log_order", EnumNodeVersion.BCOS_3_2_6.getVersion()),
+        BUGFIX_EVENT_LOG_ORDER("bugfix_event_log_order", EnumNodeVersion.BCOS_3_2_7.getVersion()),
         BUGFIX_CALL_NOADDR_RETURN(
-                "bugfix_call_noaddr_return", EnumNodeVersion.BCOS_3_2_6.getVersion()),
+                "bugfix_call_noaddr_return", EnumNodeVersion.BCOS_3_2_7.getVersion()),
         BUGFIX_PRECOMPILED_CODEHASH(
-                "bugfix_precompiled_codehash", EnumNodeVersion.BCOS_3_2_6.getVersion()),
+                "bugfix_precompiled_codehash", EnumNodeVersion.BCOS_3_2_7.getVersion()),
+        BUGFIX_DMC_REVERT("bugfix_dmc_revert", EnumNodeVersion.BCOS_3_2_7.getVersion()),
         FEATURE_DMC2SERIAL("feature_dmc2serial", EnumNodeVersion.BCOS_3_2_4.getVersion()),
         FEATURE_SHARDING("feature_sharding", EnumNodeVersion.BCOS_3_5_0.getVersion()),
         FEATURE_RPBFT("feature_rpbft", EnumNodeVersion.BCOS_3_5_0.getVersion()),
@@ -60,6 +61,8 @@ public class SystemConfigFeature {
                 return Features.BUGFIX_CALL_NOADDR_RETURN;
             case "bugfix_precompiled_codehash":
                 return Features.BUGFIX_PRECOMPILED_CODEHASH;
+            case "bugfix_dmc_revert":
+                return Features.BUGFIX_DMC_REVERT;
             case "feature_dmc2serial":
                 return Features.FEATURE_DMC2SERIAL;
             case "feature_sharding":
