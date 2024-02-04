@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.transaction.manager.transactionv2;
+package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1;
 
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.jni.common.JniException;
@@ -24,12 +24,10 @@ public abstract class TransactionManager {
     }
 
     protected TransactionManager(Client client) {
-        int negotiatedProtocol = client.getNegotiatedProtocol();
-        int maxProtocol = negotiatedProtocol >> 16;
-        if (maxProtocol < 2) {
+        if (!client.isSupportTransactionV1()) {
             logger.error(
                     "The current version of the node does not support the transaction manager, please upgrade the node to the latest version. Max protocol version is {}",
-                    maxProtocol);
+                    client.getNegotiatedProtocol() >> 16);
         }
         this.client = client;
     }
@@ -117,6 +115,9 @@ public abstract class TransactionManager {
             String abi,
             boolean constructor)
             throws JniException;
+
+    //    public abstract TransactionReceipt sendTransaction(AbiEncodedRequest request) throws
+    // JniException;
 
     /**
      * This method is used to create a signed transaction.

@@ -1,11 +1,11 @@
-package org.fisco.bcos.sdk.v3.transaction.manager.transactionv2;
+package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.fisco.bcos.sdk.jni.common.JniException;
-import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV2JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV1JniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
@@ -204,7 +204,7 @@ public class ProxySignTransactionManager extends TransactionManager {
         }
         String nonce = nonceProvider.getNonce();
         String dataHash =
-                TransactionBuilderV2JniObj.calcTransactionDataHashWithFullFields(
+                TransactionBuilderV1JniObj.calcTransactionDataHashWithFullFields(
                         cryptoType,
                         TransactionVersion.V1,
                         client.getGroup(),
@@ -245,7 +245,7 @@ public class ProxySignTransactionManager extends TransactionManager {
         } else {
             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
         }
-        return TransactionBuilderV2JniObj.createSignedTransactionWithSignature(
+        return TransactionBuilderV1JniObj.createSignedTransactionWithSignature(
                 signatureResult.encode(),
                 dataHash,
                 TransactionVersion.V1,
@@ -397,7 +397,7 @@ public class ProxySignTransactionManager extends TransactionManager {
             throws JniException {
         String nonce = nonceProvider.getNonce();
         String dataHash =
-                TransactionBuilderV2JniObj.calcTransactionDataHashWithFullFields(
+                TransactionBuilderV1JniObj.calcTransactionDataHashWithFullFields(
                         cryptoType,
                         TransactionVersion.V1,
                         client.getGroup(),
@@ -427,7 +427,7 @@ public class ProxySignTransactionManager extends TransactionManager {
                             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
                         }
                         String signedTransaction =
-                                TransactionBuilderV2JniObj.createSignedTransactionWithSignature(
+                                TransactionBuilderV1JniObj.createSignedTransactionWithSignature(
                                         signature.encode(),
                                         dataHash,
                                         TransactionVersion.V1,
@@ -601,7 +601,7 @@ public class ProxySignTransactionManager extends TransactionManager {
             throws JniException {
         String nonce = nonceProvider.getNonce();
         String dataHash =
-                TransactionBuilderV2JniObj.calcTransactionDataHashWithFullFields(
+                TransactionBuilderV1JniObj.calcTransactionDataHashWithFullFields(
                         cryptoType,
                         TransactionVersion.V1,
                         client.getGroup(),
@@ -630,7 +630,7 @@ public class ProxySignTransactionManager extends TransactionManager {
                             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
                         }
                         String signedTransaction =
-                                TransactionBuilderV2JniObj.createSignedTransactionWithSignature(
+                                TransactionBuilderV1JniObj.createSignedTransactionWithSignature(
                                         signature.encode(),
                                         dataHash,
                                         TransactionVersion.V1,

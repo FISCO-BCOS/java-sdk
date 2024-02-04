@@ -19,14 +19,13 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint128;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject;
 import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
-import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
-import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.AssembleTransactionService;
-import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.ProxySignTransactionManager;
-import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.DeployTransactionRequest;
-import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.DeployTransactionRequestWithStringParams;
-import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.TransactionRequest;
-import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto.TransactionRequestWithStringParams;
-import org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.utils.TransactionRequestBuilder;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.AssembleTransactionService;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.ProxySignTransactionManager;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequest;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequestWithStringParams;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequest;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequestWithStringParams;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.utils.TransactionRequestBuilder;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.tools.ContractLoader;
@@ -40,7 +39,6 @@ import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -103,7 +101,7 @@ public class TransactionManagerTest {
 
     @Test
     public void test1ComplexCodecWithType() throws Exception {
-        if ((client.getNegotiatedProtocol() >> 16) < 2) {
+        if (!client.isSupportTransactionV1())  {
             return;
         }
         // test deploy with struct
@@ -311,7 +309,7 @@ public class TransactionManagerTest {
 
     @Test
     public void test2ComplexCodecWithStringParams() throws Exception {
-        if ((client.getNegotiatedProtocol() >> 16) < 2) {
+        if (!client.isSupportTransactionV1())  {
             return;
         }
         // test deploy with struct
@@ -475,7 +473,7 @@ public class TransactionManagerTest {
 
     @Test
     public void test1ComplexCodecWithJavaObject() throws Exception {
-        if ((client.getNegotiatedProtocol() >> 16) < 2) {
+        if (!client.isSupportTransactionV1()) {
             return;
         }
         // test deploy with struct

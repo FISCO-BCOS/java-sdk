@@ -987,12 +987,26 @@ public interface Client {
     void setNodeToSendRequest(String nodeToSendRequest);
 
     /**
+     * Check this client whether supporting sending transaction with v1 version or not.
+     *
+     * @return is this client support sending transaction with v1 version
+     */
+    boolean isSupportTransactionV1();
+
+    /**
      * get node name to send rpc request directly
      *
      * @return the node name
      */
     String getNodeToSendRequest();
 
+    /**
+     * Get the protocol version after SDK and Blockchain node negotiated. This method returns int
+     * with max and min version bits combined, which is (max|min). Max protocol version is in first
+     * 16 bit, and min protocol version in the second 16 bit.
+     *
+     * @return (max|min) bits combined.
+     */
     int getNegotiatedProtocol();
 
     void start();
