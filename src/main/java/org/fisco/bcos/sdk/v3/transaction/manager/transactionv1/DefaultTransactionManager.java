@@ -152,18 +152,9 @@ public class DefaultTransactionManager extends TransactionManager {
         return bcosTransactionReceipt.getTransactionReceipt();
     }
 
-    //    @Override
+    @Override
     public TransactionReceipt sendTransaction(AbiEncodedRequest request) throws JniException {
-        String signedTransaction =
-                createSignedTransaction(
-                        request.getTo(),
-                        request.getEncodedData(),
-                        request.getValue(),
-                        request.getGasPrice(),
-                        request.getGasLimit(),
-                        request.getBlockLimit(),
-                        request.getAbi(),
-                        request.getAbi() != null);
+        String signedTransaction = createSignedTransaction(request).getSignedTx();
         BcosTransactionReceipt bcosTransactionReceipt =
                 client.sendTransaction(signedTransaction, false);
         return bcosTransactionReceipt.getTransactionReceipt();
@@ -220,6 +211,55 @@ public class DefaultTransactionManager extends TransactionManager {
                         transactionAttribute,
                         client.getExtraData());
         return txPair.getSignedTx();
+    }
+
+    @Override
+    public TxPair createSignedTransaction(AbiEncodedRequest request) throws JniException {
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new JniException(
+                    "Transaction essential fields are not satisfied: encodedData, to.");
+        }
+        int transactionAttribute;
+        if (client.isWASM()) {
+            transactionAttribute = TransactionAttribute.LIQUID_SCALE_CODEC;
+            if (request.isCreate()) {
+                transactionAttribute |= TransactionAttribute.LIQUID_CREATE;
+            }
+        } else {
+            transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
+        }
+        byte[] methodId = new byte[4];
+        if (!request.isCreate() && (request.getEncodedData().length >= 4)) {
+            System.arraycopy(request.getEncodedData(), 0, methodId, 0, 4);
+        }
+        String nonce =
+                request.getNonce() == null ? getNonceProvider().getNonce() : request.getNonce();
+        BigInteger blockLimit =
+                request.getBlockLimit() == null
+                        ? getNonceProvider().getBlockLimit(client)
+                        : request.getBlockLimit();
+        BigInteger gasPrice =
+                request.getGasPrice() == null
+                        ? getGasProvider().getGasPrice(methodId)
+                        : request.getGasPrice();
+        BigInteger gasLimit =
+                request.getGasLimit() == null
+                        ? getGasProvider().getGasLimit(methodId)
+                        : request.getGasLimit();
+        return TransactionBuilderV1JniObj.createSignedTransactionWithFullFields(
+                client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
+                client.getGroup(),
+                client.getChainId(),
+                request.getTo(),
+                nonce,
+                request.getEncodedData(),
+                request.isCreate() ? request.getAbi() : "",
+                blockLimit.longValue(),
+                Numeric.toHexString(request.getValue()),
+                Numeric.toHexString(gasPrice),
+                gasLimit.longValue(),
+                transactionAttribute,
+                client.getExtraData());
     }
 
     /**
@@ -347,6 +387,14 @@ public class DefaultTransactionManager extends TransactionManager {
                         gasLimit == null ? 0 : gasLimit.longValue(),
                         transactionAttribute,
                         client.getExtraData());
+        client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
+        return txPair.getTxHash();
+    }
+
+    @Override
+    public String asyncSendTransaction(AbiEncodedRequest request, TransactionCallback callback)
+            throws JniException {
+        TxPair txPair = createSignedTransaction(request);
         client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
         return txPair.getTxHash();
     }
