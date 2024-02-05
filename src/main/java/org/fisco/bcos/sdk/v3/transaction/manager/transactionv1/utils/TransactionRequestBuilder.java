@@ -3,7 +3,6 @@ package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.utils;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
-import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.AbiEncodedRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequestWithStringParams;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequest;
@@ -13,13 +12,10 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 public class TransactionRequestBuilder {
     private String abi;
     private String method;
-    private byte[] abiEncodedData;
     private String to;
     private BigInteger value;
     private BigInteger gasPrice;
     private BigInteger gasLimit;
-    private BigInteger blockLimit;
-    private String nonce;
     private String bin;
     private EIP1559Struct eip1559Struct;
 
@@ -66,21 +62,6 @@ public class TransactionRequestBuilder {
 
     public TransactionRequestBuilder setBin(String bin) {
         this.bin = bin;
-        return this;
-    }
-
-    public TransactionRequestBuilder setAbiEncodedData(byte[] abiEncodedData) {
-        this.abiEncodedData = abiEncodedData;
-        return this;
-    }
-
-    public TransactionRequestBuilder setBlockLimit(BigInteger blockLimit) {
-        this.blockLimit = blockLimit;
-        return this;
-    }
-
-    public TransactionRequestBuilder setNonce(String nonce) {
-        this.nonce = nonce;
         return this;
     }
 
@@ -164,26 +145,6 @@ public class TransactionRequestBuilder {
             request.setTo(to);
         }
         request.setStringParams(stringParams);
-        return request;
-    }
-
-    public AbiEncodedRequest buildAbiEncodedRequest(boolean isCreate) throws ContractException {
-        if (abiEncodedData == null) {
-            throw new ContractException(
-                    "AbiEncodedRequest abiEncodedData is null, please set it manually.");
-        }
-        if (isCreate && abi == null) {
-            throw new ContractException("AbiEncodedRequest abi is null, please set it manually.");
-        }
-        AbiEncodedRequest request =
-                new AbiEncodedRequest(
-                        this.to, this.value, this.gasPrice, this.gasLimit, this.eip1559Struct);
-        request.setEncodedData(abiEncodedData);
-        request.setBlockLimit(blockLimit);
-        request.setNonce(nonce);
-        if (isCreate) {
-            request.setAbi(abi);
-        }
         return request;
     }
 }

@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV1JniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
+import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
@@ -23,6 +24,7 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.ContractGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.DefaultGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.AbiEncodedRequest;
 import org.fisco.bcos.sdk.v3.transaction.nonce.DefaultNonceAndBlockLimitProvider;
 import org.fisco.bcos.sdk.v3.transaction.nonce.NonceAndBlockLimitProvider;
 import org.fisco.bcos.sdk.v3.transaction.signer.AsyncTransactionSignercInterface;
@@ -173,6 +175,12 @@ public class ProxySignTransactionManager extends TransactionManager {
         return client.sendTransaction(signedTransaction, false).getTransactionReceipt();
     }
 
+    @Override
+    public TransactionReceipt sendTransaction(AbiEncodedRequest request) throws JniException {
+        TxPair txPair = createSignedTransaction(request);
+        return client.sendTransaction(txPair.getSignedTx(), false).getTransactionReceipt();
+    }
+
     /**
      * This method is used to create a signed transaction.
      *
@@ -263,6 +271,94 @@ public class ProxySignTransactionManager extends TransactionManager {
                 "",
                 transactionAttribute,
                 client.getExtraData());
+    }
+
+    @Override
+    public TxPair createSignedTransaction(AbiEncodedRequest request) throws JniException {
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new JniException("Transaction essential fields are not satisfied");
+        }
+        int transactionAttribute;
+        if (client.isWASM()) {
+            transactionAttribute = TransactionAttribute.LIQUID_SCALE_CODEC;
+            if (request.isCreate()) {
+                transactionAttribute |= TransactionAttribute.LIQUID_CREATE;
+            }
+        } else {
+            transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
+        }
+        byte[] methodId = new byte[4];
+        if (!request.isCreate() && (request.getEncodedData().length >= 4)) {
+            System.arraycopy(request.getEncodedData(), 0, methodId, 0, 4);
+        }
+        String nonce =
+                request.getNonce() == null ? getNonceProvider().getNonce() : request.getNonce();
+        BigInteger blockLimit =
+                request.getBlockLimit() == null
+                        ? getNonceProvider().getBlockLimit(client)
+                        : request.getBlockLimit();
+        BigInteger gasPrice =
+                request.getGasPrice() == null
+                        ? getGasProvider().getGasPrice(methodId)
+                        : request.getGasPrice();
+        BigInteger gasLimit =
+                request.getGasLimit() == null
+                        ? getGasProvider().getGasLimit(methodId)
+                        : request.getGasLimit();
+
+        String dataHash =
+                TransactionBuilderV1JniObj.calcTransactionDataHashWithFullFields(
+                        cryptoType,
+                        TransactionVersion.V1,
+                        client.getGroup(),
+                        client.getChainId(),
+                        request.getTo(),
+                        nonce,
+                        request.getEncodedData(),
+                        request.isCreate() ? request.getAbi() : "",
+                        blockLimit.longValue(),
+                        Numeric.toHexString(request.getValue()),
+                        Numeric.toHexString(gasPrice),
+                        gasLimit.longValue(),
+                        "",
+                        "");
+        CompletableFuture<SignatureResult> signFuture = new CompletableFuture<>();
+        SignatureResult signatureResult;
+        try {
+            asyncTxSigner.signAsync(
+                    Hex.decode(dataHash),
+                    signature -> {
+                        signFuture.complete(signature);
+                        return 0;
+                    });
+            signatureResult =
+                    signFuture.get(
+                            client.getConfigOption().getNetworkConfig().getTimeout(),
+                            TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            logger.error("Sign transaction failed, error message: {}", e.getMessage(), e);
+            throw new JniException("Sign transaction failed, error message: " + e.getMessage());
+        }
+        String signedTransactionWithSignature =
+                TransactionBuilderV1JniObj.createSignedTransactionWithSignature(
+                        signatureResult.encode(),
+                        dataHash,
+                        TransactionVersion.V1,
+                        client.getGroup(),
+                        client.getChainId(),
+                        request.getTo(),
+                        nonce,
+                        request.getEncodedData(),
+                        request.isCreate() ? request.getAbi() : "",
+                        blockLimit.longValue(),
+                        Numeric.toHexString(request.getValue()),
+                        Numeric.toHexString(gasPrice),
+                        gasLimit.longValue(),
+                        "",
+                        "",
+                        transactionAttribute,
+                        client.getExtraData());
+        return new TxPair(dataHash, signedTransactionWithSignature);
     }
 
     /**
@@ -472,6 +568,14 @@ public class ProxySignTransactionManager extends TransactionManager {
                     return -1;
                 });
         return dataHash;
+    }
+
+    @Override
+    public String asyncSendTransaction(AbiEncodedRequest request, TransactionCallback callback)
+            throws JniException {
+        TxPair txPair = createSignedTransaction(request);
+        client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
+        return txPair.getTxHash();
     }
 
     /**

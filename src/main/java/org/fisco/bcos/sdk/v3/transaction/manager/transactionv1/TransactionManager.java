@@ -2,6 +2,7 @@ package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1;
 
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
@@ -9,6 +10,7 @@ import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.ContractGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.AbiEncodedRequest;
 import org.fisco.bcos.sdk.v3.transaction.nonce.NonceAndBlockLimitProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,8 +118,8 @@ public abstract class TransactionManager {
             boolean constructor)
             throws JniException;
 
-    //    public abstract TransactionReceipt sendTransaction(AbiEncodedRequest request) throws
-    // JniException;
+    public abstract TransactionReceipt sendTransaction(AbiEncodedRequest request)
+            throws JniException;
 
     /**
      * This method is used to create a signed transaction.
@@ -144,6 +146,8 @@ public abstract class TransactionManager {
             String abi,
             boolean constructor)
             throws JniException;
+
+    public abstract TxPair createSignedTransaction(AbiEncodedRequest request) throws JniException;
 
     /**
      * Simple send tx asynchronously
@@ -229,6 +233,9 @@ public abstract class TransactionManager {
             boolean constructor,
             TransactionCallback callback)
             throws JniException;
+
+    public abstract String asyncSendTransaction(
+            AbiEncodedRequest request, TransactionCallback callback) throws JniException;
 
     /**
      * Send tx with EIP1559
