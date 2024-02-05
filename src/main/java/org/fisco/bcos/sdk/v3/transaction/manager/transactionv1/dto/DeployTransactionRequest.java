@@ -1,4 +1,4 @@
-package org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto;
+package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto;
 
 import java.math.BigInteger;
 import java.util.List;

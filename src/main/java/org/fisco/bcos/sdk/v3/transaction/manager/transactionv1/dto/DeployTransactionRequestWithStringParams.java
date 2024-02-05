@@ -1,22 +1,21 @@
-package org.fisco.bcos.sdk.v3.transaction.manager.transactionv2.dto;
+package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto;
 
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 
-public class TransactionRequestWithStringParams extends BasicRequest {
+public class DeployTransactionRequestWithStringParams extends BasicDeployRequest {
 
     private List<String> stringParams;
 
-    public TransactionRequestWithStringParams(
+    public DeployTransactionRequestWithStringParams(
             String abi,
-            String method,
-            String to,
+            String bin,
             BigInteger value,
             BigInteger gasPrice,
             BigInteger gasLimit,
             EIP1559Struct eip1559Struct) {
-        super(abi, method, to, value, gasPrice, gasLimit, eip1559Struct);
+        super(abi, bin, value, gasPrice, gasLimit, eip1559Struct);
     }
 
     public void setStringParams(List<String> params) {
@@ -34,7 +33,7 @@ public class TransactionRequestWithStringParams extends BasicRequest {
 
     @Override
     public String toString() {
-        return "TransactionRequestWithStringParams{"
+        return "DeployTransactionRequestWithStringParams{"
                 + "base="
                 + super.toString()
                 + ", params="

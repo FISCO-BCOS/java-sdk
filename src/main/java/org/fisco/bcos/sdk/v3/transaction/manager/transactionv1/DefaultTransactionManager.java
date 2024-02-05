@@ -1,9 +1,9 @@
-package org.fisco.bcos.sdk.v3.transaction.manager.transactionv2;
+package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.jni.common.JniException;
-import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV2JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV1JniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
@@ -18,6 +18,7 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.ContractGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.DefaultGasProvider;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.AbiEncodedRequest;
 import org.fisco.bcos.sdk.v3.transaction.nonce.DefaultNonceAndBlockLimitProvider;
 import org.fisco.bcos.sdk.v3.transaction.nonce.NonceAndBlockLimitProvider;
 import org.fisco.bcos.sdk.v3.utils.Hex;
@@ -85,7 +86,7 @@ public class DefaultTransactionManager extends TransactionManager {
                 data,
                 value,
                 getGasProvider().getGasPrice(methodId),
-                getGasProvider().getGasPrice(methodId),
+                getGasProvider().getGasLimit(methodId),
                 client.getBlockLimit(),
                 abi,
                 constructor);
@@ -151,6 +152,23 @@ public class DefaultTransactionManager extends TransactionManager {
         return bcosTransactionReceipt.getTransactionReceipt();
     }
 
+    //    @Override
+    public TransactionReceipt sendTransaction(AbiEncodedRequest request) throws JniException {
+        String signedTransaction =
+                createSignedTransaction(
+                        request.getTo(),
+                        request.getEncodedData(),
+                        request.getValue(),
+                        request.getGasPrice(),
+                        request.getGasLimit(),
+                        request.getBlockLimit(),
+                        request.getAbi(),
+                        request.getAbi() != null);
+        BcosTransactionReceipt bcosTransactionReceipt =
+                client.sendTransaction(signedTransaction, false);
+        return bcosTransactionReceipt.getTransactionReceipt();
+    }
+
     /**
      * This method is used to create a signed transaction.
      *
@@ -187,7 +205,7 @@ public class DefaultTransactionManager extends TransactionManager {
             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
         }
         TxPair txPair =
-                TransactionBuilderV2JniObj.createSignedTransactionWithFullFields(
+                TransactionBuilderV1JniObj.createSignedTransactionWithFullFields(
                         client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
                         client.getGroup(),
                         client.getChainId(),
@@ -234,7 +252,7 @@ public class DefaultTransactionManager extends TransactionManager {
                 data,
                 value,
                 getGasProvider().getGasPrice(methodId),
-                getGasProvider().getGasPrice(methodId),
+                getGasProvider().getGasLimit(methodId),
                 client.getBlockLimit(),
                 abi,
                 constructor,
@@ -315,7 +333,7 @@ public class DefaultTransactionManager extends TransactionManager {
             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
         }
         TxPair txPair =
-                TransactionBuilderV2JniObj.createSignedTransactionWithFullFields(
+                TransactionBuilderV1JniObj.createSignedTransactionWithFullFields(
                         client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
                         client.getGroup(),
                         client.getChainId(),
@@ -390,7 +408,7 @@ public class DefaultTransactionManager extends TransactionManager {
             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
         }
         TxPair txPair =
-                TransactionBuilderV2JniObj.createSignedEIP1559TransactionWithFullFields(
+                TransactionBuilderV1JniObj.createSignedEIP1559TransactionWithFullFields(
                         client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
                         client.getGroup(),
                         client.getChainId(),
@@ -469,7 +487,7 @@ public class DefaultTransactionManager extends TransactionManager {
             transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
         }
         TxPair txPair =
-                TransactionBuilderV2JniObj.createSignedEIP1559TransactionWithFullFields(
+                TransactionBuilderV1JniObj.createSignedEIP1559TransactionWithFullFields(
                         client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
                         client.getGroup(),
                         client.getChainId(),

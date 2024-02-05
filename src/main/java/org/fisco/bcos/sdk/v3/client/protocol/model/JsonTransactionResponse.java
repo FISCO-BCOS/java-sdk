@@ -26,9 +26,9 @@ import java.util.Objects;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.Transaction;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
-import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV2JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV1JniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionData;
-import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV2;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV1;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
@@ -280,7 +280,7 @@ public class JsonTransactionResponse {
         try {
             ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
             String json = objectMapper.writeValueAsString(this);
-            return TransactionBuilderV2JniObj.calcTransactionDataHashWithJson(
+            return TransactionBuilderV1JniObj.calcTransactionDataHashWithJson(
                     cryptoSuite.cryptoTypeConfig, json);
         } catch (Exception e) {
             logger.warn(
@@ -304,7 +304,7 @@ public class JsonTransactionResponse {
      */
     public String calculateHash(int cryptoSuiteType) throws ClientException {
         try {
-            return TransactionBuilderV2JniObj.calcTransactionDataHashWithFullFields(
+            return TransactionBuilderV1JniObj.calcTransactionDataHashWithFullFields(
                     cryptoSuiteType,
                     (getVersion() == 0 ? TransactionVersion.V0 : TransactionVersion.V1),
                     getGroupID(),
@@ -381,64 +381,39 @@ public class JsonTransactionResponse {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public static JsonTransactionResponse decodeTransactionV1(String hexString)
-            throws JniException {
-        Transaction transactionV2 =
-                TransactionStructBuilderJniObj.decodeTransactionStructV2(hexString);
-        TransactionData transactionData = transactionV2.getTransactionData();
+    public static JsonTransactionResponse decodeTransaction(String hexString) throws JniException {
+        Transaction transactionV1 =
+                TransactionStructBuilderJniObj.decodeTransactionStructV1(hexString);
+        TransactionData transactionData = transactionV1.getTransactionData();
         JsonTransactionResponse jsonTransactionResponse = new JsonTransactionResponse();
         jsonTransactionResponse.setVersion(transactionData.getVersion());
         jsonTransactionResponse.setHash(
-                Hex.toHexStringWithPrefixNullable(transactionV2.getDataHash(), ""));
+                Hex.toHexStringWithPrefixNullable(transactionV1.getDataHash(), ""));
         jsonTransactionResponse.setNonce(transactionData.getNonce());
         jsonTransactionResponse.setBlockLimit(transactionData.getBlockLimit());
         jsonTransactionResponse.setTo(transactionData.getTo());
         jsonTransactionResponse.setFrom(
-                Hex.toHexStringWithPrefixNullable(transactionV2.getSender(), ""));
+                Hex.toHexStringWithPrefixNullable(transactionV1.getSender(), ""));
         jsonTransactionResponse.setAbi(transactionData.getAbi());
         jsonTransactionResponse.setInput(
                 Hex.toHexStringWithPrefixNullable(transactionData.getInput(), ""));
         jsonTransactionResponse.setChainID(transactionData.getChainId());
         jsonTransactionResponse.setGroupID(transactionData.getGroupId());
-        jsonTransactionResponse.setExtraData(transactionV2.getExtraData());
+        jsonTransactionResponse.setExtraData(transactionV1.getExtraData());
         jsonTransactionResponse.setSignature(
-                Hex.toHexStringWithPrefixNullable(transactionV2.getSignature(), ""));
-        jsonTransactionResponse.setImportTime(transactionV2.getImportTime());
+                Hex.toHexStringWithPrefixNullable(transactionV1.getSignature(), ""));
+        jsonTransactionResponse.setImportTime(transactionV1.getImportTime());
 
-        if (transactionData instanceof TransactionDataV2
+        if (transactionData instanceof TransactionDataV1
                 && transactionData.getVersion() == TransactionVersion.V1.getValue()) {
-            TransactionDataV2 transactionDataV2 = (TransactionDataV2) transactionData;
-            jsonTransactionResponse.setValue(transactionDataV2.getValue());
-            jsonTransactionResponse.setGasPrice(transactionDataV2.getGasPrice());
-            jsonTransactionResponse.setGasLimit(transactionDataV2.getGasLimit());
-            jsonTransactionResponse.setMaxFeePerGas(transactionDataV2.getMaxFeePerGas());
+            TransactionDataV1 transactionDataV1 = (TransactionDataV1) transactionData;
+            jsonTransactionResponse.setValue(transactionDataV1.getValue());
+            jsonTransactionResponse.setGasPrice(transactionDataV1.getGasPrice());
+            jsonTransactionResponse.setGasLimit(transactionDataV1.getGasLimit());
+            jsonTransactionResponse.setMaxFeePerGas(transactionDataV1.getMaxFeePerGas());
             jsonTransactionResponse.setMaxPriorityFeePerGas(
-                    transactionDataV2.getMaxPriorityFeePerGas());
+                    transactionDataV1.getMaxPriorityFeePerGas());
         }
-        return jsonTransactionResponse;
-    }
-
-    public static JsonTransactionResponse decodeTransaction(String hexString) throws JniException {
-        Transaction transaction = TransactionStructBuilderJniObj.decodeTransactionStruct(hexString);
-        JsonTransactionResponse jsonTransactionResponse = new JsonTransactionResponse();
-        jsonTransactionResponse.setVersion(transaction.getTransactionData().getVersion());
-        jsonTransactionResponse.setHash(
-                Hex.toHexStringWithPrefixNullable(transaction.getDataHash(), ""));
-        jsonTransactionResponse.setNonce(transaction.getTransactionData().getNonce());
-        jsonTransactionResponse.setBlockLimit(transaction.getTransactionData().getBlockLimit());
-        jsonTransactionResponse.setTo(transaction.getTransactionData().getTo());
-        jsonTransactionResponse.setFrom(
-                Hex.toHexStringWithPrefixNullable(transaction.getSender(), ""));
-        jsonTransactionResponse.setAbi(transaction.getTransactionData().getAbi());
-        jsonTransactionResponse.setInput(
-                Hex.toHexStringWithPrefixNullable(transaction.getTransactionData().getInput(), ""));
-        jsonTransactionResponse.setChainID(transaction.getTransactionData().getChainId());
-        jsonTransactionResponse.setGroupID(transaction.getTransactionData().getGroupId());
-        jsonTransactionResponse.setExtraData(transaction.getExtraData());
-        jsonTransactionResponse.setSignature(
-                Hex.toHexStringWithPrefixNullable(transaction.getSignature(), ""));
-        jsonTransactionResponse.setImportTime(transaction.getImportTime());
-
         return jsonTransactionResponse;
     }
 
