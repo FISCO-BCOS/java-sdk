@@ -983,16 +983,13 @@ public class ClientImpl implements Client {
 
     @Override
     public SystemConfig getSystemConfigByKey(String key) {
+        SystemConfig config = this.getSystemConfigByKey(nodeToSendRequest, key);
         if (key.equals(SystemConfigService.TX_GAS_PRICE)) {
-            String gasPrice =
-                    this.getSystemConfigByKey(nodeToSendRequest, key).getSystemConfig().getValue();
-            BigInteger gasPriceValue =
-                    BigInteger.valueOf(Integer.parseInt(Hex.trimPrefix(gasPrice), 10));
-            this.getSystemConfigByKey(nodeToSendRequest, key)
-                    .getSystemConfig()
-                    .setValue(gasPriceValue.toString());
+            String gasPrice = config.getSystemConfig().getValue();
+            BigInteger gasPriceValue = new BigInteger(Hex.trimPrefix(gasPrice), 16);
+            config.getSystemConfig().setValue(gasPriceValue.toString());
         }
-        return this.getSystemConfigByKey(nodeToSendRequest, key);
+        return config;
     }
 
     @Override
