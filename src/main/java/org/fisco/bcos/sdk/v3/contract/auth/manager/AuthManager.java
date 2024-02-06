@@ -34,6 +34,7 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.RevertMessageParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 
 public class AuthManager {
 
@@ -371,6 +372,10 @@ public class AuthManager {
                             + " is not supported, please check the version of the chain. (The version of the chain is "
                             + nodeVersionString
                             + ")");
+        }
+        if (key.equals(SystemConfigService.TX_GAS_PRICE)) {
+            BigInteger gasPrice = new BigInteger(value);
+            value = Numeric.toHexString(gasPrice);
         }
         TransactionReceipt tr =
                 committeeManager.createSetSysConfigProposal(

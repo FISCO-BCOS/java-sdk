@@ -987,7 +987,7 @@ public class ClientImpl implements Client {
             String gasPrice =
                     this.getSystemConfigByKey(nodeToSendRequest, key).getSystemConfig().getValue();
             BigInteger gasPriceValue =
-                    BigInteger.valueOf(Integer.parseInt(Hex.trimPrefix(gasPrice), 16));
+                    BigInteger.valueOf(Integer.parseInt(Hex.trimPrefix(gasPrice), 10));
             this.getSystemConfigByKey(nodeToSendRequest, key)
                     .getSystemConfig()
                     .setValue(gasPriceValue.toString());
