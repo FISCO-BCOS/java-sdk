@@ -24,6 +24,17 @@ public class EvenDemoTest {
         client = sdk.getClient("group0");
     }
 
+    @Override
+    protected void finalize() {
+        try {
+            super.finalize();
+            client.stop();
+            client.destroy();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
     @Test
     public void testEvent() throws Exception {
 

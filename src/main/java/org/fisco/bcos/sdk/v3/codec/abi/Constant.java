@@ -15,5 +15,5 @@ public class Constant {
     public static final BigInteger MIN_INT128 = MAX_INT128.negate();
 
     public static String NO_APPROPRIATE_ABI_METHOD =
-            "Cann't encode in encodeMethodFromObject with appropriate interface ABI, please check your method name or ABI file";
+            "Can't encode in encodeMethodFromObject with appropriate interface ABI, please check your method name or ABI file";
 }

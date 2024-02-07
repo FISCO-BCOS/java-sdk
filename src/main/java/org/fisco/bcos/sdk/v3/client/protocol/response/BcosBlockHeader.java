@@ -15,10 +15,17 @@
 
 package org.fisco.bcos.sdk.v3.client.protocol.response;
 
+import static org.fisco.bcos.sdk.v3.utils.Numeric.toBytesPadded;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 
 public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader> {
 
@@ -270,6 +277,50 @@ public class BcosBlockHeader extends JsonRpcResponse<BcosBlockHeader.BlockHeader
 
         public long getTimestamp() {
             return this.timestamp;
+        }
+
+        /**
+         * calculate block header hash
+         *
+         * @param hashImpl hash algorithm
+         * @return block header hash hex string
+         * @throws IOException exception when ByteArrayOutputStream throws IOException
+         */
+        public String calculateBlockHeaderHash(Hash hashImpl) throws IOException {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            // version
+            byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getVersion()), 4));
+            // parentInfo
+            for (BcosBlockHeader.ParentInfo parent : getParentInfo()) {
+                byteArrayOutputStream.write(
+                        toBytesPadded(BigInteger.valueOf(parent.getBlockNumber()), 8));
+                byteArrayOutputStream.write(Hex.decode(parent.getBlockHash()));
+            }
+            // tx root
+            byteArrayOutputStream.write(Hex.decode(getTransactionsRoot()));
+            // receipt root
+            byteArrayOutputStream.write(Hex.decode(getReceiptsRoot()));
+            // stateRoot
+            byteArrayOutputStream.write(Hex.decode(getStateRoot()));
+            // number
+            byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getNumber()), 8));
+            // gasUsed
+            byteArrayOutputStream.write(getGasUsed().getBytes());
+            // time
+            byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getTimestamp()), 8));
+            // sealer
+            byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getSealer()), 8));
+            // sealer list
+            for (String sealerName : getSealerList()) {
+                byteArrayOutputStream.write(Hex.decode(sealerName));
+            }
+            // extraData
+            byteArrayOutputStream.write(Hex.decode(getExtraData()));
+            // consensusWeight
+            for (Long consensusWeight : getConsensusWeights()) {
+                byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(consensusWeight), 8));
+            }
+            return Hex.toHexStringWithPrefix(hashImpl.hash(byteArrayOutputStream.toByteArray()));
         }
 
         @Override

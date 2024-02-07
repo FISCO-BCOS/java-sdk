@@ -83,38 +83,38 @@ public class BcosSDKTest {
 
         BcosSDK sdk = BcosSDK.build(configFile);
 
-        Client client = sdk.getClient();
-        Assert.assertThrows(BcosSDKException.class,
-                () -> sdk.getClient("errorClient"));
+        Client client = sdk.getClient(GROUP);
+        Assert.assertThrows(BcosSDKException.class, () -> sdk.getClient("errorClient"));
 
-        sdk.registerBlockNotifier(GROUP,
+        sdk.registerBlockNotifier(
+                GROUP,
                 (groupId, blockNumber) ->
-                        System.out.println("New block, group: " + groupId + ", blockNumber: " + blockNumber));
+                        System.out.println(
+                                "New block, group: " + groupId + ", blockNumber: " + blockNumber));
 
         // test getBlockNumber
         BlockNumber blockNumber = client.getBlockNumber();
-        System.out.println("blockNumber=" + blockNumber.getBlockNumber());
+        Assert.assertTrue(blockNumber.getBlockNumber().compareTo(BigInteger.ZERO) >= 0);
 
         BlockHash blockHashByNumber = client.getBlockHashByNumber(blockNumber.getBlockNumber());
-        System.out.println("blockHash=" + blockHashByNumber.getBlockHashByNumber());
+        Assert.assertNotNull(blockHashByNumber.getBlockHashByNumber());
 
         // test getBlockByNumber only header
-        BcosBlock onlyHeader = client.getBlockByNumber(blockNumber.getBlockNumber(), false, false);
-        System.out.println("block header=" + onlyHeader.getBlock());
-        Assert.assertEquals(onlyHeader.getBlock().getHash(), blockHashByNumber.getBlockHashByNumber());
+        BcosBlock onlyHeader = client.getBlockByNumber(blockNumber.getBlockNumber(), true, false);
+        Assert.assertEquals(
+                onlyHeader.getBlock().getHash(), blockHashByNumber.getBlockHashByNumber());
 
         // test getBlockByNumber
         BcosBlock block = client.getBlockByNumber(blockNumber.getBlockNumber(), false, false);
-        System.out.println("block block=" + block.getBlock());
+        Assert.assertEquals(block.getBlock().getHash(), blockHashByNumber.getBlockHashByNumber());
         // getBlockByHash
 
         BcosBlock block0 = client.getBlockByHash(block.getBlock().getHash(), false, false);
-        System.out.println("block block=" + block0.getBlock());
         Assert.assertEquals(block.getBlock(), block0.getBlock());
 
         // get SealerList
         SealerList sealerList = client.getSealerList();
-        System.out.println(sealerList.getSealerList());
+        Assert.assertFalse(sealerList.getSealerList().isEmpty());
 
         // get observerList
         ObserverList observerList = client.getObserverList();
@@ -134,7 +134,12 @@ public class BcosSDKTest {
 
         // get getTotalTransactionCount
         TotalTransactionCount totalTransactionCount = client.getTotalTransactionCount();
-        System.out.println(totalTransactionCount.getTotalTransactionCount());
+        Assert.assertTrue(
+                Integer.parseInt(
+                                totalTransactionCount
+                                        .getTotalTransactionCount()
+                                        .getTransactionCount())
+                        >= 0);
 
         // get getPeers
         Peers peers = client.getPeers();
@@ -147,11 +152,12 @@ public class BcosSDKTest {
         // get getSyncStatus
         SyncStatus syncStatus = client.getSyncStatus();
         System.out.println(syncStatus.getSyncStatus().toString());
+        client.stop();
+        client.destroy();
     }
 
     @Test
-    public void testClientAsync()
-            throws ConfigException, ExecutionException, InterruptedException {
+    public void testClientAsync() throws ConfigException, ExecutionException, InterruptedException {
 
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -174,8 +180,7 @@ public class BcosSDKTest {
                     @Override
                     public void onError(Response errorResponse) {
                         System.out.println(
-                                "getBlockByNumberAsync failed: " +
-                                        errorResponse.getErrorMessage());
+                                "getBlockByNumberAsync failed: " + errorResponse.getErrorMessage());
                     }
                 });
         genesisHash[0] = hashFuture.get();
@@ -189,22 +194,27 @@ public class BcosSDKTest {
                     @Override
                     public void onResponse(BcosBlock bcosBlock) {
                         System.out.println("getBlockByNumberAsync=" + bcosBlock.getBlock());
-                        client.getBlockHashByNumberAsync(BigInteger.valueOf(bcosBlock.getBlock().getNumber()), new RespCallback<BlockHash>() {
-                            @Override
-                            public void onResponse(BlockHash blockHash) {
-                                System.out.println("getBlockHashByNumberAsync=" + blockHash.getBlockHashByNumber());
-                            }
+                        client.getBlockHashByNumberAsync(
+                                BigInteger.valueOf(bcosBlock.getBlock().getNumber()),
+                                new RespCallback<BlockHash>() {
+                                    @Override
+                                    public void onResponse(BlockHash blockHash) {
+                                        System.out.println(
+                                                "getBlockHashByNumberAsync="
+                                                        + blockHash.getBlockHashByNumber());
+                                    }
 
-                            @Override
-                            public void onError(Response errorResponse) {
-                                System.out.println(errorResponse);
-                            }
-                        });
+                                    @Override
+                                    public void onError(Response errorResponse) {
+                                        System.out.println(errorResponse);
+                                    }
+                                });
                     }
 
                     @Override
                     public void onError(Response errorResponse) {
-                        System.out.println("getBlockByNumberAsync failed: " + errorResponse.getErrorMessage());
+                        System.out.println(
+                                "getBlockByNumberAsync failed: " + errorResponse.getErrorMessage());
                     }
                 });
 
@@ -248,7 +258,12 @@ public class BcosSDKTest {
 
         // get getTotalTransactionCount
         TotalTransactionCount totalTransactionCount = client.getTotalTransactionCount();
-        System.out.println(totalTransactionCount.getTotalTransactionCount());
+        Assert.assertTrue(
+                Integer.parseInt(
+                                totalTransactionCount
+                                        .getTotalTransactionCount()
+                                        .getTransactionCount())
+                        >= 0);
 
         // get getPeers
         Peers peers = client.getPeers();
@@ -258,17 +273,23 @@ public class BcosSDKTest {
         SyncStatus syncStatus = client.getSyncStatus();
         System.out.println(syncStatus.getSyncStatus());
 
-        client.getTotalTransactionCountAsync(new RespCallback<TotalTransactionCount>() {
-            @Override
-            public void onResponse(TotalTransactionCount totalTransactionCount) {
-                System.out.println("totalTransactionCount=" + totalTransactionCount.getTotalTransactionCount());
-            }
+        client.getTotalTransactionCountAsync(
+                new RespCallback<TotalTransactionCount>() {
+                    @Override
+                    public void onResponse(TotalTransactionCount totalTransactionCount) {
+                        Assert.assertTrue(
+                                Integer.parseInt(
+                                                totalTransactionCount
+                                                        .getTotalTransactionCount()
+                                                        .getTransactionCount())
+                                        >= 0);
+                    }
 
-            @Override
-            public void onError(Response errorResponse) {
-                System.out.println(errorResponse);
-            }
-        });
+                    @Override
+                    public void onError(Response errorResponse) {
+                        System.out.println(errorResponse);
+                    }
+                });
 
         // test getBlockNumber
         client.getBlockNumberAsync(
@@ -284,10 +305,13 @@ public class BcosSDKTest {
                                 "getBlockNumberAsync failed: " + errorResponse.getErrorMessage());
                     }
                 });
+
+        client.stop();
+        client.destroy();
     }
 
     @Test
-    public void testHelloWorldInSolidity() throws ConfigException, JniException, ContractException {
+    public void testHelloWorldInSolidity() throws ConfigException, ContractException {
 
         ConfigOption configOption = Config.load(configFile);
         Client client = Client.build(GROUP, configOption);
@@ -311,17 +335,19 @@ public class BcosSDKTest {
         helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
         System.out.println("helloworld address :" + helloWorld.getContractAddress());
 
-        client.getABIAsync(helloWorld.getContractAddress(), new RespCallback<Abi>() {
-            @Override
-            public void onResponse(Abi abi) {
-                Assert.assertEquals(HelloWorld.getABI(), abi.getABI());
-            }
+        client.getABIAsync(
+                helloWorld.getContractAddress(),
+                new RespCallback<Abi>() {
+                    @Override
+                    public void onResponse(Abi abi) {
+                        Assert.assertEquals(HelloWorld.getABI(), abi.getABI());
+                    }
 
-            @Override
-            public void onError(Response errorResponse) {
-                System.out.println(errorResponse);
-            }
-        });
+                    @Override
+                    public void onError(Response errorResponse) {
+                        System.out.println(errorResponse);
+                    }
+                });
 
         BlockNumber blockNumber = client.getBlockNumber();
         BcosBlock block1 = client.getBlockByNumber(blockNumber.getBlockNumber(), false, false);
@@ -336,7 +362,9 @@ public class BcosSDKTest {
         String txHash = receipt.getTransactionHash();
         BcosTransaction transaction1 = client.getTransaction(txHash, false);
         BcosTransactionReceipt transactionReceipt = client.getTransactionReceipt(txHash, false);
-        if (client.getChainCompatibilityVersion().compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj()) >= 0) {
+        if (client.getChainCompatibilityVersion()
+                        .compareTo(EnumNodeVersion.BCOS_3_2_0.toVersionObj())
+                >= 0) {
             Assert.assertEquals(extraData, receipt.getExtraData());
             Assert.assertEquals(extraData, transaction1.getResult().getExtraData());
             Assert.assertEquals(extraData, transactionReceipt.getResult().getExtraData());
@@ -370,6 +398,9 @@ public class BcosSDKTest {
 
         blockLimit = client.getBlockLimit();
         System.out.println("blockLimit:" + blockLimit);
+
+        client.stop();
+        client.destroy();
     }
 
     @Test
@@ -387,7 +418,8 @@ public class BcosSDKTest {
                         "set",
                         Arrays.<Type>asList(new Utf8String("fisco hello")),
                         Collections.<TypeReference<?>>emptyList());
-        FunctionEncoderInterface functionEncoderInterface = new FunctionEncoder(client.getCryptoSuite());
+        FunctionEncoderInterface functionEncoderInterface =
+                new FunctionEncoder(client.getCryptoSuite());
         byte[] encode = functionEncoderInterface.encode(function);
         String input = Hex.toHexString(encode);
 
@@ -412,7 +444,11 @@ public class BcosSDKTest {
         String extraData = "extraData";
         String signedMessage =
                 TransactionBuilderJniObj.createSignedTransaction(
-                        transactionData, transactionDataHashSignedData2, transactionDataHash, 0, extraData);
+                        transactionData,
+                        transactionDataHashSignedData2,
+                        transactionDataHash,
+                        0,
+                        extraData);
 
         TransactionPusherService txPusher = new TransactionPusherService(client);
         TransactionReceipt receipt2 = txPusher.push(signedMessage);
@@ -423,10 +459,12 @@ public class BcosSDKTest {
         receipt2.setMessage(receiptMsg);
 
         System.out.println(receipt2);
+        client.stop();
+        client.destroy();
     }
 
     @Test
-    public void testGetGroupList() throws ConfigException, JniException {
+    public void testGetGroupList() throws ConfigException {
         ConfigOption configOption = Config.load(configFile);
 
         System.out.println("configOption: " + configOption);
@@ -436,11 +474,13 @@ public class BcosSDKTest {
         List<String> groupList = clientWithoutGroupId.getGroupList().getResult().getGroupList();
         System.out.println("getGroupList: " + groupList);
 
-        BcosSDK bcosSDK = new BcosSDK(configOption);
         for (String groupId : groupList) {
+            BcosSDK bcosSDK = new BcosSDK(configOption);
             Client client = bcosSDK.getClient(groupId);
             System.out.println("build client, groupId: " + groupId);
             System.out.println("getBlockNumber, blk: " + client.getBlockNumber().getBlockNumber());
+            client.stop();
+            client.destroy();
         }
     }
 }

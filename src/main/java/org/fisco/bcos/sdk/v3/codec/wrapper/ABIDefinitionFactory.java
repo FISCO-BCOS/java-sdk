@@ -1,6 +1,7 @@
 package org.fisco.bcos.sdk.v3.codec.wrapper;
 
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,10 +10,17 @@ public class ABIDefinitionFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(ABIDefinitionFactory.class);
 
-    private CryptoSuite cryptoSuite;
+    @Deprecated private CryptoSuite cryptoSuite;
+    private Hash hashIpml;
 
+    @Deprecated
     public ABIDefinitionFactory(CryptoSuite cryptoSuite) {
         this.cryptoSuite = cryptoSuite;
+        this.hashIpml = cryptoSuite.getHashImpl();
+    }
+
+    public ABIDefinitionFactory(Hash hashImpl) {
+        this.hashIpml = hashImpl;
     }
 
     /**
@@ -26,7 +34,7 @@ public class ABIDefinitionFactory {
             ABIDefinition[] abiDefinitions =
                     ObjectMapperFactory.getObjectMapper().readValue(abi, ABIDefinition[].class);
 
-            ContractABIDefinition contractABIDefinition = new ContractABIDefinition(cryptoSuite);
+            ContractABIDefinition contractABIDefinition = new ContractABIDefinition(hashIpml);
             for (ABIDefinition abiDefinition : abiDefinitions) {
                 if (abiDefinition.getType().equals("constructor")) {
                     contractABIDefinition.setConstructor(abiDefinition);
@@ -36,9 +44,6 @@ public class ABIDefinitionFactory {
                     contractABIDefinition.addEvent(abiDefinition.getName(), abiDefinition);
                 } else {
                     // skip and do nothing
-                }
-                if (logger.isTraceEnabled()) {
-                    logger.trace(" abiDefinition: {}", abiDefinition);
                 }
             }
             if (contractABIDefinition.getConstructor() == null) {

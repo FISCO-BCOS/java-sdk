@@ -19,6 +19,8 @@ import com.moandjiezana.toml.Toml;
 import java.io.File;
 import org.fisco.bcos.sdk.v3.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.v3.config.model.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Config is to load config file and verify.
@@ -26,6 +28,7 @@ import org.fisco.bcos.sdk.v3.config.model.ConfigProperty;
  * @author Maggie
  */
 public class Config {
+    private static final Logger logger = LoggerFactory.getLogger(Config.class);
     /**
      * @param tomlConfigFile the toml configuration file path
      * @return ConfigOption the configuration object
@@ -38,8 +41,10 @@ public class Config {
             ConfigProperty configProperty = new Toml().read(configFile).to(ConfigProperty.class);
             return new ConfigOption(configProperty);
         } catch (Exception e) {
+            logger.error(
+                    "parse Config {} failed, error info: {}", tomlConfigFile, e.getMessage(), e);
             throw new ConfigException(
-                    "parse Config " + tomlConfigFile + " failed, error info: " + e.getMessage(), e);
+                    "parse Config " + tomlConfigFile + " failed, please check the config file.");
         }
     }
 }

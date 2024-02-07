@@ -87,6 +87,7 @@ public class ClientImpl implements Client {
     private long blockNumber = 0;
 
     private String nodeToSendRequest = "";
+    private int negotiatedProtocol = 0;
     private final ConfigOption configOption;
     private BcosGroupInfo.GroupInfo groupInfo;
     private GroupNodeIniConfig groupNodeIniConfig;
@@ -157,7 +158,6 @@ public class ClientImpl implements Client {
         this.groupID = groupID;
         this.configOption = configOption;
         this.rpcJniObj = RpcJniObj.build(nativePointer);
-
         // start rpc
         start();
 
@@ -179,7 +179,8 @@ public class ClientImpl implements Client {
                 this.cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE, configOption);
             }
         }
-
+        // should be assigned after session connect
+        this.negotiatedProtocol = BcosSDKJniObj.negotiatedProtocolInfo(nativePointer);
         logger.info(
                 "ClientImpl constructor, groupID: {}, nativePointer: {}, smCrypto: {}, wasm: {}",
                 groupID,
@@ -982,7 +983,13 @@ public class ClientImpl implements Client {
 
     @Override
     public SystemConfig getSystemConfigByKey(String key) {
-        return this.getSystemConfigByKey(nodeToSendRequest, key);
+        SystemConfig config = this.getSystemConfigByKey(nodeToSendRequest, key);
+        if (key.equals(SystemConfigService.TX_GAS_PRICE)) {
+            String gasPrice = config.getSystemConfig().getValue();
+            BigInteger gasPriceValue = new BigInteger(Hex.trimPrefix(gasPrice), 16);
+            config.getSystemConfig().setValue(gasPriceValue.toString());
+        }
+        return config;
     }
 
     @Override
@@ -1264,8 +1271,26 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public boolean isSupportTransactionV1() {
+        int protocol = getNegotiatedProtocol();
+        return (protocol >> 16) >= 2;
+    }
+
+    /**
+     * Get the protocol version after SDK and Blockchain node negotiated. This method returns int
+     * with max and min version bits combined, which is (max|min). Max protocol version is in first
+     * 16 bit, and min protocol version in the second 16 bit.
+     *
+     * @return (max|min) bits combined.
+     */
+    @Override
     public String getNodeToSendRequest() {
         return this.nodeToSendRequest;
+    }
+
+    @Override
+    public int getNegotiatedProtocol() {
+        return negotiatedProtocol;
     }
 
     @Override
@@ -1343,11 +1368,13 @@ public class ClientImpl implements Client {
             return ClientImpl.parseResponseIntoJsonRpcResponse(
                     request.getMethod(), response, responseType);
         } catch (ClientException e) {
+            logger.error("e: ", e);
             throw new ClientException(
                     e.getErrorCode(),
                     e.getErrorMessage(),
                     "callRemoteMethod failed for decode the message exception, error message:"
-                            + e.getMessage());
+                            + e.getMessage(),
+                    e);
         } catch (JsonProcessingException | InterruptedException | ExecutionException e) {
             logger.error("e: ", e);
             throw new ClientException(
@@ -1429,13 +1456,17 @@ public class ClientImpl implements Client {
             }
         } catch (ClientException e) {
             logger.error(
-                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}",
-                    e.getMessage());
+                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, response: {}, errorMessage: {}",
+                    response,
+                    e.getMessage(),
+                    e);
             throw e;
         } catch (Exception e) {
             logger.error(
-                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, errorMessage: {}",
-                    e.getMessage());
+                    "parseResponseIntoJsonRpcResponse failed for decode the message exception, response: {}, errorMessage: {}",
+                    response,
+                    e.getMessage(),
+                    e);
             throw new ClientException(e.getMessage(), e);
         }
     }

@@ -24,7 +24,7 @@ import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
  */
 public interface TransactionSignerInterface {
     /**
-     * sign raw transaction hash string and get signatrue result
+     * sign raw transaction hash string and get signature result
      *
      * @param hash raw transaction hash string to be signed
      * @param cryptoKeyPair keypair
@@ -33,11 +33,29 @@ public interface TransactionSignerInterface {
     SignatureResult sign(String hash, CryptoKeyPair cryptoKeyPair);
 
     /**
-     * sign raw transaction hash byte array and get signatrue result
+     * sign raw transaction hash byte array and get signature result
      *
      * @param hash raw transaction hash byte array to be signed
      * @param cryptoKeyPair keypair
      * @return signature result
      */
     SignatureResult sign(byte[] hash, CryptoKeyPair cryptoKeyPair);
+
+    /**
+     * sign raw transaction hash string and get raw signature result
+     *
+     * @param hash raw transaction hash byte array to be signed
+     * @param cryptoKeyPair keypair
+     * @return signature result, hex string
+     */
+    String signWithRawResult(String hash, CryptoKeyPair cryptoKeyPair);
+
+    /**
+     * sign raw transaction hash byte array and get raw signature result
+     *
+     * @param hash raw transaction hash byte array to be signed
+     * @param cryptoKeyPair keypair
+     * @return signature result, hex string
+     */
+    String signWithRawResult(byte[] hash, CryptoKeyPair cryptoKeyPair);
 }

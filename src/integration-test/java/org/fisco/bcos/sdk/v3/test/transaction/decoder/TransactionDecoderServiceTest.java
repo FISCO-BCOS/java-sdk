@@ -116,7 +116,8 @@ public class TransactionDecoderServiceTest {
             Assert.assertEquals(
                     "bytes[]", transactionResponse3.getResults().get(0).getTypeAsString());
         }
-
+        client.stop();
+        client.destroy();
         //
     }
 }

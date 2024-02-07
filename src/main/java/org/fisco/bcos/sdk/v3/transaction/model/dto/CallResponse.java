@@ -64,4 +64,19 @@ public class CallResponse extends CommonResponse {
     public void setResults(List<Type> results) {
         this.results = results;
     }
+
+    @Override
+    public String toString() {
+        return "CallResponse{"
+                + "values='"
+                + values
+                + '\''
+                + ", returnObject="
+                + returnObject
+                + ", returnABIObject="
+                + returnABIObject
+                + ", results="
+                + results
+                + '}';
+    }
 }

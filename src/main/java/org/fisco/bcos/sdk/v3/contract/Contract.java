@@ -19,10 +19,13 @@ import static org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute.L
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
@@ -41,6 +44,9 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.eventsub.EventSubCallback;
+import org.fisco.bcos.sdk.v3.eventsub.EventSubParams;
+import org.fisco.bcos.sdk.v3.eventsub.EventSubscribe;
 import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
@@ -50,6 +56,7 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.TransactionManager;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.slf4j.Logger;
@@ -67,6 +74,8 @@ public class Contract {
     // transactionReceipt after deploying the contract
     protected TransactionReceipt deployReceipt;
     protected TransactionProcessor transactionProcessor;
+    // v2 transaction
+    protected TransactionManager transactionManager = null;
     protected final Client client;
     public static final String FUNC_DEPLOY = "deploy";
     protected final FunctionEncoderInterface functionEncoder;
@@ -74,6 +83,7 @@ public class Contract {
     protected final CryptoKeyPair credential;
     protected final CryptoSuite cryptoSuite;
     protected final EventEncoder eventEncoder;
+    private final EventSubscribe eventSubscribe;
     private boolean enableDAG = false;
 
     /**
@@ -99,13 +109,20 @@ public class Contract {
         this.cryptoSuite = client.getCryptoSuite();
         this.functionEncoder =
                 client.isWASM()
-                        ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder(cryptoSuite)
-                        : new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite);
+                        ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder(
+                                cryptoSuite.getHashImpl())
+                        : new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(
+                                cryptoSuite.getHashImpl());
         this.functionReturnDecoder =
                 client.isWASM()
                         ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionReturnDecoder()
                         : new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
-        this.eventEncoder = new EventEncoder(cryptoSuite);
+        this.eventEncoder = new EventEncoder(cryptoSuite.getHashImpl());
+        try {
+            this.eventSubscribe = EventSubscribe.build(client);
+        } catch (JniException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -127,6 +144,35 @@ public class Contract {
                 client,
                 credential,
                 TransactionProcessorFactory.createTransactionProcessor(client, credential));
+    }
+
+    protected Contract(
+            String contractBinary,
+            String contractAddress,
+            Client client,
+            TransactionManager transactionManager) {
+        this.contractBinary = contractBinary;
+        this.contractAddress = contractAddress;
+        this.client = client;
+        this.transactionManager = transactionManager;
+        this.credential = client.getCryptoSuite().getCryptoKeyPair();
+        this.cryptoSuite = client.getCryptoSuite();
+        this.functionEncoder =
+                client.isWASM()
+                        ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionEncoder(
+                                cryptoSuite.getHashImpl())
+                        : new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(
+                                cryptoSuite.getHashImpl());
+        this.functionReturnDecoder =
+                client.isWASM()
+                        ? new org.fisco.bcos.sdk.v3.codec.scale.FunctionReturnDecoder()
+                        : new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
+        this.eventEncoder = new EventEncoder(cryptoSuite.getHashImpl());
+        try {
+            this.eventSubscribe = EventSubscribe.build(client);
+        } catch (JniException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getContractAddress() {
@@ -163,6 +209,10 @@ public class Contract {
 
     public void setEnableDAG(boolean enableDAG) {
         this.enableDAG = enableDAG;
+    }
+
+    public void setTransactionManager(TransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
     }
 
     /**
@@ -222,6 +272,52 @@ public class Contract {
         }
     }
 
+    protected static <T extends Contract> T deploy(
+            Class<T> type,
+            Client client,
+            CryptoKeyPair credential,
+            String binary,
+            String abi,
+            byte[] encodedConstructor,
+            String path,
+            BigInteger value)
+            throws ContractException {
+        try {
+            Constructor<T> constructor =
+                    type.getDeclaredConstructor(String.class, Client.class, CryptoKeyPair.class);
+            constructor.setAccessible(true);
+            T contract = constructor.newInstance(null, client, credential);
+
+            ContractCodec codec = new ContractCodec(contract.cryptoSuite, client.isWASM());
+            if (client.isWASM()) {
+                // NOTE: it should set address first, contract.executeDeployTransaction will use it
+                // as 'to'
+                contract.setContractAddress(path);
+            }
+            TransactionReceipt transactionReceipt =
+                    contract.executeDeployTransaction(
+                            codec.encodeConstructorFromBytes(binary, encodedConstructor),
+                            abi,
+                            value);
+            String contractAddress = transactionReceipt.getContractAddress();
+            if (contractAddress == null
+                    || transactionReceipt.getStatus()
+                            != TransactionReceiptStatus.Success.getCode()) {
+                // parse the receipt
+                ReceiptParser.getErrorStatus(transactionReceipt);
+            }
+            contract.setContractAddress(client.isWASM() ? path : contractAddress);
+            contract.setDeployReceipt(transactionReceipt);
+            return contract;
+        } catch (InstantiationException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | IllegalAccessException
+                | ContractCodecException e) {
+            throw new ContractException("deploy contract failed, error info: " + e.getMessage(), e);
+        }
+    }
+
     private int generateTransactionAttribute(String funcName) {
         int attribute = 0;
         if (client.isWASM()) {
@@ -239,10 +335,17 @@ public class Contract {
     private List<Type> executeCall(Function function) throws ContractException {
 
         byte[] encodedFunctionData = this.functionEncoder.encode(function);
-        CallRequest callRequest =
-                new CallRequest(
-                        this.credential.getAddress(), this.contractAddress, encodedFunctionData);
-        Call response = this.transactionProcessor.executeCall(callRequest);
+        Call response;
+        if (transactionManager != null) {
+            response = transactionManager.sendCall(this.contractAddress, encodedFunctionData);
+        } else {
+            CallRequest callRequest =
+                    new CallRequest(
+                            this.credential.getAddress(),
+                            this.contractAddress,
+                            encodedFunctionData);
+            response = this.transactionProcessor.executeCall(callRequest);
+        }
         // get value from the response
         String callResult = response.getCallResult().getOutput();
         if (response.getCallResult().getStatus() != 0) {
@@ -270,6 +373,10 @@ public class Contract {
     }
 
     protected void asyncExecuteCall(Function function, CallCallback callback) {
+        if (transactionManager != null) {
+            asyncExecuteCallByTransactionManager(function, callback);
+            return;
+        }
         byte[] encodedFunctionData = this.functionEncoder.encode(function);
         CallRequest callRequest =
                 new CallRequest(
@@ -292,6 +399,51 @@ public class Contract {
                                                     + function.getName()
                                                     + " failed for non-zero status "
                                                     + response.getCallResult().getStatus()));
+                            return;
+                        }
+                        List<Type> result;
+                        try {
+                            result =
+                                    functionReturnDecoder.decode(
+                                            callResult, function.getOutputParameters());
+                        } catch (Exception e) {
+                            callback.onError(
+                                    new Response(
+                                            -1,
+                                            "decode callResult failed, error info: "
+                                                    + e.getMessage()));
+                            return;
+                        }
+                        callback.onResponse(result);
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        callback.onError(errorResponse);
+                    }
+                });
+    }
+
+    protected void asyncExecuteCallByTransactionManager(Function function, CallCallback callback) {
+        transactionManager.asyncSendCall(
+                this.contractAddress,
+                this.functionEncoder.encode(function),
+                new RespCallback<Call>() {
+                    @Override
+                    public void onResponse(Call call) {
+                        String callResult = call.getCallResult().getOutput();
+                        if (call.getCallResult().getStatus() != 0) {
+                            logger.warn(
+                                    "status of executeCall is non-success, status: {}, callResult: {}",
+                                    call.getCallResult().getStatus(),
+                                    call.getCallResult());
+                            callback.onError(
+                                    new Response(
+                                            call.getCallResult().getStatus(),
+                                            "execute "
+                                                    + function.getName()
+                                                    + " failed for non-zero status "
+                                                    + call.getCallResult().getStatus()));
                             return;
                         }
                         List<Type> result;
@@ -365,6 +517,35 @@ public class Contract {
 
     protected String asyncExecuteTransaction(
             byte[] data, String funName, TransactionCallback callback, int dagAttribute) {
+        if (transactionManager != null) {
+            try {
+                return transactionManager.asyncSendTransaction(
+                        this.contractAddress, data, BigInteger.ZERO, callback);
+            } catch (JniException e) {
+                logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
+                return null;
+            }
+        }
+        int txAttribute = generateTxAttributeWithDagFlag(funName, dagAttribute);
+        return this.transactionProcessor.sendTransactionAsync(
+                this.contractAddress, data, this.credential, txAttribute, callback);
+    }
+
+    protected String asyncExecuteTransaction(
+            byte[] data,
+            String funName,
+            TransactionCallback callback,
+            int dagAttribute,
+            BigInteger value) {
+        if (transactionManager != null) {
+            try {
+                return transactionManager.asyncSendTransaction(
+                        this.contractAddress, data, value, callback);
+            } catch (JniException e) {
+                logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
+                return null;
+            }
+        }
         int txAttribute = generateTxAttributeWithDagFlag(funName, dagAttribute);
         return this.transactionProcessor.sendTransactionAsync(
                 this.contractAddress, data, this.credential, txAttribute, callback);
@@ -375,10 +556,25 @@ public class Contract {
                 this.functionEncoder.encode(function),
                 function.getName(),
                 callback,
-                function.getTransactionAttribute());
+                function.getTransactionAttribute(),
+                function.getValue());
     }
 
     protected TransactionReceipt executeTransaction(Function function) {
+
+        if (transactionManager != null) {
+            TransactionReceipt transactionReceipt = null;
+            try {
+                transactionReceipt =
+                        transactionManager.sendTransaction(
+                                this.contractAddress,
+                                this.functionEncoder.encode(function),
+                                function.getValue());
+            } catch (JniException e) {
+                logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
+            }
+            return transactionReceipt;
+        }
         int txAttribute =
                 generateTxAttributeWithDagFlag(
                         function.getName(), function.getTransactionAttribute());
@@ -391,8 +587,38 @@ public class Contract {
     }
 
     protected TransactionReceipt executeDeployTransaction(byte[] data, String abi) {
-        int txAttribute = generateTxAttributeWithDagFlag(Contract.FUNC_DEPLOY, 0);
+        if (transactionManager != null) {
 
+            TransactionReceipt transactionReceipt = null;
+            try {
+                transactionReceipt =
+                        this.transactionManager.sendTransaction(
+                                this.contractAddress, data, BigInteger.ZERO, abi, true);
+            } catch (JniException e) {
+                logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
+            }
+            return transactionReceipt;
+        }
+        int txAttribute = generateTxAttributeWithDagFlag(Contract.FUNC_DEPLOY, 0);
+        return this.transactionProcessor.deployAndGetReceipt(
+                this.contractAddress, data, abi, this.credential, txAttribute);
+    }
+
+    protected TransactionReceipt executeDeployTransaction(
+            byte[] data, String abi, BigInteger value) {
+        if (transactionManager != null) {
+
+            TransactionReceipt transactionReceipt = null;
+            try {
+                transactionReceipt =
+                        this.transactionManager.sendTransaction(
+                                this.contractAddress, data, value, abi, true);
+            } catch (JniException e) {
+                logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
+            }
+            return transactionReceipt;
+        }
+        int txAttribute = generateTxAttributeWithDagFlag(Contract.FUNC_DEPLOY, 0);
         return this.transactionProcessor.deployAndGetReceipt(
                 this.contractAddress, data, abi, this.credential, txAttribute);
     }
@@ -421,6 +647,26 @@ public class Contract {
     }
 
     protected String createSignedTransaction(Function function) {
+        if (transactionManager != null) {
+            try {
+                byte[] methodId =
+                        functionEncoder.buildMethodId(
+                                FunctionEncoderInterface.buildMethodSignature(
+                                        function.getName(), function.getInputParameters()));
+                return transactionManager.createSignedTransaction(
+                        this.contractAddress,
+                        this.functionEncoder.encode(function),
+                        function.getValue(),
+                        transactionManager.getGasProvider().getGasPrice(methodId),
+                        transactionManager.getGasProvider().getGasLimit(methodId),
+                        client.getBlockLimit(),
+                        "",
+                        false);
+            } catch (JniException e) {
+                logger.error("createSignedTransaction failed, error info: {}", e.getMessage(), e);
+                return null;
+            }
+        }
         int txAttribute =
                 generateTxAttributeWithDagFlag(
                         function.getName(), function.getTransactionAttribute());
@@ -432,6 +678,55 @@ public class Contract {
                         txAttribute);
 
         return txPair.getSignedTx();
+    }
+
+    public void subscribeEvent(EventSubParams params, EventSubCallback callback) {
+        this.eventSubscribe.subscribeEvent(params, callback);
+    }
+
+    public void subscribeEvent(String topic0, EventSubCallback callback) {
+        subscribeEvent(topic0, BigInteger.valueOf(-1), BigInteger.valueOf(-1), callback);
+    }
+
+    public void subscribeEvent(
+            String topic0, BigInteger fromBlock, BigInteger toBlock, EventSubCallback callback) {
+        subscribeEvent(
+                fromBlock,
+                toBlock,
+                Collections.singletonList(Collections.singletonList(topic0)),
+                callback);
+    }
+
+    public void subscribeEvent(
+            String topic0,
+            List<String> otherTopics,
+            BigInteger fromBlock,
+            BigInteger toBlock,
+            EventSubCallback callback) {
+        List<List<String>> topics = new ArrayList<>();
+        topics.add(Collections.singletonList(topic0));
+        for (String otherTopic : otherTopics) {
+            topics.add(Collections.singletonList(otherTopic));
+        }
+        subscribeEvent(fromBlock, toBlock, topics, callback);
+    }
+
+    public void subscribeEvent(
+            BigInteger fromBlock,
+            BigInteger toBlock,
+            List<List<String>> topics,
+            EventSubCallback callback) {
+        EventSubParams eventSubParams = new EventSubParams();
+        // self address
+        eventSubParams.addAddress(getContractAddress());
+        eventSubParams.setFromBlock(fromBlock);
+        eventSubParams.setToBlock(toBlock);
+        for (int i = 0; i < topics.size(); i++) {
+            for (String topic : topics.get(i)) {
+                eventSubParams.addTopic(i, topic);
+            }
+        }
+        subscribeEvent(eventSubParams, callback);
     }
 
     public static EventValues staticExtractEventParameters(

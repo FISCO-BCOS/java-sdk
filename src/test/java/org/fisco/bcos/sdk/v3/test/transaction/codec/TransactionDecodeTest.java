@@ -2,6 +2,11 @@ package org.fisco.bcos.sdk.v3.test.transaction.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.tx.Transaction;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV1;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderJniObj;
+import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.v3.codec.FunctionReturnDecoderInterface;
 import org.fisco.bcos.sdk.v3.codec.Utils;
@@ -12,6 +17,7 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.TypeReference;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int32;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.signature.SignatureResult;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
@@ -30,14 +36,17 @@ import java.util.List;
 
 public class TransactionDecodeTest {
     private final CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
-    private final TransactionDecoderService transactionDecoderService = new TransactionDecoderService(cryptoSuite, false);
+    private final TransactionDecoderService transactionDecoderService =
+            new TransactionDecoderService(cryptoSuite, false);
     private static final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private static TransactionReceipt errorReceipt;
     private static TransactionReceipt normalReceipt;
     private static TransactionReceipt sysReceipt;
     private static TransactionReceipt sysErrorReceipt;
-    FunctionReturnDecoderInterface abiDecoder = new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
-    FunctionReturnDecoderInterface scaleDecoder = new org.fisco.bcos.sdk.v3.codec.scale.FunctionReturnDecoder();
+    FunctionReturnDecoderInterface abiDecoder =
+            new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();
+    FunctionReturnDecoderInterface scaleDecoder =
+            new org.fisco.bcos.sdk.v3.codec.scale.FunctionReturnDecoder();
 
     public TransactionDecodeTest() throws JsonProcessingException {
         String receiptStr =
@@ -61,14 +70,26 @@ public class TransactionDecodeTest {
                         + "        \"transactionIndex\": \"0x10\"\n"
                         + "    }\n"
                         + "}";
-        errorReceipt = objectMapper.readValue(receiptStr, BcosTransactionReceipt.class).getTransactionReceipt();
-        normalReceipt = objectMapper.readValue(receiptStr, BcosTransactionReceipt.class).getTransactionReceipt();
+        errorReceipt =
+                objectMapper
+                        .readValue(receiptStr, BcosTransactionReceipt.class)
+                        .getTransactionReceipt();
+        normalReceipt =
+                objectMapper
+                        .readValue(receiptStr, BcosTransactionReceipt.class)
+                        .getTransactionReceipt();
         normalReceipt.setStatus(0);
-        sysErrorReceipt = objectMapper.readValue(receiptStr, BcosTransactionReceipt.class).getTransactionReceipt();
+        sysErrorReceipt =
+                objectMapper
+                        .readValue(receiptStr, BcosTransactionReceipt.class)
+                        .getTransactionReceipt();
         sysErrorReceipt.setTo("0000000000000000000000000000000000001001");
         sysErrorReceipt.setStatus(15);
 
-        sysReceipt = objectMapper.readValue(receiptStr, BcosTransactionReceipt.class).getTransactionReceipt();
+        sysReceipt =
+                objectMapper
+                        .readValue(receiptStr, BcosTransactionReceipt.class)
+                        .getTransactionReceipt();
         sysReceipt.setTo("0000000000000000000000000000000000001001");
         sysReceipt.setStatus(0);
         sysReceipt.setOutput("0x000000000000000000000000000000000000000000000000000000000000007b");
@@ -76,17 +97,18 @@ public class TransactionDecodeTest {
 
     @Test
     public void decodeRevertMessageTest() {
-        org.fisco.bcos.sdk.v3.codec.FunctionEncoderInterface functionEncoderInterface = new FunctionEncoder(cryptoSuite);
+        org.fisco.bcos.sdk.v3.codec.FunctionEncoderInterface functionEncoderInterface =
+                new FunctionEncoder(cryptoSuite);
         Function function =
                 new Function(
                         "Error",
                         Collections.singletonList(new Utf8String("test string")),
-                        Collections.emptyList()
-                );
+                        Collections.emptyList());
 
         byte[] encode = functionEncoderInterface.encode(function);
         String encodeHex = Hex.toHexStringWithPrefix(encode);
-        String testString = "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000b7465737420737472696e67000000000000000000000000000000000000000000";
+        String testString =
+                "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000b7465737420737472696e67000000000000000000000000000000000000000000";
 
         Assert.assertEquals(testString, encodeHex);
 
@@ -99,7 +121,8 @@ public class TransactionDecodeTest {
         RetCode retCode = ReceiptParser.parseTransactionReceipt(normalReceipt, null);
         Assert.assertEquals(retCode.getCode(), PrecompiledRetCode.CODE_SUCCESS.code);
 
-        Assert.assertThrows(ContractException.class,
+        Assert.assertThrows(
+                ContractException.class,
                 () -> ReceiptParser.parseTransactionReceipt(errorReceipt, null));
 
         try {
@@ -109,7 +132,8 @@ public class TransactionDecodeTest {
             Assert.assertEquals(12, exception.getErrorCode());
         }
 
-        Assert.assertThrows(ContractException.class,
+        Assert.assertThrows(
+                ContractException.class,
                 () -> ReceiptParser.parseTransactionReceipt(sysErrorReceipt, null));
         try {
             ReceiptParser.parseTransactionReceipt(sysErrorReceipt, null);
@@ -118,21 +142,139 @@ public class TransactionDecodeTest {
             Assert.assertEquals(15, exception.getErrorCode());
         }
 
-        RetCode retCode1 = ReceiptParser.parseTransactionReceipt(sysReceipt, transactionReceipt -> {
-            List<Type> result = abiDecoder.decode(transactionReceipt.getOutput(),
-                    Utils.convert(Collections.singletonList(new TypeReference<Int32>() {
-            })));
-            return (BigInteger)result.get(0).getValue();
-        });
+        RetCode retCode1 =
+                ReceiptParser.parseTransactionReceipt(
+                        sysReceipt,
+                        transactionReceipt -> {
+                            List<Type> result =
+                                    abiDecoder.decode(
+                                            transactionReceipt.getOutput(),
+                                            Utils.convert(
+                                                    Collections.singletonList(
+                                                            new TypeReference<Int32>() {})));
+                            return (BigInteger) result.get(0).getValue();
+                        });
         Assert.assertEquals(123, retCode1.getCode());
 
         sysReceipt.setOutput("01ffffff");
-        RetCode retCode2 = ReceiptParser.parseTransactionReceipt(sysReceipt, transactionReceipt -> {
-            List<Type> result = scaleDecoder.decode(transactionReceipt.getOutput(),
-                    Utils.convert(Collections.singletonList(new TypeReference<Int32>() {
-                    })));
-            return (BigInteger)result.get(0).getValue();
-        });
+        RetCode retCode2 =
+                ReceiptParser.parseTransactionReceipt(
+                        sysReceipt,
+                        transactionReceipt -> {
+                            List<Type> result =
+                                    scaleDecoder.decode(
+                                            transactionReceipt.getOutput(),
+                                            Utils.convert(
+                                                    Collections.singletonList(
+                                                            new TypeReference<Int32>() {})));
+                            return (BigInteger) result.get(0).getValue();
+                        });
         Assert.assertEquals(-255, retCode2.getCode());
+    }
+
+    @Test
+    public void testDeocde() throws JniException {
+
+        TransactionDataV1 transactionDataV1 = new TransactionDataV1();
+        transactionDataV1.setVersion(1);
+        transactionDataV1.setBlockLimit(999999999);
+        transactionDataV1.setChainId("chain0");
+        transactionDataV1.setGroupId("group0");
+        transactionDataV1.setNonce("1420055182625795013612786582903998422427");
+        transactionDataV1.setTo("0x0102e8b6fc8cdf9626fddc1c3ea8c1e79b3fce94");
+        transactionDataV1.setAbi("abi");
+        transactionDataV1.setInput(
+                Hex.decode(
+                        "4ed3885e000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000047465737400000000000000000000000000000000000000000000000000000000"));
+        transactionDataV1.setValue("0x11");
+        transactionDataV1.setGasLimit(1000000);
+        transactionDataV1.setGasPrice("0x12");
+        transactionDataV1.setMaxFeePerGas("0x13");
+        transactionDataV1.setMaxPriorityFeePerGas("0x14");
+
+        String hash =
+                TransactionStructBuilderJniObj.calcTransactionDataStructHash(
+                        CryptoType.ECDSA_TYPE, transactionDataV1);
+        System.out.println("hash: " + hash);
+        CryptoSuite cryptoSuite = new CryptoSuite(CryptoType.ECDSA_TYPE);
+        SignatureResult sign = cryptoSuite.sign(Hex.decode(hash), cryptoSuite.getCryptoKeyPair());
+
+        Transaction transaction = new Transaction();
+        transaction.setDataHash(Hex.decode(hash));
+        transaction.setSignature(sign.encode());
+        transaction.setTransactionData(transactionDataV1);
+        transaction.setExtraData("testExtraData");
+        transaction.setAttribute(1);
+        transaction.setSender(Hex.decode("0x1232e8b6fc8cdf9626fddc1c3ea8c1e79b3fce94"));
+        transaction.setImportTime(1234567890);
+
+        String encodeTransactionStruct =
+                TransactionStructBuilderJniObj.encodeTransactionStruct(transaction);
+        System.out.println("encodeTransactionStruct: " + encodeTransactionStruct);
+
+        JsonTransactionResponse jsonTransactionResponse =
+                JsonTransactionResponse.decodeTransaction(encodeTransactionStruct);
+
+        Assert.assertEquals(1, jsonTransactionResponse.getVersion().intValue());
+        Assert.assertEquals(999999999, jsonTransactionResponse.getBlockLimit());
+        Assert.assertEquals("chain0", jsonTransactionResponse.getChainID());
+        Assert.assertEquals("group0", jsonTransactionResponse.getGroupID());
+        Assert.assertEquals(
+                "1420055182625795013612786582903998422427", jsonTransactionResponse.getNonce());
+        Assert.assertEquals(
+                "0x0102e8b6fc8cdf9626fddc1c3ea8c1e79b3fce94", jsonTransactionResponse.getTo());
+        Assert.assertEquals("abi", jsonTransactionResponse.getAbi());
+        Assert.assertEquals(
+                Hex.toHexStringWithPrefix(transactionDataV1.getInput()),
+                jsonTransactionResponse.getInput());
+        Assert.assertEquals("0x11", jsonTransactionResponse.getValue());
+        Assert.assertEquals("0x12", jsonTransactionResponse.getGasPrice());
+        Assert.assertEquals("0x13", jsonTransactionResponse.getMaxFeePerGas());
+        Assert.assertEquals("0x14", jsonTransactionResponse.getMaxPriorityFeePerGas());
+        Assert.assertEquals(1000000, jsonTransactionResponse.getGasLimit());
+
+        Assert.assertEquals(jsonTransactionResponse.getHash(), hash);
+        Assert.assertEquals(
+                Hex.toHexStringWithPrefix(sign.encode()), jsonTransactionResponse.getSignature());
+        Assert.assertEquals("testExtraData", jsonTransactionResponse.getExtraData());
+        Assert.assertEquals(
+                "0x1232e8b6fc8cdf9626fddc1c3ea8c1e79b3fce94", jsonTransactionResponse.getFrom());
+        Assert.assertEquals(1234567890, jsonTransactionResponse.getImportTime());
+
+        String txV0 =
+                "0x1a1c2606636861696e30360667726f7570304101fd562831343230303535313832363235373935303133363132373836353832393033393938343232343237662a3078303130326538623666633863646639363236666464633163336561386331653739623366636539347d0000644ed3885e0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000474657374000000000000000000000000000000000000000000000000000000000b2d00002082b0283ac2793fb68be2f2f79056251664093500a57313e3adad74d852cb32e53d000041cb1d9cc1e3b87ec4afa9ccf680ce11cad980056b63a58641dff78c84a6e7c6a41f3480b0cfa1a9a5107f4a0bf2ccffabeb1a550d66a1a754e9aba6b266cde7da00";
+        String txV1 =
+                "0x1a10012606636861696e30360667726f7570304101fb56203731646430333435623135373437353738643531376661366164623330393461662a3078333165643532333362383163373964356164646465656639393166353331613962626332616430317d0000644ed3885e000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000047465730a000000000000000000000000000000000000000000000000000000009603307830a6033078300b2d0000205bb1fa7f6b420cbc5d99f075edf4e2f340d003f76c35cc95d83ce3d6f790a4823d0000418f72ab9782925d323e759aa6d1bfc492160d84176030712395530dc42bdf973b0c4dcb64e20fcbd922e417f04010ed4cbd3e86c073da00292e49b301a4e2554c015001";
+
+        {
+            JsonTransactionResponse transactionV0 = JsonTransactionResponse.decodeTransaction(txV0);
+            JsonTransactionResponse transactionV1 = JsonTransactionResponse.decodeTransaction(txV1);
+
+            System.out.println(transactionV0);
+            System.out.println(transactionV1);
+        }
+
+        Assert.assertThrows(
+                JniException.class, () -> JsonTransactionResponse.decodeTransaction(null));
+
+        Assert.assertThrows(
+                JniException.class, () -> JsonTransactionResponse.decodeTransaction(""));
+
+        Assert.assertThrows(
+                JniException.class,
+                () ->
+                        JsonTransactionResponse.decodeTransaction(
+                                txV0.substring(0, txV0.length() / 2)));
+        Assert.assertThrows(
+                JniException.class,
+                () ->
+                        JsonTransactionResponse.decodeTransaction(
+                                txV0.substring(0, txV1.length() / 3)));
+
+        Assert.assertThrows(
+                JniException.class,
+                () ->
+                        JsonTransactionResponse.decodeTransaction(
+                                txV0.substring(txV1.length() / 3)));
     }
 }

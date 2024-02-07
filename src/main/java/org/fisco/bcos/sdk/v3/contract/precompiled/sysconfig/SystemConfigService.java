@@ -15,12 +15,15 @@
 package org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupInfo.GroupInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosGroupNodeInfo;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
@@ -29,17 +32,22 @@ import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SystemConfigService {
     private final SystemConfigPrecompiled systemConfigPrecompiled;
     private final Client client;
     public static final String TX_COUNT_LIMIT = "tx_count_limit";
     public static final String TX_GAS_LIMIT = "tx_gas_limit";
+    public static final String TX_GAS_PRICE = "tx_gas_price";
     public static final String CONSENSUS_PERIOD = "consensus_leader_period";
     public static final String AUTH_STATUS = "auth_check_status";
     public static final String COMPATIBILITY_VERSION = "compatibility_version";
     public static final int TX_GAS_LIMIT_MIN = 100000;
     private static final Map<String, Predicate<BigInteger>> predicateMap = new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(SystemConfigService.class);
 
     static {
         predicateMap.put(TX_COUNT_LIMIT, value -> value.compareTo(BigInteger.ONE) >= 0);
@@ -47,6 +55,7 @@ public class SystemConfigService {
         predicateMap.put(AUTH_STATUS, value -> value.compareTo(BigInteger.ZERO) >= 0);
         predicateMap.put(
                 TX_GAS_LIMIT, value -> value.compareTo(BigInteger.valueOf(TX_GAS_LIMIT_MIN)) >= 0);
+        predicateMap.put(TX_GAS_PRICE, value -> value.compareTo(BigInteger.ZERO) >= 0);
     }
 
     public SystemConfigService(Client client, CryptoKeyPair credential) {
@@ -73,6 +82,15 @@ public class SystemConfigService {
                             + nodeVersionString
                             + ")");
         }
+        if (!checkAvailableFeatureKeys(client, key)
+                && SystemConfigFeature.fromString(key) == null) {
+            throw new ContractException("Unsupported feature key: [" + key + "]");
+        }
+        if (key.equals(TX_GAS_PRICE)) {
+            BigInteger gasPrice = new BigInteger(value);
+            value = Numeric.toHexString(gasPrice);
+        }
+
         TransactionReceipt receipt = systemConfigPrecompiled.setValueByKey(key, value);
         return ReceiptParser.parseTransactionReceipt(
                 receipt, tr -> systemConfigPrecompiled.getSetValueByKeyOutput(receipt).getValue1());
@@ -90,6 +108,42 @@ public class SystemConfigService {
             return false;
         }
         return valuePredicate.test(sysValue);
+    }
+
+    static boolean checkAvailableFeatureKeys(Client client, String key) {
+        if (!(key.startsWith("bugfix") || key.startsWith("feature"))) {
+            return true;
+        }
+
+        Optional<GroupInfo> group =
+                client.getGroupInfoList().getResult().stream()
+                        .filter(groupInfo -> groupInfo.getGroupID().equals(client.getGroup()))
+                        .findFirst();
+        if (!group.isPresent()) {
+            logger.warn(
+                    "Not found group! {} {}",
+                    client.getGroup(),
+                    client.getGroupInfoList().getResult());
+            return true;
+        }
+
+        for (BcosGroupNodeInfo.GroupNodeInfo groupNodeInfo : group.get().getNodeList()) {
+            List<String> featureKeys = groupNodeInfo.getFeatureKeys();
+
+            if (featureKeys == null) {
+                if (groupNodeInfo.getProtocol().getCompatibilityVersion()
+                        == EnumNodeVersion.BCOS_3_2_3.toVersionObj().toCompatibilityVersion()) {
+                    featureKeys = Collections.singletonList("bugfix_revert");
+                } else {
+                    return false;
+                }
+            }
+
+            if (!featureKeys.contains(key)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean isCheckableInValueValidation(String key) {

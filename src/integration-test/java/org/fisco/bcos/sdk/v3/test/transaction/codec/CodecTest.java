@@ -58,6 +58,9 @@ public class CodecTest {
         codecTest.setI256(BigInteger.valueOf(-123456789));
         BigInteger i256 = codecTest.getI256();
         Assert.assertEquals(0, i256.compareTo(BigInteger.valueOf(-123456789)));
+
+        client.stop();
+        client.destroy();
     }
 
     @Test
@@ -89,6 +92,8 @@ public class CodecTest {
         codecTest.setBytes(Hex.decode(bytes16Str + bytes16Str + bytes16Str));
         byte[] bytes = codecTest.getBytes();
         Assert.assertEquals(bytes16Str + bytes16Str + bytes16Str, Hex.toHexString(bytes));
+        client.stop();
+        client.destroy();
     }
 
     @Test
@@ -150,6 +155,8 @@ public class CodecTest {
         for (int i = 0; i < u256ArrDyn.size(); i++) {
             Assert.assertEquals(uint256Arr10.get(i), u256ArrDyn.get(i));
         }
+        client.stop();
+        client.destroy();
     }
 
     @Test
@@ -211,6 +218,8 @@ public class CodecTest {
         for (int i = 0; i < i256ArrDyn.size(); i++) {
             Assert.assertEquals(int256Arr10.get(i), i256ArrDyn.get(i));
         }
+        client.stop();
+        client.destroy();
     }
 
     @Test
@@ -285,5 +294,7 @@ public class CodecTest {
             Assert.assertEquals(
                     Hex.toHexString(bytes32Arr.get(i)), Hex.toHexString(bytes32ArrD.get(i)));
         }
+        client.stop();
+        client.destroy();
     }
 }

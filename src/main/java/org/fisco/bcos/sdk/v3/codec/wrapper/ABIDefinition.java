@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 
 /**
  * ABIDefinition wrapper
@@ -28,8 +29,8 @@ import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 public class ABIDefinition {
     private String name;
     private String type;
-    private boolean constant;
-    private boolean payable;
+    private boolean constant = false;
+    private boolean payable = false;
     private boolean anonymous;
     private String stateMutability;
     private List<ConflictField> conflictFields = new ArrayList<>();
@@ -37,7 +38,7 @@ public class ABIDefinition {
     private List<NamedType> inputs = new ArrayList<>();
     private List<NamedType> outputs = new ArrayList<>();
     private List<Long> selector = new ArrayList<>();
-    public static List<String> CONSTANT_KEY = Arrays.asList("view");
+    public static List<String> CONSTANT_KEY = Arrays.asList("view", "pure");
 
     public ABIDefinition() {}
 
@@ -150,11 +151,20 @@ public class ABIDefinition {
      * @param cryptoSuite the crypto suite used for hash calculation
      * @return the method id
      */
+    @Deprecated
     public byte[] getMethodId(CryptoSuite cryptoSuite) {
         // Note: it's ok to use the abi encoder for all ABIDefinition, because only use
         // buildMethodId
         org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder encoder =
-                new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite);
+                new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(cryptoSuite.getHashImpl());
+        return encoder.buildMethodId(this.getMethodSignatureAsString());
+    }
+
+    public byte[] getMethodId(Hash hash) {
+        // Note: it's ok to use the abi encoder for all ABIDefinition, because only use
+        // buildMethodId
+        org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder encoder =
+                new org.fisco.bcos.sdk.v3.codec.abi.FunctionEncoder(hash);
         return encoder.buildMethodId(this.getMethodSignatureAsString());
     }
 
@@ -203,7 +213,7 @@ public class ABIDefinition {
     }
 
     public boolean isPayable() {
-        return this.payable;
+        return this.payable || "payable".equals(getStateMutability());
     }
 
     public void setPayable(boolean payable) {

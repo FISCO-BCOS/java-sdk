@@ -1,5 +1,6 @@
 package org.fisco.bcos.sdk.v3.codec.datatypes;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.codec.Utils;
@@ -10,6 +11,7 @@ public class Function {
     private List<Type> inputParameters;
     private List<TypeReference<Type>> outputParameters;
     private int transactionAttribute = 0;
+    private BigInteger value;
 
     public Function(
             String name, List<Type> inputParameters, List<TypeReference<?>> outputParameters) {
@@ -28,6 +30,16 @@ public class Function {
         this.inputParameters = inputParameters;
         this.outputParameters = Utils.convert(outputParameters);
         this.transactionAttribute = transactionAttribute;
+    }
+
+    public Function(
+            String name,
+            List<Type> inputParameters,
+            List<TypeReference<?>> outputParameters,
+            int transactionAttribute,
+            BigInteger value) {
+        this(name, inputParameters, outputParameters, transactionAttribute);
+        this.value = value;
     }
 
     public Function() {
@@ -54,5 +66,13 @@ public class Function {
 
     public void setTransactionAttribute(int transactionAttribute) {
         this.transactionAttribute = transactionAttribute;
+    }
+
+    public BigInteger getValue() {
+        return value;
+    }
+
+    public void setValue(BigInteger value) {
+        this.value = value;
     }
 }

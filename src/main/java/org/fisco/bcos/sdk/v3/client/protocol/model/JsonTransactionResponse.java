@@ -14,18 +14,29 @@
  */
 package org.fisco.bcos.sdk.v3.client.protocol.model;
 
+import static org.fisco.bcos.sdk.v3.utils.Numeric.toBytesPadded;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import org.fisco.bcos.sdk.jni.common.JniException;
-import org.fisco.bcos.sdk.jni.utilities.keypair.KeyPairJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.Transaction;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV1JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionData;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV1;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 import org.fisco.bcos.sdk.v3.model.MerkleProofUnit;
 import org.fisco.bcos.sdk.v3.utils.AddressUtils;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,24 +61,14 @@ public class JsonTransactionResponse {
     @Deprecated private List<MerkleProofUnit> transactionProof;
     private List<String> txProof;
 
+    // Fields of v1 transaction
+    private String value = "";
+    private String gasPrice = "";
+    private long gasLimit = 0;
+    private String maxFeePerGas = "";
+    private String maxPriorityFeePerGas = "";
+
     public JsonTransactionResponse() {}
-
-    public static JsonTransactionResponse readFromHexString(String hexString)
-            throws JniException, IOException {
-        String jsonObj = TransactionBuilderJniObj.decodeTransactionDataToJsonObj(hexString);
-        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-        return objectMapper.readValue(jsonObj.getBytes(), JsonTransactionResponse.class);
-    }
-
-    public String writeToHexString() throws JsonProcessingException, JniException {
-        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
-        String json = objectMapper.writeValueAsString(this);
-        long transactionDataWithJson = TransactionBuilderJniObj.createTransactionDataWithJson(json);
-        String encodeTransactionData =
-                TransactionBuilderJniObj.encodeTransactionData(transactionDataWithJson);
-        TransactionBuilderJniObj.destroyTransactionData(transactionDataWithJson);
-        return encodeTransactionData;
-    }
 
     public String getAbi() {
         return abi;
@@ -175,19 +176,112 @@ public class JsonTransactionResponse {
         this.signature = signature;
     }
 
-    // calculate the hash for the transaction
+    public String getExtraData() {
+        return extraData;
+    }
+
+    public void setExtraData(String extraData) {
+        this.extraData = extraData;
+    }
+
+    public long getImportTime() {
+        return this.importTime;
+    }
+
+    public void setImportTime(long importTime) {
+        this.importTime = importTime;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getGasPrice() {
+        return gasPrice;
+    }
+
+    public void setGasPrice(String gasPrice) {
+        this.gasPrice = gasPrice;
+    }
+
+    public long getGasLimit() {
+        return gasLimit;
+    }
+
+    public void setGasLimit(long gasLimit) {
+        this.gasLimit = gasLimit;
+    }
+
+    public String getMaxFeePerGas() {
+        return maxFeePerGas;
+    }
+
+    public void setMaxFeePerGas(String maxFeePerGas) {
+        this.maxFeePerGas = maxFeePerGas;
+    }
+
+    public String getMaxPriorityFeePerGas() {
+        return maxPriorityFeePerGas;
+    }
+
+    public void setMaxPriorityFeePerGas(String maxPriorityFeePerGas) {
+        this.maxPriorityFeePerGas = maxPriorityFeePerGas;
+    }
+
+    /**
+     * This method is not correct, only can decode from method {@link #writeToHexString()}, which
+     * not enable to send transaction to blockchain.
+     *
+     * @deprecated this method is deprecated, use {@link #decodeTransaction(String)} instead
+     * @param hexString the hex string
+     * @return the transaction response
+     * @throws JniException the jni exception
+     * @throws IOException the io exception
+     */
+    @Deprecated
+    public static JsonTransactionResponse readFromHexString(String hexString)
+            throws JniException, IOException {
+        String jsonObj = TransactionBuilderJniObj.decodeTransactionDataToJsonObj(hexString);
+        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+        return objectMapper.readValue(jsonObj.getBytes(), JsonTransactionResponse.class);
+    }
+
+    /**
+     * This method only encode to transaction data hex string, use to sign transaction data.
+     *
+     * @deprecated this method is deprecated, use {@link #encodeTransactionData()} instead
+     * @return the hex string
+     * @throws JsonProcessingException the json processing exception
+     * @throws JniException the jni exception
+     */
+    @Deprecated
+    public String writeToHexString() throws JsonProcessingException, JniException {
+        ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+        String json = objectMapper.writeValueAsString(this);
+        long transactionDataWithJson = TransactionBuilderJniObj.createTransactionDataWithJson(json);
+        String encodeTransactionData =
+                TransactionBuilderJniObj.encodeTransactionData(transactionDataWithJson);
+        TransactionBuilderJniObj.destroyTransactionData(transactionDataWithJson);
+        return encodeTransactionData;
+    }
+
+    /**
+     * Calculate the hash for the transaction, only correct when blockchain node version < 3.3.0,
+     *
+     * @param cryptoSuite the crypto suite
+     * @return tx hash hex string
+     * @throws ClientException exception when calculateHash() throws ClientException
+     */
     public String calculateHash(CryptoSuite cryptoSuite) throws ClientException {
         try {
             ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
             String json = objectMapper.writeValueAsString(this);
-            long transactionData = TransactionBuilderJniObj.createTransactionDataWithJson(json);
-            long jniKeyPair = cryptoSuite.getCryptoKeyPair().getJniKeyPair();
-            int jniKeyPairCryptoType = KeyPairJniObj.getJniKeyPairCryptoType(jniKeyPair);
-            String transactionDataHash =
-                    TransactionBuilderJniObj.calcTransactionDataHash(
-                            jniKeyPairCryptoType, transactionData);
-            TransactionBuilderJniObj.destroyTransactionData(transactionData);
-            return transactionDataHash;
+            return TransactionBuilderV1JniObj.calcTransactionDataHashWithJson(
+                    cryptoSuite.cryptoTypeConfig, json);
         } catch (Exception e) {
             logger.warn(
                     "calculate hash for the transaction failed, version: {}, transactionHash: {}, error info: {}",
@@ -198,6 +292,129 @@ public class JsonTransactionResponse {
                     "calculate hash for transaction " + this.hash + " failed for " + e.getMessage(),
                     e);
         }
+    }
+
+    /**
+     * Calculate the hash for the transaction, only correct when blockchain node version >= 3.3.0,
+     *
+     * @param cryptoSuiteType the crypto suite type, use for distinguish hash impl, 0 for Keccak256,
+     *     1
+     * @return tx hash hex string
+     * @throws ClientException exception when calculateHash() throws ClientException
+     */
+    public String calculateHash(int cryptoSuiteType) throws ClientException {
+        try {
+            return TransactionBuilderV1JniObj.calcTransactionDataHashWithFullFields(
+                    cryptoSuiteType,
+                    (getVersion() == 0 ? TransactionVersion.V0 : TransactionVersion.V1),
+                    getGroupID(),
+                    getChainID(),
+                    getTo(),
+                    new String(Hex.decode(getNonce())),
+                    Hex.decode(getInput()),
+                    getAbi(),
+                    getBlockLimit(),
+                    getValue(),
+                    getGasPrice(),
+                    getGasLimit(),
+                    getMaxFeePerGas(),
+                    getMaxPriorityFeePerGas());
+        } catch (Exception e) {
+            logger.warn(
+                    "calculate hash for the transaction failed, version: {}, transactionHash: {}, error info: {}",
+                    this.version,
+                    this.hash,
+                    e);
+            throw new ClientException(
+                    "calculate hash for transaction " + this.hash + " failed for " + e.getMessage(),
+                    e);
+        }
+    }
+
+    /**
+     * Calculate the hash for the transaction in java native, only correct when blockchain node
+     * version >= 3.3.0, because the nonce output is changed in 3.3.0, you can calculateHex the
+     * nonce to string
+     *
+     * @param hashImpl the hash implementation
+     * @return tx hash hex string
+     * @throws IOException exception when encodeTransactionData() throws IOException
+     */
+    public String calculateTxHashInNative(Hash hashImpl) throws IOException {
+        byte[] hashBytes = hashImpl.hash(encodeTransactionData());
+        return Hex.toHexStringWithPrefix(hashBytes);
+    }
+
+    /**
+     * Encode the transaction data to byte array, witch is used to calculate the hash of the
+     * transaction
+     *
+     * @return the byte array of the transaction data
+     * @throws IOException exception when ByteArrayOutputStream throws IOException
+     */
+    public byte[] encodeTransactionData() throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        // version
+        byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getVersion()), 4));
+        // chainId
+        byteArrayOutputStream.write(getChainID().getBytes());
+        // groupId
+        byteArrayOutputStream.write(getGroupID().getBytes());
+        // blockLimit
+        byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getBlockLimit()), 8));
+        // nonce
+        byteArrayOutputStream.write(Hex.decode(getNonce()));
+        // to
+        byteArrayOutputStream.write(getTo().getBytes());
+        // input
+        byteArrayOutputStream.write(Hex.decode(getInput()));
+        // abi
+        byteArrayOutputStream.write(getAbi().getBytes());
+
+        if (getVersion() == TransactionVersion.V1.getValue()) {
+            byteArrayOutputStream.write(getValue().getBytes());
+            byteArrayOutputStream.write(getGasPrice().getBytes());
+            byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getGasLimit()), 8));
+            byteArrayOutputStream.write(getMaxFeePerGas().getBytes());
+            byteArrayOutputStream.write(getMaxPriorityFeePerGas().getBytes());
+        }
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    public static JsonTransactionResponse decodeTransaction(String hexString) throws JniException {
+        Transaction transactionV1 =
+                TransactionStructBuilderJniObj.decodeTransactionStructV1(hexString);
+        TransactionData transactionData = transactionV1.getTransactionData();
+        JsonTransactionResponse jsonTransactionResponse = new JsonTransactionResponse();
+        jsonTransactionResponse.setVersion(transactionData.getVersion());
+        jsonTransactionResponse.setHash(
+                Hex.toHexStringWithPrefixNullable(transactionV1.getDataHash(), ""));
+        jsonTransactionResponse.setNonce(transactionData.getNonce());
+        jsonTransactionResponse.setBlockLimit(transactionData.getBlockLimit());
+        jsonTransactionResponse.setTo(transactionData.getTo());
+        jsonTransactionResponse.setFrom(
+                Hex.toHexStringWithPrefixNullable(transactionV1.getSender(), ""));
+        jsonTransactionResponse.setAbi(transactionData.getAbi());
+        jsonTransactionResponse.setInput(
+                Hex.toHexStringWithPrefixNullable(transactionData.getInput(), ""));
+        jsonTransactionResponse.setChainID(transactionData.getChainId());
+        jsonTransactionResponse.setGroupID(transactionData.getGroupId());
+        jsonTransactionResponse.setExtraData(transactionV1.getExtraData());
+        jsonTransactionResponse.setSignature(
+                Hex.toHexStringWithPrefixNullable(transactionV1.getSignature(), ""));
+        jsonTransactionResponse.setImportTime(transactionV1.getImportTime());
+
+        if (transactionData instanceof TransactionDataV1
+                && transactionData.getVersion() == TransactionVersion.V1.getValue()) {
+            TransactionDataV1 transactionDataV1 = (TransactionDataV1) transactionData;
+            jsonTransactionResponse.setValue(transactionDataV1.getValue());
+            jsonTransactionResponse.setGasPrice(transactionDataV1.getGasPrice());
+            jsonTransactionResponse.setGasLimit(transactionDataV1.getGasLimit());
+            jsonTransactionResponse.setMaxFeePerGas(transactionDataV1.getMaxFeePerGas());
+            jsonTransactionResponse.setMaxPriorityFeePerGas(
+                    transactionDataV1.getMaxPriorityFeePerGas());
+        }
+        return jsonTransactionResponse;
     }
 
     @Override
@@ -239,60 +456,61 @@ public class JsonTransactionResponse {
 
     @Override
     public String toString() {
-        return "{"
-                + "version='"
-                + this.version
-                + '\''
-                + ", from='"
-                + this.from
-                + '\''
+        return "JsonTransactionResponse{"
+                + "version="
+                + version
                 + ", hash='"
-                + this.hash
-                + '\''
-                + ", input='"
-                + this.input
+                + hash
                 + '\''
                 + ", nonce='"
-                + this.nonce
+                + nonce
                 + '\''
+                + ", blockLimit="
+                + blockLimit
                 + ", to='"
-                + this.getTo()
+                + to
+                + '\''
+                + ", from='"
+                + from
                 + '\''
                 + ", abi='"
-                + this.abi
+                + abi
                 + '\''
-                + ", blockLimit='"
-                + this.blockLimit
+                + ", input='"
+                + input
                 + '\''
-                + ", chainId='"
-                + this.chainID
+                + ", chainID='"
+                + chainID
                 + '\''
                 + ", groupID='"
-                + this.groupID
+                + groupID
                 + '\''
-                + ", txProof='"
-                + this.txProof
+                + ", extraData='"
+                + extraData
                 + '\''
-                + ", signature="
-                + this.signature
-                + ", extraData="
-                + this.extraData
+                + ", signature='"
+                + signature
+                + '\''
+                + ", importTime="
+                + importTime
+                + ", transactionProof="
+                + transactionProof
+                + ", txProof="
+                + txProof
+                + ", value='"
+                + value
+                + '\''
+                + ", gasPrice='"
+                + gasPrice
+                + '\''
+                + ", gasLimit="
+                + gasLimit
+                + ", maxFeePerGas='"
+                + maxFeePerGas
+                + '\''
+                + ", maxPriorityFeePerGas='"
+                + maxPriorityFeePerGas
+                + '\''
                 + '}';
-    }
-
-    public String getExtraData() {
-        return extraData;
-    }
-
-    public void setExtraData(String extraData) {
-        this.extraData = extraData;
-    }
-
-    public long getImportTime() {
-        return this.importTime;
-    }
-
-    public void setImportTime(long importTime) {
-        this.importTime = importTime;
     }
 }

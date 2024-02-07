@@ -29,12 +29,17 @@ public class PrecompiledAddress {
             "0000000000000000000000000000000000010001";
     public static final String ACCOUNT_MANAGER_ADDRESS = "0000000000000000000000000000000000010003";
 
+    public static final String BALANCE_PRECOMPILED_ADDRESS =
+            "0000000000000000000000000000000000001011";
+
     public static final String SYS_CONFIG_PRECOMPILED_NAME = "/sys/status";
     public static final String CONSENSUS_PRECOMPILED_NAME = "/sys/consensus";
     public static final String BFS_PRECOMPILED_NAME = "/sys/bfs";
     public static final String SHARDING_PRECOMPILED_NAME = "/sys/sharding";
     public static final String TABLE_MANAGER_PRECOMPILED_NAME = "/sys/table_manager";
     public static final String ACCOUNT_MANAGER_PRECOMPILED_NAME = "/sys/account";
+
+    public static final String BALANCE_PRECOMPILED_NAME = "/sys/balance";
 
     private PrecompiledAddress() {}
 }

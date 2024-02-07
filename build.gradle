@@ -20,11 +20,11 @@ ext {
     commonsIOVersion = '2.11.0'
     commonsLang3Version = '3.12.0'
     toml4jVersion = "0.7.2"
-    bcprovJDK15onVersion = '1.69'
+    bcprovJDK18onVersion = '1.75'
     webankJavaCryptoVersion = "1.0.3"
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
-    bcosSdkJniVersion = "3.5.0"
+    bcosSdkJniVersion = "3.6.0-SNAPSHOT"
     slf4jApiVerison = '1.7.36'
     mockitoVersion = '4.8.0'
     gsonVersion = '2.10.1'
@@ -35,12 +35,12 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.5.0'
+    version = '3.6.0-SNAPSHOT'
 
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
-    
+
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'jacoco'
@@ -125,13 +125,13 @@ googleJavaFormat {
 }
 
 dependencies {
-	api("org.fisco-bcos:fisco-bcos-tars-sdk" + ":${tarsSDKVersion}")
-    api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}")  {
-        exclude group : "org.slf4j"
-        exclude group : "com.fasterxml.jackson.core"
+    api("org.fisco-bcos:fisco-bcos-tars-sdk" + ":${tarsSDKVersion}")
+    api("org.fisco-bcos:bcos-sdk-jni:${bcosSdkJniVersion}") {
+        exclude group: "org.slf4j"
+        exclude group: "com.fasterxml.jackson.core"
     }
 
-    api("org.bouncycastle:bcprov-jdk15on:${bcprovJDK15onVersion}")
+    api("org.bouncycastle:bcprov-jdk18on:${bcprovJDK18onVersion}")
     api("com.google.code.gson:gson:${gsonVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
@@ -159,13 +159,13 @@ configurations {
 }
 
 task integrationTest(type: Test) {
-    dependsOn test
+//    dependsOn test
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
 
 task integrationWasmTest(type: Test) {
-    dependsOn test
+//    dependsOn test
     testClassesDirs = sourceSets.integrationWasmTest.output.classesDirs
     classpath = sourceSets.integrationWasmTest.runtimeClasspath
 }
@@ -174,6 +174,15 @@ javadoc {
     options.addStringOption('Xdoclint:none', '-quiet')
     options.addStringOption('encoding', 'UTF-8')
     options.addStringOption('charSet', 'UTF-8')
+}
+
+task copyHooks(type: Copy) {
+    if (!file(".git/hooks/pre-commit").exists()) {
+        from("hooks") {
+            include "**"
+        }
+        into ".git/hooks"
+    }
 }
 
 task sourcesJar(type: Jar) {
@@ -199,9 +208,9 @@ jacocoTestReport {
     }
 }
 
-tasks.withType(Test) {
-    finalizedBy jacocoTestReport
-}
+//tasks.withType(Test) {
+//    finalizedBy jacocoTestReport
+//}
 
 publishing {
     publications {
@@ -258,7 +267,7 @@ publishing {
 
 jar {
     // destinationDir file('dist/apps')
-    archiveFileName="fisco-bcos-" + project.name + '-' + project.version + '.jar'
+    archiveFileName = "fisco-bcos-" + project.name + '-' + project.version + '.jar'
     exclude '**/*.xml'
     exclude '**/*.properties'
 
@@ -304,3 +313,4 @@ jar {
     }
 }
 check.dependsOn jacocoTestReport
+verifyGoogleJavaFormat.dependsOn(copyHooks)

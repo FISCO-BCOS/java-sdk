@@ -78,6 +78,9 @@ public class BcosGroupNodeInfo extends JsonRpcResponse<BcosGroupNodeInfo.GroupNo
         private int type;
         private GroupNodeIniInfo iniConfig;
         private String name;
+        private List<ServiceInfo> serviceInfoList;
+        private Protocol protocol;
+        private List<String> featureKeys;
 
         @Override
         public String toString() {
@@ -93,6 +96,8 @@ public class BcosGroupNodeInfo extends JsonRpcResponse<BcosGroupNodeInfo.GroupNo
                     + serviceInfoList
                     + ", protocol="
                     + protocol
+                    + ", featureKeys="
+                    + featureKeys
                     + '}';
         }
 
@@ -103,9 +108,6 @@ public class BcosGroupNodeInfo extends JsonRpcResponse<BcosGroupNodeInfo.GroupNo
         public void setProtocol(Protocol protocol) {
             this.protocol = protocol;
         }
-
-        private List<ServiceInfo> serviceInfoList;
-        private Protocol protocol;
 
         public GroupNodeIniInfo getIniConfig() {
             return iniConfig;
@@ -138,6 +140,14 @@ public class BcosGroupNodeInfo extends JsonRpcResponse<BcosGroupNodeInfo.GroupNo
 
         public void setServiceInfoList(List<ServiceInfo> serviceInfoList) {
             this.serviceInfoList = serviceInfoList;
+        }
+
+        public List<String> getFeatureKeys() {
+            return featureKeys;
+        }
+
+        public void setFeatureKeys(List<String> featureKeys) {
+            this.featureKeys = featureKeys;
         }
 
         static class ServiceInfo {

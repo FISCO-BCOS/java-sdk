@@ -64,5 +64,7 @@ public class EventDecodeTest {
         Assert.assertEquals("test2", list.get(1));
         Map<String, List<List<Object>>> map = response.getEventResultMap();
         Assert.assertEquals("test2", map.get("LogInit").get(0).get(1));
+        client.stop();
+        client.destroy();
     }
 }
