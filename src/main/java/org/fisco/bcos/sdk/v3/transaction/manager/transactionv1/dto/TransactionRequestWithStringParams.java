@@ -19,6 +19,30 @@ public class TransactionRequestWithStringParams extends BasicRequest {
         super(abi, method, to, value, gasPrice, gasLimit, eip1559Struct);
     }
 
+    public TransactionRequestWithStringParams(
+            String abi,
+            String method,
+            String to,
+            BigInteger blockLimit,
+            String nonce,
+            BigInteger value,
+            BigInteger gasPrice,
+            BigInteger gasLimit,
+            EIP1559Struct eip1559Struct,
+            byte[] extension) {
+        super(
+                abi,
+                method,
+                to,
+                blockLimit,
+                nonce,
+                value,
+                gasPrice,
+                gasLimit,
+                eip1559Struct,
+                extension);
+    }
+
     public void setStringParams(List<String> params) {
         this.stringParams = params;
     }

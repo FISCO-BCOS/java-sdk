@@ -17,6 +17,18 @@ public class BasicDeployRequest extends BasicRequest {
         this.bin = bin;
     }
 
+    public BasicDeployRequest(
+            String abi,
+            BigInteger blockLimit,
+            String nonce,
+            BigInteger value,
+            BigInteger gasPrice,
+            BigInteger gasLimit,
+            EIP1559Struct eip1559Struct,
+            byte[] extension) {
+        super(abi, "", "", blockLimit, nonce, value, gasPrice, gasLimit, eip1559Struct, extension);
+    }
+
     public String getBin() {
         return bin;
     }

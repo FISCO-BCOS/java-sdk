@@ -48,4 +48,9 @@ public class StaticEIP1559GasProvider implements ContractGasProvider {
     public EIP1559Struct getEIP1559Struct(String methodId) {
         return new EIP1559Struct(maxFeePerGas, maxPriorityFeePerGas, gasLimit);
     }
+
+    @Override
+    public EIP1559Struct getEIP1559Struct(byte[] methodId) {
+        return new EIP1559Struct(maxFeePerGas, maxPriorityFeePerGas, gasLimit);
+    }
 }

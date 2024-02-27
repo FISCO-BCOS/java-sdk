@@ -12,6 +12,8 @@ public class Function {
     private List<TypeReference<Type>> outputParameters;
     private int transactionAttribute = 0;
     private BigInteger value;
+    private String nonce;
+    private BigInteger blockLimit;
 
     public Function(
             String name, List<Type> inputParameters, List<TypeReference<?>> outputParameters) {
@@ -40,6 +42,19 @@ public class Function {
             BigInteger value) {
         this(name, inputParameters, outputParameters, transactionAttribute);
         this.value = value;
+    }
+
+    public Function(
+            String name,
+            List<Type> inputParameters,
+            List<TypeReference<?>> outputParameters,
+            int transactionAttribute,
+            BigInteger value,
+            String nonce,
+            BigInteger blockLimit) {
+        this(name, inputParameters, outputParameters, transactionAttribute, value);
+        this.nonce = nonce;
+        this.blockLimit = blockLimit;
     }
 
     public Function() {
@@ -74,5 +89,21 @@ public class Function {
 
     public void setValue(BigInteger value) {
         this.value = value;
+    }
+
+    public String getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(String nonce) {
+        this.nonce = nonce;
+    }
+
+    public BigInteger getBlockLimit() {
+        return blockLimit;
+    }
+
+    public void setBlockLimit(BigInteger blockLimit) {
+        this.blockLimit = blockLimit;
     }
 }
