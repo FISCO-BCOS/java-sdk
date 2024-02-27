@@ -3,6 +3,7 @@ package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.utils;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.AbiEncodedRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequestWithStringParams;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequest;
@@ -13,11 +14,14 @@ public class TransactionRequestBuilder {
     private String abi;
     private String method;
     private String to;
+    private BigInteger blockLimit;
+    private String nonce;
     private BigInteger value;
     private BigInteger gasPrice;
     private BigInteger gasLimit;
     private String bin;
     private EIP1559Struct eip1559Struct;
+    private byte[] extension = null;
 
     public TransactionRequestBuilder(String abi, String method, String to) {
         this.abi = abi;
@@ -37,6 +41,16 @@ public class TransactionRequestBuilder {
 
     public TransactionRequestBuilder setTo(String to) {
         this.to = to;
+        return this;
+    }
+
+    public TransactionRequestBuilder setBlockLimit(BigInteger blockLimit) {
+        this.blockLimit = blockLimit;
+        return this;
+    }
+
+    public TransactionRequestBuilder setNonce(String nonce) {
+        this.nonce = nonce;
         return this;
     }
 
@@ -60,6 +74,11 @@ public class TransactionRequestBuilder {
         return this;
     }
 
+    public TransactionRequestBuilder setExtension(byte[] extension) {
+        this.extension = extension;
+        return this;
+    }
+
     public TransactionRequestBuilder setBin(String bin) {
         this.bin = bin;
         return this;
@@ -74,10 +93,13 @@ public class TransactionRequestBuilder {
                         this.abi,
                         this.method,
                         this.to,
+                        this.blockLimit,
+                        this.nonce,
                         this.value,
                         this.gasPrice,
                         this.gasLimit,
-                        this.eip1559Struct);
+                        this.eip1559Struct,
+                        this.extension);
         sendTransactionRequest.setParams(params);
         return sendTransactionRequest;
     }
@@ -92,10 +114,13 @@ public class TransactionRequestBuilder {
                         this.abi,
                         this.method,
                         this.to,
+                        this.blockLimit,
+                        this.nonce,
                         this.value,
                         this.gasPrice,
                         this.gasLimit,
-                        this.eip1559Struct);
+                        this.eip1559Struct,
+                        this.extension);
         request.setStringParams(stringParams);
         return request;
     }
@@ -112,11 +137,13 @@ public class TransactionRequestBuilder {
         DeployTransactionRequest request =
                 new DeployTransactionRequest(
                         this.abi,
-                        this.bin,
+                        this.blockLimit,
+                        this.nonce,
                         this.value,
                         this.gasPrice,
                         this.gasLimit,
-                        this.eip1559Struct);
+                        this.eip1559Struct,
+                        this.extension);
         if (to != null) {
             request.setTo(to);
         }
@@ -136,15 +163,36 @@ public class TransactionRequestBuilder {
         DeployTransactionRequestWithStringParams request =
                 new DeployTransactionRequestWithStringParams(
                         this.abi,
-                        this.bin,
+                        this.blockLimit,
+                        this.nonce,
                         this.value,
                         this.gasPrice,
                         this.gasLimit,
-                        this.eip1559Struct);
+                        this.eip1559Struct,
+                        this.extension);
         if (to != null) {
             request.setTo(to);
         }
         request.setStringParams(stringParams);
         return request;
+    }
+
+    public AbiEncodedRequest buildAbiEncodedRequest(byte[] encodedParams) throws ContractException {
+        if (encodedParams == null) {
+            throw new ContractException("SendTransaction params is null, please set it manually.");
+        }
+        AbiEncodedRequest abiEncodedDeployRequest =
+                new AbiEncodedRequest(
+                        this.abi,
+                        this.to,
+                        this.blockLimit,
+                        this.nonce,
+                        this.value,
+                        this.gasPrice,
+                        this.gasLimit,
+                        this.eip1559Struct,
+                        this.extension);
+        abiEncodedDeployRequest.setEncodedData(encodedParams);
+        return abiEncodedDeployRequest;
     }
 }

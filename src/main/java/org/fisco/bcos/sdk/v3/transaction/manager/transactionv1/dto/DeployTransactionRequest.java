@@ -18,6 +18,18 @@ public class DeployTransactionRequest extends BasicDeployRequest {
         super(abi, bin, value, gasPrice, gasLimit, eip1559Struct);
     }
 
+    public DeployTransactionRequest(
+            String abi,
+            BigInteger blockLimit,
+            String nonce,
+            BigInteger value,
+            BigInteger gasPrice,
+            BigInteger gasLimit,
+            EIP1559Struct eip1559Struct,
+            byte[] extension) {
+        super(abi, blockLimit, nonce, value, gasPrice, gasLimit, eip1559Struct, extension);
+    }
+
     public void setParams(List<Object> params) {
         this.params = params;
     }

@@ -40,4 +40,9 @@ public class StaticGasProvider implements ContractGasProvider {
     public EIP1559Struct getEIP1559Struct(String methodId) {
         return new EIP1559Struct(BigInteger.ZERO, BigInteger.ZERO, gasLimit);
     }
+
+    @Override
+    public EIP1559Struct getEIP1559Struct(byte[] methodId) {
+        return new EIP1559Struct(BigInteger.ZERO, BigInteger.ZERO, gasLimit);
+    }
 }

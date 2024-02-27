@@ -14,4 +14,6 @@ public interface ContractGasProvider {
     boolean isEIP1559Enabled();
 
     EIP1559Struct getEIP1559Struct(String methodId);
+
+    EIP1559Struct getEIP1559Struct(byte[] methodId);
 }
