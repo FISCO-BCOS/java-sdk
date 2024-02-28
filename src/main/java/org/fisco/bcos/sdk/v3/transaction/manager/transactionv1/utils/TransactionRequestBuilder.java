@@ -137,6 +137,7 @@ public class TransactionRequestBuilder {
         DeployTransactionRequest request =
                 new DeployTransactionRequest(
                         this.abi,
+                        this.bin,
                         this.blockLimit,
                         this.nonce,
                         this.value,
@@ -163,6 +164,7 @@ public class TransactionRequestBuilder {
         DeployTransactionRequestWithStringParams request =
                 new DeployTransactionRequestWithStringParams(
                         this.abi,
+                        this.bin,
                         this.blockLimit,
                         this.nonce,
                         this.value,

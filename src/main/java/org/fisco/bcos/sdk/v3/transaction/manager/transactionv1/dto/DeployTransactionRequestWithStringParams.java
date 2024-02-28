@@ -20,6 +20,7 @@ public class DeployTransactionRequestWithStringParams extends BasicDeployRequest
 
     public DeployTransactionRequestWithStringParams(
             String abi,
+            String bin,
             BigInteger blockLimit,
             String nonce,
             BigInteger value,
@@ -27,7 +28,7 @@ public class DeployTransactionRequestWithStringParams extends BasicDeployRequest
             BigInteger gasLimit,
             EIP1559Struct eip1559Struct,
             byte[] extension) {
-        super(abi, blockLimit, nonce, value, gasPrice, gasLimit, eip1559Struct, extension);
+        super(abi, bin, blockLimit, nonce, value, gasPrice, gasLimit, eip1559Struct, extension);
     }
 
     public void setStringParams(List<String> params) {
