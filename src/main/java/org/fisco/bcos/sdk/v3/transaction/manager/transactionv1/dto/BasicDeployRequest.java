@@ -19,6 +19,7 @@ public class BasicDeployRequest extends BasicRequest {
 
     public BasicDeployRequest(
             String abi,
+            String bin,
             BigInteger blockLimit,
             String nonce,
             BigInteger value,
@@ -27,6 +28,7 @@ public class BasicDeployRequest extends BasicRequest {
             EIP1559Struct eip1559Struct,
             byte[] extension) {
         super(abi, "", "", blockLimit, nonce, value, gasPrice, gasLimit, eip1559Struct, extension);
+        this.bin = bin;
     }
 
     public String getBin() {
@@ -43,7 +45,7 @@ public class BasicDeployRequest extends BasicRequest {
 
     @Override
     public boolean isTransactionEssentialSatisfy() {
-        return super.isTransactionEssentialSatisfy() && bin != null;
+        return bin != null;
     }
 
     @Override

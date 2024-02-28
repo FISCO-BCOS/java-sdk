@@ -177,9 +177,9 @@ LOG_INFO "------ check_standard_node---------"
 check_standard_node "true" "normal" "-A"
 rm -rf ./bin
 
-LOG_INFO "------ download_binary: v3.2.3---------"
-download_build_chain "v3.2.3"
-download_binary "v3.2.3"
+LOG_INFO "------ download_binary: v3.2.6---------"
+download_build_chain "v3.2.6"
+download_binary "v3.2.6"
 LOG_INFO "------ check_standard_node---------"
 check_standard_node "false" "normal" "-A"
 LOG_INFO "------ check_sm_node---------"
@@ -203,6 +203,13 @@ rm -rf ./bin
 LOG_INFO "------ download_build_chain: v3.5.0---------"
 download_binary "v3.5.0"
 download_build_chain "v3.5.0"
+LOG_INFO "------ check_standard_node---------"
+check_standard_node "true"
+rm -rf ./bin
+
+LOG_INFO "------ download_build_chain: v3.6.0---------"
+download_binary "v3.6.0"
+download_build_chain "v3.6.0"
 LOG_INFO "------ check_wasm_node---------"
 check_wasm_node "false"
 LOG_INFO "------ check_standard_node---------"
