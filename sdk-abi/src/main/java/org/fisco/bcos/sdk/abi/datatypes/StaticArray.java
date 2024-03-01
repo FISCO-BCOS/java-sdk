@@ -29,7 +29,12 @@ public class StaticArray<T extends Type> extends Array<T> {
         super(
                 StructType.class.isAssignableFrom(values[0].getClass())
                         ? (Class<T>) values[0].getClass()
-                        : (Class<T>) AbiTypes.getType(values[0].getTypeAsString()),
+                        : Array.class.isAssignableFrom(values[0].getClass())
+                                ? (Class<T>)
+                                        (values[0].dynamicType()
+                                                ? DynamicArray.class
+                                                : StaticArray.class)
+                                : (Class<T>) AbiTypes.getType(values[0].getTypeAsString()),
                 values);
         this.expectedSize = expectedSize;
         isValid();

@@ -15,15 +15,15 @@ ext {
         ossrhPassword="xxx"
     }
     // jackson version
-    jacksonVersion = "2.15.2"
+    jacksonVersion = "2.15.4"
     commonsIOVersion = '2.7'
-    commonsLang3Version = "3.1"
+    commonsLang3Version = '3.14.0'
     javapoetVersion = "1.7.0"
     picocliVersion = "3.6.0"
     nettySMSSLContextVersion = "1.5.2"
     toml4jVersion = "0.7.2"
-    bcprovJDK18onVersion = "1.76"
-    webankJavaCryptoVersion = "1.0.2"
+    bcprovJDK18onVersion = '1.77'
+    webankJavaCryptoVersion = '1.0.3'
     webankHsmCryptoVersion = "1.0.0-GMT0018"
     gsonVersion = '2.10.1'
     slf4jVersion = "1.7.36"
@@ -193,7 +193,7 @@ dependencies {
     compile ("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}"){
         exclude group: "org.bouncycastle"
     }
-    implementation ('io.netty:netty-all:4.1.100.Final')
+    compile ('io.netty:netty-all:4.1.100.Final')
     compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     compile ("commons-io:commons-io:${commonsIOVersion}")
     compile ("com.squareup:javapoet:${javapoetVersion}")
