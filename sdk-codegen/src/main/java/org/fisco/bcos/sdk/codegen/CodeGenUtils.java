@@ -77,6 +77,10 @@ public final class CodeGenUtils {
     public static byte[] readBytes(File file) throws CodeGenException, IOException {
         byte[] bytes = new byte[(int) file.length()];
         FileInputStream fileInputStream = null;
+        if (!file.canRead() || file.getPath().contains("..")) {
+            throw new CodeGenException(
+                    "file " + file + " is not readable or contains invalid characters");
+        }
         try {
             fileInputStream = new FileInputStream(file);
             fileInputStream.read(bytes);
