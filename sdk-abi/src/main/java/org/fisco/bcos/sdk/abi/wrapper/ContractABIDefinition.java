@@ -75,7 +75,10 @@ public class ContractABIDefinition {
             functions.put(name, new ArrayList<>());
             abiDefinitions = functions.get(name);
         } else {
-            logger.info(" overload method ??? name: {}, abiDefinition: {}", name, abiDefinition);
+            if (logger.isTraceEnabled()) {
+                logger.trace(
+                        " overload method ??? name: {}, abiDefinition: {}", name, abiDefinition);
+            }
         }
         abiDefinitions.add(abiDefinition);
 
@@ -83,19 +86,23 @@ public class ContractABIDefinition {
         String methodId = abiDefinition.getMethodId(cryptoSuite);
         methodIDToFunctions.put(methodId, abiDefinition);
 
-        logger.info(
-                " name: {}, methodId: {}, methodSignature: {}, abi: {}",
-                name,
-                methodId,
-                abiDefinition.getMethodSignatureAsString(),
-                abiDefinition);
+        if (logger.isTraceEnabled()) {
+            logger.trace(
+                    " name: {}, methodId: {}, methodSignature: {}, abi: {}",
+                    name,
+                    methodId,
+                    abiDefinition.getMethodSignatureAsString(),
+                    abiDefinition);
+        }
     }
 
     public void addEvent(String name, ABIDefinition abiDefinition) {
         events.putIfAbsent(name, new ArrayList<>());
         List<ABIDefinition> abiDefinitions = events.get(name);
         abiDefinitions.add(abiDefinition);
-        logger.info(" name: {}, abi: {}", name, abiDefinition);
+        if (logger.isTraceEnabled()) {
+            logger.trace(" name: {}, abi: {}", name, abiDefinition);
+        }
 
         // calculate event topic and add abiDefinition to eventTopicToEvents
         String eventTopic = abiDefinition.getEventTopic(cryptoSuite);

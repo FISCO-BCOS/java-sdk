@@ -203,7 +203,9 @@ dependencies {
     compile ("com.moandjiezana.toml:toml4j:${toml4jVersion}"){
         exclude group: "com.google.code.gson"
     }
-    compile ("com.webank:webank-blockchain-hsm-crypto:${webankHsmCryptoVersion}")
+    compile ("com.webank:webank-blockchain-hsm-crypto:${webankHsmCryptoVersion}") {
+        exclude group: "junit", module: "junit"
+    }
     testCompile ("org.apache.commons:commons-collections4:${commonsCollections4Version}")
     testImplementation('io.netty:netty-all:4.1.100.Final')
     integrationTestImplementation('io.netty:netty-all:4.1.100.Final')
