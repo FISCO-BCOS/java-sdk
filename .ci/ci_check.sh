@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-tag="v2.9.1"
+tag="v2.10.1"
 LOG_INFO() {
     local content=${1}
     echo -e "\033[32m ${content}\033[0m"
