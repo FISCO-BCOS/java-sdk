@@ -4,9 +4,14 @@ plugins {
 }
 dependencies {
     compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
-    compile ("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}")
+    compile ("org.fisco-bcos:netty-sm-ssl-context:${nettySMSSLContextVersion}"){
+        exclude group: "org.bouncycastle"
+    }
+    compile ("org.bouncycastle:bcprov-jdk18on:${bcprovJDK18onVersion}")
+    compile ('io.netty:netty-all:4.1.100.Final')
     compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     compile ("com.moandjiezana.toml:toml4j:${toml4jVersion}")
+    compile ("com.google.code.gson:gson:${gsonVersion}")
 }
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
