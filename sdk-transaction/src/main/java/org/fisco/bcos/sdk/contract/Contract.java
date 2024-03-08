@@ -17,7 +17,6 @@ package org.fisco.bcos.sdk.contract;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -26,10 +25,7 @@ import org.fisco.bcos.sdk.abi.EventValues;
 import org.fisco.bcos.sdk.abi.FunctionEncoder;
 import org.fisco.bcos.sdk.abi.FunctionReturnDecoder;
 import org.fisco.bcos.sdk.abi.TypeReference;
-import org.fisco.bcos.sdk.abi.datatypes.Address;
-import org.fisco.bcos.sdk.abi.datatypes.Event;
-import org.fisco.bcos.sdk.abi.datatypes.Function;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
+import org.fisco.bcos.sdk.abi.datatypes.*;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.response.Call;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -427,8 +423,12 @@ public class Contract {
     @SuppressWarnings("unchecked")
     public static <S extends Type, T> List<T> convertToNative(List<S> arr) {
         List<T> out = new ArrayList<T>();
-        for (Iterator<S> it = arr.iterator(); it.hasNext(); ) {
-            out.add((T) it.next().getValue());
+        for (S s : arr) {
+            if (Array.class.isAssignableFrom(s.getClass())) {
+                out.add((T) convertToNative((List<? extends Type>) ((Array) s).getValue()));
+            } else {
+                out.add((T) s.getValue());
+            }
         }
         return out;
     }

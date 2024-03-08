@@ -24,3 +24,5 @@ gmsm2.param
 integrationTestEnv.sh
 gradle.properties
 gpg.gpg
+.DS_Store
+

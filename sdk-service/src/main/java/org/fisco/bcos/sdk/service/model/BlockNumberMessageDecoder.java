@@ -64,7 +64,7 @@ public class BlockNumberMessageDecoder {
      * @return the decoded block number information
      */
     protected BlockNumberNotification decodeV1(Message message) {
-        String[] split = message.getData().toString().split(",");
+        String[] split = new String(message.getData()).split(",");
         if (split.length != 2) {
             return null;
         }

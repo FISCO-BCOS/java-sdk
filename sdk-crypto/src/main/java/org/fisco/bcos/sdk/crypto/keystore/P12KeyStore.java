@@ -150,6 +150,7 @@ public class P12KeyStore extends KeyTool {
             Certificate[] certChain = new Certificate[1];
             certChain[0] = generateSelfSignedCertificate(keyPair, signatureAlgorithm);
             keyStore.setKeyEntry(NAME, privateKey, password.toCharArray(), certChain);
+            privateKeyFilePath = privateKeyFilePath.replace("..", "");
             keyStore.store(new FileOutputStream(privateKeyFilePath), password.toCharArray());
             // store the public key
             storePublicKeyWithPem(privateKey, privateKeyFilePath);

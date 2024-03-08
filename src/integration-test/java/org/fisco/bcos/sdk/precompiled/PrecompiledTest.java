@@ -144,8 +144,6 @@ public class PrecompiledTest {
                     cnsService.registerCNS(contractName, contractVersion, contractAddress, "");
             // query the cns information
             List<CnsInfo> cnsInfos = cnsService.selectByName(contractName);
-            Assert.assertTrue(cnsInfos.get(0).getAbi().equals(""));
-            Assert.assertTrue(cnsInfos.get(0).getVersion().equals(contractVersion));
 
             if (retCode.getCode() == PrecompiledRetCode.CODE_SUCCESS.getCode()) {
                 boolean containContractAddress = false;
@@ -155,11 +153,15 @@ public class PrecompiledTest {
                     }
                 }
                 Assert.assertTrue(containContractAddress);
+                Assert.assertEquals("", cnsInfos.get(0).getAbi());
+                Assert.assertEquals(cnsInfos.get(0).getVersion(), contractVersion);
+                Assert.assertEquals(cnsInfos.get(0).getName(), contractName);
+                // query contractAddress
+                String contractAddress1 =
+                        cnsService.getContractAddress(contractName, contractVersion);
+                Assert.assertEquals(contractAddress1, contractAddress);
             }
-            Assert.assertTrue(cnsInfos.get(0).getName().equals(contractName));
 
-            // query contractAddress
-            cnsService.getContractAddress(contractName, contractVersion);
             // insert another cns info
             String contractVersion2 = "2.0";
             retCode = cnsService.registerCNS(contractName, contractVersion2, contractAddress, "");
@@ -176,7 +178,7 @@ public class PrecompiledTest {
                                 .getContractAddress(contractName, contractVersion2)
                                 .equals(contractAddress));
             }
-            // insert anther cns for other contract
+            // insert another cns for other contract
             HelloWorld helloWorld2 = HelloWorld.deploy(client, cryptoKeyPair);
             String contractAddress2 = helloWorld2.getContractAddress();
             String contractName2 = "hello";
@@ -227,6 +229,7 @@ public class PrecompiledTest {
         // Assert.assertTrue(queriedValue.equals(updatedValue));
         // Assert.assertTrue(queriedValue.equals(value.add(BigInteger.valueOf(1000))));
     }
+
     // Note: Please make sure that the ut is before the permission-related ut
     @Test
     public void test5CRUDService() throws ConfigException, ContractException {
@@ -353,6 +356,7 @@ public class PrecompiledTest {
 
     class FakeTransactionCallback implements PrecompiledCallback {
         public TransactionReceipt receipt;
+
         // wait until get the transactionReceipt
         @Override
         public void onResponse(RetCode retCode) {
@@ -601,6 +605,10 @@ public class PrecompiledTest {
             receipt = helloWorld.set("test_unfreeze");
             Assert.assertTrue(receipt.getStatus().equals("0x0"));
             // Assert.assertTrue("test_unfreeze".equals(helloWorld.get()));
+
+            RetCode retCode1 = chainGovernanceService.revokeOperator(cryptoKeyPair2.getAddress());
+            Assert.assertEquals(
+                    retCode1.getMessage(), PrecompiledRetCode.CODE_SUCCESS.getMessage());
 
             // revoke the committeeMember
             chainGovernanceService.revokeCommitteeMember(cryptoKeyPair.getAddress());

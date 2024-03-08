@@ -1,3 +1,29 @@
+## v2.10.0
+
+(2024-03-08)
+
+请参考文档：
+
+* [英文版用户手册](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [中文版用户手册](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [中文版WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
+修复：
+
+- 解决在使用Solidity复杂数据结构（如struct，二维数组等）、复杂事件场景（如重载event，有复杂数据结构参数）时，Java SDK在发交易/调用请求时出现的编解码错误；
+- 修复了读取密钥时可能存在的安全问题；
+
+更新：
+
+- 废弃 `sdk-codegen` 模块，合约生成Java文件的功能建议开发者使用`org.fisco-bcos.code-generator:bcos-code-generator`中的方法。以解决在使用Solidity复杂数据结构、复杂事件场景时，生成的Java文件出现编译、运行错误的问题；
+- 依赖变更：
+  - `org.apache.commons:commons-lang3` 更新到3.14.0版本 
+  - `org.bouncycastle:bcprov-jdk15on` 变更为使用`org.bouncycastle:bcprov-jdk18on:1.77`版本 
+  - `io.netty:netty-all` 更新到 4.1.100.Final版本 
+  - `com.google.code.gson:gson` 更新到 2.10.1版本 
+  - `com.webank:webank-blockchain-java-crypto` 更新到1.0.3版本
+  - 删除不必要的`com.google.guava:guava`
+
 ## v2.9.2
 
 (2022-10-31)
