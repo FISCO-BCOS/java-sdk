@@ -289,7 +289,8 @@ public abstract class KeyTool {
     /** load information from the keyStoreFile */
     protected void load() {
         try {
-            InputStream keyStoreFileInputStream = new FileInputStream(keyStoreFile);
+            String safeFile = keyStoreFile.replace("..", "");
+            InputStream keyStoreFileInputStream = new FileInputStream(safeFile);
             this.load(keyStoreFileInputStream);
         } catch (FileNotFoundException | org.bouncycastle.util.encoders.DecoderException e) {
             String errorMessage =
