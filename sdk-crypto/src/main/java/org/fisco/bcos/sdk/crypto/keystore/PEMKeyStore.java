@@ -69,6 +69,7 @@ public class PEMKeyStore extends KeyTool {
         try {
             KeyPair keyPair = convertHexedStringToKeyPair(hexedPrivateKey, curveName);
             // save the private key
+            privateKeyFilePath = privateKeyFilePath.replace("..", "");
             PemWriter writer = new PemWriter(new FileWriter(privateKeyFilePath));
             BCECPrivateKey bcecPrivateKey = (BCECPrivateKey) (keyPair.getPrivate());
             writer.writeObject(new PemObject(PRIVATE_KEY, bcecPrivateKey.getEncoded()));

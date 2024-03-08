@@ -1,14 +1,12 @@
 package org.fisco.bcos.sdk.abi.datatypes;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /** Fixed size array. */
 public abstract class Array<T extends Type> implements Type<List<T>> {
 
     private String type;
+    protected Class<T> typeClass;
     protected final List<T> value;
 
     @SafeVarargs
@@ -37,6 +35,21 @@ public abstract class Array<T extends Type> implements Type<List<T>> {
         this.value = Collections.emptyList();
     }
 
+    Array(Class<T> type, List<T> values) {
+        Objects.requireNonNull(type);
+        if (!valid(values, type.getTypeName())) {
+            throw new UnsupportedOperationException(
+                    "If empty list is provided, use empty array instance");
+        }
+        this.typeClass = type;
+        this.value = values;
+    }
+
+    @SafeVarargs
+    Array(Class<T> type, T... values) {
+        this(type, Arrays.asList(values));
+    }
+
     @Override
     public List<T> getValue() {
         return value;
@@ -61,7 +74,7 @@ public abstract class Array<T extends Type> implements Type<List<T>> {
     }
 
     private boolean valid(List<T> values, String type) {
-        return (values != null && values.size() != 0) || type != null;
+        return (values != null && !values.isEmpty()) || type != null;
     }
 
     @Override
@@ -75,15 +88,12 @@ public abstract class Array<T extends Type> implements Type<List<T>> {
 
         Array<?> array = (Array<?>) o;
 
-        if (!type.equals(array.type)) {
-            return false;
-        }
         return value != null ? value.equals(array.value) : array.value == null;
     }
 
     @Override
     public int hashCode() {
-        int result = type.hashCode();
+        int result = 1;
         result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;
     }

@@ -1,7 +1,7 @@
 package org.fisco.bcos.sdk.transaction.manager;
 
-import com.google.common.collect.Lists;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.fisco.bcos.sdk.BcosSDK;
@@ -31,7 +31,7 @@ public class ContractConstructorTest {
                 TransactionProcessorFactory.createAssembleTransactionProcessor(
                         client, cryptoKeyPair, abiFile, binFile);
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("2");
 
