@@ -1,6 +1,7 @@
 package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto;
 
 import java.math.BigInteger;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 
 public class AbiEncodedRequest extends BasicRequest {
@@ -9,6 +10,7 @@ public class AbiEncodedRequest extends BasicRequest {
     protected boolean isCreate = false;
 
     public AbiEncodedRequest(
+            TransactionVersion version,
             String abi,
             String to,
             BigInteger blockLimit,
@@ -18,11 +20,23 @@ public class AbiEncodedRequest extends BasicRequest {
             BigInteger gasLimit,
             EIP1559Struct eip1559Struct,
             byte[] extension) {
-        super(abi, "", to, blockLimit, nonce, value, gasPrice, gasLimit, eip1559Struct, extension);
+        super(
+                version,
+                abi,
+                "",
+                to,
+                blockLimit,
+                nonce,
+                value,
+                gasPrice,
+                gasLimit,
+                eip1559Struct,
+                extension);
     }
 
     public AbiEncodedRequest(BasicRequest request) {
         super(
+                request.getVersion(),
                 request.getAbi(),
                 "",
                 request.getTo(),

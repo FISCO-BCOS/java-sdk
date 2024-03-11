@@ -2,6 +2,7 @@ package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto;
 
 import java.math.BigInteger;
 import java.util.List;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 
 public class TransactionRequestWithStringParams extends BasicRequest {
@@ -20,6 +21,7 @@ public class TransactionRequestWithStringParams extends BasicRequest {
     }
 
     public TransactionRequestWithStringParams(
+            TransactionVersion version,
             String abi,
             String method,
             String to,
@@ -31,6 +33,7 @@ public class TransactionRequestWithStringParams extends BasicRequest {
             EIP1559Struct eip1559Struct,
             byte[] extension) {
         super(
+                version,
                 abi,
                 method,
                 to,

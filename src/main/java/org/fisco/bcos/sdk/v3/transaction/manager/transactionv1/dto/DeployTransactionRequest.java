@@ -2,6 +2,7 @@ package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto;
 
 import java.math.BigInteger;
 import java.util.List;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 
 public class DeployTransactionRequest extends BasicDeployRequest {
@@ -19,6 +20,7 @@ public class DeployTransactionRequest extends BasicDeployRequest {
     }
 
     public DeployTransactionRequest(
+            TransactionVersion version,
             String abi,
             String bin,
             BigInteger blockLimit,
@@ -28,7 +30,17 @@ public class DeployTransactionRequest extends BasicDeployRequest {
             BigInteger gasLimit,
             EIP1559Struct eip1559Struct,
             byte[] extension) {
-        super(abi, bin, blockLimit, nonce, value, gasPrice, gasLimit, eip1559Struct, extension);
+        super(
+                version,
+                abi,
+                bin,
+                blockLimit,
+                nonce,
+                value,
+                gasPrice,
+                gasLimit,
+                eip1559Struct,
+                extension);
     }
 
     public void setParams(List<Object> params) {

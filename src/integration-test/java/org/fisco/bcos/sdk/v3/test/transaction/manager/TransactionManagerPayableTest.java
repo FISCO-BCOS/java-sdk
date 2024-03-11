@@ -168,6 +168,7 @@ public class TransactionManagerPayableTest {
                 balanceService.getBalance(client.getCryptoSuite().getCryptoKeyPair().getAddress());
         if (balance.compareTo(BigInteger.valueOf(100000)) < 0) {
             System.out.println("balance is not enough");
+            return true;
         }
         return false;
     }
