@@ -3,7 +3,13 @@ package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV1JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionData;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV1;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV2;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
@@ -134,28 +140,13 @@ public class DefaultTransactionManager extends TransactionManager {
                 request.getBlockLimit() == null
                         ? getNonceProvider().getBlockLimit(client)
                         : request.getBlockLimit();
+        EIP1559Struct eip1559Struct = null;
         if (getGasProvider().isEIP1559Enabled() || request.isEIP1559Enabled()) {
-            EIP1559Struct eip1559Struct =
+            eip1559Struct =
                     request.getEip1559Struct() == null
                             ? getGasProvider().getEIP1559Struct(methodId)
                             : request.getEip1559Struct();
-            return TransactionBuilderV1JniObj.createSignedEIP1559TransactionWithFullFields(
-                    client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
-                    client.getGroup(),
-                    client.getChainId(),
-                    request.getTo(),
-                    nonce,
-                    request.getEncodedData(),
-                    request.isCreate() ? request.getAbi() : "",
-                    blockLimit.longValue(),
-                    Numeric.toHexString(request.getValue()),
-                    Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
-                    Numeric.toHexString(eip1559Struct.getMaxPriorityFeePerGas()),
-                    eip1559Struct.getGasLimit().longValue(),
-                    transactionAttribute,
-                    client.getExtraData());
         }
-
         BigInteger gasPrice =
                 request.getGasPrice() == null
                         ? getGasProvider().getGasPrice(methodId)
@@ -164,20 +155,55 @@ public class DefaultTransactionManager extends TransactionManager {
                 request.getGasLimit() == null
                         ? getGasProvider().getGasLimit(methodId)
                         : request.getGasLimit();
-        return TransactionBuilderV1JniObj.createSignedTransactionWithFullFields(
-                client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
-                client.getGroup(),
-                client.getChainId(),
-                request.getTo(),
-                nonce,
-                request.getEncodedData(),
-                request.isCreate() ? request.getAbi() : "",
-                blockLimit.longValue(),
-                Numeric.toHexString(request.getValue()),
-                Numeric.toHexString(gasPrice),
-                gasLimit.longValue(),
-                transactionAttribute,
-                client.getExtraData());
+
+        TransactionData transactionData =
+                new TransactionData()
+                        .buildGroupId(client.getGroup())
+                        .buildChainId(client.getChainId())
+                        .buildTo(request.getTo())
+                        .buildNonce(nonce)
+                        .buildInput(request.getEncodedData())
+                        .buildAbi(request.isCreate() ? request.getAbi() : "")
+                        .buildBlockLimit(blockLimit.longValue());
+        if (request.getVersion().getValue() >= TransactionVersion.V1.getValue()) {
+            transactionData =
+                    new TransactionDataV1(transactionData)
+                            .buildGasLimit(gasLimit.longValue())
+                            .buildGasPrice(
+                                    eip1559Struct == null ? Numeric.toHexString(gasPrice) : "")
+                            .buildValue(Numeric.toHexString(request.getValue()))
+                            .buildMaxFeePerGas(
+                                    eip1559Struct == null
+                                            ? ""
+                                            : Numeric.toHexString(eip1559Struct.getMaxFeePerGas()))
+                            .buildMaxPriorityFeePerGas(
+                                    eip1559Struct == null
+                                            ? ""
+                                            : Numeric.toHexString(
+                                                    eip1559Struct.getMaxPriorityFeePerGas()));
+        }
+        if (request.getVersion().getValue() >= TransactionVersion.V2.getValue()) {
+            transactionData =
+                    new TransactionDataV2((TransactionDataV1) transactionData)
+                            .buildExtension(request.getExtension());
+        }
+        String transactionDataHash =
+                TransactionStructBuilderJniObj.calcTransactionDataStructHash(
+                        client.getCryptoSuite().getCryptoTypeConfig(), transactionData);
+
+        String signature =
+                TransactionBuilderJniObj.signTransactionDataHash(
+                        client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
+                        transactionDataHash);
+
+        String encodedTransaction =
+                TransactionStructBuilderJniObj.createEncodedTransaction(
+                        transactionData,
+                        signature,
+                        transactionDataHash,
+                        transactionAttribute,
+                        client.getExtraData());
+        return new TxPair(transactionDataHash, encodedTransaction);
     }
 
     /**

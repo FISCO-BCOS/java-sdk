@@ -6,6 +6,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV1JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionData;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV1;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV2;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
@@ -172,26 +176,42 @@ public class ProxySignTransactionManager extends TransactionManager {
                         ? getGasProvider().getGasLimit(methodId)
                         : request.getGasLimit();
 
+        TransactionData transactionData =
+                new TransactionData()
+                        .buildGroupId(client.getGroup())
+                        .buildChainId(client.getChainId())
+                        .buildTo(request.getTo())
+                        .buildNonce(nonce)
+                        .buildInput(request.getEncodedData())
+                        .buildAbi(request.isCreate() ? request.getAbi() : "")
+                        .buildBlockLimit(blockLimit.longValue());
+
+        if (request.getVersion().getValue() >= TransactionVersion.V1.getValue()) {
+            transactionData =
+                    new TransactionDataV1(transactionData)
+                            .buildGasLimit(gasLimit.longValue())
+                            .buildGasPrice(
+                                    eip1559Struct == null ? Numeric.toHexString(gasPrice) : "")
+                            .buildValue(Numeric.toHexString(request.getValue()))
+                            .buildMaxFeePerGas(
+                                    eip1559Struct == null
+                                            ? ""
+                                            : Numeric.toHexString(eip1559Struct.getMaxFeePerGas()))
+                            .buildMaxPriorityFeePerGas(
+                                    eip1559Struct == null
+                                            ? ""
+                                            : Numeric.toHexString(
+                                                    eip1559Struct.getMaxPriorityFeePerGas()));
+        }
+        if (request.getVersion().getValue() >= TransactionVersion.V2.getValue()) {
+            transactionData =
+                    new TransactionDataV2((TransactionDataV1) transactionData)
+                            .buildExtension(request.getExtension());
+        }
         String dataHash =
-                TransactionBuilderV1JniObj.calcTransactionDataHashWithFullFields(
-                        cryptoType,
-                        TransactionVersion.V1,
-                        client.getGroup(),
-                        client.getChainId(),
-                        request.getTo(),
-                        nonce,
-                        request.getEncodedData(),
-                        request.isCreate() ? request.getAbi() : "",
-                        blockLimit.longValue(),
-                        Numeric.toHexString(request.getValue()),
-                        eip1559Struct == null ? Numeric.toHexString(gasPrice) : "",
-                        gasLimit.longValue(),
-                        eip1559Struct == null
-                                ? ""
-                                : Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
-                        eip1559Struct == null
-                                ? ""
-                                : Numeric.toHexString(eip1559Struct.getMaxPriorityFeePerGas()));
+                TransactionStructBuilderJniObj.calcTransactionDataStructHash(
+                        cryptoType, transactionData);
+
         CompletableFuture<SignatureResult> signFuture = new CompletableFuture<>();
         SignatureResult signatureResult;
         try {
@@ -210,26 +230,10 @@ public class ProxySignTransactionManager extends TransactionManager {
             throw new JniException("Sign transaction failed, error message: " + e.getMessage());
         }
         String signedTransactionWithSignature =
-                TransactionBuilderV1JniObj.createSignedTransactionWithSignature(
-                        signatureResult.encode(),
+                TransactionStructBuilderJniObj.createEncodedTransaction(
+                        transactionData,
+                        Hex.toHexString(signatureResult.encode()),
                         dataHash,
-                        TransactionVersion.V1,
-                        client.getGroup(),
-                        client.getChainId(),
-                        request.getTo(),
-                        nonce,
-                        request.getEncodedData(),
-                        request.isCreate() ? request.getAbi() : "",
-                        blockLimit.longValue(),
-                        Numeric.toHexString(request.getValue()),
-                        eip1559Struct == null ? Numeric.toHexString(gasPrice) : "",
-                        gasLimit.longValue(),
-                        eip1559Struct == null
-                                ? ""
-                                : Numeric.toHexString(eip1559Struct.getMaxFeePerGas()),
-                        eip1559Struct == null
-                                ? ""
-                                : Numeric.toHexString(eip1559Struct.getMaxPriorityFeePerGas()),
                         transactionAttribute,
                         client.getExtraData());
         return new TxPair(dataHash, signedTransactionWithSignature);
