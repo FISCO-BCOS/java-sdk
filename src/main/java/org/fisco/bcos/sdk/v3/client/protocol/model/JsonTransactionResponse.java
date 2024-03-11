@@ -550,6 +550,9 @@ public class JsonTransactionResponse {
                 + ", maxPriorityFeePerGas='"
                 + maxPriorityFeePerGas
                 + '\''
+                + ", extension='"
+                + (extension == null ? "null" : Hex.toHexString(extension))
+                + '\''
                 + '}';
     }
 }

@@ -6,7 +6,7 @@ import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 
 public class BasicRequest {
 
-    protected TransactionVersion version = TransactionVersion.V0;
+    protected TransactionVersion version = TransactionVersion.V1;
     protected String abi;
     protected String method;
     protected BigInteger blockLimit;
@@ -38,6 +38,7 @@ public class BasicRequest {
     }
 
     public BasicRequest(
+            TransactionVersion version,
             String abi,
             String method,
             String to,
@@ -48,6 +49,7 @@ public class BasicRequest {
             BigInteger gasLimit,
             EIP1559Struct eip1559Struct,
             byte[] extension) {
+        this.version = version;
         this.abi = abi;
         this.method = method;
         this.blockLimit = blockLimit;

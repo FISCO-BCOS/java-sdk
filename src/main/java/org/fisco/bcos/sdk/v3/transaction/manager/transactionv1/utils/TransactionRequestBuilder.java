@@ -13,7 +13,7 @@ import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class TransactionRequestBuilder {
 
-    private TransactionVersion version;
+    private TransactionVersion version = TransactionVersion.V1;
     private String abi;
     private String method;
     private String to;
@@ -105,6 +105,7 @@ public class TransactionRequestBuilder {
         }
         TransactionRequest sendTransactionRequest =
                 new TransactionRequest(
+                        this.version,
                         this.abi,
                         this.method,
                         this.to,
@@ -127,6 +128,7 @@ public class TransactionRequestBuilder {
         }
         TransactionRequestWithStringParams request =
                 new TransactionRequestWithStringParams(
+                        this.version,
                         this.abi,
                         this.method,
                         this.to,
@@ -137,7 +139,6 @@ public class TransactionRequestBuilder {
                         this.gasLimit,
                         this.eip1559Struct,
                         this.extension);
-        request.setVersion(version);
         request.setStringParams(stringParams);
         return request;
     }
@@ -153,6 +154,7 @@ public class TransactionRequestBuilder {
         }
         DeployTransactionRequest request =
                 new DeployTransactionRequest(
+                        this.version,
                         this.abi,
                         this.bin,
                         this.blockLimit,
@@ -165,7 +167,6 @@ public class TransactionRequestBuilder {
         if (to != null) {
             request.setTo(to);
         }
-        request.setVersion(version);
         request.setParams(params);
         return request;
     }
@@ -181,6 +182,7 @@ public class TransactionRequestBuilder {
         }
         DeployTransactionRequestWithStringParams request =
                 new DeployTransactionRequestWithStringParams(
+                        this.version,
                         this.abi,
                         this.bin,
                         this.blockLimit,
@@ -193,7 +195,6 @@ public class TransactionRequestBuilder {
         if (to != null) {
             request.setTo(to);
         }
-        request.setVersion(version);
         request.setStringParams(stringParams);
         return request;
     }
@@ -204,6 +205,7 @@ public class TransactionRequestBuilder {
         }
         AbiEncodedRequest abiEncodedDeployRequest =
                 new AbiEncodedRequest(
+                        this.version,
                         this.abi,
                         this.to,
                         this.blockLimit,
@@ -214,7 +216,6 @@ public class TransactionRequestBuilder {
                         this.eip1559Struct,
                         this.extension);
         abiEncodedDeployRequest.setEncodedData(encodedParams);
-        abiEncodedDeployRequest.setVersion(version);
         return abiEncodedDeployRequest;
     }
 }

@@ -9,7 +9,6 @@ import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV1JniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionData;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV1;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV2;
-import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
@@ -178,6 +177,7 @@ public class ProxySignTransactionManager extends TransactionManager {
 
         TransactionData transactionData =
                 new TransactionData()
+                        .buildVersion(request.getVersion().getValue())
                         .buildGroupId(client.getGroup())
                         .buildChainId(client.getChainId())
                         .buildTo(request.getTo())
@@ -208,9 +208,7 @@ public class ProxySignTransactionManager extends TransactionManager {
                     new TransactionDataV2((TransactionDataV1) transactionData)
                             .buildExtension(request.getExtension());
         }
-        String dataHash =
-                TransactionStructBuilderJniObj.calcTransactionDataStructHash(
-                        cryptoType, transactionData);
+        String dataHash = transactionData.calculateHash(cryptoType);
 
         CompletableFuture<SignatureResult> signFuture = new CompletableFuture<>();
         SignatureResult signatureResult;
@@ -230,12 +228,13 @@ public class ProxySignTransactionManager extends TransactionManager {
             throw new JniException("Sign transaction failed, error message: " + e.getMessage());
         }
         String signedTransactionWithSignature =
-                TransactionStructBuilderJniObj.createEncodedTransaction(
-                        transactionData,
-                        Hex.toHexString(signatureResult.encode()),
-                        dataHash,
-                        transactionAttribute,
-                        client.getExtraData());
+                new org.fisco.bcos.sdk.jni.utilities.tx.Transaction()
+                        .buildTransactionData(transactionData)
+                        .buildDataHash(Hex.decode(dataHash))
+                        .buildAttribute(transactionAttribute)
+                        .buildSignature(signatureResult.encode())
+                        .buildExtraData(client.getExtraData())
+                        .encode();
         return new TxPair(dataHash, signedTransactionWithSignature);
     }
 

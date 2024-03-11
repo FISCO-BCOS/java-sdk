@@ -158,6 +158,7 @@ public class DefaultTransactionManager extends TransactionManager {
 
         TransactionData transactionData =
                 new TransactionData()
+                        .buildVersion(request.getVersion().getValue())
                         .buildGroupId(client.getGroup())
                         .buildChainId(client.getChainId())
                         .buildTo(request.getTo())

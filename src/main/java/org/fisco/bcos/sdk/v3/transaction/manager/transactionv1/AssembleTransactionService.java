@@ -102,6 +102,7 @@ public class AssembleTransactionService {
         }
         AbiEncodedRequest abiEncodedRequest = new AbiEncodedRequest(request);
         abiEncodedRequest.setEncodedData(encodeMethod);
+        abiEncodedRequest.setVersion(request.getVersion());
 
         TransactionReceipt receipt = transactionManager.sendTransaction(abiEncodedRequest);
         if (Objects.nonNull(receipt)
@@ -152,6 +153,7 @@ public class AssembleTransactionService {
         }
         AbiEncodedRequest abiEncodedRequest = new AbiEncodedRequest(request);
         abiEncodedRequest.setEncodedData(encodeConstructor);
+        abiEncodedRequest.setVersion(request.getVersion());
         abiEncodedRequest.setCreate(true);
         TransactionReceipt receipt = transactionManager.sendTransaction(abiEncodedRequest);
         if (Objects.nonNull(receipt)
@@ -201,6 +203,7 @@ public class AssembleTransactionService {
             throw new ContractCodecException("Request type error, please check.");
         }
         AbiEncodedRequest abiEncodedRequest = new AbiEncodedRequest(request);
+        abiEncodedRequest.setVersion(request.getVersion());
         abiEncodedRequest.setEncodedData(encodeMethod);
         return transactionManager.asyncSendTransaction(abiEncodedRequest, callback);
     }
@@ -246,6 +249,7 @@ public class AssembleTransactionService {
         }
         AbiEncodedRequest abiEncodedRequest = new AbiEncodedRequest(request);
         abiEncodedRequest.setEncodedData(encodeConstructor);
+        abiEncodedRequest.setVersion(request.getVersion());
         abiEncodedRequest.setCreate(true);
         return transactionManager.asyncSendTransaction(abiEncodedRequest, callback);
     }
