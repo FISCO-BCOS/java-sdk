@@ -368,7 +368,7 @@ public class TransactionReceipt {
         byteArrayOutputStream.write(getContractAddress().getBytes());
         byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getStatus()), 4));
         byteArrayOutputStream.write(getOutput().getBytes());
-        if (getVersion() == TransactionVersion.V1.getValue()) {
+        if (getVersion() >= TransactionVersion.V1.getValue()) {
             byteArrayOutputStream.write(getEffectiveGasPrice().getBytes());
         }
 

@@ -29,6 +29,7 @@ import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV1JniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionData;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV1;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV2;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
@@ -67,6 +68,9 @@ public class JsonTransactionResponse {
     private long gasLimit = 0;
     private String maxFeePerGas = "";
     private String maxPriorityFeePerGas = "";
+
+    // Fields of v2 transaction
+    private byte[] extension = null;
 
     public JsonTransactionResponse() {}
 
@@ -232,6 +236,14 @@ public class JsonTransactionResponse {
         this.maxPriorityFeePerGas = maxPriorityFeePerGas;
     }
 
+    public byte[] getExtension() {
+        return extension;
+    }
+
+    public void setExtension(byte[] extension) {
+        this.extension = extension;
+    }
+
     /**
      * This method is not correct, only can decode from method {@link #writeToHexString()}, which
      * not enable to send transaction to blockchain.
@@ -304,6 +316,24 @@ public class JsonTransactionResponse {
      */
     public String calculateHash(int cryptoSuiteType) throws ClientException {
         try {
+            // FIXME: core dump in here
+            //            return TransactionStructBuilderJniObj.calcTransactionDataStructHash(
+            //                    cryptoSuiteType,
+            //                    new TransactionDataV2()
+            //                            .buildExtension(getExtension())
+            //                            .buildValue(getValue())
+            //                            .buildGasPrice(getGasPrice())
+            //                            .buildGasLimit(getGasLimit())
+            //                            .buildMaxFeePerGas(getMaxFeePerGas())
+            //                            .buildMaxPriorityFeePerGas(getMaxPriorityFeePerGas())
+            //                            .buildVersion(getVersion())
+            //                            .buildGroupId(getGroupID())
+            //                            .buildChainId(getChainID())
+            //                            .buildTo(getTo())
+            //                            .buildNonce(new String(Hex.decode(getNonce())))
+            //                            .buildInput(Hex.decode(getInput()))
+            //                            .buildAbi(getAbi())
+            //                            .buildBlockLimit(getBlockLimit()));
             return TransactionBuilderV1JniObj.calcTransactionDataHashWithFullFields(
                     cryptoSuiteType,
                     (getVersion() == 0 ? TransactionVersion.V0 : TransactionVersion.V1),
@@ -371,19 +401,24 @@ public class JsonTransactionResponse {
         // abi
         byteArrayOutputStream.write(getAbi().getBytes());
 
-        if (getVersion() == TransactionVersion.V1.getValue()) {
+        if (getVersion() >= TransactionVersion.V1.getValue()) {
             byteArrayOutputStream.write(getValue().getBytes());
             byteArrayOutputStream.write(getGasPrice().getBytes());
             byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getGasLimit()), 8));
             byteArrayOutputStream.write(getMaxFeePerGas().getBytes());
             byteArrayOutputStream.write(getMaxPriorityFeePerGas().getBytes());
         }
+
+        if (getVersion() >= TransactionVersion.V2.getValue()) {
+            byteArrayOutputStream.write(getExtension());
+        }
+
         return byteArrayOutputStream.toByteArray();
     }
 
     public static JsonTransactionResponse decodeTransaction(String hexString) throws JniException {
         Transaction transactionV1 =
-                TransactionStructBuilderJniObj.decodeTransactionStructV1(hexString);
+                TransactionStructBuilderJniObj.decodeTransactionStructV2(hexString);
         TransactionData transactionData = transactionV1.getTransactionData();
         JsonTransactionResponse jsonTransactionResponse = new JsonTransactionResponse();
         jsonTransactionResponse.setVersion(transactionData.getVersion());
@@ -404,8 +439,7 @@ public class JsonTransactionResponse {
                 Hex.toHexStringWithPrefixNullable(transactionV1.getSignature(), ""));
         jsonTransactionResponse.setImportTime(transactionV1.getImportTime());
 
-        if (transactionData instanceof TransactionDataV1
-                && transactionData.getVersion() == TransactionVersion.V1.getValue()) {
+        if (transactionData.getVersion() >= TransactionVersion.V1.getValue()) {
             TransactionDataV1 transactionDataV1 = (TransactionDataV1) transactionData;
             jsonTransactionResponse.setValue(transactionDataV1.getValue());
             jsonTransactionResponse.setGasPrice(transactionDataV1.getGasPrice());
@@ -413,6 +447,11 @@ public class JsonTransactionResponse {
             jsonTransactionResponse.setMaxFeePerGas(transactionDataV1.getMaxFeePerGas());
             jsonTransactionResponse.setMaxPriorityFeePerGas(
                     transactionDataV1.getMaxPriorityFeePerGas());
+        }
+
+        if (transactionData.getVersion() >= TransactionVersion.V2.getValue()) {
+            TransactionDataV2 transactionDataV2 = (TransactionDataV2) transactionData;
+            jsonTransactionResponse.setExtension(transactionDataV2.getExtension());
         }
         return jsonTransactionResponse;
     }

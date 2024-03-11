@@ -2,6 +2,7 @@ package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.utils;
 
 import java.math.BigInteger;
 import java.util.List;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.AbiEncodedRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequest;
@@ -11,6 +12,8 @@ import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRe
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class TransactionRequestBuilder {
+
+    private TransactionVersion version;
     private String abi;
     private String method;
     private String to;
@@ -22,6 +25,8 @@ public class TransactionRequestBuilder {
     private String bin;
     private EIP1559Struct eip1559Struct;
     private byte[] extension = null;
+
+    public TransactionRequestBuilder() {}
 
     public TransactionRequestBuilder(String abi, String method, String to) {
         this.abi = abi;
@@ -36,6 +41,11 @@ public class TransactionRequestBuilder {
 
     public TransactionRequestBuilder setMethod(String method) {
         this.method = method;
+        return this;
+    }
+
+    public TransactionRequestBuilder setAbi(String abi) {
+        this.abi = abi;
         return this;
     }
 
@@ -56,26 +66,31 @@ public class TransactionRequestBuilder {
 
     public TransactionRequestBuilder setValue(BigInteger value) {
         this.value = value;
+        if (value != null) this.version = TransactionVersion.V1;
         return this;
     }
 
     public TransactionRequestBuilder setGasPrice(BigInteger gasPrice) {
         this.gasPrice = gasPrice;
+        if (gasPrice != null) this.version = TransactionVersion.V1;
         return this;
     }
 
     public TransactionRequestBuilder setGasLimit(BigInteger gasLimit) {
         this.gasLimit = gasLimit;
+        if (gasLimit != null) this.version = TransactionVersion.V1;
         return this;
     }
 
     public TransactionRequestBuilder setEIP1559Struct(EIP1559Struct eip1559Struct) {
         this.eip1559Struct = eip1559Struct;
+        if (eip1559Struct != null) this.version = TransactionVersion.V1;
         return this;
     }
 
     public TransactionRequestBuilder setExtension(byte[] extension) {
         this.extension = extension;
+        if (extension != null && extension.length > 0) this.version = TransactionVersion.V2;
         return this;
     }
 
@@ -100,6 +115,7 @@ public class TransactionRequestBuilder {
                         this.gasLimit,
                         this.eip1559Struct,
                         this.extension);
+        sendTransactionRequest.setVersion(version);
         sendTransactionRequest.setParams(params);
         return sendTransactionRequest;
     }
@@ -121,6 +137,7 @@ public class TransactionRequestBuilder {
                         this.gasLimit,
                         this.eip1559Struct,
                         this.extension);
+        request.setVersion(version);
         request.setStringParams(stringParams);
         return request;
     }
@@ -148,6 +165,7 @@ public class TransactionRequestBuilder {
         if (to != null) {
             request.setTo(to);
         }
+        request.setVersion(version);
         request.setParams(params);
         return request;
     }
@@ -175,6 +193,7 @@ public class TransactionRequestBuilder {
         if (to != null) {
             request.setTo(to);
         }
+        request.setVersion(version);
         request.setStringParams(stringParams);
         return request;
     }
@@ -195,6 +214,7 @@ public class TransactionRequestBuilder {
                         this.eip1559Struct,
                         this.extension);
         abiEncodedDeployRequest.setEncodedData(encodedParams);
+        abiEncodedDeployRequest.setVersion(version);
         return abiEncodedDeployRequest;
     }
 }

@@ -116,13 +116,17 @@ public class HashCalculatorTest {
         // abi
         byteArrayOutputStream.write(abi.getBytes());
 
-        if (transactionResponse.getVersion() == TransactionVersion.V1.getValue()) {
+        if (transactionResponse.getVersion() >= TransactionVersion.V1.getValue()) {
             byteArrayOutputStream.write(transactionResponse.getValue().getBytes());
             byteArrayOutputStream.write(transactionResponse.getGasPrice().getBytes());
             byteArrayOutputStream.write(
                     toBytesPadded(BigInteger.valueOf(transactionResponse.getGasLimit()), 8));
             byteArrayOutputStream.write(transactionResponse.getMaxFeePerGas().getBytes());
             byteArrayOutputStream.write(transactionResponse.getMaxPriorityFeePerGas().getBytes());
+        }
+
+        if(transactionResponse.getVersion() >= TransactionVersion.V2.getValue()){
+            byteArrayOutputStream.write(transactionResponse.getExtension());
         }
 
         String hash = "";

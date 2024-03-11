@@ -1,10 +1,12 @@
 package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto;
 
 import java.math.BigInteger;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 
 public class BasicRequest {
 
+    protected TransactionVersion version = TransactionVersion.V0;
     protected String abi;
     protected String method;
     protected BigInteger blockLimit;
@@ -108,6 +110,14 @@ public class BasicRequest {
 
     public void setExtension(byte[] extension) {
         this.extension = extension;
+    }
+
+    public TransactionVersion getVersion() {
+        return version;
+    }
+
+    public void setVersion(TransactionVersion version) {
+        this.version = version;
     }
 
     public boolean isTransactionEssentialSatisfy() {
