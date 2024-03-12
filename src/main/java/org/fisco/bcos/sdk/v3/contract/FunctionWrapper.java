@@ -6,7 +6,7 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Function;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 
-public class ContractWrapper {
+public class FunctionWrapper {
     private final Contract contract;
     private Function function;
     private String nonce;
@@ -14,11 +14,11 @@ public class ContractWrapper {
     private BigDecimal value;
     private byte[] extension;
 
-    public ContractWrapper(Contract contract) {
+    public FunctionWrapper(Contract contract) {
         this.contract = contract;
     }
 
-    public ContractWrapper(Contract contract, Function function) {
+    public FunctionWrapper(Contract contract, Function function) {
         this.contract = contract;
         this.function = function;
     }
@@ -27,7 +27,7 @@ public class ContractWrapper {
         return function;
     }
 
-    public ContractWrapper setFunction(Function function) {
+    public FunctionWrapper setFunction(Function function) {
         this.function = function;
         return this;
     }
@@ -36,7 +36,7 @@ public class ContractWrapper {
         return nonce;
     }
 
-    public ContractWrapper setNonce(String nonce) {
+    public FunctionWrapper setNonce(String nonce) {
         this.nonce = nonce;
         return this;
     }
@@ -45,7 +45,7 @@ public class ContractWrapper {
         return blockLimit;
     }
 
-    public ContractWrapper setBlockLimit(BigInteger blockLimit) {
+    public FunctionWrapper setBlockLimit(BigInteger blockLimit) {
         this.blockLimit = blockLimit;
         return this;
     }
@@ -54,7 +54,7 @@ public class ContractWrapper {
         return value;
     }
 
-    public ContractWrapper setValue(BigDecimal value) {
+    public FunctionWrapper setValue(BigDecimal value) {
         this.value = value;
         return this;
     }
@@ -63,7 +63,7 @@ public class ContractWrapper {
         return extension;
     }
 
-    public ContractWrapper setExtension(byte[] extension) {
+    public FunctionWrapper setExtension(byte[] extension) {
         this.extension = extension;
         return this;
     }
