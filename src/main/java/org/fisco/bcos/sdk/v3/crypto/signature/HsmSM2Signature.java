@@ -18,6 +18,7 @@ import org.fisco.bcos.sdk.jni.utilities.signature.SignatureJniObj;
 import org.fisco.bcos.sdk.v3.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.crypto.keypair.HsmSM2KeyPair;
+import org.fisco.bcos.sdk.v3.crypto.keypair.SM2KeyPair;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
@@ -96,5 +97,34 @@ public class HsmSM2Signature implements Signature {
             logger.error("Verify with hsm sm2 failed, jni e: ", e);
             return false;
         }
+    }
+
+    @Override
+    public String ecrecover(final String msgHash, final SignatureResult signature) {
+        return ecrecoverSignature(msgHash, signature);
+    }
+
+    @Override
+    public String ecrecover(final byte[] msgHash, final SignatureResult signature) {
+        return ecrecover(Hex.toHexString(msgHash), signature);
+    }
+
+    public static String ecrecoverSignature(String msgHash, SignatureResult signature) {
+        String publicKey = getPubFromSignature(msgHash, signature);
+        return "";
+    }
+
+    @Override
+    public String getPubFromSig(final String msgHash, final SignatureResult signature) {
+        return getPubFromSignature(msgHash, signature);
+    }
+
+    @Override
+    public String getPubFromSig(final byte[] msgHash, final SignatureResult signature) {
+        return getPubFromSig(Hex.toHexString(msgHash), signature);
+    }
+
+    public static String getPubFromSignature(String msgHash, SignatureResult signature) {
+        return Hex.toHexString(signature.getPub());
     }
 }
