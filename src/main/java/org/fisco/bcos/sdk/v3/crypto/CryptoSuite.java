@@ -307,6 +307,28 @@ public class CryptoSuite {
     }
 
     /**
+     * recover address from signature
+     *
+     * @param msgHash the message hash, must be a digest
+     * @param signature the signature to be recovered
+     * @return the public key whitch can verify signature.
+     */
+    public String ecrecover(final String msgHash, final SignatureResult signature) {
+        return this.signatureImpl.ecrecover(msgHash, signature);
+    }
+
+    /**
+     * recover address from signature
+     *
+     * @param msgHash the byte array type message hash, must be a digest
+     * @param signature the byte array type signature to be recovered
+     * @return the public key whitch can verify signature.
+     */
+    public String ecrecover(final byte[] msgHash, final SignatureResult signature) {
+        return this.signatureImpl.ecrecover(msgHash, signature);
+    }
+
+    /**
      * Create key pair
      *
      * @return a generated key pair

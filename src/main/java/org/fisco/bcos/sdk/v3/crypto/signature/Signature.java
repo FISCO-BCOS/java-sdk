@@ -64,4 +64,40 @@ public interface Signature {
      * @return true/false
      */
     boolean verify(final String publicKey, final byte[] message, final byte[] signature);
+
+    /**
+     * recover address from signature
+     *
+     * @param msgHash the message hash, must be a digest
+     * @param signature the signature to be recovered
+     * @return the address who sign the msgHash.
+     */
+    String ecrecover(final String msgHash, final SignatureResult signature);
+
+    /**
+     * recover address from signature
+     *
+     * @param msgHash the byte array type message hash, must be a digest
+     * @param signature the byte array type signature to be recovered
+     * @return the address who sign the msgHash.
+     */
+    String ecrecover(final byte[] msgHash, final SignatureResult signature);
+
+    /**
+     * recover public from signature
+     *
+     * @param msgHash the message hash, must be a digest
+     * @param signature the signature to be recovered
+     * @return the public key which can verify signature.
+     */
+    String getPubFromSig(final String msgHash, final SignatureResult signature);
+
+    /**
+     * recover address from signature
+     *
+     * @param msgHash the byte array type message hash, must be a digest
+     * @param signature the byte array type signature to be recovered
+     * @return the public key which can verify signature.
+     */
+    String getPubFromSig(final byte[] msgHash, final SignatureResult signature);
 }
