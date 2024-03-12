@@ -564,7 +564,7 @@ public class Contract {
     }
 
     protected String asyncExecuteTransaction(
-            ContractWrapper contractWrapper, TransactionCallback callback) {
+            FunctionWrapper functionWrapper, TransactionCallback callback) {
         try {
             TransactionManager txManager = this.transactionManager;
             if (txManager == null) {
@@ -572,15 +572,15 @@ public class Contract {
             }
             AbiEncodedRequest abiEncodedRequest =
                     new TransactionRequestBuilder()
-                            .setNonce(contractWrapper.getNonce())
-                            .setBlockLimit(contractWrapper.getBlockLimit())
-                            .setExtension(contractWrapper.getExtension())
+                            .setNonce(functionWrapper.getNonce())
+                            .setBlockLimit(functionWrapper.getBlockLimit())
+                            .setExtension(functionWrapper.getExtension())
                             .setValue(
-                                    contractWrapper.getValue() != null
-                                            ? contractWrapper.getValue().toBigIntegerExact()
+                                    functionWrapper.getValue() != null
+                                            ? functionWrapper.getValue().toBigIntegerExact()
                                             : null)
                             .buildAbiEncodedRequest(
-                                    this.functionEncoder.encode(contractWrapper.getFunction()));
+                                    this.functionEncoder.encode(functionWrapper.getFunction()));
             return txManager.asyncSendTransaction(abiEncodedRequest, callback);
         } catch (JniException | ContractException e) {
             logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
@@ -614,7 +614,7 @@ public class Contract {
                 txAttribute);
     }
 
-    protected TransactionReceipt executeTransaction(ContractWrapper contractWrapper) {
+    protected TransactionReceipt executeTransaction(FunctionWrapper functionWrapper) {
         TransactionManager txManager = this.transactionManager;
         if (txManager == null) {
             txManager = new DefaultTransactionManager(client);
@@ -623,15 +623,15 @@ public class Contract {
         try {
             AbiEncodedRequest abiEncodedRequest =
                     new TransactionRequestBuilder()
-                            .setNonce(contractWrapper.getNonce())
-                            .setBlockLimit(contractWrapper.getBlockLimit())
-                            .setExtension(contractWrapper.getExtension())
+                            .setNonce(functionWrapper.getNonce())
+                            .setBlockLimit(functionWrapper.getBlockLimit())
+                            .setExtension(functionWrapper.getExtension())
                             .setValue(
-                                    contractWrapper.getValue() != null
-                                            ? contractWrapper.getValue().toBigIntegerExact()
+                                    functionWrapper.getValue() != null
+                                            ? functionWrapper.getValue().toBigIntegerExact()
                                             : null)
                             .buildAbiEncodedRequest(
-                                    this.functionEncoder.encode(contractWrapper.getFunction()));
+                                    this.functionEncoder.encode(functionWrapper.getFunction()));
             transactionReceipt = txManager.sendTransaction(abiEncodedRequest);
         } catch (JniException | ContractException e) {
             logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
