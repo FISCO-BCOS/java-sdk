@@ -17,6 +17,7 @@ import com.webank.wedpr.crypto.CryptoResult;
 import com.webank.wedpr.crypto.NativeInterface;
 import org.fisco.bcos.sdk.v3.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
 
@@ -87,5 +88,40 @@ public class ECDSASignature implements Signature {
                     "Verify with secp256k1 failed:" + verifyResult.wedprErrorMessage);
         }
         return verifyResult.booleanResult;
+    }
+
+    @Override
+    public String recoverAddress(final String msgHash, final SignatureResult signature) {
+        return ecrecoverSignature(msgHash, signature);
+    }
+
+    @Override
+    public String recoverAddress(final byte[] msgHash, final SignatureResult signature) {
+        return recoverAddress(Hex.toHexString(msgHash), signature);
+    }
+
+    public static String ecrecoverSignature(String msgHash, SignatureResult signature) {
+        String publicKey = getPubFromSignature(msgHash, signature);
+        return ECDSAKeyPair.getAddressByPublicKey(publicKey);
+    }
+
+    @Override
+    public String recoverPublicKey(final String msgHash, final SignatureResult signature) {
+        return getPubFromSignature(msgHash, signature);
+    }
+
+    @Override
+    public String recoverPublicKey(final byte[] msgHash, final SignatureResult signature) {
+        return recoverPublicKey(Hex.toHexString(msgHash), signature);
+    }
+
+    public static String getPubFromSignature(String msgHash, SignatureResult signature) {
+        CryptoResult verifyResult =
+                NativeInterface.secp256k1RecoverPublicKey(msgHash, signature.toString());
+        if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
+            throw new SignatureException(
+                    "Recover public key failed:" + verifyResult.wedprErrorMessage);
+        }
+        return verifyResult.getPublicKey();
     }
 }
