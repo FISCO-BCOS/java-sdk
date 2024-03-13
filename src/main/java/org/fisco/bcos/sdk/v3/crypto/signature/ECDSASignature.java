@@ -116,7 +116,8 @@ public class ECDSASignature implements Signature {
     }
 
     public static String getPubFromSignature(String msgHash, SignatureResult signature) {
-        CryptoResult verifyResult = NativeInterface.secp256k1RecoverPublicKey(msgHash, signature.toString());
+        CryptoResult verifyResult =
+                NativeInterface.secp256k1RecoverPublicKey(msgHash, signature.toString());
         if (verifyResult.wedprErrorMessage != null && !verifyResult.wedprErrorMessage.isEmpty()) {
             throw new SignatureException(
                     "Recover public key failed:" + verifyResult.wedprErrorMessage);

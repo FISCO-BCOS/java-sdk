@@ -18,7 +18,6 @@ import org.fisco.bcos.sdk.jni.utilities.signature.SignatureJniObj;
 import org.fisco.bcos.sdk.v3.crypto.exceptions.SignatureException;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.crypto.keypair.HsmSM2KeyPair;
-import org.fisco.bcos.sdk.v3.crypto.keypair.SM2KeyPair;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.fisco.bcos.sdk.v3.utils.Numeric;

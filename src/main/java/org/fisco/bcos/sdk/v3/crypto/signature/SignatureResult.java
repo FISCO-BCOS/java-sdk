@@ -61,7 +61,7 @@ public abstract class SignatureResult {
     }
 
     public byte[] getPub() {
-        return new byte[]{};
+        return new byte[] {};
     }
 
     public byte[] getSignatureBytes() {
