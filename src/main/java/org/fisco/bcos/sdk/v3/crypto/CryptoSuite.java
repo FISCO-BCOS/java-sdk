@@ -313,8 +313,8 @@ public class CryptoSuite {
      * @param signature the signature to be recovered
      * @return the public key whitch can verify signature.
      */
-    public String ecrecover(final String msgHash, final SignatureResult signature) {
-        return this.signatureImpl.ecrecover(msgHash, signature);
+    public String recoverAddress(final String msgHash, final SignatureResult signature) {
+        return this.signatureImpl.recoverAddress(msgHash, signature);
     }
 
     /**
@@ -324,8 +324,8 @@ public class CryptoSuite {
      * @param signature the byte array type signature to be recovered
      * @return the public key whitch can verify signature.
      */
-    public String ecrecover(final byte[] msgHash, final SignatureResult signature) {
-        return this.signatureImpl.ecrecover(msgHash, signature);
+    public String recoverAddress(final byte[] msgHash, final SignatureResult signature) {
+        return this.signatureImpl.recoverAddress(msgHash, signature);
     }
 
     /**

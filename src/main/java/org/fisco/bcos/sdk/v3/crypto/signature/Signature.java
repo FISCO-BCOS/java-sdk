@@ -72,7 +72,7 @@ public interface Signature {
      * @param signature the signature to be recovered
      * @return the address who sign the msgHash.
      */
-    String ecrecover(final String msgHash, final SignatureResult signature);
+    String recoverAddress(final String msgHash, final SignatureResult signature);
 
     /**
      * recover address from signature
@@ -81,7 +81,7 @@ public interface Signature {
      * @param signature the byte array type signature to be recovered
      * @return the address who sign the msgHash.
      */
-    String ecrecover(final byte[] msgHash, final SignatureResult signature);
+    String recoverAddress(final byte[] msgHash, final SignatureResult signature);
 
     /**
      * recover public from signature
@@ -90,7 +90,7 @@ public interface Signature {
      * @param signature the signature to be recovered
      * @return the public key which can verify signature.
      */
-    String getPubFromSig(final String msgHash, final SignatureResult signature);
+    String recoverPublicKey(final String msgHash, final SignatureResult signature);
 
     /**
      * recover address from signature
@@ -99,5 +99,5 @@ public interface Signature {
      * @param signature the byte array type signature to be recovered
      * @return the public key which can verify signature.
      */
-    String getPubFromSig(final byte[] msgHash, final SignatureResult signature);
+    String recoverPublicKey(final byte[] msgHash, final SignatureResult signature);
 }

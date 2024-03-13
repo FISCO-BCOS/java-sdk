@@ -91,13 +91,13 @@ public class ECDSASignature implements Signature {
     }
 
     @Override
-    public String ecrecover(final String msgHash, final SignatureResult signature) {
+    public String recoverAddress(final String msgHash, final SignatureResult signature) {
         return ecrecoverSignature(msgHash, signature);
     }
 
     @Override
-    public String ecrecover(final byte[] msgHash, final SignatureResult signature) {
-        return ecrecover(Hex.toHexString(msgHash), signature);
+    public String recoverAddress(final byte[] msgHash, final SignatureResult signature) {
+        return recoverAddress(Hex.toHexString(msgHash), signature);
     }
 
     public static String ecrecoverSignature(String msgHash, SignatureResult signature) {
@@ -106,13 +106,13 @@ public class ECDSASignature implements Signature {
     }
 
     @Override
-    public String getPubFromSig(final String msgHash, final SignatureResult signature) {
+    public String recoverPublicKey(final String msgHash, final SignatureResult signature) {
         return getPubFromSignature(msgHash, signature);
     }
 
     @Override
-    public String getPubFromSig(final byte[] msgHash, final SignatureResult signature) {
-        return getPubFromSig(Hex.toHexString(msgHash), signature);
+    public String recoverPublicKey(final byte[] msgHash, final SignatureResult signature) {
+        return recoverPublicKey(Hex.toHexString(msgHash), signature);
     }
 
     public static String getPubFromSignature(String msgHash, SignatureResult signature) {
