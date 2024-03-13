@@ -27,7 +27,10 @@ public class SystemConfigFeature {
         FEATURE_BALANCE("feature_balance", EnumNodeVersion.BCOS_3_6_0.getVersion()),
         FEATURE_BALANCE_PRECOMPILED(
                 "feature_balance_precompiled", EnumNodeVersion.BCOS_3_6_0.getVersion()),
-        FEATURE_BALANCE_POLICY1("feature_balance_policy1", EnumNodeVersion.BCOS_3_6_0.getVersion());
+        FEATURE_BALANCE_POLICY1("feature_balance_policy1", EnumNodeVersion.BCOS_3_6_0.getVersion()),
+        BUGFIX_INTERNAL_CREATE_PERMISSION_DENIED(
+                "bugfix_internal_create_permission_denied",
+                EnumNodeVersion.BCOS_3_7_0.getVersion());
 
         private final String featureName;
         private final int enableVersion;
@@ -81,6 +84,8 @@ public class SystemConfigFeature {
                 return Features.FEATURE_BALANCE_PRECOMPILED;
             case "feature_balance_policy1":
                 return Features.FEATURE_BALANCE_POLICY1;
+            case "bugfix_internal_create_permission_denied":
+                return Features.BUGFIX_INTERNAL_CREATE_PERMISSION_DENIED;
             default:
                 return null;
         }
