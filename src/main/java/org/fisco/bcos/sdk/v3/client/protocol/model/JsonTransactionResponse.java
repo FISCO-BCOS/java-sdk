@@ -46,7 +46,7 @@ public class JsonTransactionResponse {
     private static final Logger logger = LoggerFactory.getLogger(JsonTransactionResponse.class);
 
     // the fields related to get-transaction
-    private Integer version;
+    private Integer version = 0;
     private String hash;
     private String nonce;
     private long blockLimit;
