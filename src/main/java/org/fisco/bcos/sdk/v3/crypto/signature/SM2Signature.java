@@ -38,6 +38,7 @@ public class SM2Signature implements Signature {
         return signMessage(message, keyPair);
     }
 
+    @Deprecated()
     public String signMessage(String message, CryptoKeyPair keyPair) {
 
         if (!keyPair.getCurveName().equals(CryptoKeyPair.SM2_CURVE_NAME)) {
