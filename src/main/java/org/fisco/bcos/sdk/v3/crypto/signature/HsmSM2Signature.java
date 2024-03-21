@@ -97,4 +97,33 @@ public class HsmSM2Signature implements Signature {
             return false;
         }
     }
+
+    @Override
+    public String recoverAddress(final String msgHash, final SignatureResult signature) {
+        return ecrecoverSignature(msgHash, signature);
+    }
+
+    @Override
+    public String recoverAddress(final byte[] msgHash, final SignatureResult signature) {
+        return recoverAddress(Hex.toHexString(msgHash), signature);
+    }
+
+    public static String ecrecoverSignature(String msgHash, SignatureResult signature) {
+        // String publicKey = getPubFromSignature(msgHash, signature);
+        return "";
+    }
+
+    @Override
+    public String recoverPublicKey(final String msgHash, final SignatureResult signature) {
+        return getPubFromSignature(msgHash, signature);
+    }
+
+    @Override
+    public String recoverPublicKey(final byte[] msgHash, final SignatureResult signature) {
+        return recoverPublicKey(Hex.toHexString(msgHash), signature);
+    }
+
+    public static String getPubFromSignature(String msgHash, SignatureResult signature) {
+        return Hex.toHexString(signature.getPub());
+    }
 }

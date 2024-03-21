@@ -365,6 +365,8 @@ public class SignatureTest {
             Assert.assertEquals(message, Hex.toHexString(messageBytes));
             // sign
             ECDSASignatureResult signatureResult = (ECDSASignatureResult) cryptoSuite.sign(message, keyPair);
+            //ecrecover
+            Assert.assertEquals(keyPair.getAddress(), cryptoSuite.recoverAddress(message, signatureResult));
             // verify
             Assert.assertTrue(
                     cryptoSuite.verify(
@@ -376,6 +378,7 @@ public class SignatureTest {
 
             // new sign
             ECDSASignatureResult newSign = new ECDSASignatureResult(signatureResult.getV(), signatureResult.getR(), signatureResult.getS());
+            Assert.assertEquals(keyPair.getAddress(), cryptoSuite.recoverAddress(message, newSign));
             Assert.assertTrue(
                     cryptoSuite.verify(
                             keyPair.getHexPublicKey(), message, newSign.convertToString()));
@@ -418,6 +421,8 @@ public class SignatureTest {
             Assert.assertEquals(message, Hex.toHexString(messageBytes));
             // sign
             SM2SignatureResult signatureResult = (SM2SignatureResult) cryptoSuite.sign(message, keyPair);
+            //ecrecover
+            Assert.assertEquals(keyPair.getAddress(), cryptoSuite.recoverAddress(message, signatureResult));
             // verify
             Assert.assertTrue(
                     cryptoSuite.verify(
@@ -429,6 +434,7 @@ public class SignatureTest {
 
             // new sign
             SM2SignatureResult newSign = new SM2SignatureResult(signatureResult.getPub(), signatureResult.getR(), signatureResult.getS());
+            Assert.assertEquals(keyPair.getAddress(), cryptoSuite.recoverAddress(message, newSign));
             Assert.assertTrue(
                     cryptoSuite.verify(
                             keyPair.getHexPublicKey(), message, newSign.convertToString()));

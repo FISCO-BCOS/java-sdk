@@ -125,7 +125,7 @@ public class HashCalculatorTest {
             byteArrayOutputStream.write(transactionResponse.getMaxPriorityFeePerGas().getBytes());
         }
 
-        if(transactionResponse.getVersion() >= TransactionVersion.V2.getValue()){
+        if(transactionResponse.getVersion() == TransactionVersion.V2.getValue()){
             byteArrayOutputStream.write(transactionResponse.getExtension());
         }
 
