@@ -18,6 +18,7 @@ public enum EnumNodeVersion {
     BCOS_3_4_0(0x03040000),
     BCOS_3_5_0(0x03050000),
     BCOS_3_6_0(0x03060000),
+    BCOS_3_6_1(0x03060100),
     BCOS_3_7_0(0x03070000);
 
     private final Integer version;
@@ -37,6 +38,7 @@ public enum EnumNodeVersion {
         versionLookupMap.put(0x03040000, BCOS_3_4_0);
         versionLookupMap.put(0x03050000, BCOS_3_5_0);
         versionLookupMap.put(0x03060000, BCOS_3_6_0);
+        versionLookupMap.put(0x03060100, BCOS_3_6_1);
         versionLookupMap.put(0x03070000, BCOS_3_7_0);
     }
 
