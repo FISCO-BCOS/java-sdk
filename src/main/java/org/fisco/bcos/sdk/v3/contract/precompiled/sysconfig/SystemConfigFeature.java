@@ -28,6 +28,15 @@ public class SystemConfigFeature {
         FEATURE_BALANCE_PRECOMPILED(
                 "feature_balance_precompiled", EnumNodeVersion.BCOS_3_6_0.getVersion()),
         FEATURE_BALANCE_POLICY1("feature_balance_policy1", EnumNodeVersion.BCOS_3_6_0.getVersion()),
+        BUGFIX_KEYPAGE_SYSTEM_ENTRY_HASH(
+                "bugfix_keypage_system_entry_hash", EnumNodeVersion.BCOS_3_6_1.getVersion()),
+        BUGFIX_INTERNAL_CREATE_REDUNDANT_STORAGE(
+                "bugfix_internal_create_redundant_storage",
+                EnumNodeVersion.BCOS_3_6_1.getVersion()),
+        BUGFIX_EMPTY_ABI_RESET("bugfix_empty_abi_reset", EnumNodeVersion.BCOS_3_7_0.getVersion()),
+        BUGFIX_EIP55_ADDR("bugfix_eip55_addr", EnumNodeVersion.BCOS_3_7_0.getVersion()),
+        BUGFIX_SHARDING_CALL_IN_CHILD_EXECUTIVE(
+                "bugfix_sharding_call_in_child_executive", EnumNodeVersion.BCOS_3_7_0.getVersion()),
         BUGFIX_INTERNAL_CREATE_PERMISSION_DENIED(
                 "bugfix_internal_create_permission_denied",
                 EnumNodeVersion.BCOS_3_7_0.getVersion());
@@ -84,6 +93,16 @@ public class SystemConfigFeature {
                 return Features.FEATURE_BALANCE_PRECOMPILED;
             case "feature_balance_policy1":
                 return Features.FEATURE_BALANCE_POLICY1;
+            case "bugfix_keypage_system_entry_hash":
+                return Features.BUGFIX_KEYPAGE_SYSTEM_ENTRY_HASH;
+            case "bugfix_internal_create_redundant_storage":
+                return Features.BUGFIX_INTERNAL_CREATE_REDUNDANT_STORAGE;
+            case "bugfix_empty_abi_reset":
+                return Features.BUGFIX_EMPTY_ABI_RESET;
+            case "bugfix_eip55_addr":
+                return Features.BUGFIX_EIP55_ADDR;
+            case "bugfix_sharding_call_in_child_executive":
+                return Features.BUGFIX_SHARDING_CALL_IN_CHILD_EXECUTIVE;
             case "bugfix_internal_create_permission_denied":
                 return Features.BUGFIX_INTERNAL_CREATE_PERMISSION_DENIED;
             default:
