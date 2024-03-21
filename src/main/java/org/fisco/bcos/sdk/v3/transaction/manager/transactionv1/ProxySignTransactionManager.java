@@ -153,12 +153,14 @@ public class ProxySignTransactionManager extends TransactionManager {
         if (!request.isCreate() && (request.getEncodedData().length >= 4)) {
             System.arraycopy(request.getEncodedData(), 0, methodId, 0, 4);
         }
-        String nonce =
-                request.getNonce() == null ? getNonceProvider().getNonce() : request.getNonce();
-        BigInteger blockLimit =
-                request.getBlockLimit() == null
-                        ? getNonceProvider().getBlockLimit(client)
-                        : request.getBlockLimit();
+        String nonce = request.getNonce();
+        if (nonce == null || nonce.isEmpty()) {
+            nonce = getNonceProvider().getNonce();
+        }
+        BigInteger blockLimit = request.getBlockLimit();
+        if (blockLimit == null || blockLimit.longValue() <= 0) {
+            blockLimit = getNonceProvider().getBlockLimit(client);
+        }
         EIP1559Struct eip1559Struct = null;
         if (getGasProvider().isEIP1559Enabled() || request.isEIP1559Enabled()) {
             eip1559Struct =

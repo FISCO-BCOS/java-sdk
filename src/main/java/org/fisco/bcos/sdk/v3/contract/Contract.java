@@ -572,6 +572,7 @@ public class Contract {
             }
             AbiEncodedRequest abiEncodedRequest =
                     new TransactionRequestBuilder()
+                            .setTo(this.contractAddress)
                             .setNonce(functionWrapper.getNonce())
                             .setBlockLimit(functionWrapper.getBlockLimit())
                             .setExtension(functionWrapper.getExtension())
@@ -623,6 +624,7 @@ public class Contract {
         try {
             AbiEncodedRequest abiEncodedRequest =
                     new TransactionRequestBuilder()
+                            .setTo(this.contractAddress)
                             .setNonce(functionWrapper.getNonce())
                             .setBlockLimit(functionWrapper.getBlockLimit())
                             .setExtension(functionWrapper.getExtension())

@@ -994,6 +994,13 @@ public interface Client {
     boolean isSupportTransactionV1();
 
     /**
+     * Check this client whether supporting sending transaction with v2 version or not.
+     *
+     * @return is this client support sending transaction with v2 version
+     */
+    boolean isSupportTransactionV2();
+
+    /**
      * get node name to send rpc request directly
      *
      * @return the node name
