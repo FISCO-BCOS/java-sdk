@@ -367,7 +367,7 @@ public class TransactionReceipt {
         byteArrayOutputStream.write(getGasUsed().getBytes());
         byteArrayOutputStream.write(getContractAddress().getBytes());
         byteArrayOutputStream.write(toBytesPadded(BigInteger.valueOf(getStatus()), 4));
-        byteArrayOutputStream.write(getOutput().getBytes());
+        byteArrayOutputStream.write(Hex.decode(getOutput()));
         if (getVersion() >= TransactionVersion.V1.getValue()) {
             byteArrayOutputStream.write(getEffectiveGasPrice().getBytes());
         }
@@ -375,9 +375,9 @@ public class TransactionReceipt {
         for (Logs logEntry : getLogEntries()) {
             byteArrayOutputStream.write(logEntry.getAddress().getBytes());
             for (String topic : logEntry.getTopics()) {
-                byteArrayOutputStream.write(topic.getBytes());
+                byteArrayOutputStream.write(Hex.decode(topic));
             }
-            byteArrayOutputStream.write(logEntry.getData().getBytes());
+            byteArrayOutputStream.write(Hex.decode(logEntry.getData()));
         }
         byteArrayOutputStream.write(toBytesPadded(getBlockNumber(), 8));
         return byteArrayOutputStream.toByteArray();

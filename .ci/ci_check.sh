@@ -138,10 +138,8 @@ check_standard_node()
   prepare_environment "${2}"
   ## run integration test
   bash gradlew clean integrationTest --info
-  # if $? is not 0, then exit
-  if [ ${?} -ne 0 ]; then
-    cat log/*.log
-  fi
+  # if hs_err log exist, print it
+  (cat hs_err_pid*.log) || true
   ## clean
   clean_node "${1}"
 }
@@ -153,6 +151,8 @@ check_wasm_node()
   prepare_wasm_environment
   ## run integration test
   bash gradlew clean integrationWasmTest --info
+  (cat hs_err_pid*.log) || true
+
   ## clean
   clean_node "${1}"
 }
