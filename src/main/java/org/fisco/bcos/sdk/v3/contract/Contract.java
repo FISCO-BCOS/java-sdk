@@ -56,7 +56,10 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.DefaultTransactionManager;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.TransactionManager;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.AbiEncodedRequest;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.utils.TransactionRequestBuilder;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallRequest;
 import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.slf4j.Logger;
@@ -560,6 +563,32 @@ public class Contract {
                 function.getValue());
     }
 
+    protected String asyncExecuteTransaction(
+            FunctionWrapper functionWrapper, TransactionCallback callback) {
+        try {
+            TransactionManager txManager = this.transactionManager;
+            if (txManager == null) {
+                txManager = new DefaultTransactionManager(client);
+            }
+            AbiEncodedRequest abiEncodedRequest =
+                    new TransactionRequestBuilder()
+                            .setTo(this.contractAddress)
+                            .setNonce(functionWrapper.getNonce())
+                            .setBlockLimit(functionWrapper.getBlockLimit())
+                            .setExtension(functionWrapper.getExtension())
+                            .setValue(
+                                    functionWrapper.getValue() != null
+                                            ? functionWrapper.getValue().toBigIntegerExact()
+                                            : null)
+                            .buildAbiEncodedRequest(
+                                    this.functionEncoder.encode(functionWrapper.getFunction()));
+            return txManager.asyncSendTransaction(abiEncodedRequest, callback);
+        } catch (JniException | ContractException e) {
+            logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
+        }
+        return null;
+    }
+
     protected TransactionReceipt executeTransaction(Function function) {
 
         if (transactionManager != null) {
@@ -584,6 +613,32 @@ public class Contract {
                 this.functionEncoder.encode(function),
                 this.credential,
                 txAttribute);
+    }
+
+    protected TransactionReceipt executeTransaction(FunctionWrapper functionWrapper) {
+        TransactionManager txManager = this.transactionManager;
+        if (txManager == null) {
+            txManager = new DefaultTransactionManager(client);
+        }
+        TransactionReceipt transactionReceipt = null;
+        try {
+            AbiEncodedRequest abiEncodedRequest =
+                    new TransactionRequestBuilder()
+                            .setTo(this.contractAddress)
+                            .setNonce(functionWrapper.getNonce())
+                            .setBlockLimit(functionWrapper.getBlockLimit())
+                            .setExtension(functionWrapper.getExtension())
+                            .setValue(
+                                    functionWrapper.getValue() != null
+                                            ? functionWrapper.getValue().toBigIntegerExact()
+                                            : null)
+                            .buildAbiEncodedRequest(
+                                    this.functionEncoder.encode(functionWrapper.getFunction()));
+            transactionReceipt = txManager.sendTransaction(abiEncodedRequest);
+        } catch (JniException | ContractException e) {
+            logger.error("sendTransaction failed, error info: {}", e.getMessage(), e);
+        }
+        return transactionReceipt;
     }
 
     protected TransactionReceipt executeDeployTransaction(byte[] data, String abi) {

@@ -43,6 +43,45 @@ public abstract class TransactionManager {
     public abstract void setNonceProvider(NonceAndBlockLimitProvider nonceProvider);
 
     /**
+     * This method is used to send transaction.
+     *
+     * @param request An instance of AbiEncodedRequest which contains the necessary information to
+     *     create a transaction: if it is a contract creation, request should setCreate(true), and
+     *     the abi field should be set; if it is EIP1559 transaction, request should set
+     *     EIP1559Struct.
+     * @return An instance of TxPair which contains the signed transaction and the transaction hash.
+     * @throws JniException If there is an error during the JNI operation.
+     */
+    public abstract TransactionReceipt sendTransaction(AbiEncodedRequest request)
+            throws JniException;
+
+    /**
+     * This method is used to send transaction asynchronously.
+     *
+     * @param request An instance of AbiEncodedRequest which contains the necessary information to
+     *     create a transaction: if it is a contract creation, request should setCreate(true), and
+     *     the abi field should be set; if it is EIP1559 transaction, request should set
+     *     EIP1559Struct.
+     * @param callback callback when transaction receipt is returned
+     * @return transaction data hash
+     * @throws JniException If there is an error during the JNI operation.
+     */
+    public abstract String asyncSendTransaction(
+            AbiEncodedRequest request, TransactionCallback callback) throws JniException;
+
+    /**
+     * This method is used to create a signed transaction.
+     *
+     * @param request An instance of AbiEncodedRequest which contains the necessary information to
+     *     create a transaction: if it is a contract creation, request should setCreate(true), and
+     *     the abi field should be set; if it is EIP1559 transaction, request should set
+     *     EIP1559Struct.
+     * @return An instance of TxPair which contains the signed transaction and the transaction hash.
+     * @throws JniException If there is an error during the JNI operation.
+     */
+    public abstract TxPair createSignedTransaction(AbiEncodedRequest request) throws JniException;
+
+    /**
      * Simple send tx
      *
      * @param to to address
@@ -118,9 +157,6 @@ public abstract class TransactionManager {
             boolean constructor)
             throws JniException;
 
-    public abstract TransactionReceipt sendTransaction(AbiEncodedRequest request)
-            throws JniException;
-
     /**
      * This method is used to create a signed transaction.
      *
@@ -146,8 +182,6 @@ public abstract class TransactionManager {
             String abi,
             boolean constructor)
             throws JniException;
-
-    public abstract TxPair createSignedTransaction(AbiEncodedRequest request) throws JniException;
 
     /**
      * Simple send tx asynchronously
@@ -233,9 +267,6 @@ public abstract class TransactionManager {
             boolean constructor,
             TransactionCallback callback)
             throws JniException;
-
-    public abstract String asyncSendTransaction(
-            AbiEncodedRequest request, TransactionCallback callback) throws JniException;
 
     /**
      * Send tx with EIP1559

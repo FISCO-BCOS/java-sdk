@@ -1,60 +1,65 @@
 package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto;
 
 import java.math.BigInteger;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 
-public class AbiEncodedRequest {
+public class AbiEncodedRequest extends BasicRequest {
     // required
     protected byte[] encodedData;
-    // required
-    protected String to;
-    // optional
-    protected String abi;
-    // optional
-    protected BigInteger blockLimit;
-    // optional
-    protected String nonce;
-    // optional
-    protected BigInteger value;
-    // optional
-    protected BigInteger gasPrice;
-    // optional
-    protected BigInteger gasLimit;
-    // optional
-    protected EIP1559Struct eip1559Struct;
-
-    public AbiEncodedRequest(byte[] encodedData, String to) {
-        this.encodedData = encodedData;
-        this.to = to;
-    }
+    protected boolean isCreate = false;
 
     public AbiEncodedRequest(
-            byte[] encodedData,
-            String to,
+            TransactionVersion version,
             String abi,
+            String to,
             BigInteger blockLimit,
             String nonce,
             BigInteger value,
             BigInteger gasPrice,
             BigInteger gasLimit,
-            EIP1559Struct eip1559Struct) {
-        this.encodedData = encodedData;
-        this.to = to;
-        this.abi = abi;
-        this.blockLimit = blockLimit;
-        this.nonce = nonce;
-        this.value = value;
-        this.gasPrice = gasPrice;
-        this.gasLimit = gasLimit;
-        this.eip1559Struct = eip1559Struct;
+            EIP1559Struct eip1559Struct,
+            byte[] extension) {
+        super(
+                version,
+                abi,
+                "",
+                to,
+                blockLimit,
+                nonce,
+                value,
+                gasPrice,
+                gasLimit,
+                eip1559Struct,
+                extension);
     }
 
+    public AbiEncodedRequest(BasicRequest request) {
+        super(
+                request.getVersion(),
+                request.getAbi(),
+                "",
+                request.getTo(),
+                request.getBlockLimit(),
+                request.getNonce(),
+                request.getValue(),
+                request.getGasPrice(),
+                request.getGasLimit(),
+                request.getEip1559Struct(),
+                request.getExtension());
+    }
+
+    @Override
     public boolean isTransactionEssentialSatisfy() {
         return encodedData != null && to != null;
     }
 
     public boolean isCreate() {
-        return this.abi != null && !this.abi.isEmpty();
+        return isCreate;
+    }
+
+    public void setCreate(boolean create) {
+        isCreate = create;
     }
 
     public byte[] getEncodedData() {
@@ -63,69 +68,5 @@ public class AbiEncodedRequest {
 
     public void setEncodedData(byte[] encodedData) {
         this.encodedData = encodedData;
-    }
-
-    public BigInteger getBlockLimit() {
-        return blockLimit;
-    }
-
-    public void setBlockLimit(BigInteger blockLimit) {
-        this.blockLimit = blockLimit;
-    }
-
-    public String getNonce() {
-        return nonce;
-    }
-
-    public void setNonce(String nonce) {
-        this.nonce = nonce;
-    }
-
-    public String getTo() {
-        return to;
-    }
-
-    public void setTo(String to) {
-        this.to = to;
-    }
-
-    public String getAbi() {
-        return abi;
-    }
-
-    public void setAbi(String abi) {
-        this.abi = abi;
-    }
-
-    public BigInteger getValue() {
-        return value;
-    }
-
-    public void setValue(BigInteger value) {
-        this.value = value;
-    }
-
-    public BigInteger getGasPrice() {
-        return gasPrice;
-    }
-
-    public void setGasPrice(BigInteger gasPrice) {
-        this.gasPrice = gasPrice;
-    }
-
-    public BigInteger getGasLimit() {
-        return gasLimit;
-    }
-
-    public void setGasLimit(BigInteger gasLimit) {
-        this.gasLimit = gasLimit;
-    }
-
-    public EIP1559Struct getEip1559Struct() {
-        return eip1559Struct;
-    }
-
-    public void setEip1559Struct(EIP1559Struct eip1559Struct) {
-        this.eip1559Struct = eip1559Struct;
     }
 }

@@ -17,6 +17,7 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
+import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.AbiEncodedRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.BasicDeployRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.BasicRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequest;
@@ -99,16 +100,11 @@ public class AssembleTransactionService {
         } else {
             throw new ContractCodecException("Request type error, please check.");
         }
+        AbiEncodedRequest abiEncodedRequest = new AbiEncodedRequest(request);
+        abiEncodedRequest.setEncodedData(encodeMethod);
+        abiEncodedRequest.setVersion(request.getVersion());
 
-        TransactionReceipt receipt =
-                transactionManager.sendTransaction(
-                        request.getTo(),
-                        encodeMethod,
-                        request.getValue(),
-                        request.getGasPrice(),
-                        request.getGasLimit(),
-                        request.getAbi(),
-                        false);
+        TransactionReceipt receipt = transactionManager.sendTransaction(abiEncodedRequest);
         if (Objects.nonNull(receipt)
                 && (Objects.isNull(receipt.getInput()) || receipt.getInput().isEmpty())) {
             receipt.setInput(Hex.toHexStringWithPrefix(encodeMethod));
@@ -155,15 +151,11 @@ public class AssembleTransactionService {
         } else {
             throw new ContractCodecException("DeployRequest type error, please check.");
         }
-        TransactionReceipt receipt =
-                transactionManager.sendTransaction(
-                        request.getTo(),
-                        encodeConstructor,
-                        request.getValue(),
-                        request.getGasPrice(),
-                        request.getGasLimit(),
-                        request.getAbi(),
-                        true);
+        AbiEncodedRequest abiEncodedRequest = new AbiEncodedRequest(request);
+        abiEncodedRequest.setEncodedData(encodeConstructor);
+        abiEncodedRequest.setVersion(request.getVersion());
+        abiEncodedRequest.setCreate(true);
+        TransactionReceipt receipt = transactionManager.sendTransaction(abiEncodedRequest);
         if (Objects.nonNull(receipt)
                 && (Objects.isNull(receipt.getInput()) || receipt.getInput().isEmpty())) {
             receipt.setInput(Hex.toHexStringWithPrefix(encodeConstructor));
@@ -210,15 +202,10 @@ public class AssembleTransactionService {
         } else {
             throw new ContractCodecException("Request type error, please check.");
         }
-        return transactionManager.asyncSendTransaction(
-                request.getTo(),
-                encodeMethod,
-                request.getValue(),
-                request.getGasPrice(),
-                request.getGasLimit(),
-                request.getAbi(),
-                false,
-                callback);
+        AbiEncodedRequest abiEncodedRequest = new AbiEncodedRequest(request);
+        abiEncodedRequest.setVersion(request.getVersion());
+        abiEncodedRequest.setEncodedData(encodeMethod);
+        return transactionManager.asyncSendTransaction(abiEncodedRequest, callback);
     }
 
     /**
@@ -260,15 +247,11 @@ public class AssembleTransactionService {
         } else {
             throw new ContractCodecException("DeployRequest type error, please check.");
         }
-        return transactionManager.asyncSendTransaction(
-                request.getTo(),
-                encodeConstructor,
-                request.getValue(),
-                request.getGasPrice(),
-                request.getGasLimit(),
-                request.getAbi(),
-                true,
-                callback);
+        AbiEncodedRequest abiEncodedRequest = new AbiEncodedRequest(request);
+        abiEncodedRequest.setEncodedData(encodeConstructor);
+        abiEncodedRequest.setVersion(request.getVersion());
+        abiEncodedRequest.setCreate(true);
+        return transactionManager.asyncSendTransaction(abiEncodedRequest, callback);
     }
 
     /**

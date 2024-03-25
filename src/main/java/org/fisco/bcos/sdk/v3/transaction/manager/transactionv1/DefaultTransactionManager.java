@@ -3,7 +3,13 @@ package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import org.fisco.bcos.sdk.jni.common.JniException;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderV1JniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionData;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV1;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionDataV2;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionStructBuilderJniObj;
+import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
 import org.fisco.bcos.sdk.jni.utilities.tx.TxPair;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.model.TransactionAttribute;
@@ -60,6 +66,147 @@ public class DefaultTransactionManager extends TransactionManager {
     @Override
     public void setNonceProvider(NonceAndBlockLimitProvider nonceProvider) {
         this.nonceProvider = nonceProvider;
+    }
+
+    /**
+     * This method is used to send transaction.
+     *
+     * @param request An instance of AbiEncodedRequest which contains the necessary information to
+     *     create a transaction: if it is a contract creation, request should setCreate(true), and
+     *     the abi field should be set; if it is EIP1559 transaction, request should set
+     *     EIP1559Struct.
+     * @return An instance of TxPair which contains the signed transaction and the transaction hash.
+     * @throws JniException If there is an error during the JNI operation.
+     */
+    @Override
+    public TransactionReceipt sendTransaction(AbiEncodedRequest request) throws JniException {
+        String signedTransaction = createSignedTransaction(request).getSignedTx();
+        BcosTransactionReceipt bcosTransactionReceipt =
+                client.sendTransaction(signedTransaction, false);
+        return bcosTransactionReceipt.getTransactionReceipt();
+    }
+
+    /**
+     * This method is used to send transaction asynchronously.
+     *
+     * @param request An instance of AbiEncodedRequest which contains the necessary information to
+     *     create a transaction: if it is a contract creation, request should setCreate(true), and
+     *     the abi field should be set; if it is EIP1559 transaction, request should set
+     *     EIP1559Struct.
+     * @param callback callback when transaction receipt is returned
+     * @return transaction data hash
+     * @throws JniException If there is an error during the JNI operation.
+     */
+    @Override
+    public String asyncSendTransaction(AbiEncodedRequest request, TransactionCallback callback)
+            throws JniException {
+        TxPair txPair = createSignedTransaction(request);
+        client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
+        return txPair.getTxHash();
+    }
+
+    /**
+     * This method is used to create a signed transaction.
+     *
+     * @param request An instance of AbiEncodedRequest which contains the necessary information to
+     *     create a transaction: if it is a contract creation, request should setCreate(true), and
+     *     the abi field should be set; if it is EIP1559 transaction, request should set
+     *     EIP1559Struct.
+     * @return An instance of TxPair which contains the signed transaction and the transaction hash.
+     * @throws JniException If there is an error during the JNI operation.
+     */
+    @Override
+    public TxPair createSignedTransaction(AbiEncodedRequest request) throws JniException {
+        if (!request.isTransactionEssentialSatisfy()) {
+            throw new JniException(
+                    "Transaction essential fields are not satisfied: encodedData, to.");
+        }
+        int transactionAttribute;
+        if (client.isWASM()) {
+            transactionAttribute = TransactionAttribute.LIQUID_SCALE_CODEC;
+            if (request.isCreate()) {
+                transactionAttribute |= TransactionAttribute.LIQUID_CREATE;
+            }
+        } else {
+            transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
+        }
+        byte[] methodId = new byte[4];
+        if (!request.isCreate() && (request.getEncodedData().length >= 4)) {
+            System.arraycopy(request.getEncodedData(), 0, methodId, 0, 4);
+        }
+        String nonce = request.getNonce();
+        if (nonce == null || nonce.isEmpty()) {
+            nonce = getNonceProvider().getNonce();
+        }
+        BigInteger blockLimit = request.getBlockLimit();
+        if (blockLimit == null || blockLimit.longValue() <= 0) {
+            blockLimit = getNonceProvider().getBlockLimit(client);
+        }
+        EIP1559Struct eip1559Struct = null;
+        if (getGasProvider().isEIP1559Enabled() || request.isEIP1559Enabled()) {
+            eip1559Struct =
+                    request.getEip1559Struct() == null
+                            ? getGasProvider().getEIP1559Struct(methodId)
+                            : request.getEip1559Struct();
+        }
+        BigInteger gasPrice =
+                request.getGasPrice() == null
+                        ? getGasProvider().getGasPrice(methodId)
+                        : request.getGasPrice();
+        BigInteger gasLimit =
+                request.getGasLimit() == null
+                        ? getGasProvider().getGasLimit(methodId)
+                        : request.getGasLimit();
+
+        TransactionData transactionData =
+                new TransactionData()
+                        .buildVersion(request.getVersion().getValue())
+                        .buildGroupId(client.getGroup())
+                        .buildChainId(client.getChainId())
+                        .buildTo(request.getTo())
+                        .buildNonce(nonce)
+                        .buildInput(request.getEncodedData())
+                        .buildAbi(request.isCreate() ? request.getAbi() : "")
+                        .buildBlockLimit(blockLimit.longValue());
+        if (request.getVersion().getValue() >= TransactionVersion.V1.getValue()) {
+            transactionData =
+                    new TransactionDataV1(transactionData)
+                            .buildGasLimit(gasLimit.longValue())
+                            .buildGasPrice(
+                                    eip1559Struct == null ? Numeric.toHexString(gasPrice) : "")
+                            .buildValue(Numeric.toHexString(request.getValue()))
+                            .buildMaxFeePerGas(
+                                    eip1559Struct == null
+                                            ? ""
+                                            : Numeric.toHexString(eip1559Struct.getMaxFeePerGas()))
+                            .buildMaxPriorityFeePerGas(
+                                    eip1559Struct == null
+                                            ? ""
+                                            : Numeric.toHexString(
+                                                    eip1559Struct.getMaxPriorityFeePerGas()));
+        }
+        if (request.getVersion().getValue() >= TransactionVersion.V2.getValue()) {
+            transactionData =
+                    new TransactionDataV2((TransactionDataV1) transactionData)
+                            .buildExtension(request.getExtension());
+        }
+        String transactionDataHash =
+                TransactionStructBuilderJniObj.calcTransactionDataStructHash(
+                        client.getCryptoSuite().getCryptoTypeConfig(), transactionData);
+
+        String signature =
+                TransactionBuilderJniObj.signTransactionDataHash(
+                        client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
+                        transactionDataHash);
+
+        String encodedTransaction =
+                TransactionStructBuilderJniObj.createEncodedTransaction(
+                        transactionData,
+                        signature,
+                        transactionDataHash,
+                        transactionAttribute,
+                        client.getExtraData());
+        return new TxPair(transactionDataHash, encodedTransaction);
     }
 
     /**
@@ -152,14 +299,6 @@ public class DefaultTransactionManager extends TransactionManager {
         return bcosTransactionReceipt.getTransactionReceipt();
     }
 
-    @Override
-    public TransactionReceipt sendTransaction(AbiEncodedRequest request) throws JniException {
-        String signedTransaction = createSignedTransaction(request).getSignedTx();
-        BcosTransactionReceipt bcosTransactionReceipt =
-                client.sendTransaction(signedTransaction, false);
-        return bcosTransactionReceipt.getTransactionReceipt();
-    }
-
     /**
      * This method is used to create a signed transaction.
      *
@@ -211,55 +350,6 @@ public class DefaultTransactionManager extends TransactionManager {
                         transactionAttribute,
                         client.getExtraData());
         return txPair.getSignedTx();
-    }
-
-    @Override
-    public TxPair createSignedTransaction(AbiEncodedRequest request) throws JniException {
-        if (!request.isTransactionEssentialSatisfy()) {
-            throw new JniException(
-                    "Transaction essential fields are not satisfied: encodedData, to.");
-        }
-        int transactionAttribute;
-        if (client.isWASM()) {
-            transactionAttribute = TransactionAttribute.LIQUID_SCALE_CODEC;
-            if (request.isCreate()) {
-                transactionAttribute |= TransactionAttribute.LIQUID_CREATE;
-            }
-        } else {
-            transactionAttribute = TransactionAttribute.EVM_ABI_CODEC;
-        }
-        byte[] methodId = new byte[4];
-        if (!request.isCreate() && (request.getEncodedData().length >= 4)) {
-            System.arraycopy(request.getEncodedData(), 0, methodId, 0, 4);
-        }
-        String nonce =
-                request.getNonce() == null ? getNonceProvider().getNonce() : request.getNonce();
-        BigInteger blockLimit =
-                request.getBlockLimit() == null
-                        ? getNonceProvider().getBlockLimit(client)
-                        : request.getBlockLimit();
-        BigInteger gasPrice =
-                request.getGasPrice() == null
-                        ? getGasProvider().getGasPrice(methodId)
-                        : request.getGasPrice();
-        BigInteger gasLimit =
-                request.getGasLimit() == null
-                        ? getGasProvider().getGasLimit(methodId)
-                        : request.getGasLimit();
-        return TransactionBuilderV1JniObj.createSignedTransactionWithFullFields(
-                client.getCryptoSuite().getCryptoKeyPair().getJniKeyPair(),
-                client.getGroup(),
-                client.getChainId(),
-                request.getTo(),
-                nonce,
-                request.getEncodedData(),
-                request.isCreate() ? request.getAbi() : "",
-                blockLimit.longValue(),
-                Numeric.toHexString(request.getValue()),
-                Numeric.toHexString(gasPrice),
-                gasLimit.longValue(),
-                transactionAttribute,
-                client.getExtraData());
     }
 
     /**
@@ -387,14 +477,6 @@ public class DefaultTransactionManager extends TransactionManager {
                         gasLimit == null ? 0 : gasLimit.longValue(),
                         transactionAttribute,
                         client.getExtraData());
-        client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
-        return txPair.getTxHash();
-    }
-
-    @Override
-    public String asyncSendTransaction(AbiEncodedRequest request, TransactionCallback callback)
-            throws JniException {
-        TxPair txPair = createSignedTransaction(request);
         client.sendTransactionAsync(txPair.getSignedTx(), false, callback);
         return txPair.getTxHash();
     }

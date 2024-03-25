@@ -138,10 +138,8 @@ check_standard_node()
   prepare_environment "${2}"
   ## run integration test
   bash gradlew clean integrationTest --info
-  # if $? is not 0, then exit
-  if [ ${?} -ne 0 ]; then
-    cat log/*.log
-  fi
+  # if hs_err log exist, print it
+  (cat hs_err_pid*.log) || true
   ## clean
   clean_node "${1}"
 }
@@ -153,6 +151,8 @@ check_wasm_node()
   prepare_wasm_environment
   ## run integration test
   bash gradlew clean integrationWasmTest --info
+  (cat hs_err_pid*.log) || true
+
   ## clean
   clean_node "${1}"
 }
@@ -177,9 +177,9 @@ LOG_INFO "------ check_standard_node---------"
 check_standard_node "true" "normal" "-A"
 rm -rf ./bin
 
-LOG_INFO "------ download_binary: v3.2.3---------"
-download_build_chain "v3.2.3"
-download_binary "v3.2.3"
+LOG_INFO "------ download_binary: v3.2.6---------"
+download_build_chain "v3.2.6"
+download_binary "v3.2.6"
 LOG_INFO "------ check_standard_node---------"
 check_standard_node "false" "normal" "-A"
 LOG_INFO "------ check_sm_node---------"
@@ -203,6 +203,13 @@ rm -rf ./bin
 LOG_INFO "------ download_build_chain: v3.5.0---------"
 download_binary "v3.5.0"
 download_build_chain "v3.5.0"
+LOG_INFO "------ check_standard_node---------"
+check_standard_node "true"
+rm -rf ./bin
+
+LOG_INFO "------ download_build_chain: v3.6.0---------"
+download_binary "v3.6.0"
+download_build_chain "v3.6.0"
 LOG_INFO "------ check_wasm_node---------"
 check_wasm_node "false"
 LOG_INFO "------ check_standard_node---------"

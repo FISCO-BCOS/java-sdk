@@ -1276,6 +1276,31 @@ public class ClientImpl implements Client {
         return (protocol >> 16) >= 2;
     }
 
+    @Override
+    public boolean isSupportTransactionV2() {
+        return isSupportTransactionV1()
+                && getGroupInfoList().getResult().stream()
+                        .filter(group -> Objects.equals(groupInfo.getGroupID(), groupID))
+                        .allMatch(
+                                info ->
+                                        info.getNodeList().stream()
+                                                .allMatch(
+                                                        node ->
+                                                                EnumNodeVersion.getClassVersion(
+                                                                                        node.getIniConfig()
+                                                                                                .getBinaryInfo()
+                                                                                                .getVersion())
+                                                                                .toCompatibilityVersion()
+                                                                        >= EnumNodeVersion
+                                                                                .BCOS_3_7_0
+                                                                                .getVersion()));
+    }
+
+    @Override
+    public String getNodeToSendRequest() {
+        return this.nodeToSendRequest;
+    }
+
     /**
      * Get the protocol version after SDK and Blockchain node negotiated. This method returns int
      * with max and min version bits combined, which is (max|min). Max protocol version is in first
@@ -1283,11 +1308,6 @@ public class ClientImpl implements Client {
      *
      * @return (max|min) bits combined.
      */
-    @Override
-    public String getNodeToSendRequest() {
-        return this.nodeToSendRequest;
-    }
-
     @Override
     public int getNegotiatedProtocol() {
         return negotiatedProtocol;

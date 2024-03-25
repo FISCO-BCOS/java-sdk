@@ -60,6 +60,10 @@ public abstract class SignatureResult {
         return this.s;
     }
 
+    public byte[] getPub() {
+        return new byte[] {};
+    }
+
     public byte[] getSignatureBytes() {
         return this.signatureBytes;
     }
