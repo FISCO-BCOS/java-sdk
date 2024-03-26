@@ -1,3 +1,51 @@
+## v3.7.0
+(2024-03-25)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+
+### 新增
+
+- 新增[FISCO BCOS 3.7.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.7.0) 版本新的交易字段的支持，包括：`extension`，新字段对应的交易版本号升级到 `v2`。详情见： https://github.com/FISCO-BCOS/java-sdk/pull/899 。
+- `TransactionManager` 新增`AbiEncodedRequest`作为参数传入的发交易接口，用户可以灵活构造交易数据结构发起交易请求，包括用户可以自定义传入 `nonce`, `blockLimit`, `extension`字段。 详情见：https://github.com/FISCO-BCOS/java-sdk/pull/889 。
+- 新增 `FunctionWrapper` 类，用户通过合约生成Java方法时可以使用该类，支持用户自定义交易数据结构，包括用户可以自定义传入 `nonce`, `blockLimit`, `extension`, `value`字段。详情见：https://github.com/FISCO-BCOS/java-sdk/pull/899 ，https://github.com/FISCO-BCOS/java-sdk/pull/901 。
+- 新增 `org.fisco.bcos.sdk.v3.crypto.signature.Signature` 类中恢复签名的公钥以及公钥地址的接口，详情见：https://github.com/FISCO-BCOS/java-sdk/pull/903 。
+- 新增bugfix相关的flag，详情见：https://github.com/FISCO-BCOS/java-sdk/pull/902 ，https://github.com/FISCO-BCOS/java-sdk/pull/907 。
+
+### 更新
+
+- 更新 `org.fisco-bcos:bcos-sdk-jni` 依赖版本到 `3.7.0`，相关改动可见：https://github.com/FISCO-BCOS/bcos-c-sdk/releases/tag/v3.7.0
+
+### 修复
+
+- 解决回执哈希计算的问题，详情见：https://github.com/FISCO-BCOS/java-sdk/pull/908
+
+### 兼容性说明
+
+- FISCO BCOS 2.0+ 版本请使用 `org.fisco.bcos.sdk:bcos-java-sdk:2.9.3` 版本，代码分支为 `master-2.0` 。
+- 兼容java-sdk v3.0+的历史版本
+- 支持[FISCO BCOS 3.6.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.6.0)版本，以及3.0.0正式版以来的所有版本。
+- 账户权限管理接口、BFS新增的list分页接口与link接口只在 FISCO BCOS 3.1.0及以上支持使用。
+- 新增的CRUD接口，如条件范围遍历查询、修改、删除等接口，只在FISCO BCOS 3.2.0及以上支持使用。
+- 新增的ShardService, 只在FISCO BCOS 3.3.0及以上支持使用。
+- Call With Sign接口只在FISCO BCOS 3.4.0及以上有效果，低于3.4.0版本的节点可正常调用但不会处理签名。
+- 新增的Tars Client，只在FISCO BCOS 3.5.0及以上支持使用。
+- 新增的交易字段，交易版本号升级为 `v1`，以及配套的`TransactionManager`, `AssembleTransactionService`, `TransferTransactionService`等，都只能在FISCO BCOS 3.6.0及以上支持使用。
+- 新增的BalanceService只能在3.6.0中使用。
+- 新增的交易字段，交易版本号升级为 `v2`，以及交易的`extension`字段，都只能在FISCO BCOS 3.7.0及以上支持使用。
+
+### 遗留问题说明
+
+在工作量与收益之间做平衡之后，目前还遗留以下几种场景的编解码仍然可能会有问题，欢迎社区用户贡献解决方案或实现代码 :-)
+- 三维及以上的数组作为输入输出参数时，使用`contract2java`编译成Java文件后，方法接口可能会出现调用错误。
+- 在使用类似 `bytes[2][]` 这样的动态数组套静态数组，且基础类型仍然是动态类型的类型时，使用`contract2java`编译成Java文件后，方法接口调用时编解码可能会出现问题。
+- 在使用liquid合约时，如果使用上一条所述的类型作为输入输出参数，在合约方法接口调用时编解码可能会出现问题。
+- 在使用liquid合约时，将u256与i256类型的输入输出参数，如果输入最大值，BigInteger生成的bytes会超过大小限制。
+- 在使用liquid合约时，因为liquid合约的事件编码与Solidity合约的事件编码不同，所以在使用liquid合约的事件时，会出现Java sdk解析失败的问题。
+
+--- 
+
 ## v3.6.0
 (2024-02-08)
 
