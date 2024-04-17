@@ -28,16 +28,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.ssl.SMSslClientContextFactory;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
-import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +65,9 @@ public class ConnectionManager {
     private EventLoopGroup workerGroup;
     private Boolean running = false;
     private Bootstrap bootstrap = new Bootstrap();
+
+    private SslContextInitializer sslContextInitializer = new SslContextInitializer();
+
     private List<ChannelFuture> connChannelFuture = new ArrayList<ChannelFuture>();
     private ScheduledExecutorService reconnSchedule = new ScheduledThreadPoolExecutor(1);
     private int cryptoType;
@@ -228,85 +226,6 @@ public class ConnectionManager {
         return availableConnections.get(peer);
     }
 
-    private SslContext initSslContext(ConfigOption configOption) throws NetworkException {
-        try {
-            Security.setProperty("jdk.disabled.namedCurves", "");
-            System.setProperty("jdk.sunec.disableNative", "false");
-
-            // Get file, file existence is already checked when check config file.
-            // Init SslContext
-            logger.info(" build ECDSA ssl context with configured certificates ");
-            SslContext sslCtx =
-                    SslContextBuilder.forClient()
-                            .trustManager(configOption.getCryptoMaterialConfig().getCaInputStream())
-                            .keyManager(
-                                    configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
-                                    configOption
-                                            .getCryptoMaterialConfig()
-                                            .getSdkPrivateKeyInputStream())
-                            .sslProvider(SslProvider.OPENSSL)
-                            // .sslProvider(SslProvider.JDK)
-                            .build();
-            return sslCtx;
-        } catch (IOException e) {
-            logger.error(
-                    "initSslContext failed, caCert: {}, sslCert: {}, sslKey: {}, error: {}, e: {}",
-                    configOption.getCryptoMaterialConfig().getCaCertPath(),
-                    configOption.getCryptoMaterialConfig().getSdkCertPath(),
-                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath(),
-                    e.getMessage(),
-                    e);
-            throw new NetworkException(
-                    "SSL context init failed, please make sure your cert and key files are properly configured. error info: "
-                            + e.getMessage(),
-                    NetworkException.INIT_CONTEXT_FAILED);
-        } catch (IllegalArgumentException e) {
-            logger.error("initSslContext failed, error: {}, e: {}", e.getMessage(), e);
-            throw new NetworkException(
-                    "SSL context init failed, error info: " + e.getMessage(),
-                    NetworkException.INIT_CONTEXT_FAILED);
-        }
-    }
-
-    private SslContext initSMSslContext(ConfigOption configOption) throws NetworkException {
-        try {
-            // Get file, file existence is already checked when check config file.
-            // Init SslContext
-            return SMSslClientContextFactory.build(
-                    configOption.getCryptoMaterialConfig().getCaInputStream(),
-                    configOption.getCryptoMaterialConfig().getEnSSLCertInputStream(),
-                    configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyInputStream(),
-                    configOption.getCryptoMaterialConfig().getSdkCertInputStream(),
-                    configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream());
-        } catch (Exception e) {
-            if (configOption.getCryptoMaterialConfig().getCryptoProvider().equalsIgnoreCase(HSM)) {
-                logger.error(
-                        "initSMSslContext failed, caCert:{}, sslCert: {}, sslKeyIndex: {}, enCert: {}, enSslKeyIndex: {}, error: {}, e: {}",
-                        configOption.getCryptoMaterialConfig().getCaCertPath(),
-                        configOption.getCryptoMaterialConfig().getSdkCertPath(),
-                        configOption.getCryptoMaterialConfig().getSslKeyIndex(),
-                        configOption.getCryptoMaterialConfig().getEnSSLCertPath(),
-                        configOption.getCryptoMaterialConfig().getEnSslKeyIndex(),
-                        e.getMessage(),
-                        e);
-            } else {
-                logger.error(
-                        "initSMSslContext failed, caCert:{}, sslCert: {}, sslKey: {}, enCert: {}, enSslKey: {}, error: {}, e: {}",
-                        configOption.getCryptoMaterialConfig().getCaCertPath(),
-                        configOption.getCryptoMaterialConfig().getSdkCertPath(),
-                        configOption.getCryptoMaterialConfig().getSdkPrivateKeyPath(),
-                        configOption.getCryptoMaterialConfig().getEnSSLCertPath(),
-                        configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyPath(),
-                        e.getMessage(),
-                        e);
-            }
-            throw new NetworkException(
-                    "SSL context init failed, please make sure your cert and key files are properly configured. error info: "
-                            + e.getMessage(),
-                    e);
-        }
-    }
-
     private void initNetty(ConfigOption configOption) throws NetworkException {
         workerGroup = new NioEventLoopGroup();
         bootstrap.group(workerGroup);
@@ -324,8 +243,8 @@ public class ConnectionManager {
         }
         sslContext =
                 (sslCryptoType == CryptoType.ECDSA_TYPE
-                        ? initSslContext(configOption)
-                        : initSMSslContext(configOption));
+                        ? sslContextInitializer.initSslContext(configOption)
+                        : sslContextInitializer.initSMSslContext(configOption));
         SslContext finalSslContext = sslContext;
         ChannelInitializer<SocketChannel> initializer =
                 new ChannelInitializer<SocketChannel>() {
