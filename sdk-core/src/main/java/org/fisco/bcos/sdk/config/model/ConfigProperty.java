@@ -105,7 +105,7 @@ public class ConfigProperty {
         }
         InputStream inputStream = null;
         try {
-            configFilePath = configFilePath.replace("..", "");
+            // configFilePath = configFilePath.replace("..", "");
             inputStream = new FileInputStream(configFilePath);
             if (inputStream != null) {
                 return inputStream;
