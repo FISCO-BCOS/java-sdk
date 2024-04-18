@@ -17,6 +17,16 @@ public class SslContextInitializer {
 
     private static Logger logger = LoggerFactory.getLogger(SslContextInitializer.class);
 
+    private static boolean enableNettyOpenSSLProvider = false;
+
+    static {
+        String property = System.getProperty("fisco.netty.enable.openssl.provider");
+        if (property != null) {
+            enableNettyOpenSSLProvider = Boolean.valueOf(property);
+            logger.info("load `fisco.netty.enable.openssl.provider` value: {}", property);
+        }
+    }
+
     public SslContext initSslContext(ConfigOption configOption) throws NetworkException {
         try {
             Security.setProperty("jdk.disabled.namedCurves", "");
@@ -25,6 +35,14 @@ public class SslContextInitializer {
             // Get file, file existence is already checked when check config file.
             // Init SslContext
             logger.info(" build ECDSA ssl context with configured certificates ");
+
+            SslProvider sslProvider = SslProvider.JDK;
+            if (enableNettyOpenSSLProvider) {
+                sslProvider = SslProvider.OPENSSL;
+            }
+
+            logger.info("sslProvider: {}", sslProvider);
+
             SslContext sslCtx =
                     SslContextBuilder.forClient()
                             .trustManager(configOption.getCryptoMaterialConfig().getCaInputStream())
@@ -34,7 +52,7 @@ public class SslContextInitializer {
                                             .getCryptoMaterialConfig()
                                             .getSdkPrivateKeyInputStream())
                             // .sslProvider(SslProvider.OPENSSL)
-                            .sslProvider(SslProvider.JDK)
+                            .sslProvider(sslProvider)
                             .build();
             return sslCtx;
         } catch (IOException e) {
@@ -93,21 +111,6 @@ public class SslContextInitializer {
                                     sdkPrivateKeyInputStream);
 
             return sslContext;
-            /*
-            InputStream caInputStream = configOption.getCryptoMaterialConfig().getCaInputStream();
-            InputStream enSSLCertInputStream = configOption.getCryptoMaterialConfig().getEnSSLCertInputStream();
-            InputStream enSSLPrivateKeyInputStream = configOption.getCryptoMaterialConfig().getEnSSLPrivateKeyInputStream();
-            InputStream sdkCertInputStream = configOption.getCryptoMaterialConfig().getSdkCertInputStream();
-            InputStream sdkPrivateKeyInputStream = configOption.getCryptoMaterialConfig().getSdkPrivateKeyInputStream();
-
-            // Init SslContext
-            return SMSslClientContextFactory.build(
-                    caInputStream,
-                    enSSLCertInputStream,
-                    enSSLPrivateKeyInputStream,
-                    sdkCertInputStream,
-                    sdkPrivateKeyInputStream);
-            */
         } catch (Exception e) {
             if (configOption.getCryptoMaterialConfig().getCryptoProvider().equalsIgnoreCase(HSM)) {
                 logger.error(
