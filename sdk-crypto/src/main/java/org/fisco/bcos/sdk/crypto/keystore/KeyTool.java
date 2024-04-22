@@ -272,7 +272,6 @@ public abstract class KeyTool {
     public static void storePublicKeyWithPem(PublicKey publicKey, String privateKeyFilePath)
             throws IOException {
         String publicKeyPath = privateKeyFilePath + ".pub";
-        publicKeyPath = publicKeyPath.replace("..", "");
         try (PemWriter writer = new PemWriter(new FileWriter(publicKeyPath))) {
             writer.writeObject(new PemObject("PUBLIC KEY", publicKey.getEncoded()));
             writer.flush();
@@ -289,8 +288,7 @@ public abstract class KeyTool {
     /** load information from the keyStoreFile */
     protected void load() {
         try {
-            String safeFile = keyStoreFile.replace("..", "");
-            InputStream keyStoreFileInputStream = new FileInputStream(safeFile);
+            InputStream keyStoreFileInputStream = new FileInputStream(keyStoreFile);
             this.load(keyStoreFileInputStream);
         } catch (FileNotFoundException | org.bouncycastle.util.encoders.DecoderException e) {
             String errorMessage =
