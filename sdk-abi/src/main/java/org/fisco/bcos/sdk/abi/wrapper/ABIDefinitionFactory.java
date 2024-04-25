@@ -60,15 +60,17 @@ public class ABIDefinitionFactory {
                         break;
                 }
 
-                if (logger.isInfoEnabled()) {
-                    logger.info(" abiDefinition: {}", abiDefinition);
+                if (logger.isTraceEnabled()) {
+                    logger.trace(" abiDefinition: {}", abiDefinition);
                 }
             }
             if (contractABIDefinition.getConstructor() == null) {
                 contractABIDefinition.setConstructor(
                         ABIDefinition.createDefaultConstructorABIDefinition());
             }
-            logger.info(" contractABIDefinition {} ", contractABIDefinition);
+            if (logger.isTraceEnabled()) {
+                logger.trace(" contractABIDefinition {} ", contractABIDefinition);
+            }
 
             return contractABIDefinition;
 

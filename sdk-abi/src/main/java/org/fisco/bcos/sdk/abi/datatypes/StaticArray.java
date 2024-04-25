@@ -1,6 +1,8 @@
 package org.fisco.bcos.sdk.abi.datatypes;
 
+import java.util.Arrays;
 import java.util.List;
+import org.fisco.bcos.sdk.abi.datatypes.generated.AbiTypes;
 
 /** Static array type. */
 public class StaticArray<T extends Type> extends Array<T> {
@@ -14,26 +16,78 @@ public class StaticArray<T extends Type> extends Array<T> {
 
     @SafeVarargs
     public StaticArray(T... values) {
-        super(values[0].getTypeAsString() + "[" + values.length + "]", values);
+        super(
+                StructType.class.isAssignableFrom(values[0].getClass())
+                        ? (Class<T>) values[0].getClass()
+                        : (Class<T>) AbiTypes.getType(values[0].getTypeAsString()),
+                values);
         isValid();
     }
 
     @SafeVarargs
     public StaticArray(int expectedSize, T... values) {
-        super(values[0].getTypeAsString() + "[" + values.length + "]", values);
+        super(
+                StructType.class.isAssignableFrom(values[0].getClass())
+                        ? (Class<T>) values[0].getClass()
+                        : Array.class.isAssignableFrom(values[0].getClass())
+                                ? (Class<T>)
+                                        (values[0].dynamicType()
+                                                ? DynamicArray.class
+                                                : StaticArray.class)
+                                : (Class<T>) AbiTypes.getType(values[0].getTypeAsString()),
+                values);
         this.expectedSize = expectedSize;
         isValid();
     }
 
     public StaticArray(List<T> values) {
-        super(values.get(0).getTypeAsString() + "[" + values.size() + "]", values);
+        super(
+                StructType.class.isAssignableFrom(values.get(0).getClass())
+                        ? (Class<T>) values.get(0).getClass()
+                        : (Class<T>) AbiTypes.getType(values.get(0).getTypeAsString()),
+                values);
         isValid();
     }
 
     public StaticArray(int expectedSize, List<T> values) {
-        super(values.get(0).getTypeAsString() + "[" + values.size() + "]", values);
+        super(
+                StructType.class.isAssignableFrom(values.get(0).getClass())
+                        ? (Class<T>) values.get(0).getClass()
+                        : (Class<T>) AbiTypes.getType(values.get(0).getTypeAsString()),
+                values);
         this.expectedSize = expectedSize;
         isValid();
+    }
+
+    @SafeVarargs
+    public StaticArray(Class<T> type, T... values) {
+        this(type, Arrays.asList(values));
+    }
+
+    @SafeVarargs
+    public StaticArray(Class<T> type, int expectedSize, T... values) {
+        this(type, expectedSize, Arrays.asList(values));
+    }
+
+    public StaticArray(Class<T> type, List<T> values) {
+        this(type, values == null ? 0 : values.size(), values);
+    }
+
+    public StaticArray(Class<T> type, int expectedSize, List<T> values) {
+        super(type, values);
+        this.expectedSize = expectedSize;
+        isValid();
+    }
+
+    @Override
+    public String getTypeAsString() {
+        String type;
+        if (StructType.class.isAssignableFrom(value.get(0).getClass())) {
+            type = value.get(0).getTypeAsString();
+        } else {
+            type = AbiTypes.getTypeAString(this.typeClass);
+        }
+        return type + "[" + value.size() + "]";
     }
 
     private void isValid() {

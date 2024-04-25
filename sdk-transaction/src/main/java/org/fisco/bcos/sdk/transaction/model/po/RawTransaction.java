@@ -57,7 +57,7 @@ public class RawTransaction implements Serializable {
             BigInteger gasLimit,
             BigInteger blockLimit,
             BigInteger value,
-            String init,
+            String data,
             BigInteger chainId,
             BigInteger groupId,
             String extraData) {
@@ -69,7 +69,7 @@ public class RawTransaction implements Serializable {
                 blockLimit,
                 "",
                 value,
-                init,
+                data,
                 chainId,
                 groupId,
                 extraData);
