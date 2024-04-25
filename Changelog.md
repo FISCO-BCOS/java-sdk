@@ -1,3 +1,26 @@
+## v2.10.1
+
+(2024-04-25)
+
+请参考文档：
+
+* [英文版用户手册](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/java_sdk/index.html)
+* [中文版用户手册](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/index.html#)
+* [中文版WIKI](https://github.com/FISCO-BCOS/java-sdk/wiki)
+
+新增：
+
+- 新增启动配置fisco.netty.enable.openssl.provider，置为true时使用openssl provider，置为false时使用JDK provider。
+
+更新：
+
+- Java SDK不再强依赖tcnative，解决在部分环境下无法加载tcnative的问题。
+- 非国密环境下默认采用JDK的provider模式建立ssl连接。需要能提供给更高性能的openssl provider时，可以通过开关切换。
+
+修复：
+
+- 修复部分场景不能配置相对路径的问题。
+
 ## v2.10.0
 
 (2024-03-08)
