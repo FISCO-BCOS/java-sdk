@@ -14,8 +14,8 @@
  */
 package org.fisco.bcos.sdk.transaction.manager;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +47,7 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
             "src/integration-test/resources/" + ConstantConfig.CONFIG_FILE_NAME;
     private static final String abiFile = "src/integration-test/resources/abi/";
     private static final String binFile = "src/integration-test/resources/bin/";
-    private List<Object> params = Lists.newArrayList("test");
+    private List<Object> params = new ArrayList<>(Collections.singletonList("test"));;
     // prepare sdk, read from the config file
     private BcosSDK sdk = BcosSDK.build(configFile);
     // set the group number 1

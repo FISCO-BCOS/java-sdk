@@ -14,7 +14,7 @@
  */
 package org.fisco.bcos.sdk.transaction.decoder;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.fisco.bcos.sdk.BcosSDK;
@@ -54,7 +54,7 @@ public class EventDecodeTest {
                         client, client.getCryptoSuite().createKeyPair(), abiFile, binFile);
         ABICodec abiCodec = new ABICodec(client.getCryptoSuite());
         // deploy
-        List<Object> params = Lists.newArrayList();
+        List<Object> params = new ArrayList<>();
         params.add(1);
         params.add("test2");
         TransactionResponse response = manager.deployByContractLoader("ComplexSol", params);

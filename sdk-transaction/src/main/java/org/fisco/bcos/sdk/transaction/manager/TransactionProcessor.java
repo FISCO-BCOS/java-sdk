@@ -100,7 +100,7 @@ public class TransactionProcessor implements TransactionProcessorInterface {
                         BigInteger.ZERO,
                         new BigInteger(this.chainId),
                         BigInteger.valueOf(this.groupId),
-                        "");
+                        client.getExtraData());
         return transactionEncoder.encodeAndSign(rawTransaction, cryptoKeyPair);
     }
 }

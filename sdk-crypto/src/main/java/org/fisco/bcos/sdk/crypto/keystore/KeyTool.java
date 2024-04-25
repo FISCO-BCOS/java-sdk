@@ -272,10 +272,10 @@ public abstract class KeyTool {
     public static void storePublicKeyWithPem(PublicKey publicKey, String privateKeyFilePath)
             throws IOException {
         String publicKeyPath = privateKeyFilePath + ".pub";
-        PemWriter writer = new PemWriter(new FileWriter(publicKeyPath));
-        writer.writeObject(new PemObject("PUBLIC KEY", publicKey.getEncoded()));
-        writer.flush();
-        writer.close();
+        try (PemWriter writer = new PemWriter(new FileWriter(publicKeyPath))) {
+            writer.writeObject(new PemObject("PUBLIC KEY", publicKey.getEncoded()));
+            writer.flush();
+        }
     }
 
     /**
