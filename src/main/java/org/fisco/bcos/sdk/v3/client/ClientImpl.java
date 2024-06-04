@@ -13,6 +13,8 @@
  */
 package org.fisco.bcos.sdk.v3.client;
 
+import static org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory.getObjectMapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigInteger;
@@ -43,6 +45,9 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Code;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ConsensusStatus;
+import org.fisco.bcos.sdk.v3.client.protocol.response.EthFilter;
+import org.fisco.bcos.sdk.v3.client.protocol.response.EthLog;
+import org.fisco.bcos.sdk.v3.client.protocol.response.EthUninstallFilter;
 import org.fisco.bcos.sdk.v3.client.protocol.response.GroupPeers;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.PbftView;
@@ -63,7 +68,6 @@ import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.ResponseCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.utils.Hex;
-import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +98,7 @@ public class ClientImpl implements Client {
     private CryptoSuite cryptoSuite;
     private RpcJniObj rpcJniObj;
 
-    protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+    protected final ObjectMapper objectMapper = getObjectMapper();
 
     protected void initGroupInfo() {
         this.groupInfo = getGroupInfo().getResult();
@@ -1306,11 +1310,164 @@ public class ClientImpl implements Client {
      * with max and min version bits combined, which is (max|min). Max protocol version is in first
      * 16 bit, and min protocol version in the second 16 bit.
      *
-     * @return (max|min) bits combined.
+     * @return (max | min) bits combined.
      */
     @Override
     public int getNegotiatedProtocol() {
         return negotiatedProtocol;
+    }
+
+    @Override
+    public EthFilter newFilter(org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter params) {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.NEW_FILTER, Arrays.asList(this.groupID, params)),
+                EthFilter.class);
+    }
+
+    @Override
+    public void newFilterAsync(
+            org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter params,
+            RespCallback<EthFilter> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(JsonRpcMethods.NEW_FILTER, Arrays.asList(groupID, params)),
+                EthFilter.class,
+                callback);
+    }
+
+    @Override
+    public EthFilter newBlockFilter() {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(JsonRpcMethods.NEW_BLOCK_FILTER, Arrays.asList(this.groupID)),
+                EthFilter.class);
+    }
+
+    @Override
+    public void newBlockFilterAsync(RespCallback<EthFilter> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(JsonRpcMethods.NEW_BLOCK_FILTER, Arrays.asList(this.groupID)),
+                EthFilter.class,
+                callback);
+    }
+
+    @Override
+    public EthFilter newPendingTransactionFilter() {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.NEW_PENDING_TX_FILTER, Arrays.asList(this.groupID)),
+                EthFilter.class);
+    }
+
+    @Override
+    public void newPendingTransactionFilterAsync(RespCallback<EthFilter> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.NEW_PENDING_TX_FILTER, Arrays.asList(this.groupID)),
+                EthFilter.class,
+                callback);
+    }
+
+    @Override
+    public EthLog getFilterChanges(EthFilter filter) {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_FILTER_CHANGES,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                EthLog.class);
+    }
+
+    @Override
+    public void getFilterChangesAsync(EthFilter filter, RespCallback<EthLog> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_FILTER_CHANGES,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                EthLog.class,
+                callback);
+    }
+
+    @Override
+    public EthUninstallFilter uninstallFilter(EthFilter filter) {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.UNINSTALL_FILTER,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                EthUninstallFilter.class);
+    }
+
+    @Override
+    public void uninstallFilterAsync(EthFilter filter, RespCallback<EthUninstallFilter> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.UNINSTALL_FILTER,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                EthUninstallFilter.class,
+                callback);
+    }
+
+    @Override
+    public EthLog getLogs(org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter params) {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(JsonRpcMethods.GET_LOGS, Arrays.asList(this.groupID, params)),
+                EthLog.class);
+    }
+
+    @Override
+    public void getLogsAsync(
+            org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter params,
+            RespCallback<EthLog> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(JsonRpcMethods.GET_LOGS, Arrays.asList(this.groupID, params)),
+                EthLog.class,
+                callback);
+    }
+
+    @Override
+    public EthLog getFilterLogs(EthFilter filter) {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_FILTER_LOGS,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                EthLog.class);
+    }
+
+    @Override
+    public void getFilterLogsAsync(EthFilter filter, RespCallback<EthLog> callback) {
+
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_FILTER_LOGS,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                EthLog.class,
+                callback);
     }
 
     @Override
@@ -1446,8 +1603,7 @@ public class ClientImpl implements Client {
             if (response.getErrorCode() == 0) {
                 // parse the response into JsonRPCResponse
                 T jsonRpcResponse =
-                        ObjectMapperFactory.getObjectMapper()
-                                .readValue(response.getContent(), responseType);
+                        getObjectMapper().readValue(response.getContent(), responseType);
                 if (jsonRpcResponse.getError() != null) {
                     logger.error(
                             "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, retErrorMessage: {}, retErrorCode: {}",
