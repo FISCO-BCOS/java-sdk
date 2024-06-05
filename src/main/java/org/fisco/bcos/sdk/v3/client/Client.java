@@ -31,6 +31,9 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Code;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ConsensusStatus;
+import org.fisco.bcos.sdk.v3.client.protocol.response.EthFilter;
+import org.fisco.bcos.sdk.v3.client.protocol.response.EthLog;
+import org.fisco.bcos.sdk.v3.client.protocol.response.EthUninstallFilter;
 import org.fisco.bcos.sdk.v3.client.protocol.response.GroupPeers;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.PbftView;
@@ -1015,6 +1018,38 @@ public interface Client {
      * @return (max|min) bits combined.
      */
     int getNegotiatedProtocol();
+
+    EthFilter newFilter(org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter filter);
+
+    void newFilterAsync(
+            org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter filter,
+            RespCallback<EthFilter> callback);
+
+    EthFilter newBlockFilter();
+
+    void newBlockFilterAsync(RespCallback<EthFilter> callback);
+
+    EthFilter newPendingTransactionFilter();
+
+    void newPendingTransactionFilterAsync(RespCallback<EthFilter> callback);
+
+    EthLog getFilterChanges(EthFilter filter);
+
+    void getFilterChangesAsync(EthFilter filter, RespCallback<EthLog> callback);
+
+    EthUninstallFilter uninstallFilter(EthFilter filter);
+
+    void uninstallFilterAsync(EthFilter filter, RespCallback<EthUninstallFilter> callback);
+
+    EthLog getLogs(org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter filter);
+
+    void getLogsAsync(
+            org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter filter,
+            RespCallback<EthLog> callback);
+
+    EthLog getFilterLogs(EthFilter filter);
+
+    void getFilterLogsAsync(EthFilter filter, RespCallback<EthLog> callback);
 
     void start();
 
