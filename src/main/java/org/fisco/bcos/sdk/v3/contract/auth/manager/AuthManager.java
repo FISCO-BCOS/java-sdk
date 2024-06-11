@@ -898,20 +898,29 @@ public class AuthManager {
 
     private void getExecEvent(TransactionReceipt tr, BigInteger proposalId)
             throws ContractException {
-        List<CommitteeManager.ExecResultEventResponse> execResultEvents =
-                committeeManager.getExecResultEvents(tr);
-        if (!execResultEvents.isEmpty()) {
-            BigInteger execResultParam0 = execResultEvents.get(0).execResultParam0;
-            if (!BigInteger.ZERO.equals(execResultParam0)) {
-                RetCode precompiledResponse =
-                        PrecompiledRetCode.getPrecompiledResponse(execResultParam0.intValue(), "");
-                throw new ContractException(
-                        "Exec proposal finished with error occurs, proposalId: "
-                                + proposalId
-                                + ", exec error msg: "
-                                + precompiledResponse.getMessage(),
-                        precompiledResponse.getCode());
+        try {
+            List<CommitteeManager.ExecResultEventResponse> execResultEvents =
+                    committeeManager.getExecResultEvents(tr);
+            if (!execResultEvents.isEmpty()) {
+                BigInteger execResultParam0 = execResultEvents.get(0).execResultParam0;
+                if (!BigInteger.ZERO.equals(execResultParam0)) {
+                    RetCode precompiledResponse =
+                            PrecompiledRetCode.getPrecompiledResponse(
+                                    execResultParam0.intValue(), "");
+                    throw new ContractException(
+                            "Exec proposal finished with error occurs, proposalId: "
+                                    + proposalId
+                                    + ", exec error msg: "
+                                    + precompiledResponse.getMessage(),
+                            precompiledResponse.getCode());
+                }
             }
+        } catch (Exception e) {
+            throw new ContractException(
+                    "Exec proposal finished with exception, proposalId: "
+                            + proposalId
+                            + ", exception msg: "
+                            + e.getMessage());
         }
     }
 }

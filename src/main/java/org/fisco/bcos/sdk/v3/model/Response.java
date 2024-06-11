@@ -47,6 +47,10 @@ public class Response {
         return content;
     }
 
+    public String getContentString() {
+        return new String(content);
+    }
+
     public void setContent(byte[] content) {
         this.content = content;
     }

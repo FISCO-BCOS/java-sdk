@@ -39,6 +39,18 @@ public class TransactionRequestBuilder {
         this.bin = bin;
     }
 
+    public TransactionRequestBuilder setVersion(TransactionVersion version) {
+        if (this.version.getValue() < version.getValue()) {
+            this.version = version;
+        }
+        return this;
+    }
+
+    public TransactionRequestBuilder setVersionForce(TransactionVersion version) {
+        this.version = version;
+        return this;
+    }
+
     public TransactionRequestBuilder setMethod(String method) {
         this.method = method;
         return this;
@@ -66,31 +78,41 @@ public class TransactionRequestBuilder {
 
     public TransactionRequestBuilder setValue(BigInteger value) {
         this.value = value;
-        if (value != null) this.version = TransactionVersion.V1;
+        if (value != null) {
+            return setVersion(TransactionVersion.V1);
+        }
         return this;
     }
 
     public TransactionRequestBuilder setGasPrice(BigInteger gasPrice) {
         this.gasPrice = gasPrice;
-        if (gasPrice != null) this.version = TransactionVersion.V1;
+        if (gasPrice != null) {
+            return setVersion(TransactionVersion.V1);
+        }
         return this;
     }
 
     public TransactionRequestBuilder setGasLimit(BigInteger gasLimit) {
         this.gasLimit = gasLimit;
-        if (gasLimit != null) this.version = TransactionVersion.V1;
+        if (gasLimit != null) {
+            return setVersion(TransactionVersion.V1);
+        }
         return this;
     }
 
     public TransactionRequestBuilder setEIP1559Struct(EIP1559Struct eip1559Struct) {
         this.eip1559Struct = eip1559Struct;
-        if (eip1559Struct != null) this.version = TransactionVersion.V1;
+        if (eip1559Struct != null) {
+            setVersion(TransactionVersion.V1);
+        }
         return this;
     }
 
     public TransactionRequestBuilder setExtension(byte[] extension) {
         this.extension = extension;
-        if (extension != null && extension.length > 0) this.version = TransactionVersion.V2;
+        if (extension != null && extension.length > 0) {
+            setVersion(TransactionVersion.V2);
+        }
         return this;
     }
 
@@ -116,7 +138,6 @@ public class TransactionRequestBuilder {
                         this.gasLimit,
                         this.eip1559Struct,
                         this.extension);
-        sendTransactionRequest.setVersion(version);
         sendTransactionRequest.setParams(params);
         return sendTransactionRequest;
     }

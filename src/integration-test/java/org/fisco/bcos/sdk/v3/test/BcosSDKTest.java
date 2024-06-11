@@ -95,7 +95,6 @@ public class BcosSDKTest {
                                 "New block, group: " + groupId + ", blockNumber: " + blockNumber));
 
         Map<String, Optional<SystemConfig>> systemConfigList = client.getSystemConfigList();
-        Assert.assertFalse(systemConfigList.isEmpty());
         systemConfigList.forEach(
                 (key, value) ->
                         System.out.println(

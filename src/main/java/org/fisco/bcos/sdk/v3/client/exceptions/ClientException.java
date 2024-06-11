@@ -64,6 +64,8 @@ public class ClientException extends RuntimeException {
                 + ", errorMessage='"
                 + errorMessage
                 + '\''
+                + ", msg="
+                + getMessage()
                 + '}';
     }
 

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.client.Client;
@@ -56,6 +57,7 @@ public class SystemConfigService {
         predicateMap.put(
                 TX_GAS_LIMIT, value -> value.compareTo(BigInteger.valueOf(TX_GAS_LIMIT_MIN)) >= 0);
         predicateMap.put(TX_GAS_PRICE, value -> value.compareTo(BigInteger.ZERO) >= 0);
+        predicateMap.put(COMPATIBILITY_VERSION, value -> true);
     }
 
     public SystemConfigService(Client client, CryptoKeyPair credential) {
@@ -148,6 +150,10 @@ public class SystemConfigService {
 
     public static boolean isCheckableInValueValidation(String key) {
         return predicateMap.containsKey(key);
+    }
+
+    public static Set<String> getConfigKeys() {
+        return predicateMap.keySet();
     }
 
     public static boolean checkCompatibilityVersion(Client client, String version) {

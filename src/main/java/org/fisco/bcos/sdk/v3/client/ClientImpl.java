@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.jni.rpc.RpcJniObj;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
@@ -65,6 +66,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
+import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigFeature;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
@@ -1070,6 +1072,11 @@ public class ClientImpl implements Client {
                                         .filter(gInfo -> gInfo.getGroupID().equals(getGroup()))
                                         .findFirst();
                         Set<String> keys = new TreeSet<>();
+                        keys.addAll(
+                                Arrays.stream(SystemConfigFeature.Features.values())
+                                        .map(SystemConfigFeature.Features::toString)
+                                        .collect(Collectors.toList()));
+                        keys.addAll(SystemConfigService.getConfigKeys());
                         if (group.isPresent() && !group.get().getNodeList().isEmpty()) {
                             group.get()
                                     .getNodeList()
@@ -1099,6 +1106,10 @@ public class ClientImpl implements Client {
                     public void onResponse(Set<String> keys) {
                         Map<String, Optional<SystemConfig>> configMap =
                                 new ConcurrentSkipListMap<>();
+                        if (keys.isEmpty()) {
+                            callback.onResponse(configMap);
+                            return;
+                        }
                         keys.forEach(
                                 key ->
                                         getSystemConfigByKeyAsync(
@@ -1718,41 +1729,44 @@ public class ClientImpl implements Client {
                 // parse the response into JsonRPCResponse
                 T jsonRpcResponse =
                         getObjectMapper().readValue(response.getContent(), responseType);
-                if (jsonRpcResponse.getError() != null) {
-                    logger.error(
-                            "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, retErrorMessage: {}, retErrorCode: {}",
+                // error code inside json rpc response
+                if (jsonRpcResponse.hasError()) {
+                    logger.info(
+                            "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, msg: {}, code: {}, rawRsp: {}",
                             method,
                             jsonRpcResponse.getError().getMessage(),
-                            jsonRpcResponse.getError().getCode());
+                            jsonRpcResponse.getError().getCode(),
+                            response.getContentString());
                     throw new ClientException(
                             jsonRpcResponse.getError().getCode(),
                             jsonRpcResponse.getError().getMessage(),
-                            "ErrorMessage: " + jsonRpcResponse.getError().getMessage());
+                            "msg: " + jsonRpcResponse.getError().getMessage());
                 }
                 return jsonRpcResponse;
             } else {
-                logger.error(
-                        "parseResponseIntoJsonRpcResponse failed, method: {}, retErrorMessage: {}, retErrorCode: {}",
+                logger.info(
+                        "parseResponseIntoJsonRpcResponse failed, method: {}, msg: {}, code: {}, rawRsp: {}",
                         method,
                         response.getErrorMessage(),
-                        response.getErrorCode());
+                        response.getErrorCode(),
+                        response.getContent());
                 throw new ClientException(
                         response.getErrorCode(),
                         response.getErrorMessage(),
-                        "get response failed, errorCode: "
+                        "get response failed, code: "
                                 + response.getErrorCode()
-                                + ", error message: "
+                                + ", msg: "
                                 + response.getErrorMessage());
             }
         } catch (ClientException e) {
-            logger.error(
+            logger.info(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exception, response: {}, errorMessage: {}",
                     response,
                     e.getMessage(),
                     e);
             throw e;
         } catch (Exception e) {
-            logger.error(
+            logger.info(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exception, response: {}, errorMessage: {}",
                     response,
                     e.getMessage(),
