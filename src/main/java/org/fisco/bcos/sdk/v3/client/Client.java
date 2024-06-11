@@ -16,6 +16,9 @@
 package org.fisco.bcos.sdk.v3.client;
 
 import java.math.BigInteger;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
@@ -841,6 +844,13 @@ public interface Client {
     SystemConfig getSystemConfigByKey(String node, String key);
 
     /**
+     * Peer operation: get system config list, witch will fetch all config
+     *
+     * @return all config value
+     */
+    Map<String, Optional<SystemConfig>> getSystemConfigList();
+
+    /**
      * Peer operation: async get system config
      *
      * @param key the string of key
@@ -856,6 +866,20 @@ public interface Client {
      * @param callback the callback instance
      */
     void getSystemConfigByKeyAsync(String node, String key, RespCallback<SystemConfig> callback);
+
+    /**
+     * async get all connect nodes support keys
+     *
+     * @param callback the callback instance
+     */
+    void getSupportSysConfigKeysAsync(RespCallback<Set<String>> callback);
+
+    /**
+     * Peer operation: async get system config list, witch will fetch all config
+     *
+     * @param callback the callback instance
+     */
+    void getSystemConfigListAsync(RespCallback<Map<String, Optional<SystemConfig>>> callback);
 
     /**
      * Peer operation: get sync status

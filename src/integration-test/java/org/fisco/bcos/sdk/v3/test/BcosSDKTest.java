@@ -21,6 +21,8 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -91,6 +93,17 @@ public class BcosSDKTest {
                 (groupId, blockNumber) ->
                         System.out.println(
                                 "New block, group: " + groupId + ", blockNumber: " + blockNumber));
+
+        Map<String, Optional<SystemConfig>> systemConfigList = client.getSystemConfigList();
+        Assert.assertFalse(systemConfigList.isEmpty());
+        systemConfigList.forEach(
+                (key, value) ->
+                        System.out.println(
+                                key
+                                        + " : "
+                                        + (value.isPresent()
+                                                ? value.get().getSystemConfig()
+                                                : "null")));
 
         // test getBlockNumber
         BlockNumber blockNumber = client.getBlockNumber();

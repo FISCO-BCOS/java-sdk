@@ -21,9 +21,16 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.jni.rpc.RpcJniObj;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
@@ -1009,6 +1016,32 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public Map<String, Optional<SystemConfig>> getSystemConfigList() {
+        CompletableFuture<Map<String, Optional<SystemConfig>>> future = new CompletableFuture<>();
+        this.getSystemConfigListAsync(
+                new RespCallback<Map<String, Optional<SystemConfig>>>() {
+                    @Override
+                    public void onResponse(Map<String, Optional<SystemConfig>> configMap) {
+                        future.complete(configMap);
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        future.completeExceptionally(
+                                new ClientException(
+                                        "getSystemConfigList failed, error: "
+                                                + errorResponse.getErrorMessage()));
+                    }
+                });
+        try {
+            return future.get(configOption.getNetworkConfig().getTimeout(), TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            logger.warn("getSystemConfigList failed, error: {}", e.getMessage(), e);
+            throw new ClientException("getSystemConfigList failed, error: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public void getSystemConfigByKeyAsync(String key, RespCallback<SystemConfig> callback) {
         this.getSystemConfigByKeyAsync(nodeToSendRequest, key, callback);
     }
@@ -1024,6 +1057,80 @@ public class ClientImpl implements Client {
                         Arrays.asList(this.groupID, node, key)),
                 SystemConfig.class,
                 callback);
+    }
+
+    @Override
+    public void getSupportSysConfigKeysAsync(RespCallback<Set<String>> callback) {
+        this.getGroupInfoListAsync(
+                new RespCallback<BcosGroupInfoList>() {
+                    @Override
+                    public void onResponse(BcosGroupInfoList bcosGroupInfoList) {
+                        Optional<BcosGroupInfo.GroupInfo> group =
+                                bcosGroupInfoList.getResult().stream()
+                                        .filter(gInfo -> gInfo.getGroupID().equals(getGroup()))
+                                        .findFirst();
+                        Set<String> keys = new TreeSet<>();
+                        if (group.isPresent() && !group.get().getNodeList().isEmpty()) {
+                            group.get()
+                                    .getNodeList()
+                                    .forEach(
+                                            groupNodeInfo -> {
+                                                keys.addAll(groupNodeInfo.getFeatureKeys());
+                                                keys.addAll(groupNodeInfo.getSupportConfigs());
+                                            });
+                        }
+                        callback.onResponse(keys);
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        callback.onError(errorResponse);
+                    }
+                });
+    }
+
+    @Override
+    public void getSystemConfigListAsync(
+            RespCallback<Map<String, Optional<SystemConfig>>> callback) {
+
+        this.getSupportSysConfigKeysAsync(
+                new RespCallback<Set<String>>() {
+                    @Override
+                    public void onResponse(Set<String> keys) {
+                        Map<String, Optional<SystemConfig>> configMap =
+                                new ConcurrentSkipListMap<>();
+                        keys.forEach(
+                                key ->
+                                        getSystemConfigByKeyAsync(
+                                                key,
+                                                new RespCallback<SystemConfig>() {
+                                                    @Override
+                                                    public void onResponse(
+                                                            SystemConfig systemConfig) {
+                                                        configMap.put(
+                                                                key,
+                                                                Optional.ofNullable(systemConfig));
+                                                        if (configMap.size() == keys.size()) {
+                                                            callback.onResponse(configMap);
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onError(Response errorResponse) {
+                                                        // maybe not exist
+                                                        configMap.put(key, Optional.empty());
+                                                        if (configMap.size() == keys.size()) {
+                                                            callback.onResponse(configMap);
+                                                        }
+                                                    }
+                                                }));
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        callback.onError(errorResponse);
+                    }
+                });
     }
 
     @Override
@@ -1130,7 +1237,8 @@ public class ClientImpl implements Client {
 
                         future.complete(response);
                     });
-            Response response = future.get();
+            Response response =
+                    future.get(configOption.getNetworkConfig().getTimeout(), TimeUnit.MILLISECONDS);
             return ClientImpl.parseResponseIntoJsonRpcResponse(
                     JsonRpcMethods.GET_GROUP_INFO, response, BcosGroupInfo.class);
         } catch (ClientException e) {
@@ -1144,6 +1252,12 @@ public class ClientImpl implements Client {
             logger.error("e: ", e);
             throw new ClientException(
                     "getGroupInfo failed for decode the message exception, error message:"
+                            + e.getMessage(),
+                    e);
+        } catch (TimeoutException e) {
+            logger.error("e: ", e);
+            throw new ClientException(
+                    "getGroupInfo failed for get group info timeout, error message:"
                             + e.getMessage(),
                     e);
         }
