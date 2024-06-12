@@ -119,6 +119,10 @@ public class BasicRequest {
     }
 
     public void setVersion(TransactionVersion version) {
+        if (this.version.getValue() < version.getValue()) this.version = version;
+    }
+
+    public void setVersionForce(TransactionVersion version) {
         this.version = version;
     }
 

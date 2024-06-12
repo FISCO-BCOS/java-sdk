@@ -32,7 +32,7 @@ import org.fisco.bcos.sdk.v3.transaction.tools.JsonUtils;
 public class TransactionResponse extends CommonResponse {
     private TransactionReceipt transactionReceipt;
     private String contractAddress;
-    private String values;
+    @Deprecated private String values;
     private String events;
     private String receiptMessages;
     private List<Object> returnObject;
