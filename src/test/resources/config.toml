@@ -2,7 +2,7 @@
 
 certPath = "conf"                           # The certification path  
 useSMCrypto = "false"
-disableSsl = "false"                        # Communication with nodes without SSL
+enableSsl = "true"                        # Communication with nodes without SSL
 
 # The following configurations take the certPath by default if commented
 # caCert = "conf/ca.crt"                    # CA cert file path
