@@ -52,11 +52,19 @@ public class CryptoMaterialConfig {
 
         Map<String, Object> cryptoMaterialProperty = configProperty.getCryptoMaterial();
         String useSMCrypto = (String) cryptoMaterialProperty.get("useSMCrypto");
-        String disableSsl = (String) cryptoMaterialProperty.get("disableSsl");
+        Object disableSsl = cryptoMaterialProperty.get("disableSsl");
+        Object enableSsl = cryptoMaterialProperty.get("enableSsl");
         String enableHsm = (String) cryptoMaterialProperty.get("enableHsm");
 
         this.useSmCrypto = Boolean.valueOf(useSMCrypto);
-        this.disableSsl = Boolean.valueOf(disableSsl);
+        if (disableSsl != null) {
+            this.disableSsl = Boolean.parseBoolean((String) disableSsl);
+        }
+        if (enableSsl != null) {
+            // if enableSsl is set, disableSsl will be ignored
+            this.disableSsl = !Boolean.parseBoolean((String) enableSsl);
+        }
+
         this.enableHsm = Boolean.valueOf(enableHsm);
 
         if (this.enableHsm) {
