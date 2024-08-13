@@ -92,6 +92,11 @@ public class TransactionDecoderService implements TransactionDecoderInterface {
         if (output.length() <= 8) {
             return null;
         } else {
+            // only decode evm Error(string) message now
+            if (!RevertMessageParser.isOutputStartWithRevertMethod(output)) {
+                throw new RuntimeException(
+                        "Output is not start with revert method, maybe not a standard evm error.");
+            }
             // This revert msg encoder/decoder only use ABI
             FunctionReturnDecoderInterface functionReturnDecoderInterface =
                     new org.fisco.bcos.sdk.v3.codec.abi.FunctionReturnDecoder();

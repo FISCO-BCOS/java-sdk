@@ -81,12 +81,12 @@ public class Contract {
     protected TransactionManager transactionManager = null;
     protected final Client client;
     public static final String FUNC_DEPLOY = "deploy";
-    protected final FunctionEncoderInterface functionEncoder;
-    protected final FunctionReturnDecoderInterface functionReturnDecoder;
+    public final FunctionEncoderInterface functionEncoder;
+    public final FunctionReturnDecoderInterface functionReturnDecoder;
     protected final CryptoKeyPair credential;
     protected final CryptoSuite cryptoSuite;
-    protected final EventEncoder eventEncoder;
-    private final EventSubscribe eventSubscribe;
+    public final EventEncoder eventEncoder;
+    public final EventSubscribe eventSubscribe;
     private boolean enableDAG = false;
 
     /**
@@ -735,24 +735,24 @@ public class Contract {
         return txPair.getSignedTx();
     }
 
-    public void subscribeEvent(EventSubParams params, EventSubCallback callback) {
-        this.eventSubscribe.subscribeEvent(params, callback);
+    public String subscribeEvent(EventSubParams params, EventSubCallback callback) {
+        return this.eventSubscribe.subscribeEvent(params, callback);
     }
 
-    public void subscribeEvent(String topic0, EventSubCallback callback) {
-        subscribeEvent(topic0, BigInteger.valueOf(-1), BigInteger.valueOf(-1), callback);
+    public String subscribeEvent(String topic0, EventSubCallback callback) {
+        return subscribeEvent(topic0, BigInteger.valueOf(-1), BigInteger.valueOf(-1), callback);
     }
 
-    public void subscribeEvent(
+    public String subscribeEvent(
             String topic0, BigInteger fromBlock, BigInteger toBlock, EventSubCallback callback) {
-        subscribeEvent(
+        return subscribeEvent(
                 fromBlock,
                 toBlock,
                 Collections.singletonList(Collections.singletonList(topic0)),
                 callback);
     }
 
-    public void subscribeEvent(
+    public String subscribeEvent(
             String topic0,
             List<String> otherTopics,
             BigInteger fromBlock,
@@ -763,10 +763,10 @@ public class Contract {
         for (String otherTopic : otherTopics) {
             topics.add(Collections.singletonList(otherTopic));
         }
-        subscribeEvent(fromBlock, toBlock, topics, callback);
+        return subscribeEvent(fromBlock, toBlock, topics, callback);
     }
 
-    public void subscribeEvent(
+    public String subscribeEvent(
             BigInteger fromBlock,
             BigInteger toBlock,
             List<List<String>> topics,
@@ -781,7 +781,11 @@ public class Contract {
                 eventSubParams.addTopic(i, topic);
             }
         }
-        subscribeEvent(eventSubParams, callback);
+        return subscribeEvent(eventSubParams, callback);
+    }
+
+    public void unsubscribeEvent(String eventId) {
+        this.eventSubscribe.unsubscribeEvent(eventId);
     }
 
     public static EventValues staticExtractEventParameters(
