@@ -5,6 +5,7 @@ on:
     types: [ published, created, edited ]
 env:
   CCACHE_DIR: ${{ github.workspace }}/ccache
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   build:
@@ -86,7 +87,14 @@ jobs:
           distribution: 'zulu'
           java-version: '8.0.345'
       - name: install CentOS dependencies
-        run: yum install -y epel-release centos-release-scl wget which git openssl-devel openssl tree
+        run: |
+          sed -i s/mirror.centos.org/mirrors.aliyun.com/g /etc/yum.repos.d/*.repo
+          sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
+          sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
+          yum clean all
+          yum makecache
+          yum update -y
+          yum install -y epel-release centos-release-scl wget which git openssl-devel openssl tree
       - name: Set up JDK 1.8.0.345
         uses: actions/setup-java@v3
         with:
