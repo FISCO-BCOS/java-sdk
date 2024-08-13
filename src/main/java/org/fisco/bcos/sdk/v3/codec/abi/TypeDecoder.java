@@ -85,7 +85,8 @@ public class TypeDecoder {
             byte[] resultByteArray = new byte[typeLengthAsBytes + 1];
 
             if (Int.class.isAssignableFrom(type) || Fixed.class.isAssignableFrom(type)) {
-                resultByteArray[0] = inputByteArray[0]; // take MSB as sign bit
+                // NOTE (first byte & 0xffff) >> 7 means take the MSB as sign bit
+                resultByteArray[0] = (byte) ((inputByteArray[0] & 0xffff) >> 7);
             }
 
             int valueOffset = Type.MAX_BYTE_LENGTH - typeLengthAsBytes;
