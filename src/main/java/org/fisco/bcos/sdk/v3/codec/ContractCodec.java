@@ -1017,7 +1017,7 @@ public class ContractCodec {
                     params =
                             ContractCodecTools.decodeJavaObject(inputObject, log.getData(), isWasm);
                 }
-                List<String> topics = log.getTopics();
+                List<String> topics = decodeIndexedEvent(log, abiDefinition);
                 return this.mergeEventParamsAndTopics(abiDefinition, params, topics);
             } catch (Exception e) {
                 logger.error(" exception in decodeEventToObject : {}", e.getMessage());
@@ -1027,6 +1027,30 @@ public class ContractCodec {
         String errorMsg = " cannot decode in decodeEventToObject with appropriate interface ABI";
         logger.error(errorMsg);
         throw new ContractCodecException(errorMsg);
+    }
+
+    public List<String> decodeIndexedEvent(EventLog log, ABIDefinition abiDefinition)
+            throws ClassNotFoundException {
+        List<ABIObject> eventIndexedObject =
+                ABIObjectFactory.createEventIndexedObject(abiDefinition);
+        List<String> topics = new ArrayList<>();
+        if (!log.getTopics().isEmpty()) {
+            topics.add(log.getTopics().get(0));
+            for (int i = 1; i < log.getTopics().size(); i++) {
+                ABIObject indexedObject = eventIndexedObject.get(i - 1);
+                if (indexedObject.isDynamic()) {
+                    topics.add(log.getTopics().get(i));
+                } else {
+                    List<String> objects =
+                            contractCodecJsonWrapper.decode(
+                                    indexedObject, Hex.decode(log.getTopics().get(i)), isWasm);
+                    if (!objects.isEmpty()) {
+                        topics.add(objects.get(0));
+                    }
+                }
+            }
+        }
+        return topics;
     }
 
     public List<Object> decodeEventByTopic(String abi, String eventTopic, EventLog log)
@@ -1040,7 +1064,7 @@ public class ContractCodec {
             if (!log.getData().equals("0x")) {
                 params = ContractCodecTools.decodeJavaObject(inputObject, log.getData(), isWasm);
             }
-            List<String> topics = log.getTopics();
+            List<String> topics = decodeIndexedEvent(log, abiDefinition);
             return this.mergeEventParamsAndTopics(abiDefinition, params, topics);
         } catch (Exception e) {
             logger.error(" exception in decodeEventByTopicToObject : {}", e.getMessage());
@@ -1078,7 +1102,7 @@ public class ContractCodec {
                             contractCodecJsonWrapper.decode(
                                     inputObject, Hex.decode(log.getData()), isWasm);
                 }
-                List<String> topics = log.getTopics();
+                List<String> topics = decodeIndexedEvent(log, abiDefinition);
                 return this.mergeEventParamsAndTopicsToString(abiDefinition, params, topics);
             } catch (Exception e) {
                 logger.error(" exception in decodeEventToString : {}", e.getMessage());
@@ -1103,7 +1127,7 @@ public class ContractCodec {
                         contractCodecJsonWrapper.decode(
                                 inputObject, Hex.decode(log.getData()), isWasm);
             }
-            List<String> topics = log.getTopics();
+            List<String> topics = decodeIndexedEvent(log, abiDefinition);
             return this.mergeEventParamsAndTopicsToString(abiDefinition, params, topics);
         } catch (Exception e) {
             logger.error(" exception in decodeEventByTopicToString : {}", e.getMessage());
