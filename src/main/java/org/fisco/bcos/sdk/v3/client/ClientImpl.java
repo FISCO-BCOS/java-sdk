@@ -1670,7 +1670,7 @@ public class ClientImpl implements Client {
             return ClientImpl.parseResponseIntoJsonRpcResponse(
                     request.getMethod(), response, responseType);
         } catch (ClientException e) {
-            logger.error("e: ", e);
+            logger.info("callRemoteMethod ClientException, raw request:{} ", request, e);
             throw new ClientException(
                     e.getErrorCode(),
                     e.getErrorMessage(),
@@ -1678,7 +1678,7 @@ public class ClientImpl implements Client {
                             + e.getMessage(),
                     e);
         } catch (JsonProcessingException | InterruptedException | ExecutionException e) {
-            logger.error("e: ", e);
+            logger.error("callRemoteMethod exception, raw request:{} ", request, e);
             throw new ClientException(
                     "callRemoteMethod failed for decode the message exception, error message:"
                             + e.getMessage(),
