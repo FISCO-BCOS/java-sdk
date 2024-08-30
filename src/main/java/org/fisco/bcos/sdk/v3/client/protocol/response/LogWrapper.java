@@ -28,10 +28,10 @@ import java.util.List;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 
-public class EthLog extends JsonRpcResponse<List<EthLog.LogResult>> {
+public class LogWrapper extends JsonRpcResponse<List<LogWrapper.LogResult>> {
 
     @Override
-    @JsonDeserialize(using = LogResultDeserialiser.class)
+    @JsonDeserialize(using = LogResultDeserializer.class)
     public void setResult(List<LogResult> result) {
         super.setResult(result);
     }
@@ -116,7 +116,7 @@ public class EthLog extends JsonRpcResponse<List<EthLog.LogResult>> {
         }
     }
 
-    public static class LogResultDeserialiser extends JsonDeserializer<List<LogResult>> {
+    public static class LogResultDeserializer extends JsonDeserializer<List<LogResult>> {
 
         private ObjectReader objectReader = ObjectMapperFactory.getObjectReader();
 

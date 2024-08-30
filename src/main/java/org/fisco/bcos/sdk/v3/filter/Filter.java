@@ -6,9 +6,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthFilter;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthLog;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthUninstallFilter;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogFilterResponse;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogWrapper;
+import org.fisco.bcos.sdk.v3.client.protocol.response.UninstallLogFilter;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
 import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
@@ -23,7 +23,7 @@ public abstract class Filter<T> {
     protected final Client client;
     protected Callback<T> callback;
 
-    protected volatile EthFilter filter;
+    protected volatile LogFilterResponse filter;
 
     protected ScheduledFuture<?> schedule;
 
@@ -41,8 +41,8 @@ public abstract class Filter<T> {
     public void run(ScheduledExecutorService scheduledExecutorService, long blockTime)
             throws FilterException {
         try {
-            EthFilter ethFilter = sendRequest();
-            filter = ethFilter;
+            LogFilterResponse logFilterResponse = sendRequest();
+            filter = logFilterResponse;
         } catch (Exception e) {
             throwException(e);
         }
@@ -60,13 +60,13 @@ public abstract class Filter<T> {
                         TimeUnit.MILLISECONDS);
     }
 
-    private void pollFilter(EthFilter ethFilter) {
+    private void pollFilter(LogFilterResponse logFilterResponse) {
         client.getFilterChangesAsync(
-                ethFilter,
-                new RespCallback<EthLog>() {
+                logFilterResponse,
+                new RespCallback<LogWrapper>() {
                     @Override
-                    public void onResponse(EthLog ethLog) {
-                        process(ethLog.getLogs());
+                    public void onResponse(LogWrapper logWrapper) {
+                        process(logWrapper.getLogs());
                     }
 
                     @Override
@@ -81,9 +81,9 @@ public abstract class Filter<T> {
                 });
     }
 
-    protected abstract EthFilter sendRequest();
+    protected abstract LogFilterResponse sendRequest();
 
-    protected abstract void process(List<EthLog.LogResult> logResults);
+    protected abstract void process(List<LogWrapper.LogResult> logResults);
 
     private void reinstallFilter() {
         log.warn(
@@ -96,8 +96,8 @@ public abstract class Filter<T> {
     public void cancel() throws FilterException {
         schedule.cancel(false);
         try {
-            EthUninstallFilter ethUninstallFilter = client.uninstallFilter(filter);
-            if (!ethUninstallFilter.isUninstalled()) {
+            UninstallLogFilter uninstallLogFilter = client.uninstallFilter(filter);
+            if (!uninstallLogFilter.isUninstalled()) {
                 throw new FilterException(
                         "Filter with id '" + filter.getFilterId() + "' failed to uninstall");
             }
