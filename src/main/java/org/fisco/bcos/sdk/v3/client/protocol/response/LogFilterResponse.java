@@ -15,10 +15,12 @@
 
 package org.fisco.bcos.sdk.v3.client.protocol.response;
 
+import java.math.BigInteger;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 
-public class EthUninstallFilter extends JsonRpcResponse<Boolean> {
-    public boolean isUninstalled() {
-        return getResult();
+public class LogFilterResponse extends JsonRpcResponse<String> {
+    public BigInteger getFilterId() {
+        return Numeric.decodeQuantity(getResult());
     }
 }

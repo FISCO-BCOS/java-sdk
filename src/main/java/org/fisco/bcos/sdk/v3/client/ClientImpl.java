@@ -39,6 +39,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.model.GroupNodeIniConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.model.GroupNodeIniInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.request.JsonRpcMethods;
 import org.fisco.bcos.sdk.v3.client.protocol.request.JsonRpcRequest;
+import org.fisco.bcos.sdk.v3.client.protocol.request.LogFilterRequest;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
@@ -53,10 +54,9 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Code;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ConsensusStatus;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthFilter;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthLog;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthUninstallFilter;
 import org.fisco.bcos.sdk.v3.client.protocol.response.GroupPeers;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogFilterResponse;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogWrapper;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Peers;
@@ -65,6 +65,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
+import org.fisco.bcos.sdk.v3.client.protocol.response.UninstallLogFilter;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigFeature;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
@@ -1443,147 +1444,144 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public EthFilter newFilter(org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter params) {
+    public LogFilterResponse newFilter(LogFilterRequest params) {
         return this.callRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(
                         JsonRpcMethods.NEW_FILTER, Arrays.asList(this.groupID, params)),
-                EthFilter.class);
+                LogFilterResponse.class);
     }
 
     @Override
-    public void newFilterAsync(
-            org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter params,
-            RespCallback<EthFilter> callback) {
+    public void newFilterAsync(LogFilterRequest params, RespCallback<LogFilterResponse> callback) {
         this.asyncCallRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(JsonRpcMethods.NEW_FILTER, Arrays.asList(groupID, params)),
-                EthFilter.class,
+                LogFilterResponse.class,
                 callback);
     }
 
     @Override
-    public EthFilter newBlockFilter() {
+    public LogFilterResponse newBlockFilter() {
         return this.callRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(JsonRpcMethods.NEW_BLOCK_FILTER, Arrays.asList(this.groupID)),
-                EthFilter.class);
+                LogFilterResponse.class);
     }
 
     @Override
-    public void newBlockFilterAsync(RespCallback<EthFilter> callback) {
+    public void newBlockFilterAsync(RespCallback<LogFilterResponse> callback) {
         this.asyncCallRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(JsonRpcMethods.NEW_BLOCK_FILTER, Arrays.asList(this.groupID)),
-                EthFilter.class,
+                LogFilterResponse.class,
                 callback);
     }
 
     @Override
-    public EthFilter newPendingTransactionFilter() {
+    public LogFilterResponse newPendingTransactionFilter() {
         return this.callRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(
                         JsonRpcMethods.NEW_PENDING_TX_FILTER, Arrays.asList(this.groupID)),
-                EthFilter.class);
+                LogFilterResponse.class);
     }
 
     @Override
-    public void newPendingTransactionFilterAsync(RespCallback<EthFilter> callback) {
+    public void newPendingTransactionFilterAsync(RespCallback<LogFilterResponse> callback) {
         this.asyncCallRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(
                         JsonRpcMethods.NEW_PENDING_TX_FILTER, Arrays.asList(this.groupID)),
-                EthFilter.class,
+                LogFilterResponse.class,
                 callback);
     }
 
     @Override
-    public EthLog getFilterChanges(EthFilter filter) {
+    public LogWrapper getFilterChanges(LogFilterResponse filter) {
         return this.callRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(
                         JsonRpcMethods.GET_FILTER_CHANGES,
                         Arrays.asList(this.groupID, filter.getResult())),
-                EthLog.class);
+                LogWrapper.class);
     }
 
     @Override
-    public void getFilterChangesAsync(EthFilter filter, RespCallback<EthLog> callback) {
+    public void getFilterChangesAsync(LogFilterResponse filter, RespCallback<LogWrapper> callback) {
         this.asyncCallRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(
                         JsonRpcMethods.GET_FILTER_CHANGES,
                         Arrays.asList(this.groupID, filter.getResult())),
-                EthLog.class,
+                LogWrapper.class,
                 callback);
     }
 
     @Override
-    public EthUninstallFilter uninstallFilter(EthFilter filter) {
+    public UninstallLogFilter uninstallFilter(LogFilterResponse filter) {
         return this.callRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(
                         JsonRpcMethods.UNINSTALL_FILTER,
                         Arrays.asList(this.groupID, filter.getResult())),
-                EthUninstallFilter.class);
+                UninstallLogFilter.class);
     }
 
     @Override
-    public void uninstallFilterAsync(EthFilter filter, RespCallback<EthUninstallFilter> callback) {
+    public void uninstallFilterAsync(
+            LogFilterResponse filter, RespCallback<UninstallLogFilter> callback) {
         this.asyncCallRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(
                         JsonRpcMethods.UNINSTALL_FILTER,
                         Arrays.asList(this.groupID, filter.getResult())),
-                EthUninstallFilter.class,
+                UninstallLogFilter.class,
                 callback);
     }
 
     @Override
-    public EthLog getLogs(org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter params) {
+    public LogWrapper getLogs(LogFilterRequest params) {
         return this.callRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(JsonRpcMethods.GET_LOGS, Arrays.asList(this.groupID, params)),
-                EthLog.class);
+                LogWrapper.class);
     }
 
     @Override
-    public void getLogsAsync(
-            org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter params,
-            RespCallback<EthLog> callback) {
+    public void getLogsAsync(LogFilterRequest params, RespCallback<LogWrapper> callback) {
         this.asyncCallRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(JsonRpcMethods.GET_LOGS, Arrays.asList(this.groupID, params)),
-                EthLog.class,
+                LogWrapper.class,
                 callback);
     }
 
     @Override
-    public EthLog getFilterLogs(EthFilter filter) {
+    public LogWrapper getFilterLogs(LogFilterResponse filter) {
         return this.callRemoteMethod(
                 this.groupID,
                 "",
                 new JsonRpcRequest<>(
                         JsonRpcMethods.GET_FILTER_LOGS,
                         Arrays.asList(this.groupID, filter.getResult())),
-                EthLog.class);
+                LogWrapper.class);
     }
 
     @Override
-    public void getFilterLogsAsync(EthFilter filter, RespCallback<EthLog> callback) {
+    public void getFilterLogsAsync(LogFilterResponse filter, RespCallback<LogWrapper> callback) {
 
         this.asyncCallRemoteMethod(
                 this.groupID,
@@ -1591,7 +1589,7 @@ public class ClientImpl implements Client {
                 new JsonRpcRequest<>(
                         JsonRpcMethods.GET_FILTER_LOGS,
                         Arrays.asList(this.groupID, filter.getResult())),
-                EthLog.class,
+                LogWrapper.class,
                 callback);
     }
 

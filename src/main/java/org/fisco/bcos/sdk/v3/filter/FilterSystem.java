@@ -4,7 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter;
+import org.fisco.bcos.sdk.v3.client.protocol.request.LogFilterRequest;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Log;
 
 public class FilterSystem {
@@ -27,7 +27,7 @@ public class FilterSystem {
         filter.run(scheduledExecutorService, pollingInterval);
     }
 
-    public Publisher<Log> logPublisher(EthFilter filter) {
+    public Publisher<Log> logPublisher(LogFilterRequest filter) {
         Publisher<Log> publisher = new Publisher<Log>();
         run(new LogFilter(client, log -> publisher.publish(log), filter), pollingInterval);
         return publisher;

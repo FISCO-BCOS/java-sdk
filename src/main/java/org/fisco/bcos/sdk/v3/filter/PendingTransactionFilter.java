@@ -2,8 +2,8 @@ package org.fisco.bcos.sdk.v3.filter;
 
 import java.util.List;
 import org.fisco.bcos.sdk.v3.client.Client;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthFilter;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthLog;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogFilterResponse;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogWrapper;
 
 /** Handler for working with transaction filter requests. */
 public class PendingTransactionFilter extends Filter<String> {
@@ -13,15 +13,15 @@ public class PendingTransactionFilter extends Filter<String> {
     }
 
     @Override
-    protected EthFilter sendRequest() {
+    protected LogFilterResponse sendRequest() {
         return client.newPendingTransactionFilter();
     }
 
     @Override
-    protected void process(List<EthLog.LogResult> logResults) {
-        for (EthLog.LogResult logResult : logResults) {
-            if (logResult instanceof EthLog.Hash) {
-                String transactionHash = ((EthLog.Hash) logResult).get();
+    protected void process(List<LogWrapper.LogResult> logResults) {
+        for (LogWrapper.LogResult logResult : logResults) {
+            if (logResult instanceof LogWrapper.Hash) {
+                String transactionHash = ((LogWrapper.Hash) logResult).get();
                 callback.onEvent(transactionHash);
             } else {
                 throw new FilterException(

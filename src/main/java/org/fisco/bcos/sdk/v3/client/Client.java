@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
+import org.fisco.bcos.sdk.v3.client.protocol.request.LogFilterRequest;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
@@ -34,10 +35,9 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.BlockNumber;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Code;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ConsensusStatus;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthFilter;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthLog;
-import org.fisco.bcos.sdk.v3.client.protocol.response.EthUninstallFilter;
 import org.fisco.bcos.sdk.v3.client.protocol.response.GroupPeers;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogFilterResponse;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogWrapper;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Peers;
@@ -46,6 +46,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
+import org.fisco.bcos.sdk.v3.client.protocol.response.UninstallLogFilter;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
@@ -1043,37 +1044,33 @@ public interface Client {
      */
     int getNegotiatedProtocol();
 
-    EthFilter newFilter(org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter filter);
+    LogFilterResponse newFilter(LogFilterRequest filter);
 
-    void newFilterAsync(
-            org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter filter,
-            RespCallback<EthFilter> callback);
+    void newFilterAsync(LogFilterRequest filter, RespCallback<LogFilterResponse> callback);
 
-    EthFilter newBlockFilter();
+    LogFilterResponse newBlockFilter();
 
-    void newBlockFilterAsync(RespCallback<EthFilter> callback);
+    void newBlockFilterAsync(RespCallback<LogFilterResponse> callback);
 
-    EthFilter newPendingTransactionFilter();
+    LogFilterResponse newPendingTransactionFilter();
 
-    void newPendingTransactionFilterAsync(RespCallback<EthFilter> callback);
+    void newPendingTransactionFilterAsync(RespCallback<LogFilterResponse> callback);
 
-    EthLog getFilterChanges(EthFilter filter);
+    LogWrapper getFilterChanges(LogFilterResponse filter);
 
-    void getFilterChangesAsync(EthFilter filter, RespCallback<EthLog> callback);
+    void getFilterChangesAsync(LogFilterResponse filter, RespCallback<LogWrapper> callback);
 
-    EthUninstallFilter uninstallFilter(EthFilter filter);
+    UninstallLogFilter uninstallFilter(LogFilterResponse filter);
 
-    void uninstallFilterAsync(EthFilter filter, RespCallback<EthUninstallFilter> callback);
+    void uninstallFilterAsync(LogFilterResponse filter, RespCallback<UninstallLogFilter> callback);
 
-    EthLog getLogs(org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter filter);
+    LogWrapper getLogs(LogFilterRequest filter);
 
-    void getLogsAsync(
-            org.fisco.bcos.sdk.v3.client.protocol.request.EthFilter filter,
-            RespCallback<EthLog> callback);
+    void getLogsAsync(LogFilterRequest filter, RespCallback<LogWrapper> callback);
 
-    EthLog getFilterLogs(EthFilter filter);
+    LogWrapper getFilterLogs(LogFilterResponse filter);
 
-    void getFilterLogsAsync(EthFilter filter, RespCallback<EthLog> callback);
+    void getFilterLogsAsync(LogFilterResponse filter, RespCallback<LogWrapper> callback);
 
     void start();
 

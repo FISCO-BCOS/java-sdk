@@ -84,6 +84,17 @@ public abstract class Filter<T extends Filter> {
             }
         }
 
+        public ListTopic(List<String> topics) {
+            this.topics = new ArrayList<>();
+            for (String topic : topics) {
+                if (topic != null) {
+                    this.topics.add(new SingleTopic(topic));
+                } else {
+                    this.topics.add(new SingleTopic());
+                }
+            }
+        }
+
         @Override
         public List<SingleTopic> getValue() {
             return topics;

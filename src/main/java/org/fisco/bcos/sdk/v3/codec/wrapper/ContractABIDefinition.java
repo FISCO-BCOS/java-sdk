@@ -93,7 +93,7 @@ public class ContractABIDefinition {
             this.functions.put(name, new ArrayList<>());
             abiDefinitions = this.functions.get(name);
         } else {
-            logger.info(" overload method ??? name: {}, abiDefinition: {}", name, abiDefinition);
+            logger.trace(" overload method ??? name: {}, abiDefinition: {}", name, abiDefinition);
         }
         abiDefinitions.add(abiDefinition);
 
@@ -112,8 +112,14 @@ public class ContractABIDefinition {
     }
 
     public void addEvent(String name, ABIDefinition abiDefinition) {
-        this.events.putIfAbsent(name, new ArrayList<>());
         List<ABIDefinition> abiDefinitions = this.events.get(name);
+        if (abiDefinitions == null) {
+            this.events.put(name, new ArrayList<>());
+            abiDefinitions = this.events.get(name);
+        } else {
+            logger.trace(" overload event ??? name: {}, abiDefinition: {}", name, abiDefinition);
+        }
+        // reference to the events
         abiDefinitions.add(abiDefinition);
         if (logger.isTraceEnabled()) {
             logger.trace(" name: {}, abi: {}", name, abiDefinition);
