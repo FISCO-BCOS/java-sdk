@@ -44,5 +44,14 @@ public class JsonRpcMethods {
     public static final String GET_GROUP_INFO_LIST = "getGroupInfoList";
     public static final String GET_GROUP_NODE_INFO = "getGroupNodeInfo";
 
+    // event related interface
+    public static final String NEW_BLOCK_FILTER = "newBlockFilter";
+    public static final String NEW_PENDING_TX_FILTER = "newPendingTransactionFilter";
+    public static final String NEW_FILTER = "newFilter";
+    public static final String GET_FILTER_CHANGES = "getFilterChanges";
+    public static final String UNINSTALL_FILTER = "uninstallFilter";
+    public static final String GET_LOGS = "getLogs";
+    public static final String GET_FILTER_LOGS = "getFilterLogs";
+
     private JsonRpcMethods() {}
 }

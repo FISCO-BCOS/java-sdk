@@ -16,7 +16,11 @@
 package org.fisco.bcos.sdk.v3.client;
 
 import java.math.BigInteger;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
+import org.fisco.bcos.sdk.v3.client.protocol.request.LogFilterRequest;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
@@ -32,6 +36,8 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Code;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ConsensusStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.GroupPeers;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogFilterResponse;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogWrapper;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Peers;
@@ -40,6 +46,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
+import org.fisco.bcos.sdk.v3.client.protocol.response.UninstallLogFilter;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
@@ -838,6 +845,13 @@ public interface Client {
     SystemConfig getSystemConfigByKey(String node, String key);
 
     /**
+     * Peer operation: get system config list, witch will fetch all config
+     *
+     * @return all config value
+     */
+    Map<String, Optional<SystemConfig>> getSystemConfigList();
+
+    /**
      * Peer operation: async get system config
      *
      * @param key the string of key
@@ -853,6 +867,20 @@ public interface Client {
      * @param callback the callback instance
      */
     void getSystemConfigByKeyAsync(String node, String key, RespCallback<SystemConfig> callback);
+
+    /**
+     * async get all connect nodes support keys
+     *
+     * @param callback the callback instance
+     */
+    void getSupportSysConfigKeysAsync(RespCallback<Set<String>> callback);
+
+    /**
+     * Peer operation: async get system config list, witch will fetch all config
+     *
+     * @param callback the callback instance
+     */
+    void getSystemConfigListAsync(RespCallback<Map<String, Optional<SystemConfig>>> callback);
 
     /**
      * Peer operation: get sync status
@@ -1015,6 +1043,34 @@ public interface Client {
      * @return (max|min) bits combined.
      */
     int getNegotiatedProtocol();
+
+    LogFilterResponse newFilter(LogFilterRequest filter);
+
+    void newFilterAsync(LogFilterRequest filter, RespCallback<LogFilterResponse> callback);
+
+    LogFilterResponse newBlockFilter();
+
+    void newBlockFilterAsync(RespCallback<LogFilterResponse> callback);
+
+    LogFilterResponse newPendingTransactionFilter();
+
+    void newPendingTransactionFilterAsync(RespCallback<LogFilterResponse> callback);
+
+    LogWrapper getFilterChanges(LogFilterResponse filter);
+
+    void getFilterChangesAsync(LogFilterResponse filter, RespCallback<LogWrapper> callback);
+
+    UninstallLogFilter uninstallFilter(LogFilterResponse filter);
+
+    void uninstallFilterAsync(LogFilterResponse filter, RespCallback<UninstallLogFilter> callback);
+
+    LogWrapper getLogs(LogFilterRequest filter);
+
+    void getLogsAsync(LogFilterRequest filter, RespCallback<LogWrapper> callback);
+
+    LogWrapper getFilterLogs(LogFilterResponse filter);
+
+    void getFilterLogsAsync(LogFilterResponse filter, RespCallback<LogWrapper> callback);
 
     void start();
 

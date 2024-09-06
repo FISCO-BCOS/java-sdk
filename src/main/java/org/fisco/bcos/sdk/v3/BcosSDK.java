@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.v3.config.Config;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.v3.eventsub.EventSubscribe;
+import org.fisco.bcos.sdk.v3.filter.FilterSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,6 +148,38 @@ public class BcosSDK {
         } catch (Exception e) {
             logger.warn("create event sub for failed, error: ", e);
             throw new BcosSDKException("get event sub failed, e: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get an event subscribe instance of a specific group
+     *
+     * @param client
+     * @param poolSize the size of scheduledExecutorService
+     * @return FilterSystem
+     */
+    public FilterSystem getFilterSystem(Client client, int poolSize) throws BcosSDKException {
+        try {
+            return new FilterSystem(client, poolSize);
+        } catch (Exception e) {
+            throw new BcosSDKException("get filter system failed, e: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get an event subscribe instance of a specific group
+     *
+     * @param client
+     * @param poolSize the size of scheduledExecutorService
+     * @param pollingInterval The time interval for polling getFilterChange
+     * @return FilterSystem
+     */
+    public FilterSystem getFilterSystem(Client client, int poolSize, long pollingInterval)
+            throws BcosSDKException {
+        try {
+            return new FilterSystem(client, poolSize, pollingInterval);
+        } catch (Exception e) {
+            throw new BcosSDKException("get filter system failed, e: " + e.getMessage());
         }
     }
 

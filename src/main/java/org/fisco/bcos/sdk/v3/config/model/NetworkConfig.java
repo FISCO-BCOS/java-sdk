@@ -28,7 +28,7 @@ public class NetworkConfig {
 
     private List<String> peers;
     private List<String> tarsPeers;
-    private int timeout = -1;
+    private int timeout = 10000; // ms
     private String defaultGroup;
     private boolean sendRpcRequestToHighestBlockNode = true;
 

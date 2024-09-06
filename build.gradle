@@ -20,7 +20,7 @@ ext {
     commonsIOVersion = '2.11.0'
     commonsLang3Version = '3.12.0'
     toml4jVersion = "0.7.2"
-    bcprovJDK18onVersion = '1.75'
+    bcprovJDK18onVersion = '1.78'
     webankJavaCryptoVersion = "1.0.3"
     junitVersion = '4.13.2'
     commonsCollections4Version = "4.4"
@@ -35,7 +35,7 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.7.0'
+    version = '3.8.0-SNAPSHOT'
 
     apply plugin: 'maven-publish'
     apply plugin: 'idea'

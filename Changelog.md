@@ -1,9 +1,34 @@
+## v3.8.0
+(2024-08-20)
+
+请阅读Java SDK v3.x+文档：
+
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
+
+### 新增
+
+- 新增[FISCO BCOS 3.9.0](https://github.com/FISCO-BCOS/FISCO-BCOS/releases/tag/v3.9.0) 版本新增的获取合约事件接口，用户可用主动获取的方式自定义查询合约事件、区块事件等，**目前仍是体验版**。详情见：[#920](https://github.com/FISCO-BCOS/java-sdk/pull/920) 。
+- 在Client类中新增获取当前链上所有配置项的接口，用户可以通过该接口获取链上所有配置项的信息。详情见：[#922](https://github.com/FISCO-BCOS/java-sdk/pull/922) 。
+- 在配置文件中新增 `enableSsl` 的配置字段，该字段的设置将会覆盖旧的 `disabalSsl` 的设置。原先 `disabalSsl` 的配置字段仍然支持，保持配置文件兼容。详情见：[#922](https://github.com/FISCO-BCOS/java-sdk/pull/923) 。
+
+### 修复
+
+- 修复 `TransactionManager` 在设置`extension`字段时会清除版本号，导致交易哈希计算错误不能上链的问题。详情见：[#922](https://github.com/FISCO-BCOS/java-sdk/pull/922) 。
+- 修复在大整数负数编解码场景中ABI和Scale编解码错误的问题。详情见：[#922](https://github.com/FISCO-BCOS/java-sdk/pull/925) 。
+- 修复存在重载事件时，ABI编解码错误的问题。
+- 修复在使用 `ContractCodec` 类中事件解析时没有解析事件中 `indexed` 值的问题。详情见：[#922](https://github.com/FISCO-BCOS/java-sdk/pull/925) 。
+- 修复在 `Contract` 类以及继承类中，订阅事件的接口没有返回订阅ID的问题。详情见：[#922](https://github.com/FISCO-BCOS/java-sdk/pull/925) 。
+
+### 更新
+
+- 更新 `org.bouncycastle:bcprov-jdk18on` 依赖版本到 `1.78`。
+
 ## v3.7.0
 (2024-03-25)
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -51,7 +76,7 @@
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -105,7 +130,7 @@
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -153,7 +178,7 @@
 
 Please refer to the Java SDK v3.x+ documentation:
 
-- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### Added
 
@@ -202,7 +227,7 @@ After balancing the workload and benefits, there are still potential issues in t
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -243,7 +268,7 @@ After balancing the workload and benefits, there are still potential issues in t
 (2023-06-09)
 Please refer to the Java SDK v3.x+ documentation:
 
-- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### Added
 
@@ -285,7 +310,7 @@ After balancing the workload and benefits, there are still potential issues with
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -342,7 +367,7 @@ After balancing the workload and benefits, there are still potential issues with
 
 Please refer to the Java SDK v3.x+ documentation:
 
-- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### Added
 
@@ -396,7 +421,7 @@ After balancing the workload and benefits, there are still several scenarios whe
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -434,7 +459,7 @@ After balancing the workload and benefits, there are still several scenarios whe
 
 Please read the Java SDK v3.x+ documentation:
 
-- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### New
 
@@ -468,7 +493,7 @@ Please read the Java SDK v3.x+ documentation:
 
 Please read the Java SDK v3.x+ documentation:
 
-- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### New
 
@@ -504,7 +529,7 @@ Please read the Java SDK v3.x+ documentation:
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -521,7 +546,7 @@ Please read the Java SDK v3.x+ documentation:
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 修复
 
@@ -537,7 +562,7 @@ Please read the Java SDK v3.x+ documentation:
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -571,7 +596,7 @@ Please read the Java SDK v3.x+ documentation:
 
 Please read the Java SDK v3.x+ documentation:
 
-- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [Chinese User Manual](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### New
 
@@ -603,7 +628,7 @@ Please read the Java SDK v3.x+ documentation:
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -630,7 +655,7 @@ Please read the Java SDK v3.x+ documentation:
 Please read documentation of Java SDK v3.x.
 
 * English User Handbook：Working in progress...
-* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### Add
 
@@ -658,7 +683,7 @@ Please read documentation of Java SDK v3.x.
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -689,7 +714,7 @@ Please read documentation of Java SDK v3.x.
 Please read documentation of Java SDK v3.x.
 
 * English User Handbook：Working in progress...
-* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### Added
 
@@ -720,7 +745,7 @@ Please read documentation of Java SDK v3.x.
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -754,7 +779,7 @@ Please read documentation of Java SDK v3.x.
 Please read documentation of Java SDK v3.x.
 
 * English User Handbook：Working in progress...
-* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### Added
 
@@ -789,7 +814,7 @@ Please read documentation of Java SDK v3.x.
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新增
 
@@ -823,7 +848,7 @@ Please read documentation of Java SDK v3.x.
 Please read documentation of Java SDK v3.x.
 
 * English User Handbook：Working in progress...
-* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### Added
 
@@ -855,7 +880,7 @@ Please read documentation of Java SDK v3.x.
 
 请阅读Java SDK v3.x+文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 更新
 
@@ -880,7 +905,7 @@ Please read documentation of Java SDK v3.x.
 Please read documentation of Java SDK v3.x.
 
 * English User Handbook：Working in progress...
-* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### Changed
 
@@ -906,7 +931,7 @@ Please read documentation of Java SDK v3.x.
 
 请阅读Java SDK文档：
 
-- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+- [中文用户手册](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### 新特性
 Java SDK包含如下几个新特性：
@@ -936,7 +961,7 @@ Java SDK包含如下几个新特性：
 Please read documentation of Java SDK.
 
 * English User Handbook：Working in progress...
-* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)
+* [Chinese User Handbook](https://fisco-bcos-doc.readthedocs.io/zh-cn/latest/docs/sdk/java_sdk/index.html)
 
 ### New Features
 

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.client.protocol.model.GroupNodeIniInfo;
 import org.fisco.bcos.sdk.v3.model.JsonRpcResponse;
@@ -80,7 +81,8 @@ public class BcosGroupNodeInfo extends JsonRpcResponse<BcosGroupNodeInfo.GroupNo
         private String name;
         private List<ServiceInfo> serviceInfoList;
         private Protocol protocol;
-        private List<String> featureKeys;
+        private List<String> featureKeys = new ArrayList<>();
+        private List<String> supportConfigs = new ArrayList<>();
 
         @Override
         public String toString() {
@@ -148,6 +150,14 @@ public class BcosGroupNodeInfo extends JsonRpcResponse<BcosGroupNodeInfo.GroupNo
 
         public void setFeatureKeys(List<String> featureKeys) {
             this.featureKeys = featureKeys;
+        }
+
+        public List<String> getSupportConfigs() {
+            return supportConfigs;
+        }
+
+        public void setSupportConfigs(List<String> supportConfigs) {
+            this.supportConfigs = supportConfigs;
         }
 
         static class ServiceInfo {

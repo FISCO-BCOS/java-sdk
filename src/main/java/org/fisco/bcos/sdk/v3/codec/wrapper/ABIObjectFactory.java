@@ -1,6 +1,7 @@
 package org.fisco.bcos.sdk.v3.codec.wrapper;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import org.fisco.bcos.sdk.v3.utils.Numeric;
 import org.slf4j.Logger;
@@ -35,6 +36,16 @@ public class ABIObjectFactory {
         }
 
         return null;
+    }
+
+    public static List<ABIObject> createEventIndexedObject(ABIDefinition abiDefinition) {
+        ArrayList<ABIObject> abiObjects = new ArrayList<>();
+        for (ABIDefinition.NamedType namedType : abiDefinition.getInputs()) {
+            if (namedType.isIndexed()) {
+                abiObjects.add(buildTypeObject(namedType));
+            }
+        }
+        return abiObjects;
     }
 
     public static ABIObject createEventInputObject(ABIDefinition abiDefinition) {

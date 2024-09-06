@@ -2,7 +2,9 @@ package org.fisco.bcos.sdk.v3.codec.datatypes;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.fisco.bcos.sdk.v3.codec.EventEncoder;
 import org.fisco.bcos.sdk.v3.codec.Utils;
+import org.fisco.bcos.sdk.v3.crypto.hash.Hash;
 
 /** Event wrapper type. */
 public class Event {
@@ -28,5 +30,10 @@ public class Event {
 
     public List<TypeReference<Type>> getNonIndexedParameters() {
         return parameters.stream().filter(p -> !p.isIndexed()).collect(Collectors.toList());
+    }
+
+    public String encodeToTopic(Hash hashImpl) {
+        EventEncoder encoder = new EventEncoder(hashImpl);
+        return encoder.encode(this);
     }
 }

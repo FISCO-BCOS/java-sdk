@@ -13,15 +13,25 @@
  */
 package org.fisco.bcos.sdk.v3.client;
 
+import static org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory.getObjectMapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.jni.rpc.RpcJniObj;
 import org.fisco.bcos.sdk.v3.client.exceptions.ClientException;
@@ -29,6 +39,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.model.GroupNodeIniConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.model.GroupNodeIniInfo;
 import org.fisco.bcos.sdk.v3.client.protocol.request.JsonRpcMethods;
 import org.fisco.bcos.sdk.v3.client.protocol.request.JsonRpcRequest;
+import org.fisco.bcos.sdk.v3.client.protocol.request.LogFilterRequest;
 import org.fisco.bcos.sdk.v3.client.protocol.request.Transaction;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Abi;
 import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
@@ -44,6 +55,8 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.Call;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Code;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ConsensusStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.GroupPeers;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogFilterResponse;
+import org.fisco.bcos.sdk.v3.client.protocol.response.LogWrapper;
 import org.fisco.bcos.sdk.v3.client.protocol.response.ObserverList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.PbftView;
 import org.fisco.bcos.sdk.v3.client.protocol.response.Peers;
@@ -52,7 +65,9 @@ import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SystemConfig;
 import org.fisco.bcos.sdk.v3.client.protocol.response.TotalTransactionCount;
+import org.fisco.bcos.sdk.v3.client.protocol.response.UninstallLogFilter;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
+import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigFeature;
 import org.fisco.bcos.sdk.v3.contract.precompiled.sysconfig.SystemConfigService;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.v3.model.CryptoType;
@@ -63,7 +78,6 @@ import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.ResponseCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.utils.Hex;
-import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +108,7 @@ public class ClientImpl implements Client {
     private CryptoSuite cryptoSuite;
     private RpcJniObj rpcJniObj;
 
-    protected final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+    protected final ObjectMapper objectMapper = getObjectMapper();
 
     protected void initGroupInfo() {
         this.groupInfo = getGroupInfo().getResult();
@@ -1005,6 +1019,32 @@ public class ClientImpl implements Client {
     }
 
     @Override
+    public Map<String, Optional<SystemConfig>> getSystemConfigList() {
+        CompletableFuture<Map<String, Optional<SystemConfig>>> future = new CompletableFuture<>();
+        this.getSystemConfigListAsync(
+                new RespCallback<Map<String, Optional<SystemConfig>>>() {
+                    @Override
+                    public void onResponse(Map<String, Optional<SystemConfig>> configMap) {
+                        future.complete(configMap);
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        future.completeExceptionally(
+                                new ClientException(
+                                        "getSystemConfigList failed, error: "
+                                                + errorResponse.getErrorMessage()));
+                    }
+                });
+        try {
+            return future.get(configOption.getNetworkConfig().getTimeout(), TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            logger.warn("getSystemConfigList failed, error: {}", e.getMessage(), e);
+            throw new ClientException("getSystemConfigList failed, error: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public void getSystemConfigByKeyAsync(String key, RespCallback<SystemConfig> callback) {
         this.getSystemConfigByKeyAsync(nodeToSendRequest, key, callback);
     }
@@ -1020,6 +1060,89 @@ public class ClientImpl implements Client {
                         Arrays.asList(this.groupID, node, key)),
                 SystemConfig.class,
                 callback);
+    }
+
+    @Override
+    public void getSupportSysConfigKeysAsync(RespCallback<Set<String>> callback) {
+        this.getGroupInfoListAsync(
+                new RespCallback<BcosGroupInfoList>() {
+                    @Override
+                    public void onResponse(BcosGroupInfoList bcosGroupInfoList) {
+                        Optional<BcosGroupInfo.GroupInfo> group =
+                                bcosGroupInfoList.getResult().stream()
+                                        .filter(gInfo -> gInfo.getGroupID().equals(getGroup()))
+                                        .findFirst();
+                        Set<String> keys = new TreeSet<>();
+                        keys.addAll(
+                                Arrays.stream(SystemConfigFeature.Features.values())
+                                        .map(SystemConfigFeature.Features::toString)
+                                        .collect(Collectors.toList()));
+                        keys.addAll(SystemConfigService.getConfigKeys());
+                        if (group.isPresent() && !group.get().getNodeList().isEmpty()) {
+                            group.get()
+                                    .getNodeList()
+                                    .forEach(
+                                            groupNodeInfo -> {
+                                                keys.addAll(groupNodeInfo.getFeatureKeys());
+                                                keys.addAll(groupNodeInfo.getSupportConfigs());
+                                            });
+                        }
+                        callback.onResponse(keys);
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        callback.onError(errorResponse);
+                    }
+                });
+    }
+
+    @Override
+    public void getSystemConfigListAsync(
+            RespCallback<Map<String, Optional<SystemConfig>>> callback) {
+
+        this.getSupportSysConfigKeysAsync(
+                new RespCallback<Set<String>>() {
+                    @Override
+                    public void onResponse(Set<String> keys) {
+                        Map<String, Optional<SystemConfig>> configMap =
+                                new ConcurrentSkipListMap<>();
+                        if (keys.isEmpty()) {
+                            callback.onResponse(configMap);
+                            return;
+                        }
+                        keys.forEach(
+                                key ->
+                                        getSystemConfigByKeyAsync(
+                                                key,
+                                                new RespCallback<SystemConfig>() {
+                                                    @Override
+                                                    public void onResponse(
+                                                            SystemConfig systemConfig) {
+                                                        configMap.put(
+                                                                key,
+                                                                Optional.ofNullable(systemConfig));
+                                                        if (configMap.size() == keys.size()) {
+                                                            callback.onResponse(configMap);
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onError(Response errorResponse) {
+                                                        // maybe not exist
+                                                        configMap.put(key, Optional.empty());
+                                                        if (configMap.size() == keys.size()) {
+                                                            callback.onResponse(configMap);
+                                                        }
+                                                    }
+                                                }));
+                    }
+
+                    @Override
+                    public void onError(Response errorResponse) {
+                        callback.onError(errorResponse);
+                    }
+                });
     }
 
     @Override
@@ -1126,7 +1249,8 @@ public class ClientImpl implements Client {
 
                         future.complete(response);
                     });
-            Response response = future.get();
+            Response response =
+                    future.get(configOption.getNetworkConfig().getTimeout(), TimeUnit.MILLISECONDS);
             return ClientImpl.parseResponseIntoJsonRpcResponse(
                     JsonRpcMethods.GET_GROUP_INFO, response, BcosGroupInfo.class);
         } catch (ClientException e) {
@@ -1140,6 +1264,12 @@ public class ClientImpl implements Client {
             logger.error("e: ", e);
             throw new ClientException(
                     "getGroupInfo failed for decode the message exception, error message:"
+                            + e.getMessage(),
+                    e);
+        } catch (TimeoutException e) {
+            logger.error("e: ", e);
+            throw new ClientException(
+                    "getGroupInfo failed for get group info timeout, error message:"
                             + e.getMessage(),
                     e);
         }
@@ -1306,11 +1436,161 @@ public class ClientImpl implements Client {
      * with max and min version bits combined, which is (max|min). Max protocol version is in first
      * 16 bit, and min protocol version in the second 16 bit.
      *
-     * @return (max|min) bits combined.
+     * @return (max | min) bits combined.
      */
     @Override
     public int getNegotiatedProtocol() {
         return negotiatedProtocol;
+    }
+
+    @Override
+    public LogFilterResponse newFilter(LogFilterRequest params) {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.NEW_FILTER, Arrays.asList(this.groupID, params)),
+                LogFilterResponse.class);
+    }
+
+    @Override
+    public void newFilterAsync(LogFilterRequest params, RespCallback<LogFilterResponse> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(JsonRpcMethods.NEW_FILTER, Arrays.asList(groupID, params)),
+                LogFilterResponse.class,
+                callback);
+    }
+
+    @Override
+    public LogFilterResponse newBlockFilter() {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(JsonRpcMethods.NEW_BLOCK_FILTER, Arrays.asList(this.groupID)),
+                LogFilterResponse.class);
+    }
+
+    @Override
+    public void newBlockFilterAsync(RespCallback<LogFilterResponse> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(JsonRpcMethods.NEW_BLOCK_FILTER, Arrays.asList(this.groupID)),
+                LogFilterResponse.class,
+                callback);
+    }
+
+    @Override
+    public LogFilterResponse newPendingTransactionFilter() {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.NEW_PENDING_TX_FILTER, Arrays.asList(this.groupID)),
+                LogFilterResponse.class);
+    }
+
+    @Override
+    public void newPendingTransactionFilterAsync(RespCallback<LogFilterResponse> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.NEW_PENDING_TX_FILTER, Arrays.asList(this.groupID)),
+                LogFilterResponse.class,
+                callback);
+    }
+
+    @Override
+    public LogWrapper getFilterChanges(LogFilterResponse filter) {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_FILTER_CHANGES,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                LogWrapper.class);
+    }
+
+    @Override
+    public void getFilterChangesAsync(LogFilterResponse filter, RespCallback<LogWrapper> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_FILTER_CHANGES,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                LogWrapper.class,
+                callback);
+    }
+
+    @Override
+    public UninstallLogFilter uninstallFilter(LogFilterResponse filter) {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.UNINSTALL_FILTER,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                UninstallLogFilter.class);
+    }
+
+    @Override
+    public void uninstallFilterAsync(
+            LogFilterResponse filter, RespCallback<UninstallLogFilter> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.UNINSTALL_FILTER,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                UninstallLogFilter.class,
+                callback);
+    }
+
+    @Override
+    public LogWrapper getLogs(LogFilterRequest params) {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(JsonRpcMethods.GET_LOGS, Arrays.asList(this.groupID, params)),
+                LogWrapper.class);
+    }
+
+    @Override
+    public void getLogsAsync(LogFilterRequest params, RespCallback<LogWrapper> callback) {
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(JsonRpcMethods.GET_LOGS, Arrays.asList(this.groupID, params)),
+                LogWrapper.class,
+                callback);
+    }
+
+    @Override
+    public LogWrapper getFilterLogs(LogFilterResponse filter) {
+        return this.callRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_FILTER_LOGS,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                LogWrapper.class);
+    }
+
+    @Override
+    public void getFilterLogsAsync(LogFilterResponse filter, RespCallback<LogWrapper> callback) {
+
+        this.asyncCallRemoteMethod(
+                this.groupID,
+                "",
+                new JsonRpcRequest<>(
+                        JsonRpcMethods.GET_FILTER_LOGS,
+                        Arrays.asList(this.groupID, filter.getResult())),
+                LogWrapper.class,
+                callback);
     }
 
     @Override
@@ -1388,7 +1668,7 @@ public class ClientImpl implements Client {
             return ClientImpl.parseResponseIntoJsonRpcResponse(
                     request.getMethod(), response, responseType);
         } catch (ClientException e) {
-            logger.error("e: ", e);
+            logger.info("callRemoteMethod ClientException, raw request:{} ", request, e);
             throw new ClientException(
                     e.getErrorCode(),
                     e.getErrorMessage(),
@@ -1396,7 +1676,7 @@ public class ClientImpl implements Client {
                             + e.getMessage(),
                     e);
         } catch (JsonProcessingException | InterruptedException | ExecutionException e) {
-            logger.error("e: ", e);
+            logger.error("callRemoteMethod exception, raw request:{} ", request, e);
             throw new ClientException(
                     "callRemoteMethod failed for decode the message exception, error message:"
                             + e.getMessage(),
@@ -1446,43 +1726,45 @@ public class ClientImpl implements Client {
             if (response.getErrorCode() == 0) {
                 // parse the response into JsonRPCResponse
                 T jsonRpcResponse =
-                        ObjectMapperFactory.getObjectMapper()
-                                .readValue(response.getContent(), responseType);
-                if (jsonRpcResponse.getError() != null) {
-                    logger.error(
-                            "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, retErrorMessage: {}, retErrorCode: {}",
+                        getObjectMapper().readValue(response.getContent(), responseType);
+                // error code inside json rpc response
+                if (jsonRpcResponse.hasError()) {
+                    logger.info(
+                            "parseResponseIntoJsonRpcResponse failed for non-empty error message, method: {}, msg: {}, code: {}, rawRsp: {}",
                             method,
                             jsonRpcResponse.getError().getMessage(),
-                            jsonRpcResponse.getError().getCode());
+                            jsonRpcResponse.getError().getCode(),
+                            response.getContentString());
                     throw new ClientException(
                             jsonRpcResponse.getError().getCode(),
                             jsonRpcResponse.getError().getMessage(),
-                            "ErrorMessage: " + jsonRpcResponse.getError().getMessage());
+                            "msg: " + jsonRpcResponse.getError().getMessage());
                 }
                 return jsonRpcResponse;
             } else {
-                logger.error(
-                        "parseResponseIntoJsonRpcResponse failed, method: {}, retErrorMessage: {}, retErrorCode: {}",
+                logger.info(
+                        "parseResponseIntoJsonRpcResponse failed, method: {}, msg: {}, code: {}, rawRsp: {}",
                         method,
                         response.getErrorMessage(),
-                        response.getErrorCode());
+                        response.getErrorCode(),
+                        response.getContent());
                 throw new ClientException(
                         response.getErrorCode(),
                         response.getErrorMessage(),
-                        "get response failed, errorCode: "
+                        "get response failed, code: "
                                 + response.getErrorCode()
-                                + ", error message: "
+                                + ", msg: "
                                 + response.getErrorMessage());
             }
         } catch (ClientException e) {
-            logger.error(
+            logger.info(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exception, response: {}, errorMessage: {}",
                     response,
                     e.getMessage(),
                     e);
             throw e;
         } catch (Exception e) {
-            logger.error(
+            logger.info(
                     "parseResponseIntoJsonRpcResponse failed for decode the message exception, response: {}, errorMessage: {}",
                     response,
                     e.getMessage(),
