@@ -3,15 +3,14 @@ jobs:
   build:
     working_directory: /java-sdk
     docker:
-      - image: centos:7
+      - image: ubuntu:latest
         environment:
           PATH=$PATH:/usr/bin
     steps:
       - run:
           name: Setup dependencies
           command: |
-            yum install -y epel-release centos-release-scl which wget
-            yum install -y git openssl-devel openssl java java-devel
+            apt update && apt install -y git curl libssl-dev build-essential ccache
       - checkout
       - run:
           name: Compile
