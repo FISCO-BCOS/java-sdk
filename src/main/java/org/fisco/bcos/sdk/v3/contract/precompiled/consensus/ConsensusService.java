@@ -131,4 +131,10 @@ public class ConsensusService {
         return ReceiptParser.parseTransactionReceipt(
                 receipt, tr -> consensusPrecompiled.getSetWeightOutput(tr).getValue1());
     }
+
+    public RetCode setTermWeight(String nodeId, BigInteger weight) throws ContractException {
+        TransactionReceipt receipt = consensusPrecompiled.setTermWeight(nodeId, weight);
+        return ReceiptParser.parseTransactionReceipt(
+                receipt, tr -> consensusPrecompiled.getSetTermWeightOutput(tr).getValue1());
+    }
 }
