@@ -22,6 +22,7 @@ import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SealerList;
 import org.fisco.bcos.sdk.v3.client.protocol.response.SyncStatus;
 import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledAddress;
+import org.fisco.bcos.sdk.v3.contract.precompiled.model.PrecompiledVersionCheck;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.PrecompiledRetCode;
 import org.fisco.bcos.sdk.v3.model.RetCode;
@@ -133,6 +134,15 @@ public class ConsensusService {
     }
 
     public RetCode setTermWeight(String nodeId, BigInteger weight) throws ContractException {
+        long currentVersion =
+                client.getGroupInfo()
+                        .getResult()
+                        .getNodeList()
+                        .get(0)
+                        .getProtocol()
+                        .getCompatibilityVersion();
+        PrecompiledVersionCheck.TERM_WEIGHT_MIN_SUPPORT_VERSION.checkVersion(currentVersion);
+
         TransactionReceipt receipt = consensusPrecompiled.setTermWeight(nodeId, weight);
         return ReceiptParser.parseTransactionReceipt(
                 receipt, tr -> consensusPrecompiled.getSetTermWeightOutput(tr).getValue1());
