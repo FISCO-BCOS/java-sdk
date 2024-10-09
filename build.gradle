@@ -35,7 +35,7 @@ ext {
 // integrationTest.mustRunAfter test
 allprojects {
     group = 'org.fisco-bcos.java-sdk'
-    version = '3.8.0'
+    version = '3.9.0-SNAPSHOT'
 
     apply plugin: 'maven-publish'
     apply plugin: 'idea'

@@ -24,10 +24,21 @@ public class SealerList extends JsonRpcResponse<List<SealerList.Sealer>> {
     public static class Sealer {
         private String nodeID;
         private int weight;
+        private int termWeight;
 
         @Override
         public String toString() {
-            return "Sealer{" + "nodeID='" + nodeID + '\'' + ", weight=" + weight + '}';
+            return "Sealer{"
+                    + "nodeID='"
+                    + nodeID
+                    + '\''
+                    + ", weight="
+                    + weight
+                    + "'"
+                    + "termWeight='"
+                    + termWeight
+                    + "'"
+                    + '}';
         }
 
         public String getNodeID() {
@@ -44,6 +55,14 @@ public class SealerList extends JsonRpcResponse<List<SealerList.Sealer>> {
 
         public void setWeight(int weight) {
             this.weight = weight;
+        }
+
+        public int getTermWeight() {
+            return termWeight;
+        }
+
+        public void setTermWeight(int termWeight) {
+            this.termWeight = termWeight;
         }
 
         @Override
