@@ -537,6 +537,68 @@ public class ContractCodec {
         throw new ContractCodecException(errorMsg);
     }
 
+    public byte[] encodeMethodFromStringByContractABIDefinition(
+            ContractABIDefinition contractABIDefinition, String methodName, List<String> params)
+            throws ContractCodecException {
+        List<ABIDefinition> methods = contractABIDefinition.getFunctions().get(methodName);
+        if (methods == null) {
+            logger.debug(
+                    "Invalid methodName: {}, all the functions are: {}",
+                    methodName,
+                    contractABIDefinition.getFunctions());
+            throw new ContractCodecException(
+                    "Invalid method "
+                            + methodName
+                            + " , supported functions are: "
+                            + contractABIDefinition.getFunctions().keySet());
+        }
+
+        for (ABIDefinition abiDefinition : methods) {
+            if (abiDefinition.getInputs().size() == params.size()) {
+                ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                try {
+                    byte[] methodId = abiDefinition.getMethodId(cryptoSuite);
+                    ABIObject abiObject = contractCodecJsonWrapper.encode(inputObject, params);
+                    byte[] encode = abiObject.encode(isWasm);
+                    outputStream.write(methodId);
+                    outputStream.write(encode);
+                    return outputStream.toByteArray();
+                } catch (Exception e) {
+                    logger.error(" exception in encodeMethodFromString : {}", e.getMessage());
+                }
+            }
+        }
+
+        String errorMsg =
+                " cannot encode in encodeMethodFromString with appropriate interface ABI, make sure params match";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public byte[] encodeMethodFromStringByABIDefinition(
+            ABIDefinition abiDefinition, List<String> params) throws ContractCodecException {
+        if (abiDefinition.getInputs().size() == params.size()) {
+            ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            try {
+                byte[] methodId = abiDefinition.getMethodId(cryptoSuite);
+                ABIObject abiObject = contractCodecJsonWrapper.encode(inputObject, params);
+                byte[] encode = abiObject.encode(isWasm);
+                outputStream.write(methodId);
+                outputStream.write(encode);
+                return outputStream.toByteArray();
+            } catch (Exception e) {
+                logger.error(
+                        " exception in encodeMethodFromStringByAbiDefinition : {}", e.getMessage());
+            }
+        }
+        String errorMsg =
+                " cannot encode in encodeMethodFromStringByAbiDefinition with appropriate interface ABI, make sure params match";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
     public byte[] encodeMethodByIdFromString(String abi, byte[] methodId, List<String> params)
             throws ContractCodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
@@ -1029,6 +1091,57 @@ public class ContractCodec {
         throw new ContractCodecException(errorMsg);
     }
 
+    public List<Object> decodeEventByContractABIDefinition(
+            ContractABIDefinition contractABIDefinition, String eventName, EventLog log)
+            throws ContractCodecException {
+        List<ABIDefinition> events = contractABIDefinition.getEvents().get(eventName);
+        if (events == null) {
+            throw new ContractCodecException(
+                    "Invalid event "
+                            + eventName
+                            + ", supported events are: "
+                            + contractABIDefinition.getEvents().keySet());
+        }
+        for (ABIDefinition abiDefinition : events) {
+            ABIObject inputObject = ABIObjectFactory.createEventInputObject(abiDefinition);
+            try {
+                List<Object> params = new ArrayList<>();
+                if (!log.getData().equals("0x")) {
+                    params =
+                            ContractCodecTools.decodeJavaObject(inputObject, log.getData(), isWasm);
+                }
+                List<String> topics = log.getTopics();
+                return this.mergeEventParamsAndTopics(abiDefinition, params, topics);
+            } catch (Exception e) {
+                logger.error(" exception in decodeEventToObject : {}", e.getMessage());
+            }
+        }
+
+        String errorMsg = " cannot decode in decodeEventToObject with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public List<Object> decodeEventByAbiDefinition(ABIDefinition abiDefinition, EventLog log)
+            throws ContractCodecException {
+        ABIObject inputObject = ABIObjectFactory.createEventInputObject(abiDefinition);
+        try {
+            List<Object> params = new ArrayList<>();
+            if (!log.getData().equals("0x")) {
+                params = ContractCodecTools.decodeJavaObject(inputObject, log.getData(), isWasm);
+            }
+            List<String> topics = log.getTopics();
+            return this.mergeEventParamsAndTopics(abiDefinition, params, topics);
+        } catch (Exception e) {
+            logger.error(" exception in decodeEventByAbiDefinition : {}", e.getMessage());
+        }
+
+        String errorMsg =
+                " cannot decode in decodeEventByAbiDefinition with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
     public List<Object> decodeEventByTopic(String abi, String eventTopic, EventLog log)
             throws ContractCodecException {
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
@@ -1083,6 +1196,59 @@ public class ContractCodec {
             } catch (Exception e) {
                 logger.error(" exception in decodeEventToString : {}", e.getMessage());
             }
+        }
+
+        String errorMsg = " cannot decode in decodeEventToString with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public List<String> decodeEventToStringByContractABIDefinition(
+            ContractABIDefinition contractABIDefinition, String eventName, EventLog log)
+            throws ContractCodecException {
+        List<ABIDefinition> events = contractABIDefinition.getEvents().get(eventName);
+        if (events == null) {
+            throw new ContractCodecException(
+                    "Invalid event "
+                            + eventName
+                            + ", current supported events are: "
+                            + contractABIDefinition.getEvents().keySet());
+        }
+        for (ABIDefinition abiDefinition : events) {
+            ABIObject inputObject = ABIObjectFactory.createEventInputObject(abiDefinition);
+            try {
+                List<String> params = new ArrayList<>();
+                if (!log.getData().equals("0x")) {
+                    params =
+                            contractCodecJsonWrapper.decode(
+                                    inputObject, Hex.decode(log.getData()), isWasm);
+                }
+                List<String> topics = log.getTopics();
+                return this.mergeEventParamsAndTopicsToString(abiDefinition, params, topics);
+            } catch (Exception e) {
+                logger.error(" exception in decodeEventToString : {}", e.getMessage());
+            }
+        }
+
+        String errorMsg = " cannot decode in decodeEventToString with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
+    }
+
+    public List<String> decodeEventToStringByABIDefinition(
+            ABIDefinition abiDefinition, EventLog log) throws ContractCodecException {
+        ABIObject inputObject = ABIObjectFactory.createEventInputObject(abiDefinition);
+        try {
+            List<String> params = new ArrayList<>();
+            if (!log.getData().equals("0x")) {
+                params =
+                        contractCodecJsonWrapper.decode(
+                                inputObject, Hex.decode(log.getData()), isWasm);
+            }
+            List<String> topics = log.getTopics();
+            return this.mergeEventParamsAndTopicsToString(abiDefinition, params, topics);
+        } catch (Exception e) {
+            logger.error(" exception in decodeEventToString : {}", e.getMessage());
         }
 
         String errorMsg = " cannot decode in decodeEventToString with appropriate interface ABI";
