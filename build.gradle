@@ -114,6 +114,10 @@ sourceSets {
     }
 }
 
+tasks.withType(ProcessResources) {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 googleJavaFormat {
     toolVersion = '1.7'
     options style: 'AOSP'
