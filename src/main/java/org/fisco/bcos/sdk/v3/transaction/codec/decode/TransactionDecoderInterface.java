@@ -19,7 +19,7 @@ import java.util.Map;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt.Logs;
-import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.v3.test.transaction.model.dto.TransactionResponse;
 
 /**
  * TransactionDecoderInterface @Description: TransactionDecoderInterface

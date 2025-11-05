@@ -23,7 +23,7 @@ import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.ProxySignTransactionManager;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.TransactionManager;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.test.transaction.model.exception.ContractException;
 
 @SuppressWarnings("unchecked")
 public class PayableTest extends Contract {

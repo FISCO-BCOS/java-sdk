@@ -14,6 +14,8 @@ import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.v3.test.transaction.model.dto.CallResponse;
+import org.fisco.bcos.sdk.v3.test.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
@@ -24,8 +26,6 @@ import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransac
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequestWithStringParams;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequestWithStringParams;
-import org.fisco.bcos.sdk.v3.transaction.model.dto.CallResponse;
-import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 
 /**

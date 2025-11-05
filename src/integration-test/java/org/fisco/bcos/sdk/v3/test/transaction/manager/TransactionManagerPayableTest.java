@@ -15,8 +15,8 @@ import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.ProxySignTransact
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.utils.TransactionRequestBuilder;
-import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.test.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.v3.test.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.transaction.tools.JsonUtils;
 import org.junit.Assert;
 import org.junit.Test;

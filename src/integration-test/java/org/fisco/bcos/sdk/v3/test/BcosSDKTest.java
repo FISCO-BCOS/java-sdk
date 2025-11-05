@@ -66,7 +66,7 @@ import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.test.contract.solidity.HelloWorld;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.test.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.transaction.pusher.TransactionPusherService;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.junit.Assert;

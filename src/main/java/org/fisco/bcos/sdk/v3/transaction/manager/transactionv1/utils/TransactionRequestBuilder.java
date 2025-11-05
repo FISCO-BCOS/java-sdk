@@ -3,13 +3,13 @@ package org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.utils;
 import java.math.BigInteger;
 import java.util.List;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionVersion;
+import org.fisco.bcos.sdk.v3.test.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.transaction.gasProvider.EIP1559Struct;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.AbiEncodedRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequestWithStringParams;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequestWithStringParams;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class TransactionRequestBuilder {
 

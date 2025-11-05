@@ -21,7 +21,7 @@ import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.v3.transaction.model.dto.CallRequest;
+import org.fisco.bcos.sdk.v3.test.transaction.model.dto.CallRequest;
 
 /**
  * TransactionManagerInterface @Description: TransactionManagerInterface

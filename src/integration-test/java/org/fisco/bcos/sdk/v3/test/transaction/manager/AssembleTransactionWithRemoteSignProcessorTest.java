@@ -33,7 +33,7 @@ import org.fisco.bcos.sdk.v3.test.transaction.mock.RemoteSignCallbackMock;
 import org.fisco.bcos.sdk.v3.test.transaction.mock.RemoteSignProviderMock;
 import org.fisco.bcos.sdk.v3.transaction.manager.AssembleTransactionWithRemoteSignProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
-import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.v3.test.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.signer.RemoteSignProviderInterface;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.junit.Assert;

@@ -5,7 +5,7 @@ import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.abi.Constant;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.test.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 import org.junit.Assert;
 import org.junit.Test;

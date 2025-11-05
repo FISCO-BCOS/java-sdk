@@ -6,13 +6,13 @@ import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
+import org.fisco.bcos.sdk.v3.test.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.BasicDeployRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.BasicRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransactionRequestWithStringParams;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequestWithStringParams;
-import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.utils.Hex;
 
 public class AssembleEIP1559TransactionService extends AssembleTransactionService {

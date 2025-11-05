@@ -1,7 +1,6 @@
 package org.fisco.bcos.sdk.v3.test.transaction.model.exception;
 
 import org.fisco.bcos.sdk.v3.model.RetCode;
-import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionBaseException;
 import org.junit.Assert;
 import org.junit.Test;
 
