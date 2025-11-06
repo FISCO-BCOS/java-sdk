@@ -14,7 +14,7 @@ import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
 import org.fisco.bcos.sdk.v3.test.transaction.mock.MockContract;
 import org.fisco.bcos.sdk.v3.test.transaction.mock.MockTransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
-import org.fisco.bcos.sdk.v3.test.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;

@@ -24,11 +24,11 @@ import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.v3.test.transaction.model.dto.CallRequest;
-import org.fisco.bcos.sdk.v3.test.transaction.model.dto.CallResponse;
-import org.fisco.bcos.sdk.v3.test.transaction.model.dto.TransactionResponse;
-import org.fisco.bcos.sdk.v3.test.transaction.model.exception.NoSuchTransactionFileException;
-import org.fisco.bcos.sdk.v3.test.transaction.model.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.v3.transaction.model.dto.CallRequest;
+import org.fisco.bcos.sdk.v3.transaction.model.dto.CallResponse;
+import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.v3.transaction.model.exception.NoSuchTransactionFileException;
+import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionBaseException;
 
 public interface AssembleTransactionProcessorInterface {
 

@@ -5,8 +5,8 @@ import java.util.concurrent.CompletableFuture;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
-import org.fisco.bcos.sdk.v3.test.transaction.model.exception.NoSuchTransactionFileException;
-import org.fisco.bcos.sdk.v3.test.transaction.model.exception.TransactionBaseException;
+import org.fisco.bcos.sdk.v3.transaction.model.exception.NoSuchTransactionFileException;
+import org.fisco.bcos.sdk.v3.transaction.model.exception.TransactionBaseException;
 import org.fisco.bcos.sdk.v3.transaction.signer.RemoteSignCallbackInterface;
 
 public interface AssembleTransactionWithRemoteSignProviderInterface {

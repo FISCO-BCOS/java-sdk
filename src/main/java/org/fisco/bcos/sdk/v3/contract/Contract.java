@@ -53,8 +53,6 @@ import org.fisco.bcos.sdk.v3.model.TransactionReceiptStatus;
 import org.fisco.bcos.sdk.v3.model.callback.CallCallback;
 import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
-import org.fisco.bcos.sdk.v3.test.transaction.model.dto.CallRequest;
-import org.fisco.bcos.sdk.v3.test.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.transaction.codec.decode.ReceiptParser;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
@@ -62,6 +60,8 @@ import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.DefaultTransactio
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.TransactionManager;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.AbiEncodedRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.utils.TransactionRequestBuilder;
+import org.fisco.bcos.sdk.v3.transaction.model.dto.CallRequest;
+import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

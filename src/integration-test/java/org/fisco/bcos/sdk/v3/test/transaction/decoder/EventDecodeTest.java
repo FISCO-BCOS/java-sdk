@@ -25,7 +25,7 @@ import org.fisco.bcos.sdk.v3.model.EventLog;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.manager.AssembleTransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
-import org.fisco.bcos.sdk.v3.test.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.junit.Assert;
 import org.junit.Test;
 

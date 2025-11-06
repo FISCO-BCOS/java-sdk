@@ -26,8 +26,8 @@ import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.DeployTransac
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequest;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.dto.TransactionRequestWithStringParams;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.utils.TransactionRequestBuilder;
-import org.fisco.bcos.sdk.v3.test.transaction.model.dto.CallResponse;
-import org.fisco.bcos.sdk.v3.test.transaction.model.dto.TransactionResponse;
+import org.fisco.bcos.sdk.v3.transaction.model.dto.CallResponse;
+import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.tools.ContractLoader;
 import org.fisco.bcos.sdk.v3.transaction.tools.JsonUtils;
 import org.fisco.bcos.sdk.v3.utils.Hex;

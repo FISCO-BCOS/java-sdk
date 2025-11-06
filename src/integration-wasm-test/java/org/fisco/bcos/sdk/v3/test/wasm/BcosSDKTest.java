@@ -45,7 +45,7 @@ import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.test.wasm.liquid.Asset;
 import org.fisco.bcos.sdk.v3.test.wasm.liquid.HelloWorld2;
-import org.fisco.bcos.sdk.v3.test.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.junit.Assert;
 import org.junit.Test;
 

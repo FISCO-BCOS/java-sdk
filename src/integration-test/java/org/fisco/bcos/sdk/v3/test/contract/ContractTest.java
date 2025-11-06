@@ -6,7 +6,7 @@ import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.test.contract.solidity.Incremental;
-import org.fisco.bcos.sdk.v3.test.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.v3.transaction.nonce.DefaultNonceAndBlockLimitProvider;
 import org.fisco.bcos.sdk.v3.transaction.nonce.NonceAndBlockLimitProvider;
 import org.fisco.bcos.sdk.v3.utils.Hex;

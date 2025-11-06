@@ -1,6 +1,6 @@
 package org.fisco.bcos.sdk.v3.test.transaction.tools;
 
-import org.fisco.bcos.sdk.v3.test.transaction.model.exception.JsonException;
+import org.fisco.bcos.sdk.v3.transaction.model.exception.JsonException;
 import org.fisco.bcos.sdk.v3.transaction.tools.JsonUtils;
 import org.junit.Assert;
 import org.junit.Test;

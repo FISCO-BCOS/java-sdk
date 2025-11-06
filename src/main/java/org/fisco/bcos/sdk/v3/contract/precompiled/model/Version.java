@@ -16,7 +16,7 @@
 package org.fisco.bcos.sdk.v3.contract.precompiled.model;
 
 import org.fisco.bcos.sdk.v3.model.EnumNodeVersion;
-import org.fisco.bcos.sdk.v3.test.transaction.model.exception.ContractException;
+import org.fisco.bcos.sdk.v3.transaction.model.exception.ContractException;
 
 public class Version {
     private final String minVersion;
