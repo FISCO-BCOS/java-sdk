@@ -16,9 +16,9 @@ ext {
     if (!project.hasProperty("ossrhPassword")) {
         ossrhPassword = "xxx"
     }
-    jacksonVersion = '2.14.3'
-    commonsIOVersion = '2.11.0'
-    commonsLang3Version = '3.12.0'
+    jacksonVersion = '2.20.1'
+    commonsIOVersion = '2.20.0'
+    commonsLang3Version = '3.19.0'
     toml4jVersion = "0.7.2"
     bcprovJDK18onVersion = '1.78'
     webankJavaCryptoVersion = "1.0.3"
@@ -114,6 +114,10 @@ sourceSets {
     }
 }
 
+tasks.withType(ProcessResources) {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 googleJavaFormat {
     toolVersion = '1.7'
     options style: 'AOSP'
@@ -135,6 +139,7 @@ dependencies {
     api("com.google.code.gson:gson:${gsonVersion}")
     api("org.apache.commons:commons-lang3:${commonsLang3Version}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    api("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jacksonVersion}")
     api("commons-io:commons-io:${commonsIOVersion}")
     api("com.webank:webank-blockchain-java-crypto:${webankJavaCryptoVersion}")
     api("com.moandjiezana.toml:toml4j:${toml4jVersion}") {
@@ -249,10 +254,10 @@ publishing {
     }
     repositories {
         maven {
-            def releasesRepoURL = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-            def snapshotsRepoURL = "https://oss.sonatype.org/content/repositories/snapshots"
+            name = 'ossrh-staging-api'
+            def releasesRepoURL = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
+            def snapshotsRepoURL = "https://central.sonatype.com/repository/maven-snapshots/"
             url = !version.endsWith("SNAPSHOT") ? releasesRepoURL : snapshotsRepoURL
-
             credentials {
                 username ossrhUsername
                 password ossrhPassword
