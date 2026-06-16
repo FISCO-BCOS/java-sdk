@@ -58,6 +58,8 @@ import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.v3.transaction.tools.ContractLoader;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -112,15 +114,28 @@ public class WrapperTxContractDeepIntegrationTest {
 
     @BeforeClass
     public static void setUp() {
-        sdk = BcosSDK.build(CONFIG_FILE);
-        client = sdk.getClient(GROUP);
-        keyPair = client.getCryptoSuite().getCryptoKeyPair();
         try {
-            helloWorldAbi = HelloWorld.getABI();
-            helloWorldBin = HelloWorld.getBinary(client.getCryptoSuite());
-        } catch (Exception e) {
-            System.out.println("read HelloWorld abi/bin failed: " + e.getMessage());
+            sdk = BcosSDK.build(CONFIG_FILE);
+            client = sdk.getClient(GROUP);
+            keyPair = client.getCryptoSuite().getCryptoKeyPair();
+            try {
+                helloWorldAbi = HelloWorld.getABI();
+                helloWorldBin = HelloWorld.getBinary(client.getCryptoSuite());
+            } catch (Exception e) {
+                System.out.println("read HelloWorld abi/bin failed: " + e.getMessage());
+            }
+        } catch (Exception setUpEx) {
+            System.out.println(
+                    "setUp: live chain unreachable, tests in this class will be skipped: "
+                            + setUpEx.getMessage());
+            sdk = null;
+            client = null;
         }
+    }
+
+    @Before
+    public void requireLiveChain() {
+        Assume.assumeTrue("live chain unreachable; skipping", client != null);
     }
 
     // NOTE: intentionally NO @AfterClass that calls client.stop()/destroy() — native shutdown of a

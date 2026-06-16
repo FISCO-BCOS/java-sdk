@@ -46,6 +46,8 @@ import org.fisco.bcos.sdk.v3.model.callback.TransactionCallback;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -77,15 +79,28 @@ public class AuthCoverageIntegrationTest {
 
     @BeforeClass
     public static void setUp() {
-        sdk = BcosSDK.build(configFile);
-        client = sdk.getClient(GROUP);
-        CryptoSuite cryptoSuite = client.getCryptoSuite();
-        keyPair = cryptoSuite.getCryptoKeyPair();
-        // Use the existing keypair's address as a valid-format query subject. We intentionally do
-        // NOT call cryptoSuite.generateRandomKeyPair() here, because that mutates the client's
-        // active signing keypair and could disturb sibling tests / the client itself.
-        testAddress = keyPair.getAddress();
-        authManager = new AuthManager(client, keyPair);
+        try {
+            sdk = BcosSDK.build(configFile);
+            client = sdk.getClient(GROUP);
+            CryptoSuite cryptoSuite = client.getCryptoSuite();
+            keyPair = cryptoSuite.getCryptoKeyPair();
+            // Use the existing keypair's address as a valid-format query subject. We intentionally do
+            // NOT call cryptoSuite.generateRandomKeyPair() here, because that mutates the client's
+            // active signing keypair and could disturb sibling tests / the client itself.
+            testAddress = keyPair.getAddress();
+            authManager = new AuthManager(client, keyPair);
+        } catch (Exception setUpEx) {
+            System.out.println(
+                    "setUp: live chain unreachable, tests in this class will be skipped: "
+                            + setUpEx.getMessage());
+            sdk = null;
+            client = null;
+        }
+    }
+
+    @Before
+    public void requireLiveChain() {
+        Assume.assumeTrue("live chain unreachable; skipping", client != null);
     }
 
     @AfterClass

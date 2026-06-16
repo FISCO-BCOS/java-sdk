@@ -61,6 +61,8 @@ import org.fisco.bcos.sdk.v3.transaction.tools.Convert;
 import org.fisco.bcos.sdk.v3.test.transaction.mock.RemoteSignProviderMock;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -97,15 +99,28 @@ public class TxProcessorContractExhaustiveIntegrationTest {
 
     @BeforeClass
     public static void setUp() {
-        sdk = BcosSDK.build(CONFIG_FILE);
-        client = sdk.getClient("group0");
-        cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
         try {
-            helloWorldAbi = readResource(ABI_FILE + HELLO_WORLD + ".abi");
-            helloWorldBin = readResource(BIN_FILE + HELLO_WORLD + ".bin");
-        } catch (Exception e) {
-            System.out.println("read HelloWorld abi/bin failed: " + e.getMessage());
+            sdk = BcosSDK.build(CONFIG_FILE);
+            client = sdk.getClient("group0");
+            cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
+            try {
+                helloWorldAbi = readResource(ABI_FILE + HELLO_WORLD + ".abi");
+                helloWorldBin = readResource(BIN_FILE + HELLO_WORLD + ".bin");
+            } catch (Exception e) {
+                System.out.println("read HelloWorld abi/bin failed: " + e.getMessage());
+            }
+        } catch (Exception setUpEx) {
+            System.out.println(
+                    "setUp: live chain unreachable, tests in this class will be skipped: "
+                            + setUpEx.getMessage());
+            sdk = null;
+            client = null;
         }
+    }
+
+    @Before
+    public void requireLiveChain() {
+        Assume.assumeTrue("live chain unreachable; skipping", client != null);
     }
 
     private static String readResource(String path) throws Exception {

@@ -68,6 +68,8 @@ import org.fisco.bcos.sdk.v3.model.Response;
 import org.fisco.bcos.sdk.v3.model.callback.RespCallback;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -104,11 +106,24 @@ public class FilterEventClientCoverageIntegrationTest {
 
     @BeforeClass
     public static void setUp() {
-        sdk = BcosSDK.build(configFile);
-        client = sdk.getClient(GROUP);
-        // A well-formed address used for log/event filtering. Use the active keypair address so it
-        // is guaranteed valid in format. We do NOT mutate the active keypair.
-        contractAddress = client.getCryptoSuite().getCryptoKeyPair().getAddress();
+        try {
+            sdk = BcosSDK.build(configFile);
+            client = sdk.getClient(GROUP);
+            // A well-formed address used for log/event filtering. Use the active keypair address so it
+            // is guaranteed valid in format. We do NOT mutate the active keypair.
+            contractAddress = client.getCryptoSuite().getCryptoKeyPair().getAddress();
+        } catch (Exception setUpEx) {
+            System.out.println(
+                    "setUp: live chain unreachable, tests in this class will be skipped: "
+                            + setUpEx.getMessage());
+            sdk = null;
+            client = null;
+        }
+    }
+
+    @Before
+    public void requireLiveChain() {
+        Assume.assumeTrue("live chain unreachable; skipping", client != null);
     }
 
     // ------------------------------------------------------------------

@@ -44,6 +44,8 @@ import org.fisco.bcos.sdk.v3.model.PrecompiledConstant;
 import org.fisco.bcos.sdk.v3.model.RetCode;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -73,10 +75,22 @@ public class CrudExhaustiveIntegrationTest {
     private final AtomicLong receiptCount = new AtomicLong();
 
     @BeforeClass
-    public static void setUp() throws Exception {
-        ConfigOption configOption = Config.load(configFile);
-        client = Client.build(GROUP, configOption);
-        keyPair = client.getCryptoSuite().getCryptoKeyPair();
+    public static void setUp() {
+        try {
+            ConfigOption configOption = Config.load(configFile);
+            client = Client.build(GROUP, configOption);
+            keyPair = client.getCryptoSuite().getCryptoKeyPair();
+        } catch (Exception setUpEx) {
+            System.out.println(
+                    "setUp: live chain unreachable, tests in this class will be skipped: "
+                            + setUpEx.getMessage());
+            client = null;
+        }
+    }
+
+    @Before
+    public void requireLiveChain() {
+        Assume.assumeTrue("live chain unreachable; skipping", client != null);
     }
 
     // NOTE: intentionally NO @AfterClass that calls client.stop()/destroy() — native shutdown of a
