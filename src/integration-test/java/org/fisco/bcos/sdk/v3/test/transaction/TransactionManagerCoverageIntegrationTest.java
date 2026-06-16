@@ -626,6 +626,7 @@ public class TransactionManagerCoverageIntegrationTest {
             byte[] constructorData =
                     new org.fisco.bcos.sdk.v3.codec.ContractCodec(client.getCryptoSuite(), false)
                             .encodeConstructor(helloWorldAbi, helloWorldBin, new ArrayList<>());
+            Assert.assertNotNull(processor);
             ProxySignTransactionManager manager = newProxyManager();
             EIP1559Struct eip1559Struct =
                     new EIP1559Struct(

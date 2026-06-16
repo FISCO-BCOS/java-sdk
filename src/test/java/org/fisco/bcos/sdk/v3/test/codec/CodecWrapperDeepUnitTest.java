@@ -75,38 +75,6 @@ import org.junit.Test;
  */
 public class CodecWrapperDeepUnitTest {
 
-    // ----------------------------------------------------------------------------------------
-    // fixtures
-    // ----------------------------------------------------------------------------------------
-
-    private CryptoSuite cryptoSuite() {
-        return new CryptoSuite(CryptoType.ECDSA_TYPE);
-    }
-
-    private ContractCodec abiCodec() {
-        return new ContractCodec(cryptoSuite().getHashImpl(), false);
-    }
-
-    private ContractCodec wasmCodec() {
-        return new ContractCodec(cryptoSuite().getHashImpl(), true);
-    }
-
-    private ContractCodecJsonWrapper jsonWrapper() {
-        return new ContractCodecJsonWrapper();
-    }
-
-    private ABIObject valueObject(ABIObject.ValueType valueType) {
-        return new ABIObject(valueType);
-    }
-
-    private ABIObject uintObject(int bytesLength) {
-        return new ABIObject(ABIObject.ValueType.UINT, bytesLength);
-    }
-
-    private ABIObject intObject(int bytesLength) {
-        return new ABIObject(ABIObject.ValueType.INT, bytesLength);
-    }
-
     // function struct(tuple(uint256 a, string b)) -- a STRUCT field for json-wrapper struct tests
     private static final String STRUCT_ABI =
             "[{\"inputs\":[{\"components\":["
@@ -149,6 +117,38 @@ public class CodecWrapperDeepUnitTest {
                     + "{\"name\":\"text\",\"type\":\"string\"},"
                     + "{\"name\":\"dyn\",\"type\":\"uint256[]\"}"
                     + "],\"name\":\"wasmTypes\",\"outputs\":[],\"type\":\"function\"}]";
+
+    // ----------------------------------------------------------------------------------------
+    // fixtures
+    // ----------------------------------------------------------------------------------------
+
+    private CryptoSuite cryptoSuite() {
+        return new CryptoSuite(CryptoType.ECDSA_TYPE);
+    }
+
+    private ContractCodec abiCodec() {
+        return new ContractCodec(cryptoSuite().getHashImpl(), false);
+    }
+
+    private ContractCodec wasmCodec() {
+        return new ContractCodec(cryptoSuite().getHashImpl(), true);
+    }
+
+    private ContractCodecJsonWrapper jsonWrapper() {
+        return new ContractCodecJsonWrapper();
+    }
+
+    private ABIObject valueObject(ABIObject.ValueType valueType) {
+        return new ABIObject(valueType);
+    }
+
+    private ABIObject uintObject(int bytesLength) {
+        return new ABIObject(ABIObject.ValueType.UINT, bytesLength);
+    }
+
+    private ABIObject intObject(int bytesLength) {
+        return new ABIObject(ABIObject.ValueType.INT, bytesLength);
+    }
 
     private ABIObject manyTypesInput() {
         ContractABIDefinition def = TestUtils.getContractABIDefinition(MANY_TYPES_ABI);
@@ -467,7 +467,7 @@ public class CodecWrapperDeepUnitTest {
         } catch (UnsupportedOperationException e) {
             throw e;
         } catch (Exception other) {
-            throw new RuntimeException(other);
+            throw new IllegalStateException(other);
         }
     }
 

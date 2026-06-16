@@ -53,10 +53,6 @@ import org.junit.Test;
  */
 public class CodecExtraCoverageTest {
 
-    private CryptoSuite cryptoSuite() {
-        return TestUtils.getCryptoSuite();
-    }
-
     // A non-empty fake constructor bytecode (hex). Any deterministic hex is fine; node not needed.
     private static final String BIN = "60606040";
 
@@ -84,6 +80,16 @@ public class CodecExtraCoverageTest {
             "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"string\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"}]";
 
     private static final String EVENT_SIG = "Transfer(string,string,uint256)";
+
+    private static final String ARRAY_ABI =
+            "[{\"constant\":false,\"inputs\":[{\"name\":\"vals\",\"type\":\"uint256[]\"}],\"name\":\"useArray\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+
+    private static final String NESTED_STRUCT_ABI =
+            "[{\"constant\":false,\"inputs\":[{\"components\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"v\",\"type\":\"uint256\"}],\"name\":\"info\",\"type\":\"tuple\"}],\"name\":\"useStruct\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+
+    private CryptoSuite cryptoSuite() {
+        return TestUtils.getCryptoSuite();
+    }
 
     private List<Object> setAllArgs() {
         List<Object> args = new ArrayList<>();
@@ -480,9 +486,6 @@ public class CodecExtraCoverageTest {
     // ContractCodecJsonWrapper: JSON encode/decode for arrays & structs
     // ------------------------------------------------------------------
 
-    private static final String ARRAY_ABI =
-            "[{\"constant\":false,\"inputs\":[{\"name\":\"vals\",\"type\":\"uint256[]\"}],\"name\":\"useArray\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
-
     @Test
     public void testJsonWrapperDynamicArrayRoundTrip() throws Exception {
         ContractABIDefinition def = TestUtils.getContractABIDefinition(ARRAY_ABI);
@@ -501,9 +504,6 @@ public class CodecExtraCoverageTest {
         assertTrue(decoded.get(0).contains("1"));
         assertTrue(decoded.get(0).contains("4"));
     }
-
-    private static final String NESTED_STRUCT_ABI =
-            "[{\"constant\":false,\"inputs\":[{\"components\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"v\",\"type\":\"uint256\"}],\"name\":\"info\",\"type\":\"tuple\"}],\"name\":\"useStruct\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 
     @Test
     public void testJsonWrapperStructRoundTrip() throws Exception {

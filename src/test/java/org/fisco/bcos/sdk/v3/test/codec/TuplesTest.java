@@ -1,7 +1,6 @@
 package org.fisco.bcos.sdk.v3.test.codec;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -43,7 +42,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple1<>("X1"));
         assertTrue(a.toString().startsWith("Tuple1{"));
@@ -60,7 +59,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple2<>("X1", "v2_2"));
         assertNotEquals(a, new Tuple2<>("v2_1", "X2"));
@@ -79,7 +78,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple3<>("X1", "v3_2", "v3_3"));
         assertNotEquals(a, new Tuple3<>("v3_1", "X2", "v3_3"));
@@ -100,7 +99,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple4<>("X1", "v4_2", "v4_3", "v4_4"));
         assertNotEquals(a, new Tuple4<>("v4_1", "X2", "v4_3", "v4_4"));
@@ -123,7 +122,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple5<>("X1", "v5_2", "v5_3", "v5_4", "v5_5"));
         assertNotEquals(a, new Tuple5<>("v5_1", "X2", "v5_3", "v5_4", "v5_5"));
@@ -148,7 +147,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple6<>("X1", "v6_2", "v6_3", "v6_4", "v6_5", "v6_6"));
         assertNotEquals(a, new Tuple6<>("v6_1", "X2", "v6_3", "v6_4", "v6_5", "v6_6"));
@@ -175,7 +174,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple7<>("X1", "v7_2", "v7_3", "v7_4", "v7_5", "v7_6", "v7_7"));
         assertNotEquals(a, new Tuple7<>("v7_1", "X2", "v7_3", "v7_4", "v7_5", "v7_6", "v7_7"));
@@ -204,7 +203,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple8<>("X1", "v8_2", "v8_3", "v8_4", "v8_5", "v8_6", "v8_7", "v8_8"));
         assertNotEquals(a, new Tuple8<>("v8_1", "X2", "v8_3", "v8_4", "v8_5", "v8_6", "v8_7", "v8_8"));
@@ -235,7 +234,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple9<>("X1", "v9_2", "v9_3", "v9_4", "v9_5", "v9_6", "v9_7", "v9_8", "v9_9"));
         assertNotEquals(a, new Tuple9<>("v9_1", "X2", "v9_3", "v9_4", "v9_5", "v9_6", "v9_7", "v9_8", "v9_9"));
@@ -268,7 +267,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple10<>("X1", "v10_2", "v10_3", "v10_4", "v10_5", "v10_6", "v10_7", "v10_8", "v10_9", "v10_10"));
         assertNotEquals(a, new Tuple10<>("v10_1", "X2", "v10_3", "v10_4", "v10_5", "v10_6", "v10_7", "v10_8", "v10_9", "v10_10"));
@@ -303,7 +302,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple11<>("X1", "v11_2", "v11_3", "v11_4", "v11_5", "v11_6", "v11_7", "v11_8", "v11_9", "v11_10", "v11_11"));
         assertNotEquals(a, new Tuple11<>("v11_1", "X2", "v11_3", "v11_4", "v11_5", "v11_6", "v11_7", "v11_8", "v11_9", "v11_10", "v11_11"));
@@ -340,7 +339,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple12<>("X1", "v12_2", "v12_3", "v12_4", "v12_5", "v12_6", "v12_7", "v12_8", "v12_9", "v12_10", "v12_11", "v12_12"));
         assertNotEquals(a, new Tuple12<>("v12_1", "X2", "v12_3", "v12_4", "v12_5", "v12_6", "v12_7", "v12_8", "v12_9", "v12_10", "v12_11", "v12_12"));
@@ -379,7 +378,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple13<>("X1", "v13_2", "v13_3", "v13_4", "v13_5", "v13_6", "v13_7", "v13_8", "v13_9", "v13_10", "v13_11", "v13_12", "v13_13"));
         assertNotEquals(a, new Tuple13<>("v13_1", "X2", "v13_3", "v13_4", "v13_5", "v13_6", "v13_7", "v13_8", "v13_9", "v13_10", "v13_11", "v13_12", "v13_13"));
@@ -420,7 +419,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple14<>("X1", "v14_2", "v14_3", "v14_4", "v14_5", "v14_6", "v14_7", "v14_8", "v14_9", "v14_10", "v14_11", "v14_12", "v14_13", "v14_14"));
         assertNotEquals(a, new Tuple14<>("v14_1", "X2", "v14_3", "v14_4", "v14_5", "v14_6", "v14_7", "v14_8", "v14_9", "v14_10", "v14_11", "v14_12", "v14_13", "v14_14"));
@@ -463,7 +462,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple15<>("X1", "v15_2", "v15_3", "v15_4", "v15_5", "v15_6", "v15_7", "v15_8", "v15_9", "v15_10", "v15_11", "v15_12", "v15_13", "v15_14", "v15_15"));
         assertNotEquals(a, new Tuple15<>("v15_1", "X2", "v15_3", "v15_4", "v15_5", "v15_6", "v15_7", "v15_8", "v15_9", "v15_10", "v15_11", "v15_12", "v15_13", "v15_14", "v15_15"));
@@ -508,7 +507,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple16<>("X1", "v16_2", "v16_3", "v16_4", "v16_5", "v16_6", "v16_7", "v16_8", "v16_9", "v16_10", "v16_11", "v16_12", "v16_13", "v16_14", "v16_15", "v16_16"));
         assertNotEquals(a, new Tuple16<>("v16_1", "X2", "v16_3", "v16_4", "v16_5", "v16_6", "v16_7", "v16_8", "v16_9", "v16_10", "v16_11", "v16_12", "v16_13", "v16_14", "v16_15", "v16_16"));
@@ -555,7 +554,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple17<>("X1", "v17_2", "v17_3", "v17_4", "v17_5", "v17_6", "v17_7", "v17_8", "v17_9", "v17_10", "v17_11", "v17_12", "v17_13", "v17_14", "v17_15", "v17_16", "v17_17"));
         assertNotEquals(a, new Tuple17<>("v17_1", "X2", "v17_3", "v17_4", "v17_5", "v17_6", "v17_7", "v17_8", "v17_9", "v17_10", "v17_11", "v17_12", "v17_13", "v17_14", "v17_15", "v17_16", "v17_17"));
@@ -604,7 +603,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple18<>("X1", "v18_2", "v18_3", "v18_4", "v18_5", "v18_6", "v18_7", "v18_8", "v18_9", "v18_10", "v18_11", "v18_12", "v18_13", "v18_14", "v18_15", "v18_16", "v18_17", "v18_18"));
         assertNotEquals(a, new Tuple18<>("v18_1", "X2", "v18_3", "v18_4", "v18_5", "v18_6", "v18_7", "v18_8", "v18_9", "v18_10", "v18_11", "v18_12", "v18_13", "v18_14", "v18_15", "v18_16", "v18_17", "v18_18"));
@@ -655,7 +654,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple19<>("X1", "v19_2", "v19_3", "v19_4", "v19_5", "v19_6", "v19_7", "v19_8", "v19_9", "v19_10", "v19_11", "v19_12", "v19_13", "v19_14", "v19_15", "v19_16", "v19_17", "v19_18", "v19_19"));
         assertNotEquals(a, new Tuple19<>("v19_1", "X2", "v19_3", "v19_4", "v19_5", "v19_6", "v19_7", "v19_8", "v19_9", "v19_10", "v19_11", "v19_12", "v19_13", "v19_14", "v19_15", "v19_16", "v19_17", "v19_18", "v19_19"));
@@ -708,7 +707,7 @@ public class TuplesTest {
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(a));
-        assertFalse(a.equals(null));
+        assertNotEquals(null, a);
         assertNotEquals(a, "not-a-tuple");
         assertNotEquals(a, new Tuple20<>("X1", "v20_2", "v20_3", "v20_4", "v20_5", "v20_6", "v20_7", "v20_8", "v20_9", "v20_10", "v20_11", "v20_12", "v20_13", "v20_14", "v20_15", "v20_16", "v20_17", "v20_18", "v20_19", "v20_20"));
         assertNotEquals(a, new Tuple20<>("v20_1", "X2", "v20_3", "v20_4", "v20_5", "v20_6", "v20_7", "v20_8", "v20_9", "v20_10", "v20_11", "v20_12", "v20_13", "v20_14", "v20_15", "v20_16", "v20_17", "v20_18", "v20_19", "v20_20"));

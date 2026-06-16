@@ -45,7 +45,6 @@ import org.fisco.bcos.sdk.v3.transaction.manager.AssembleTransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.AssembleTransactionWithRemoteSignProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
-import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.AssembleEIP1559TransactionService;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.AssembleTransactionService;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.DefaultTransactionManager;
 import org.fisco.bcos.sdk.v3.transaction.manager.transactionv1.ProxySignTransactionManager;
@@ -624,80 +623,8 @@ public class TxProcessorContractExhaustiveIntegrationTest {
     }
 
     // =====================================================================================
-    // transactionv1 : AssembleEIP1559TransactionService + AbiEncodedRequest + manager extras
+    // transactionv1 : AbiEncodedRequest + manager extras
     // =====================================================================================
-
-    /** AssembleEIP1559TransactionService deploy + send + call + async. */
-    @Test
-    public void test12Eip1559ServiceDeploySendCall() {
-        // SKIPPED: AssembleEIP1559TransactionService has a package-private constructor and cannot be
-        // instantiated from this test package; EIP-1559 paths are covered via the managers'
-        // sendTransactionEIP1559 in TransactionManagerCoverageIntegrationTest.
-        if (true) {
-            return;
-        }
-        try {
-            AssembleEIP1559TransactionService service = null;
-            EIP1559Struct eip =
-                    new EIP1559Struct(
-                            BigInteger.valueOf(0),
-                            BigInteger.valueOf(0),
-                            BigInteger.valueOf(3000000));
-            TransactionRequestBuilder builder =
-                    new TransactionRequestBuilder(helloWorldAbi, helloWorldBin)
-                            .setEIP1559Struct(eip);
-            DeployTransactionRequest deployRequest = builder.buildDeployRequest(new ArrayList<>());
-            TransactionResponse deployResponse = service.deployContractEIP1559(deployRequest);
-            String address = deployResponse.getContractAddress();
-            System.out.println("test12 eip1559 deploy at " + address);
-
-            TransactionRequest setRequest =
-                    builder.setTo(address)
-                            .setMethod("set")
-                            .setEIP1559Struct(eip)
-                            .buildRequest(Collections.singletonList("eip1559-service"));
-            TransactionResponse setResponse = service.sendEIP1559Transaction(setRequest);
-            System.out.println(
-                    "test12 eip1559 set status "
-                            + (setResponse.getTransactionReceipt() == null
-                                    ? "null"
-                                    : setResponse.getTransactionReceipt().getStatus()));
-
-            // async deploy + async send
-            final CountDownLatch deployLatch = new CountDownLatch(1);
-            DeployTransactionRequest deployRequest2 =
-                    new TransactionRequestBuilder(helloWorldAbi, helloWorldBin)
-                            .setEIP1559Struct(eip)
-                            .buildDeployRequest(new ArrayList<>());
-            service.asyncDeployContractEIP1559(
-                    deployRequest2,
-                    new TransactionCallback() {
-                        @Override
-                        public void onResponse(TransactionReceipt receipt) {
-                            deployLatch.countDown();
-                        }
-                    });
-            deployLatch.await(10, TimeUnit.SECONDS);
-
-            final CountDownLatch sendLatch = new CountDownLatch(1);
-            TransactionRequest setRequest2 =
-                    new TransactionRequestBuilder(helloWorldAbi, "set", address)
-                            .setEIP1559Struct(eip)
-                            .buildRequest(Collections.singletonList("eip1559-async"));
-            service.asyncSendEIP1559Transaction(
-                    setRequest2,
-                    new TransactionCallback() {
-                        @Override
-                        public void onResponse(TransactionReceipt receipt) {
-                            sendLatch.countDown();
-                        }
-                    });
-            sendLatch.await(10, TimeUnit.SECONDS);
-            Assert.assertNotNull(deployResponse);
-        } catch (Exception e) {
-            System.out.println("test12 exception: " + e.getMessage());
-        }
-    }
 
     /** Manager AbiEncodedRequest paths: sendTransaction / asyncSendTransaction / createSigned. */
     @Test

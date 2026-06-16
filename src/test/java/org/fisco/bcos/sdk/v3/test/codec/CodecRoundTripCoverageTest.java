@@ -61,6 +61,9 @@ import org.junit.Test;
  */
 public class CodecRoundTripCoverageTest {
 
+    private static final String SIMPLE_ABI =
+            "[{\"constant\":false,\"inputs\":[{\"name\":\"u\",\"type\":\"uint256\"},{\"name\":\"b\",\"type\":\"bool\"},{\"name\":\"s\",\"type\":\"string\"},{\"name\":\"a\",\"type\":\"address\"}],\"name\":\"setAll\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+
     private CryptoSuite cryptoSuite() {
         return TestUtils.getCryptoSuite();
     }
@@ -700,9 +703,6 @@ public class CodecRoundTripCoverageTest {
     // -------------------------------------------------------------------------
     // High level ContractCodec round trips (ABI = non-wasm)
     // -------------------------------------------------------------------------
-
-    private static final String SIMPLE_ABI =
-            "[{\"constant\":false,\"inputs\":[{\"name\":\"u\",\"type\":\"uint256\"},{\"name\":\"b\",\"type\":\"bool\"},{\"name\":\"s\",\"type\":\"string\"},{\"name\":\"a\",\"type\":\"address\"}],\"name\":\"setAll\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 
     @Test
     public void testContractCodecAbiEncodeDecodeRoundTrip() throws Exception {

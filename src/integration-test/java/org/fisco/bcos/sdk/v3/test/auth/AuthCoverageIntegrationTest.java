@@ -324,7 +324,9 @@ public class AuthCoverageIntegrationTest {
                     true,
                     new TransactionCallback() {
                         @Override
-                        public void onResponse(TransactionReceipt receipt) {}
+                        public void onResponse(TransactionReceipt receipt) {
+                            // no-op: expected on a non-quorum chain
+                        }
                     });
         } catch (Exception e) {
             System.out.println("asyncVoteProposal ignored: " + e.getMessage());
@@ -446,6 +448,15 @@ public class AuthCoverageIntegrationTest {
             } catch (Exception e) {
                 System.out.println("cm.getProposalType ignored: " + e.getMessage());
             }
+        } catch (Exception e) {
+            System.out.println("testCommitteeManagerWrapperDirectly ignored: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testCommitteeWrapperReadsDirectly() {
+        try {
+            CommitteeManager cm = authManager.getCommitteeManager();
             try {
                 Committee committee = cm.getCommittee();
                 Assert.assertNotNull(committee);
@@ -494,12 +505,12 @@ public class AuthCoverageIntegrationTest {
                 System.out.println("cm.getCommittee ignored: " + e.getMessage());
             }
         } catch (Exception e) {
-            System.out.println("testCommitteeManagerWrapperDirectly ignored: " + e.getMessage());
+            System.out.println("testCommitteeWrapperReadsDirectly ignored: " + e.getMessage());
         }
     }
 
     @Test
-    public void testProposalManagerWrapperDirectly() {
+    public void testProposalManagerWrapperDirectly_state() {
         try {
             CommitteeManager cm = authManager.getCommitteeManager();
             ProposalManager pm = cm.getProposalManager();
@@ -530,6 +541,17 @@ public class AuthCoverageIntegrationTest {
             } catch (Exception e) {
                 System.out.println("pm._proposals ignored: " + e.getMessage());
             }
+        } catch (Exception e) {
+            System.out.println("testProposalManagerWrapperDirectly_state ignored: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testProposalManagerWrapperDirectly_reads() {
+        try {
+            CommitteeManager cm = authManager.getCommitteeManager();
+            ProposalManager pm = cm.getProposalManager();
+            Assert.assertNotNull(pm);
             try {
                 pm.getProposalInfo(BigInteger.ONE);
             } catch (Exception e) {
@@ -551,7 +573,7 @@ public class AuthCoverageIntegrationTest {
                 System.out.println("pm.getIdByTypeAndResourceId ignored: " + e.getMessage());
             }
         } catch (Exception e) {
-            System.out.println("testProposalManagerWrapperDirectly ignored: " + e.getMessage());
+            System.out.println("testProposalManagerWrapperDirectly_reads ignored: " + e.getMessage());
         }
     }
 

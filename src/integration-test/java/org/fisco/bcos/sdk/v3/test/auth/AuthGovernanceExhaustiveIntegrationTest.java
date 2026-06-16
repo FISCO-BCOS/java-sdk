@@ -364,7 +364,9 @@ public class AuthGovernanceExhaustiveIntegrationTest {
                     id,
                     new TransactionCallback() {
                         @Override
-                        public void onResponse(TransactionReceipt receipt) {}
+                        public void onResponse(TransactionReceipt receipt) {
+                            // no-op: expected on a non-quorum chain
+                        }
                     });
         } catch (Exception e) {
             System.out.println("asyncRevokeProposal ignored: " + e.getMessage());
@@ -377,14 +379,19 @@ public class AuthGovernanceExhaustiveIntegrationTest {
     // test; these drive CommitteeManager.asyncExecuteTransaction.
     // ---------------------------------------------------------------------------------------------
 
+    private static TransactionCallback noopCallback() {
+        return new TransactionCallback() {
+            @Override
+            public void onResponse(TransactionReceipt receipt) {
+                // no-op: expected on a non-quorum chain
+            }
+        };
+    }
+
     @Test
-    public void testAsyncCreateProposalWrappers() {
+    public void testAsyncCreateProposalWrappers_part1() {
         CommitteeManager cm = authManager.getCommitteeManager();
-        final TransactionCallback cb =
-                new TransactionCallback() {
-                    @Override
-                    public void onResponse(TransactionReceipt receipt) {}
-                };
+        final TransactionCallback cb = noopCallback();
         try {
             String h = cm.createSetRateProposal(
                     BigInteger.ZERO, BigInteger.valueOf(50), INTERVAL, cb);
@@ -416,6 +423,13 @@ public class AuthGovernanceExhaustiveIntegrationTest {
         } catch (Exception e) {
             System.out.println("async createResetAdminProposal ignored: " + e.getMessage());
         }
+        sleepQuietly();
+    }
+
+    @Test
+    public void testAsyncCreateProposalWrappers_part2() {
+        CommitteeManager cm = authManager.getCommitteeManager();
+        final TransactionCallback cb = noopCallback();
         try {
             String h = cm.createSetSysConfigProposal("tx_count_limit", "2000", INTERVAL, cb);
             System.out.println("async createSetSysConfigProposal hash: " + h);
@@ -448,7 +462,7 @@ public class AuthGovernanceExhaustiveIntegrationTest {
     // ---------------------------------------------------------------------------------------------
 
     @Test
-    public void testSyncCreateProposalWrappersAndDecoders() {
+    public void testSyncCreateProposalWrappersAndDecoders_part1() {
         CommitteeManager cm = authManager.getCommitteeManager();
         try {
             TransactionReceipt tr = cm.createSetRateProposal(BigInteger.ZERO, BigInteger.valueOf(50), INTERVAL);
@@ -490,6 +504,11 @@ public class AuthGovernanceExhaustiveIntegrationTest {
         } catch (Exception e) {
             System.out.println("cm.createResetAdminProposal ignored: " + e.getMessage());
         }
+    }
+
+    @Test
+    public void testSyncCreateProposalWrappersAndDecoders_part2() {
+        CommitteeManager cm = authManager.getCommitteeManager();
         try {
             TransactionReceipt tr = cm.createSetSysConfigProposal("tx_count_limit", "2000", INTERVAL);
             cm.getCreateSetSysConfigProposalOutput(tr);
@@ -557,18 +576,23 @@ public class AuthGovernanceExhaustiveIntegrationTest {
         }
     }
 
+    /** Derive a usable proposal id from the live proposal count (falls back to ONE). */
+    private BigInteger resolveRealProposalId(ProposalManager pm) {
+        BigInteger count = null;
+        try {
+            count = pm._proposalCount();
+            System.out.println("pm._proposalCount: " + count);
+        } catch (Exception e) {
+            System.out.println("pm._proposalCount ignored: " + e.getMessage());
+        }
+        return (count != null && count.compareTo(BigInteger.ZERO) > 0) ? count : BigInteger.ONE;
+    }
+
     @Test
-    public void testProposalManagerWrappersWithRealId() {
+    public void testProposalManagerWrappersWithRealId_reads() {
         try {
             ProposalManager pm = authManager.getCommitteeManager().getProposalManager();
-            BigInteger count = null;
-            try {
-                count = pm._proposalCount();
-                System.out.println("pm._proposalCount: " + count);
-            } catch (Exception e) {
-                System.out.println("pm._proposalCount ignored: " + e.getMessage());
-            }
-            BigInteger id = (count != null && count.compareTo(BigInteger.ZERO) > 0) ? count : BigInteger.ONE;
+            BigInteger id = resolveRealProposalId(pm);
             try {
                 Tuple7<String, String, BigInteger, BigInteger, BigInteger, List<String>, List<String>>
                         info = pm.getProposalInfo(id);
@@ -594,6 +618,16 @@ public class AuthGovernanceExhaustiveIntegrationTest {
             } catch (Exception e) {
                 System.out.println("pm._proposals ignored: " + e.getMessage());
             }
+        } catch (Exception e) {
+            System.out.println("testProposalManagerWrappersWithRealId_reads ignored: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testProposalManagerWrappersWithRealId_lookups() {
+        try {
+            ProposalManager pm = authManager.getCommitteeManager().getProposalManager();
+            BigInteger id = resolveRealProposalId(pm);
             try {
                 pm._proposalIndex(id, governorAddress);
             } catch (Exception e) {
@@ -609,6 +643,16 @@ public class AuthGovernanceExhaustiveIntegrationTest {
             } catch (Exception e) {
                 System.out.println("pm.getIdByTypeAndResourceId ignored: " + e.getMessage());
             }
+        } catch (Exception e) {
+            System.out.println("testProposalManagerWrappersWithRealId_lookups ignored: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testProposalManagerWrappersWithRealId_writes() {
+        try {
+            ProposalManager pm = authManager.getCommitteeManager().getProposalManager();
+            BigInteger id = resolveRealProposalId(pm);
             // low-level vote/revoke/refresh wrappers (voterAddress = governor)
             try {
                 TransactionReceipt tr = pm.vote(id, true, governorAddress);
@@ -632,7 +676,7 @@ public class AuthGovernanceExhaustiveIntegrationTest {
                 System.out.println("pm.refreshProposalStatus ignored: " + e.getMessage());
             }
         } catch (Exception e) {
-            System.out.println("testProposalManagerWrappersWithRealId ignored: " + e.getMessage());
+            System.out.println("testProposalManagerWrappersWithRealId_writes ignored: " + e.getMessage());
         }
     }
 
@@ -725,7 +769,7 @@ public class AuthGovernanceExhaustiveIntegrationTest {
     }
 
     @Test
-    public void testMethodAuthFlows() {
+    public void testMethodAuthFlows_writes() {
         try {
             RetCode rc = authManager.setMethodAuthType(candidateAddress, FUNC_SELECTOR, AuthType.WHITE_LIST);
             System.out.println("setMethodAuthType: " + rc);
@@ -744,6 +788,11 @@ public class AuthGovernanceExhaustiveIntegrationTest {
         } catch (Exception e) {
             System.out.println("setMethodAuth(close) ignored: " + e.getMessage());
         }
+        sleepQuietly();
+    }
+
+    @Test
+    public void testMethodAuthFlows_async() {
         try {
             authManager.asyncSetMethodAuthType(
                     candidateAddress, FUNC_SELECTOR, AuthType.BLACK_LIST, retCode -> {});
@@ -763,6 +812,10 @@ public class AuthGovernanceExhaustiveIntegrationTest {
             System.out.println("asyncSetMethodAuth(close) ignored: " + e.getMessage());
         }
         sleepQuietly();
+    }
+
+    @Test
+    public void testMethodAuthFlows_reads() {
         // read-back of method auth state after the writes
         try {
             System.out.println("getMethodAuth: " + authManager.getMethodAuth(candidateAddress, FUNC_SELECTOR));
@@ -778,7 +831,7 @@ public class AuthGovernanceExhaustiveIntegrationTest {
     }
 
     @Test
-    public void testContractAuthPrecompiledDirectWriteWrappers() {
+    public void testContractAuthPrecompiledDirectWriteWrappers_part1() {
         ContractAuthPrecompiled cap = authManager.getContractAuthPrecompiled();
         try {
             TransactionReceipt tr = cap.setDeployAuthType(BigInteger.valueOf(1));
@@ -810,6 +863,11 @@ public class AuthGovernanceExhaustiveIntegrationTest {
         } catch (Exception e) {
             System.out.println("cap.openMethodAuth ignored: " + e.getMessage());
         }
+    }
+
+    @Test
+    public void testContractAuthPrecompiledDirectWriteWrappers_part2() {
+        ContractAuthPrecompiled cap = authManager.getContractAuthPrecompiled();
         try {
             TransactionReceipt tr = cap.closeMethodAuth(candidateAddress, FUNC_SELECTOR, governorAddress);
             cap.getCloseMethodAuthOutput(tr);

@@ -525,6 +525,7 @@ public class AuthGovernorSuccessIntegrationTest {
         BigInteger count = BigInteger.ZERO;
         try {
             pm = authManager.getCommitteeManager().getProposalManager();
+            System.out.println("pm._proposalCount: " + pm._proposalCount());
             count = authManager.proposalCount();
             System.out.println("proposalCount: " + count);
         } catch (Exception e) {

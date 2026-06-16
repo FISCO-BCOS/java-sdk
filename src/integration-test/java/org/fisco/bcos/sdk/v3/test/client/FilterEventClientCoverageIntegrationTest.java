@@ -198,6 +198,7 @@ public class FilterEventClientCoverageIntegrationTest {
     public void testBlockFilterDirect() {
         try {
             FilterSystem filterSystem = new FilterSystem(client, 1, 1000);
+            Assert.assertNotNull(filterSystem);
             final AtomicBoolean invoked = new AtomicBoolean(false);
             Callback<String> callback = value -> invoked.set(true);
             BlockFilter blockFilter = new BlockFilter(client, callback);

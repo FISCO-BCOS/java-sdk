@@ -452,7 +452,7 @@ public class WrapperTxContractDeepIntegrationTest {
             } else {
                 crud.createTable(table, "id", valueFields);
             }
-            TablePrecompiled tbl = createBoundTableFromName(table, crud);
+            TablePrecompiled tbl = createBoundTableFromName(table);
 
             Map<String, String> fields = new HashMap<>();
             fields.put("name", "x");
@@ -480,10 +480,7 @@ public class WrapperTxContractDeepIntegrationTest {
         Assert.assertTrue(true);
     }
 
-    private static TablePrecompiled createBoundTableFromName(
-            String tableName,
-            org.fisco.bcos.sdk.v3.contract.precompiled.crud.TableCRUDService crud)
-            throws Exception {
+    private static TablePrecompiled createBoundTableFromName(String tableName) throws Exception {
         TableManagerPrecompiled tm =
                 TableManagerPrecompiled.load(
                         PrecompiledAddress.TABLE_MANAGER_PRECOMPILED_ADDRESS, client, keyPair);

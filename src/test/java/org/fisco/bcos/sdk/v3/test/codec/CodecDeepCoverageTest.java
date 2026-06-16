@@ -66,15 +66,18 @@ import org.junit.Test;
  */
 public class CodecDeepCoverageTest {
 
-    private CryptoSuite cryptoSuite() {
-        return TestUtils.getCryptoSuite();
-    }
-
     private static final String SIMPLE_ABI =
             "[{\"constant\":false,\"inputs\":[{\"name\":\"u\",\"type\":\"uint256\"},{\"name\":\"b\",\"type\":\"bool\"},{\"name\":\"s\",\"type\":\"string\"},{\"name\":\"a\",\"type\":\"address\"}],\"name\":\"setAll\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 
     private static final String STRUCT_ABI =
             "[{\"constant\":false,\"inputs\":[{\"components\":[{\"name\":\"x\",\"type\":\"uint256\"},{\"name\":\"y\",\"type\":\"uint256\"}],\"name\":\"t\",\"type\":\"tuple\"}],\"name\":\"useStatic\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"components\":[{\"name\":\"s\",\"type\":\"string\"},{\"name\":\"v\",\"type\":\"uint256\"}],\"name\":\"d\",\"type\":\"tuple\"}],\"name\":\"useDynamic\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+
+    private static final String EVENT_ABI =
+            "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"}]";
+
+    private CryptoSuite cryptoSuite() {
+        return TestUtils.getCryptoSuite();
+    }
 
     // ----------------------------------------------------------------------
     // NumericType / IntType / Uint out-of-range validation (throws)
@@ -554,9 +557,6 @@ public class CodecDeepCoverageTest {
         assertNull(def.getABIDefinitionByMethodId(new byte[] {0, 0, 0, 0}));
         assertNotNull(def.toString());
     }
-
-    private static final String EVENT_ABI =
-            "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"}]";
 
     // ----------------------------------------------------------------------
     // ContractCodecTools value conversion edge cases

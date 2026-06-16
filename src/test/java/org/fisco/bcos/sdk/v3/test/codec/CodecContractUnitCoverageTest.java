@@ -75,18 +75,6 @@ import org.junit.Test;
  */
 public class CodecContractUnitCoverageTest {
 
-    private CryptoSuite cryptoSuite() {
-        return TestUtils.getCryptoSuite();
-    }
-
-    private ContractCodec abiCodec() {
-        return new ContractCodec(cryptoSuite(), false);
-    }
-
-    private ContractCodec wasmCodec() {
-        return new ContractCodec(cryptoSuite().getHashImpl(), true);
-    }
-
     // ABI containing a nested-tuple function, an array-of-tuple function and an event with a
     // tuple parameter. Used by multiple round-trip tests below.
     private static final String NESTED_ABI =
@@ -131,6 +119,18 @@ public class CodecContractUnitCoverageTest {
                     + "    \"type\": \"function\"\n"
                     + "  }\n"
                     + "]";
+
+    private CryptoSuite cryptoSuite() {
+        return TestUtils.getCryptoSuite();
+    }
+
+    private ContractCodec abiCodec() {
+        return new ContractCodec(cryptoSuite(), false);
+    }
+
+    private ContractCodec wasmCodec() {
+        return new ContractCodec(cryptoSuite().getHashImpl(), true);
+    }
 
     // ------------------------------------------------------------------------------------------
     // ContractCodec nested struct / array-of-struct round-trips (ABI + WASM modes)

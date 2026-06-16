@@ -70,22 +70,6 @@ import org.junit.Test;
  */
 public class ContractCodecExhaustiveUnitTest {
 
-    // ----------------------------------------------------------------------------------------
-    // fixtures
-    // ----------------------------------------------------------------------------------------
-
-    private CryptoSuite cryptoSuite() {
-        return new CryptoSuite(CryptoType.ECDSA_TYPE);
-    }
-
-    private ContractCodec abiCodec() {
-        return new ContractCodec(cryptoSuite(), false);
-    }
-
-    private ContractCodec wasmCodec() {
-        return new ContractCodec(cryptoSuite().getHashImpl(), true);
-    }
-
     // A non-empty fake constructor bytecode (hex). Any deterministic hex works; no node needed.
     private static final String BIN = "60606040";
 
@@ -108,6 +92,39 @@ public class ContractCodecExhaustiveUnitTest {
             "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"a\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"b\",\"type\":\"uint256\"}],\"name\":\"Pure\",\"type\":\"event\"}]";
 
     private static final String PURE_EVENT_SIG = "Pure(uint256,uint256)";
+
+    // constructor exercising sized int/uint, bytesN, dynamic bytes, address, bool, string,
+    // and both dynamic & fixed arrays so buildType visits each leaf branch.
+    private static final String RICH_CTOR_ABI =
+            "[{\"inputs\":["
+                    + "{\"name\":\"u8\",\"type\":\"uint8\"},"
+                    + "{\"name\":\"u\",\"type\":\"uint\"},"
+                    + "{\"name\":\"i64\",\"type\":\"int64\"},"
+                    + "{\"name\":\"i\",\"type\":\"int\"},"
+                    + "{\"name\":\"flag\",\"type\":\"bool\"},"
+                    + "{\"name\":\"text\",\"type\":\"string\"},"
+                    + "{\"name\":\"addr\",\"type\":\"address\"},"
+                    + "{\"name\":\"b4\",\"type\":\"bytes4\"},"
+                    + "{\"name\":\"raw\",\"type\":\"bytes\"},"
+                    + "{\"name\":\"dynArr\",\"type\":\"uint256[]\"},"
+                    + "{\"name\":\"fixArr\",\"type\":\"uint256[2]\"}"
+                    + "],\"type\":\"constructor\"}]";
+
+    // ----------------------------------------------------------------------------------------
+    // fixtures
+    // ----------------------------------------------------------------------------------------
+
+    private CryptoSuite cryptoSuite() {
+        return new CryptoSuite(CryptoType.ECDSA_TYPE);
+    }
+
+    private ContractCodec abiCodec() {
+        return new ContractCodec(cryptoSuite(), false);
+    }
+
+    private ContractCodec wasmCodec() {
+        return new ContractCodec(cryptoSuite().getHashImpl(), true);
+    }
 
     private List<Object> setAllArgs() {
         List<Object> args = new ArrayList<>();
@@ -552,23 +569,6 @@ public class ContractCodecExhaustiveUnitTest {
     // ----------------------------------------------------------------------------------------
     // buildType dispatcher: encodeConstructorFromString over a rich constructor signature
     // ----------------------------------------------------------------------------------------
-
-    // constructor exercising sized int/uint, bytesN, dynamic bytes, address, bool, string,
-    // and both dynamic & fixed arrays so buildType visits each leaf branch.
-    private static final String RICH_CTOR_ABI =
-            "[{\"inputs\":["
-                    + "{\"name\":\"u8\",\"type\":\"uint8\"},"
-                    + "{\"name\":\"u\",\"type\":\"uint\"},"
-                    + "{\"name\":\"i64\",\"type\":\"int64\"},"
-                    + "{\"name\":\"i\",\"type\":\"int\"},"
-                    + "{\"name\":\"flag\",\"type\":\"bool\"},"
-                    + "{\"name\":\"text\",\"type\":\"string\"},"
-                    + "{\"name\":\"addr\",\"type\":\"address\"},"
-                    + "{\"name\":\"b4\",\"type\":\"bytes4\"},"
-                    + "{\"name\":\"raw\",\"type\":\"bytes\"},"
-                    + "{\"name\":\"dynArr\",\"type\":\"uint256[]\"},"
-                    + "{\"name\":\"fixArr\",\"type\":\"uint256[2]\"}"
-                    + "],\"type\":\"constructor\"}]";
 
     private List<String> richCtorStrArgs() {
         List<String> params = new ArrayList<>();

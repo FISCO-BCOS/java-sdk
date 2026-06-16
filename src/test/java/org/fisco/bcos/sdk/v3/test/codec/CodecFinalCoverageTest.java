@@ -58,10 +58,6 @@ import org.junit.Test;
  */
 public class CodecFinalCoverageTest {
 
-    private CryptoSuite cryptoSuite() {
-        return TestUtils.getCryptoSuite();
-    }
-
     private static final String STRUCT_ABI =
             "[{\"constant\":false,\"inputs\":[{\"components\":[{\"name\":\"x\",\"type\":\"uint256\"},{\"name\":\"y\",\"type\":\"uint256\"}],\"name\":\"t\",\"type\":\"tuple\"}],\"name\":\"useStatic\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 
@@ -70,6 +66,16 @@ public class CodecFinalCoverageTest {
 
     private static final String EVENT_ABI =
             "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"}]";
+
+    private static final String SIZED_INT_ABI =
+            "[{\"constant\":false,\"inputs\":[{\"name\":\"a\",\"type\":\"uint8\"},{\"name\":\"b\",\"type\":\"int8\"},{\"name\":\"c\",\"type\":\"uint64\"}],\"name\":\"sized\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+
+    private static final String DBYTES_ABI =
+            "[{\"constant\":false,\"inputs\":[{\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"useBytes\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+
+    private CryptoSuite cryptoSuite() {
+        return TestUtils.getCryptoSuite();
+    }
 
     // ----------------------------------------------------------------------
     // scale.reader.UInt128Reader (only referenced by its own class)
@@ -657,9 +663,6 @@ public class CodecFinalCoverageTest {
     // ContractCodecJsonWrapper: sized-int types, DBYTES via hex prefix, errors
     // ----------------------------------------------------------------------
 
-    private static final String SIZED_INT_ABI =
-            "[{\"constant\":false,\"inputs\":[{\"name\":\"a\",\"type\":\"uint8\"},{\"name\":\"b\",\"type\":\"int8\"},{\"name\":\"c\",\"type\":\"uint64\"}],\"name\":\"sized\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
-
     @Test
     public void testJsonWrapperSizedIntegerTypes() throws Exception {
         ContractABIDefinition def = TestUtils.getContractABIDefinition(SIZED_INT_ABI);
@@ -680,9 +683,6 @@ public class CodecFinalCoverageTest {
         assertEquals("-5", decoded.get(1));
         assertEquals("123456789", decoded.get(2));
     }
-
-    private static final String DBYTES_ABI =
-            "[{\"constant\":false,\"inputs\":[{\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"useBytes\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 
     @Test
     public void testJsonWrapperDynamicBytesHexPrefixRoundTrip() throws Exception {
