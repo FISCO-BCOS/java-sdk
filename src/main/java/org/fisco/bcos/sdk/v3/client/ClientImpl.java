@@ -725,7 +725,7 @@ public class ClientImpl implements Client {
                 node,
                 new JsonRpcRequest<>(
                         JsonRpcMethods.GET_TRANSACTION_BY_HASH,
-                        Arrays.asList(this.groupID, node, transactionHash)),
+                        Arrays.asList(this.groupID, node, transactionHash, withProof)),
                 BcosTransaction.class,
                 callback);
     }

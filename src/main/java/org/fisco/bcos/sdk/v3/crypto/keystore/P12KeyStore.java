@@ -152,11 +152,11 @@ public class P12KeyStore extends KeyTool {
             Certificate[] certChain = new Certificate[1];
             certChain[0] = generateSelfSignedCertificate(keyPair, signatureAlgorithm);
             keyStore.setKeyEntry(NAME, privateKey, password.toCharArray(), certChain);
-            FileOutputStream fileOutputStream = new FileOutputStream(privateKeyFilePath);
-            keyStore.store(fileOutputStream, password.toCharArray());
-            // store the public key
-            storePublicKeyWithPem(privateKey, privateKeyFilePath);
-            fileOutputStream.close();
+            try (FileOutputStream fileOutputStream = new FileOutputStream(privateKeyFilePath)) {
+                keyStore.store(fileOutputStream, password.toCharArray());
+                // store the public key
+                storePublicKeyWithPem(privateKey, privateKeyFilePath);
+            }
         } catch (IOException
                 | KeyStoreException
                 | NoSuchProviderException
@@ -197,7 +197,9 @@ public class P12KeyStore extends KeyTool {
         cert.setPublicKey(keyPair.getPublic());
         Calendar notBefore = Calendar.getInstance();
         Calendar notAfter = Calendar.getInstance();
-        notBefore.add(Calendar.YEAR, 100);
+        // Validity must run from now to now+100y. Adding the offset to notAfter (not notBefore)
+        // avoids a cert whose validity starts 100 years in the future (notBefore > notAfter).
+        notAfter.add(Calendar.YEAR, 100);
         cert.setNotBefore(notBefore.getTime());
         cert.setNotAfter(notAfter.getTime());
         cert.setSignatureAlgorithm(signatureAlgorithm);

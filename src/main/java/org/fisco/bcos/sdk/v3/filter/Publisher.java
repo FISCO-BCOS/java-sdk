@@ -1,11 +1,14 @@
 package org.fisco.bcos.sdk.v3.filter;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class Publisher<T> {
-    private List<Consumer<T>> subscribers = new ArrayList<>();
+    // CopyOnWriteArrayList: subscribe/unsubscribe run on caller threads while publish() iterates on
+    // the poll thread; a plain ArrayList here throws ConcurrentModificationException and kills
+    // polling.
+    private final List<Consumer<T>> subscribers = new CopyOnWriteArrayList<>();
 
     public Subscription<T> subscribe(Consumer<T> subscriber) {
         subscribers.add(subscriber);
