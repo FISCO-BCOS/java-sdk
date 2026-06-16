@@ -17,7 +17,7 @@ import org.fisco.bcos.sdk.v3.utils.Hex;
 
 public class AssembleEIP1559TransactionService extends AssembleTransactionService {
 
-    AssembleEIP1559TransactionService(Client client) {
+    public AssembleEIP1559TransactionService(Client client) {
         super(client);
     }
 
