@@ -680,7 +680,15 @@ public class ContractCodec {
 
         ContractABIDefinition contractABIDefinition = this.abiDefinitionFactory.loadABI(abi);
         ABIDefinition abiDefinition = contractABIDefinition.getConstructor();
-        return this.decodeMethodAndGetInputObject(abiDefinition, paramsInput).getLeft();
+        ABIObject inputObject = ABIObjectFactory.createInputObject(abiDefinition);
+        try {
+            return ContractCodecTools.decodeJavaObject(inputObject, paramsInput, isWasm);
+        } catch (Exception e) {
+            logger.error(" exception in decodeConstructorInput : {}", e.getMessage());
+        }
+        String errorMsg = " cannot decode in decodeConstructorInput with appropriate interface ABI";
+        logger.error(errorMsg);
+        throw new ContractCodecException(errorMsg);
     }
 
     public List<String> decodeConstructorInputToString(String abi, String bin, String input)
