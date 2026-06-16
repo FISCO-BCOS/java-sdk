@@ -107,6 +107,9 @@ public class ClientImpl implements Client {
     private GroupNodeIniConfig groupNodeIniConfig;
     private CryptoSuite cryptoSuite;
     private RpcJniObj rpcJniObj;
+    private boolean started;
+    private boolean stopped;
+    private boolean destroyed;
 
     protected final ObjectMapper objectMapper = getObjectMapper();
 
@@ -1594,21 +1597,27 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void start() {
-        if (rpcJniObj != null) {
+    public synchronized void start() {
+        if (!destroyed && rpcJniObj != null && (!started || stopped)) {
             rpcJniObj.start();
+            started = true;
+            stopped = false;
         }
     }
 
     @Override
-    public void stop() {
-        if (rpcJniObj != null) {
+    public synchronized void stop() {
+        if (!destroyed && started && !stopped && rpcJniObj != null) {
             rpcJniObj.stop();
+            stopped = true;
         }
     }
 
     @Override
-    public void destroy() {
+    public synchronized void destroy() {
+        if (destroyed) {
+            return;
+        }
         if (rpcJniObj != null) {
             BcosSDKJniObj.destroy(rpcJniObj.getNativePointer());
             rpcJniObj = null;
@@ -1617,6 +1626,9 @@ public class ClientImpl implements Client {
             cryptoSuite.destroy();
             cryptoSuite = null;
         }
+        started = false;
+        stopped = true;
+        destroyed = true;
     }
 
     public static <T extends JsonRpcResponse<?>> ResponseCallback createResponseCallback(
