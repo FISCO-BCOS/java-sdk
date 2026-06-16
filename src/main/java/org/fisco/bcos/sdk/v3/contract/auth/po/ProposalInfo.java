@@ -21,7 +21,8 @@ public class ProposalInfo extends DynamicStruct {
 
     public ProposalInfo() {
         super(
-                new Address(""),
+                Address.DEFAULT,
+                Address.DEFAULT,
                 new Uint8(0),
                 new Uint256(0),
                 new Uint8(0),
