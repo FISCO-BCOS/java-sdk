@@ -54,9 +54,7 @@ public class BalanceService {
         TransactionReceipt transactionReceipt =
                 balancePrecompiled.addBalance(address, weiValue.toBigIntegerExact());
         if (transactionReceipt.isStatusOK()) {
-            RetCode codeSuccess = PrecompiledRetCode.CODE_SUCCESS;
-            codeSuccess.setTransactionReceipt(transactionReceipt);
-            return codeSuccess;
+            return newSuccessRetCode(transactionReceipt);
         } else {
             return ReceiptParser.parseTransactionReceipt(transactionReceipt, null);
         }
@@ -78,9 +76,7 @@ public class BalanceService {
         TransactionReceipt transactionReceipt =
                 balancePrecompiled.subBalance(address, weiValue.toBigIntegerExact());
         if (transactionReceipt.isStatusOK()) {
-            RetCode codeSuccess = PrecompiledRetCode.CODE_SUCCESS;
-            codeSuccess.setTransactionReceipt(transactionReceipt);
-            return codeSuccess;
+            return newSuccessRetCode(transactionReceipt);
         } else {
             return ReceiptParser.parseTransactionReceipt(transactionReceipt, null);
         }
@@ -102,9 +98,7 @@ public class BalanceService {
         TransactionReceipt transactionReceipt =
                 balancePrecompiled.transfer(from, to, weiValue.toBigIntegerExact());
         if (transactionReceipt.isStatusOK()) {
-            RetCode codeSuccess = PrecompiledRetCode.CODE_SUCCESS;
-            codeSuccess.setTransactionReceipt(transactionReceipt);
-            return codeSuccess;
+            return newSuccessRetCode(transactionReceipt);
         } else {
             return ReceiptParser.parseTransactionReceipt(transactionReceipt, null);
         }
@@ -123,9 +117,7 @@ public class BalanceService {
 
         TransactionReceipt receipt = balancePrecompiled.registerCaller(address);
         if (receipt.isStatusOK()) {
-            RetCode codeSuccess = PrecompiledRetCode.CODE_SUCCESS;
-            codeSuccess.setTransactionReceipt(receipt);
-            return codeSuccess;
+            return newSuccessRetCode(receipt);
         } else {
             return ReceiptParser.parseTransactionReceipt(receipt, null);
         }
@@ -141,9 +133,7 @@ public class BalanceService {
 
         TransactionReceipt receipt = balancePrecompiled.unregisterCaller(address);
         if (receipt.isStatusOK()) {
-            RetCode codeSuccess = PrecompiledRetCode.CODE_SUCCESS;
-            codeSuccess.setTransactionReceipt(receipt);
-            return codeSuccess;
+            return newSuccessRetCode(receipt);
         } else {
             return ReceiptParser.parseTransactionReceipt(receipt, null);
         }
@@ -182,7 +172,17 @@ public class BalanceService {
         if (status != 0) {
             ReceiptParser.getErrorStatus(receipt);
         }
-        RetCode retCode = PrecompiledRetCode.CODE_SUCCESS;
+        return newSuccessRetCode(receipt);
+    }
+
+    private static RetCode newSuccessRetCode(TransactionReceipt receipt) {
+        // Copy the shared CODE_SUCCESS singleton rather than mutating it: setting the receipt on
+        // the
+        // global singleton races across concurrent calls and leaks each call's receipt globally.
+        RetCode retCode =
+                new RetCode(
+                        PrecompiledRetCode.CODE_SUCCESS.getCode(),
+                        PrecompiledRetCode.CODE_SUCCESS.getMessage());
         retCode.setTransactionReceipt(receipt);
         return retCode;
     }
