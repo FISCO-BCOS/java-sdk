@@ -10,7 +10,7 @@
 bash gradlew verifyGoogleJavaFormat
 result=$?
 printf "the verifyGoogleJavaFormat result code is $result"
-if [[ "$result" = 0 ]] ; then
+if [ "$result" -eq 0 ]; then
     echo "\033[32m
     ....
     ....

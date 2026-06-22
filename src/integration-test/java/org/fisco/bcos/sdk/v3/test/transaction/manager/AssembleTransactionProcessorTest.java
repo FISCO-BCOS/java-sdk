@@ -26,7 +26,6 @@ import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.ContractCodecException;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicBytes;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
-import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Bytes4;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.model.ConstantConfig;
@@ -46,7 +45,6 @@ import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.mockito.internal.matchers.Null;
 
 /**
  * TransactionProcessorTest @Description: TransactionProcessorTest
