@@ -15,13 +15,20 @@ package org.fisco.bcos.sdk.v3.utils;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /** Factory for managing our ObjectMapper instances. */
 public class ObjectMapperFactory {
 
-    private static final ObjectMapper DEFAULT_OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper DEFAULT_OBJECT_MAPPER =
+            JsonMapper.builder()
+                    .configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true)
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .configure(MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS, false)
+                    .build();
 
     static {
         configureObjectMapper();

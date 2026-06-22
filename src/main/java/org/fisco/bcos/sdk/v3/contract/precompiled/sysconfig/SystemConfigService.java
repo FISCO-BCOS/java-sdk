@@ -57,7 +57,6 @@ public class SystemConfigService {
         predicateMap.put(
                 TX_GAS_LIMIT, value -> value.compareTo(BigInteger.valueOf(TX_GAS_LIMIT_MIN)) >= 0);
         predicateMap.put(TX_GAS_PRICE, value -> value.compareTo(BigInteger.ZERO) >= 0);
-        predicateMap.put(COMPATIBILITY_VERSION, value -> true);
     }
 
     public SystemConfigService(Client client, CryptoKeyPair credential) {

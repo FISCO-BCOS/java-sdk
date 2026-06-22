@@ -91,6 +91,13 @@ public class ECDSAKeyPair extends CryptoKeyPair {
         return new ECDSAKeyPair(javaKeyPair);
     }
 
+    public static CryptoKeyPair cryptoKeyPair(KeyPair javaKeyPair) {
+        if (javaKeyPair == null) {
+            return new ECDSAKeyPair();
+        }
+        return new ECDSAKeyPair(javaKeyPair);
+    }
+
     public static String getAddressByPublicKey(String publicKey) {
         return getAddress(publicKey, ECDSAKeyPair.DefaultHashAlgorithm);
     }

@@ -6,4 +6,5 @@ contract ConsensusPrecompiled {
     function addObserver(string memory) public returns (int256){}
     function remove(string memory) public returns (int256){}
     function setWeight(string memory,uint256) public returns (int256){}
+    function setTermWeight(string memory,uint256) public returns (int256){}
 }
