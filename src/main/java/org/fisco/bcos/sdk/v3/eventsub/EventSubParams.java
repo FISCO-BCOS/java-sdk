@@ -66,7 +66,7 @@ public class EventSubParams {
             return false;
         }
 
-        if (index >= TopicTools.MAX_NUM_TOPIC_EVENT_LOG) {
+        if (index < 0 || index >= TopicTools.MAX_NUM_TOPIC_EVENT_LOG) {
             return false;
         }
 

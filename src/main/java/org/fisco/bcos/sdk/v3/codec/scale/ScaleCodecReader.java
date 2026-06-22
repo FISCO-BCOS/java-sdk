@@ -69,6 +69,12 @@ public class ScaleCodecReader {
     }
 
     public byte[] readByteArray(int len) {
+        // Guard before allocating: len comes from a compact length read off untrusted input, so a
+        // forged value could otherwise drive an OutOfMemoryError or an over-read past the buffer.
+        if (len < 0 || !hasMore(len)) {
+            throw new IndexOutOfBoundsException(
+                    "Cannot read " + len + " bytes at pos " + pos + " of " + source.length);
+        }
         byte[] result = new byte[len];
         System.arraycopy(source, pos, result, 0, result.length);
         pos += len;
@@ -83,7 +89,10 @@ public class ScaleCodecReader {
         ArrayUtils.reverse(resultBytes);
         BigInteger value = new BigInteger(resultBytes);
         if (value.compareTo(BigInteger.ZERO) < 0 && signed == false) {
-            BigInteger minOverflowUnsignedValue = BigInteger.valueOf((1 << (bytesSize * 8)));
+            // NOTE: must use BigInteger shift, not (1 << (bytesSize * 8)): the latter is 32-bit int
+            // arithmetic and overflows to 1 for bytesSize >= 4, corrupting unsigned values >=
+            // uint32.
+            BigInteger minOverflowUnsignedValue = BigInteger.ONE.shiftLeft(bytesSize * 8);
             return value.add(minOverflowUnsignedValue);
         }
         return value;

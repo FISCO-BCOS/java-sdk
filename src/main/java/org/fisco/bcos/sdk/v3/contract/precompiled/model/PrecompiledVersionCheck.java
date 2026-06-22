@@ -12,4 +12,6 @@ public class PrecompiledVersionCheck {
     public static final Version V330_FIX_BFS_VERSION = new Version("fixBfs", "3.3.0");
 
     public static final Version BALANCE_PRECOMPILED_VERSION = new Version("balance", "3.6.0");
+    public static final Version TERM_WEIGHT_MIN_SUPPORT_VERSION =
+            new Version("consensus", "3.12.0");
 }
