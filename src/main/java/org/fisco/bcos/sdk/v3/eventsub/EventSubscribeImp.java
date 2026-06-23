@@ -217,9 +217,7 @@ public class EventSubscribeImp implements EventSubscribe {
         if (destroyed) {
             return;
         }
-        if (ownsClient) {
-            ownerClient.start();
-        }
+        ownerClient.start();
         stopped = false;
     }
 

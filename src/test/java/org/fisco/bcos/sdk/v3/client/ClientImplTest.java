@@ -3,40 +3,44 @@ package org.fisco.bcos.sdk.v3.client;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import org.fisco.bcos.sdk.jni.rpc.RpcJniObj;
 import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 import org.junit.Test;
-import sun.misc.Unsafe;
+import org.objenesis.ObjenesisStd;
 
 public class ClientImplTest {
 
-    @Test
-    public void testStopAndDestroyAreIdempotent() throws Exception {
-        ClientImpl client = (ClientImpl) getUnsafe().allocateInstance(ClientImpl.class);
-        RpcJniObj rpcJniObj = mock(RpcJniObj.class);
-        when(rpcJniObj.getNativePointer()).thenReturn(0L);
-        CryptoSuite cryptoSuite = mock(CryptoSuite.class);
+    private static ClientImpl allocateClientImpl() {
+        return new ObjenesisStd().newInstance(ClientImpl.class);
+    }
 
+    @Test
+    public void testStopIsIdempotent() throws Exception {
+        ClientImpl client = allocateClientImpl();
+        RpcJniObj rpcJniObj = mock(RpcJniObj.class);
         setField(client, "rpcJniObj", rpcJniObj);
-        setField(client, "cryptoSuite", cryptoSuite);
         setBooleanField(client, "started", true);
 
         client.stop();
         client.stop();
-        client.destroy();
-        client.destroy();
 
         verify(rpcJniObj, times(1)).stop();
-        verify(cryptoSuite, times(1)).destroy();
     }
 
-    private static Unsafe getUnsafe() throws Exception {
-        Field field = Unsafe.class.getDeclaredField("theUnsafe");
-        field.setAccessible(true);
-        return (Unsafe) field.get(null);
+    @Test
+    public void testDestroyIsIdempotent() throws Exception {
+        ClientImpl client = allocateClientImpl();
+        CryptoSuite cryptoSuite = mock(CryptoSuite.class);
+        // rpcJniObj is left null so BcosSDKJniObj.destroy() static native call is skipped
+        setField(client, "cryptoSuite", cryptoSuite);
+        setBooleanField(client, "started", true);
+
+        client.destroy();
+        client.destroy();
+
+        verify(cryptoSuite, times(1)).destroy();
     }
 
     private static void setField(Object target, String fieldName, Object value) throws Exception {

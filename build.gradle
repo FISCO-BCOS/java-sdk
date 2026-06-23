@@ -69,6 +69,7 @@ allprojects {
         testImplementation("junit:junit:${junitVersion}")
         testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
         testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+        testImplementation("org.objenesis:objenesis:3.2")
     }
 
     clean.doLast {
@@ -230,7 +231,7 @@ publishing {
             pom {
                 name = 'fisco-bcos'
                 description = 'fisco-bcos java-sdk'
-                url = 'https://github.com/FISCO-BCOS/java-sdk'
+                url = 'http://www.fisco-bcos.org'
 
                 licenses {
                     license {
