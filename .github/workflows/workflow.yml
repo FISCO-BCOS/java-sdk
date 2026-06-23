@@ -1,5 +1,9 @@
 name: Java-SDK GitHub Actions
 on:
+  push:
+    branches:
+      - master
+      - 'release-*'
   pull_request:
   release:
     types: [ published, created, edited ]
@@ -10,6 +14,10 @@ env:
 jobs:
   build:
     name: build
+    # Heavy integration build runs on PRs and releases only; pushes to the main
+    # branches run just the lightweight 'coverage' job below (to upload a Codecov
+    # BASE report so PRs can show a coverage delta).
+    if: github.event_name != 'push'
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     strategy:
