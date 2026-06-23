@@ -46,6 +46,9 @@ public class ConsensusStatus extends JsonRpcResponse<ConsensusStatus.ConsensusSt
         @JsonProperty("weight")
         private Integer weight;
 
+        @JsonProperty("termWeight")
+        private Integer termWeight;
+
         @JsonProperty("index")
         private Integer index;
 
@@ -65,6 +68,14 @@ public class ConsensusStatus extends JsonRpcResponse<ConsensusStatus.ConsensusSt
             this.weight = weight;
         }
 
+        public Integer getTermWeight() {
+            return termWeight;
+        }
+
+        public void setTermWeight(Integer termWeight) {
+            this.termWeight = termWeight;
+        }
+
         public Integer getIndex() {
             return index;
         }
@@ -81,6 +92,9 @@ public class ConsensusStatus extends JsonRpcResponse<ConsensusStatus.ConsensusSt
                     + '\''
                     + ", weight='"
                     + weight
+                    + '\''
+                    + ", termWeight='"
+                    + termWeight
                     + '\''
                     + ", index='"
                     + index

@@ -728,7 +728,7 @@ public class ClientImpl implements Client {
                 node,
                 new JsonRpcRequest<>(
                         JsonRpcMethods.GET_TRANSACTION_BY_HASH,
-                        Arrays.asList(this.groupID, node, transactionHash)),
+                        Arrays.asList(this.groupID, node, transactionHash, withProof)),
                 BcosTransaction.class,
                 callback);
     }
@@ -1676,7 +1676,8 @@ public class ClientImpl implements Client {
 
                         future.complete(response);
                     });
-            Response response = future.get();
+            Response response =
+                    future.get(configOption.getNetworkConfig().getTimeout(), TimeUnit.MILLISECONDS);
             return ClientImpl.parseResponseIntoJsonRpcResponse(
                     request.getMethod(), response, responseType);
         } catch (ClientException e) {
@@ -1687,7 +1688,10 @@ public class ClientImpl implements Client {
                     "callRemoteMethod failed for decode the message exception, error message:"
                             + e.getMessage(),
                     e);
-        } catch (JsonProcessingException | InterruptedException | ExecutionException e) {
+        } catch (JsonProcessingException
+                | InterruptedException
+                | ExecutionException
+                | TimeoutException e) {
             logger.error("callRemoteMethod exception, raw request:{} ", request, e);
             throw new ClientException(
                     "callRemoteMethod failed for decode the message exception, error message:"

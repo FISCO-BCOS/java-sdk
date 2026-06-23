@@ -131,7 +131,7 @@ public class EventSubscribeImp implements EventSubscribe {
 
             for (int j = 0; j < eventLogAddrAndTopics.get(i).getTopics().size(); j++) {
                 result =
-                        eventSubParams.addTopic(i, eventLogAddrAndTopics.get(i).getTopics().get(j));
+                        eventSubParams.addTopic(j, eventLogAddrAndTopics.get(i).getTopics().get(j));
                 if (!result) {
                     callback.onReceiveLog("", EventSubStatus.INVALID_PARAMS.getStatus(), null);
                     return "";
