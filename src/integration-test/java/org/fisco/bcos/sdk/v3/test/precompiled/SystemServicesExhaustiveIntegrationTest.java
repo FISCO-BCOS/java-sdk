@@ -243,25 +243,18 @@ public class SystemServicesExhaustiveIntegrationTest {
                     String current =
                             client.getSystemConfigByKey(key).getSystemConfig().getValue();
                     System.out.println(key + " current=" + current);
-                    // pick a valid-ish next value per key
-                    String next;
-                    if (SystemConfigService.AUTH_STATUS.equals(key)) {
-                        next = current; // re-set same to avoid flipping auth on the live chain
-                    } else if (SystemConfigService.TX_GAS_PRICE.equals(key)) {
-                        // MUST stay "0": it still exercises the Numeric.toHexString conversion
-                        // branch, but a non-zero gas price poisons the live chain — every later
-                        // transaction from the zero-balance test accounts can no longer be
-                        // sealed (and the price cannot be restored, since the restoring
-                        // transaction itself would need gas), failing whole test classes that
-                        // happen to run after this one.
-                        next = "0";
-                    } else if (SystemConfigService.TX_GAS_LIMIT.equals(key)) {
-                        next =
-                                new BigInteger(current)
-                                        .add(BigInteger.valueOf(1000))
-                                        .toString();
-                    } else {
-                        next = new BigInteger(current).add(BigInteger.ONE).toString();
+                    // ALWAYS re-set the CURRENT value. This still drives the full
+                    // setValueByKey pipeline (validation predicates, the tx_gas_price
+                    // Numeric.toHexString branch, tx submission, receipt parsing) but leaves
+                    // the shared chain's behavior untouched. Changing live values here has
+                    // repeatedly poisoned the suite: a non-zero tx_gas_price makes every
+                    // zero-balance account unable to transact (and cannot be undone, since
+                    // the undoing tx would itself need gas), and consensus parameters like
+                    // consensus_leader_period apply at the next epoch and can stall newer
+                    // nodes' PBFT minutes later.
+                    String next = current;
+                    if (SystemConfigService.TX_GAS_PRICE.equals(key)) {
+                        next = "0"; // hex-conversion branch; 0 keeps transactions free
                     }
                     RetCode r = sysConfig.setValueByKey(key, next);
                     System.out.println("set " + key + "=" + next + " -> " + r.getCode());
@@ -312,10 +305,18 @@ public class SystemServicesExhaustiveIntegrationTest {
             } catch (Exception expected) {
                 System.out.println("unknown feature rejected: " + expected.getMessage());
             }
-            // a real, known feature key (may or may not be enabled on the chain version)
+            // a real, known feature key: only RE-SET it if it is already enabled on this
+            // chain — enabling a feature switch mid-run changes execution semantics at the
+            // next block on the shared live chain
             try {
-                RetCode r = sysConfig.setValueByKey("bugfix_revert", "1");
-                System.out.println("set bugfix_revert: " + r.getCode());
+                String cur =
+                        client.getSystemConfigByKey("bugfix_revert").getSystemConfig().getValue();
+                if ("1".equals(cur)) {
+                    RetCode r = sysConfig.setValueByKey("bugfix_revert", "1");
+                    System.out.println("set bugfix_revert: " + r.getCode());
+                } else {
+                    System.out.println("bugfix_revert not enabled, write skipped");
+                }
             } catch (Exception ex) {
                 System.out.println("set bugfix_revert: " + ex.getMessage());
             }
