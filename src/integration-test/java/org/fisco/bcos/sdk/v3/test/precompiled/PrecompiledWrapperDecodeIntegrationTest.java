@@ -476,9 +476,35 @@ public class PrecompiledWrapperDecodeIntegrationTest {
         // (getSealerList().get(0)): the addObserver decode test below then actually DEMOTED a
         // live sealer of the shared 4-node chain (the "may be rejected" assumption was wrong),
         // leaving PBFT with no fault tolerance and stalling the chain under load. The decode
-        // tests only assert on the transaction INPUT decoding, which works exactly the same on
-        // the error receipt a bogus node id produces.
+        // tests only assert on the transaction INPUT decoding, which works exactly the same
+        // whatever the receipt status is. (Newer nodes even accept the bogus id with status 0,
+        // but the phantom entry never appears in the effective sealer/observer lists; the
+        // @AfterClass cleanup below removes it from the consensus table anyway.)
         return "6666666666666666666666666666666666666666666666666666666666666666";
+    }
+
+    /** A real sealer id, ONLY for provably non-mutating ops (already-exists / same-value). */
+    private static String realSealerId() {
+        try {
+            List<SealerList.Sealer> sealers = client.getSealerList().getResult();
+            if (sealers != null && !sealers.isEmpty()) {
+                return sealers.get(0).getNodeID();
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    @org.junit.AfterClass
+    public static void cleanupPhantomConsensusEntry() {
+        // best-effort: drop the bogus consensus-table entry newer nodes accept
+        try {
+            ConsensusPrecompiled consensus =
+                    ConsensusPrecompiled.load(
+                            PrecompiledAddress.CONSENSUS_PRECOMPILED_ADDRESS, client, keyPair);
+            consensus.remove(pickNodeId());
+        } catch (Exception ignored) {
+        }
     }
 
     @Test
@@ -517,7 +543,10 @@ public class PrecompiledWrapperDecodeIntegrationTest {
     @Test
     public void testConsensusAddSealerInputOutputDecode() {
         try {
-            String nodeId = pickNodeId();
+            // real sealer id: addSealer on an EXISTING sealer is rejected on every node
+            // version (ALREADY_EXISTS_IN_SEALER_LIST) - a guaranteed-non-mutating receipt.
+            // A bogus id is NOT safe here: newer nodes accept it and create a phantom entry.
+            String nodeId = realSealerId();
             if (nodeId == null) {
                 System.out.println("testConsensusAddSealerInputOutputDecode skipped: no node id");
                 Assert.assertTrue(true);
@@ -548,7 +577,10 @@ public class PrecompiledWrapperDecodeIntegrationTest {
     @Test
     public void testConsensusSetWeightInputOutputDecode() {
         try {
-            String nodeId = pickNodeId();
+            // real sealer id with its genesis weight (1): a success receipt with zero net
+            // change on every node version. A bogus id would create a phantom entry on
+            // newer nodes.
+            String nodeId = realSealerId();
             if (nodeId == null) {
                 System.out.println("testConsensusSetWeightInputOutputDecode skipped: no node id");
                 Assert.assertTrue(true);

@@ -155,12 +155,28 @@ public class SystemServicesExhaustiveIntegrationTest {
                 System.out.println("addObserver duplicate rejected: " + expected.getMessage());
             }
 
-            // Put it back to sealer — and VERIFY it is actually back. Consensus membership
-            // changes only take effect on a block boundary; on newer nodes an addSealer sent
-            // right after the addObserver can return receipt status 0 without ever taking
-            // effect, silently leaving the shared 4-node chain with only 3 sealers (no PBFT
-            // fault tolerance) and stalling it under load. So poll-verify and retry.
-            boolean restored = false;
+            // Membership changes only take effect on a block boundary. FIRST wait until the
+            // demotion has actually been applied (the node left the sealer list) — otherwise
+            // the restore below is a false positive: the immediate addSealer is rejected with
+            // ALREADY_EXISTS while the node is still listed, the membership check passes on
+            // the stale list, and the demotion lands afterwards leaving the shared 4-node
+            // chain with only 3 sealers (no PBFT fault tolerance) until it stalls under load.
+            boolean demoted = false;
+            for (int i = 0; i < 10 && !demoted; i++) {
+                Thread.sleep(1000);
+                demoted = true;
+                for (SealerList.Sealer s : client.getSealerList().getResult()) {
+                    if (nodeId.equals(s.getNodeID())) {
+                        demoted = false;
+                        break;
+                    }
+                }
+            }
+            System.out.println("demotion applied: " + demoted);
+
+            // Put it back to sealer — and VERIFY it is actually back, retrying until the
+            // membership change takes effect.
+            boolean restored = !demoted;
             for (int attempt = 0; attempt < 5 && !restored; attempt++) {
                 try {
                     RetCode back = consensus.addSealer(nodeId, BigInteger.ONE);
