@@ -112,10 +112,15 @@ public class SystemServicesExhaustiveIntegrationTest {
     // ----------------------------------------------------------------------
 
     /**
-     * Full add/remove lifecycle using REAL node ids from the chain. This drives every well-formed
-     * branch in ConsensusService (existsInNodeList, sealer/observer membership checks, sync-status
-     * threshold check, receipt parsing) instead of only the validation-error branches covered by
-     * the expanded test.
+     * Drives the well-formed real-node branches of ConsensusService (existsInNodeList, sealer
+     * membership checks, sync-status threshold check, receipt parsing) via REJECTION paths only.
+     *
+     * <p>This test used to demote a real sealer to observer and re-add it. That is NOT safe on a
+     * shared 4-node chain: on newer nodes (>= 3.12) the demoted-then-restored node's consensus
+     * engine does not re-engage cleanly even after the sealer list shows it restored, and the
+     * chain stalls under load ~25s later, failing every remaining transaction in the suite with
+     * -4008. Live consensus-membership mutation belongs in a dedicated chain-per-test setup, not
+     * a suite-shared chain.
      */
     @Test
     public void testConsensusFullLifecycleWithRealNode() {
@@ -140,67 +145,13 @@ public class SystemServicesExhaustiveIntegrationTest {
                 System.out.println("addSealer existing sealer rejected: " + expected.getMessage());
             }
 
-            // move it to observer (real, well-formed) - may succeed or revert
+            // setWeight with the node's genesis weight (1): a success receipt with zero net
+            // change — drives the real-node success path without mutating anything
             try {
-                RetCode obs = consensus.addObserver(nodeId);
-                System.out.println("addObserver real node: " + obs.getCode());
+                RetCode sw = consensus.setWeight(nodeId, BigInteger.ONE);
+                System.out.println("setWeight same-value: " + sw.getCode());
             } catch (Exception ex) {
-                System.out.println("addObserver real node: " + ex.getMessage());
-            }
-
-            // adding observer again should now hit ALREADY_EXISTS_IN_OBSERVER_LIST
-            try {
-                consensus.addObserver(nodeId);
-            } catch (Exception expected) {
-                System.out.println("addObserver duplicate rejected: " + expected.getMessage());
-            }
-
-            // Membership changes only take effect on a block boundary. FIRST wait until the
-            // demotion has actually been applied (the node left the sealer list) — otherwise
-            // the restore below is a false positive: the immediate addSealer is rejected with
-            // ALREADY_EXISTS while the node is still listed, the membership check passes on
-            // the stale list, and the demotion lands afterwards leaving the shared 4-node
-            // chain with only 3 sealers (no PBFT fault tolerance) until it stalls under load.
-            boolean demoted = false;
-            for (int i = 0; i < 10 && !demoted; i++) {
-                Thread.sleep(1000);
-                demoted = true;
-                for (SealerList.Sealer s : client.getSealerList().getResult()) {
-                    if (nodeId.equals(s.getNodeID())) {
-                        demoted = false;
-                        break;
-                    }
-                }
-            }
-            System.out.println("demotion applied: " + demoted);
-
-            // Put it back to sealer — and VERIFY it is actually back, retrying until the
-            // membership change takes effect.
-            boolean restored = !demoted;
-            for (int attempt = 0; attempt < 5 && !restored; attempt++) {
-                try {
-                    RetCode back = consensus.addSealer(nodeId, BigInteger.ONE);
-                    System.out.println("addSealer back: " + back.getCode());
-                } catch (Exception ex) {
-                    System.out.println("addSealer back: " + ex.getMessage());
-                }
-                for (int i = 0; i < 5 && !restored; i++) {
-                    Thread.sleep(1000);
-                    List<SealerList.Sealer> now = client.getSealerList().getResult();
-                    for (SealerList.Sealer s : now) {
-                        if (nodeId.equals(s.getNodeID())) {
-                            restored = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            System.out.println("sealer restored: " + restored);
-            if (!restored) {
-                System.out.println(
-                        "WARNING: could not restore node "
-                                + nodeId
-                                + " to the sealer list; the chain is left degraded!");
+                System.out.println("setWeight same-value: " + ex.getMessage());
             }
         } catch (Exception e) {
             System.out.println("testConsensusFullLifecycleWithRealNode skipped: " + e.getMessage());
