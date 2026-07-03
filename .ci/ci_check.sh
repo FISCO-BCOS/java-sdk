@@ -97,7 +97,9 @@ wait_rpc_ready()
   local port="${1}"
   local i
   for i in $(seq 1 30); do
-    if curl -s -m 3 --noproxy "*" -o /dev/null "http://127.0.0.1:${port}"; then
+    if curl -s -m 3 --noproxy "*" -H "Content-Type: application/json" \
+         -d '{"jsonrpc":"2.0","method":"getBlockNumber","params":["group0",""],"id":1}' \
+         "http://127.0.0.1:${port}" | grep -q "jsonrpc"; then
       LOG_INFO "--- rpc 127.0.0.1:${port} is ready ---"
       return 0
     fi
@@ -192,6 +194,10 @@ fi
 
 PINNED_VERSION="v3.7.3"
 LATEST_VERSION=$(get_latest_version)
+if ! echo "${LATEST_VERSION}" | grep -qE "^v[0-9]+\.[0-9]+\.[0-9]+$"; then
+  echo "failed to resolve the latest FISCO BCOS release tag, got: '${LATEST_VERSION}'"
+  exit 1
+fi
 LOG_INFO "------ node versions: ${PINNED_VERSION} (pinned) + ${LATEST_VERSION} (latest) ---------"
 
 download_build_chain "${PINNED_VERSION}"
