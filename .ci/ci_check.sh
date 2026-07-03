@@ -134,7 +134,11 @@ prepare_sdk_config()
 
   ${sed_cmd} "s/enableSsl = \"true\"/enableSsl = \"false\"/" ./src/integration-test/resources/config.toml
   ${sed_cmd} "s/useSMCrypto = \"false\"/useSMCrypto = \"${use_sm}\"/" ./src/integration-test/resources/config.toml
-  ${sed_cmd} "s/127.0.0.1:20201/127.0.0.1:${rpc_port}/g" ./src/integration-test/resources/config.toml
+  # TWO peers for failover: on v3.16.x a single node's RPC endpoint can wedge under
+  # sustained load (observed both locally and on CI ~7.5 min into a round: every request
+  # to node0 times out while node1 keeps answering); with a second peer the SDK fails
+  # over instead of the whole round dying
+  ${sed_cmd} "s/peers=\[.*\]/peers=[\"127.0.0.1:${rpc_port}\", \"127.0.0.1:$((rpc_port + 1))\"]/" ./src/integration-test/resources/config.toml
 
   # amop test configs: restore from a pristine template each round, then point
   # them at this round's chain; certPath is replaced by enableSsl=false since
