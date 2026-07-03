@@ -717,15 +717,28 @@ public class WrapperTxContractDeepIntegrationTest {
         try {
             ConsensusService service = new ConsensusService(client, keyPair);
             String node = realSealerNodeId();
-            // exercise input/output decoders through the service against a real sealer node id
+            // Exercise the service codecs WITHOUT mutating the live consensus membership.
+            // This test previously did setWeight(2) + setTermWeight(1) + addObserver on a
+            // REAL sealer and never restored it. On nodes >= 3.12 (where setTermWeight passes
+            // its version gate instead of throwing into the catch block, which is why <= 3.11
+            // chains were unaffected) that permanently demoted a sealer of the shared 4-node
+            // chain, leaving PBFT with no fault tolerance; the chain then stalled under load
+            // and every later transaction in the suite timed out with -4008.
             RetCode addSealer = service.addSealer(node, BigInteger.ONE);
             System.out.println("addSealer ret: " + (addSealer == null ? "null" : addSealer.getCode()));
-            RetCode setWeight = service.setWeight(node, BigInteger.valueOf(2));
+            // same weight as genesis (1): success receipt + codecs, zero net change
+            RetCode setWeight = service.setWeight(node, BigInteger.ONE);
             System.out.println("setWeight ret: " + (setWeight == null ? "null" : setWeight.getCode()));
-            RetCode setTermWeight = service.setTermWeight(node, BigInteger.ONE);
-            System.out.println("setTermWeight ret: " + (setTermWeight == null ? "null" : setTermWeight.getCode()));
-            RetCode addObserver = service.addObserver(node);
-            System.out.println("addObserver ret: " + (addObserver == null ? "null" : addObserver.getCode()));
+            // bogus node id: still drives the version gate, the encoder and the error-receipt
+            // parsing, but cannot touch a real consensus node
+            String bogusTermNode =
+                    "3333333333333333333333333333333333333333333333333333333333333333";
+            try {
+                RetCode setTermWeight = service.setTermWeight(bogusTermNode, BigInteger.ONE);
+                System.out.println("setTermWeight ret: " + (setTermWeight == null ? "null" : setTermWeight.getCode()));
+            } catch (Exception ex) {
+                System.out.println("setTermWeight rejected: " + ex.getMessage());
+            }
             Assert.assertTrue(true);
         } catch (Exception e) {
             System.out.println("testConsensusServiceAddRemoveAgainstRealNode skipped: " + e.getMessage());

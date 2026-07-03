@@ -155,12 +155,36 @@ public class SystemServicesExhaustiveIntegrationTest {
                 System.out.println("addObserver duplicate rejected: " + expected.getMessage());
             }
 
-            // put it back to sealer
-            try {
-                RetCode back = consensus.addSealer(nodeId, BigInteger.ONE);
-                System.out.println("addSealer back: " + back.getCode());
-            } catch (Exception ex) {
-                System.out.println("addSealer back: " + ex.getMessage());
+            // Put it back to sealer — and VERIFY it is actually back. Consensus membership
+            // changes only take effect on a block boundary; on newer nodes an addSealer sent
+            // right after the addObserver can return receipt status 0 without ever taking
+            // effect, silently leaving the shared 4-node chain with only 3 sealers (no PBFT
+            // fault tolerance) and stalling it under load. So poll-verify and retry.
+            boolean restored = false;
+            for (int attempt = 0; attempt < 5 && !restored; attempt++) {
+                try {
+                    RetCode back = consensus.addSealer(nodeId, BigInteger.ONE);
+                    System.out.println("addSealer back: " + back.getCode());
+                } catch (Exception ex) {
+                    System.out.println("addSealer back: " + ex.getMessage());
+                }
+                for (int i = 0; i < 5 && !restored; i++) {
+                    Thread.sleep(1000);
+                    List<SealerList.Sealer> now = client.getSealerList().getResult();
+                    for (SealerList.Sealer s : now) {
+                        if (nodeId.equals(s.getNodeID())) {
+                            restored = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            System.out.println("sealer restored: " + restored);
+            if (!restored) {
+                System.out.println(
+                        "WARNING: could not restore node "
+                                + nodeId
+                                + " to the sealer list; the chain is left degraded!");
             }
         } catch (Exception e) {
             System.out.println("testConsensusFullLifecycleWithRealNode skipped: " + e.getMessage());
@@ -192,16 +216,18 @@ public class SystemServicesExhaustiveIntegrationTest {
     public void testConsensusSetTermWeight() {
         try {
             ConsensusService consensus = new ConsensusService(client, keyPair);
-            List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
-            if (sealerList != null && !sealerList.isEmpty()) {
-                String nodeId = sealerList.get(0).getNodeID();
-                try {
-                    RetCode r = consensus.setTermWeight(nodeId, BigInteger.ONE);
-                    System.out.println("setTermWeight: " + r.getCode());
-                } catch (Exception ex) {
-                    // version gate / rpBFT disabled -> fine
-                    System.out.println("setTermWeight unsupported: " + ex.getMessage());
-                }
+            // bogus node id on purpose: drives the version gate, the encoder and the
+            // error-receipt parsing without changing a REAL sealer's term weight (a live
+            // consensus-parameter mutation is never restored and can destabilize the
+            // shared chain on rpBFT-capable node versions)
+            String bogusNode =
+                    "4444444444444444444444444444444444444444444444444444444444444444";
+            try {
+                RetCode r = consensus.setTermWeight(bogusNode, BigInteger.ONE);
+                System.out.println("setTermWeight: " + r.getCode());
+            } catch (Exception ex) {
+                // version gate / rpBFT disabled / unknown node -> fine
+                System.out.println("setTermWeight unsupported: " + ex.getMessage());
             }
         } catch (Exception e) {
             System.out.println("testConsensusSetTermWeight skipped: " + e.getMessage());
