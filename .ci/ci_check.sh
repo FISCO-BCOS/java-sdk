@@ -164,17 +164,35 @@ report_chain_health()
   LOG_INFO "--- ${outdir}: node0 consensus view-change timeouts so far: ${cnt:-0} ---"
 }
 
+# run one round; never aborts the script — a failed round is recorded in
+# FAILED_ROUNDS so the remaining rounds still run and the job fails at the end
 run_integration_round()
 {
   local name="${1}"
   local rpc_port="${2}"
   local use_sm="${3}"
+  local outdir="${4}"
   LOG_INFO "------ integration round: ${name} (rpc ${rpc_port}, sm=${use_sm}) ------"
-  wait_rpc_ready "${rpc_port}"
-  prepare_sdk_config "${rpc_port}" "${use_sm}"
-  bash gradlew clean integrationTest --info
-  # if hs_err log exist, print it
-  (cat hs_err_pid*.log) || true
+  report_chain_health "${outdir}"
+  local round_status=0
+  if wait_rpc_ready "${rpc_port}"; then
+    prepare_sdk_config "${rpc_port}" "${use_sm}"
+    bash gradlew clean integrationTest --info || round_status=1
+    # if hs_err log exist, print it
+    (cat hs_err_pid*.log) || true
+  else
+    round_status=1
+  fi
+  report_chain_health "${outdir}"
+  # stop this chain as soon as its round is done: later rounds do not touch it,
+  # and the runner (especially macOS, where the x86_64 nodes run under Rosetta)
+  # cannot sustain all 12 nodes plus the JVM for the whole job — chain2 stalled
+  # with execution timeouts mid-round when all three chains were kept running
+  bash "${outdir}/127.0.0.1/stop_all.sh" || true
+  if [ "${round_status}" -ne 0 ]; then
+    FAILED_ROUNDS="${FAILED_ROUNDS} [${name}]"
+  fi
+  return 0
 }
 
 LOG_INFO "------ check java version ---------"
@@ -212,17 +230,20 @@ build_chain_one "${PINNED_VERSION}" "nodes_pinned"    "30300,20200"
 build_chain_one "${LATEST_VERSION}" "nodes_latest"    "30310,20210"
 build_chain_one "${LATEST_VERSION}" "nodes_latest_sm" "30320,20220" "-s"
 
+# chain1 is needed right away; chains 2/3 have the whole preceding rounds to
+# finish booting, so a slow start there is only logged, not fatal — each round
+# re-checks readiness itself
 wait_rpc_ready 20200
-wait_rpc_ready 20210
-wait_rpc_ready 20220
+wait_rpc_ready 20210 || true
+wait_rpc_ready 20220 || true
 
-run_integration_round "ecdsa @ ${PINNED_VERSION}" 20200 "false"
-report_chain_health "nodes_latest"
-run_integration_round "ecdsa @ ${LATEST_VERSION}" 20210 "false"
-report_chain_health "nodes_latest_sm"
-run_integration_round "sm @ ${LATEST_VERSION}"    20220 "true"
+FAILED_ROUNDS=""
+run_integration_round "ecdsa @ ${PINNED_VERSION}" 20200 "false" "nodes_pinned"
+run_integration_round "ecdsa @ ${LATEST_VERSION}" 20210 "false" "nodes_latest"
+run_integration_round "sm @ ${LATEST_VERSION}"    20220 "true"  "nodes_latest_sm"
 
-# best-effort teardown
-bash nodes_pinned/127.0.0.1/stop_all.sh || true
-bash nodes_latest/127.0.0.1/stop_all.sh || true
-bash nodes_latest_sm/127.0.0.1/stop_all.sh || true
+if [ -n "${FAILED_ROUNDS}" ]; then
+  echo "integration rounds failed:${FAILED_ROUNDS}"
+  exit 1
+fi
+LOG_INFO "------ all integration rounds passed ---------"
