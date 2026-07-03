@@ -688,8 +688,13 @@ public class WrapperTxContractDeepIntegrationTest {
             ConsensusPrecompiled consensus =
                     ConsensusPrecompiled.load(
                             PrecompiledAddress.CONSENSUS_PRECOMPILED_ADDRESS, client, keyPair);
-            // bogus node id so the chain rejects but the async path + decoders still run
-            String bogus = realSealerNodeId();
+            // A REALLY bogus node id so the chain rejects but the async path + decoders still
+            // run. This used to be realSealerNodeId() despite the comment: the async
+            // consensus.remove() below then REMOVED a live sealer from the shared 4-node chain
+            // (remove has no version gate, so every node version was affected), the chain
+            // stalled under load and every later transaction in the suite timed out with -4008.
+            String bogus =
+                    "5555555555555555555555555555555555555555555555555555555555555555";
 
             final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(2);
             TransactionCallback cb =
