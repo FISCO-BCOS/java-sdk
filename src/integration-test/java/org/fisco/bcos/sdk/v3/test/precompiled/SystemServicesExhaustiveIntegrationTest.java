@@ -255,7 +255,13 @@ public class SystemServicesExhaustiveIntegrationTest {
                     if (SystemConfigService.AUTH_STATUS.equals(key)) {
                         next = current; // re-set same to avoid flipping auth on the live chain
                     } else if (SystemConfigService.TX_GAS_PRICE.equals(key)) {
-                        next = "1"; // small positive, exercises Numeric.toHexString conversion
+                        // MUST stay "0": it still exercises the Numeric.toHexString conversion
+                        // branch, but a non-zero gas price poisons the live chain — every later
+                        // transaction from the zero-balance test accounts can no longer be
+                        // sealed (and the price cannot be restored, since the restoring
+                        // transaction itself would need gas), failing whole test classes that
+                        // happen to run after this one.
+                        next = "0";
                     } else if (SystemConfigService.TX_GAS_LIMIT.equals(key)) {
                         next =
                                 new BigInteger(current)
