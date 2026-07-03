@@ -472,14 +472,13 @@ public class PrecompiledWrapperDecodeIntegrationTest {
     // ======================================================================
 
     private static String pickNodeId() {
-        try {
-            List<SealerList.Sealer> sealers = client.getSealerList().getResult();
-            if (sealers != null && !sealers.isEmpty()) {
-                return sealers.get(0).getNodeID();
-            }
-        } catch (Exception ignored) {
-        }
-        return null;
+        // A well-formed but BOGUS node id, on purpose. This used to return a REAL sealer id
+        // (getSealerList().get(0)): the addObserver decode test below then actually DEMOTED a
+        // live sealer of the shared 4-node chain (the "may be rejected" assumption was wrong),
+        // leaving PBFT with no fault tolerance and stalling the chain under load. The decode
+        // tests only assert on the transaction INPUT decoding, which works exactly the same on
+        // the error receipt a bogus node id produces.
+        return "6666666666666666666666666666666666666666666666666666666666666666";
     }
 
     @Test
