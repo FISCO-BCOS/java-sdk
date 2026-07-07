@@ -112,10 +112,15 @@ public class SystemServicesExhaustiveIntegrationTest {
     // ----------------------------------------------------------------------
 
     /**
-     * Full add/remove lifecycle using REAL node ids from the chain. This drives every well-formed
-     * branch in ConsensusService (existsInNodeList, sealer/observer membership checks, sync-status
-     * threshold check, receipt parsing) instead of only the validation-error branches covered by
-     * the expanded test.
+     * Drives the well-formed real-node branches of ConsensusService (existsInNodeList, sealer
+     * membership checks, sync-status threshold check, receipt parsing) via REJECTION paths only.
+     *
+     * <p>This test used to demote a real sealer to observer and re-add it. That is NOT safe on a
+     * shared 4-node chain: on newer nodes (>= 3.12) the demoted-then-restored node's consensus
+     * engine does not re-engage cleanly even after the sealer list shows it restored, and the
+     * chain stalls under load ~25s later, failing every remaining transaction in the suite with
+     * -4008. Live consensus-membership mutation belongs in a dedicated chain-per-test setup, not
+     * a suite-shared chain.
      */
     @Test
     public void testConsensusFullLifecycleWithRealNode() {
@@ -140,27 +145,13 @@ public class SystemServicesExhaustiveIntegrationTest {
                 System.out.println("addSealer existing sealer rejected: " + expected.getMessage());
             }
 
-            // move it to observer (real, well-formed) - may succeed or revert
+            // setWeight with the node's genesis weight (1): a success receipt with zero net
+            // change — drives the real-node success path without mutating anything
             try {
-                RetCode obs = consensus.addObserver(nodeId);
-                System.out.println("addObserver real node: " + obs.getCode());
+                RetCode sw = consensus.setWeight(nodeId, BigInteger.ONE);
+                System.out.println("setWeight same-value: " + sw.getCode());
             } catch (Exception ex) {
-                System.out.println("addObserver real node: " + ex.getMessage());
-            }
-
-            // adding observer again should now hit ALREADY_EXISTS_IN_OBSERVER_LIST
-            try {
-                consensus.addObserver(nodeId);
-            } catch (Exception expected) {
-                System.out.println("addObserver duplicate rejected: " + expected.getMessage());
-            }
-
-            // put it back to sealer
-            try {
-                RetCode back = consensus.addSealer(nodeId, BigInteger.ONE);
-                System.out.println("addSealer back: " + back.getCode());
-            } catch (Exception ex) {
-                System.out.println("addSealer back: " + ex.getMessage());
+                System.out.println("setWeight same-value: " + ex.getMessage());
             }
         } catch (Exception e) {
             System.out.println("testConsensusFullLifecycleWithRealNode skipped: " + e.getMessage());
@@ -192,15 +183,25 @@ public class SystemServicesExhaustiveIntegrationTest {
     public void testConsensusSetTermWeight() {
         try {
             ConsensusService consensus = new ConsensusService(client, keyPair);
-            List<SealerList.Sealer> sealerList = client.getSealerList().getResult();
-            if (sealerList != null && !sealerList.isEmpty()) {
-                String nodeId = sealerList.get(0).getNodeID();
+            // bogus node id on purpose: drives the version gate, the encoder and the
+            // error-receipt parsing without changing a REAL sealer's term weight (a live
+            // consensus-parameter mutation is never restored and can destabilize the
+            // shared chain on rpBFT-capable node versions)
+            String bogusNode =
+                    "4444444444444444444444444444444444444444444444444444444444444444";
+            try {
+                RetCode r = consensus.setTermWeight(bogusNode, BigInteger.ONE);
+                System.out.println("setTermWeight: " + r.getCode());
+            } catch (Exception ex) {
+                // version gate / rpBFT disabled / unknown node -> fine
+                System.out.println("setTermWeight unsupported: " + ex.getMessage());
+            } finally {
+                // some node versions (observed on 3.16.x) accept consensus ops for an
+                // unknown node id with a success receipt, leaving a phantom committee
+                // entry behind on the shared chain — always try to remove it again
                 try {
-                    RetCode r = consensus.setTermWeight(nodeId, BigInteger.ONE);
-                    System.out.println("setTermWeight: " + r.getCode());
-                } catch (Exception ex) {
-                    // version gate / rpBFT disabled -> fine
-                    System.out.println("setTermWeight unsupported: " + ex.getMessage());
+                    consensus.removeNode(bogusNode);
+                } catch (Exception ignored) {
                 }
             }
         } catch (Exception e) {
@@ -214,14 +215,20 @@ public class SystemServicesExhaustiveIntegrationTest {
     public void testConsensusSetWeightInvalidNode() {
         try {
             ConsensusService consensus = new ConsensusService(client, keyPair);
+            String bogusNode =
+                    "3333333333333333333333333333333333333333333333333333333333333333";
             try {
-                RetCode r =
-                        consensus.setWeight(
-                                "3333333333333333333333333333333333333333333333333333333333333333",
-                                BigInteger.valueOf(2));
+                RetCode r = consensus.setWeight(bogusNode, BigInteger.valueOf(2));
                 System.out.println("setWeight invalid: " + r.getCode());
             } catch (Exception ex) {
                 System.out.println("setWeight invalid rejected: " + ex.getMessage());
+            } finally {
+                // 3.16.x-style nodes accept this with a success receipt, which would put a
+                // phantom weight-2 sealer into the shared chain's committee — remove it
+                try {
+                    consensus.removeNode(bogusNode);
+                } catch (Exception ignored) {
+                }
             }
         } catch (Exception e) {
             System.out.println("testConsensusSetWeightInvalidNode skipped: " + e.getMessage());
@@ -250,19 +257,18 @@ public class SystemServicesExhaustiveIntegrationTest {
                     String current =
                             client.getSystemConfigByKey(key).getSystemConfig().getValue();
                     System.out.println(key + " current=" + current);
-                    // pick a valid-ish next value per key
-                    String next;
-                    if (SystemConfigService.AUTH_STATUS.equals(key)) {
-                        next = current; // re-set same to avoid flipping auth on the live chain
-                    } else if (SystemConfigService.TX_GAS_PRICE.equals(key)) {
-                        next = "1"; // small positive, exercises Numeric.toHexString conversion
-                    } else if (SystemConfigService.TX_GAS_LIMIT.equals(key)) {
-                        next =
-                                new BigInteger(current)
-                                        .add(BigInteger.valueOf(1000))
-                                        .toString();
-                    } else {
-                        next = new BigInteger(current).add(BigInteger.ONE).toString();
+                    // ALWAYS re-set the CURRENT value. This still drives the full
+                    // setValueByKey pipeline (validation predicates, the tx_gas_price
+                    // Numeric.toHexString branch, tx submission, receipt parsing) but leaves
+                    // the shared chain's behavior untouched. Changing live values here has
+                    // repeatedly poisoned the suite: a non-zero tx_gas_price makes every
+                    // zero-balance account unable to transact (and cannot be undone, since
+                    // the undoing tx would itself need gas), and consensus parameters like
+                    // consensus_leader_period apply at the next epoch and can stall newer
+                    // nodes' PBFT minutes later.
+                    String next = current;
+                    if (SystemConfigService.TX_GAS_PRICE.equals(key)) {
+                        next = "0"; // hex-conversion branch; 0 keeps transactions free
                     }
                     RetCode r = sysConfig.setValueByKey(key, next);
                     System.out.println("set " + key + "=" + next + " -> " + r.getCode());
@@ -313,10 +319,18 @@ public class SystemServicesExhaustiveIntegrationTest {
             } catch (Exception expected) {
                 System.out.println("unknown feature rejected: " + expected.getMessage());
             }
-            // a real, known feature key (may or may not be enabled on the chain version)
+            // a real, known feature key: only RE-SET it if it is already enabled on this
+            // chain — enabling a feature switch mid-run changes execution semantics at the
+            // next block on the shared live chain
             try {
-                RetCode r = sysConfig.setValueByKey("bugfix_revert", "1");
-                System.out.println("set bugfix_revert: " + r.getCode());
+                String cur =
+                        client.getSystemConfigByKey("bugfix_revert").getSystemConfig().getValue();
+                if ("1".equals(cur)) {
+                    RetCode r = sysConfig.setValueByKey("bugfix_revert", "1");
+                    System.out.println("set bugfix_revert: " + r.getCode());
+                } else {
+                    System.out.println("bugfix_revert not enabled, write skipped");
+                }
             } catch (Exception ex) {
                 System.out.println("set bugfix_revert: " + ex.getMessage());
             }
