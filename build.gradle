@@ -69,6 +69,7 @@ allprojects {
         testImplementation("junit:junit:${junitVersion}")
         testImplementation("org.apache.commons:commons-collections4:${commonsCollections4Version}")
         testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+        testImplementation("org.objenesis:objenesis:3.2")
     }
 
     clean.doLast {
