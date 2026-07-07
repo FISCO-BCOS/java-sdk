@@ -876,10 +876,17 @@ public class WrapperTxContractDeepIntegrationTest {
             AssembleTransactionProcessor processor =
                     TransactionProcessorFactory.createAssembleTransactionProcessor(client, keyPair);
 
-            // deployAndGetResponseWithStringParams(abi, bin, params) — HelloWorld constructor empty
+            // deployAndGetResponseWithStringParams(abi, bin, params) — HelloWorld constructor empty.
+            // The 4th arg is the DEPLOY PATH and must stay "" on a Solidity chain: it is copied
+            // verbatim into the transaction's `to` field (only WASM/Liquid deploys use a path).
+            // Passing "HelloWorld" here put a non-hex `to` on the wire; the 3.16.x baseline
+            // scheduler throws from boost unhex while executing that block and PBFT retries the
+            // same poisoned proposal forever — one such tx permanently halted the whole chain
+            // (every later tx in the suite then timed out with -4008). Older executors (3.7.x)
+            // tolerate it, which is why only the latest-version CI rounds died.
             TransactionResponse sp1 =
                     processor.deployAndGetResponseWithStringParams(
-                            helloWorldAbi, helloWorldBin, new ArrayList<String>(), "HelloWorld");
+                            helloWorldAbi, helloWorldBin, new ArrayList<String>(), "");
             System.out.println("deployWithStringParams status: " + sp1.getReturnCode());
 
             // deployAndGetResponse(abi, signedData) — pre-signed deploy via createSignedConstructor
