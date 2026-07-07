@@ -33,14 +33,19 @@ the repo's git pre-commit hook (`copyHooks` task copies from `hooks/`).
 
 ### Integration tests require a running chain
 
-`./gradlew integrationTest` (EVM/Solidity) and `./gradlew integrationWasmTest` (WASM/Liquid) **cannot
-run without a live FISCO BCOS node** and generated SDK certificates in `conf/`. CI provisions this in
-`.ci/ci_check.sh` (`prepare_environment`): it builds a local chain with `build_chain.sh`, copies
-`nodes/127.0.0.1/sdk/*` into `conf/`, and writes `src/integration-test/resources/config.toml`
-(toggling `useSMCrypto` for SM-crypto nodes). Do not expect these tasks to pass in a bare checkout.
+`./gradlew integrationTest` (EVM/Solidity) **cannot run without a live FISCO BCOS node**. CI
+provisions this in `.ci/ci_check.sh`: it starts three local 4-node chains at once with
+`build_chain.sh` on disjoint ports — a pinned v3.7.3 ECDSA chain (rpc 20200), an ECDSA chain on the
+**latest release** (rpc 20210, tag auto-resolved from the GitHub `releases/latest` redirect), and an
+SM-crypto chain on the latest release (rpc 20220). All chains run with **SSL disabled on the RPC
+endpoint** (`disable_ssl=true` / `enable_ssl=false` in each node's `[rpc]` config), so the SDK
+connects **without certificates** (`enableSsl = "false"` in the rendered
+`src/integration-test/resources/config.toml`; `useSMCrypto` toggled per round). `integrationTest`
+then runs once per chain. (`./gradlew integrationWasmTest` still exists but is no longer exercised
+in CI.) Do not expect these tasks to pass in a bare checkout.
 
-CI entrypoint is `.github/workflows/workflow.yml` → `.ci/ci_check.sh` (Linux/macOS run integration
-tests against multiple node versions; Windows runs only `./gradlew.bat build`).
+CI entrypoint is `.github/workflows/workflow.yml` → `.ci/ci_check.sh` (Linux/macOS run the three
+integration rounds; Windows runs only `./gradlew.bat build`).
 
 ### Native dependency note
 

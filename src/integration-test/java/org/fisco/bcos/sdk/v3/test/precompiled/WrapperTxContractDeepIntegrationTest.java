@@ -688,8 +688,13 @@ public class WrapperTxContractDeepIntegrationTest {
             ConsensusPrecompiled consensus =
                     ConsensusPrecompiled.load(
                             PrecompiledAddress.CONSENSUS_PRECOMPILED_ADDRESS, client, keyPair);
-            // bogus node id so the chain rejects but the async path + decoders still run
-            String bogus = realSealerNodeId();
+            // A REALLY bogus node id so the chain rejects but the async path + decoders still
+            // run. This used to be realSealerNodeId() despite the comment: the async
+            // consensus.remove() below then REMOVED a live sealer from the shared 4-node chain
+            // (remove has no version gate, so every node version was affected), the chain
+            // stalled under load and every later transaction in the suite timed out with -4008.
+            String bogus =
+                    "5555555555555555555555555555555555555555555555555555555555555555";
 
             final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(2);
             TransactionCallback cb =
@@ -717,15 +722,35 @@ public class WrapperTxContractDeepIntegrationTest {
         try {
             ConsensusService service = new ConsensusService(client, keyPair);
             String node = realSealerNodeId();
-            // exercise input/output decoders through the service against a real sealer node id
+            // Exercise the service codecs WITHOUT mutating the live consensus membership.
+            // This test previously did setWeight(2) + setTermWeight(1) + addObserver on a
+            // REAL sealer and never restored it. On nodes >= 3.12 (where setTermWeight passes
+            // its version gate instead of throwing into the catch block, which is why <= 3.11
+            // chains were unaffected) that permanently demoted a sealer of the shared 4-node
+            // chain, leaving PBFT with no fault tolerance; the chain then stalled under load
+            // and every later transaction in the suite timed out with -4008.
             RetCode addSealer = service.addSealer(node, BigInteger.ONE);
             System.out.println("addSealer ret: " + (addSealer == null ? "null" : addSealer.getCode()));
-            RetCode setWeight = service.setWeight(node, BigInteger.valueOf(2));
+            // same weight as genesis (1): success receipt + codecs, zero net change
+            RetCode setWeight = service.setWeight(node, BigInteger.ONE);
             System.out.println("setWeight ret: " + (setWeight == null ? "null" : setWeight.getCode()));
-            RetCode setTermWeight = service.setTermWeight(node, BigInteger.ONE);
-            System.out.println("setTermWeight ret: " + (setTermWeight == null ? "null" : setTermWeight.getCode()));
-            RetCode addObserver = service.addObserver(node);
-            System.out.println("addObserver ret: " + (addObserver == null ? "null" : addObserver.getCode()));
+            // bogus node id: still drives the version gate, the encoder and the error-receipt
+            // parsing, but cannot touch a real consensus node
+            String bogusTermNode =
+                    "3333333333333333333333333333333333333333333333333333333333333333";
+            try {
+                RetCode setTermWeight = service.setTermWeight(bogusTermNode, BigInteger.ONE);
+                System.out.println("setTermWeight ret: " + (setTermWeight == null ? "null" : setTermWeight.getCode()));
+            } catch (Exception ex) {
+                System.out.println("setTermWeight rejected: " + ex.getMessage());
+            } finally {
+                // 3.16.x-style nodes accept consensus ops for an unknown node id with a
+                // success receipt, leaving a phantom committee entry on the shared chain
+                try {
+                    service.removeNode(bogusTermNode);
+                } catch (Exception ignored) {
+                }
+            }
             Assert.assertTrue(true);
         } catch (Exception e) {
             System.out.println("testConsensusServiceAddRemoveAgainstRealNode skipped: " + e.getMessage());
@@ -851,10 +876,17 @@ public class WrapperTxContractDeepIntegrationTest {
             AssembleTransactionProcessor processor =
                     TransactionProcessorFactory.createAssembleTransactionProcessor(client, keyPair);
 
-            // deployAndGetResponseWithStringParams(abi, bin, params) — HelloWorld constructor empty
+            // deployAndGetResponseWithStringParams(abi, bin, params) — HelloWorld constructor empty.
+            // The 4th arg is the DEPLOY PATH and must stay "" on a Solidity chain: it is copied
+            // verbatim into the transaction's `to` field (only WASM/Liquid deploys use a path).
+            // Passing "HelloWorld" here put a non-hex `to` on the wire; the 3.16.x baseline
+            // scheduler throws from boost unhex while executing that block and PBFT retries the
+            // same poisoned proposal forever — one such tx permanently halted the whole chain
+            // (every later tx in the suite then timed out with -4008). Older executors (3.7.x)
+            // tolerate it, which is why only the latest-version CI rounds died.
             TransactionResponse sp1 =
                     processor.deployAndGetResponseWithStringParams(
-                            helloWorldAbi, helloWorldBin, new ArrayList<String>(), "HelloWorld");
+                            helloWorldAbi, helloWorldBin, new ArrayList<String>(), "");
             System.out.println("deployWithStringParams status: " + sp1.getReturnCode());
 
             // deployAndGetResponse(abi, signedData) — pre-signed deploy via createSignedConstructor
