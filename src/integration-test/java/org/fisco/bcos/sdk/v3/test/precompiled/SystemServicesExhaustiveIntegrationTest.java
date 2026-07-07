@@ -195,6 +195,14 @@ public class SystemServicesExhaustiveIntegrationTest {
             } catch (Exception ex) {
                 // version gate / rpBFT disabled / unknown node -> fine
                 System.out.println("setTermWeight unsupported: " + ex.getMessage());
+            } finally {
+                // some node versions (observed on 3.16.x) accept consensus ops for an
+                // unknown node id with a success receipt, leaving a phantom committee
+                // entry behind on the shared chain — always try to remove it again
+                try {
+                    consensus.removeNode(bogusNode);
+                } catch (Exception ignored) {
+                }
             }
         } catch (Exception e) {
             System.out.println("testConsensusSetTermWeight skipped: " + e.getMessage());
@@ -207,14 +215,20 @@ public class SystemServicesExhaustiveIntegrationTest {
     public void testConsensusSetWeightInvalidNode() {
         try {
             ConsensusService consensus = new ConsensusService(client, keyPair);
+            String bogusNode =
+                    "3333333333333333333333333333333333333333333333333333333333333333";
             try {
-                RetCode r =
-                        consensus.setWeight(
-                                "3333333333333333333333333333333333333333333333333333333333333333",
-                                BigInteger.valueOf(2));
+                RetCode r = consensus.setWeight(bogusNode, BigInteger.valueOf(2));
                 System.out.println("setWeight invalid: " + r.getCode());
             } catch (Exception ex) {
                 System.out.println("setWeight invalid rejected: " + ex.getMessage());
+            } finally {
+                // 3.16.x-style nodes accept this with a success receipt, which would put a
+                // phantom weight-2 sealer into the shared chain's committee — remove it
+                try {
+                    consensus.removeNode(bogusNode);
+                } catch (Exception ignored) {
+                }
             }
         } catch (Exception e) {
             System.out.println("testConsensusSetWeightInvalidNode skipped: " + e.getMessage());

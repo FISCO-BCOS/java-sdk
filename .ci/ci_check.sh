@@ -168,6 +168,45 @@ report_chain_health()
   LOG_INFO "--- ${outdir}: node0 consensus view-change timeouts so far: ${cnt:-0} ---"
 }
 
+rpc_call()
+{
+  local port="${1}"
+  local method="${2}"
+  curl -s -m 5 --noproxy "*" -H "Content-Type: application/json" \
+    -d "{\"jsonrpc\":\"2.0\",\"method\":\"${method}\",\"params\":[\"group0\",\"\"],\"id\":1}" \
+    "http://127.0.0.1:${port}" 2>/dev/null
+}
+
+# only runs after a failed round: a "-4008 receipt timeout" alone cannot be
+# attributed — this answers, per node, whether blocks still advance, whether
+# txs are stuck in the txpool, what the committee looks like (a phantom
+# bogus-id entry would show up in the sealer/observer lists), and what the
+# node logs themselves report
+dump_chain_diagnostics()
+{
+  local rpc_port="${1}"
+  local outdir="${2}"
+  local i port node
+  LOG_INFO "--- diagnostics for ${outdir} (rpc base ${rpc_port}) ---"
+  for i in 0 1 2 3; do
+    port=$((rpc_port + i))
+    echo "[node${i} :${port}] blockNumber(t0): $(rpc_call "${port}" getBlockNumber)"
+    echo "[node${i} :${port}] pendingTxSize:   $(rpc_call "${port}" getPendingTxSize)"
+  done
+  sleep 5
+  for i in 0 1 2 3; do
+    port=$((rpc_port + i))
+    echo "[node${i} :${port}] blockNumber(t+5s): $(rpc_call "${port}" getBlockNumber)"
+  done
+  echo "[node0] sealerList:      $(rpc_call "${rpc_port}" getSealerList | head -c 2000)"
+  echo "[node0] observerList:    $(rpc_call "${rpc_port}" getObserverList | head -c 1000)"
+  echo "[node0] consensusStatus: $(rpc_call "${rpc_port}" getConsensusStatus | head -c 3000)"
+  for node in node0 node1 node2 node3; do
+    echo "--- ${outdir}/${node}: last warning/error log lines ---"
+    grep -hE "^(warning|error)\|" "${outdir}/127.0.0.1/${node}/log/"*.log 2>/dev/null | tail -20 || true
+  done
+}
+
 # run one round; never aborts the script — a failed round is recorded in
 # FAILED_ROUNDS so the remaining rounds still run and the job fails at the end
 run_integration_round()
@@ -188,6 +227,9 @@ run_integration_round()
     round_status=1
   fi
   report_chain_health "${outdir}"
+  if [ "${round_status}" -ne 0 ]; then
+    dump_chain_diagnostics "${rpc_port}" "${outdir}" || true
+  fi
   # stop this chain as soon as its round is done: later rounds do not touch it,
   # and the runner (especially macOS, where the x86_64 nodes run under Rosetta)
   # cannot sustain all 12 nodes plus the JVM for the whole job — chain2 stalled

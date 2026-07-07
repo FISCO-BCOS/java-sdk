@@ -743,6 +743,13 @@ public class WrapperTxContractDeepIntegrationTest {
                 System.out.println("setTermWeight ret: " + (setTermWeight == null ? "null" : setTermWeight.getCode()));
             } catch (Exception ex) {
                 System.out.println("setTermWeight rejected: " + ex.getMessage());
+            } finally {
+                // 3.16.x-style nodes accept consensus ops for an unknown node id with a
+                // success receipt, leaving a phantom committee entry on the shared chain
+                try {
+                    service.removeNode(bogusTermNode);
+                } catch (Exception ignored) {
+                }
             }
             Assert.assertTrue(true);
         } catch (Exception e) {
