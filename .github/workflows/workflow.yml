@@ -14,16 +14,55 @@ env:
 jobs:
   build:
     name: build
-    # Heavy integration build runs on PRs and releases only; pushes to the main
-    # branches run just the lightweight 'coverage' job below (to upload a Codecov
-    # BASE report so PRs can show a coverage delta).
+    # Windows build (compile + unit tests, no integration). Heavy integration
+    # tests run in the separate 'integration' job below. Both run on PRs and
+    # releases only; pushes to the main branches run just the lightweight
+    # 'coverage' job (to upload a Codecov BASE report so PRs show a coverage delta).
     if: github.event_name != 'push'
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-2025, macos-latest ]
+        os: [ windows-2025 ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 5
+      - uses: actions/cache@v3
+        id: deps_cache
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.m2/repository
+          key: build-${{ matrix.os }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
+          restore-keys: |
+            build-${{ matrix.os }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
+            build-${{ matrix.os }}-${{ github.base_ref }}-
+            build-${{ matrix.os }}-
+      - name: Set up JDK 1.8.0.382
+        uses: actions/setup-java@v3
+        with:
+            distribution: 'zulu'
+            java-version: '8.0.382'
+      - name: run build test
+        run: ./gradlew.bat build
+
+  integration:
+    name: integration
+    # One integration round per job so the three chains run as independent
+    # parallel jobs (each builds a single 4-node chain) instead of one runner
+    # carrying all three chains through three sequential rounds. Same tests,
+    # same serial per-round execution — only the rounds are parallelized.
+    if: github.event_name != 'push'
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+        round: [ pinned-ecdsa, latest-ecdsa, latest-sm ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -37,11 +76,11 @@ jobs:
             ~/.m2/repository
             ~/.ccache
             ~/.fisco
-          key: build-${{ matrix.os }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
+          key: integration-${{ matrix.os }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
           restore-keys: |
-            build-${{ matrix.os }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
-            build-${{ matrix.os }}-${{ github.base_ref }}-
-            build-${{ matrix.os }}-
+            integration-${{ matrix.os }}-${{ github.base_ref }}-${{ hashFiles('.github/workflows/workflow.yml') }}
+            integration-${{ matrix.os }}-${{ github.base_ref }}-
+            integration-${{ matrix.os }}-
       - name: install Ubuntu dependencies
         if: runner.os == 'Linux'
         run: |
@@ -55,12 +94,8 @@ jobs:
         with:
             distribution: 'zulu'
             java-version: '8.0.382'
-      - name: run build test
-        if: runner.os == 'Windows'
-        run: ./gradlew.bat build
       - name: run integration testing
-        if: runner.os != 'Windows'
-        run: /bin/bash .ci/ci_check.sh
+        run: /bin/bash .ci/ci_check.sh ${{ matrix.round }}
 
   coverage:
     name: coverage
