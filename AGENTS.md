@@ -34,18 +34,27 @@ the repo's git pre-commit hook (`copyHooks` task copies from `hooks/`).
 ### Integration tests require a running chain
 
 `./gradlew integrationTest` (EVM/Solidity) **cannot run without a live FISCO BCOS node**. CI
-provisions this in `.ci/ci_check.sh`: it starts three local 4-node chains at once with
-`build_chain.sh` on disjoint ports — a pinned v3.7.3 ECDSA chain (rpc 20200), an ECDSA chain on the
-**latest release** (rpc 20210, tag auto-resolved from the GitHub `releases/latest` redirect), and an
-SM-crypto chain on the latest release (rpc 20220). All chains run with **SSL disabled on the RPC
-endpoint** (`disable_ssl=true` / `enable_ssl=false` in each node's `[rpc]` config), so the SDK
-connects **without certificates** (`enableSsl = "false"` in the rendered
-`src/integration-test/resources/config.toml`; `useSMCrypto` toggled per round). `integrationTest`
-then runs once per chain. (`./gradlew integrationWasmTest` still exists but is no longer exercised
-in CI.) Do not expect these tasks to pass in a bare checkout.
+provisions this in `.ci/ci_check.sh`, which takes a **round id** and builds just that round's single
+4-node chain with `build_chain.sh`, then runs one `integrationTest` pass against it. The three rounds:
+- `pinned-ecdsa` — pinned v3.7.3 ECDSA chain (rpc 20200)
+- `latest-ecdsa` — ECDSA chain on the **latest release** (rpc 20210, tag auto-resolved from the GitHub `releases/latest` redirect)
+- `latest-sm` — SM-crypto chain on the latest release (rpc 20220)
 
-CI entrypoint is `.github/workflows/workflow.yml` → `.ci/ci_check.sh` (Linux/macOS run the three
-integration rounds; Windows runs only `./gradlew.bat build`).
+Each chain runs with **SSL disabled on the RPC endpoint** (`disable_ssl=true` / `enable_ssl=false` in
+each node's `[rpc]` config), so the SDK connects **without certificates** (`enableSsl = "false"` in the
+rendered `src/integration-test/resources/config.toml`, single peer; `useSMCrypto` toggled per round).
+Running `.ci/ci_check.sh` with **no argument** (or `all`) builds all three chains and runs the rounds
+sequentially — the local/fallback path. (`./gradlew integrationWasmTest` still exists but is no longer
+exercised in CI.) Do not expect these tasks to pass in a bare checkout.
+
+CI entrypoint is `.github/workflows/workflow.yml`. The `integration` job runs each round as a separate
+**parallel** matrix leg (`.ci/ci_check.sh <round>`), so the chains run on independent runners (one
+4-node chain each) instead of one runner carrying all twelve nodes through three sequential rounds. The
+matrix is **asymmetric**: `ubuntu-latest` runs all three rounds (`pinned-ecdsa`, `latest-ecdsa`,
+`latest-sm`) in parallel, while `macos-latest` runs only `latest-ecdsa` — GitHub-hosted macOS runner
+slots are a scarce org-wide resource (cap ~5, shared across the whole org), so extra macOS legs only
+queue and buy no wall-clock; one macOS smoke round keeps the platform covered. The `build` job runs
+only `./gradlew.bat build` on Windows (compile + unit tests, no integration).
 
 ### Native dependency note
 

@@ -243,6 +243,36 @@ run_integration_round()
   return 0
 }
 
+# map a round id -> (version, outdir, ports, rpc_port, sm, extra) and run it:
+# download that one version, build its single 4-node cert-free chain, then run
+# one integrationTest pass against it. Splitting the rounds this way lets CI run
+# them as independent parallel jobs (one 4-node chain per runner) instead of one
+# runner carrying all three chains (12 nodes) through three sequential rounds.
+build_and_run_round()
+{
+  local round="${1}"
+  local tag outdir ports rpc_port sm extra name
+  case "${round}" in
+    pinned-ecdsa) tag="${PINNED_VERSION}";     outdir="nodes_pinned";    ports="30300,20200"; rpc_port=20200; sm="false"; extra="";   ;;
+    latest-ecdsa) tag="$(get_latest_version)"; outdir="nodes_latest";    ports="30310,20210"; rpc_port=20210; sm="false"; extra="";   ;;
+    latest-sm)    tag="$(get_latest_version)"; outdir="nodes_latest_sm"; ports="30320,20220"; rpc_port=20220; sm="true";  extra="-s"; ;;
+    *) echo "unknown round '${round}' (want: pinned-ecdsa | latest-ecdsa | latest-sm)"; exit 2 ;;
+  esac
+  if ! echo "${tag}" | grep -qE "^v[0-9]+\.[0-9]+\.[0-9]+$"; then
+    echo "failed to resolve node version for round '${round}', got: '${tag}'"
+    exit 1
+  fi
+  if [ "${sm}" = "true" ]; then name="sm @ ${tag}"; else name="ecdsa @ ${tag}"; fi
+  download_build_chain "${tag}"
+  download_binary "${tag}"
+  build_chain_one "${tag}" "${outdir}" "${ports}" "${extra}"
+  run_integration_round "${name}" "${rpc_port}" "${sm}" "${outdir}"
+}
+
+# round selector: a single round id (CI runs one per job, in parallel) or "all"
+# (local / fallback: run all three sequentially in this one invocation)
+ROUND="${1:-all}"
+
 LOG_INFO "------ check java version ---------"
 java -version
 
@@ -259,36 +289,23 @@ if [ ! -f "get_gm_account.sh" ];then
 fi
 
 PINNED_VERSION="v3.7.3"
-LATEST_VERSION=$(get_latest_version)
-if ! echo "${LATEST_VERSION}" | grep -qE "^v[0-9]+\.[0-9]+\.[0-9]+$"; then
-  echo "failed to resolve the latest FISCO BCOS release tag, got: '${LATEST_VERSION}'"
-  exit 1
-fi
-LOG_INFO "------ node versions: ${PINNED_VERSION} (pinned) + ${LATEST_VERSION} (latest) ---------"
-
-download_build_chain "${PINNED_VERSION}"
-download_binary "${PINNED_VERSION}"
-if [ "${LATEST_VERSION}" != "${PINNED_VERSION}" ];then
-  download_build_chain "${LATEST_VERSION}"
-  download_binary "${LATEST_VERSION}"
-fi
-
-# three chains, started together on disjoint ports, all with certificate-free rpc
-build_chain_one "${PINNED_VERSION}" "nodes_pinned"    "30300,20200"
-build_chain_one "${LATEST_VERSION}" "nodes_latest"    "30310,20210"
-build_chain_one "${LATEST_VERSION}" "nodes_latest_sm" "30320,20220" "-s"
-
-# chain1 is needed right away; chains 2/3 have the whole preceding rounds to
-# finish booting, so a slow start there is only logged, not fatal — each round
-# re-checks readiness itself
-wait_rpc_ready 20200
-wait_rpc_ready 20210 || true
-wait_rpc_ready 20220 || true
-
 FAILED_ROUNDS=""
-run_integration_round "ecdsa @ ${PINNED_VERSION}" 20200 "false" "nodes_pinned"
-run_integration_round "ecdsa @ ${LATEST_VERSION}" 20210 "false" "nodes_latest"
-run_integration_round "sm @ ${LATEST_VERSION}"    20220 "true"  "nodes_latest_sm"
+
+case "${ROUND}" in
+  all)
+    LOG_INFO "------ running all rounds sequentially (local/fallback mode) ------"
+    build_and_run_round pinned-ecdsa
+    build_and_run_round latest-ecdsa
+    build_and_run_round latest-sm
+    ;;
+  pinned-ecdsa|latest-ecdsa|latest-sm)
+    build_and_run_round "${ROUND}"
+    ;;
+  *)
+    echo "usage: $(basename "$0") [all|pinned-ecdsa|latest-ecdsa|latest-sm]"
+    exit 2
+    ;;
+esac
 
 if [ -n "${FAILED_ROUNDS}" ]; then
   echo "integration rounds failed:${FAILED_ROUNDS}"
