@@ -231,7 +231,7 @@ publishing {
             pom {
                 name = 'fisco-bcos'
                 description = 'fisco-bcos java-sdk'
-                url = 'http://www.fisco-bcos.org'
+                url = 'https://github.com/FISCO-BCOS/java-sdk'
 
                 licenses {
                     license {
