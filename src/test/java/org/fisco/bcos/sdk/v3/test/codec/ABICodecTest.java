@@ -403,6 +403,31 @@ public class ABICodecTest {
     }
 
     @Test
+    public void testDecodeConstructorInputWithoutParams() {
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
+        try {
+            List<Object> decoded =
+                    abiCodec.decodeConstructorInput(this.abiDesc, "0xaaaaaaaa", "0xaaaaaaaa");
+            Assert.assertTrue(decoded.isEmpty());
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDecodeConstructorInputWithInvalidPayload() {
+        String constructorAbi =
+                "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"b\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]";
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
+        try {
+            abiCodec.decodeConstructorInput(constructorAbi, "0xaaaaaaaa", "0xaaaaaaaa1234");
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof ContractCodecException);
+        }
+    }
+
+    @Test
     public void testEncodeConstructorWithInvalidParams() {
         List<String> args = new ArrayList<String>();
         args.add("invalid");
