@@ -273,8 +273,11 @@ public class AuthGovernanceExhaustiveIntegrationTest {
         }
         readBackAndRevoke(proposalId, "setSysConfig");
         // tx_gas_price branch -> exercises the Numeric.toHexString(value) conversion path.
+        // MUST stay "0": if this account ever is a governor with quorum, a non-zero value
+        // would actually execute and poison the live chain (zero-balance accounts can no
+        // longer send transactions, and the price cannot be restored).
         try {
-            authManager.createSetSysConfigProposal("tx_gas_price", "1");
+            authManager.createSetSysConfigProposal("tx_gas_price", "0");
         } catch (Exception e) {
             System.out.println("createSetSysConfigProposal(gasPrice) ignored: " + e.getMessage());
         }

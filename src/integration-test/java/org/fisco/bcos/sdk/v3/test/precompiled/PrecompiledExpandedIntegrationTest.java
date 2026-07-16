@@ -362,8 +362,10 @@ public class PrecompiledExpandedIntegrationTest {
             String key = SystemConfigService.CONSENSUS_PERIOD;
             String current = client.getSystemConfigByKey(key).getSystemConfig().getValue();
             System.out.println("consensus_leader_period current: " + current);
-            BigInteger updated = new BigInteger(current).add(BigInteger.ONE);
-            RetCode r = sysConfig.setValueByKey(key, updated.toString());
+            // re-set the CURRENT value: full setValueByKey pipeline, zero behavior change.
+            // Actually changing the leader period reconfigures PBFT at the next epoch and
+            // can stall newer nodes on the shared live chain.
+            RetCode r = sysConfig.setValueByKey(key, current);
             System.out.println("setValueByKey consensus_leader_period: " + r.getCode());
             String after = client.getSystemConfigByKey(key).getSystemConfig().getValue();
             System.out.println("consensus_leader_period after: " + after);
