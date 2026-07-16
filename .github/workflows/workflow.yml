@@ -51,18 +51,32 @@ jobs:
 
   integration:
     name: integration
-    # One integration round per job so the three chains run as independent
-    # parallel jobs (each builds a single 4-node chain) instead of one runner
-    # carrying all three chains through three sequential rounds. Same tests,
-    # same serial per-round execution — only the rounds are parallelized.
+    # One integration round per job so the rounds run as independent parallel
+    # jobs (each builds a single 4-node chain) instead of one runner carrying
+    # all three chains through three sequential rounds. Same tests, same serial
+    # per-round execution — only the rounds are parallelized.
+    #
+    # Asymmetric matrix: ubuntu runs all three rounds in parallel (Linux runner
+    # concurrency is ample), while macOS runs only the latest-ecdsa round.
+    # GitHub-hosted macOS runner slots are a scarce org-wide resource (cap ~5,
+    # shared across the whole org), so extra macOS legs just queue behind other
+    # org activity and buy no wall-clock — one macOS smoke round is enough to
+    # keep the platform covered without hogging those slots.
     if: github.event_name != 'push'
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
-        round: [ pinned-ecdsa, latest-ecdsa, latest-sm ]
+        include:
+          - os: ubuntu-latest
+            round: pinned-ecdsa
+          - os: ubuntu-latest
+            round: latest-ecdsa
+          - os: ubuntu-latest
+            round: latest-sm
+          - os: macos-latest
+            round: latest-ecdsa
     steps:
       - uses: actions/checkout@v3
         with:

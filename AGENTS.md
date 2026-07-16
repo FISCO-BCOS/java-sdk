@@ -48,9 +48,12 @@ sequentially — the local/fallback path. (`./gradlew integrationWasmTest` still
 exercised in CI.) Do not expect these tasks to pass in a bare checkout.
 
 CI entrypoint is `.github/workflows/workflow.yml`. The `integration` job runs each round as a separate
-**parallel** matrix leg (`{ubuntu-latest, macos-latest} × {pinned-ecdsa, latest-ecdsa, latest-sm}` →
-`.ci/ci_check.sh <round>`), so the three chains run on independent runners (one 4-node chain each)
-instead of one runner carrying all twelve nodes through three sequential rounds. The `build` job runs
+**parallel** matrix leg (`.ci/ci_check.sh <round>`), so the chains run on independent runners (one
+4-node chain each) instead of one runner carrying all twelve nodes through three sequential rounds. The
+matrix is **asymmetric**: `ubuntu-latest` runs all three rounds (`pinned-ecdsa`, `latest-ecdsa`,
+`latest-sm`) in parallel, while `macos-latest` runs only `latest-ecdsa` — GitHub-hosted macOS runner
+slots are a scarce org-wide resource (cap ~5, shared across the whole org), so extra macOS legs only
+queue and buy no wall-clock; one macOS smoke round keeps the platform covered. The `build` job runs
 only `./gradlew.bat build` on Windows (compile + unit tests, no integration).
 
 ### Native dependency note
