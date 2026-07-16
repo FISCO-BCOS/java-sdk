@@ -378,6 +378,56 @@ public class ABICodecTest {
     }
 
     @Test
+    public void testDecodeConstructorInputWithParams() {
+        String constructorAbi =
+                "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"b\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]";
+        List<String> args = new ArrayList<String>();
+        args.add("4660");
+        args.add("hello constructor");
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
+        try {
+            byte[] constructorEncode =
+                    abiCodec.encodeConstructorFromString(constructorAbi, "0xaaaaaaaa", args);
+            String input = "0x" + Hex.toHexString(constructorEncode);
+            List<Object> decoded =
+                    abiCodec.decodeConstructorInput(constructorAbi, "0xaaaaaaaa", input);
+            List<String> decodedString =
+                    abiCodec.decodeConstructorInputToString(constructorAbi, "0xaaaaaaaa", input);
+            Assert.assertEquals(args.size(), decoded.size());
+            Assert.assertEquals(new BigInteger(args.get(0)), decoded.get(0));
+            Assert.assertEquals(args.get(1), decoded.get(1));
+            Assert.assertEquals(args, decodedString);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDecodeConstructorInputWithoutParams() {
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
+        try {
+            List<Object> decoded =
+                    abiCodec.decodeConstructorInput(this.abiDesc, "0xaaaaaaaa", "0xaaaaaaaa");
+            Assert.assertTrue(decoded.isEmpty());
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDecodeConstructorInputWithInvalidPayload() {
+        String constructorAbi =
+                "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"b\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]";
+        ContractCodec abiCodec = new ContractCodec(TestUtils.getCryptoSuite(), false);
+        try {
+            abiCodec.decodeConstructorInput(constructorAbi, "0xaaaaaaaa", "0xaaaaaaaa1234");
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof ContractCodecException);
+        }
+    }
+
+    @Test
     public void testEncodeConstructorWithInvalidParams() {
         List<String> args = new ArrayList<String>();
         args.add("invalid");
