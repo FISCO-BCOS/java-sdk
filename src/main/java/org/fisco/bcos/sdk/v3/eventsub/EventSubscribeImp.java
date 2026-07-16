@@ -18,9 +18,10 @@ package org.fisco.bcos.sdk.v3.eventsub;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigInteger;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.fisco.bcos.sdk.jni.BcosSDKJniObj;
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.jni.event.EventSubJniObj;
 import org.fisco.bcos.sdk.v3.client.Client;
@@ -37,14 +38,25 @@ public class EventSubscribeImp implements EventSubscribe {
     private String groupId;
     private ConfigOption configOption;
     private CryptoSuite cryptoSuite;
+    private final Client ownerClient;
+    private final boolean ownsClient;
     private EventSubJniObj eventSubJniObj;
+    private boolean stopped;
+    private boolean destroyed;
 
     private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
 
     public EventSubscribeImp(Client client, ConfigOption configOption) throws JniException {
+        this(client, configOption, false);
+    }
+
+    EventSubscribeImp(Client client, ConfigOption configOption, boolean ownsClient)
+            throws JniException {
         this.groupId = client.getGroup();
         this.configOption = configOption;
         this.cryptoSuite = client.getCryptoSuite();
+        this.ownerClient = client;
+        this.ownsClient = ownsClient;
         this.eventSubJniObj = EventSubJniObj.build(client.getNativePointer());
         this.configOption = client.getConfigOption();
 
@@ -186,30 +198,63 @@ public class EventSubscribeImp implements EventSubscribe {
 
     @Override
     public void unsubscribeEvent(String eventId) {
-        eventSubJniObj.unsubscribeEvent(eventId);
+        if (eventSubJniObj != null) {
+            eventSubJniObj.unsubscribeEvent(eventId);
+        }
     }
 
     @Override
     public Set<String> getAllSubscribedEvents() {
-        // TODO: impl
-        return null;
+        if (eventSubJniObj == null) {
+            return Collections.emptySet();
+        }
+        Set<String> subscribedEvents = eventSubJniObj.getAllSubscribedEvents();
+        return subscribedEvents == null ? Collections.emptySet() : subscribedEvents;
     }
 
     @Override
-    public void start() {
-        eventSubJniObj.start();
+    public synchronized void start() {
+        if (destroyed) {
+            return;
+        }
+        ownerClient.start();
+        stopped = false;
     }
 
     @Override
-    public void stop() {
-        eventSubJniObj.stop();
+    public synchronized void stop() {
+        if (destroyed || stopped) {
+            return;
+        }
+        unsubscribeAllEvents();
+        if (ownsClient) {
+            ownerClient.stop();
+        }
+        stopped = true;
     }
 
     @Override
-    public void destroy() {
+    public synchronized void destroy() {
+        if (destroyed) {
+            return;
+        }
+        stop();
         if (eventSubJniObj != null) {
-            BcosSDKJniObj.destroy(eventSubJniObj.getNativePointer());
             eventSubJniObj = null;
+        }
+        if (ownsClient) {
+            ownerClient.destroy();
+        }
+        destroyed = true;
+    }
+
+    private void unsubscribeAllEvents() {
+        Set<String> subscribedEvents = getAllSubscribedEvents();
+        if (subscribedEvents.isEmpty()) {
+            return;
+        }
+        for (String eventId : new HashSet<>(subscribedEvents)) {
+            unsubscribeEvent(eventId);
         }
     }
 }
