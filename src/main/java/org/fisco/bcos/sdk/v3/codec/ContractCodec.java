@@ -1040,6 +1040,11 @@ public class ContractCodec {
                 ABIObject indexedObject = eventIndexedObject.get(i - 1);
                 if (indexedObject.isDynamic()) {
                     topics.add(log.getTopics().get(i));
+                } else if (indexedObject.getType() == ABIObject.ObjectType.VALUE) {
+                    ABIObject decodedIndexedObject =
+                            ContractCodecTools.decode(
+                                    indexedObject, Hex.decode(log.getTopics().get(i)), isWasm);
+                    topics.add(contractCodecJsonWrapper.decode(decodedIndexedObject).asText());
                 } else {
                     List<String> objects =
                             contractCodecJsonWrapper.decode(
