@@ -38,7 +38,7 @@ public interface EventSubscribe {
      */
     static EventSubscribe build(String group, ConfigOption configOption) throws JniException {
         Client client = Client.build(group, configOption);
-        return new EventSubscribeImp(client, configOption);
+        return new EventSubscribeImp(client, configOption, true);
     }
 
     /**
