@@ -1,6 +1,7 @@
 package org.fisco.bcos.sdk.v3.contract.auth.po;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
@@ -20,14 +21,14 @@ public class ProposalInfo extends DynamicStruct {
     private List<String> againstVoters;
 
     public ProposalInfo() {
-        super(
-                Address.DEFAULT,
-                Address.DEFAULT,
-                new Uint8(0),
-                new Uint256(0),
-                new Uint8(0),
-                new DynamicArray<>(Address.class),
-                new DynamicArray<>(Address.class));
+        this(
+                Address.DEFAULT.getValue(),
+                Address.DEFAULT.getValue(),
+                0,
+                BigInteger.ZERO,
+                0,
+                Collections.emptyList(),
+                Collections.emptyList());
     }
 
     public ProposalInfo(

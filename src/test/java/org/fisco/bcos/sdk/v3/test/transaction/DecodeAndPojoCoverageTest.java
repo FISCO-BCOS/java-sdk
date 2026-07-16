@@ -180,16 +180,16 @@ public class DecodeAndPojoCoverageTest {
     }
 
     @Test
-    public void testProposalInfoDefaultConstructorThrowsOnEmptyAddress() {
-        // Characterization test: new ProposalInfo() builds new Address("") which calls
-        // Numeric.toBigInt("") and throws NumberFormatException. Documents current behavior of the
-        // no-arg constructor (a possible latent issue on the chain-decode path).
-        try {
-            new ProposalInfo();
-            Assert.fail("expected NumberFormatException from empty Address");
-        } catch (NumberFormatException expected) {
-            // expected
-        }
+    public void testProposalInfoDefaultConstructorSucceeds() {
+        // The no-arg constructor now delegates to the 7-arg constructor using zero-address defaults,
+        // so it must not throw and must initialize all POJO fields.
+        ProposalInfo proposalInfo = new ProposalInfo();
+        Assert.assertNotNull(proposalInfo);
+        Assert.assertEquals(7, proposalInfo.getValue().size());
+        Assert.assertNotNull(proposalInfo.getResourceId());
+        Assert.assertNotNull(proposalInfo.getProposer());
+        Assert.assertNotNull(proposalInfo.getAgreeVoters());
+        Assert.assertNotNull(proposalInfo.getAgainstVoters());
     }
 
     // ----------------------------------------------------------------------------------
