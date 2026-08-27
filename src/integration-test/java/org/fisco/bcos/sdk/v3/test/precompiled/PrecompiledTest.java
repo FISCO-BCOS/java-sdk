@@ -341,20 +341,35 @@ public class PrecompiledTest {
 
     class FakeTransactionCallback implements PrecompiledCallback {
         public TransactionReceipt receipt;
+        private final ExecutorService executor;
+        private final Runnable onSuccess;
 
-        // wait until get the transactionReceipt; only successful responses count,
-        // otherwise an error response would be silently treated as a sealed tx
+        FakeTransactionCallback(ExecutorService executor, Runnable onSuccess) {
+            this.executor = executor;
+            this.onSuccess = onSuccess;
+        }
+
+        // wait until get the transactionReceipt; count by the receipt status only:
+        // for CRUD precompiled calls a successful retCode carries the affected row
+        // count (e.g. 1 for a successful insert), not 0
         @Override
         public void onResponse(RetCode retCode) {
             this.receipt = retCode.getTransactionReceipt();
-            if (retCode.getCode() == 0 && this.receipt != null && this.receipt.isStatusOK()) {
+            if (this.receipt != null && this.receipt.isStatusOK()) {
                 PrecompiledTest.this.receiptCount.addAndGet(1);
+                if (onSuccess != null) {
+                    // the next CRUD call resolves the table address with a blocking
+                    // call, it must not run on the sdk callback thread
+                    executor.execute(onSuccess);
+                }
             } else {
                 System.out.println(
                         "async crud failed, code: "
                                 + retCode.getCode()
                                 + ", message: "
-                                + retCode.getMessage());
+                                + retCode.getMessage()
+                                + ", receipt status: "
+                                + (this.receipt == null ? "null" : this.receipt.getStatus()));
             }
         }
     }
@@ -392,22 +407,45 @@ public class PrecompiledTest {
                         try {
                             LinkedHashMap<String, String> value = new LinkedHashMap<>();
                             value.put("field", "field" + index);
-                            // insert
-                            FakeTransactionCallback callback = new FakeTransactionCallback();
+                            // chain insert -> update -> remove per key through the callbacks,
+                            // firing them together races and fails with "Key not exist"
                             crudService.asyncInsert(
                                     tableName,
                                     new Entry(valueFiled, "key" + index, value),
-                                    callback);
-                            // update
-                            value.clear();
-                            value.put("field", "field" + index + 100);
-                            UpdateFields updateFields = new UpdateFields(value);
-                            FakeTransactionCallback callback2 = new FakeTransactionCallback();
-                            crudService.asyncUpdate(
-                                    tableName, "key" + index, updateFields, callback2);
-                            // remove
-                            FakeTransactionCallback callback3 = new FakeTransactionCallback();
-                            crudService.asyncRemove(tableName, "key" + index, callback3);
+                                    new FakeTransactionCallback(
+                                            threadPool,
+                                            () -> {
+                                                try {
+                                                    LinkedHashMap<String, String> newValue =
+                                                            new LinkedHashMap<>();
+                                                    newValue.put("field", "field" + index + 100);
+                                                    crudService.asyncUpdate(
+                                                            tableName,
+                                                            "key" + index,
+                                                            new UpdateFields(newValue),
+                                                            new FakeTransactionCallback(
+                                                                    threadPool,
+                                                                    () -> {
+                                                                        try {
+                                                                            crudService.asyncRemove(
+                                                                                    tableName,
+                                                                                    "key" + index,
+                                                                                    new FakeTransactionCallback(
+                                                                                            threadPool,
+                                                                                            null));
+                                                                        } catch (ContractException
+                                                                                e) {
+                                                                            System.out.println(
+                                                                                    "asyncRemove failed: "
+                                                                                            + e.getMessage());
+                                                                        }
+                                                                    }));
+                                                } catch (ContractException e) {
+                                                    System.out.println(
+                                                            "asyncUpdate failed: "
+                                                                    + e.getMessage());
+                                                }
+                                            }));
                         } catch (ContractException e) {
                             System.out.println(
                                     "call crudService failed, error information: "
