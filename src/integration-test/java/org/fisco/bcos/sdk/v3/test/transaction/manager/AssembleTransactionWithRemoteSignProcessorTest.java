@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.jni.utilities.tx.TransactionBuilderJniObj;
@@ -212,7 +213,8 @@ public class AssembleTransactionWithRemoteSignProcessorTest {
                     return null;
                 });
 
-        // wait for the async thread
-        Thread.sleep(1000);
+        // wait for the async operations deterministically instead of a fixed sleep
+        Assert.assertEquals(0, future.get(10, TimeUnit.SECONDS).getStatus());
+        Assert.assertEquals(0, future2.get(10, TimeUnit.SECONDS).getStatus());
     }
 }

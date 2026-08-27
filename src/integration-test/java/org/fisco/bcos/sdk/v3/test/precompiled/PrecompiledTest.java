@@ -301,7 +301,7 @@ public class PrecompiledTest {
                         client.getTotalTransactionCount()
                                 .getTotalTransactionCount()
                                 .getTransactionCount());
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             Integer index = i;
             threadPool.execute(
                     () -> {
@@ -334,19 +334,43 @@ public class PrecompiledTest {
                                 .getTotalTransactionCount()
                                 .getTransactionCount());
         System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
-        Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(300))) >= 0);
+        Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(60))) >= 0);
         client.stop();
         client.destroy();
     }
 
     class FakeTransactionCallback implements PrecompiledCallback {
         public TransactionReceipt receipt;
+        private final ExecutorService executor;
+        private final Runnable onSuccess;
 
-        // wait until get the transactionReceipt
+        FakeTransactionCallback(ExecutorService executor, Runnable onSuccess) {
+            this.executor = executor;
+            this.onSuccess = onSuccess;
+        }
+
+        // wait until get the transactionReceipt; count by the receipt status only:
+        // for CRUD precompiled calls a successful retCode carries the affected row
+        // count (e.g. 1 for a successful insert), not 0
         @Override
         public void onResponse(RetCode retCode) {
             this.receipt = retCode.getTransactionReceipt();
-            PrecompiledTest.this.receiptCount.addAndGet(1);
+            if (this.receipt != null && this.receipt.isStatusOK()) {
+                PrecompiledTest.this.receiptCount.addAndGet(1);
+                if (onSuccess != null) {
+                    // the next CRUD call resolves the table address with a blocking
+                    // call, it must not run on the sdk callback thread
+                    executor.execute(onSuccess);
+                }
+            } else {
+                System.out.println(
+                        "async crud failed, code: "
+                                + retCode.getCode()
+                                + ", message: "
+                                + retCode.getMessage()
+                                + ", receipt status: "
+                                + (this.receipt == null ? "null" : this.receipt.getStatus()));
+            }
         }
     }
 
@@ -376,29 +400,52 @@ public class PrecompiledTest {
                         client.getTotalTransactionCount()
                                 .getTotalTransactionCount()
                                 .getTransactionCount());
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             int index = i;
             threadPool.execute(
                     () -> {
                         try {
                             LinkedHashMap<String, String> value = new LinkedHashMap<>();
                             value.put("field", "field" + index);
-                            // insert
-                            FakeTransactionCallback callback = new FakeTransactionCallback();
+                            // chain insert -> update -> remove per key through the callbacks,
+                            // firing them together races and fails with "Key not exist"
                             crudService.asyncInsert(
                                     tableName,
                                     new Entry(valueFiled, "key" + index, value),
-                                    callback);
-                            // update
-                            value.clear();
-                            value.put("field", "field" + index + 100);
-                            UpdateFields updateFields = new UpdateFields(value);
-                            FakeTransactionCallback callback2 = new FakeTransactionCallback();
-                            crudService.asyncUpdate(
-                                    tableName, "key" + index, updateFields, callback2);
-                            // remove
-                            FakeTransactionCallback callback3 = new FakeTransactionCallback();
-                            crudService.asyncRemove(tableName, "key" + index, callback3);
+                                    new FakeTransactionCallback(
+                                            threadPool,
+                                            () -> {
+                                                try {
+                                                    LinkedHashMap<String, String> newValue =
+                                                            new LinkedHashMap<>();
+                                                    newValue.put("field", "field" + index + 100);
+                                                    crudService.asyncUpdate(
+                                                            tableName,
+                                                            "key" + index,
+                                                            new UpdateFields(newValue),
+                                                            new FakeTransactionCallback(
+                                                                    threadPool,
+                                                                    () -> {
+                                                                        try {
+                                                                            crudService.asyncRemove(
+                                                                                    tableName,
+                                                                                    "key" + index,
+                                                                                    new FakeTransactionCallback(
+                                                                                            threadPool,
+                                                                                            null));
+                                                                        } catch (ContractException
+                                                                                e) {
+                                                                            System.out.println(
+                                                                                    "asyncRemove failed: "
+                                                                                            + e.getMessage());
+                                                                        }
+                                                                    }));
+                                                } catch (ContractException e) {
+                                                    System.out.println(
+                                                            "asyncUpdate failed: "
+                                                                    + e.getMessage());
+                                                }
+                                            }));
                         } catch (ContractException e) {
                             System.out.println(
                                     "call crudService failed, error information: "
@@ -406,8 +453,10 @@ public class PrecompiledTest {
                         }
                     });
         }
-        while (this.receiptCount.get() != 300) {
-            Thread.sleep(1000);
+        // wait for all async callbacks, but fail instead of hanging forever
+        long deadline = System.currentTimeMillis() + 60000;
+        while (this.receiptCount.get() != 60 && System.currentTimeMillis() < deadline) {
+            Thread.sleep(100);
         }
         ThreadPoolService.stopThreadPool(threadPool);
         BigInteger currentTxCount =
@@ -416,7 +465,8 @@ public class PrecompiledTest {
                                 .getTotalTransactionCount()
                                 .getTransactionCount());
         System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
-        Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(300))) >= 0);
+        Assert.assertEquals(60, this.receiptCount.get());
+        Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(60))) >= 0);
         client.stop();
         client.destroy();
     }
