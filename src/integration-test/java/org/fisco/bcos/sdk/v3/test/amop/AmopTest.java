@@ -3,10 +3,12 @@ package org.fisco.bcos.sdk.v3.test.amop;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.fisco.bcos.sdk.jni.common.JniException;
 import org.fisco.bcos.sdk.v3.amop.Amop;
@@ -46,59 +48,48 @@ public class AmopTest {
         amopBroadCast.start();
         subAmop.start();
 
-        ThreadPoolService threadPoolService = new ThreadPoolService("amop", 1000);
+        final int pubCount = 5;
+        CountDownLatch receiveLatch = new CountDownLatch(pubCount);
+        AtomicReference<String> recvError = new AtomicReference<>();
 
-        threadPoolService
-                .getThreadPool()
-                .execute(
-                        () -> {
-                            int count = 5;
-                            while (count-- > 0) {
-                                System.out.println(
-                                        " ====== AMOP broadcast, topic: "
-                                                + topic
-                                                + " ,msg: "
-                                                + message);
-                                amopBroadCast.broadcastAmopMsg(topic, message.getBytes());
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
+        // subscribe once; the callback stays registered for the whole test
+        subAmop.subscribeTopic(
+                topic,
+                (endpoint, seq, data) -> {
+                    System.out.println(" ==> receive message from client");
+                    System.out.println(" \t==> endpoint: " + endpoint);
+                    System.out.println(" \t==> seq: " + seq);
+                    System.out.println(" \t==> data: " + new String(data));
+                    if (!message.equals(new String(data))) {
+                        recvError.compareAndSet(
+                                null, "unexpected message: " + new String(data));
+                    }
+                    subAmop.sendResponse(endpoint, seq, data);
+                    receiveLatch.countDown();
+                });
 
-        threadPoolService
-                .getThreadPool()
-                .execute(
-                        () -> {
-                            int count = 5;
-                            while (count-- > 0) {
-                                CompletableFuture<Boolean> future = new CompletableFuture<>();
-                                subAmop.subscribeTopic(
-                                        topic,
-                                        (endpoint, seq, data) -> {
-                                            System.out.println(" ==> receive message from client");
-                                            System.out.println(" \t==> endpoint: " + endpoint);
-                                            System.out.println(" \t==> seq: " + seq);
-                                            System.out.println(" \t==> data: " + new String(data));
-                                            Assert.assertEquals(new String(data), message);
-                                            subAmop.sendResponse(endpoint, seq, data);
-                                            future.complete(false);
-                                        });
-                                try {
-                                    future.get(10, TimeUnit.SECONDS);
-                                } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-        Thread.sleep(10000);
-        threadPoolService.stop();
+        // the subscription is pushed to the node asynchronously; broadcasts sent
+        // before it takes effect are dropped silently, so wait for it first
+        Thread.sleep(3000);
+
+        for (int i = 0; i < pubCount; i++) {
+            System.out.println(" ====== AMOP broadcast, topic: " + topic + " ,msg: " + message);
+            amopBroadCast.broadcastAmopMsg(topic, message.getBytes());
+            Thread.sleep(1000);
+        }
+
+        // fail the test if not all broadcasts are received, instead of swallowing
+        // a TimeoutException
+        boolean allReceived = receiveLatch.await(15, TimeUnit.SECONDS);
         amopBroadCast.stop();
         subAmop.stop();
         amopBroadCast.destroy();
         subAmop.destroy();
+        Assert.assertNull(recvError.get(), recvError.get());
+        Assert.assertTrue(
+                "only received " + (pubCount - receiveLatch.getCount()) + "/" + pubCount
+                        + " broadcast messages",
+                allReceived);
     }
 
     @Test
@@ -142,7 +133,7 @@ public class AmopTest {
                                                     endpoint, seq, message2.getBytes());
                                         }));
 
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         AtomicInteger countResponse = new AtomicInteger(pubTime);
         CompletableFuture<Boolean> future = new CompletableFuture<>();
@@ -199,7 +190,7 @@ public class AmopTest {
                     subAmop.sendResponse(endpoint, seq, message2.getBytes());
                 });
 
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         AtomicInteger countResponse = new AtomicInteger(pubTime);
         CompletableFuture<Boolean> future = new CompletableFuture<>();
@@ -258,7 +249,7 @@ public class AmopTest {
         subAmop.getSubTopics();
         subAmop.unsubscribeTopic(topic);
 
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         AtomicInteger countResponse = new AtomicInteger(pubTime);
         CompletableFuture<Boolean> future = new CompletableFuture<>();

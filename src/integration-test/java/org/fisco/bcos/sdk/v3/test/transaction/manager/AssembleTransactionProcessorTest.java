@@ -17,6 +17,7 @@ package org.fisco.bcos.sdk.v3.test.transaction.manager;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -190,8 +191,9 @@ public class AssembleTransactionProcessorTest {
                 });
         System.out.println("--- finish deploy with CompletableFuture ---");
 
-        // wait for the async thread
-        Thread.sleep(1000);
+        // wait for the async deploy deterministically instead of a fixed sleep
+        TransactionReceipt receipt = future.get(10, TimeUnit.SECONDS);
+        Assert.assertEquals(0, receipt.getStatus());
     }
 
     @Test

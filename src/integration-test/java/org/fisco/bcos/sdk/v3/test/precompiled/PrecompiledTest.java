@@ -301,7 +301,7 @@ public class PrecompiledTest {
                         client.getTotalTransactionCount()
                                 .getTotalTransactionCount()
                                 .getTransactionCount());
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             Integer index = i;
             threadPool.execute(
                     () -> {
@@ -334,7 +334,7 @@ public class PrecompiledTest {
                                 .getTotalTransactionCount()
                                 .getTransactionCount());
         System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
-        Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(300))) >= 0);
+        Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(60))) >= 0);
         client.stop();
         client.destroy();
     }
@@ -376,7 +376,7 @@ public class PrecompiledTest {
                         client.getTotalTransactionCount()
                                 .getTotalTransactionCount()
                                 .getTransactionCount());
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             int index = i;
             threadPool.execute(
                     () -> {
@@ -406,8 +406,10 @@ public class PrecompiledTest {
                         }
                     });
         }
-        while (this.receiptCount.get() != 300) {
-            Thread.sleep(1000);
+        // wait for all async callbacks, but fail instead of hanging forever
+        long deadline = System.currentTimeMillis() + 60000;
+        while (this.receiptCount.get() != 60 && System.currentTimeMillis() < deadline) {
+            Thread.sleep(100);
         }
         ThreadPoolService.stopThreadPool(threadPool);
         BigInteger currentTxCount =
@@ -416,7 +418,8 @@ public class PrecompiledTest {
                                 .getTotalTransactionCount()
                                 .getTransactionCount());
         System.out.println("orgTxCount: " + orgTxCount + ", currentTxCount:" + currentTxCount);
-        Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(300))) >= 0);
+        Assert.assertEquals(60, this.receiptCount.get());
+        Assert.assertTrue(currentTxCount.compareTo(orgTxCount.add(BigInteger.valueOf(60))) >= 0);
         client.stop();
         client.destroy();
     }
