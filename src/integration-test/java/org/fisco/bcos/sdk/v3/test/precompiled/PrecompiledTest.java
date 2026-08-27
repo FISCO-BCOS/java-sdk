@@ -342,11 +342,20 @@ public class PrecompiledTest {
     class FakeTransactionCallback implements PrecompiledCallback {
         public TransactionReceipt receipt;
 
-        // wait until get the transactionReceipt
+        // wait until get the transactionReceipt; only successful responses count,
+        // otherwise an error response would be silently treated as a sealed tx
         @Override
         public void onResponse(RetCode retCode) {
             this.receipt = retCode.getTransactionReceipt();
-            PrecompiledTest.this.receiptCount.addAndGet(1);
+            if (retCode.getCode() == 0 && this.receipt != null && this.receipt.isStatusOK()) {
+                PrecompiledTest.this.receiptCount.addAndGet(1);
+            } else {
+                System.out.println(
+                        "async crud failed, code: "
+                                + retCode.getCode()
+                                + ", message: "
+                                + retCode.getMessage());
+            }
         }
     }
 
